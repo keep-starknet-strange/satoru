@@ -39,3 +39,22 @@ fn test_grant_role() {
     // Check that the account address has the admin role.
     assert(safe_dispatcher.has_role(account_address, ROLE_ADMIN).unwrap(), 'Invalid role');
 }
+
+#[test]
+fn test_revoke_role() {
+    // Deploy the contract.
+    let contract_address = deploy_role_store();
+    // Create a safe dispatcher to interact with the contract.
+    let safe_dispatcher = IRoleStoreSafeDispatcher { contract_address };
+
+    let account_address: ContractAddress = 1.try_into().unwrap();
+
+    // Grant admin role to account address.
+    safe_dispatcher.grant_role(account_address, ROLE_ADMIN).unwrap();
+    // Check that the account address has the admin role.
+    assert(safe_dispatcher.has_role(account_address, ROLE_ADMIN).unwrap(), 'Invalid role');
+    // Revoke admin role from account address.
+    safe_dispatcher.revoke_role(account_address, ROLE_ADMIN).unwrap();
+    // Check that the account address does not have the admin role.
+    assert(!safe_dispatcher.has_role(account_address, ROLE_ADMIN).unwrap(), 'Invalid role');
+}
