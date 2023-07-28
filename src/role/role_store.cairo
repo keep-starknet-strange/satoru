@@ -116,9 +116,12 @@ mod RoleStore {
     // *************************************************************************
     #[generate_trait]
     impl InternalFunctions of InternalFunctionsTrait {
+        #[inline(always)]
         fn _has_role(ref self: ContractState, account: ContractAddress, role_key: felt252) -> bool {
             self.role_members.read(account) == role_key
         }
+
+        #[inline(always)]
         fn _assert_only_role(ref self: ContractState, account: ContractAddress, role_key: felt252) {
             assert(self._has_role(account, role_key), 'RoleStore: missing role');
         }
