@@ -1,0 +1,12 @@
+[package]
+name = "gojo"
+version = "0.1.0"
+
+[[target.starknet-contract]]
+sierra = true
+
+[dependencies]
+starknet = "2.0.1"
+
+[tool.snforge]
+exit_first = true
