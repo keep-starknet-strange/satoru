@@ -7,7 +7,6 @@ on:
       - main
 env:
   SCARB_VERSION: 0.5.2
-  contracts-working-directory: contracts
 
 name: Contracts
 jobs:
@@ -19,10 +18,8 @@ jobs:
         with:
           scarb-version: ${{ env.SCARB_VERSION }}
       - name: Check cairo format
-        working-directory: ${{env.contracts-working-directory}}
         run: scarb fmt --check
       - name: Install starknet foundry
         run: curl -L https://raw.githubusercontent.com/foundry-rs/starknet-foundry/master/scripts/install.sh | sh
       - name: Run cairo tests
-        working-directory: ${{env.contracts-working-directory}}
         run: snforge
