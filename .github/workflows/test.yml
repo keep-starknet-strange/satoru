@@ -8,7 +8,7 @@ on:
 env:
   SCARB_VERSION: 0.5.2
 
-name: Contracts
+name: Test
 jobs:
   check:
     runs-on: ubuntu-latest
