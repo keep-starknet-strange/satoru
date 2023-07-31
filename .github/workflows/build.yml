@@ -1,0 +1,23 @@
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+env:
+  SCARB_VERSION: 0.5.2
+
+name: Build
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: software-mansion/setup-scarb@v1
+        with:
+          scarb-version: ${{ env.SCARB_VERSION }}
+      - name: Check cairo format
+        run: scarb fmt --check
+      - name: Build cairo programs
+        run: scarb build
