@@ -56,7 +56,3 @@ Here are some resources to help you get started:
 ## 📖 License
 
 This project is licensed under the **MIT license**. See [LICENSE](LICENSE) for more information.
-
-## 🎉 Happy coding!
-
-We're excited to see what you'll create with Gojo. Happy coding!
