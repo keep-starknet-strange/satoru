@@ -1,0 +1,6 @@
+[book]
+authors = ["Keep Starknet Strange"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Gojo Book"
