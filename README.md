@@ -4,7 +4,7 @@
   <img src="docs/images/logo.png" height="256">
 </p>
 
-<h1 align="center">Gojo 🚀</h1>
+<h1 align="center">⚡ Gojo ⚡</h1>
 
 <p align="center">
   <strong>Synthetics platform for Starknet, inspired by GMX v2 design.</strong>
@@ -22,7 +22,7 @@
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
 
-## 🚀 About Gojo
+## ⚡ About Gojo ⚡
 
 Gojo is a cutting-edge synthetics platform for Starknet, taking inspiration from the modular design of GMX v2. We're currently in the exciting phase of building this platform, and we're thrilled to have you on this journey with us!
 

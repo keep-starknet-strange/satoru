@@ -26,6 +26,14 @@ trait IRoleStore<TContractState> {
     /// * `account` - The account to revoke the role from.
     /// * `role_key` - The role to revoke.
     fn revoke_role(ref self: TContractState, account: ContractAddress, role_key: felt252);
+
+    /// Asserts that the given account has only the given role.
+    /// # Arguments
+    /// * `account` - The account to check.
+    /// * `role_key` - The role to check.
+    /// # Reverts
+    /// * If the account doesn't have the role.
+    fn assert_only_role(ref self: TContractState, account: ContractAddress, role_key: felt252);
 }
 
 #[starknet::contract]
@@ -108,6 +116,10 @@ mod RoleStore {
             self._assert_only_role(caller, role::ROLE_ADMIN);
             // Revoke the role.
             self._revoke_role(account, role_key);
+        }
+
+        fn assert_only_role(ref self: ContractState, account: ContractAddress, role_key: felt252) {
+            self._assert_only_role(account, role_key);
         }
     }
 
