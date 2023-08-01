@@ -14,6 +14,18 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to set the value for.
     /// * `value` - The value to set.
     fn set_felt252(ref self: TContractState, key: felt252, value: felt252);
+
+    /// Get a u256 value for the given key.
+    /// # Arguments
+    /// * `key` - The key to get the value for.
+    /// # Returns
+    /// The value for the given key.
+    fn get_u256(ref self: TContractState, key: felt252) -> u256;
+    /// Set a u256 value for the given key.
+    /// # Arguments
+    /// * `key` - The key to set the value for.
+    /// * `value` - The value to set.
+    fn set_u256(ref self: TContractState, key: felt252, value: u256);
 }
 
 #[starknet::contract]
@@ -22,12 +34,13 @@ mod DataStore {
     use gojo::role::role;
     use gojo::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use starknet::{get_caller_address, ContractAddress};
-
+    use debug::PrintTrait;
     // STORAGE
     #[storage]
     struct Storage {
         role_store_address: ContractAddress,
         felt252_values: LegacyMap::<felt252, felt252>,
+        u256_values: LegacyMap::<felt252, u256>,
     }
 
     // CONSTRUCTOR
@@ -46,12 +59,27 @@ mod DataStore {
         fn set_felt252(ref self: ContractState, key: felt252, value: felt252) {
             let caller = get_caller_address();
 
-            // Check that the caler has permission to set the value.
+            // Check that the caller has permission to set the value.
+            IRoleStoreDispatcher {
+                contract_address: self.role_store_address.read()
+            }.assert_only_role(caller, role::CONTROLLER);
+
+            self.felt252_values.write(key, value);
+        }
+
+        fn get_u256(ref self: ContractState, key: felt252) -> u256 {
+            return self.u256_values.read(key);
+        }
+
+        fn set_u256(ref self: ContractState, key: felt252, value: u256) {
+            let caller = get_caller_address();
+
+            // Check that the caller has permission to set the value.
             IRoleStoreDispatcher {
                 contract_address: self.role_store_address.read()
             }.assert_only_role(caller, role::ROLE_ADMIN);
 
-            self.felt252_values.write(key, value);
+            self.u256_values.write(key, value);
         }
     }
 }

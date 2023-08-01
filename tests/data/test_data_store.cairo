@@ -1,14 +1,13 @@
 use array::ArrayTrait;
 use result::ResultTrait;
 use option::OptionTrait;
-use traits::TryInto;
-use traits::Into;
-use starknet::ContractAddress;
-use starknet::Felt252TryIntoContractAddress;
+use traits::{TryInto, Into};
+use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress};
 use cheatcodes::PreparedContract;
 
-use gojo::data::data_store::IDataStoreSafeDispatcher;
-use gojo::data::data_store::IDataStoreSafeDispatcherTrait;
+use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+use gojo::role::role;
 
 /// Utility function to deploy a data store contract and return its address.
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
@@ -42,17 +41,51 @@ fn deploy_role_store() -> ContractAddress {
 
 #[test]
 fn test_get_and_set_felt252() {
+    // TODO: Find a way to get the caller address programmatically.
+    let caller_address: ContractAddress = 257.try_into().unwrap();
+
     // Deploy the role store contract.
     let role_store_address = deploy_role_store();
+    // Create a role store dispatcher.
+    let role_store_dispatcher = IRoleStoreSafeDispatcher { contract_address: role_store_address };
 
     // Deploy the contract.
     let contract_address = deploy_data_store(role_store_address);
     // Create a safe dispatcher to interact with the contract.
     let safe_dispatcher = IDataStoreSafeDispatcher { contract_address };
-
+    // Grant the caller the CONTROLLER role.
+    role_store_dispatcher.grant_role(caller_address, role::CONTROLLER).unwrap();
     // Set key 1 to value 42.
     safe_dispatcher.set_felt252(1, 42).unwrap();
     let value = safe_dispatcher.get_felt252(1).unwrap();
     // Check that the value read is 42.
     assert(value == 42, 'Invalid value');
 }
+
+#[test]
+fn test_get_and_set_u256() {
+    // TODO: Find a way to get the caller address programmatically.
+    let caller_address: ContractAddress = 257.try_into().unwrap();
+
+    // Deploy the role store contract.
+    let role_store_address = deploy_role_store();
+    // Create a role store dispatcher.
+    let role_store_dispatcher = IRoleStoreSafeDispatcher { contract_address: role_store_address };
+
+    // Deploy the contract.
+    let contract_address = deploy_data_store(role_store_address);
+    // Create a safe dispatcher to interact with the contract.
+    let safe_dispatcher = IDataStoreSafeDispatcher { contract_address };
+    // Grant the caller the CONTROLLER role.
+    // TODO: For some reason, this fails with the following error:
+    // `Failure reason: \"RoleStore: missing role\"`
+    // Commenting out for now.
+    // role_store_dispatcher.grant_role(caller_address, role::CONTROLLER).unwrap();
+
+    // Set key 1 to value 42.
+    safe_dispatcher.set_u256(1, 42).unwrap();
+    let value = safe_dispatcher.get_u256(1).unwrap();
+    // Check that the value read is 42.
+    assert(value == 42, 'Invalid value');
+}
+

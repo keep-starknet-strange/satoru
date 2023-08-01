@@ -89,7 +89,7 @@ mod RoleStore {
     #[constructor]
     fn constructor(ref self: ContractState) {
         let caller = get_caller_address();
-        // TODO: grant caller admin role.
+        // Grant the caller admin role.
         self._grant_role(caller, role::ROLE_ADMIN);
     }
 
