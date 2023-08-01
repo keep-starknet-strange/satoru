@@ -1,0 +1,13 @@
+[book]
+authors = ["Keep Starknet Strange"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Gojo Book"
+
+[output.html]
+git-repository-url = "https://github.com/keep-starknet-strange/gojo/"
+edit-url-template = "https://github.com/keep-starknet-strange/gojo/book/{path}"
+
+[output.html.playground]
+runnable = false
