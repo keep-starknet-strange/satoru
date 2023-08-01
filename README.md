@@ -17,6 +17,9 @@
   <a href="https://github.com/keep-starknet-strange/gojo/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22">
     <img src="https://img.shields.io/badge/PRs-welcome-ff69b4.svg?style=flat-square" alt="Pull Requests welcome">
   </a>
+  <a href="https://keep-starknet-strange.github.io/gojo/">
+    <img src="https://img.shields.io/badge/Read-Gojo_Book-blue" alt="Read the Gojo Book">
+  </a>
 </p>
 
 <!-- markdownlint-restore -->
@@ -24,9 +27,9 @@
 
 ## ⚡ About Gojo ⚡
 
-Gojo is a cutting-edge synthetics platform for Starknet, taking inspiration from the modular design of GMX v2. We're currently in the exciting phase of building this platform, and we're thrilled to have you on this journey with us!
+Gojo is a cutting-edge synthetics platform for Starknet, taking inspiration from the modular design of GMX v2.
 
-We're using [straknet-foundry](https://github.com/foundry-rs/starknet-foundry) for this project. If you're new to it, we recommend checking out the [Starknet Foundry Book](https://foundry-rs.github.io/starknet-foundry/).
+Read the [Gojo Book](https://keep-starknet-strange.github.io/gojo/) to learn more about the project.
 
 ## 🛠️ Build
 
@@ -48,6 +51,7 @@ snforge
 
 Here are some resources to help you get started:
 
+- [Gojo Book](https://keep-starknet-strange.github.io/gojo/)
 - [Cairo Book](https://book.cairo-lang.org/)
 - [Starknet Book](https://book.starknet.io/)
 - [Starknet Foundry Book](https://foundry-rs.github.io/starknet-foundry/)
