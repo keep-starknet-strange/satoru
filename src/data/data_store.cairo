@@ -38,7 +38,7 @@ mod DataStore {
     // STORAGE
     #[storage]
     struct Storage {
-        role_store_address: ContractAddress,
+        role_store: IRoleStoreDispatcher,
         felt252_values: LegacyMap::<felt252, felt252>,
         u256_values: LegacyMap::<felt252, u256>,
     }
@@ -46,7 +46,7 @@ mod DataStore {
     // CONSTRUCTOR
     #[constructor]
     fn constructor(ref self: ContractState, role_store_address: ContractAddress) {
-        self.role_store_address.write(role_store_address);
+        self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
     }
 
     // EXTERNAL FUNCTIONS
@@ -60,9 +60,7 @@ mod DataStore {
             let caller = get_caller_address();
 
             // Check that the caller has permission to set the value.
-            IRoleStoreDispatcher {
-                contract_address: self.role_store_address.read()
-            }.assert_only_role(caller, role::CONTROLLER);
+            self.role_store.read().assert_only_role(caller, role::CONTROLLER);
 
             self.felt252_values.write(key, value);
         }
@@ -75,9 +73,7 @@ mod DataStore {
             let caller = get_caller_address();
 
             // Check that the caller has permission to set the value.
-            IRoleStoreDispatcher {
-                contract_address: self.role_store_address.read()
-            }.assert_only_role(caller, role::ROLE_ADMIN);
+            self.role_store.read().assert_only_role(caller, role::ROLE_ADMIN);
 
             self.u256_values.write(key, value);
         }
