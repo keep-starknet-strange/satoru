@@ -8,3 +8,6 @@ mod deposit;
 
 // `role` is a module that contains the role store and role management functions.
 mod role;
+
+// `price` contains utility functions for calculating prices.
+mod price;
