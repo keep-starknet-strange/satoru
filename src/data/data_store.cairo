@@ -34,7 +34,7 @@ mod DataStore {
     use gojo::role::role;
     use gojo::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use starknet::{get_caller_address, ContractAddress};
-    use debug::PrintTrait;
+
     // STORAGE
     #[storage]
     struct Storage {
@@ -73,7 +73,7 @@ mod DataStore {
             let caller = get_caller_address();
 
             // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(caller, role::ROLE_ADMIN);
+            self.role_store.read().assert_only_role(caller, role::CONTROLLER);
 
             self.u256_values.write(key, value);
         }

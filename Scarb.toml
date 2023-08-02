@@ -1,13 +1,15 @@
 [package]
 name = "gojo"
 version = "0.1.0"
+license = "MIT"
+keywords = ["starknet", "defi", "syntethics"]
 
 [[target.starknet-contract]]
 sierra = true
+casm = true
 
 [dependencies]
-starknet = "2.0.1"
-alexandria = { git = "https://github.com/keep-starknet-strange/alexandria.git" }
+starknet = "2.0.2"
 
 [tool.snforge]
-exit_first = true
+exit_first = false
