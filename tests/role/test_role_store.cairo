@@ -2,7 +2,7 @@ use array::ArrayTrait;
 use result::ResultTrait;
 use option::OptionTrait;
 use traits::TryInto;
-use starknet::ContractAddress;
+use starknet::{ContractAddress, contract_address_const};
 use starknet::Felt252TryIntoContractAddress;
 use cheatcodes::PreparedContract;
 
@@ -30,7 +30,7 @@ fn test_grant_role() {
     // Create a safe dispatcher to interact with the contract.
     let safe_dispatcher = IRoleStoreSafeDispatcher { contract_address };
 
-    let account_address: ContractAddress = 1.try_into().unwrap();
+    let account_address: ContractAddress = contract_address_const::<1>();
 
     // Check that the account address does not have the admin role.
     assert(!safe_dispatcher.has_role(account_address, ROLE_ADMIN).unwrap(), 'Invalid role');
@@ -47,7 +47,7 @@ fn test_revoke_role() {
     // Create a safe dispatcher to interact with the contract.
     let safe_dispatcher = IRoleStoreSafeDispatcher { contract_address };
 
-    let account_address: ContractAddress = 1.try_into().unwrap();
+    let account_address: ContractAddress = contract_address_const::<1>();
 
     // Grant admin role to account address.
     safe_dispatcher.grant_role(account_address, ROLE_ADMIN).unwrap();

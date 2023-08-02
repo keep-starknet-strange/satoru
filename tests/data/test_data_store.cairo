@@ -2,7 +2,9 @@ use array::ArrayTrait;
 use result::ResultTrait;
 use option::OptionTrait;
 use traits::{TryInto, Into};
-use starknet::{ContractAddress, get_caller_address, Felt252TryIntoContractAddress};
+use starknet::{
+    ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const
+};
 use cheatcodes::PreparedContract;
 
 use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
@@ -42,7 +44,7 @@ fn deploy_role_store() -> ContractAddress {
 #[test]
 fn test_get_and_set_felt252() {
     // TODO: Find a way to get the caller address programmatically.
-    let caller_address: ContractAddress = 257.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<257>();
 
     // Deploy the role store contract.
     let role_store_address = deploy_role_store();
@@ -65,7 +67,7 @@ fn test_get_and_set_felt252() {
 #[test]
 fn test_get_and_set_u256() {
     // TODO: Find a way to get the caller address programmatically.
-    let caller_address: ContractAddress = 257.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<257>();
 
     // Deploy the role store contract.
     let role_store_address = deploy_role_store();
