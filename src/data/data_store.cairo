@@ -1,6 +1,9 @@
 use core::traits::Into;
 //! Data store for all general state values
 
+// *************************************************************************
+// Interface of the `DataStore` contract.
+// *************************************************************************
 #[starknet::interface]
 trait IDataStore<TContractState> {
     /// Get a felt252 value for the given key.
@@ -57,11 +60,9 @@ mod DataStore {
         }
 
         fn set_felt252(ref self: ContractState, key: felt252, value: felt252) {
-            let caller = get_caller_address();
-
             // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(caller, role::CONTROLLER);
-
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            // Set the value.
             self.felt252_values.write(key, value);
         }
 
@@ -70,11 +71,9 @@ mod DataStore {
         }
 
         fn set_u256(ref self: ContractState, key: felt252, value: u256) {
-            let caller = get_caller_address();
-
             // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(caller, role::CONTROLLER);
-
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            // Set the value.
             self.u256_values.write(key, value);
         }
     }

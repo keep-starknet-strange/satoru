@@ -4,7 +4,7 @@ use core::debug::PrintTrait;
 use starknet::ContractAddress;
 
 // *************************************************************************
-// Interface of the role store contract.
+// Interface of the `RoleStore` contract.
 // *************************************************************************
 #[starknet::interface]
 trait IRoleStore<TContractState> {
