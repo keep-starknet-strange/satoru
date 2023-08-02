@@ -13,7 +13,7 @@ trait IRoleStore<TContractState> {
     /// * `role_key` - The role to check.
     /// # Returns
     /// * `true` if the account has the role, `false` otherwise.
-    fn has_role(ref self: TContractState, account: ContractAddress, role_key: felt252) -> bool;
+    fn has_role(self: @TContractState, account: ContractAddress, role_key: felt252) -> bool;
 
     /// Grants the specified role to the given account.
     /// # Arguments
@@ -33,7 +33,7 @@ trait IRoleStore<TContractState> {
     /// * `role_key` - The role to check.
     /// # Reverts
     /// * If the account doesn't have the role.
-    fn assert_only_role(ref self: TContractState, account: ContractAddress, role_key: felt252);
+    fn assert_only_role(self: @TContractState, account: ContractAddress, role_key: felt252);
 }
 
 #[starknet::contract]
@@ -98,7 +98,7 @@ mod RoleStore {
     // *************************************************************************
     #[external(v0)]
     impl RoleStore of super::IRoleStore<ContractState> {
-        fn has_role(ref self: ContractState, account: ContractAddress, role_key: felt252) -> bool {
+        fn has_role(self: @ContractState, account: ContractAddress, role_key: felt252) -> bool {
             self._has_role(account, role_key)
         }
 
@@ -118,7 +118,7 @@ mod RoleStore {
             self._revoke_role(account, role_key);
         }
 
-        fn assert_only_role(ref self: ContractState, account: ContractAddress, role_key: felt252) {
+        fn assert_only_role(self: @ContractState, account: ContractAddress, role_key: felt252) {
             self._assert_only_role(account, role_key);
         }
     }
@@ -129,12 +129,12 @@ mod RoleStore {
     #[generate_trait]
     impl InternalFunctions of InternalFunctionsTrait {
         #[inline(always)]
-        fn _has_role(ref self: ContractState, account: ContractAddress, role_key: felt252) -> bool {
+        fn _has_role(self: @ContractState, account: ContractAddress, role_key: felt252) -> bool {
             self.role_members.read(account) == role_key
         }
 
         #[inline(always)]
-        fn _assert_only_role(ref self: ContractState, account: ContractAddress, role_key: felt252) {
+        fn _assert_only_role(self: @ContractState, account: ContractAddress, role_key: felt252) {
             assert(self._has_role(account, role_key), 'RoleStore: missing role');
         }
 

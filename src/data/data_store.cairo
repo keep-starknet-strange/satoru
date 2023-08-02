@@ -8,7 +8,7 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to get the value for.
     /// # Returns
     /// The value for the given key.
-    fn get_felt252(ref self: TContractState, key: felt252) -> felt252;
+    fn get_felt252(self: @TContractState, key: felt252) -> felt252;
     /// Set a felt252 value for the given key.
     /// # Arguments
     /// * `key` - The key to set the value for.
@@ -20,7 +20,7 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to get the value for.
     /// # Returns
     /// The value for the given key.
-    fn get_u256(ref self: TContractState, key: felt252) -> u256;
+    fn get_u256(self: @TContractState, key: felt252) -> u256;
     /// Set a u256 value for the given key.
     /// # Arguments
     /// * `key` - The key to set the value for.
@@ -52,7 +52,7 @@ mod DataStore {
     // EXTERNAL FUNCTIONS
     #[external(v0)]
     impl DataStore of super::IDataStore<ContractState> {
-        fn get_felt252(ref self: ContractState, key: felt252) -> felt252 {
+        fn get_felt252(self: @ContractState, key: felt252) -> felt252 {
             return self.felt252_values.read(key);
         }
 
@@ -65,7 +65,7 @@ mod DataStore {
             self.felt252_values.write(key, value);
         }
 
-        fn get_u256(ref self: ContractState, key: felt252) -> u256 {
+        fn get_u256(self: @ContractState, key: felt252) -> u256 {
             return self.u256_values.read(key);
         }
 
