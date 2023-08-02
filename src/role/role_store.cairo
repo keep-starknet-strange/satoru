@@ -39,7 +39,7 @@ trait IRoleStore<TContractState> {
 #[starknet::contract]
 mod RoleStore {
     use starknet::{ContractAddress, get_caller_address};
-    use gojo::role::role;
+    use gojo::role::{role, error::RoleError};
 
     // *************************************************************************
     // STORAGE
@@ -135,7 +135,7 @@ mod RoleStore {
 
         #[inline(always)]
         fn _assert_only_role(self: @ContractState, account: ContractAddress, role_key: felt252) {
-            assert(self._has_role(account, role_key), 'RoleStore: missing role');
+            assert(self._has_role(account, role_key), RoleError::UNAUTHORIZED_ACCESS);
         }
 
         fn _grant_role(ref self: ContractState, account: ContractAddress, role_key: felt252) {
