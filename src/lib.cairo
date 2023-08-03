@@ -11,3 +11,6 @@ mod role;
 
 // `price` contains utility functions for calculating prices.
 mod price;
+
+// `utils` contains utility functions.
+mod utils;
