@@ -34,7 +34,7 @@ fn deploy_role_store() -> ContractAddress {
 }
 
 #[test]
-fn test_get_and_set_felt252() {
+fn test_felt252_functions() {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
 
     // Deploy the role store contract.
@@ -61,12 +61,26 @@ fn test_get_and_set_felt252() {
     let value = data_store.get_felt252(1).unwrap();
     // Check that the value read is 42.
     assert(value == 42, 'Invalid value');
+
+    // Apply delta of 5 to key 1.
+    let new_value = data_store.apply_delta_to_felt252(1, 5).unwrap();
+    // Check that the new value is 47.
+    assert(new_value == 47, 'Invalid value');
+    let value = data_store.get_felt252(1).unwrap();
+    // Check that the value read is 47.
+    assert(value == 47, 'Invalid value');
+
+    // Delete key 1.
+    data_store.delete_felt252(1).unwrap();
+    // Check that the key was deleted.
+    assert(data_store.get_felt252(1).unwrap() == Default::default(), 'Key was not deleted');
+
     // Stop pranking the caller address.
     stop_prank(data_store_address);
 }
 
 #[test]
-fn test_get_and_set_u256() {
+fn test_u256_functions() {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
 
     // Deploy the role store contract.
@@ -93,6 +107,11 @@ fn test_get_and_set_u256() {
     let value = data_store.get_u256(1).unwrap();
     // Check that the value read is 42.
     assert(value == 42, 'Invalid value');
+
+    // Delete key 1.
+    data_store.delete_u256(1).unwrap();
+    // Check that the key was deleted.
+    assert(data_store.get_u256(1).unwrap() == Default::default(), 'Key was not deleted');
 
     stop_prank(data_store_address);
 }
