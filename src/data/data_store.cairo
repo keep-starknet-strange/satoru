@@ -127,10 +127,10 @@ mod DataStore {
         felt252_values: LegacyMap::<felt252, felt252>,
         u256_values: LegacyMap::<felt252, u256>,
         address_values: LegacyMap::<felt252, ContractAddress>,
-        // FIXME: #9
-        // For some reason it's not possible to store `Option<bool>` in the storage.
-        // Error: Trait has no implementation in context: core::starknet::storage_access::Store::<core::option::Option::<core::bool>>
-        bool_values: LegacyMap::<felt252, Option<bool>>,
+    // FIXME: #9
+    // For some reason it's not possible to store `Option<bool>` in the storage.
+    // Error: Trait has no implementation in context: core::starknet::storage_access::Store::<core::option::Option::<core::bool>>
+    //bool_values: LegacyMap::<felt252, Option<bool>>,
     }
 
     // *************************************************************************

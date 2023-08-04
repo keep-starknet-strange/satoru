@@ -1,8 +1,13 @@
 [package]
 name = "gojo"
 version = "0.1.0"
+authors = ["Abdelhamid Bakhta <@abdelhamidbakhta>"]
 license = "MIT"
 keywords = ["starknet", "defi", "syntethics"]
+description = "Synthetics platform for Starknet, inspired by GMX v2 design."
+documentation = "https://keep-starknet-strange.github.io/gojo/"
+homepage = "https://keep-starknet-strange.github.io/gojo/"
+repository = "https://github.com/keep-starknet-strange/gojo"
 
 [[target.starknet-contract]]
 sierra = true
