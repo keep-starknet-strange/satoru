@@ -5,11 +5,13 @@ use traits::{TryInto, Into};
 use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const
 };
+use debug::PrintTrait;
 use cheatcodes::PreparedContract;
 
 use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
 use gojo::market::market_factory::{IMarketFactorySafeDispatcher, IMarketFactorySafeDispatcherTrait};
+use gojo::market::market::{Market, UniqueIdMarketTrait};
 use gojo::role::role;
 
 #[test]
@@ -43,11 +45,26 @@ fn test_market_factory() {
 
     // ****** LOGIC STARTS HERE ******
     // Create a market.
+    let market_token = contract_address_const::<'market_token'>();
     let index_token = contract_address_const::<'index_token'>();
     let long_token = contract_address_const::<'long_token'>();
     let short_token = contract_address_const::<'short_token'>();
     let market_type = 'market_type';
+
+    let new_market = Market { market_token, index_token, long_token, short_token, };
+
     market_factory.create_market(index_token, long_token, short_token, market_type).unwrap();
+
+    // Compute the key of the market.
+    let market_id = new_market.unique_id(market_type);
+
+    let maybe_market = data_store.get_market(market_id).unwrap();
+    match maybe_market {
+        Option::Some(market) => {
+            market.index_token.print();
+        },
+        Option::None(()) => 'None'.print(),
+    }
 
     // Stop pranking the caller address.
     stop_prank(data_store_address);

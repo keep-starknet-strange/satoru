@@ -115,16 +115,12 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to get the value for.
     /// # Returns
     /// The value for the given key.
-    fn get_market(self: @TContractState, key: felt252) -> Market;
+    fn get_market(self: @TContractState, key: felt252) -> Option<Market>;
     /// Set a market value for the given key.
     /// # Arguments
     /// * `key` - The key to set the value for.
     /// * `value` - The value to set.
     fn set_market(ref self: TContractState, key: felt252, value: Market);
-    /// Add a market.
-    /// # Arguments
-    /// * `market` - The market to add.
-    fn add_market(ref self: TContractState, market: Market);
 }
 
 #[starknet::contract]
@@ -135,7 +131,6 @@ mod DataStore {
     use gojo::role::role;
     use gojo::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use gojo::market::market::Market;
-    use gojo::utils::ids::UniqueId;
     use starknet::{get_caller_address, ContractAddress, contract_address_const};
     use nullable::NullableTrait;
     use option::OptionTrait;
@@ -313,8 +308,14 @@ mod DataStore {
         //                      Market related functions.
         // *************************************************************************
 
-        fn get_market(self: @ContractState, key: felt252) -> Market {
-            self.market_values.read(key)
+        fn get_market(self: @ContractState, key: felt252) -> Option<Market> {
+            let market = self.market_values.read(key);
+
+            if market.index_token == contract_address_const::<0>() {
+                Option::None(())
+            } else {
+                Option::Some(market)
+            }
         }
 
         fn set_market(ref self: ContractState, key: felt252, value: Market) {
@@ -322,15 +323,6 @@ mod DataStore {
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             // Set the value.
             self.market_values.write(key, value);
-        }
-
-        fn add_market(ref self: ContractState, market: Market) {
-            // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
-            // Get the next unique id.
-            let key = market.unique_id();
-            // Set the value.
-            self.market_values.write(key, market);
         }
     }
 }

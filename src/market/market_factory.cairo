@@ -34,7 +34,8 @@ mod MarketFactory {
     use gojo::role::role;
     use gojo::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use gojo::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use starknet::{get_caller_address, ContractAddress,};
+    use gojo::market::market::{Market, UniqueIdMarketTrait};
+    use starknet::{get_caller_address, ContractAddress, contract_address_const};
 
     // *************************************************************************
     //                              STORAGE
@@ -79,6 +80,17 @@ mod MarketFactory {
         ) {
             // Get the caller address.
             let caller_address = get_caller_address();
+            // TODO: Check that the caller has the MARKET_KEEPER role.
+
+            // TODO: Deploy Market token and get address.
+            // For now we mock the address.
+            let market_token = contract_address_const::<'market_token'>();
+            // Create the market.
+            let market = Market { market_token, index_token, long_token, short_token, };
+            // Compute the key of the market.
+            let market_key = market.unique_id(market_type);
+            // Add the market to the data store.
+            self.data_store.read().set_market(market_key, market);
         }
     }
 }

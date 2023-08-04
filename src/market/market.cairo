@@ -28,7 +28,6 @@ use starknet::ContractAddress;
 use poseidon::poseidon_hash_span;
 use traits::Into;
 use array::ArrayTrait;
-use gojo::utils::ids::UniqueId;
 
 // Deriving the `storage_access::StorageAccess` trait
 // allows us to store the `Market` struct in a contract's storage.
@@ -46,13 +45,18 @@ struct Market {
     short_token: ContractAddress,
 }
 
-impl UniqueIdMarket of UniqueId<Market> {
-    fn unique_id(self: Market) -> felt252 {
+trait UniqueIdMarketTrait {
+    fn unique_id(self: Market, market_type: felt252) -> felt252;
+}
+
+impl UniqueIdMarket of UniqueIdMarketTrait {
+    fn unique_id(self: Market, market_type: felt252) -> felt252 {
         let mut data = array![];
         data.append(self.market_token.into());
         data.append(self.index_token.into());
         data.append(self.long_token.into());
         data.append(self.short_token.into());
+        data.append(market_type);
         poseidon_hash_span(data.span())
     }
 }
