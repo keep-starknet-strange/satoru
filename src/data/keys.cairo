@@ -654,7 +654,7 @@ fn user_initiated_cancel() -> felt252 {
 /// # Returns
 /// * The key for the account deposit list.
 fn account_deposit_list_key(account: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(account_deposit_list());
     data.append(account.into());
     poseidon_hash_span(data.span())
@@ -666,7 +666,7 @@ fn account_deposit_list_key(account: ContractAddress) -> felt252 {
 /// # Returns
 /// * The key for the account withdrawal list.
 fn account_withdrawal_list_key(account: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(account_withdrawal_list());
     data.append(account.into());
     poseidon_hash_span(data.span())
@@ -678,7 +678,7 @@ fn account_withdrawal_list_key(account: ContractAddress) -> felt252 {
 /// # Returns
 /// * The key for the account position list.
 fn account_position_list_key(account: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(account_position_list());
     data.append(account.into());
     poseidon_hash_span(data.span())
@@ -690,7 +690,7 @@ fn account_position_list_key(account: ContractAddress) -> felt252 {
 /// # Returns
 /// * The key for the account order list.
 fn account_order_list_key(account: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(account_order_list());
     data.append(account.into());
     poseidon_hash_span(data.span())
@@ -703,7 +703,7 @@ fn account_order_list_key(account: ContractAddress) -> felt252 {
 /// # Returns
 /// * The key for the claimable fee amount.
 fn claim_fee_amount_key(market: ContractAddress, token: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(claimable_fee_amount());
     data.append(market.into());
     data.append(token.into());
@@ -718,7 +718,7 @@ fn claim_fee_amount_key(market: ContractAddress, token: ContractAddress) -> felt
 /// # Returns
 /// * The key for the claimable ui fee amount.
 fn claim_ui_fee_amount_key(market: ContractAddress, token: ContractAddress,) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(claimable_ui_fee_amount());
     data.append(market.into());
     data.append(token.into());
@@ -735,7 +735,7 @@ fn claim_ui_fee_amount_key(market: ContractAddress, token: ContractAddress,) -> 
 fn claim_ui_fee_amount_for_account_key(
     market: ContractAddress, token: ContractAddress, account: ContractAddress
 ) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(claimable_ui_fee_amount());
     data.append(market.into());
     data.append(token.into());
@@ -749,7 +749,7 @@ fn claim_ui_fee_amount_for_account_key(
 /// # Returns
 /// * The key for the deposit gas limit.
 fn deposit_gas_limit_key(single_token: bool) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(deposit_gas_limit());
     // TODO: Replace by `single_token.into()` once upgrading to next version of Cairo.
     data.append(bool_to_felt252(single_token));
@@ -758,7 +758,7 @@ fn deposit_gas_limit_key(single_token: bool) -> felt252 {
 
 /// Key for withdrawal gas limit.
 fn withdrawal_gas_limit_key() -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(withdrawal_gas_limit());
     poseidon_hash_span(data.span())
 }
@@ -789,7 +789,7 @@ fn swap_order_gas_limit_key() -> felt252 {
 /// # Returns
 /// * The key for the swap path market flag.
 fn swap_path_market_flag_key(market: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(swap_path_market_flag());
     data.append(market.into());
     poseidon_hash_span(data.span())
@@ -799,7 +799,7 @@ fn swap_path_market_flag_key(market: ContractAddress) -> felt252 {
 /// # Arguments
 /// * `module` - The create deposit module.
 fn create_deposit_feature_disabled_key(module: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(create_deposit_feature_disabled());
     data.append(module.into());
     poseidon_hash_span(data.span())
@@ -809,7 +809,7 @@ fn create_deposit_feature_disabled_key(module: ContractAddress) -> felt252 {
 /// # Arguments
 /// * `module` - The cancel deposit module.
 fn cancel_deposit_feature_disabled_key(module: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(cancel_deposit_feature_disabled());
     data.append(module.into());
     poseidon_hash_span(data.span())
@@ -819,7 +819,7 @@ fn cancel_deposit_feature_disabled_key(module: ContractAddress) -> felt252 {
 /// # Arguments
 /// * `module` - The execute deposit module.
 fn execute_deposit_feature_disabled_key(module: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(execute_deposit_feature_disabled());
     data.append(module.into());
     poseidon_hash_span(data.span())
@@ -829,7 +829,7 @@ fn execute_deposit_feature_disabled_key(module: ContractAddress) -> felt252 {
 /// # Arguments
 /// * `module` - The create withdrawal module.
 fn create_withdrawal_feature_disabled_key(module: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(create_withdrawal_feature_disabled());
     data.append(module.into());
     poseidon_hash_span(data.span())
@@ -839,7 +839,7 @@ fn create_withdrawal_feature_disabled_key(module: ContractAddress) -> felt252 {
 /// # Arguments
 /// * `module` - The cancel withdrawal module.
 fn cancel_withdrawal_feature_disabled_key(module: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(cancel_withdrawal_feature_disabled());
     data.append(module.into());
     poseidon_hash_span(data.span())
@@ -849,7 +849,7 @@ fn cancel_withdrawal_feature_disabled_key(module: ContractAddress) -> felt252 {
 /// # Arguments
 /// * `module` - The execute withdrawal module.
 fn execute_withdrawal_feature_disabled_key(module: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(execute_withdrawal_feature_disabled());
     data.append(module.into());
     poseidon_hash_span(data.span())
@@ -860,7 +860,7 @@ fn execute_withdrawal_feature_disabled_key(module: ContractAddress) -> felt252 {
 /// * `module` - The create order module.
 /// * `order_type` - The order type.
 fn create_order_feature_disabled_key(module: ContractAddress, order_type: felt252) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(create_order_feature_disabled());
     data.append(module.into());
     data.append(order_type);
@@ -872,7 +872,7 @@ fn create_order_feature_disabled_key(module: ContractAddress, order_type: felt25
 /// * `module` - The execute order module.
 /// * `order_type` - The order type.
 fn execute_order_feature_disabled_key(module: ContractAddress, order_type: felt252) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(execute_order_feature_disabled());
     data.append(module.into());
     data.append(order_type);
@@ -884,7 +884,7 @@ fn execute_order_feature_disabled_key(module: ContractAddress, order_type: felt2
 /// * `module` - The execute adl module.
 /// * `order_type` - The order type.
 fn execute_adl_feature_disabled_key(module: ContractAddress, order_type: felt252) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(execute_adl_feature_disabled());
     data.append(module.into());
     data.append(order_type);
@@ -896,7 +896,7 @@ fn execute_adl_feature_disabled_key(module: ContractAddress, order_type: felt252
 /// * `module` - The update order module.
 /// * `order_type` - The order type.
 fn update_order_feature_disabled_key(module: ContractAddress, order_type: felt252) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(update_order_feature_disabled());
     data.append(module.into());
     data.append(order_type);
@@ -908,7 +908,7 @@ fn update_order_feature_disabled_key(module: ContractAddress, order_type: felt25
 /// * `module` - The cancel order module.
 /// * `order_type` - The order type.
 fn cancel_order_feature_disabled_key(module: ContractAddress, order_type: felt252) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(cancel_order_feature_disabled());
     data.append(module.into());
     data.append(order_type);
@@ -919,7 +919,7 @@ fn cancel_order_feature_disabled_key(module: ContractAddress, order_type: felt25
 /// # Arguments
 /// * `module` - The claim funding fees module.
 fn claim_funding_fees_feature_disabled_key(module: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(claim_funding_fees_feature_disabled());
     data.append(module.into());
     poseidon_hash_span(data.span())
@@ -929,7 +929,7 @@ fn claim_funding_fees_feature_disabled_key(module: ContractAddress) -> felt252 {
 /// # Arguments
 /// * `module` - The claim funding fees module.
 fn claim_collateral_feature_disabled_key(module: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(claim_collateral_feature_disabled());
     data.append(module.into());
     poseidon_hash_span(data.span())
@@ -939,7 +939,7 @@ fn claim_collateral_feature_disabled_key(module: ContractAddress) -> felt252 {
 /// # Arguments
 /// * `module` - The claim affiliate rewards module.
 fn claim_affiliate_rewards_feature_disabled_key(module: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(claim_affiliate_rewards_feature_disabled());
     data.append(module.into());
     poseidon_hash_span(data.span())
@@ -949,7 +949,7 @@ fn claim_affiliate_rewards_feature_disabled_key(module: ContractAddress) -> felt
 /// # Arguments
 /// * `module` - The claim ui fees module.
 fn claim_ui_fees_feature_disabled_key(module: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(claim_ui_fees_feature_disabled());
     data.append(module.into());
     poseidon_hash_span(data.span())
@@ -959,7 +959,7 @@ fn claim_ui_fees_feature_disabled_key(module: ContractAddress) -> felt252 {
 /// # Arguments
 /// * `account` - The fee receiver account.
 fn ui_fee_factor_key(account: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(ui_fee_factor());
     data.append(account.into());
     poseidon_hash_span(data.span())
@@ -969,7 +969,7 @@ fn ui_fee_factor_key(account: ContractAddress) -> felt252 {
 /// # Arguments
 /// * `token` - The token to check.
 fn token_transfer_gas_limit_key(token: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(token_transfer_gas_limit());
     data.append(token.into());
     poseidon_hash_span(data.span())
@@ -980,7 +980,7 @@ fn token_transfer_gas_limit_key(token: ContractAddress) -> felt252 {
 /// * `account` - The user account.
 /// * `market` - The address of the market.
 fn saved_callback_contract_key(account: ContractAddress, market: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(saved_callback_contract());
     data.append(account.into());
     data.append(market.into());
@@ -991,7 +991,7 @@ fn saved_callback_contract_key(account: ContractAddress, market: ContractAddress
 /// # Arguments
 /// * `market` - The market address.
 fn min_collateral_factor_key(market: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(min_collateral_factor());
     data.append(market.into());
     poseidon_hash_span(data.span())
@@ -1004,7 +1004,7 @@ fn min_collateral_factor_key(market: ContractAddress) -> felt252 {
 fn min_collateral_factor_for_open_interest_multiplier_key(
     market: ContractAddress, is_long: bool
 ) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(min_collateral_factor_for_open_interest_multiplier());
     data.append(market.into());
     data.append(bool_to_felt252(is_long));
@@ -1015,7 +1015,7 @@ fn min_collateral_factor_for_open_interest_multiplier_key(
 /// # Arguments
 /// * `token` - The token address.
 fn virtual_token_id_key(token: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(virtual_token_id());
     data.append(token.into());
     poseidon_hash_span(data.span())
@@ -1025,7 +1025,7 @@ fn virtual_token_id_key(token: ContractAddress) -> felt252 {
 /// # Arguments
 /// * `market` - The market address.
 fn virtual_market_id_key(market: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(virtual_market_id());
     data.append(market.into());
     poseidon_hash_span(data.span())
@@ -1035,7 +1035,7 @@ fn virtual_market_id_key(market: ContractAddress) -> felt252 {
 /// # Arguments
 /// * `virtual_token_id` - The virtual token id.
 fn virtual_inventory_for_positions_key(virtual_token_id: felt252) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(virtual_inventory_for_positions());
     data.append(virtual_token_id);
     poseidon_hash_span(data.span())
@@ -1046,7 +1046,7 @@ fn virtual_inventory_for_positions_key(virtual_token_id: felt252) -> felt252 {
 /// * `virtual_market_id` - The virtual market id.
 /// * `is_long_token` - Whether the token is long.
 fn virtual_inventory_for_swaps_key(virtual_market_id: felt252, is_long_token: bool) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(virtual_inventory_for_swaps());
     data.append(virtual_market_id);
     data.append(bool_to_felt252(is_long_token));
@@ -1058,7 +1058,7 @@ fn virtual_inventory_for_swaps_key(virtual_market_id: felt252, is_long_token: bo
 /// * `market` - The market address.
 /// * `is_positive` - Whether the impact is positive or negative.
 fn position_impact_factor_key(market: ContractAddress, is_positive: bool) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(position_impact_factor());
     data.append(market.into());
     data.append(bool_to_felt252(is_positive));
@@ -1069,7 +1069,7 @@ fn position_impact_factor_key(market: ContractAddress, is_positive: bool) -> fel
 /// # Arguments
 /// * `market` - The market address.
 fn position_impact_exponent_factor_key(market: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(position_impact_exponent_factor());
     data.append(market.into());
     poseidon_hash_span(data.span())
@@ -1080,7 +1080,7 @@ fn position_impact_exponent_factor_key(market: ContractAddress) -> felt252 {
 /// * `market` - The market address.
 /// * `is_positive` - Whether the impact is positive or negative.
 fn max_position_impact_factor_key(market: ContractAddress, is_positive: bool) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(max_position_impact_factor());
     data.append(market.into());
     data.append(bool_to_felt252(is_positive));
@@ -1091,7 +1091,7 @@ fn max_position_impact_factor_key(market: ContractAddress, is_positive: bool) ->
 /// # Arguments
 /// * `market` - The market address.
 fn max_position_impact_factor_for_liquidations_key(market: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(max_position_impact_factor_for_liquidations());
     data.append(market.into());
     poseidon_hash_span(data.span())
@@ -1102,7 +1102,7 @@ fn max_position_impact_factor_for_liquidations_key(market: ContractAddress) -> f
 /// * `market` - The market address.
 /// * `for_positive_impact` - Whether the fee is for an action that has a positive price impact.
 fn position_fee_factor_key(market: ContractAddress, for_positive_impact: bool) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(position_fee_factor());
     data.append(market.into());
     data.append(bool_to_felt252(for_positive_impact));
@@ -1114,7 +1114,7 @@ fn position_fee_factor_key(market: ContractAddress, for_positive_impact: bool) -
 /// * `market` - The market address.
 /// * `is_positive` - Whether the impact is positive or negative.
 fn swap_impact_factor_key(market: ContractAddress, is_positive: bool) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(swap_impact_factor());
     data.append(market.into());
     data.append(bool_to_felt252(is_positive));
@@ -1125,7 +1125,7 @@ fn swap_impact_factor_key(market: ContractAddress, is_positive: bool) -> felt252
 /// # Arguments
 /// * `market` - The market address.
 fn swap_impact_exponent_factor_key(market: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(swap_impact_exponent_factor());
     data.append(market.into());
     poseidon_hash_span(data.span())
@@ -1136,7 +1136,7 @@ fn swap_impact_exponent_factor_key(market: ContractAddress) -> felt252 {
 /// * `market` - The market address.
 /// * `for_positive_impact` - Whether the fee is for an action that has a positive price impact.
 fn swap_fee_factor_key(market: ContractAddress, for_positive_impact: bool) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(swap_fee_factor());
     data.append(market.into());
     data.append(bool_to_felt252(for_positive_impact));
@@ -1147,7 +1147,7 @@ fn swap_fee_factor_key(market: ContractAddress, for_positive_impact: bool) -> fe
 /// # Arguments
 /// * `token` - The token to check.
 fn oracle_type_key(token: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(oracle_type());
     data.append(token.into());
     poseidon_hash_span(data.span())
@@ -1161,7 +1161,7 @@ fn oracle_type_key(token: ContractAddress) -> felt252 {
 fn open_interest_key(
     market: ContractAddress, collateral_token: ContractAddress, is_long: bool
 ) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(open_interest());
     data.append(market.into());
     data.append(collateral_token.into());
@@ -1177,7 +1177,7 @@ fn open_interest_key(
 fn open_interest_in_tokens_key(
     market: ContractAddress, collateral_token: ContractAddress, is_long: bool
 ) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(open_interest_in_tokens());
     data.append(market.into());
     data.append(collateral_token.into());
@@ -1193,7 +1193,7 @@ fn open_interest_in_tokens_key(
 fn collateral_sum_key(
     market: ContractAddress, collateral_token: ContractAddress, is_long: bool
 ) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(collateral_sum());
     data.append(market.into());
     data.append(collateral_token.into());
@@ -1206,7 +1206,7 @@ fn collateral_sum_key(
 /// * `market` - The market address.
 /// * `token` - The token to check.
 fn pool_amount_key(market: ContractAddress, token: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(pool_amount());
     data.append(market.into());
     data.append(token.into());
@@ -1218,7 +1218,7 @@ fn pool_amount_key(market: ContractAddress, token: ContractAddress) -> felt252 {
 /// * `market` - The market address.
 /// * `token` - The token for the pool.
 fn max_pool_amount_key(market: ContractAddress, token: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(max_pool_amount());
     data.append(market.into());
     data.append(token.into());
@@ -1230,7 +1230,7 @@ fn max_pool_amount_key(market: ContractAddress, token: ContractAddress) -> felt2
 /// * `market` - The market address.
 /// * `is_long` - Whether the key is for the long or short side.
 fn max_open_interest_key(market: ContractAddress, is_long: bool) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(max_open_interest());
     data.append(market.into());
     data.append(bool_to_felt252(is_long));
@@ -1241,7 +1241,7 @@ fn max_open_interest_key(market: ContractAddress, is_long: bool) -> felt252 {
 /// # Arguments
 /// * `market` - The market address.
 fn position_impact_pool_amount_key(market: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(position_impact_pool_amount());
     data.append(market.into());
     poseidon_hash_span(data.span())
@@ -1252,7 +1252,7 @@ fn position_impact_pool_amount_key(market: ContractAddress) -> felt252 {
 /// * `market` - The market address.
 /// * `token` - The token to check.
 fn swap_impact_pool_amount_key(market: ContractAddress, token: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(swap_impact_pool_amount());
     data.append(market.into());
     data.append(token.into());
@@ -1264,7 +1264,7 @@ fn swap_impact_pool_amount_key(market: ContractAddress, token: ContractAddress) 
 /// * `market` - The market address.
 /// * `is_long` - Whether the key is for the long or short side.
 fn reserve_factor_key(market: ContractAddress, is_long: bool) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(reserve_factor());
     data.append(market.into());
     data.append(bool_to_felt252(is_long));
@@ -1276,7 +1276,7 @@ fn reserve_factor_key(market: ContractAddress, is_long: bool) -> felt252 {
 /// * `market` - The market address.
 /// * `is_long` - Whether the key is for the long or short side.
 fn open_interest_reserve_factor_key(market: ContractAddress, is_long: bool) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(open_interest_reserve_factor());
     data.append(market.into());
     data.append(bool_to_felt252(is_long));
@@ -1292,7 +1292,7 @@ fn open_interest_reserve_factor_key(market: ContractAddress, is_long: bool) -> f
 /// `pnl_factor_type` is a felt252 because it is a hash of a string.
 /// In GMX syntethics it's represented as a `bytes32` Solidity type, but we can simply use a felt252.
 fn max_pnl_factor_key(pnl_factor_type: felt252, market: ContractAddress, is_long: bool) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(max_pnl_factor());
     data.append(pnl_factor_type);
     data.append(market.into());
@@ -1305,7 +1305,7 @@ fn max_pnl_factor_key(pnl_factor_type: felt252, market: ContractAddress, is_long
 /// * `market` - The market address.
 /// * `is_long` - Whether the key is for the long or short side.
 fn min_pnl_factor_after_adl_key(market: ContractAddress, is_long: bool) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(min_pnl_factor_after_adl());
     data.append(market.into());
     data.append(bool_to_felt252(is_long));
@@ -1317,7 +1317,7 @@ fn min_pnl_factor_after_adl_key(market: ContractAddress, is_long: bool) -> felt2
 /// * `market` - The market address.
 /// * `is_long` - Whether the key is for the long or short side.
 fn latest_adl_block_key(market: ContractAddress, is_long: bool) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(latest_adl_block());
     data.append(market.into());
     data.append(bool_to_felt252(is_long));
@@ -1329,7 +1329,7 @@ fn latest_adl_block_key(market: ContractAddress, is_long: bool) -> felt252 {
 /// * `market` - The market address.
 /// * `is_long` - Whether the key is for the long or short side.
 fn is_adl_enabled_key(market: ContractAddress, is_long: bool) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(is_adl_enabled());
     data.append(market.into());
     data.append(bool_to_felt252(is_long));
@@ -1340,7 +1340,7 @@ fn is_adl_enabled_key(market: ContractAddress, is_long: bool) -> felt252 {
 /// # Arguments
 /// * `market` - The market address.
 fn funding_factor_key(market: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(funding_factor());
     data.append(market.into());
     poseidon_hash_span(data.span())
@@ -1350,7 +1350,7 @@ fn funding_factor_key(market: ContractAddress) -> felt252 {
 /// # Arguments
 /// * `market` - The market address.
 fn stable_funding_factor_key(market: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(stable_funding_factor());
     data.append(market.into());
     poseidon_hash_span(data.span())
@@ -1360,7 +1360,7 @@ fn stable_funding_factor_key(market: ContractAddress) -> felt252 {
 /// # Arguments
 /// * `market` - The market address.
 fn funding_exponent_factor_key(market: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(funding_exponent_factor());
     data.append(market.into());
     poseidon_hash_span(data.span())
@@ -1374,7 +1374,7 @@ fn funding_exponent_factor_key(market: ContractAddress) -> felt252 {
 fn funding_fee_amount_per_size_key(
     market: ContractAddress, collateral_token: ContractAddress, is_long: bool
 ) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(funding_fee_amount_per_size());
     data.append(market.into());
     data.append(collateral_token.into());
@@ -1390,7 +1390,7 @@ fn funding_fee_amount_per_size_key(
 fn claimable_funding_amount_per_size_key(
     market: ContractAddress, collateral_token: ContractAddress, is_long: bool
 ) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(claimable_funding_amount_per_size());
     data.append(market.into());
     data.append(collateral_token.into());
@@ -1402,7 +1402,7 @@ fn claimable_funding_amount_per_size_key(
 /// # Arguments
 /// * `market` - The market address.
 fn funding_updated_at_key(market: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(funding_updated_at());
     data.append(market.into());
     poseidon_hash_span(data.span())
@@ -1413,7 +1413,7 @@ fn funding_updated_at_key(market: ContractAddress) -> felt252 {
 /// * `market` - The market address.
 /// * `token` - The token address.
 fn claimable_funding_amount_key(market: ContractAddress, token: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(claimable_funding_amount());
     data.append(market.into());
     data.append(token.into());
@@ -1428,7 +1428,7 @@ fn claimable_funding_amount_key(market: ContractAddress, token: ContractAddress)
 fn claimable_funding_amount_by_account_key(
     market: ContractAddress, token: ContractAddress, account: ContractAddress
 ) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(claimable_funding_amount());
     data.append(market.into());
     data.append(token.into());
@@ -1441,7 +1441,7 @@ fn claimable_funding_amount_by_account_key(
 /// * `market` - The market address.
 /// * `token` - The token address.
 fn claimable_collateral_amount_key(market: ContractAddress, token: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(claimable_collateral_amount());
     data.append(market.into());
     data.append(token.into());
@@ -1457,7 +1457,7 @@ fn claimable_collateral_amount_key(market: ContractAddress, token: ContractAddre
 fn claimable_collateral_amount_for_account_key(
     market: ContractAddress, token: ContractAddress, time_key: felt252, account: ContractAddress
 ) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(claimable_collateral_amount());
     data.append(market.into());
     data.append(token.into());
@@ -1474,7 +1474,7 @@ fn claimable_collateral_amount_for_account_key(
 fn claimable_collateral_factor_key(
     market: ContractAddress, token: ContractAddress, time_key: felt252
 ) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(claimable_collateral_factor());
     data.append(market.into());
     data.append(token.into());
@@ -1491,7 +1491,7 @@ fn claimable_collateral_factor_key(
 fn claimable_collateral_factor_for_account_key(
     market: ContractAddress, token: ContractAddress, time_key: felt252, account: ContractAddress
 ) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(claimable_collateral_factor());
     data.append(market.into());
     data.append(token.into());
@@ -1509,7 +1509,7 @@ fn claimable_collateral_factor_for_account_key(
 fn claimed_collateral_amount_key(
     market: ContractAddress, token: ContractAddress, time_key: felt252, account: ContractAddress
 ) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(claimed_collateral_amount());
     data.append(market.into());
     data.append(token.into());
@@ -1523,7 +1523,7 @@ fn claimed_collateral_amount_key(
 /// * `market` - The market address.
 /// * `is_long` - Whether the key is for the long or short side.
 fn borrowing_factor_key(market: ContractAddress, is_long: bool) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(borrowing_factor());
     data.append(market.into());
     data.append(bool_to_felt252(is_long));
@@ -1535,7 +1535,7 @@ fn borrowing_factor_key(market: ContractAddress, is_long: bool) -> felt252 {
 /// * `market` - The market address.
 /// * `is_long` - Whether the key is for the long or short side.
 fn borrowing_exponent_factor_key(market: ContractAddress, is_long: bool) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(borrowing_exponent_factor());
     data.append(market.into());
     data.append(bool_to_felt252(is_long));
@@ -1547,7 +1547,7 @@ fn borrowing_exponent_factor_key(market: ContractAddress, is_long: bool) -> felt
 /// * `market` - The market address.
 /// * `is_long` - Whether the key is for the long or short side.
 fn cumulative_borrowing_factor_key(market: ContractAddress, is_long: bool) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(cumulative_borrowing_factor());
     data.append(market.into());
     data.append(bool_to_felt252(is_long));
@@ -1559,7 +1559,7 @@ fn cumulative_borrowing_factor_key(market: ContractAddress, is_long: bool) -> fe
 /// * `market` - The market address.
 /// * `is_long` - Whether the key is for the long or short side.
 fn cumulative_borrowing_factor_updated_at_key(market: ContractAddress, is_long: bool) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(cumulative_borrowing_factor_updated_at());
     data.append(market.into());
     data.append(bool_to_felt252(is_long));
@@ -1571,7 +1571,7 @@ fn cumulative_borrowing_factor_updated_at_key(market: ContractAddress, is_long: 
 /// * `market` - The market address.
 /// * `is_long` - Whether the key is for the long or short side.
 fn total_borrowing_key(market: ContractAddress, is_long: bool) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(total_borrowing());
     data.append(market.into());
     data.append(bool_to_felt252(is_long));
@@ -1583,7 +1583,7 @@ fn total_borrowing_key(market: ContractAddress, is_long: bool) -> felt252 {
 /// * `market` - The market address.
 /// * `token` - The token address.
 fn affiliate_reward_key(market: ContractAddress, token: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(affiliate_reward());
     data.append(market.into());
     data.append(token.into());
@@ -1598,7 +1598,7 @@ fn affiliate_reward_key(market: ContractAddress, token: ContractAddress) -> felt
 fn affiliate_reward_for_account_key(
     market: ContractAddress, token: ContractAddress, account: ContractAddress
 ) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(affiliate_reward());
     data.append(market.into());
     data.append(token.into());
@@ -1610,7 +1610,7 @@ fn affiliate_reward_for_account_key(
 /// # Arguments
 /// * `market` - The market address.
 fn is_market_disabled_key(market: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(is_market_disabled());
     data.append(market.into());
     poseidon_hash_span(data.span())
@@ -1620,7 +1620,7 @@ fn is_market_disabled_key(market: ContractAddress) -> felt252 {
 /// # Arguments
 /// * `token` - The token address.
 fn price_feed_key(token: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(price_feed());
     data.append(token.into());
     poseidon_hash_span(data.span())
@@ -1630,7 +1630,7 @@ fn price_feed_key(token: ContractAddress) -> felt252 {
 /// # Arguments
 /// * `token` - The token address.
 fn price_feed_multiplier_key(token: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(price_feed_multiplier());
     data.append(token.into());
     poseidon_hash_span(data.span())
@@ -1640,7 +1640,7 @@ fn price_feed_multiplier_key(token: ContractAddress) -> felt252 {
 /// # Arguments
 /// * `token` - The token address.
 fn price_feed_heartbeat_duration_key(token: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(price_feed_heartbeat_duration());
     data.append(token.into());
     poseidon_hash_span(data.span())
@@ -1650,7 +1650,7 @@ fn price_feed_heartbeat_duration_key(token: ContractAddress) -> felt252 {
 /// # Arguments
 /// * `token` - The token address.
 fn stable_price_key(token: ContractAddress) -> felt252 {
-    let mut data: Array<felt252> = ArrayTrait::new();
+    let mut data = array![];
     data.append(stable_price());
     data.append(token.into());
     poseidon_hash_span(data.span())
