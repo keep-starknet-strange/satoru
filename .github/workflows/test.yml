@@ -6,7 +6,7 @@ on:
     branches:
       - main
 env:
-  SCARB_VERSION: 0.5.2
+  SCARB_VERSION: 0.6.0+nightly-2023-08-03
 
 name: Test
 jobs:
@@ -14,11 +14,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: software-mansion/setup-scarb@v1
-        with:
-          scarb-version: ${{ env.SCARB_VERSION }}
-      - name: Check cairo format
-        run: scarb fmt --check
+      - name: Set up Scarb
+        run: |
+          NIGHTLY_DATE=$(echo ${SCARB_VERSION} | cut -d '+' -f 2)
+          wget https://github.com/software-mansion/scarb-nightlies/releases/download/${NIGHTLY_DATE}/scarb-v${SCARB_VERSION}-x86_64-unknown-linux-gnu.tar.gz
+          tar -xvf scarb-v${SCARB_VERSION}-x86_64-unknown-linux-gnu.tar.gz
+          sudo mv scarb-v${SCARB_VERSION}-x86_64-unknown-linux-gnu/bin/scarb /usr/local/bin
       - name: Install starknet foundry
         run: curl -L https://raw.githubusercontent.com/foundry-rs/starknet-foundry/master/scripts/install.sh | sh
       - name: Run cairo tests

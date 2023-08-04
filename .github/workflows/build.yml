@@ -6,17 +6,27 @@ on:
     branches:
       - main
 env:
-  SCARB_VERSION: 0.5.2
+  SCARB_VERSION: 0.6.0+nightly-2023-08-03
 
+# For the moment we will use nightly versions of scarb to be able to use latest features of Cairo.
+# The installation process will be a bit different than when using non nightly versions.
+# Once Cairo and Scarb will be stable, we will use the stable versions and the `software-mansion/setup-scarb` action.
 name: Build
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: software-mansion/setup-scarb@v1
-        with:
-          scarb-version: ${{ env.SCARB_VERSION }}
+      #- uses: software-mansion/setup-scarb@v1
+      #with:
+      #scarb-version: ${{ env.SCARB_VERSION }}
+      - name: Set up Scarb
+        run: |
+          NIGHTLY_DATE=$(echo ${SCARB_VERSION} | cut -d '+' -f 2)
+          wget https://github.com/software-mansion/scarb-nightlies/releases/download/${NIGHTLY_DATE}/scarb-v${SCARB_VERSION}-x86_64-unknown-linux-gnu.tar.gz
+          tar -xvf scarb-v${SCARB_VERSION}-x86_64-unknown-linux-gnu.tar.gz
+          sudo mv scarb-v${SCARB_VERSION}-x86_64-unknown-linux-gnu/bin/scarb /usr/local/bin
+
       - name: Check cairo format
         run: scarb fmt --check
       - name: Build cairo programs
