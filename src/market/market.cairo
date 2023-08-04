@@ -34,7 +34,7 @@ use gojo::utils::ids::UniqueId;
 // allows us to store the `Market` struct in a contract's storage.
 // We use `Copy` but this is inneficient.
 // TODO: Optimize this.
-#[derive(Drop, Copy, storage_access::StorageAccess, Serde)]
+#[derive(Drop, Copy, starknet::Store, Serde)]
 struct Market {
     // Address of the market token for the market.
     market_token: ContractAddress,

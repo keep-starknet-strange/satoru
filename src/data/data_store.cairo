@@ -149,11 +149,11 @@ mod DataStore {
         felt252_values: LegacyMap::<felt252, felt252>,
         u256_values: LegacyMap::<felt252, u256>,
         address_values: LegacyMap::<felt252, ContractAddress>,
-    // FIXME: #9
-    // For some reason it's not possible to store `Option<bool>` in the storage.
-    // Error: Trait has no implementation in context: core::starknet::storage_access::Store::<core::option::Option::<core::bool>>
-    //bool_values: LegacyMap::<felt252, Option<bool>>,
-    //market_values: LegacyMap::<felt252, Market>,
+        // FIXME: #9
+        // For some reason it's not possible to store `Option<bool>` in the storage.
+        // Error: Trait has no implementation in context: core::starknet::storage_access::Store::<core::option::Option::<core::bool>>
+        //bool_values: LegacyMap::<felt252, Option<bool>>,
+        market_values: LegacyMap::<felt252, Market>,
     }
 
     // *************************************************************************
@@ -314,31 +314,23 @@ mod DataStore {
         // *************************************************************************
 
         fn get_market(self: @ContractState, key: felt252) -> Market {
-            //self.market_values.read(key)
-            Market {
-                market_token: contract_address_const::<0>(),
-                index_token: contract_address_const::<0>(),
-                long_token: contract_address_const::<0>(),
-                short_token: contract_address_const::<0>(),
-            }
+            self.market_values.read(key)
         }
 
-        fn set_market(
-            ref self: ContractState, key: felt252, value: Market
-        ) { // Check that the caller has permission to set the value.
-        //self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
-        // Set the value.
-        //self.market_values.write(key, value);
+        fn set_market(ref self: ContractState, key: felt252, value: Market) {
+            // Check that the caller has permission to set the value.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            // Set the value.
+            self.market_values.write(key, value);
         }
 
-        fn add_market(
-            ref self: ContractState, market: Market
-        ) { // Check that the caller has permission to set the value.
-        //self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
-        // Get the next unique id.
-        //let key = market.unique_id();
-        // Set the value.
-        //self.market_values.write(key, market);
+        fn add_market(ref self: ContractState, market: Market) {
+            // Check that the caller has permission to set the value.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            // Get the next unique id.
+            let key = market.unique_id();
+            // Set the value.
+            self.market_values.write(key, market);
         }
     }
 }
