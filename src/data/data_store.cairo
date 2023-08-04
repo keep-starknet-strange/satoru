@@ -87,24 +87,24 @@ trait IDataStore<TContractState> {
     /// # Arguments
     /// * `key` - The key to remove the value for.
     fn remove_address(ref self: TContractState, key: felt252);
-// *************************************************************************
-//                      Bool related functions.
-// *************************************************************************
-// /// Get a bool value for the given key.
-// /// # Arguments
-// /// * `key` - The key to get the value for.
-// /// # Returns
-// /// The value for the given key.
-// fn get_bool(self: @TContractState, key: felt252) -> Option<bool>;
-// /// Set a bool value for the given key.
-// /// # Arguments
-// /// * `key` - The key to set the value for.
-// /// * `value` - The value to set.
-// fn set_bool(ref self: TContractState, key: felt252, value: bool);
-// /// Remove a bool value for the given key.
-// /// # Arguments
-// /// * - The key to remove the value for.
-// fn remove_bool(ref self: TContractState, key: felt252);
+    // *************************************************************************
+    //                      Bool related functions.
+    // *************************************************************************
+    /// Get a bool value for the given key.
+    /// # Arguments
+    /// * `key` - The key to get the value for.
+    /// # Returns
+    /// The value for the given key.
+    fn get_bool(self: @TContractState, key: felt252) -> Option<bool>;
+    /// Set a bool value for the given key.
+    /// # Arguments
+    /// * `key` - The key to set the value for.
+    /// * `value` - The value to set.
+    fn set_bool(ref self: TContractState, key: felt252, value: bool);
+    /// Remove a bool value for the given key.
+    /// # Arguments
+    /// * - The key to remove the value for.
+    fn remove_bool(ref self: TContractState, key: felt252);
 }
 
 #[starknet::contract]
@@ -116,6 +116,7 @@ mod DataStore {
     use gojo::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use starknet::{get_caller_address, ContractAddress, contract_address_const};
     use nullable::NullableTrait;
+    use option::OptionTrait;
 
     // *************************************************************************
     //                              STORAGE
@@ -126,10 +127,10 @@ mod DataStore {
         felt252_values: LegacyMap::<felt252, felt252>,
         u256_values: LegacyMap::<felt252, u256>,
         address_values: LegacyMap::<felt252, ContractAddress>,
-    // TODO: Fix bug
-    // For some reason it's not possible to store `Option<bool>` in the storage.
-    // Error: Trait has no implementation in context: core::starknet::storage_access::Store::<core::option::Option::<core::bool>>
-    //bool_values: LegacyMap::<felt252, Option<bool>>,
+        // FIXME: #9
+        // For some reason it's not possible to store `Option<bool>` in the storage.
+        // Error: Trait has no implementation in context: core::starknet::storage_access::Store::<core::option::Option::<core::bool>>
+        bool_values: LegacyMap::<felt252, Option<bool>>,
     }
 
     // *************************************************************************
@@ -261,25 +262,28 @@ mod DataStore {
             // Delete the value.
             self.address_values.write(key, contract_address_const::<0>());
         }
-    // *************************************************************************
-    //                      Bool related functions.
-    // *************************************************************************
-    // fn get_bool(self: @ContractState, key: felt252) -> Option<bool> {
-    //     self.bool_values.read(key)
-    // }
+        // *************************************************************************
+        //                      Bool related functions.
+        // *************************************************************************
+        fn get_bool(self: @ContractState, key: felt252) -> Option<bool> {
+            //self.bool_values.read(key)
+            Option::None(())
+        }
 
-    // fn set_bool(ref self: ContractState, key: felt252, value: bool) {
-    //     // Check that the caller has permission to set the value.
-    //     self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
-    //     // Set the value.
-    //     self.bool_values.write(key, Option::Some(value));
-    // }
+        fn set_bool(
+            ref self: ContractState, key: felt252, value: bool
+        ) { // Check that the caller has permission to set the value.
+        //self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+        // Set the value.
+        //self.bool_values.write(key, Option::Some(value));
+        }
 
-    // fn remove_bool(ref self: ContractState, key: felt252) {
-    //     // Check that the caller has permission to delete the value.
-    //     self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
-    //     // Delete the value.
-    //     self.bool_values.write(key, Option::None(()));
-    // }
+        fn remove_bool(
+            ref self: ContractState, key: felt252
+        ) { // Check that the caller has permission to delete the value.
+        //self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+        // Delete the value.
+        //self.bool_values.write(key, Option::None(()));
+        }
     }
 }
