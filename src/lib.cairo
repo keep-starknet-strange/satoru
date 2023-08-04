@@ -14,3 +14,6 @@ mod price;
 
 // `utils` contains utility functions.
 mod utils;
+// `market` contains market management functions.
+mod market;
+
