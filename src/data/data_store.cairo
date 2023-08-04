@@ -5,6 +5,7 @@
 // *************************************************************************
 use core::traits::Into;
 use starknet::ContractAddress;
+use gojo::market::market::Market;
 
 // *************************************************************************
 //                  Interface of the `DataStore` contract.
@@ -105,6 +106,21 @@ trait IDataStore<TContractState> {
     /// # Arguments
     /// * - The key to remove the value for.
     fn remove_bool(ref self: TContractState, key: felt252);
+
+    // *************************************************************************
+    //                      Market related functions.
+    // *************************************************************************
+    /// Get a market value for the given key.
+    /// # Arguments
+    /// * `key` - The key to get the value for.
+    /// # Returns
+    /// The value for the given key.
+    fn get_market(self: @TContractState, key: felt252) -> Option<Market>;
+    /// Set a market value for the given key.
+    /// # Arguments
+    /// * `key` - The key to set the value for.
+    /// * `value` - The value to set.
+    fn set_market(ref self: TContractState, key: felt252, value: Market);
 }
 
 #[starknet::contract]
@@ -114,6 +130,7 @@ mod DataStore {
     // *************************************************************************
     use gojo::role::role;
     use gojo::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use gojo::market::market::Market;
     use starknet::{get_caller_address, ContractAddress, contract_address_const};
     use nullable::NullableTrait;
     use option::OptionTrait;
@@ -127,10 +144,11 @@ mod DataStore {
         felt252_values: LegacyMap::<felt252, felt252>,
         u256_values: LegacyMap::<felt252, u256>,
         address_values: LegacyMap::<felt252, ContractAddress>,
-    // FIXME: #9
-    // For some reason it's not possible to store `Option<bool>` in the storage.
-    // Error: Trait has no implementation in context: core::starknet::storage_access::Store::<core::option::Option::<core::bool>>
-    //bool_values: LegacyMap::<felt252, Option<bool>>,
+        // FIXME: #9
+        // For some reason it's not possible to store `Option<bool>` in the storage.
+        // Error: Trait has no implementation in context: core::starknet::storage_access::Store::<core::option::Option::<core::bool>>
+        //bool_values: LegacyMap::<felt252, Option<bool>>,
+        market_values: LegacyMap::<felt252, Market>,
     }
 
     // *************************************************************************
@@ -284,6 +302,27 @@ mod DataStore {
         //self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
         // Delete the value.
         //self.bool_values.write(key, Option::None(()));
+        }
+
+        // *************************************************************************
+        //                      Market related functions.
+        // *************************************************************************
+
+        fn get_market(self: @ContractState, key: felt252) -> Option<Market> {
+            let market = self.market_values.read(key);
+
+            if market.index_token == contract_address_const::<0>() {
+                Option::None(())
+            } else {
+                Option::Some(market)
+            }
+        }
+
+        fn set_market(ref self: ContractState, key: felt252, value: Market) {
+            // Check that the caller has permission to set the value.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            // Set the value.
+            self.market_values.write(key, value);
         }
     }
 }
