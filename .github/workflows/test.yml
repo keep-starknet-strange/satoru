@@ -6,7 +6,7 @@ on:
     branches:
       - main
 env:
-  SCARB_VERSION: 0.5.2
+  SCARB_VERSION: 0.6.0+nightly-2023-08-03
 
 name: Test
 jobs:

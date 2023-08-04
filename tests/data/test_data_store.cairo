@@ -62,17 +62,25 @@ fn test_felt252_functions() {
     // Check that the value read is 42.
     assert(value == 42, 'Invalid value');
 
-    // Apply delta of 5 to key 1.
-    let new_value = data_store.apply_delta_to_felt252(1, 5).unwrap();
+    // Increment key 1 by 5.
+    let new_value = data_store.increment_felt252(1, 5).unwrap();
     // Check that the new value is 47.
     assert(new_value == 47, 'Invalid value');
     let value = data_store.get_felt252(1).unwrap();
     // Check that the value read is 47.
     assert(value == 47, 'Invalid value');
 
-    // Delete key 1.
-    data_store.delete_felt252(1).unwrap();
-    // Check that the key was deleted.
+    // Decrement key 1 by 2.
+    let new_value = data_store.decrement_felt252(1, 2).unwrap();
+    // Check that the new value is 45.
+    assert(new_value == 45, 'Invalid value');
+    let value = data_store.get_felt252(1).unwrap();
+    // Check that the value read is 45.
+    assert(value == 45, 'Invalid value');
+
+    // Remove key 1.
+    data_store.remove_felt252(1).unwrap();
+    // Check that the key was removed.
     assert(data_store.get_felt252(1).unwrap() == Default::default(), 'Key was not deleted');
 
     // Stop pranking the caller address.
@@ -108,11 +116,65 @@ fn test_u256_functions() {
     // Check that the value read is 42.
     assert(value == 42, 'Invalid value');
 
-    // Delete key 1.
-    data_store.delete_u256(1).unwrap();
-    // Check that the key was deleted.
-    assert(data_store.get_u256(1).unwrap() == Default::default(), 'Key was not deleted');
+    // Increment key 1 by 5.
+    let new_value = data_store.increment_u256(1, 5).unwrap();
+    // Check that the new value is 47.
+    assert(new_value == 47, 'Invalid value');
+    let value = data_store.get_u256(1).unwrap();
+    // Check that the value read is 47.
+    assert(value == 47, 'Invalid value');
+
+    // Decrement key 1 by 2.
+    let new_value = data_store.decrement_u256(1, 2).unwrap();
+    // Check that the new value is 45.
+    assert(new_value == 45, 'Invalid value');
+    let value = data_store.get_u256(1).unwrap();
+    // Check that the value read is 45.
+    assert(value == 45, 'Invalid value');
+
+    // Remove key 1.
+    data_store.remove_u256(1).unwrap();
+    // Check that the key was removed.
+    assert(data_store.get_u256(1).unwrap() == Default::default(), 'Key was not removed');
 
     stop_prank(data_store_address);
 }
 
+#[test]
+fn test_address_functions() {
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+
+    // Deploy the role store contract.
+    let role_store_address = deploy_role_store();
+    // Create a role store dispatcher.
+    let role_store = IRoleStoreSafeDispatcher { contract_address: role_store_address };
+
+    // Deploy the contract.
+    let data_store_address = deploy_data_store(role_store_address);
+    // Create a safe dispatcher to interact with the contract.
+    let data_store = IDataStoreSafeDispatcher { contract_address: data_store_address };
+
+    // Grant the caller the CONTROLLER role.
+    // We use the same account to deploy data_store and role_store, so we can grant the role
+    // because the caller is the owner of role_store contract.
+    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
+
+    // Prank the caller address for calls to data_store contract.
+    // We need this so that the caller has the CONTROLLER role.
+    start_prank(data_store_address, caller_address);
+
+    // Set key 1 to value 42.
+    data_store.set_address(1, caller_address).unwrap();
+    let value = data_store.get_address(1).unwrap();
+    // Check that the value read is the caller address.
+    assert(value == caller_address, 'Invalid value');
+
+    // Remove key 1.
+    data_store.remove_address(1).unwrap();
+    // Check that the key was deleted.
+    assert(
+        data_store.get_address(1).unwrap() == contract_address_const::<0>(), 'Key was not removed'
+    );
+
+    stop_prank(data_store_address);
+}
