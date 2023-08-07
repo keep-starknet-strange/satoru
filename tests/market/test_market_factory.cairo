@@ -1,3 +1,8 @@
+// *************************************************************************
+//                                  IMPORTS
+// *************************************************************************
+
+// Core lib imports.
 use array::ArrayTrait;
 use result::ResultTrait;
 use option::OptionTrait;
@@ -7,6 +12,7 @@ use starknet::{
 };
 use cheatcodes::PreparedContract;
 
+// Local imports.
 use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
 use gojo::market::market_factory::{IMarketFactorySafeDispatcher, IMarketFactorySafeDispatcherTrait};
@@ -33,16 +39,25 @@ fn test_market_factory() {
     // Create a safe dispatcher to interact with the contract.
     let market_factory = IMarketFactorySafeDispatcher { contract_address: market_factory_address };
 
-    // Grant the caller the CONTROLLER role.
+    // Grant the caller the `CONTROLLER` role.
     // We use the same account to deploy data_store and role_store, so we can grant the role
     // because the caller is the owner of role_store contract.
     role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
+
+    // Grant the call the `MARKET_KEEPER` role.
+    // This role is required to create a market.
+    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
 
     // Prank the caller address for calls to data_store contract.
     // We need this so that the caller has the CONTROLLER role.
     start_prank(data_store_address, caller_address);
 
+    // Prank the caller address for calls to market_factory contract.
+    // We need this so that the caller has the MARKET_KEEPER role.
+    start_prank(market_factory_address, caller_address);
+
     // ****** LOGIC STARTS HERE ******
+
     // Create a market.
     let market_token = contract_address_const::<'market_token'>();
     let index_token = contract_address_const::<'index_token'>();

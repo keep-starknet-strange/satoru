@@ -1,5 +1,10 @@
 //! Stores roles and their members.
 
+// *************************************************************************
+//                                  IMPORTS
+// *************************************************************************
+
+// Core lib imports.
 use starknet::ContractAddress;
 
 // *************************************************************************
@@ -38,7 +43,14 @@ trait IRoleStore<TContractState> {
 
 #[starknet::contract]
 mod RoleStore {
+    // *************************************************************************
+    //                                  IMPORTS
+    // *************************************************************************
+
+    // Core lib imports.
     use starknet::{ContractAddress, get_caller_address};
+
+    // Local imports.
     use gojo::role::{role, error::RoleError};
 
     // *************************************************************************
@@ -47,7 +59,7 @@ mod RoleStore {
     #[storage]
     struct Storage {
         /// Maps accounts to their roles.
-        role_members: LegacyMap::<ContractAddress, felt252>,
+        role_members: LegacyMap::<(felt252, ContractAddress), bool>,
     }
 
     // *************************************************************************
@@ -130,7 +142,7 @@ mod RoleStore {
     impl InternalFunctions of InternalFunctionsTrait {
         #[inline(always)]
         fn _has_role(self: @ContractState, account: ContractAddress, role_key: felt252) -> bool {
-            self.role_members.read(account) == role_key
+            self.role_members.read((role_key, account))
         }
 
         #[inline(always)]
@@ -142,7 +154,7 @@ mod RoleStore {
             // Only grant the role if the account doesn't already have it.
             if !self._has_role(account, role_key) {
                 let caller: ContractAddress = get_caller_address();
-                self.role_members.write(account, role_key);
+                self.role_members.write((role_key, account), true);
                 self.emit(RoleGranted { role_key, account, sender: caller });
             }
         }
@@ -151,7 +163,7 @@ mod RoleStore {
             // Only revoke the role if the account has it.
             if self._has_role(account, role_key) {
                 let caller: ContractAddress = get_caller_address();
-                self.role_members.write(account, role::SENTINEL_NO_ROLE);
+                self.role_members.write((role_key, account), false);
                 self.emit(RoleRevoked { role_key, account, sender: caller });
             }
         }

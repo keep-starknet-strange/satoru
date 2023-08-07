@@ -3,6 +3,8 @@
 // *************************************************************************
 //                                  IMPORTS
 // *************************************************************************
+
+// Core lib imports.
 use core::traits::Into;
 use starknet::ContractAddress;
 
@@ -31,11 +33,15 @@ mod MarketFactory {
     // *************************************************************************
     //                               IMPORTS
     // *************************************************************************
+
+    // Core lib imports.
+    use starknet::{get_caller_address, ContractAddress, contract_address_const};
+
+    // Local imports.
     use gojo::role::role;
     use gojo::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use gojo::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use gojo::market::market::{Market, UniqueIdMarketTrait};
-    use starknet::{get_caller_address, ContractAddress, contract_address_const};
 
     // *************************************************************************
     //                              STORAGE
@@ -49,6 +55,11 @@ mod MarketFactory {
     // *************************************************************************
     //                              CONSTRUCTOR
     // *************************************************************************
+
+    /// Constructor of the contract.
+    /// # Arguments
+    /// * `data_store_adress` - The address of the data store contract.
+    /// * `role_store_address` - The address of the role store contract.
     #[constructor]
     fn constructor(
         ref self: ContractState,
@@ -80,7 +91,8 @@ mod MarketFactory {
         ) {
             // Get the caller address.
             let caller_address = get_caller_address();
-            // TODO: Check that the caller has the MARKET_KEEPER role.
+            // Check that the caller has the MARKET_KEEPER role.
+            self.role_store.read().assert_only_role(caller_address, role::MARKET_KEEPER);
 
             // TODO: Deploy Market token and get address.
             // For now we mock the address.
