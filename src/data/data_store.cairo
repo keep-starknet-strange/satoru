@@ -138,7 +138,7 @@ mod DataStore {
     // Local imports.
     use gojo::role::role;
     use gojo::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use gojo::market::market::{Market, ValidateMarketTrait};
+    use gojo::market::market::{Market, ValidateMarket};
 
     // *************************************************************************
     //                              STORAGE

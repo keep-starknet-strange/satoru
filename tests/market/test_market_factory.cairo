@@ -8,7 +8,8 @@ use result::ResultTrait;
 use option::OptionTrait;
 use traits::{TryInto, Into};
 use starknet::{
-    ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const
+    ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
+    ClassHash,
 };
 use cheatcodes::PreparedContract;
 
@@ -16,7 +17,7 @@ use cheatcodes::PreparedContract;
 use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
 use gojo::market::market_factory::{IMarketFactorySafeDispatcher, IMarketFactorySafeDispatcherTrait};
-use gojo::market::market::{Market, UniqueIdMarketTrait};
+use gojo::market::market::{Market, UniqueIdMarket};
 use gojo::role::role;
 
 #[test]
@@ -27,9 +28,10 @@ fn given_normal_conditions_when_create_market_then_market_is_created() {
         market_factory_address,
         role_store_address,
         data_store_address,
+        market_token_class_hash,
         market_factory,
         role_store,
-        data_store
+        data_store,
     ) =
         setup();
 
@@ -53,18 +55,14 @@ fn given_normal_conditions_when_create_market_then_market_is_created() {
     // ****** LOGIC STARTS HERE ******
 
     // Create a market.
-    let market_token = contract_address_const::<'market_token'>();
     let index_token = contract_address_const::<'index_token'>();
     let long_token = contract_address_const::<'long_token'>();
     let short_token = contract_address_const::<'short_token'>();
     let market_type = 'market_type';
 
-    let new_market = Market { market_token, index_token, long_token, short_token, };
-
-    market_factory.create_market(index_token, long_token, short_token, market_type).unwrap();
-
-    // Compute the key of the market.
-    let market_id = new_market.unique_id(market_type);
+    let (market_token_deployed_address, market_id) = market_factory
+        .create_market(index_token, long_token, short_token, market_type)
+        .unwrap();
 
     // Get the market from the data store.
     // This must not panic, because the market was created in the previous step.
@@ -91,9 +89,10 @@ fn given_bad_params_when_create_market_then_fail() {
         market_factory_address,
         role_store_address,
         data_store_address,
+        market_token_class_hash,
         market_factory,
         role_store,
-        data_store
+        data_store,
     ) =
         setup();
 
@@ -155,6 +154,8 @@ fn setup() -> (
     ContractAddress,
     // Address of the `DataStore` contract.
     ContractAddress,
+    // The `MarketToken` class hash for the factory.
+    ClassHash,
     // Interface to interact with the `MarketFactory` contract.
     IMarketFactorySafeDispatcher,
     // Interface to interact with the `RoleStore` contract.
@@ -173,8 +174,13 @@ fn setup() -> (
     // Create a safe dispatcher to interact with the contract.
     let data_store = IDataStoreSafeDispatcher { contract_address: data_store_address };
 
+    // Declare the `MarketToken` contract.
+    let market_token_class_hash = declare_market_token();
+
     // Deploy the market factory.
-    let market_factory_address = deploy_market_factory(data_store_address, role_store_address);
+    let market_factory_address = deploy_market_factory(
+        data_store_address, role_store_address, market_token_class_hash
+    );
     // Create a safe dispatcher to interact with the contract.
     let market_factory = IMarketFactorySafeDispatcher { contract_address: market_factory_address };
 
@@ -183,20 +189,29 @@ fn setup() -> (
         market_factory_address,
         role_store_address,
         data_store_address,
+        market_token_class_hash,
         market_factory,
         role_store,
         data_store
     )
 }
 
+/// Utility function to declare a `MarketToken` contract.
+fn declare_market_token() -> ClassHash {
+    declare('MarketToken')
+}
+
 /// Utility function to deploy a market factory contract and return its address.
 fn deploy_market_factory(
-    data_store_address: ContractAddress, role_store_address: ContractAddress
+    data_store_address: ContractAddress,
+    role_store_address: ContractAddress,
+    market_token_class_hash: ClassHash,
 ) -> ContractAddress {
     let class_hash = declare('MarketFactory');
     let mut constructor_calldata = ArrayTrait::new();
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
+    constructor_calldata.append(market_token_class_hash.into());
     let prepared = PreparedContract {
         class_hash: class_hash, constructor_calldata: @constructor_calldata
     };

@@ -59,7 +59,7 @@ struct Market {
 // *************************************************************************
 
 /// Trait for getting the unique id of a market.
-trait UniqueIdMarketTrait {
+trait UniqueIdMarket {
     /// Returns the unique id of the market, computed based on the market's parameters.
     /// # Arguments
     /// * `self` - The market.
@@ -70,7 +70,7 @@ trait UniqueIdMarketTrait {
 }
 
 /// Trait for validating a market.
-trait ValidateMarketTrait {
+trait ValidateMarket {
     /// Returns true if the market is valid, false otherwise.
     /// # Arguments
     /// * `self` - The market.
@@ -89,8 +89,8 @@ trait ValidateMarketTrait {
 //                      Implementations of Market traits.
 // *************************************************************************
 
-/// Implementation of the `UniqueIdMarketTrait` trait for the `Market` struct.
-impl UniqueIdMarket of UniqueIdMarketTrait {
+/// Implementation of the `UniqueIdMarket` trait for the `Market` struct.
+impl UniqueIdMarketImpl of UniqueIdMarket {
     fn unique_id(self: Market, market_type: felt252) -> felt252 {
         let mut data = array![];
         data.append(self.market_token.into());
@@ -102,8 +102,8 @@ impl UniqueIdMarket of UniqueIdMarketTrait {
     }
 }
 
-/// Implementation of the `ValidateMarketTrait` trait for the `Market` struct.
-impl ValidateMarket of ValidateMarketTrait {
+/// Implementation of the `ValidateMarket` trait for the `Market` struct.
+impl ValidateMarketImpl of ValidateMarket {
     fn is_valid(self: Market) -> bool {
         self.market_token != self.index_token
             && self.market_token != self.long_token
