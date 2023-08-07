@@ -53,6 +53,25 @@ mod MarketFactory {
     }
 
     // *************************************************************************
+    // EVENTS
+    // *************************************************************************
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        MarketCreated: MarketCreated,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct MarketCreated {
+        creator: ContractAddress,
+        market_token: ContractAddress,
+        index_token: ContractAddress,
+        long_token: ContractAddress,
+        short_token: ContractAddress,
+        market_type: felt252,
+    }
+
+    // *************************************************************************
     //                              CONSTRUCTOR
     // *************************************************************************
 
@@ -103,6 +122,19 @@ mod MarketFactory {
             let market_key = market.unique_id(market_type);
             // Add the market to the data store.
             self.data_store.read().set_market(market_key, market);
+
+            // Emit the event.
+            self
+                .emit(
+                    MarketCreated {
+                        creator: caller_address,
+                        market_token,
+                        index_token,
+                        long_token,
+                        short_token,
+                        market_type,
+                    }
+                );
         }
     }
 }
