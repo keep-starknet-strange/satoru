@@ -12,7 +12,6 @@ use gojo::data::keys;
 use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
 use gojo::role::role;
 use gojo::market::market_utils;
-use debug::PrintTrait;
 
 #[test]
 fn test_market_utils() {

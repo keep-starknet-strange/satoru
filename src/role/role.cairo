@@ -2,9 +2,6 @@
 //! Notes:
 //! - Consider using a hash of the role name as the role key. The problem is that right now only literal constants are supported.
 
-// Sentinel value for no role.
-const SENTINEL_NO_ROLE: felt252 = 0;
-
 const ROLE_ADMIN: felt252 = 'ADMIN';
 
 const TIMELOCK_ADMIN: felt252 = 'TIMELOCK_ADMIN';

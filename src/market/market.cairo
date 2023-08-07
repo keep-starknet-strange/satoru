@@ -24,10 +24,19 @@
 //
 // Traders can use either the long or short token as collateral for the market.
 
-use starknet::ContractAddress;
+// *************************************************************************
+//                                  IMPORTS
+// *************************************************************************
+
+// Core lib imports.
+use starknet::{ContractAddress, contract_address_const};
 use poseidon::poseidon_hash_span;
 use traits::Into;
 use array::ArrayTrait;
+use zeroable::Zeroable;
+
+// Local imports.
+use gojo::market::error::MarketError;
 
 // Deriving the `storage_access::StorageAccess` trait
 // allows us to store the `Market` struct in a contract's storage.
@@ -45,11 +54,43 @@ struct Market {
     short_token: ContractAddress,
 }
 
-trait UniqueIdMarketTrait {
+// *************************************************************************
+//                      Market traits.
+// *************************************************************************
+
+/// Trait for getting the unique id of a market.
+trait UniqueIdMarket {
+    /// Returns the unique id of the market, computed based on the market's parameters.
+    /// # Arguments
+    /// * `self` - The market.
+    /// * `market_type` - The type of the market, either spot or perp.
+    /// # Returns
+    /// * The unique id of the market.
     fn unique_id(self: Market, market_type: felt252) -> felt252;
 }
 
-impl UniqueIdMarket of UniqueIdMarketTrait {
+/// Trait for validating a market.
+trait ValidateMarket {
+    /// Returns true if the market is valid, false otherwise.
+    /// # Arguments
+    /// * `self` - The market.
+    /// # Returns
+    /// * True if the market is valid, false otherwise.
+    fn is_valid(self: Market) -> bool;
+    /// Asserts that the market is valid.
+    /// # Arguments
+    /// * `self` - The market.
+    /// # Revert
+    /// * If the market is not valid.
+    fn assert_valid(self: Market);
+}
+
+// *************************************************************************
+//                      Implementations of Market traits.
+// *************************************************************************
+
+/// Implementation of the `UniqueIdMarket` trait for the `Market` struct.
+impl UniqueIdMarketImpl of UniqueIdMarket {
     fn unique_id(self: Market, market_type: felt252) -> felt252 {
         let mut data = array![];
         data.append(self.market_token.into());
@@ -58,5 +99,22 @@ impl UniqueIdMarket of UniqueIdMarketTrait {
         data.append(self.short_token.into());
         data.append(market_type);
         poseidon_hash_span(data.span())
+    }
+}
+
+/// Implementation of the `ValidateMarket` trait for the `Market` struct.
+impl ValidateMarketImpl of ValidateMarket {
+    fn is_valid(self: Market) -> bool {
+        self.market_token != self.index_token
+            && self.market_token != self.long_token
+            && self.market_token != self.short_token
+            && self.market_token.is_non_zero()
+            && self.index_token.is_non_zero()
+            && self.long_token.is_non_zero()
+            && self.short_token.is_non_zero()
+    }
+
+    fn assert_valid(self: Market) {
+        assert(self.is_valid(), MarketError::INVALID_MARKET_PARAMS);
     }
 }

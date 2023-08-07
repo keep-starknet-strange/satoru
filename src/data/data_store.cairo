@@ -120,7 +120,7 @@ trait IDataStore<TContractState> {
     /// # Arguments
     /// * `key` - The key to set the value for.
     /// * `value` - The value to set.
-    fn set_market(ref self: TContractState, key: felt252, value: Market);
+    fn set_market(ref self: TContractState, key: felt252, market: Market);
 }
 
 #[starknet::contract]
@@ -128,12 +128,17 @@ mod DataStore {
     // *************************************************************************
     //                               IMPORTS
     // *************************************************************************
-    use gojo::role::role;
-    use gojo::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use gojo::market::market::Market;
+
+    // Core lib imports.
     use starknet::{get_caller_address, ContractAddress, contract_address_const};
     use nullable::NullableTrait;
     use option::OptionTrait;
+    use zeroable::Zeroable;
+
+    // Local imports.
+    use gojo::role::role;
+    use gojo::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use gojo::market::market::{Market, ValidateMarket};
 
     // *************************************************************************
     //                              STORAGE
@@ -311,18 +316,23 @@ mod DataStore {
         fn get_market(self: @ContractState, key: felt252) -> Option<Market> {
             let market = self.market_values.read(key);
 
-            if market.index_token == contract_address_const::<0>() {
+            // We use the zero address to indicate that the market does not exist.
+            if market.index_token.is_zero() {
                 Option::None(())
             } else {
                 Option::Some(market)
             }
         }
 
-        fn set_market(ref self: ContractState, key: felt252, value: Market) {
+        fn set_market(ref self: ContractState, key: felt252, market: Market) {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+
+            // Assert that the market is valid.
+            market.assert_valid();
+
             // Set the value.
-            self.market_values.write(key, value);
+            self.market_values.write(key, market);
         }
     }
 }
