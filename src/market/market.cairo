@@ -37,6 +37,7 @@ use zeroable::Zeroable;
 
 // Local imports.
 use gojo::market::error::MarketError;
+use gojo::market::market_token::{IMarketTokenSafeDispatcher, IMarketTokenSafeDispatcherTrait};
 
 // Deriving the `storage_access::StorageAccess` trait
 // allows us to store the `Market` struct in a contract's storage.
@@ -57,6 +58,17 @@ struct Market {
 // *************************************************************************
 //                      Market traits.
 // *************************************************************************
+
+/// Trait for getting the `MarketToken` contract interface of a market.
+/// TODO: Use proper `Into` trait.
+trait IntoMarketToken {
+    /// Returns the `MarketToken` contract interface of the market.
+    /// # Arguments
+    /// * `self` - The market.
+    /// # Returns
+    /// * The `MarketToken` contract interface of the market.
+    fn market_token(self: Market) -> IMarketTokenSafeDispatcher;
+}
 
 /// Trait for getting the unique id of a market.
 trait UniqueIdMarket {
@@ -116,5 +128,12 @@ impl ValidateMarketImpl of ValidateMarket {
 
     fn assert_valid(self: Market) {
         assert(self.is_valid(), MarketError::INVALID_MARKET_PARAMS);
+    }
+}
+
+/// Implementation of the `MarketToken` trait for the `Market` struct.
+impl MarketTokenImpl of IntoMarketToken {
+    fn market_token(self: Market) -> IMarketTokenSafeDispatcher {
+        IMarketTokenSafeDispatcher { contract_address: self.market_token }
     }
 }
