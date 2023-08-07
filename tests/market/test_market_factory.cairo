@@ -18,6 +18,7 @@ use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherT
 use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
 use gojo::market::market_factory::{IMarketFactorySafeDispatcher, IMarketFactorySafeDispatcherTrait};
 use gojo::market::market::{Market, UniqueIdMarket};
+use gojo::market::market_token::{IMarketTokenSafeDispatcher, IMarketTokenSafeDispatcherTrait};
 use gojo::role::role;
 
 #[test]
@@ -73,6 +74,14 @@ fn given_normal_conditions_when_create_market_then_market_is_created() {
     assert(market.index_token == index_token, 'bad_market');
     assert(market.long_token == long_token, 'bad_market');
     assert(market.short_token == short_token, 'bad_market');
+
+    // Check the market token was deployed.
+    let market_token = IMarketTokenSafeDispatcher {
+        contract_address: market_token_deployed_address
+    };
+    // Query the name of the market token.
+    let market_token_name = market_token.name().unwrap();
+    assert(market_token_name == 'Gojo Market', 'bad_market_token_name');
 
     // ****** LOGIC ENDS HERE ******
 
