@@ -5,7 +5,6 @@ use traits::{TryInto, Into};
 use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const
 };
-use debug::PrintTrait;
 use cheatcodes::PreparedContract;
 
 use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
@@ -58,13 +57,17 @@ fn test_market_factory() {
     // Compute the key of the market.
     let market_id = new_market.unique_id(market_type);
 
-    let maybe_market = data_store.get_market(market_id).unwrap();
-    match maybe_market {
-        Option::Some(market) => {
-            market.index_token.print();
-        },
-        Option::None(()) => 'None'.print(),
-    }
+    // Get the market from the data store.
+    // This must not panic, because the market was created in the previous step.
+    // Hence the market must exist in the data store and it's safe to unwrap.
+    let market = data_store.get_market(market_id).unwrap().unwrap();
+
+    // Check the market is as expected.
+    assert(market.index_token == index_token, 'bad_market');
+    assert(market.long_token == long_token, 'bad_market');
+    assert(market.short_token == short_token, 'bad_market');
+
+    // ****** LOGIC ENDS HERE ******
 
     // Stop pranking the caller address.
     stop_prank(data_store_address);

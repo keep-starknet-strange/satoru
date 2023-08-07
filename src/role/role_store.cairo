@@ -1,4 +1,3 @@
-use core::debug::PrintTrait;
 //! Stores roles and their members.
 
 use starknet::ContractAddress;

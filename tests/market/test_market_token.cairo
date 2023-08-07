@@ -11,7 +11,6 @@ use gojo::market::market_token::{IMarketTokenSafeDispatcher, IMarketTokenSafeDis
 use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
 use gojo::role::role;
 use gojo::market::market_utils;
-use debug::PrintTrait;
 
 #[test]
 fn test_market_token() {
