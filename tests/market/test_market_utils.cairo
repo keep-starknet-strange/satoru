@@ -152,6 +152,24 @@ fn setup() -> (
     )
 }
 
+#[test]
+fn given_normal_conditions_when_get_pool_divisor_then_works() {
+    // long token == short token, should return 2.
+    assert(
+        market_utils::get_pool_divisor(
+            contract_address_const::<1>(), contract_address_const::<1>()
+        ) == 2,
+        'wrong pool divisor'
+    );
+    // long token != short token, should return 1.
+    assert(
+        market_utils::get_pool_divisor(
+            contract_address_const::<1>(), contract_address_const::<2>()
+        ) == 1,
+        'wrong pool divisor'
+    );
+}
+
 /// Utility function to declare a `MarketToken` contract.
 fn declare_market_token() -> ClassHash {
     declare('MarketToken')
