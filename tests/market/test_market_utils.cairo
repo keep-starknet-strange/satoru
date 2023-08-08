@@ -215,8 +215,8 @@ fn given_normal_conditions_when_get_max_pool_amount_then_works() {
     let token_address = contract_address_const::<'token_address'>();
 
     // Setup pre conditions.
-    let pool_amount_key = keys::max_pool_amount_key(market_token_address, token_address);
-    data_store.set_u128(pool_amount_key, 1000);
+    let max_pool_amount_key = keys::max_pool_amount_key(market_token_address, token_address);
+    data_store.set_u128(max_pool_amount_key, 1000);
 
     // Actual test case.
 
@@ -228,6 +228,68 @@ fn given_normal_conditions_when_get_max_pool_amount_then_works() {
     // Perform assertions.
 
     assert(max_pool_amount == 1000, 'wrong pool amount');
+
+    // ****** LOGIC ENDS HERE ******
+
+    // Stop pranking the caller address.
+    stop_prank(data_store_address);
+    stop_prank(market_factory_address);
+}
+
+#[test]
+fn given_normal_conditions_when_get_max_open_interest_then_works() {
+    // Setup required contracts.
+    let (
+        caller_address,
+        market_factory_address,
+        role_store_address,
+        data_store_address,
+        market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+    ) =
+        setup();
+
+    // Grant the caller the `CONTROLLER` role.
+    // We use the same account to deploy data_store and role_store, so we can grant the role
+    // because the caller is the owner of role_store contract.
+    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
+
+    // Grant the call the `MARKET_KEEPER` role.
+    // This role is required to create a market.
+    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
+
+    // Prank the caller address for calls to data_store contract.
+    // We need this so that the caller has the CONTROLLER role.
+    start_prank(data_store_address, caller_address);
+
+    // Prank the caller address for calls to market_factory contract.
+    // We need this so that the caller has the MARKET_KEEPER role.
+    start_prank(market_factory_address, caller_address);
+
+    // ****** LOGIC STARTS HERE ******
+
+    // Define variables for the test case.
+    let market_token_address = contract_address_const::<'market_token_address'>();
+    let is_long = false;
+
+    // Setup pre conditions.
+
+    let max_open_interest_key = keys::max_open_interest_key(market_token_address, is_long);
+    data_store.set_u128(max_open_interest_key, 1000);
+
+    // Actual test case.
+
+    // Get the max open interest.
+
+    let max_open_interest = market_utils::get_max_open_interest(
+        data_store, market_token_address, is_long
+    );
+
+    // Perform assertions.
+
+    assert(max_open_interest == 1000, 'wrong pool amount');
 
     // ****** LOGIC ENDS HERE ******
 

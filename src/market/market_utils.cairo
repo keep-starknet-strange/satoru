@@ -60,6 +60,19 @@ fn get_max_pool_amount(
     data_store.get_u128(keys::max_pool_amount_key(market_address, token_address)).unwrap()
 }
 
+/// Get the maximum open interest allowed for a market.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market_address` - The market to check.
+/// * `is_long` - Whether this is for the long or short side.
+/// # Returns
+/// The maximum open interest allowed for a market.
+fn get_max_open_interest(
+    data_store: IDataStoreSafeDispatcher, market_address: ContractAddress, is_long: bool
+) -> u256 {
+    data_store.get_u256(keys::max_open_interest_key(market_address, is_long)).unwrap()
+}
+
 /// Get the pool divisor.
 /// This is used to divide the values of `get_pool_amount` and `get_open_interest`
 /// if the longToken and shortToken are the same, then these values have to be divided by two
