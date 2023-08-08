@@ -160,7 +160,7 @@ mod DataStore {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{get_caller_address, ContractAddress, contract_address_const};
+    use starknet::{get_caller_address, ContractAddress, contract_address_const,};
     use nullable::NullableTrait;
     use option::OptionTrait;
     use zeroable::Zeroable;
