@@ -45,6 +45,21 @@ fn get_pool_amount(
         / divisor
 }
 
+/// Get the maximum amount of tokens allowed to be in the pool.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market_address` - The market to check.
+/// * `token_address` - The token to check.
+/// # Returns
+/// The maximum amount of tokens allowed to be in the pool.
+fn get_max_pool_amount(
+    data_store: IDataStoreSafeDispatcher,
+    market_address: ContractAddress,
+    token_address: ContractAddress
+) -> u128 {
+    data_store.get_u128(keys::max_pool_amount_key(market_address, token_address)).unwrap()
+}
+
 /// Get the pool divisor.
 /// This is used to divide the values of `get_pool_amount` and `get_open_interest`
 /// if the longToken and shortToken are the same, then these values have to be divided by two
