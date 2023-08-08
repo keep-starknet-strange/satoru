@@ -42,7 +42,7 @@ trait IDataStore<TContractState> {
     fn decrement_felt252(ref self: TContractState, key: felt252, value: felt252) -> felt252;
 
     // *************************************************************************
-    //                          U256 related functions.
+    //                          u256 related functions.
     // *************************************************************************
     /// Get a u256 value for the given key.
     /// # Arguments
@@ -69,6 +69,36 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to subtract the value from.
     /// * `value` - The value to subtract.
     fn decrement_u256(ref self: TContractState, key: felt252, value: u256) -> u256;
+
+
+    // *************************************************************************
+    //                          u128 related functions.
+    // *************************************************************************
+    /// Get a u128 value for the given key.
+    /// # Arguments
+    /// * `key` - The key to get the value for.
+    /// # Returns
+    /// The value for the given key.
+    fn get_u128(self: @TContractState, key: felt252) -> u128;
+    /// Set a u128 value for the given key.
+    /// # Arguments
+    /// * `key` - The key to set the value for.
+    /// * `value` - The value to set.
+    fn set_u128(ref self: TContractState, key: felt252, value: u128);
+    /// Delete a u128 value for the given key.
+    /// # Arguments
+    /// * `key` - The key to delete the value for.
+    fn remove_u128(ref self: TContractState, key: felt252);
+    /// Add input to existing value.
+    /// # Arguments
+    /// * `key` - The key to add the value to.
+    /// * `value` - The value to add.
+    fn increment_u128(ref self: TContractState, key: felt252, value: u128) -> u128;
+    /// Subtract input from existing value.
+    /// # Arguments
+    /// * `key` - The key to subtract the value from.
+    /// * `value` - The value to subtract.
+    fn decrement_u128(ref self: TContractState, key: felt252, value: u128) -> u128;
 
     // *************************************************************************
     //                      Address related functions.
@@ -148,6 +178,7 @@ mod DataStore {
         role_store: IRoleStoreDispatcher,
         felt252_values: LegacyMap::<felt252, felt252>,
         u256_values: LegacyMap::<felt252, u256>,
+        u128_values: LegacyMap::<felt252, u128>,
         address_values: LegacyMap::<felt252, ContractAddress>,
         // FIXME: #9
         // For some reason it's not possible to store `Option<bool>` in the storage.
@@ -264,6 +295,52 @@ mod DataStore {
             new_value
         }
 
+        // *************************************************************************
+        //                          u128 related functions.
+        // *************************************************************************
+        fn get_u128(self: @ContractState, key: felt252) -> u128 {
+            self.u128_values.read(key)
+        }
+
+        fn set_u128(ref self: ContractState, key: felt252, value: u128) {
+            // Check that the caller has permission to set the value.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            // Set the value.
+            self.u128_values.write(key, value);
+        }
+
+        fn remove_u128(ref self: ContractState, key: felt252) {
+            // Check that the caller has permission to delete the value.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            // Delete the value.
+            self.u128_values.write(key, Default::default());
+        }
+
+        fn increment_u128(ref self: ContractState, key: felt252, value: u128) -> u128 {
+            // Check that the caller has permission to set the value.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            // Get the current value.
+            let current_value = self.u128_values.read(key);
+            // Add the delta to the current value.
+            let new_value = current_value + value;
+            // Set the new value.
+            self.u128_values.write(key, new_value);
+            // Return the new value.
+            new_value
+        }
+
+        fn decrement_u128(ref self: ContractState, key: felt252, value: u128) -> u128 {
+            // Check that the caller has permission to set the value.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            // Get the current value.
+            let current_value = self.u128_values.read(key);
+            // Subtract the delta from the current value.
+            let new_value = current_value - value;
+            // Set the new value.
+            self.u128_values.write(key, new_value);
+            // Return the new value.
+            new_value
+        }
 
         // *************************************************************************
         //                      Address related functions.
@@ -285,6 +362,7 @@ mod DataStore {
             // Delete the value.
             self.address_values.write(key, contract_address_const::<0>());
         }
+
         // *************************************************************************
         //                      Bool related functions.
         // *************************************************************************
