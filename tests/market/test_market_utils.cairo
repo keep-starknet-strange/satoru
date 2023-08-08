@@ -100,6 +100,101 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
     stop_prank(market_factory_address);
 }
 
+#[test]
+fn given_normal_conditions_when_get_pool_amount_then_works() {
+    // Setup required contracts.
+    let (
+        caller_address,
+        market_factory_address,
+        role_store_address,
+        data_store_address,
+        market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+    ) =
+        setup();
+
+    // Grant the caller the `CONTROLLER` role.
+    // We use the same account to deploy data_store and role_store, so we can grant the role
+    // because the caller is the owner of role_store contract.
+    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
+
+    // Grant the call the `MARKET_KEEPER` role.
+    // This role is required to create a market.
+    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
+
+    // Prank the caller address for calls to data_store contract.
+    // We need this so that the caller has the CONTROLLER role.
+    start_prank(data_store_address, caller_address);
+
+    // Prank the caller address for calls to market_factory contract.
+    // We need this so that the caller has the MARKET_KEEPER role.
+    start_prank(market_factory_address, caller_address);
+
+    // ****** LOGIC STARTS HERE ******
+
+    // *************************************************************************
+    //                     Case 1: long_token != short_token.
+    // *************************************************************************
+    let market_token_address = contract_address_const::<'market_token'>();
+    let token_address = contract_address_const::<'token_address'>();
+    let market = Market {
+        market_token: market_token_address,
+        index_token: contract_address_const::<'index_token'>(),
+        long_token: contract_address_const::<'long_token'>(),
+        short_token: contract_address_const::<'short_token'>(),
+    };
+    let pool_amount_key = keys::pool_amount_key(market_token_address, token_address);
+    data_store.set_u128(pool_amount_key, 1000);
+
+    let pool_amount = market_utils::get_pool_amount(data_store, @market, token_address);
+    // long_token != short_token, so the pool amount is 1000 because the divisor is 1.
+    assert(pool_amount == 1000, 'wrong pool amount');
+
+    // *************************************************************************
+    //                     Case 1: long_token == short_token.
+    // *************************************************************************
+    let market_token_address_2 = contract_address_const::<'market_token_2'>();
+    let token_address_2 = contract_address_const::<'token_address_2'>();
+    let market_2 = Market {
+        market_token: market_token_address_2,
+        index_token: contract_address_const::<'index_token_2'>(),
+        long_token: contract_address_const::<'same_token'>(),
+        short_token: contract_address_const::<'same_token'>(),
+    };
+    let pool_amount_key_2 = keys::pool_amount_key(market_token_address_2, token_address_2);
+    data_store.set_u128(pool_amount_key_2, 1000);
+    let pool_amount_2 = market_utils::get_pool_amount(data_store, @market_2, token_address_2);
+    // long_token == short_token, so the pool amount is 500 because the divisor is 2.
+    assert(pool_amount_2 == 500, 'wrong pool amount');
+
+    // ****** LOGIC ENDS HERE ******
+
+    // Stop pranking the caller address.
+    stop_prank(data_store_address);
+    stop_prank(market_factory_address);
+}
+
+#[test]
+fn given_normal_conditions_when_get_pool_divisor_then_works() {
+    // long token == short token, should return 2.
+    assert(
+        market_utils::get_pool_divisor(
+            contract_address_const::<1>(), contract_address_const::<1>()
+        ) == 2,
+        'wrong pool divisor'
+    );
+    // long token != short token, should return 1.
+    assert(
+        market_utils::get_pool_divisor(
+            contract_address_const::<1>(), contract_address_const::<2>()
+        ) == 1,
+        'wrong pool divisor'
+    );
+}
+
+
 /// Setup required contracts.
 fn setup() -> (
     // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
@@ -150,24 +245,6 @@ fn setup() -> (
         role_store,
         data_store
     )
-}
-
-#[test]
-fn given_normal_conditions_when_get_pool_divisor_then_works() {
-    // long token == short token, should return 2.
-    assert(
-        market_utils::get_pool_divisor(
-            contract_address_const::<1>(), contract_address_const::<1>()
-        ) == 2,
-        'wrong pool divisor'
-    );
-    // long token != short token, should return 1.
-    assert(
-        market_utils::get_pool_divisor(
-            contract_address_const::<1>(), contract_address_const::<2>()
-        ) == 1,
-        'wrong pool divisor'
-    );
 }
 
 /// Utility function to declare a `MarketToken` contract.
