@@ -880,6 +880,133 @@ fn given_zero_open_interest_in_tokens_when_get_pnl_then_returns_zero_pnl() {
     stop_prank(market_factory_address);
 }
 
+#[test]
+fn given_normal_conditions_when_get_position_impact_pool_amount_then_works() {
+    // Setup required contracts.
+    let (
+        caller_address,
+        market_factory_address,
+        role_store_address,
+        data_store_address,
+        market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        chain,
+        event_emitter,
+    ) =
+        setup();
+
+    // Grant the caller the `CONTROLLER` role.
+    // We use the same account to deploy data_store and role_store, so we can grant the role
+    // because the caller is the owner of role_store contract.
+    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
+
+    // Grant the call the `MARKET_KEEPER` role.
+    // This role is required to create a market.
+    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
+
+    // Prank the caller address for calls to data_store contract.
+    // We need this so that the caller has the CONTROLLER role.
+    start_prank(data_store_address, caller_address);
+
+    // Prank the caller address for calls to market_factory contract.
+    // We need this so that the caller has the MARKET_KEEPER role.
+    start_prank(market_factory_address, caller_address);
+
+    // ****** LOGIC STARTS HERE ******
+
+    // Define variables for the test case.
+    let market_token_address = contract_address_const::<'market_token'>();
+
+    // Setup pre conditions.
+
+    // Fill required data store keys.
+    let position_impact_pool_amount_key = keys::position_impact_pool_amount_key(
+        market_token_address
+    );
+    data_store.set_u128(position_impact_pool_amount_key, 1000);
+
+    // Actual test case.
+    let position_impact_pool_amount = market_utils::get_position_impact_pool_amount(
+        data_store, market_token_address
+    );
+
+    // Perform assertions.
+
+    assert(position_impact_pool_amount == 1000, 'wrong pool amount');
+
+    // ****** LOGIC ENDS HERE ******
+
+    // Stop pranking the caller address.
+    stop_prank(data_store_address);
+    stop_prank(market_factory_address);
+}
+
+#[test]
+fn given_normal_conditions_when_get_swap_impact_pool_amount_then_works() {
+    // Setup required contracts.
+    let (
+        caller_address,
+        market_factory_address,
+        role_store_address,
+        data_store_address,
+        market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        chain,
+        event_emitter,
+    ) =
+        setup();
+
+    // Grant the caller the `CONTROLLER` role.
+    // We use the same account to deploy data_store and role_store, so we can grant the role
+    // because the caller is the owner of role_store contract.
+    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
+
+    // Grant the call the `MARKET_KEEPER` role.
+    // This role is required to create a market.
+    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
+
+    // Prank the caller address for calls to data_store contract.
+    // We need this so that the caller has the CONTROLLER role.
+    start_prank(data_store_address, caller_address);
+
+    // Prank the caller address for calls to market_factory contract.
+    // We need this so that the caller has the MARKET_KEEPER role.
+    start_prank(market_factory_address, caller_address);
+
+    // ****** LOGIC STARTS HERE ******
+
+    // Define variables for the test case.
+    let market_token_address = contract_address_const::<'market_token'>();
+    let token = contract_address_const::<'token'>();
+
+    // Setup pre conditions.
+
+    // Fill required data store keys.
+    let swap_impact_pool_amount_key = keys::swap_impact_pool_amount_key(
+        market_token_address, token
+    );
+    data_store.set_u128(swap_impact_pool_amount_key, 1000);
+
+    // Actual test case.
+    let swap_impact_pool_amount = market_utils::get_swap_impact_pool_amount(
+        data_store, market_token_address, token,
+    );
+
+    // Perform assertions.
+
+    assert(swap_impact_pool_amount == 1000, 'wrong pool amount');
+
+    // ****** LOGIC ENDS HERE ******
+
+    // Stop pranking the caller address.
+    stop_prank(data_store_address);
+    stop_prank(market_factory_address);
+}
+
 /// Setup required contracts.
 fn setup() -> (
     // This caller address will be used with `start_prank` cheatcode to mock the caller address.,

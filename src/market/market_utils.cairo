@@ -305,3 +305,28 @@ fn get_pnl(
         open_interest - open_interest_value
     }
 }
+
+/// Get the position impact pool amount.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market_address` - The market to get the position impact pool amount for.
+/// # Returns
+/// The position impact pool amount.
+fn get_position_impact_pool_amount(
+    data_store: IDataStoreSafeDispatcher, market_address: ContractAddress
+) -> u128 {
+    data_store.get_u128(keys::position_impact_pool_amount_key(market_address)).unwrap()
+}
+
+/// Get the swap impact pool amount.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market_address` - The market to get the swap impact pool amount for.
+/// * `token` - The token to get the swap impact pool amount for.
+/// # Returns
+/// The swap impact pool amount.
+fn get_swap_impact_pool_amount(
+    data_store: IDataStoreSafeDispatcher, market_address: ContractAddress, token: ContractAddress
+) -> u128 {
+    data_store.get_u128(keys::swap_impact_pool_amount_key(market_address, token)).unwrap()
+}
