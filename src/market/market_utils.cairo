@@ -34,6 +34,31 @@ fn get_open_interest(
     data_store.get_u128(key).unwrap() / divisor
 }
 
+/// Get the long and short open interest in tokens for a market.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market to get the open interest for.
+/// * `is_long` - Whether to get the long or short open interest.
+/// # Returns
+/// The long and short open interest in tokens for a market based on the collateral token used.
+fn get_open_interest_in_tokens_for_market(
+    data_store: IDataStoreSafeDispatcher, market: @Market, is_long: bool,
+) -> u128 {
+    // Get the pool divisor.
+    let divisor = get_pool_divisor(*market.long_token, *market.short_token);
+
+    // Get the open interest for the long token as collateral.
+    let open_interest_using_long_token_as_collateral = get_open_interest_in_tokens(
+        data_store, *market.market_token, *market.long_token, is_long, divisor
+    );
+    // Get the open interest for the short token as collateral.
+    let open_interest_using_short_token_as_collateral = get_open_interest_in_tokens(
+        data_store, *market.market_token, *market.short_token, is_long, divisor
+    );
+    // Return the sum of the open interests.
+    open_interest_using_long_token_as_collateral + open_interest_using_short_token_as_collateral
+}
+
 /// Get the long and short open interest in tokens for a market based on the collateral token used.
 /// # Arguments
 /// * `data_store` - The data store to use.
