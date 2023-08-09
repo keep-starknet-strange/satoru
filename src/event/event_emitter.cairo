@@ -35,6 +35,20 @@ trait IEventEmitter<TContractState> {
         next_pool_value: u128,
     );
 
+    /// Emits the `PositionImpactPoolAmountUpdated` event.
+    fn emit_position_impact_pool_amount_updated(
+        ref self: TContractState, market: ContractAddress, delta: u128, next_value: u128, 
+    );
+
+    /// Emits the `SwapImpactPoolAmountUpdated` event.
+    fn emit_swap_impact_pool_amount_updated(
+        ref self: TContractState,
+        market: ContractAddress,
+        token: ContractAddress,
+        delta: u128,
+        next_value: u128,
+    );
+
     /// Emits the `MarketCreated` event.
     fn emit_market_created(
         ref self: TContractState,
@@ -78,6 +92,8 @@ mod EventEmitter {
     enum Event {
         ClaimableCollateralUpdated: ClaimableCollateralUpdated,
         ClaimableFundingUpdated: ClaimableFundingUpdated,
+        PositionImpactPoolAmountUpdated: PositionImpactPoolAmountUpdated,
+        SwapImpactPoolAmountUpdated: SwapImpactPoolAmountUpdated,
         MarketCreated: MarketCreated,
         MarketTokenClassHashUpdated: MarketTokenClassHashUpdated,
     }
@@ -101,6 +117,21 @@ mod EventEmitter {
         delta: u128,
         next_value: u128,
         next_pool_value: u128,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct PositionImpactPoolAmountUpdated {
+        market: ContractAddress,
+        delta: u128,
+        next_value: u128,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SwapImpactPoolAmountUpdated {
+        market: ContractAddress,
+        token: ContractAddress,
+        delta: u128,
+        next_value: u128,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -161,6 +192,24 @@ mod EventEmitter {
                         market, token, account, delta, next_value, next_pool_value, 
                     }
                 );
+        }
+
+        /// Emits the `PositionImpactPoolAmountUpdated` event.
+        fn emit_position_impact_pool_amount_updated(
+            ref self: ContractState, market: ContractAddress, delta: u128, next_value: u128, 
+        ) {
+            self.emit(PositionImpactPoolAmountUpdated { market, delta, next_value,  });
+        }
+
+        /// Emits the `SwapImpactPoolAmountUpdated` event.
+        fn emit_swap_impact_pool_amount_updated(
+            ref self: ContractState,
+            market: ContractAddress,
+            token: ContractAddress,
+            delta: u128,
+            next_value: u128,
+        ) {
+            self.emit(SwapImpactPoolAmountUpdated { market, token, delta, next_value,  });
         }
 
         /// Emits the `MarketCreated` event.
