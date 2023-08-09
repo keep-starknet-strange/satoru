@@ -41,7 +41,7 @@ fn get_open_interest(
 /// * `market` - The market to get the open interest for.
 /// # Returns
 /// The long and short open interest for a market.
-fn get_open_interest_for_market(data_store: IDataStoreSafeDispatcher, market: @Market, ) -> u128 {
+fn get_open_interest_for_market(data_store: IDataStoreSafeDispatcher, market: @Market,) -> u128 {
     // Get the open interest for the long token as collateral.
     let long_open_interest = get_open_interest_for_market_is_long(data_store, market, true);
     // Get the open interest for the short token as collateral.
@@ -82,7 +82,7 @@ fn get_open_interest_for_market_is_long(
 /// # Returns
 /// The long and short open interest in tokens for a market based on the collateral token used.
 fn get_open_interest_in_tokens_for_market(
-    data_store: IDataStoreSafeDispatcher, market: @Market, is_long: bool, 
+    data_store: IDataStoreSafeDispatcher, market: @Market, is_long: bool,
 ) -> u128 {
     // Get the pool divisor.
     let divisor = get_pool_divisor(*market.long_token, *market.short_token);
@@ -206,6 +206,42 @@ fn increment_claimable_collateral_amount(
     event_emitter
         .emit_claimable_collateral_updated(
             market_address, token, account, time_key, delta, next_value, next_pool_value
+        )
+        .unwrap();
+}
+
+/// Increment the claimable funding amount.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `event_emitter` - The interface to interact with `EventEmitter` contract.
+/// * `market_address` - The market to increment.
+/// * `token` - The claimable token.
+/// * `account` - The account to increment the claimable funding for.
+/// * `delta` - The amount to increment by.
+fn increment_claimable_funding_amount(
+    data_store: IDataStoreSafeDispatcher,
+    event_emitter: IEventEmitterSafeDispatcher,
+    market_address: ContractAddress,
+    token: ContractAddress,
+    account: ContractAddress,
+    delta: u128
+) {
+    // Increment the funding amount for the account.
+    let next_value = data_store
+        .increment_u128(
+            keys::claimable_funding_amount_by_account_key(market_address, token, account), delta
+        )
+        .unwrap();
+
+    // Increment the total funding amount for the market.
+    let next_pool_value = data_store
+        .increment_u128(keys::claimable_funding_amount_key(market_address, token), delta)
+        .unwrap();
+
+    // Emit event.
+    event_emitter
+        .emit_claimable_funding_updated(
+            market_address, token, account, delta, next_value, next_pool_value
         )
         .unwrap();
 }
