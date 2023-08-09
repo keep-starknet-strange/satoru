@@ -330,3 +330,61 @@ fn get_swap_impact_pool_amount(
 ) -> u128 {
     data_store.get_u128(keys::swap_impact_pool_amount_key(market_address, token)).unwrap()
 }
+
+/// Apply delta to the position impact pool.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `event_emitter` - The interface to interact with `EventEmitter` contract.
+/// * `market_address` - The market to apply the delta to.
+/// * `delta` - The delta to apply.
+/// # Returns
+/// The updated position impact pool amount.
+fn apply_delta_to_position_impact_pool(
+    data_store: IDataStoreSafeDispatcher,
+    event_emitter: IEventEmitterSafeDispatcher,
+    market_address: ContractAddress,
+    delta: u128
+) -> u128 {
+    // Increment the position impact pool amount.
+    let next_value = data_store
+        .increment_u128(keys::position_impact_pool_amount_key(market_address), delta)
+        .unwrap();
+
+    // Emit event.
+    event_emitter
+        .emit_position_impact_pool_amount_updated(market_address, delta, next_value)
+        .unwrap();
+
+    // Return the updated position impact pool amount.
+    next_value
+}
+
+/// Apply delta to the swap impact pool.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `event_emitter` - The interface to interact with `EventEmitter` contract.
+/// * `market_address` - The market to apply the delta to.
+/// * `token` - The token to apply the delta to.
+/// * `delta` - The delta to apply.
+/// # Returns
+/// The updated swap impact pool amount.
+fn apply_delta_to_swap_impact_pool(
+    data_store: IDataStoreSafeDispatcher,
+    event_emitter: IEventEmitterSafeDispatcher,
+    market_address: ContractAddress,
+    token: ContractAddress,
+    delta: u128
+) -> u128 {
+    // Increment the swap impact pool amount.
+    let next_value = data_store
+        .increment_u128(keys::swap_impact_pool_amount_key(market_address, token), delta)
+        .unwrap();
+
+    // Emit event.
+    event_emitter
+        .emit_swap_impact_pool_amount_updated(market_address, token, delta, next_value)
+        .unwrap();
+
+    // Return the updated swap impact pool amount.
+    next_value
+}
