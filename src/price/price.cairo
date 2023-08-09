@@ -2,9 +2,9 @@
 #[derive(Copy, Drop)]
 struct Price {
     /// The minimum price.
-    min: u256,
+    min: u128,
     /// The maximum price.
-    max: u256,
+    max: u128,
 }
 
 /// The trait for `Price` struct.
@@ -14,14 +14,14 @@ trait PriceTrait {
     /// * `self` - The `Price` struct.
     /// # Returns
     /// * The average of the min and max values.
-    fn mid_price(self: @Price) -> u256;
+    fn mid_price(self: @Price) -> u128;
     /// Pick either the min or max value.
     /// # Arguments
     /// * `self` - The `Price` struct.
     /// * `maximize` - If true, pick the max value. Otherwise, pick the min value.
     /// # Returns
     /// * The min or max value.
-    fn pick_price(self: @Price, maximize: bool) -> u256;
+    fn pick_price(self: @Price, maximize: bool) -> u128;
     /// Pick the min or max price depending on wheter it is for a long or a short position,
     /// and whether the pending pnl should be maximized or not.
     /// # Arguments
@@ -30,15 +30,15 @@ trait PriceTrait {
     /// * `maximize` - Whether the pending pnl should be maximized or not.
     /// # Returns
     /// * The min or max price.
-    fn pick_price_for_pnl(self: @Price, is_long: bool, maximize: bool) -> u256;
+    fn pick_price_for_pnl(self: @Price, is_long: bool, maximize: bool) -> u128;
 }
 
 impl PriceImpl of PriceTrait {
-    fn mid_price(self: @Price) -> u256 {
+    fn mid_price(self: @Price) -> u128 {
         (*self.min + *self.max) / 2
     }
 
-    fn pick_price(self: @Price, maximize: bool) -> u256 {
+    fn pick_price(self: @Price, maximize: bool) -> u128 {
         if maximize {
             *self.max
         } else {
@@ -46,7 +46,7 @@ impl PriceImpl of PriceTrait {
         }
     }
 
-    fn pick_price_for_pnl(self: @Price, is_long: bool, maximize: bool) -> u256 {
+    fn pick_price_for_pnl(self: @Price, is_long: bool, maximize: bool) -> u128 {
         if is_long {
             self.pick_price(maximize)
         } else {

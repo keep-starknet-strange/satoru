@@ -14,6 +14,7 @@ use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeD
 use gojo::data::keys;
 use gojo::market::error::MarketError;
 use gojo::market::market::Market;
+use gojo::price::price::{Price, PriceTrait};
 
 /// Get the long and short open interest for a market based on the collateral token used.
 /// # Arguments
@@ -33,6 +34,45 @@ fn get_open_interest(
     let key = keys::open_interest_key(market, collateral_token, is_long);
     data_store.get_u128(key).unwrap() / divisor
 }
+
+/// Get the long and short open interest for a market.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market to get the open interest for.
+/// # Returns
+/// The long and short open interest for a market.
+fn get_open_interest_for_market(data_store: IDataStoreSafeDispatcher, market: @Market,) -> u128 {
+    // Get the open interest for the long token as collateral.
+    let long_open_interest = get_open_interest_for_market_is_long(data_store, market, true);
+    // Get the open interest for the short token as collateral.
+    let short_open_interest = get_open_interest_for_market_is_long(data_store, market, false);
+    long_open_interest + short_open_interest
+}
+
+/// Get the long and short open interest for a market.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market to get the open interest for.
+/// * `is_long` - Whether to get the long or short open interest.
+/// # Returns
+/// The long and short open interest for a market.
+fn get_open_interest_for_market_is_long(
+    data_store: IDataStoreSafeDispatcher, market: @Market, is_long: bool
+) -> u128 {
+    // Get the pool divisor.
+    let divisor = get_pool_divisor(*market.long_token, *market.short_token);
+    // Get the open interest for the long token as collateral.
+    let open_interest_using_long_token_as_collateral = get_open_interest(
+        data_store, *market.market_token, *market.long_token, is_long, divisor
+    );
+    // Get the open interest for the short token as collateral.
+    let open_interest_using_short_token_as_collateral = get_open_interest(
+        data_store, *market.market_token, *market.short_token, is_long, divisor
+    );
+    // Return the sum of the open interests.
+    open_interest_using_long_token_as_collateral + open_interest_using_short_token_as_collateral
+}
+
 
 /// Get the long and short open interest in tokens for a market.
 /// # Arguments
@@ -184,5 +224,48 @@ fn get_pool_divisor(long_token: ContractAddress, short_token: ContractAddress) -
         2
     } else {
         1
+    }
+}
+
+/// Get the pending PNL for a market for either longs or shorts.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market to get the pending PNL for.
+/// * `index_token_price` - The price of the index token.
+/// * `is_long` - Whether to get the long or short pending PNL.
+/// * `maximize` - Whether to maximize or minimize the net PNL.
+/// # Returns
+/// The pending PNL for a market for either longs or shorts.
+fn get_pnl(
+    data_store: IDataStoreSafeDispatcher,
+    market: @Market,
+    index_token_price: @Price,
+    is_long: bool,
+    maximize: bool
+) -> u128 {
+    // Get the open interest.
+    let open_interest = get_open_interest_for_market_is_long(data_store, market, is_long);
+    // Get the open interest in tokens.
+    let open_interest_in_tokens = get_open_interest_in_tokens_for_market(
+        data_store, market, is_long
+    );
+    // If either the open interest or the open interest in tokens is zero, return zero.
+    if open_interest == 0 || open_interest_in_tokens == 0 {
+        return 0;
+    }
+
+    // Pick the price for PNL.
+    let price = index_token_price.pick_price_for_pnl(is_long, maximize);
+
+    //  `open_interest` is the cost of all positions, `open_interest_valu`e is the current worth of all positions.
+    let open_interest_value = open_interest_in_tokens * price;
+
+    // Return the PNL.
+    // If `is_long` is true, then the PNL is the difference between the current worth of all positions and the cost of all positions.
+    // If `is_long` is false, then the PNL is the difference between the cost of all positions and the current worth of all positions.
+    if is_long {
+        open_interest_value - open_interest
+    } else {
+        open_interest - open_interest_value
     }
 }
