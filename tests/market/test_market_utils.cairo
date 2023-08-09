@@ -18,6 +18,7 @@ use debug::PrintTrait;
 use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
 use gojo::chain::chain::{IChainSafeDispatcher, IChainSafeDispatcherTrait};
+use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
 use gojo::market::market_factory::{IMarketFactorySafeDispatcher, IMarketFactorySafeDispatcherTrait};
 use gojo::market::market::{Market, UniqueIdMarket, IntoMarketToken};
 use gojo::market::market_token::{IMarketTokenSafeDispatcher, IMarketTokenSafeDispatcherTrait};
@@ -38,6 +39,7 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
         role_store,
         data_store,
         chain,
+        event_emitter,
     ) =
         setup();
 
@@ -116,6 +118,7 @@ fn given_normal_conditions_when_get_pool_amount_then_works() {
         role_store,
         data_store,
         chain,
+        event_emitter,
     ) =
         setup();
 
@@ -193,6 +196,7 @@ fn given_normal_conditions_when_get_max_pool_amount_then_works() {
         role_store,
         data_store,
         chain,
+        event_emitter,
     ) =
         setup();
 
@@ -254,6 +258,7 @@ fn given_normal_conditions_when_get_max_open_interest_then_works() {
         role_store,
         data_store,
         chain,
+        event_emitter,
     ) =
         setup();
 
@@ -317,6 +322,7 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
         role_store,
         data_store,
         chain,
+        event_emitter,
     ) =
         setup();
 
@@ -364,7 +370,7 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
 
     // Actual test case.
     market_utils::increment_claimable_collateral_amount(
-        data_store, chain, market_address, token, account, delta
+        data_store, chain, event_emitter, market_address, token, account, delta
     );
 
     // Perform assertions.
@@ -425,6 +431,8 @@ fn setup() -> (
     IDataStoreSafeDispatcher,
     // Interface to interact with the `Chain` library contract.
     IChainSafeDispatcher,
+    // Interface to interact with the `EventEmitter` contract.
+    IEventEmitterSafeDispatcher,
 ) {
     // Deploy the role store contract.
     let role_store_address = deploy_role_store();
@@ -440,17 +448,22 @@ fn setup() -> (
     // Declare the `MarketToken` contract.
     let market_token_class_hash = declare('MarketToken');
 
-    // Deploy the market factory.
-    let market_factory_address = deploy_market_factory(
-        data_store_address, role_store_address, market_token_class_hash
-    );
-    // Create a safe dispatcher to interact with the contract.
-    let market_factory = IMarketFactorySafeDispatcher { contract_address: market_factory_address };
-
     // Declare the `Chain` library contract.
     let chain_address = deploy_chain();
     // Create a safe dispatcher to interact with the contract.
     let chain = IChainSafeDispatcher { contract_address: chain_address };
+
+    // Deploy the `EventEmitter` contract.
+    let event_emitter_address = deploy_event_emitter();
+    // Create a safe dispatcher to interact with the contract.
+    let event_emitter = IEventEmitterSafeDispatcher { contract_address: event_emitter_address };
+
+    // Deploy the market factory.
+    let market_factory_address = deploy_market_factory(
+        data_store_address, role_store_address, event_emitter_address, market_token_class_hash
+    );
+    // Create a safe dispatcher to interact with the contract.
+    let market_factory = IMarketFactorySafeDispatcher { contract_address: market_factory_address };
 
     (
         contract_address_const::<'caller'>(),
@@ -462,6 +475,7 @@ fn setup() -> (
         role_store,
         data_store,
         chain,
+        event_emitter,
     )
 }
 
@@ -469,12 +483,14 @@ fn setup() -> (
 fn deploy_market_factory(
     data_store_address: ContractAddress,
     role_store_address: ContractAddress,
+    event_emitter_address: ContractAddress,
     market_token_class_hash: ClassHash,
 ) -> ContractAddress {
     let class_hash = declare('MarketFactory');
     let mut constructor_calldata = ArrayTrait::new();
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
+    constructor_calldata.append(event_emitter_address.into());
     constructor_calldata.append(market_token_class_hash.into());
     let prepared = PreparedContract {
         class_hash: class_hash, constructor_calldata: @constructor_calldata
@@ -508,6 +524,15 @@ fn deploy_role_store() -> ContractAddress {
 /// Utility function to deploy a `Chain` contract and return its address.
 fn deploy_chain() -> ContractAddress {
     let class_hash = declare('Chain');
+    let prepared = PreparedContract {
+        class_hash: class_hash, constructor_calldata: @ArrayTrait::new()
+    };
+    deploy(prepared).unwrap()
+}
+
+/// Utility function to deploy a `EventEmitter` contract and return its address.
+fn deploy_event_emitter() -> ContractAddress {
+    let class_hash = declare('EventEmitter');
     let prepared = PreparedContract {
         class_hash: class_hash, constructor_calldata: @ArrayTrait::new()
     };

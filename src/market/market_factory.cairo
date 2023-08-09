@@ -54,6 +54,7 @@ mod MarketFactory {
     use gojo::role::role;
     use gojo::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use gojo::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
     use gojo::market::market::{Market, UniqueIdMarket};
 
     // *************************************************************************
@@ -61,41 +62,15 @@ mod MarketFactory {
     // *************************************************************************
     #[storage]
     struct Storage {
-        /// Interface to interact with the data store contract.
+        /// Interface to interact with the `DataStore` contract.
         data_store: IDataStoreDispatcher,
-        /// Interface to interact with the role store contract.
+        /// Interface to interact with the `RoleStore` contract.
         role_store: IRoleStoreDispatcher,
+        /// Interface to interact with the `EventEmitter` contract.
+        event_emitter: IEventEmitterSafeDispatcher,
         /// The class hash of the `MarketToken` contract to deploy when creating a new market.
         market_token_class_hash: ClassHash,
     }
-
-    // *************************************************************************
-    // EVENTS
-    // *************************************************************************
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        MarketCreated: MarketCreated,
-        MarketTokenClassHashUpdated: MarketTokenClassHashUpdated,
-    }
-
-    #[derive(Drop, starknet::Event)]
-    struct MarketCreated {
-        creator: ContractAddress,
-        market_token: ContractAddress,
-        index_token: ContractAddress,
-        long_token: ContractAddress,
-        short_token: ContractAddress,
-        market_type: felt252,
-    }
-
-    #[derive(Drop, starknet::Event)]
-    struct MarketTokenClassHashUpdated {
-        updated_by: ContractAddress,
-        previous_value: ClassHash,
-        new_value: ClassHash,
-    }
-
 
     // *************************************************************************
     //                              CONSTRUCTOR
@@ -105,16 +80,21 @@ mod MarketFactory {
     /// # Arguments
     /// * `data_store_adress` - The address of the data store contract.
     /// * `role_store_address` - The address of the role store contract.
+    /// * `event_emitter_address` - The address of the event emitter contract.
     /// * `market_token_class_hash` - The class hash of the `MarketToken` contract to deploy when creating a new market.
     #[constructor]
     fn constructor(
         ref self: ContractState,
         data_store_adress: ContractAddress,
         role_store_address: ContractAddress,
+        event_emitter_address: ContractAddress,
         market_token_class_hash: ClassHash,
     ) {
         self.data_store.write(IDataStoreDispatcher { contract_address: data_store_adress });
         self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
+        self
+            .event_emitter
+            .write(IEventEmitterSafeDispatcher { contract_address: event_emitter_address });
         self.market_token_class_hash.write(market_token_class_hash);
     }
 
@@ -169,16 +149,17 @@ mod MarketFactory {
 
             // Emit the event.
             self
-                .emit(
-                    MarketCreated {
-                        creator: caller_address,
-                        market_token: market_token_deployed_address,
-                        index_token,
-                        long_token,
-                        short_token,
-                        market_type,
-                    }
-                );
+                .event_emitter
+                .read()
+                .emit_market_created(
+                    caller_address,
+                    market_token_deployed_address,
+                    index_token,
+                    long_token,
+                    short_token,
+                    market_type,
+                )
+                .unwrap();
 
             // Return the market token address and the market key.
             (market_token_deployed_address, market_key)
@@ -202,13 +183,12 @@ mod MarketFactory {
 
             // Emit the event.
             self
-                .emit(
-                    MarketTokenClassHashUpdated {
-                        updated_by: caller_address,
-                        previous_value: old_market_token_class_hash,
-                        new_value: market_token_class_hash,
-                    }
-                );
+                .event_emitter
+                .read()
+                .emit_market_token_class_hash_updated(
+                    caller_address, old_market_token_class_hash, market_token_class_hash,
+                )
+                .unwrap();
         }
     }
 
