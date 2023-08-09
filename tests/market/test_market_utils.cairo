@@ -105,6 +105,67 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
     stop_prank(market_factory_address);
 }
 
+
+#[test]
+fn given_normal_conditions_when_get_open_interest_in_tokens_then_works() {
+    // Setup required contracts.
+    let (
+        caller_address,
+        market_factory_address,
+        role_store_address,
+        data_store_address,
+        market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        chain,
+        event_emitter,
+    ) =
+        setup();
+
+    // Grant the caller the `CONTROLLER` role.
+    // We use the same account to deploy data_store and role_store, so we can grant the role
+    // because the caller is the owner of role_store contract.
+    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
+
+    // Grant the call the `MARKET_KEEPER` role.
+    // This role is required to create a market.
+    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
+
+    // Prank the caller address for calls to data_store contract.
+    // We need this so that the caller has the CONTROLLER role.
+    start_prank(data_store_address, caller_address);
+
+    // Prank the caller address for calls to market_factory contract.
+    // We need this so that the caller has the MARKET_KEEPER role.
+    start_prank(market_factory_address, caller_address);
+
+    // ****** LOGIC STARTS HERE ******
+
+    let market_address = contract_address_const::<'market_address'>();
+    let collateral_token = contract_address_const::<'collateral_token'>();
+    let is_long = true;
+    let divisor = 3;
+
+    let open_interest_in_tokens_key = keys::open_interest_in_tokens_key(
+        market_address, collateral_token, is_long
+    );
+    data_store.set_u128(open_interest_in_tokens_key, 300);
+
+    let open_interest_in_tokens = market_utils::get_open_interest_in_tokens(
+        data_store, market_address, collateral_token, is_long, divisor
+    );
+    // Open interest is 300, so 300 / 3 = 100.
+    assert(open_interest_in_tokens == 100, 'wrong open interest');
+
+    // ****** LOGIC ENDS HERE ******
+
+    // Stop pranking the caller address.
+    stop_prank(data_store_address);
+    stop_prank(market_factory_address);
+}
+
+
 #[test]
 fn given_normal_conditions_when_get_pool_amount_then_works() {
     // Setup required contracts.
