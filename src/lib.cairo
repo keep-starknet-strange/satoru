@@ -3,6 +3,9 @@
 // `chain` is a module that contains utility function for interacting with the chain and getting information.
 mod chain;
 
+// `event` is a module event management functions.
+mod event;
+
 // `data` is a module that contains the data store for the system.
 mod data;
 

@@ -10,6 +10,7 @@ use debug::PrintTrait;
 // Local imports.
 use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 use gojo::chain::chain::{IChainSafeDispatcher, IChainSafeDispatcherTrait};
+use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
 use gojo::data::keys;
 use gojo::market::error::MarketError;
 use gojo::market::market::Market;
@@ -80,6 +81,7 @@ fn get_max_open_interest(
 /// # Arguments
 /// * `data_store` - The data store to use.
 /// * `chain` - The interface to interact with `Chain` library contract.
+/// * `event_emitter` - The interface to interact with `EventEmitter` contract.
 /// * `market_address` - The market to increment.
 /// * `token` - The claimable token.
 /// * `account` - The account to increment the claimable collateral for.
@@ -87,6 +89,7 @@ fn get_max_open_interest(
 fn increment_claimable_collateral_amount(
     data_store: IDataStoreSafeDispatcher,
     chain: IChainSafeDispatcher,
+    event_emitter: IEventEmitterSafeDispatcher,
     market_address: ContractAddress,
     token: ContractAddress,
     account: ContractAddress,
@@ -111,7 +114,13 @@ fn increment_claimable_collateral_amount(
     let next_pool_value = data_store
         .increment_u128(keys::claimable_collateral_amount_key(market_address, token), delta)
         .unwrap();
-// TODO: Add an event emitter in parameter and emit the event here.
+
+    // Emit event.
+    event_emitter
+        .emit_claimable_collateral_updated(
+            market_address, token, account, time_key, delta, next_value, next_pool_value
+        )
+        .unwrap();
 }
 
 /// Get the pool divisor.

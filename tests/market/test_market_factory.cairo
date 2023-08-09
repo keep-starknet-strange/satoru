@@ -17,6 +17,7 @@ use cheatcodes::PreparedContract;
 use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
 use gojo::market::market_factory::{IMarketFactorySafeDispatcher, IMarketFactorySafeDispatcherTrait};
+use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
 use gojo::market::market::{Market, UniqueIdMarket};
 use gojo::market::market_token::{IMarketTokenSafeDispatcher, IMarketTokenSafeDispatcherTrait};
 use gojo::role::role;
@@ -33,6 +34,7 @@ fn given_normal_conditions_when_create_market_then_market_is_created() {
         market_factory,
         role_store,
         data_store,
+        event_emitter,
     ) =
         setup();
 
@@ -102,6 +104,7 @@ fn given_bad_params_when_create_market_then_fail() {
         market_factory,
         role_store,
         data_store,
+        event_emitter,
     ) =
         setup();
 
@@ -171,6 +174,8 @@ fn setup() -> (
     IRoleStoreSafeDispatcher,
     // Interface to interact with the `DataStore` contract.
     IDataStoreSafeDispatcher,
+    // Interface to interact with the `EventEmitter` contract.
+    IEventEmitterSafeDispatcher,
 ) {
     // Deploy the role store contract.
     let role_store_address = deploy_role_store();
@@ -186,9 +191,14 @@ fn setup() -> (
     // Declare the `MarketToken` contract.
     let market_token_class_hash = declare_market_token();
 
+    // Deploy the event emitter contract.
+    let event_emitter_address = deploy_event_emitter();
+    // Create a safe dispatcher to interact with the contract.
+    let event_emitter = IEventEmitterSafeDispatcher { contract_address: event_emitter_address };
+
     // Deploy the market factory.
     let market_factory_address = deploy_market_factory(
-        data_store_address, role_store_address, market_token_class_hash
+        data_store_address, role_store_address, event_emitter_address, market_token_class_hash
     );
     // Create a safe dispatcher to interact with the contract.
     let market_factory = IMarketFactorySafeDispatcher { contract_address: market_factory_address };
@@ -201,7 +211,8 @@ fn setup() -> (
         market_token_class_hash,
         market_factory,
         role_store,
-        data_store
+        data_store,
+        event_emitter,
     )
 }
 
@@ -214,12 +225,14 @@ fn declare_market_token() -> ClassHash {
 fn deploy_market_factory(
     data_store_address: ContractAddress,
     role_store_address: ContractAddress,
+    event_emitter_address: ContractAddress,
     market_token_class_hash: ClassHash,
 ) -> ContractAddress {
     let class_hash = declare('MarketFactory');
     let mut constructor_calldata = ArrayTrait::new();
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
+    constructor_calldata.append(event_emitter_address.into());
     constructor_calldata.append(market_token_class_hash.into());
     let prepared = PreparedContract {
         class_hash: class_hash, constructor_calldata: @constructor_calldata
@@ -244,6 +257,15 @@ fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
 /// TODO: Find a way to share this code.
 fn deploy_role_store() -> ContractAddress {
     let class_hash = declare('RoleStore');
+    let prepared = PreparedContract {
+        class_hash: class_hash, constructor_calldata: @ArrayTrait::new()
+    };
+    deploy(prepared).unwrap()
+}
+
+/// Utility function to deploy a `EventEmitter` contract and return its address.
+fn deploy_event_emitter() -> ContractAddress {
+    let class_hash = declare('EventEmitter');
     let prepared = PreparedContract {
         class_hash: class_hash, constructor_calldata: @ArrayTrait::new()
     };
