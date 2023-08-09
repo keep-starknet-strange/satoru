@@ -368,7 +368,7 @@ mod DataStore {
         // *************************************************************************
         fn get_bool(self: @ContractState, key: felt252) -> Option<bool> {
             //self.bool_values.read(key)
-            Option::None(())
+            Option::None
         }
 
         fn set_bool(
@@ -384,7 +384,7 @@ mod DataStore {
         ) { // Check that the caller has permission to delete the value.
         //self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
         // Delete the value.
-        //self.bool_values.write(key, Option::None(()));
+        //self.bool_values.write(key, Option::None);
         }
 
         // *************************************************************************
@@ -396,7 +396,7 @@ mod DataStore {
 
             // We use the zero address to indicate that the market does not exist.
             if market.index_token.is_zero() {
-                Option::None(())
+                Option::None
             } else {
                 Option::Some(market)
             }
