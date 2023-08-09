@@ -119,7 +119,7 @@ mod EventEmitter {
             self
                 .emit(
                     ClaimableCollateralUpdated {
-                        market, token, account, time_key, delta, next_value, next_pool_value,
+                        market, token, account, time_key, delta, next_value, next_pool_value, 
                     }
                 );
         }
@@ -137,7 +137,7 @@ mod EventEmitter {
             self
                 .emit(
                     MarketCreated {
-                        creator, market_token, index_token, long_token, short_token, market_type,
+                        creator, market_token, index_token, long_token, short_token, market_type, 
                     }
                 );
         }
@@ -149,7 +149,7 @@ mod EventEmitter {
             previous_value: ClassHash,
             new_value: ClassHash,
         ) {
-            self.emit(MarketTokenClassHashUpdated { updated_by, previous_value, new_value, });
+            self.emit(MarketTokenClassHashUpdated { updated_by, previous_value, new_value,  });
         }
     }
 }
