@@ -24,6 +24,17 @@ trait IEventEmitter<TContractState> {
         next_pool_value: u128,
     );
 
+    /// Emits the `ClaimableFundingUpdated` event.
+    fn emit_claimable_funding_updated(
+        ref self: TContractState,
+        market: ContractAddress,
+        token: ContractAddress,
+        account: ContractAddress,
+        delta: u128,
+        next_value: u128,
+        next_pool_value: u128,
+    );
+
     /// Emits the `MarketCreated` event.
     fn emit_market_created(
         ref self: TContractState,
@@ -66,6 +77,7 @@ mod EventEmitter {
     #[derive(Drop, starknet::Event)]
     enum Event {
         ClaimableCollateralUpdated: ClaimableCollateralUpdated,
+        ClaimableFundingUpdated: ClaimableFundingUpdated,
         MarketCreated: MarketCreated,
         MarketTokenClassHashUpdated: MarketTokenClassHashUpdated,
     }
@@ -81,6 +93,15 @@ mod EventEmitter {
         next_pool_value: u128,
     }
 
+    #[derive(Drop, starknet::Event)]
+    struct ClaimableFundingUpdated {
+        market: ContractAddress,
+        token: ContractAddress,
+        account: ContractAddress,
+        delta: u128,
+        next_value: u128,
+        next_pool_value: u128,
+    }
 
     #[derive(Drop, starknet::Event)]
     struct MarketCreated {
@@ -119,7 +140,25 @@ mod EventEmitter {
             self
                 .emit(
                     ClaimableCollateralUpdated {
-                        market, token, account, time_key, delta, next_value, next_pool_value, 
+                        market, token, account, time_key, delta, next_value, next_pool_value,
+                    }
+                );
+        }
+
+        /// Emits the `ClaimableFundingUpdated` event.
+        fn emit_claimable_funding_updated(
+            ref self: ContractState,
+            market: ContractAddress,
+            token: ContractAddress,
+            account: ContractAddress,
+            delta: u128,
+            next_value: u128,
+            next_pool_value: u128,
+        ) {
+            self
+                .emit(
+                    ClaimableFundingUpdated {
+                        market, token, account, delta, next_value, next_pool_value,
                     }
                 );
         }
@@ -137,7 +176,7 @@ mod EventEmitter {
             self
                 .emit(
                     MarketCreated {
-                        creator, market_token, index_token, long_token, short_token, market_type, 
+                        creator, market_token, index_token, long_token, short_token, market_type,
                     }
                 );
         }
@@ -149,7 +188,7 @@ mod EventEmitter {
             previous_value: ClassHash,
             new_value: ClassHash,
         ) {
-            self.emit(MarketTokenClassHashUpdated { updated_by, previous_value, new_value,  });
+            self.emit(MarketTokenClassHashUpdated { updated_by, previous_value, new_value, });
         }
     }
 }

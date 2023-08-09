@@ -532,6 +532,79 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
 }
 
 #[test]
+fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() {
+    // Setup required contracts.
+    let (
+        caller_address,
+        market_factory_address,
+        role_store_address,
+        data_store_address,
+        market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        chain,
+        event_emitter,
+    ) =
+        setup();
+
+    // Grant the caller the `CONTROLLER` role.
+    // We use the same account to deploy data_store and role_store, so we can grant the role
+    // because the caller is the owner of role_store contract.
+    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
+
+    // Grant the call the `MARKET_KEEPER` role.
+    // This role is required to create a market.
+    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
+
+    // Prank the caller address for calls to data_store contract.
+    // We need this so that the caller has the CONTROLLER role.
+    start_prank(data_store_address, caller_address);
+
+    // Prank the caller address for calls to market_factory contract.
+    // We need this so that the caller has the MARKET_KEEPER role.
+    start_prank(market_factory_address, caller_address);
+
+    // ****** LOGIC STARTS HERE ******
+
+    // Define variables for the test case.
+    let market_address = contract_address_const::<'market_address'>();
+    let token = contract_address_const::<'token'>();
+    let account = contract_address_const::<'account'>();
+    let delta = 50;
+    // The key for the claimable funding amount for the account.
+    // This is the key that will be used to assert the result.
+    let claimable_funding_amount_for_account_key =
+        0x1321919246b443e98ce5d62b2f6b23526c7f1c0d03db2dc2ec82d763a3a3446;
+    // The key for the claimable funding amount for the market.
+    // This is the key that will be used to assert the result.
+    let claimable_funding_amount_key =
+        0x3ae3e6b61acb60cab724b0b9a1fc05e4f520a578ddbcd0ca40d05885207249;
+
+    // Actual test case.
+    market_utils::increment_claimable_funding_amount(
+        data_store, event_emitter, market_address, token, account, delta
+    );
+
+    // Perform assertions.
+
+    // The value of the claimable funding amount for the account should now be 50.
+    // Read the value from the data store using the hardcoded key and assert it.
+    assert(
+        data_store.get_u128(claimable_funding_amount_for_account_key).unwrap() == 50, 'wrong value'
+    );
+    // The value of the claimable funding amount for the market should now be 50.
+    // Read the value from the data store using the hardcoded key and assert it.
+    assert(data_store.get_u128(claimable_funding_amount_key).unwrap() == 50, 'wrong value');
+
+    // ****** LOGIC ENDS HERE ******
+
+    // Stop pranking the caller address.
+    stop_prank(data_store_address);
+    stop_prank(market_factory_address);
+}
+
+#[test]
 fn given_normal_conditions_when_get_pool_divisor_then_works() {
     // long token == short token, should return 2.
     assert(
