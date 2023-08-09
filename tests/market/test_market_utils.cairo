@@ -993,7 +993,7 @@ fn given_normal_conditions_when_get_swap_impact_pool_amount_then_works() {
 
     // Actual test case.
     let swap_impact_pool_amount = market_utils::get_swap_impact_pool_amount(
-        data_store, market_token_address, token,
+        data_store, market_token_address, token, 
     );
 
     // Perform assertions.
