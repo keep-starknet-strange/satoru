@@ -9,6 +9,7 @@ use debug::PrintTrait;
 
 // Local imports.
 use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use gojo::chain::chain::{IChainSafeDispatcher, IChainSafeDispatcherTrait};
 use gojo::data::keys;
 use gojo::market::error::MarketError;
 use gojo::market::market::Market;
@@ -78,12 +79,14 @@ fn get_max_open_interest(
 /// Increment the claimable collateral amount.
 /// # Arguments
 /// * `data_store` - The data store to use.
+/// * `chain` - The interface to interact with `Chain` library contract.
 /// * `market_address` - The market to increment.
 /// * `token` - The claimable token.
 /// * `account` - The account to increment the claimable collateral for.
 /// * `delta` - The amount to increment by.
 fn increment_claimable_collateral_amount(
     data_store: IDataStoreSafeDispatcher,
+    chain: IChainSafeDispatcher,
     market_address: ContractAddress,
     token: ContractAddress,
     account: ContractAddress,
@@ -91,11 +94,10 @@ fn increment_claimable_collateral_amount(
 ) {
     let divisor = data_store.get_u128(keys::claimable_collateral_time_divisor()).unwrap();
     // Get current timestamp.
-    //let current_timestamp = get_block_timestamp().into();
-    let current_timestamp = 1000;
-    //current_timestamp.print();
+    let current_timestamp = chain.get_block_timestamp().unwrap().into();
     let time_key = current_timestamp / divisor;
 
+    // Increment the collateral amount for the account.
     let next_value = data_store
         .increment_u128(
             keys::claimable_collateral_amount_for_account_key(
@@ -105,6 +107,7 @@ fn increment_claimable_collateral_amount(
         )
         .unwrap();
 
+    // Increment the total collateral amount for the market.
     let next_pool_value = data_store
         .increment_u128(keys::claimable_collateral_amount_key(market_address, token), delta)
         .unwrap();

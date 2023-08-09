@@ -17,6 +17,7 @@ use debug::PrintTrait;
 // Local imports.
 use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+use gojo::chain::chain::{IChainSafeDispatcher, IChainSafeDispatcherTrait};
 use gojo::market::market_factory::{IMarketFactorySafeDispatcher, IMarketFactorySafeDispatcherTrait};
 use gojo::market::market::{Market, UniqueIdMarket, IntoMarketToken};
 use gojo::market::market_token::{IMarketTokenSafeDispatcher, IMarketTokenSafeDispatcherTrait};
@@ -36,6 +37,7 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
         market_factory,
         role_store,
         data_store,
+        chain,
     ) =
         setup();
 
@@ -113,6 +115,7 @@ fn given_normal_conditions_when_get_pool_amount_then_works() {
         market_factory,
         role_store,
         data_store,
+        chain,
     ) =
         setup();
 
@@ -189,6 +192,7 @@ fn given_normal_conditions_when_get_max_pool_amount_then_works() {
         market_factory,
         role_store,
         data_store,
+        chain,
     ) =
         setup();
 
@@ -249,6 +253,7 @@ fn given_normal_conditions_when_get_max_open_interest_then_works() {
         market_factory,
         role_store,
         data_store,
+        chain,
     ) =
         setup();
 
@@ -311,6 +316,7 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
         market_factory,
         role_store,
         data_store,
+        chain,
     ) =
         setup();
 
@@ -339,21 +345,39 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
     let token = contract_address_const::<'token'>();
     let account = contract_address_const::<'account'>();
     let delta = 50;
+    // The key for the claimable collateral amount for the account.
+    // This is the key that will be used to assert the result.
+    let claimable_collatoral_amount_for_account_key =
+        0x11df62b70ad974a354ae7d38b9e985489300785772473d224995d4dd6ac2d81;
+    // The key for the claimable collateral amount for the market.
+    // This is the key that will be used to assert the result.
+    let claimable_collateral_amount_key =
+        0x7af284cf9ac7ef4a7bb96ad1004a1fb2b9d3c545ea9600edca47d4b033f9b85;
 
     // Setup pre conditions.
 
     // Mock the timestamp.
-    //start_warp(0, current_timestamp);
+    start_warp(chain.contract_address, current_timestamp);
 
     // Fill required data store keys.
     data_store.set_u128(keys::claimable_collateral_time_divisor(), 1);
 
     // Actual test case.
     market_utils::increment_claimable_collateral_amount(
-        data_store, market_address, token, account, delta
+        data_store, chain, market_address, token, account, delta
     );
 
     // Perform assertions.
+
+    // The value of the claimable collateral amount for the account should now be 50.
+    // Read the value from the data store using the hardcoded key and assert it.
+    assert(
+        data_store.get_u128(claimable_collatoral_amount_for_account_key).unwrap() == 50,
+        'wrong value'
+    );
+    // The value of the claimable collateral amount for the market should now be 50.
+    // Read the value from the data store using the hardcoded key and assert it.
+    assert(data_store.get_u128(claimable_collateral_amount_key).unwrap() == 50, 'wrong value');
 
     // ****** LOGIC ENDS HERE ******
 
@@ -399,6 +423,8 @@ fn setup() -> (
     IRoleStoreSafeDispatcher,
     // Interface to interact with the `DataStore` contract.
     IDataStoreSafeDispatcher,
+    // Interface to interact with the `Chain` library contract.
+    IChainSafeDispatcher,
 ) {
     // Deploy the role store contract.
     let role_store_address = deploy_role_store();
@@ -412,7 +438,7 @@ fn setup() -> (
     let data_store = IDataStoreSafeDispatcher { contract_address: data_store_address };
 
     // Declare the `MarketToken` contract.
-    let market_token_class_hash = declare_market_token();
+    let market_token_class_hash = declare('MarketToken');
 
     // Deploy the market factory.
     let market_factory_address = deploy_market_factory(
@@ -420,6 +446,11 @@ fn setup() -> (
     );
     // Create a safe dispatcher to interact with the contract.
     let market_factory = IMarketFactorySafeDispatcher { contract_address: market_factory_address };
+
+    // Declare the `Chain` library contract.
+    let chain_address = deploy_chain();
+    // Create a safe dispatcher to interact with the contract.
+    let chain = IChainSafeDispatcher { contract_address: chain_address };
 
     (
         contract_address_const::<'caller'>(),
@@ -429,13 +460,9 @@ fn setup() -> (
         market_token_class_hash,
         market_factory,
         role_store,
-        data_store
+        data_store,
+        chain,
     )
-}
-
-/// Utility function to declare a `MarketToken` contract.
-fn declare_market_token() -> ClassHash {
-    declare('MarketToken')
 }
 
 /// Utility function to deploy a market factory contract and return its address.
@@ -472,6 +499,15 @@ fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
 /// TODO: Find a way to share this code.
 fn deploy_role_store() -> ContractAddress {
     let class_hash = declare('RoleStore');
+    let prepared = PreparedContract {
+        class_hash: class_hash, constructor_calldata: @ArrayTrait::new()
+    };
+    deploy(prepared).unwrap()
+}
+
+/// Utility function to deploy a `Chain` contract and return its address.
+fn deploy_chain() -> ContractAddress {
+    let class_hash = declare('Chain');
     let prepared = PreparedContract {
         class_hash: class_hash, constructor_calldata: @ArrayTrait::new()
     };
