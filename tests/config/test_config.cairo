@@ -111,6 +111,52 @@ fn given_normal_conditions_when_set_address_then_works() {
     stop_prank(config.contract_address);
 }
 
+#[test]
+fn given_not_allowed_key_when_set_address_then_fails() {
+    // Setup required contracts.
+    let (caller_address, config, role_store, data_store, event_emitter, ) = setup();
+
+    // Grant the caller the `CONTROLLER` role.
+    // We use the same account to deploy data_store and role_store, so we can grant the role
+    // because the caller is the owner of role_store contract.
+    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
+    role_store.grant_role(caller_address, role::CONFIG_KEEPER).unwrap();
+
+    // Prank the caller address for calls to data_store contract.
+    // We need this so that the caller has the CONTROLLER role.
+    start_prank(data_store.contract_address, caller_address);
+
+    // Prank the caller address for calls to market_factory contract.
+    // We need this so that the caller has the CONFIG_KEEPER role.
+    start_prank(config.contract_address, caller_address);
+
+    // ****** LOGIC STARTS HERE ******
+
+    // Define variables to be used in the test.
+    let not_allowed_key = 'not_allowed_key';
+    let mut data = ArrayTrait::new();
+    data.append('data_1');
+    data.append('data_2');
+    data.append('data_3');
+    let value = contract_address_const::<1>();
+
+    // Actual test case.
+    match config.set_address(not_allowed_key, data, value) {
+        Result::Ok(_) => panic_with_felt252('should have panicked'),
+        Result::Err(panic_data) => {
+            assert(*panic_data.at(0) == 'invalid_base_key', *panic_data.at(0));
+        }
+    }
+
+    // Perform assertions.
+
+    // ****** LOGIC ENDS HERE ******
+
+    // Stop pranking the caller address.
+    stop_prank(data_store.contract_address);
+    stop_prank(config.contract_address);
+}
+
 /// Setup required contracts.
 fn setup() -> (
     // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
