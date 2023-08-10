@@ -180,7 +180,7 @@ mod DataStore {
         u256_values: LegacyMap::<felt252, u256>,
         u128_values: LegacyMap::<felt252, u128>,
         address_values: LegacyMap::<felt252, ContractAddress>,
-        // FIXME: #9
+        // FIXME: #9 https://github.com/keep-starknet-strange/gojo/issues/9
         // For some reason it's not possible to store `Option<bool>` in the storage.
         // Error: Trait has no implementation in context: core::starknet::storage_access::Store::<core::option::Option::<core::bool>>
         //bool_values: LegacyMap::<felt252, Option<bool>>,
