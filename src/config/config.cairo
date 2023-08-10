@@ -13,17 +13,25 @@ use array::ArrayTrait;
 trait IConfig<TContractState> {
     /// Set a bool value.
     /// # Arguments
-    /// * `basekey` - The base key of the value to set.
+    /// * `base_key` - The base key of the value to set.
     /// * `data` - The additional data to be combined with the base key.
     /// * `value` - The value to set.
     fn set_bool(ref self: TContractState, base_key: felt252, data: Array<felt252>, value: bool);
     /// Set an address value.
     /// # Arguments
-    /// * `basekey` - The base key of the value to set.
+    /// * `base_key` - The base key of the value to set.
     /// * `data` - The additional data to be combined with the base key.
     /// * `value` - The value to set.
     fn set_address(
-        ref self: TContractState, base_key: felt252, data: Array<felt252>, value: ContractAddress, 
+        ref self: TContractState, base_key: felt252, data: Array<felt252>, value: ContractAddress,
+    );
+    /// Set a felt252 value.
+    /// # Arguments
+    /// * `base_key` - The base key of the value to set.
+    /// * `data` - The additional data to be combined with the base key.
+    /// * `value` - The value to set.
+    fn set_felt252(
+        ref self: TContractState, base_key: felt252, data: Array<felt252>, value: felt252,
     );
 }
 
@@ -35,7 +43,7 @@ mod Config {
 
     // Core lib imports.
     use core::clone::Clone;
-    use starknet::{get_caller_address, ContractAddress, contract_address_const, };
+    use starknet::{get_caller_address, ContractAddress, contract_address_const,};
     use poseidon::poseidon_hash_span;
     use array::ArrayTrait;
     use debug::PrintTrait;
@@ -92,11 +100,11 @@ mod Config {
     impl ConfigImpl of super::IConfig<ContractState> {
         /// Set a bool value.
         /// # Arguments
-        /// * `basekey` - The base key of the value to set.
+        /// * `base_key` - The base key of the value to set.
         /// * `data` - The additional data to be combined with the base key.
         /// * `value` - The value to set.
         fn set_bool(
-            ref self: ContractState, base_key: felt252, data: Array<felt252>, value: bool, 
+            ref self: ContractState, base_key: felt252, data: Array<felt252>, value: bool,
         ) {
             // Check that the caller has the `CONFIG_KEEPER` role.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONFIG_KEEPER);
@@ -110,7 +118,7 @@ mod Config {
 
         /// Set an address value.
         /// # Arguments
-        /// * `basekey` - The base key of the value to set.
+        /// * `base_key` - The base key of the value to set.
         /// * `data` - The additional data to be combined with the base key.
         /// * `value` - The value to set.
         fn set_address(
@@ -127,6 +135,24 @@ mod Config {
             let full_key = self.get_full_key(base_key, data);
             // Set the value.
             self.data_store.read().set_address(full_key, value);
+        }
+
+        /// Set a felt252 value.
+        /// # Arguments
+        /// * `base_key` - The base key of the value to set.
+        /// * `data` - The additional data to be combined with the base key.
+        /// * `value` - The value to set.
+        fn set_felt252(
+            ref self: ContractState, base_key: felt252, data: Array<felt252>, value: felt252,
+        ) {
+            // Check that the caller has the `CONFIG_KEEPER` role.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONFIG_KEEPER);
+            // Validate the base key.
+            self.validate_key(base_key);
+            // Get the full key.
+            let full_key = self.get_full_key(base_key, data);
+            // Set the value.
+            self.data_store.read().set_felt252(full_key, value);
         }
     }
 

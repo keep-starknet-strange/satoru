@@ -7,7 +7,7 @@ use array::ArrayTrait;
 use result::ResultTrait;
 use option::OptionTrait;
 use traits::{TryInto, Into};
-use starknet::{ContractAddress, get_caller_address, contract_address_const, ClassHash, };
+use starknet::{ContractAddress, get_caller_address, contract_address_const, ClassHash,};
 use cheatcodes::PreparedContract;
 use debug::PrintTrait;
 
@@ -22,7 +22,7 @@ use gojo::config::config::{IConfigSafeDispatcher, IConfigSafeDispatcherTrait};
 #[test]
 fn given_normal_conditions_when_set_bool_then_works() {
     // Setup required contracts.
-    let (caller_address, config, role_store, data_store, event_emitter, ) = setup();
+    let (caller_address, config, role_store, data_store, event_emitter,) = setup();
 
     // Grant the caller the `CONTROLLER` role.
     // We use the same account to deploy data_store and role_store, so we can grant the role
@@ -67,7 +67,7 @@ fn given_normal_conditions_when_set_bool_then_works() {
 #[test]
 fn given_normal_conditions_when_set_address_then_works() {
     // Setup required contracts.
-    let (caller_address, config, role_store, data_store, event_emitter, ) = setup();
+    let (caller_address, config, role_store, data_store, event_emitter,) = setup();
 
     // Grant the caller the `CONTROLLER` role.
     // We use the same account to deploy data_store and role_store, so we can grant the role
@@ -114,7 +114,7 @@ fn given_normal_conditions_when_set_address_then_works() {
 #[test]
 fn given_not_allowed_key_when_set_address_then_fails() {
     // Setup required contracts.
-    let (caller_address, config, role_store, data_store, event_emitter, ) = setup();
+    let (caller_address, config, role_store, data_store, event_emitter,) = setup();
 
     // Grant the caller the `CONTROLLER` role.
     // We use the same account to deploy data_store and role_store, so we can grant the role
@@ -149,6 +149,53 @@ fn given_not_allowed_key_when_set_address_then_fails() {
     }
 
     // Perform assertions.
+
+    // ****** LOGIC ENDS HERE ******
+
+    // Stop pranking the caller address.
+    stop_prank(data_store.contract_address);
+    stop_prank(config.contract_address);
+}
+
+#[test]
+fn given_normal_conditions_when_set_felt252_then_works() {
+    // Setup required contracts.
+    let (caller_address, config, role_store, data_store, event_emitter,) = setup();
+
+    // Grant the caller the `CONTROLLER` role.
+    // We use the same account to deploy data_store and role_store, so we can grant the role
+    // because the caller is the owner of role_store contract.
+    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
+    role_store.grant_role(caller_address, role::CONFIG_KEEPER).unwrap();
+
+    // Prank the caller address for calls to data_store contract.
+    // We need this so that the caller has the CONTROLLER role.
+    start_prank(data_store.contract_address, caller_address);
+
+    // Prank the caller address for calls to market_factory contract.
+    // We need this so that the caller has the CONFIG_KEEPER role.
+    start_prank(config.contract_address, caller_address);
+
+    // ****** LOGIC STARTS HERE ******
+
+    // Define variables to be used in the test.
+    let base_key_holding_address = keys::holding_address();
+    let mut data = ArrayTrait::new();
+    data.append('data_1');
+    data.append('data_2');
+    data.append('data_3');
+    let value = 'felt252_value';
+    let data_store_entry_key = 0xad83c0e73037c4b6af8d6dff599d1103e440a8f6b62ce0208b1999ec8a115e;
+
+    // Actual test case.
+    config.set_felt252(base_key_holding_address, data, value).unwrap();
+
+    // Perform assertions.
+
+    // Read the value from the data store.
+    let actual_value = data_store.get_felt252(data_store_entry_key).unwrap();
+    // Check that the value was set correctly.
+    assert(actual_value == value, 'wrong_value');
 
     // ****** LOGIC ENDS HERE ******
 
@@ -194,7 +241,7 @@ fn setup() -> (
     // Create a safe dispatcher to interact with the contract.
     let config = IConfigSafeDispatcher { contract_address: config_address };
 
-    (contract_address_const::<'caller'>(), config, role_store, data_store, event_emitter, )
+    (contract_address_const::<'caller'>(), config, role_store, data_store, event_emitter,)
 }
 
 /// Utility function to deploy a market factory contract and return its address.
