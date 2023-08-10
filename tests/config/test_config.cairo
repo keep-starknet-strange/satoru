@@ -7,7 +7,7 @@ use array::ArrayTrait;
 use result::ResultTrait;
 use option::OptionTrait;
 use traits::{TryInto, Into};
-use starknet::{ContractAddress, get_caller_address, contract_address_const, ClassHash,};
+use starknet::{ContractAddress, get_caller_address, contract_address_const, ClassHash, };
 use cheatcodes::PreparedContract;
 use debug::PrintTrait;
 
@@ -22,7 +22,7 @@ use gojo::config::config::{IConfigSafeDispatcher, IConfigSafeDispatcherTrait};
 #[test]
 fn given_normal_conditions_when_set_bool_then_works() {
     // Setup required contracts.
-    let (caller_address, config, role_store, data_store, event_emitter,) = setup();
+    let (caller_address, config, role_store, data_store, event_emitter, ) = setup();
 
     // Grant the caller the `CONTROLLER` role.
     // We use the same account to deploy data_store and role_store, so we can grant the role
@@ -67,7 +67,7 @@ fn given_normal_conditions_when_set_bool_then_works() {
 #[test]
 fn given_normal_conditions_when_set_address_then_works() {
     // Setup required contracts.
-    let (caller_address, config, role_store, data_store, event_emitter,) = setup();
+    let (caller_address, config, role_store, data_store, event_emitter, ) = setup();
 
     // Grant the caller the `CONTROLLER` role.
     // We use the same account to deploy data_store and role_store, so we can grant the role
@@ -114,7 +114,7 @@ fn given_normal_conditions_when_set_address_then_works() {
 #[test]
 fn given_not_allowed_key_when_set_address_then_fails() {
     // Setup required contracts.
-    let (caller_address, config, role_store, data_store, event_emitter,) = setup();
+    let (caller_address, config, role_store, data_store, event_emitter, ) = setup();
 
     // Grant the caller the `CONTROLLER` role.
     // We use the same account to deploy data_store and role_store, so we can grant the role
@@ -160,7 +160,7 @@ fn given_not_allowed_key_when_set_address_then_fails() {
 #[test]
 fn given_normal_conditions_when_set_felt252_then_works() {
     // Setup required contracts.
-    let (caller_address, config, role_store, data_store, event_emitter,) = setup();
+    let (caller_address, config, role_store, data_store, event_emitter, ) = setup();
 
     // Grant the caller the `CONTROLLER` role.
     // We use the same account to deploy data_store and role_store, so we can grant the role
@@ -241,7 +241,7 @@ fn setup() -> (
     // Create a safe dispatcher to interact with the contract.
     let config = IConfigSafeDispatcher { contract_address: config_address };
 
-    (contract_address_const::<'caller'>(), config, role_store, data_store, event_emitter,)
+    (contract_address_const::<'caller'>(), config, role_store, data_store, event_emitter, )
 }
 
 /// Utility function to deploy a market factory contract and return its address.

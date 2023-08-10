@@ -23,7 +23,7 @@ trait IConfig<TContractState> {
     /// * `data` - The additional data to be combined with the base key.
     /// * `value` - The value to set.
     fn set_address(
-        ref self: TContractState, base_key: felt252, data: Array<felt252>, value: ContractAddress,
+        ref self: TContractState, base_key: felt252, data: Array<felt252>, value: ContractAddress, 
     );
     /// Set a felt252 value.
     /// # Arguments
@@ -31,7 +31,7 @@ trait IConfig<TContractState> {
     /// * `data` - The additional data to be combined with the base key.
     /// * `value` - The value to set.
     fn set_felt252(
-        ref self: TContractState, base_key: felt252, data: Array<felt252>, value: felt252,
+        ref self: TContractState, base_key: felt252, data: Array<felt252>, value: felt252, 
     );
 }
 
@@ -43,7 +43,7 @@ mod Config {
 
     // Core lib imports.
     use core::clone::Clone;
-    use starknet::{get_caller_address, ContractAddress, contract_address_const,};
+    use starknet::{get_caller_address, ContractAddress, contract_address_const, };
     use poseidon::poseidon_hash_span;
     use array::ArrayTrait;
     use debug::PrintTrait;
@@ -104,7 +104,7 @@ mod Config {
         /// * `data` - The additional data to be combined with the base key.
         /// * `value` - The value to set.
         fn set_bool(
-            ref self: ContractState, base_key: felt252, data: Array<felt252>, value: bool,
+            ref self: ContractState, base_key: felt252, data: Array<felt252>, value: bool, 
         ) {
             // Check that the caller has the `CONFIG_KEEPER` role.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONFIG_KEEPER);
@@ -143,7 +143,7 @@ mod Config {
         /// * `data` - The additional data to be combined with the base key.
         /// * `value` - The value to set.
         fn set_felt252(
-            ref self: ContractState, base_key: felt252, data: Array<felt252>, value: felt252,
+            ref self: ContractState, base_key: felt252, data: Array<felt252>, value: felt252, 
         ) {
             // Check that the caller has the `CONFIG_KEEPER` role.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONFIG_KEEPER);
