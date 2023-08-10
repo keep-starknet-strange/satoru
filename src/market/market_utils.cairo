@@ -6,6 +6,7 @@ use starknet::{ContractAddress, get_block_timestamp};
 use result::ResultTrait;
 use traits::Into;
 use debug::PrintTrait;
+use zeroable::Zeroable;
 
 // Local imports.
 use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
@@ -41,7 +42,7 @@ fn get_open_interest(
 /// * `market` - The market to get the open interest for.
 /// # Returns
 /// The long and short open interest for a market.
-fn get_open_interest_for_market(data_store: IDataStoreSafeDispatcher, market: @Market, ) -> u128 {
+fn get_open_interest_for_market(data_store: IDataStoreSafeDispatcher, market: @Market,) -> u128 {
     // Get the open interest for the long token as collateral.
     let long_open_interest = get_open_interest_for_market_is_long(data_store, market, true);
     // Get the open interest for the short token as collateral.
@@ -82,7 +83,7 @@ fn get_open_interest_for_market_is_long(
 /// # Returns
 /// The long and short open interest in tokens for a market based on the collateral token used.
 fn get_open_interest_in_tokens_for_market(
-    data_store: IDataStoreSafeDispatcher, market: @Market, is_long: bool, 
+    data_store: IDataStoreSafeDispatcher, market: @Market, is_long: bool,
 ) -> u128 {
     // Get the pool divisor.
     let divisor = get_pool_divisor(*market.long_token, *market.short_token);
@@ -387,4 +388,68 @@ fn apply_delta_to_swap_impact_pool(
 
     // Return the updated swap impact pool amount.
     next_value
+}
+
+/// Apply a delta to the open interest.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `event_emitter` - The interface to interact with `EventEmitter` contract.
+/// * `market` - The market to apply the delta to.
+/// * `collateral_token` - The collateral token to apply the delta to.
+/// * `is_long` - Whether to apply the delta to the long or short side.
+/// * `delta` - The delta to apply.
+/// # Returns
+/// The updated open interest.
+fn apply_delta_to_open_interest(
+    data_store: IDataStoreSafeDispatcher,
+    event_emitter: IEventEmitterSafeDispatcher,
+    market: @Market,
+    collateral_token: ContractAddress,
+    is_long: bool,
+    // TODO: Move to `i128` when `apply_delta_to_u128` is implemented and when supported in used Cairo version.
+    delta: u128
+) -> u128 {
+    // Check that the market is not a swap only market.
+    assert(
+        (*market.index_token).is_non_zero(),
+        MarketError::OPEN_INTEREST_CANNOT_BE_UPDATED_FOR_SWAP_ONLY_MARKET
+    );
+
+    // Increment the open interest by the delta.
+    // TODO: create `apply_delta_to_u128` function in `DataStore` contract and pass `delta` as `i128`.
+    let next_value = data_store
+        .increment_u128(keys::open_interest_key(*market.market_token, collateral_token, is_long), 0)
+        .unwrap();
+
+    // If the open interest for longs is increased then tokens were virtually bought from the pool
+    // so the virtual inventory should be decreased.
+    // If the open interest for longs is decreased then tokens were virtually sold to the pool
+    // so the virtual inventory should be increased.
+    // If the open interest for shorts is increased then tokens were virtually sold to the pool
+    // so the virtual inventory should be increased.
+    // If the open interest for shorts is decreased then tokens were virtually bought from the pool
+    // so the virtual inventory should be decreased.
+
+    // We need to validate the open interest if the delta is positive.
+    //if 0_i128 < delta {
+    //validate_open_interest(data_store, market, is_long);
+    //}
+
+    0
+}
+
+/// Validata the open interest.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market to validate the open interest for.
+/// * `is_long` - Whether to validate the long or short side.
+fn validate_open_interest(data_store: IDataStoreSafeDispatcher, market: @Market, is_long: bool) {
+    // Get the open interest.
+    let open_interest = get_open_interest_for_market_is_long(data_store, market, is_long);
+
+    // Get the maximum open interest.
+    let max_open_interest = get_max_open_interest(data_store, *market.market_token, is_long);
+
+    // Check that the open interest is not greater than the maximum open interest.
+    assert(open_interest <= max_open_interest, MarketError::MAX_OPEN_INTEREST_EXCEEDED);
 }
