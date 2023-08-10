@@ -17,6 +17,14 @@ trait IConfig<TContractState> {
     /// * `data` - The additional data to be combined with the base key.
     /// * `value` - The value to set.
     fn set_bool(ref self: TContractState, base_key: felt252, data: Array<felt252>, value: bool);
+    /// Set an address value.
+    /// # Arguments
+    /// * `basekey` - The base key of the value to set.
+    /// * `data` - The additional data to be combined with the base key.
+    /// * `value` - The value to set.
+    fn set_address(
+        ref self: TContractState, base_key: felt252, data: Array<felt252>, value: ContractAddress, 
+    );
 }
 
 #[starknet::contract]
@@ -98,6 +106,27 @@ mod Config {
             let full_key = self.get_full_key(base_key, data);
             // Set the value.
             self.data_store.read().set_bool(full_key, value);
+        }
+
+        /// Set an address value.
+        /// # Arguments
+        /// * `basekey` - The base key of the value to set.
+        /// * `data` - The additional data to be combined with the base key.
+        /// * `value` - The value to set.
+        fn set_address(
+            ref self: ContractState,
+            base_key: felt252,
+            data: Array<felt252>,
+            value: ContractAddress,
+        ) {
+            // Check that the caller has the `CONFIG_KEEPER` role.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONFIG_KEEPER);
+            // Validate the base key.
+            self.validate_key(base_key);
+            // Get the full key.
+            let full_key = self.get_full_key(base_key, data);
+            // Set the value.
+            self.data_store.read().set_address(full_key, value);
         }
     }
 
