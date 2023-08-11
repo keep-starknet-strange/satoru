@@ -9,18 +9,14 @@ use debug::PrintTrait;
 // Local imports.
 use gojo::utils::store_contract_address_array::StoreContractAddressArray;
 
-// Struct for orders.
+
+/// Struct for orders.
 #[derive(Drop, starknet::Store, Serde)]
 struct Order {
     order_type: OrderType,
     /// The account of the order.
     account: ContractAddress,
     /// The receiver for any token transfers.
-    /// This field is meant to allow the output of an order to be
-    /// received by an address that is different from the creator of the
-    /// order whether this is for swaps or whether the account is the owner of a position
-    /// for funding fees and claimable collateral, the funds are still
-    /// credited to the owner of the position indicated by order account.
     receiver: ContractAddress,
     /// The contract to call for callbacks.
     callback_contract: ContractAddress,
@@ -29,13 +25,42 @@ struct Order {
     /// The trading market.
     market: ContractAddress,
     /// The initial collateral token for increase orders.
-    /// `initial_collateral_token` is token sent in by the user, the token will be swapped through the speficied swap path, before being deposited 
-    /// into the position as collateral for decrease orders.
-    /// `initial_collateral_token` is the collateral token of the position withdrawn collateral from the decrease of the position will be swapped
-    /// through the specified swap path.
     initial_collateral_token: ContractAddress,
     /// An array of market addresses to swap through.
     swap_path: Array<ContractAddress>,
+    /// The requested change in position size.
+    size_delta_usd: u128,
+    /// For increase orders, this is the amount of the initialCollateralToken sent in by the user.
+    /// For decrease orders, this is the amount of the position's collateralToken to withdraw.
+    /// For swaps, this is the amount of initialCollateralToken sent in for the swap.
+    initial_collateral_delta_amount: u128,
+    /// The trigger price for non-market orders.
+    trigger_price: u128,
+    /// The acceptable execution price for increase / decrease orders.
+    acceptable_price: u128,
+    /// The execution fee for keepers.
+    execution_fee: u128,
+    /// The gas limit for the callbackContract.
+    callback_gas_limit: u128,
+    /// The minimum output amount for decrease orders and swaps.
+    min_output_amount: u128,
+    /// The block at which the order was last updated.
+    updated_at_block: u64,
+    /// Whether the order is for a long or short.
+    is_long: bool,
+    /// Whether to unwrap native tokens before transferring to the user.
+    should_unwrap_native_token: bool,
+    /// Whether the order is frozen.
+    is_frozen: bool,
+}
+
+#[generate_trait]
+impl OrderImpl of OrderTrait {
+    fn touch(ref self: Order) {
+        // TODO: Fix when it's possible to do starknet calls in pure Cairo programs.
+        //self.updated_at_block = starknet::info::get_block_number();
+        ()
+    }
 }
 
 #[derive(Drop, starknet::Store, Serde)]
@@ -67,11 +92,33 @@ enum SecondaryOrderType {
     Adl: (),
 }
 
+impl SecondaryOrderTypePrintImpl of PrintTrait<SecondaryOrderType> {
+    fn print(self: SecondaryOrderType) {
+        match self {
+            SecondaryOrderType::None => 'None'.print(),
+            SecondaryOrderType::Adl => 'Adl'.print(),
+        }
+    }
+}
+
 /// `DecreasePositionSwapType` is used to indicate whether the decrease order should swap the pnl token to collateral token or vice versa.
+#[derive(Drop, starknet::Store, Serde)]
 enum DecreasePositionSwapType {
     NoSwap: (),
     SwapPnlTokenToCollateralToken: (),
     SwapCollateralTokenToPnlToken: (),
+}
+
+impl DecreasePositionSwapTypePrintImpl of PrintTrait<DecreasePositionSwapType> {
+    fn print(self: DecreasePositionSwapType) {
+        match self {
+            DecreasePositionSwapType::NoSwap => 'NoSwap'.print(),
+            DecreasePositionSwapType::SwapPnlTokenToCollateralToken => 'SwapPnlTokenToCollateralToken'
+                .print(),
+            DecreasePositionSwapType::SwapCollateralTokenToPnlToken => 'SwapCollateralTokenToPnlToken'
+                .print(),
+        }
+    }
 }
 
 impl OrderTypePrintImpl of PrintTrait<OrderType> {

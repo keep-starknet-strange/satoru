@@ -11,7 +11,7 @@ use cheatcodes::PreparedContract;
 use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
 use gojo::role::role;
-use gojo::order::order::{Order, OrderType};
+use gojo::order::order::{Order, OrderType, OrderTrait};
 
 #[test]
 fn given_test_environment_when_felt252_functions_then_expected_results() {
@@ -143,6 +143,7 @@ fn given_test_environment_when_order_functions_then_expected_results() {
     // *********************************************************************************************
 
     // Define variables for the test.
+    let order_data_store_key = 1;
     let order_type = OrderType::StopLossDecrease;
     let account = contract_address_const::<'account'>();
     let receiver = contract_address_const::<'receiver'>();
@@ -153,6 +154,18 @@ fn given_test_environment_when_order_functions_then_expected_results() {
     let mut swap_path = ArrayTrait::new();
     swap_path.append(contract_address_const::<'swap_path_0'>());
     swap_path.append(contract_address_const::<'swap_path_1'>());
+    // Add the missing fields
+    let size_delta_usd = 1000;
+    let initial_collateral_delta_amount = 500;
+    let trigger_price = 2000;
+    let acceptable_price = 2500;
+    let execution_fee = 100;
+    let callback_gas_limit = 300000;
+    let min_output_amount = 100;
+    let updated_at_block = 1;
+    let is_long = true;
+    let should_unwrap_native_token = false;
+    let is_frozen = false;
 
     let order_data_store_key = 1;
 
@@ -165,7 +178,18 @@ fn given_test_environment_when_order_functions_then_expected_results() {
         ui_fee_receiver,
         market,
         initial_collateral_token,
-        swap_path
+        swap_path,
+        size_delta_usd,
+        initial_collateral_delta_amount,
+        trigger_price,
+        acceptable_price,
+        execution_fee,
+        callback_gas_limit,
+        min_output_amount,
+        updated_at_block,
+        is_long,
+        should_unwrap_native_token,
+        is_frozen,
     };
 
     // Store the order.
@@ -174,7 +198,7 @@ fn given_test_environment_when_order_functions_then_expected_results() {
     // Retrieve the order.
     // We use `unwrap().unwrap()` because we know that the order exists.
     // If it panics the test should fail.
-    let retrieved_order = data_store.get_order(order_data_store_key).unwrap().unwrap();
+    let mut retrieved_order = data_store.get_order(order_data_store_key).unwrap().unwrap();
 
     // Check that the retrieved order is the same as the original order.
     // TODO: Add a proper equality check for orders by implementing `PartialEq` for `Order`.
