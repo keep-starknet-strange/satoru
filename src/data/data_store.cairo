@@ -6,6 +6,7 @@
 use core::traits::Into;
 use starknet::ContractAddress;
 use gojo::market::market::Market;
+use gojo::order::order::Order;
 
 // *************************************************************************
 //                  Interface of the `DataStore` contract.
@@ -151,6 +152,22 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to set the value for.
     /// * `value` - The value to set.
     fn set_market(ref self: TContractState, key: felt252, market: Market);
+
+
+    // *************************************************************************
+    //                      Order related functions.
+    // *************************************************************************
+    /// Get a order value for the given key.
+    /// # Arguments
+    /// * `key` - The key to get the value for.
+    /// # Returns
+    /// The value for the given key.
+    fn get_order(self: @TContractState, key: felt252) -> Option<Order>;
+    /// Set a order value for the given key.
+    /// # Arguments
+    /// * `key` - The key to set the value for.
+    /// * `value` - The value to set.
+    fn set_order(ref self: TContractState, key: felt252, order: Order);
 }
 
 #[starknet::contract]
@@ -169,6 +186,7 @@ mod DataStore {
     use gojo::role::role;
     use gojo::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use gojo::market::market::{Market, ValidateMarket};
+    use gojo::order::order::Order;
 
     // *************************************************************************
     //                              STORAGE
@@ -185,6 +203,7 @@ mod DataStore {
         // Error: Trait has no implementation in context: core::starknet::storage_access::Store::<core::option::Option::<core::bool>>
         //bool_values: LegacyMap::<felt252, Option<bool>>,
         market_values: LegacyMap::<felt252, Market>,
+        order_values: LegacyMap::<felt252, Order>,
     }
 
     // *************************************************************************
@@ -411,6 +430,29 @@ mod DataStore {
 
             // Set the value.
             self.market_values.write(key, market);
+        }
+
+        // *************************************************************************
+        //                      Order related functions.
+        // *************************************************************************
+
+        fn get_order(self: @ContractState, key: felt252) -> Option<Order> {
+            let order = self.order_values.read(key);
+
+            // We use the zero address to indicate that the order does not exist.
+            if order.account.is_zero() {
+                Option::None
+            } else {
+                Option::Some(order)
+            }
+        }
+
+        fn set_order(ref self: ContractState, key: felt252, order: Order) {
+            // Check that the caller has permission to set the value.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+
+            // Set the value.
+            self.order_values.write(key, order);
         }
     }
 }

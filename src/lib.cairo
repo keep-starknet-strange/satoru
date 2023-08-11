@@ -23,8 +23,12 @@ mod price;
 
 // `utils` contains utility functions.
 mod utils;
+
 // `market` contains market management functions.
 mod market;
+
+// `order` contains order management functions.
+mod order;
 
 // Copied from `https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token`.
 // TODO: Use openzeppelin as dependency when Scarb versions match.
