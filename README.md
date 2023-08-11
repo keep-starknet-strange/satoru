@@ -56,7 +56,11 @@ Here are some resources to help you get started:
 - [Starknet Book](https://book.starknet.io/)
 - [Starknet Foundry Book](https://foundry-rs.github.io/starknet-foundry/)
 - [Starknet By Example](https://starknet-by-example.voyager.online/)
-- [GMX Synthetics](https://github.com/gmx-io/gmx-synthetics)
+- GMX v2 resources
+  - [GMX Synthetics](https://github.com/gmx-io/gmx-synthetics)
+  - [Trading on v2](https://docs.gmx.io/docs/trading/v2)
+  - [Contracts for v2](https://docs.gmx.io/docs/api/contracts-v2/)
+  - [Liquidity on v2](https://docs.gmx.io/docs/providing-liquidity/v2)
 
 ## 📖 License
 
