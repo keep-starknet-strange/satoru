@@ -19,7 +19,7 @@ fn given_test_environment_when_felt252_functions_then_expected_results() {
     let (caller_address, role_store, data_store) = setup_test_environment();
 
     // *********************************************************************************************
-    // *                              TEST FELT252 FUNCTIONS                                       *
+    // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
     // Set key 1 to value 42.
@@ -63,7 +63,7 @@ fn given_test_environment_when_u256_functions_then_expected_results() {
     let (caller_address, role_store, data_store) = setup_test_environment();
 
     // *********************************************************************************************
-    // *                              TEST U256 FUNCTIONS                                          *
+    // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
     // Set key 1 to value 42.
@@ -107,7 +107,7 @@ fn given_test_environment_when_address_functions_then_expected_results() {
     let (caller_address, role_store, data_store) = setup_test_environment();
 
     // *********************************************************************************************
-    // *                              TEST ADDRESS FUNCTIONS                                       *
+    // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
     // Set key 1 to value 42.
