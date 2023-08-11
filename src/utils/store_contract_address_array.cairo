@@ -26,7 +26,7 @@ impl StoreContractAddressArray of Store<Array<ContractAddress>> {
     fn read_at_offset(
         address_domain: u32, base: StorageBaseAddress, mut offset: u8
     ) -> SyscallResult<Array<ContractAddress>> {
-        let mut arr: Array<ContractAddress> = ArrayTrait::new();
+        let mut arr: Array<ContractAddress> = array![];
 
         // Read the stored array's length. If the length is superior to 255, the read will fail.
         let len: u8 = Store::<u8>::read_at_offset(address_domain, base, offset).unwrap();

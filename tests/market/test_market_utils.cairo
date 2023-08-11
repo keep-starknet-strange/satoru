@@ -1097,7 +1097,7 @@ fn deploy_market_factory(
     market_token_class_hash: ClassHash,
 ) -> ContractAddress {
     let class_hash = declare('MarketFactory');
-    let mut constructor_calldata = ArrayTrait::new();
+    let mut constructor_calldata = array![];
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
     constructor_calldata.append(event_emitter_address.into());
@@ -1112,7 +1112,7 @@ fn deploy_market_factory(
 /// Utility function to deploy a data store contract and return its address.
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
     let class_hash = declare('DataStore');
-    let mut constructor_calldata = ArrayTrait::new();
+    let mut constructor_calldata = array![];
     constructor_calldata.append(role_store_address.into());
     let prepared = PreparedContract {
         class_hash: class_hash, constructor_calldata: @constructor_calldata
@@ -1125,26 +1125,20 @@ fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
 /// TODO: Find a way to share this code.
 fn deploy_role_store() -> ContractAddress {
     let class_hash = declare('RoleStore');
-    let prepared = PreparedContract {
-        class_hash: class_hash, constructor_calldata: @ArrayTrait::new()
-    };
+    let prepared = PreparedContract { class_hash: class_hash, constructor_calldata: @array![] };
     deploy(prepared).unwrap()
 }
 
 /// Utility function to deploy a `Chain` contract and return its address.
 fn deploy_chain() -> ContractAddress {
     let class_hash = declare('Chain');
-    let prepared = PreparedContract {
-        class_hash: class_hash, constructor_calldata: @ArrayTrait::new()
-    };
+    let prepared = PreparedContract { class_hash: class_hash, constructor_calldata: @array![] };
     deploy(prepared).unwrap()
 }
 
 /// Utility function to deploy a `EventEmitter` contract and return its address.
 fn deploy_event_emitter() -> ContractAddress {
     let class_hash = declare('EventEmitter');
-    let prepared = PreparedContract {
-        class_hash: class_hash, constructor_calldata: @ArrayTrait::new()
-    };
+    let prepared = PreparedContract { class_hash: class_hash, constructor_calldata: @array![] };
     deploy(prepared).unwrap()
 }
