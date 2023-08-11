@@ -154,7 +154,6 @@ fn given_test_environment_when_order_functions_then_expected_results() {
     let mut swap_path = array![];
     swap_path.append(contract_address_const::<'swap_path_0'>());
     swap_path.append(contract_address_const::<'swap_path_1'>());
-    // Add the missing fields
     let size_delta_usd = 1000;
     let initial_collateral_delta_amount = 500;
     let trigger_price = 2000;

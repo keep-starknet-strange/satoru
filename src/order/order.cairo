@@ -8,7 +8,7 @@ use debug::PrintTrait;
 
 // Local imports.
 use gojo::utils::store_contract_address_array::StoreContractAddressArray;
-
+use gojo::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
 
 /// Struct for orders.
 #[derive(Drop, starknet::Store, Serde)]
@@ -56,10 +56,9 @@ struct Order {
 
 #[generate_trait]
 impl OrderImpl of OrderTrait {
-    fn touch(ref self: Order) {
+    fn touch(ref self: Order, chain: IChainDispatcher) {
         // TODO: Fix when it's possible to do starknet calls in pure Cairo programs.
-        //self.updated_at_block = starknet::info::get_block_number();
-        ()
+        self.updated_at_block = chain.get_block_number();
     }
 }
 
