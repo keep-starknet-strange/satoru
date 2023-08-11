@@ -10,6 +10,7 @@ use cheatcodes::PreparedContract;
 use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
 use gojo::role::role;
+use gojo::order::order::{Order, OrderType};
 
 #[test]
 fn given_test_environment_when_felt252_functions_then_expected_results() {
@@ -122,6 +123,61 @@ fn given_test_environment_when_address_functions_then_expected_results() {
     assert(
         data_store.get_address(1).unwrap() == contract_address_const::<0>(), 'Key was not removed'
     );
+
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store.contract_address);
+}
+
+#[test]
+fn given_test_environment_when_order_functions_then_expected_results() {
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
+    let (caller_address, role_store, data_store) = setup_test_environment();
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Define variables for the test.
+    let order_type = OrderType::MarketSwap;
+    let account = contract_address_const::<'account'>();
+    let receiver = contract_address_const::<'receiver'>();
+    let callback_contract = contract_address_const::<'callback_contract'>();
+    let ui_fee_receiver = contract_address_const::<'ui_fee_receiver'>();
+    let market = contract_address_const::<'market'>();
+    let initial_collateral_token = contract_address_const::<'initial_collateral_token'>();
+    let mut swap_path = ArrayTrait::new();
+    swap_path.append(contract_address_const::<'swap_path_0'>());
+    swap_path.append(contract_address_const::<'swap_path_1'>());
+
+    let order_data_store_key = 1;
+
+    // Create an order.
+    let order = Order {
+        order_type,
+        account,
+        receiver,
+        callback_contract,
+        ui_fee_receiver,
+        market,
+        initial_collateral_token,
+        swap_path
+    };
+
+    // Store the order.
+    data_store.set_order(order_data_store_key, order).unwrap();
+
+    // Retrieve the order.
+    // We use `unwrap().unwrap()` because we know that the order exists.
+    // If it panics the test should fail.
+    let retrieved_order = data_store.get_order(order_data_store_key).unwrap().unwrap();
+
+    // Check that the retrieved order is the same as the original order.
+    // TODO: Add a proper equality check for orders by implementing `PartialEq` for `Order`.
+    assert(retrieved_order.account == account, 'invalid order');
 
     // *********************************************************************************************
     // *                              TEARDOWN TEST ENVIRONMENT                                    *
