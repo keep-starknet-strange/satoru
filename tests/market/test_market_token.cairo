@@ -13,7 +13,40 @@ use gojo::role::role;
 use gojo::market::market_utils;
 
 #[test]
-fn test_market_token() {
+fn given_normal_conditions_when_mint_then_expected_results() {
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
+    let (caller_address, role_store, market_token) = setup_test_environment();
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+    // Check that the total supply is 0.
+    assert(market_token.total_supply().unwrap() == 0, 'wrong supply');
+
+    // Mint 100 tokens to the caller.
+    market_token.mint(caller_address, 100).unwrap();
+
+    // Check that the total supply is 100.
+    assert(market_token.total_supply().unwrap() == 100, 'wrong supply');
+
+    // Check that the caller has 100 tokens.
+    assert(market_token.balance_of(caller_address).unwrap() == 100, 'wrong balance');
+
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(market_token.contract_address);
+}
+
+/// Utility function to setup the test environment.
+fn setup_test_environment() -> (
+    // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
+    ContractAddress, // Interface to interact with the `RoleStore` contract.
+    IRoleStoreSafeDispatcher, // Interface to interact with the `MarketToken` contract.
+    IMarketTokenSafeDispatcher,
+) {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
 
     // Deploy the role store contract.
@@ -35,19 +68,15 @@ fn test_market_token() {
     // We need this so that the caller has the CONTROLLER role.
     start_prank(market_token_address, caller_address);
 
-    // Check that the total supply is 0.
-    assert(market_token.total_supply().unwrap() == 0, 'wrong supply');
+    (caller_address, role_store, market_token)
+}
 
-    // Mint 100 tokens to the caller.
-    market_token.mint(caller_address, 100).unwrap();
-
-    // Check that the total supply is 100.
-    assert(market_token.total_supply().unwrap() == 100, 'wrong supply');
-
-    // Check that the caller has 100 tokens.
-    assert(market_token.balance_of(caller_address).unwrap() == 100, 'wrong balance');
-
-    // Stop pranking the caller address.
+/// Utility function to teardown the test environment.
+///
+/// # Arguments
+///
+/// * `market_token_address` - The address of the `MarketToken` contract.
+fn teardown_test_environment(market_token_address: ContractAddress) {
     stop_prank(market_token_address);
 }
 

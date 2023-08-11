@@ -162,7 +162,7 @@ fn setup_test_environment() -> (
     ) =
         setup();
     grant_roles_and_prank(caller_address, role_store, data_store, market_factory);
-    return (
+    (
         caller_address,
         market_factory.contract_address,
         role_store_address,
@@ -172,7 +172,7 @@ fn setup_test_environment() -> (
         role_store,
         data_store,
         event_emitter,
-    );
+    )
 }
 
 // Utility function to grant roles and prank the caller address.

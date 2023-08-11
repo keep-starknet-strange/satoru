@@ -21,9 +21,14 @@ use gojo::config::config::{IConfigSafeDispatcher, IConfigSafeDispatcherTrait};
 
 #[test]
 fn given_normal_conditions_when_set_bool_then_works() {
-    let (caller_address, config, role_store, data_store, event_emitter) = setup_contracts();
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
+    let (caller_address, config, role_store, data_store, event_emitter) = setup_test_environment();
 
-    // ****** LOGIC STARTS HERE ******
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
 
     // Define variables to be used in the test.
     let base_key_holding_address = keys::holding_address();
@@ -42,16 +47,22 @@ fn given_normal_conditions_when_set_bool_then_works() {
     // FIXME: #18 https://github.com/keep-starknet-strange/gojo/issues/18
     // When `data_store::set_bool` is fixed, check that the value was set correctly.
 
-    // ****** LOGIC ENDS HERE ******
-
-    stop_pranking(data_store, config);
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store, config);
 }
 
 #[test]
 fn given_normal_conditions_when_set_address_then_works() {
-    let (caller_address, config, role_store, data_store, event_emitter) = setup_contracts();
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
+    let (caller_address, config, role_store, data_store, event_emitter) = setup_test_environment();
 
-    // ****** LOGIC STARTS HERE ******
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
 
     // Define variables to be used in the test.
     let base_key_holding_address = keys::holding_address();
@@ -72,16 +83,22 @@ fn given_normal_conditions_when_set_address_then_works() {
     // Check that the value was set correctly.
     assert(actual_value == value, 'wrong_value');
 
-    // ****** LOGIC ENDS HERE ******
-
-    stop_pranking(data_store, config);
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store, config);
 }
 
 #[test]
 fn given_not_allowed_key_when_set_address_then_fails() {
-    let (caller_address, config, role_store, data_store, event_emitter) = setup_contracts();
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
+    let (caller_address, config, role_store, data_store, event_emitter) = setup_test_environment();
 
-    // ****** LOGIC STARTS HERE ******
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
 
     // Define variables to be used in the test.
     let not_allowed_key = 'not_allowed_key';
@@ -99,18 +116,22 @@ fn given_not_allowed_key_when_set_address_then_fails() {
         }
     }
 
-    // Perform assertions.
-
-    // ****** LOGIC ENDS HERE ******
-
-    stop_pranking(data_store, config);
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store, config);
 }
 
 #[test]
 fn given_normal_conditions_when_set_felt252_then_works() {
-    let (caller_address, config, role_store, data_store, event_emitter) = setup_contracts();
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
+    let (caller_address, config, role_store, data_store, event_emitter) = setup_test_environment();
 
-    // ****** LOGIC STARTS HERE ******
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
 
     // Define variables to be used in the test.
     let base_key_holding_address = keys::holding_address();
@@ -131,9 +152,10 @@ fn given_normal_conditions_when_set_felt252_then_works() {
     // Check that the value was set correctly.
     assert(actual_value == value, 'wrong_value');
 
-    // ****** LOGIC ENDS HERE ******
-
-    stop_pranking(data_store, config);
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store, config);
 }
 
 // Utility function to grant roles and prank the caller address.
@@ -168,22 +190,26 @@ fn grant_roles_and_prank(
     start_prank(config.contract_address, caller_address);
 }
 
-// Utility function to stop pranking the caller address.
-fn stop_pranking(data_store: IDataStoreSafeDispatcher, config: IConfigSafeDispatcher) {
+/// Utility function to teardown the test environment.
+fn teardown_test_environment(data_store: IDataStoreSafeDispatcher, config: IConfigSafeDispatcher) {
+    // Stop pranking contracts.
     stop_prank(data_store.contract_address);
     stop_prank(config.contract_address);
 }
 
-// Utility function to setup and return the required contracts.
-fn setup_contracts() -> (
+/// Utility function to setup the test environment.
+fn setup_test_environment() -> (
     ContractAddress,
     IConfigSafeDispatcher,
     IRoleStoreSafeDispatcher,
     IDataStoreSafeDispatcher,
     IEventEmitterSafeDispatcher
 ) {
+    // Setup contracts.
     let (caller_address, config, role_store, data_store, event_emitter, ) = setup();
+    // Grant roles and prank the caller address.
     grant_roles_and_prank(caller_address, role_store, data_store, config);
+    // Return the contracts.
     return (caller_address, config, role_store, data_store, event_emitter);
 }
 

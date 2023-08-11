@@ -29,7 +29,9 @@ use gojo::price::price::{Price, PriceTrait};
 
 #[test]
 fn given_normal_conditions_when_get_open_interest_then_works() {
-    // Setup required contracts.
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
     let (
         caller_address,
         market_factory_address,
@@ -42,26 +44,11 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
         chain,
         event_emitter,
     ) =
-        setup();
+        setup_test_environment();
 
-    // Grant the caller the `CONTROLLER` role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
-
-    // Grant the call the `MARKET_KEEPER` role.
-    // This role is required to create a market.
-    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store_address, caller_address);
-
-    // Prank the caller address for calls to market_factory contract.
-    // We need this so that the caller has the MARKET_KEEPER role.
-    start_prank(market_factory_address, caller_address);
-
-    // ****** LOGIC STARTS HERE ******
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
 
     // Create a market.
     let index_token = contract_address_const::<'index_token'>();
@@ -99,17 +86,18 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
     let market_token_name = market_token.name().unwrap();
     assert(market_token_name == 'Gojo Market', 'wrong market token name');
 
-    // ****** LOGIC ENDS HERE ******
-
-    // Stop pranking the caller address.
-    stop_prank(data_store_address);
-    stop_prank(market_factory_address);
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store, market_factory);
 }
 
 
 #[test]
 fn given_normal_conditions_when_get_open_interest_in_tokens_then_works() {
-    // Setup required contracts.
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
     let (
         caller_address,
         market_factory_address,
@@ -122,26 +110,11 @@ fn given_normal_conditions_when_get_open_interest_in_tokens_then_works() {
         chain,
         event_emitter,
     ) =
-        setup();
+        setup_test_environment();
 
-    // Grant the caller the `CONTROLLER` role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
-
-    // Grant the call the `MARKET_KEEPER` role.
-    // This role is required to create a market.
-    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store_address, caller_address);
-
-    // Prank the caller address for calls to market_factory contract.
-    // We need this so that the caller has the MARKET_KEEPER role.
-    start_prank(market_factory_address, caller_address);
-
-    // ****** LOGIC STARTS HERE ******
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
 
     let market_address = contract_address_const::<'market_address'>();
     let collateral_token = contract_address_const::<'collateral_token'>();
@@ -159,16 +132,17 @@ fn given_normal_conditions_when_get_open_interest_in_tokens_then_works() {
     // Open interest is 300, so 300 / 3 = 100.
     assert(open_interest_in_tokens == 100, 'wrong open interest');
 
-    // ****** LOGIC ENDS HERE ******
-
-    // Stop pranking the caller address.
-    stop_prank(data_store_address);
-    stop_prank(market_factory_address);
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_get_open_interest_in_tokens_for_market_then_works() {
-    // Setup required contracts.
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
     let (
         caller_address,
         market_factory_address,
@@ -181,26 +155,11 @@ fn given_normal_conditions_when_get_open_interest_in_tokens_for_market_then_work
         chain,
         event_emitter,
     ) =
-        setup();
+        setup_test_environment();
 
-    // Grant the caller the `CONTROLLER` role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
-
-    // Grant the call the `MARKET_KEEPER` role.
-    // This role is required to create a market.
-    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store_address, caller_address);
-
-    // Prank the caller address for calls to market_factory contract.
-    // We need this so that the caller has the MARKET_KEEPER role.
-    start_prank(market_factory_address, caller_address);
-
-    // ****** LOGIC STARTS HERE ******
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
 
     // Define variables for the test case.
     let market_token_address = contract_address_const::<'market_token'>();
@@ -236,17 +195,18 @@ fn given_normal_conditions_when_get_open_interest_in_tokens_for_market_then_work
     // Since long token != short token, then the divisor is 1 and the open interest is 100 + 200 = 300.
     assert(open_interest_in_tokens_for_market == 300, 'wrong open interest');
 
-    // ****** LOGIC ENDS HERE ******
-
-    // Stop pranking the caller address.
-    stop_prank(data_store_address);
-    stop_prank(market_factory_address);
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store, market_factory);
 }
 
 
 #[test]
 fn given_normal_conditions_when_get_pool_amount_then_works() {
-    // Setup required contracts.
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
     let (
         caller_address,
         market_factory_address,
@@ -259,26 +219,11 @@ fn given_normal_conditions_when_get_pool_amount_then_works() {
         chain,
         event_emitter,
     ) =
-        setup();
+        setup_test_environment();
 
-    // Grant the caller the `CONTROLLER` role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
-
-    // Grant the call the `MARKET_KEEPER` role.
-    // This role is required to create a market.
-    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store_address, caller_address);
-
-    // Prank the caller address for calls to market_factory contract.
-    // We need this so that the caller has the MARKET_KEEPER role.
-    start_prank(market_factory_address, caller_address);
-
-    // ****** LOGIC STARTS HERE ******
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
 
     // *************************************************************************
     //                     Case 1: long_token != short_token.
@@ -315,16 +260,17 @@ fn given_normal_conditions_when_get_pool_amount_then_works() {
     // long_token == short_token, so the pool amount is 500 because the divisor is 2.
     assert(pool_amount_2 == 500, 'wrong pool amount');
 
-    // ****** LOGIC ENDS HERE ******
-
-    // Stop pranking the caller address.
-    stop_prank(data_store_address);
-    stop_prank(market_factory_address);
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_get_max_pool_amount_then_works() {
-    // Setup required contracts.
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
     let (
         caller_address,
         market_factory_address,
@@ -337,26 +283,11 @@ fn given_normal_conditions_when_get_max_pool_amount_then_works() {
         chain,
         event_emitter,
     ) =
-        setup();
+        setup_test_environment();
 
-    // Grant the caller the `CONTROLLER` role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
-
-    // Grant the call the `MARKET_KEEPER` role.
-    // This role is required to create a market.
-    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store_address, caller_address);
-
-    // Prank the caller address for calls to market_factory contract.
-    // We need this so that the caller has the MARKET_KEEPER role.
-    start_prank(market_factory_address, caller_address);
-
-    // ****** LOGIC STARTS HERE ******
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
 
     // Define variables for the test case.
     let market_token_address = contract_address_const::<'market_token_address'>();
@@ -377,16 +308,17 @@ fn given_normal_conditions_when_get_max_pool_amount_then_works() {
 
     assert(max_pool_amount == 1000, 'wrong pool amount');
 
-    // ****** LOGIC ENDS HERE ******
-
-    // Stop pranking the caller address.
-    stop_prank(data_store_address);
-    stop_prank(market_factory_address);
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_get_max_open_interest_then_works() {
-    // Setup required contracts.
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
     let (
         caller_address,
         market_factory_address,
@@ -399,26 +331,11 @@ fn given_normal_conditions_when_get_max_open_interest_then_works() {
         chain,
         event_emitter,
     ) =
-        setup();
+        setup_test_environment();
 
-    // Grant the caller the `CONTROLLER` role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
-
-    // Grant the call the `MARKET_KEEPER` role.
-    // This role is required to create a market.
-    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store_address, caller_address);
-
-    // Prank the caller address for calls to market_factory contract.
-    // We need this so that the caller has the MARKET_KEEPER role.
-    start_prank(market_factory_address, caller_address);
-
-    // ****** LOGIC STARTS HERE ******
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
 
     // Define variables for the test case.
     let market_token_address = contract_address_const::<'market_token_address'>();
@@ -441,16 +358,17 @@ fn given_normal_conditions_when_get_max_open_interest_then_works() {
 
     assert(max_open_interest == 1000, 'wrong pool amount');
 
-    // ****** LOGIC ENDS HERE ******
-
-    // Stop pranking the caller address.
-    stop_prank(data_store_address);
-    stop_prank(market_factory_address);
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works() {
-    // Setup required contracts.
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
     let (
         caller_address,
         market_factory_address,
@@ -463,26 +381,11 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
         chain,
         event_emitter,
     ) =
-        setup();
+        setup_test_environment();
 
-    // Grant the caller the `CONTROLLER` role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
-
-    // Grant the call the `MARKET_KEEPER` role.
-    // This role is required to create a market.
-    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store_address, caller_address);
-
-    // Prank the caller address for calls to market_factory contract.
-    // We need this so that the caller has the MARKET_KEEPER role.
-    start_prank(market_factory_address, caller_address);
-
-    // ****** LOGIC STARTS HERE ******
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
 
     // Define variables for the test case.
     let current_timestamp = 1000;
@@ -524,16 +427,17 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
     // Read the value from the data store using the hardcoded key and assert it.
     assert(data_store.get_u128(claimable_collateral_amount_key).unwrap() == 50, 'wrong value');
 
-    // ****** LOGIC ENDS HERE ******
-
-    // Stop pranking the caller address.
-    stop_prank(data_store_address);
-    stop_prank(market_factory_address);
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() {
-    // Setup required contracts.
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
     let (
         caller_address,
         market_factory_address,
@@ -546,26 +450,11 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
         chain,
         event_emitter,
     ) =
-        setup();
+        setup_test_environment();
 
-    // Grant the caller the `CONTROLLER` role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
-
-    // Grant the call the `MARKET_KEEPER` role.
-    // This role is required to create a market.
-    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store_address, caller_address);
-
-    // Prank the caller address for calls to market_factory contract.
-    // We need this so that the caller has the MARKET_KEEPER role.
-    start_prank(market_factory_address, caller_address);
-
-    // ****** LOGIC STARTS HERE ******
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
 
     // Define variables for the test case.
     let market_address = contract_address_const::<'market_address'>();
@@ -597,11 +486,10 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
     // Read the value from the data store using the hardcoded key and assert it.
     assert(data_store.get_u128(claimable_funding_amount_key).unwrap() == 50, 'wrong value');
 
-    // ****** LOGIC ENDS HERE ******
-
-    // Stop pranking the caller address.
-    stop_prank(data_store_address);
-    stop_prank(market_factory_address);
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store, market_factory);
 }
 
 #[test]
@@ -624,7 +512,9 @@ fn given_normal_conditions_when_get_pool_divisor_then_works() {
 
 #[test]
 fn given_normal_conditions_when_get_pnl_then_works() {
-    // Setup required contracts.
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
     let (
         caller_address,
         market_factory_address,
@@ -637,26 +527,11 @@ fn given_normal_conditions_when_get_pnl_then_works() {
         chain,
         event_emitter,
     ) =
-        setup();
+        setup_test_environment();
 
-    // Grant the caller the `CONTROLLER` role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
-
-    // Grant the call the `MARKET_KEEPER` role.
-    // This role is required to create a market.
-    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store_address, caller_address);
-
-    // Prank the caller address for calls to market_factory contract.
-    // We need this so that the caller has the MARKET_KEEPER role.
-    start_prank(market_factory_address, caller_address);
-
-    // ****** LOGIC STARTS HERE ******
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
 
     // Define variables for the test case.
     let market_token_address = contract_address_const::<'market_token'>();
@@ -701,16 +576,17 @@ fn given_normal_conditions_when_get_pnl_then_works() {
     // Perform assertions.
     assert(pnl == 22250, 'wrong pnl');
 
-    // ****** LOGIC ENDS HERE ******
-
-    // Stop pranking the caller address.
-    stop_prank(data_store_address);
-    stop_prank(market_factory_address);
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store, market_factory);
 }
 
 #[test]
 fn given_zero_open_interest_when_get_pnl_then_returns_zero_pnl() {
-    // Setup required contracts.
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
     let (
         caller_address,
         market_factory_address,
@@ -723,26 +599,11 @@ fn given_zero_open_interest_when_get_pnl_then_returns_zero_pnl() {
         chain,
         event_emitter,
     ) =
-        setup();
+        setup_test_environment();
 
-    // Grant the caller the `CONTROLLER` role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
-
-    // Grant the call the `MARKET_KEEPER` role.
-    // This role is required to create a market.
-    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store_address, caller_address);
-
-    // Prank the caller address for calls to market_factory contract.
-    // We need this so that the caller has the MARKET_KEEPER role.
-    start_prank(market_factory_address, caller_address);
-
-    // ****** LOGIC STARTS HERE ******
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
 
     // Define variables for the test case.
     let market_token_address = contract_address_const::<'market_token'>();
@@ -787,16 +648,17 @@ fn given_zero_open_interest_when_get_pnl_then_returns_zero_pnl() {
     // Perform assertions.
     assert(pnl == 0, 'wrong pnl');
 
-    // ****** LOGIC ENDS HERE ******
-
-    // Stop pranking the caller address.
-    stop_prank(data_store_address);
-    stop_prank(market_factory_address);
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store, market_factory);
 }
 
 #[test]
 fn given_zero_open_interest_in_tokens_when_get_pnl_then_returns_zero_pnl() {
-    // Setup required contracts.
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
     let (
         caller_address,
         market_factory_address,
@@ -809,26 +671,11 @@ fn given_zero_open_interest_in_tokens_when_get_pnl_then_returns_zero_pnl() {
         chain,
         event_emitter,
     ) =
-        setup();
+        setup_test_environment();
 
-    // Grant the caller the `CONTROLLER` role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
-
-    // Grant the call the `MARKET_KEEPER` role.
-    // This role is required to create a market.
-    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store_address, caller_address);
-
-    // Prank the caller address for calls to market_factory contract.
-    // We need this so that the caller has the MARKET_KEEPER role.
-    start_prank(market_factory_address, caller_address);
-
-    // ****** LOGIC STARTS HERE ******
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
 
     // Define variables for the test case.
     let market_token_address = contract_address_const::<'market_token'>();
@@ -873,16 +720,17 @@ fn given_zero_open_interest_in_tokens_when_get_pnl_then_returns_zero_pnl() {
     // Perform assertions.
     assert(pnl == 0, 'wrong pnl');
 
-    // ****** LOGIC ENDS HERE ******
-
-    // Stop pranking the caller address.
-    stop_prank(data_store_address);
-    stop_prank(market_factory_address);
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_get_position_impact_pool_amount_then_works() {
-    // Setup required contracts.
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
     let (
         caller_address,
         market_factory_address,
@@ -895,26 +743,11 @@ fn given_normal_conditions_when_get_position_impact_pool_amount_then_works() {
         chain,
         event_emitter,
     ) =
-        setup();
+        setup_test_environment();
 
-    // Grant the caller the `CONTROLLER` role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
-
-    // Grant the call the `MARKET_KEEPER` role.
-    // This role is required to create a market.
-    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store_address, caller_address);
-
-    // Prank the caller address for calls to market_factory contract.
-    // We need this so that the caller has the MARKET_KEEPER role.
-    start_prank(market_factory_address, caller_address);
-
-    // ****** LOGIC STARTS HERE ******
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
 
     // Define variables for the test case.
     let market_token_address = contract_address_const::<'market_token'>();
@@ -936,16 +769,17 @@ fn given_normal_conditions_when_get_position_impact_pool_amount_then_works() {
 
     assert(position_impact_pool_amount == 1000, 'wrong pool amount');
 
-    // ****** LOGIC ENDS HERE ******
-
-    // Stop pranking the caller address.
-    stop_prank(data_store_address);
-    stop_prank(market_factory_address);
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_get_swap_impact_pool_amount_then_works() {
-    // Setup required contracts.
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
     let (
         caller_address,
         market_factory_address,
@@ -958,26 +792,11 @@ fn given_normal_conditions_when_get_swap_impact_pool_amount_then_works() {
         chain,
         event_emitter,
     ) =
-        setup();
+        setup_test_environment();
 
-    // Grant the caller the `CONTROLLER` role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
-
-    // Grant the call the `MARKET_KEEPER` role.
-    // This role is required to create a market.
-    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store_address, caller_address);
-
-    // Prank the caller address for calls to market_factory contract.
-    // We need this so that the caller has the MARKET_KEEPER role.
-    start_prank(market_factory_address, caller_address);
-
-    // ****** LOGIC STARTS HERE ******
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
 
     // Define variables for the test case.
     let market_token_address = contract_address_const::<'market_token'>();
@@ -993,23 +812,24 @@ fn given_normal_conditions_when_get_swap_impact_pool_amount_then_works() {
 
     // Actual test case.
     let swap_impact_pool_amount = market_utils::get_swap_impact_pool_amount(
-        data_store, market_token_address, token, 
+        data_store, market_token_address, token,
     );
 
     // Perform assertions.
 
     assert(swap_impact_pool_amount == 1000, 'wrong pool amount');
 
-    // ****** LOGIC ENDS HERE ******
-
-    // Stop pranking the caller address.
-    stop_prank(data_store_address);
-    stop_prank(market_factory_address);
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_apply_delta_to_position_impact_pool_then_works() {
-    // Setup required contracts.
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
     let (
         caller_address,
         market_factory_address,
@@ -1022,26 +842,11 @@ fn given_normal_conditions_when_apply_delta_to_position_impact_pool_then_works()
         chain,
         event_emitter,
     ) =
-        setup();
+        setup_test_environment();
 
-    // Grant the caller the `CONTROLLER` role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
-
-    // Grant the call the `MARKET_KEEPER` role.
-    // This role is required to create a market.
-    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store_address, caller_address);
-
-    // Prank the caller address for calls to market_factory contract.
-    // We need this so that the caller has the MARKET_KEEPER role.
-    start_prank(market_factory_address, caller_address);
-
-    // ****** LOGIC STARTS HERE ******
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
 
     // Define variables for the test case.
     let market_token_address = contract_address_const::<'market_token'>();
@@ -1062,16 +867,17 @@ fn given_normal_conditions_when_apply_delta_to_position_impact_pool_then_works()
 
     assert(next_value == 1050, 'wrong value');
 
-    // ****** LOGIC ENDS HERE ******
-
-    // Stop pranking the caller address.
-    stop_prank(data_store_address);
-    stop_prank(market_factory_address);
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_apply_delta_to_swap_impact_pool_then_works() {
-    // Setup required contracts.
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
     let (
         caller_address,
         market_factory_address,
@@ -1084,26 +890,11 @@ fn given_normal_conditions_when_apply_delta_to_swap_impact_pool_then_works() {
         chain,
         event_emitter,
     ) =
-        setup();
+        setup_test_environment();
 
-    // Grant the caller the `CONTROLLER` role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
-
-    // Grant the call the `MARKET_KEEPER` role.
-    // This role is required to create a market.
-    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store_address, caller_address);
-
-    // Prank the caller address for calls to market_factory contract.
-    // We need this so that the caller has the MARKET_KEEPER role.
-    start_prank(market_factory_address, caller_address);
-
-    // ****** LOGIC STARTS HERE ******
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
 
     // Define variables for the test case.
     let market_token_address = contract_address_const::<'market_token'>();
@@ -1125,11 +916,109 @@ fn given_normal_conditions_when_apply_delta_to_swap_impact_pool_then_works() {
 
     assert(next_value == 1050, 'wrong value');
 
-    // ****** LOGIC ENDS HERE ******
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store, market_factory);
+}
 
+
+/// Utility function to setup the test environment.
+fn setup_test_environment() -> (
+    // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
+    ContractAddress,
+    // Address of the `MarketFactory` contract.
+    ContractAddress,
+    // Address of the `RoleStore` contract.
+    ContractAddress,
+    // Address of the `DataStore` contract.
+    ContractAddress,
+    // The `MarketToken` class hash for the factory.
+    ClassHash,
+    // Interface to interact with the `MarketFactory` contract.
+    IMarketFactorySafeDispatcher,
+    // Interface to interact with the `RoleStore` contract.
+    IRoleStoreSafeDispatcher,
+    // Interface to interact with the `DataStore` contract.
+    IDataStoreSafeDispatcher,
+    // Interface to interact with the `Chain` library contract.
+    IChainSafeDispatcher,
+    // Interface to interact with the `EventEmitter` contract.
+    IEventEmitterSafeDispatcher,
+) {
+    // Setup required contracts.
+    let (
+        caller_address,
+        market_factory_address,
+        role_store_address,
+        data_store_address,
+        market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        chain,
+        event_emitter,
+    ) =
+        setup();
+
+    // Grant roles and prank the caller address.
+    grant_roles_and_prank(caller_address, role_store, data_store, market_factory);
+
+    // Return the setup variables.
+    (
+        caller_address,
+        market_factory_address,
+        role_store_address,
+        data_store_address,
+        market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        chain,
+        event_emitter,
+    )
+}
+
+// Utility function to grant roles and prank the caller address.
+/// Grants roles and pranks the caller address.
+///
+/// # Arguments
+///
+/// * `caller_address` - The address of the caller.
+/// * `role_store` - The interface to interact with the `RoleStore` contract.
+/// * `data_store` - The interface to interact with the `DataStore` contract.
+/// * `market_factory` - The interface to interact with the `MarketFactory` contract.
+fn grant_roles_and_prank(
+    caller_address: ContractAddress,
+    role_store: IRoleStoreSafeDispatcher,
+    data_store: IDataStoreSafeDispatcher,
+    market_factory: IMarketFactorySafeDispatcher,
+) {
+    // Grant the caller the `CONTROLLER` role.
+    // We use the same account to deploy data_store and role_store, so we can grant the role
+    // because the caller is the owner of role_store contract.
+    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
+
+    // Grant the call the `MARKET_KEEPER` role.
+    // This role is required to create a market.
+    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
+
+    // Prank the caller address for calls to data_store contract.
+    // We need this so that the caller has the CONTROLLER role.
+    start_prank(data_store.contract_address, caller_address);
+
+    // Prank the caller address for calls to market_factory contract.
+    // We need this so that the caller has the MARKET_KEEPER role.
+    start_prank(market_factory.contract_address, caller_address);
+}
+
+/// Utility function to teardown the test environment.
+fn teardown_test_environment(
+    data_store: IDataStoreSafeDispatcher, market_factory: IMarketFactorySafeDispatcher
+) {
     // Stop pranking the caller address.
-    stop_prank(data_store_address);
-    stop_prank(market_factory_address);
+    stop_prank(data_store.contract_address);
+    stop_prank(market_factory.contract_address);
 }
 
 /// Setup required contracts.
