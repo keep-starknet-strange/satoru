@@ -75,8 +75,6 @@ fn teardown_test_environment() {}
 // Utility function to deploy a data store contract and return its address.
 fn deploy_role_store() -> ContractAddress {
     let class_hash = declare('RoleStore');
-    let prepared = PreparedContract {
-        class_hash: class_hash, constructor_calldata: @ArrayTrait::new()
-    };
+    let prepared = PreparedContract { class_hash: class_hash, constructor_calldata: @array![] };
     deploy(prepared).unwrap()
 }

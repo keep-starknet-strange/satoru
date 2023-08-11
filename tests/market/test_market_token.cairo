@@ -83,7 +83,7 @@ fn teardown_test_environment(market_token_address: ContractAddress) {
 /// Utility function to deploy a market token and return its address.
 fn deploy_market_token(role_store_address: ContractAddress) -> ContractAddress {
     let class_hash = declare('MarketToken');
-    let mut constructor_calldata = ArrayTrait::new();
+    let mut constructor_calldata = array![];
     constructor_calldata.append(role_store_address.into());
     let prepared = PreparedContract {
         class_hash: class_hash, constructor_calldata: @constructor_calldata
@@ -96,8 +96,6 @@ fn deploy_market_token(role_store_address: ContractAddress) -> ContractAddress {
 /// TODO: Find a way to share this code.
 fn deploy_role_store() -> ContractAddress {
     let class_hash = declare('RoleStore');
-    let prepared = PreparedContract {
-        class_hash: class_hash, constructor_calldata: @ArrayTrait::new()
-    };
+    let prepared = PreparedContract { class_hash: class_hash, constructor_calldata: @array![] };
     deploy(prepared).unwrap()
 }

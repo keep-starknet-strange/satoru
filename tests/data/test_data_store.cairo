@@ -151,7 +151,7 @@ fn given_test_environment_when_order_functions_then_expected_results() {
     let ui_fee_receiver = contract_address_const::<'ui_fee_receiver'>();
     let market = contract_address_const::<'market'>();
     let initial_collateral_token = contract_address_const::<'initial_collateral_token'>();
-    let mut swap_path = ArrayTrait::new();
+    let mut swap_path = array![];
     swap_path.append(contract_address_const::<'swap_path_0'>());
     swap_path.append(contract_address_const::<'swap_path_1'>());
     // Add the missing fields
@@ -221,7 +221,7 @@ fn given_test_environment_when_order_functions_then_expected_results() {
 /// * `ContractAddress` - The address of the deployed data store contract.
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
     let class_hash = declare('DataStore');
-    let mut constructor_calldata = ArrayTrait::new();
+    let mut constructor_calldata = array![];
     constructor_calldata.append(role_store_address.into());
     let prepared = PreparedContract {
         class_hash: class_hash, constructor_calldata: @constructor_calldata
@@ -236,9 +236,7 @@ fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
 /// * `ContractAddress` - The address of the deployed role store contract.
 fn deploy_role_store() -> ContractAddress {
     let class_hash = declare('RoleStore');
-    let prepared = PreparedContract {
-        class_hash: class_hash, constructor_calldata: @ArrayTrait::new()
-    };
+    let prepared = PreparedContract { class_hash: class_hash, constructor_calldata: @array![] };
     deploy(prepared).unwrap()
 }
 
