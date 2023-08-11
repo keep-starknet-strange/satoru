@@ -4,6 +4,7 @@
 
 // Core lib imports.
 use starknet::{ContractAddress, contract_address_const};
+use debug::PrintTrait;
 
 // Local imports.
 use gojo::utils::store_contract_address_array::StoreContractAddressArray;
@@ -58,4 +59,32 @@ enum OrderType {
     StopLossDecrease: (),
     ///  Liquidation: allows liquidation of positions if the criteria for liquidation are met
     Liquidation: (),
+}
+
+/// To help further differentiate orders.
+enum SecondaryOrderType {
+    None: (),
+    Adl: (),
+}
+
+/// `DecreasePositionSwapType` is used to indicate whether the decrease order should swap the pnl token to collateral token or vice versa.
+enum DecreasePositionSwapType {
+    NoSwap: (),
+    SwapPnlTokenToCollateralToken: (),
+    SwapCollateralTokenToPnlToken: (),
+}
+
+impl OrderTypePrintImpl of PrintTrait<OrderType> {
+    fn print(self: OrderType) {
+        match self {
+            OrderType::MarketSwap => 'MarketSwap'.print(),
+            OrderType::LimitSwap => 'LimitSwap'.print(),
+            OrderType::MarketIncrease => 'MarketIncrease'.print(),
+            OrderType::LimitIncrease => 'LimitIncrease'.print(),
+            OrderType::MarketDecrease => 'MarketDecrease'.print(),
+            OrderType::LimitDecrease => 'LimitDecrease'.print(),
+            OrderType::StopLossDecrease => 'StopLossDecrease'.print(),
+            OrderType::Liquidation => 'Liquidation'.print(),
+        }
+    }
 }

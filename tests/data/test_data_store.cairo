@@ -5,6 +5,7 @@ use traits::{TryInto, Into};
 use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const
 };
+use debug::PrintTrait;
 use cheatcodes::PreparedContract;
 
 use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
@@ -142,7 +143,7 @@ fn given_test_environment_when_order_functions_then_expected_results() {
     // *********************************************************************************************
 
     // Define variables for the test.
-    let order_type = OrderType::MarketSwap;
+    let order_type = OrderType::StopLossDecrease;
     let account = contract_address_const::<'account'>();
     let receiver = contract_address_const::<'receiver'>();
     let callback_contract = contract_address_const::<'callback_contract'>();
