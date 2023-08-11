@@ -7,14 +7,6 @@ use array::ArrayTrait;
 use poseidon::poseidon_hash_span;
 use traits::Into;
 
-/// The keys used in the `DataStore` contract.
-/// Right now, we can use non literal constants in Cairo.
-/// As a temporary workaround, we will use functions to return the keys instead.
-/// This will be removed once we can use non literal constants.
-/// This workaround has a big impact on the cost and performance of the system.
-/// TODO: move to non literal constants once Cairo supports it.
-struct Keys {}
-
 // *************************************************************************
 // *                        CONSTANT KEYS                                  *
 // *************************************************************************
