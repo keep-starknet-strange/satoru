@@ -11,50 +11,16 @@ use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherT
 use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
 use gojo::role::role;
 
-/// Utility function to deploy a data store contract and return its address.
-fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let class_hash = declare('DataStore');
-    let mut constructor_calldata = ArrayTrait::new();
-    constructor_calldata.append(role_store_address.into());
-    let prepared = PreparedContract {
-        class_hash: class_hash, constructor_calldata: @constructor_calldata
-    };
-    deploy(prepared).unwrap()
-}
-
-/// Utility function to deploy a data store contract and return its address.
-/// Copied from `tests/role/test_role_store.rs`.
-/// TODO: Find a way to share this code.
-fn deploy_role_store() -> ContractAddress {
-    let class_hash = declare('RoleStore');
-    let prepared = PreparedContract {
-        class_hash: class_hash, constructor_calldata: @ArrayTrait::new()
-    };
-    deploy(prepared).unwrap()
-}
-
 #[test]
-fn test_felt252_functions() {
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+fn given_test_environment_when_felt252_functions_then_expected_results() {
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
+    let (caller_address, role_store, data_store) = setup_test_environment();
 
-    // Deploy the role store contract.
-    let role_store_address = deploy_role_store();
-
-    // Create a role store dispatcher.
-    let role_store = IRoleStoreSafeDispatcher { contract_address: role_store_address };
-
-    // Deploy the contract.
-    let data_store_address = deploy_data_store(role_store_address);
-    // Create a safe dispatcher to interact with the contract.
-    let data_store = IDataStoreSafeDispatcher { contract_address: data_store_address };
-    // Grant the caller the CONTROLLER role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store_address, caller_address);
+    // *********************************************************************************************
+    // *                              TEST FELT252 FUNCTIONS                                       *
+    // *********************************************************************************************
 
     // Set key 1 to value 42.
     data_store.set_felt252(1, 42).unwrap();
@@ -83,32 +49,22 @@ fn test_felt252_functions() {
     // Check that the key was removed.
     assert(data_store.get_felt252(1).unwrap() == Default::default(), 'Key was not deleted');
 
-    // Stop pranking the caller address.
-    stop_prank(data_store_address);
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store.contract_address);
 }
 
 #[test]
-fn test_u256_functions() {
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+fn given_test_environment_when_u256_functions_then_expected_results() {
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
+    let (caller_address, role_store, data_store) = setup_test_environment();
 
-    // Deploy the role store contract.
-    let role_store_address = deploy_role_store();
-    // Create a role store dispatcher.
-    let role_store = IRoleStoreSafeDispatcher { contract_address: role_store_address };
-
-    // Deploy the contract.
-    let data_store_address = deploy_data_store(role_store_address);
-    // Create a safe dispatcher to interact with the contract.
-    let data_store = IDataStoreSafeDispatcher { contract_address: data_store_address };
-
-    // Grant the caller the CONTROLLER role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store_address, caller_address);
+    // *********************************************************************************************
+    // *                              TEST U256 FUNCTIONS                                          *
+    // *********************************************************************************************
 
     // Set key 1 to value 42.
     data_store.set_u256(1, 42).unwrap();
@@ -137,31 +93,22 @@ fn test_u256_functions() {
     // Check that the key was removed.
     assert(data_store.get_u256(1).unwrap() == Default::default(), 'Key was not removed');
 
-    stop_prank(data_store_address);
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store.contract_address);
 }
 
 #[test]
-fn test_address_functions() {
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+fn given_test_environment_when_address_functions_then_expected_results() {
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
+    let (caller_address, role_store, data_store) = setup_test_environment();
 
-    // Deploy the role store contract.
-    let role_store_address = deploy_role_store();
-    // Create a role store dispatcher.
-    let role_store = IRoleStoreSafeDispatcher { contract_address: role_store_address };
-
-    // Deploy the contract.
-    let data_store_address = deploy_data_store(role_store_address);
-    // Create a safe dispatcher to interact with the contract.
-    let data_store = IDataStoreSafeDispatcher { contract_address: data_store_address };
-
-    // Grant the caller the CONTROLLER role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store_address, caller_address);
+    // *********************************************************************************************
+    // *                              TEST ADDRESS FUNCTIONS                                       *
+    // *********************************************************************************************
 
     // Set key 1 to value 42.
     data_store.set_address(1, caller_address).unwrap();
@@ -176,5 +123,69 @@ fn test_address_functions() {
         data_store.get_address(1).unwrap() == contract_address_const::<0>(), 'Key was not removed'
     );
 
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store.contract_address);
+}
+
+/// Utility function to deploy a data store contract and return its address.
+///
+/// # Arguments
+///
+/// * `role_store_address` - The address of the role store contract.
+///
+/// # Returns
+///
+/// * `ContractAddress` - The address of the deployed data store contract.
+fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
+    let class_hash = declare('DataStore');
+    let mut constructor_calldata = ArrayTrait::new();
+    constructor_calldata.append(role_store_address.into());
+    let prepared = PreparedContract {
+        class_hash: class_hash, constructor_calldata: @constructor_calldata
+    };
+    deploy(prepared).unwrap()
+}
+
+/// Utility function to deploy a role store contract and return its address.
+///
+/// # Returns
+///
+/// * `ContractAddress` - The address of the deployed role store contract.
+fn deploy_role_store() -> ContractAddress {
+    let class_hash = declare('RoleStore');
+    let prepared = PreparedContract {
+        class_hash: class_hash, constructor_calldata: @ArrayTrait::new()
+    };
+    deploy(prepared).unwrap()
+}
+
+/// Utility function to setup the test environment.
+///
+/// # Returns
+///
+/// * `ContractAddress` - The address of the caller.
+/// * `IRoleStoreSafeDispatcher` - The role store dispatcher.
+/// * `IDataStoreSafeDispatcher` - The data store dispatcher.
+fn setup_test_environment() -> (
+    ContractAddress, IRoleStoreSafeDispatcher, IDataStoreSafeDispatcher
+) {
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let role_store_address = deploy_role_store();
+    let role_store = IRoleStoreSafeDispatcher { contract_address: role_store_address };
+    let data_store_address = deploy_data_store(role_store_address);
+    let data_store = IDataStoreSafeDispatcher { contract_address: data_store_address };
+    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
+    start_prank(data_store_address, caller_address);
+    (caller_address, role_store, data_store)
+}
+
+/// Utility function to teardown the test environment.
+///
+/// # Arguments
+///
+/// * `data_store_address` - The address of the data store contract.
+fn teardown_test_environment(data_store_address: ContractAddress) {
     stop_prank(data_store_address);
 }
