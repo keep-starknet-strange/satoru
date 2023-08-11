@@ -24,7 +24,9 @@ use gojo::role::role;
 
 #[test]
 fn given_normal_conditions_when_create_market_then_market_is_created() {
-    // Setup required contracts.
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
     let (
         caller_address,
         market_factory_address,
@@ -36,26 +38,11 @@ fn given_normal_conditions_when_create_market_then_market_is_created() {
         data_store,
         event_emitter,
     ) =
-        setup();
+        setup_test_environment();
 
-    // Grant the caller the `CONTROLLER` role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
-
-    // Grant the call the `MARKET_KEEPER` role.
-    // This role is required to create a market.
-    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store_address, caller_address);
-
-    // Prank the caller address for calls to market_factory contract.
-    // We need this so that the caller has the MARKET_KEEPER role.
-    start_prank(market_factory_address, caller_address);
-
-    // ****** LOGIC STARTS HERE ******
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
 
     // Create a market.
     let index_token = contract_address_const::<'index_token'>();
@@ -85,16 +72,17 @@ fn given_normal_conditions_when_create_market_then_market_is_created() {
     let market_token_name = market_token.name().unwrap();
     assert(market_token_name == 'Gojo Market', 'bad_market_token_name');
 
-    // ****** LOGIC ENDS HERE ******
-
-    // Stop pranking the caller address.
-    stop_prank(data_store_address);
-    stop_prank(market_factory_address);
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store, market_factory);
 }
 
 #[test]
 fn given_bad_params_when_create_market_then_fail() {
-    // Setup required contracts.
+    // *********************************************************************************************
+    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *********************************************************************************************
     let (
         caller_address,
         market_factory_address,
@@ -106,26 +94,11 @@ fn given_bad_params_when_create_market_then_fail() {
         data_store,
         event_emitter,
     ) =
-        setup();
+        setup_test_environment();
 
-    // Grant the caller the `CONTROLLER` role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
-
-    // Grant the call the `MARKET_KEEPER` role.
-    // This role is required to create a market.
-    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store_address, caller_address);
-
-    // Prank the caller address for calls to market_factory contract.
-    // We need this so that the caller has the MARKET_KEEPER role.
-    start_prank(market_factory_address, caller_address);
-
-    // ****** LOGIC STARTS HERE ******
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
 
     // Create a market.
     let market_token = contract_address_const::<'market_token'>();
@@ -149,11 +122,96 @@ fn given_bad_params_when_create_market_then_fail() {
     //     Result::Err(_) => {}
     // }
 
-    // ****** LOGIC ENDS HERE ******
+    // *********************************************************************************************
+    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *********************************************************************************************
+    teardown_test_environment(data_store, market_factory);
+}
 
-    // Stop pranking the caller address.
-    stop_prank(data_store_address);
-    stop_prank(market_factory_address);
+/// Utility function to setup the test environment.
+fn setup_test_environment() -> (
+    // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
+    ContractAddress,
+    // Address of the `MarketFactory` contract.
+    ContractAddress,
+    // Address of the `RoleStore` contract.
+    ContractAddress,
+    // Address of the `DataStore` contract.
+    ContractAddress,
+    // The `MarketToken` class hash for the factory.
+    ClassHash,
+    // Interface to interact with the `MarketFactory` contract.
+    IMarketFactorySafeDispatcher,
+    // Interface to interact with the `RoleStore` contract.
+    IRoleStoreSafeDispatcher,
+    // Interface to interact with the `DataStore` contract.
+    IDataStoreSafeDispatcher,
+    // Interface to interact with the `EventEmitter` contract.
+    IEventEmitterSafeDispatcher,
+) {
+    let (
+        caller_address,
+        market_factory_address,
+        role_store_address,
+        data_store_address,
+        market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        event_emitter,
+    ) =
+        setup();
+    grant_roles_and_prank(caller_address, role_store, data_store, market_factory);
+    return (
+        caller_address,
+        market_factory.contract_address,
+        role_store_address,
+        data_store_address,
+        market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        event_emitter,
+    );
+}
+
+// Utility function to grant roles and prank the caller address.
+/// Grants roles and pranks the caller address.
+///
+/// # Arguments
+///
+/// * `caller_address` - The address of the caller.
+/// * `role_store` - The interface to interact with the `RoleStore` contract.
+/// * `data_store` - The interface to interact with the `DataStore` contract.
+/// * `market_factory` - The interface to interact with the `MarketFactory` contract.
+fn grant_roles_and_prank(
+    caller_address: ContractAddress,
+    role_store: IRoleStoreSafeDispatcher,
+    data_store: IDataStoreSafeDispatcher,
+    market_factory: IMarketFactorySafeDispatcher,
+) {
+    // Grant the caller the `CONTROLLER` role.
+    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
+
+    // Grant the call the `MARKET_KEEPER` role.
+    // This role is required to create a market.
+    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
+
+    // Prank the caller address for calls to `DataStore` contract.
+    // We need this so that the caller has the CONTROLLER role.
+    start_prank(data_store.contract_address, caller_address);
+
+    // Start pranking the `MarketFactory` contract. This is necessary to mock the behavior of the contract
+    // for testing purposes.
+    start_prank(market_factory.contract_address, caller_address);
+}
+
+/// Utility function to teardown the test environment.
+fn teardown_test_environment(
+    data_store: IDataStoreSafeDispatcher, market_factory: IMarketFactorySafeDispatcher
+) {
+    stop_prank(data_store.contract_address);
+    stop_prank(market_factory.contract_address);
 }
 
 /// Setup required contracts.
@@ -271,3 +329,4 @@ fn deploy_event_emitter() -> ContractAddress {
     };
     deploy(prepared).unwrap()
 }
+

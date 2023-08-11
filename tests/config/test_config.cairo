@@ -21,22 +21,7 @@ use gojo::config::config::{IConfigSafeDispatcher, IConfigSafeDispatcherTrait};
 
 #[test]
 fn given_normal_conditions_when_set_bool_then_works() {
-    // Setup required contracts.
-    let (caller_address, config, role_store, data_store, event_emitter, ) = setup();
-
-    // Grant the caller the `CONTROLLER` role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
-    role_store.grant_role(caller_address, role::CONFIG_KEEPER).unwrap();
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store.contract_address, caller_address);
-
-    // Prank the caller address for calls to market_factory contract.
-    // We need this so that the caller has the CONFIG_KEEPER role.
-    start_prank(config.contract_address, caller_address);
+    let (caller_address, config, role_store, data_store, event_emitter) = setup_contracts();
 
     // ****** LOGIC STARTS HERE ******
 
@@ -59,29 +44,12 @@ fn given_normal_conditions_when_set_bool_then_works() {
 
     // ****** LOGIC ENDS HERE ******
 
-    // Stop pranking the caller address.
-    stop_prank(data_store.contract_address);
-    stop_prank(config.contract_address);
+    stop_pranking(data_store, config);
 }
 
 #[test]
 fn given_normal_conditions_when_set_address_then_works() {
-    // Setup required contracts.
-    let (caller_address, config, role_store, data_store, event_emitter, ) = setup();
-
-    // Grant the caller the `CONTROLLER` role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
-    role_store.grant_role(caller_address, role::CONFIG_KEEPER).unwrap();
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store.contract_address, caller_address);
-
-    // Prank the caller address for calls to market_factory contract.
-    // We need this so that the caller has the CONFIG_KEEPER role.
-    start_prank(config.contract_address, caller_address);
+    let (caller_address, config, role_store, data_store, event_emitter) = setup_contracts();
 
     // ****** LOGIC STARTS HERE ******
 
@@ -106,29 +74,12 @@ fn given_normal_conditions_when_set_address_then_works() {
 
     // ****** LOGIC ENDS HERE ******
 
-    // Stop pranking the caller address.
-    stop_prank(data_store.contract_address);
-    stop_prank(config.contract_address);
+    stop_pranking(data_store, config);
 }
 
 #[test]
 fn given_not_allowed_key_when_set_address_then_fails() {
-    // Setup required contracts.
-    let (caller_address, config, role_store, data_store, event_emitter, ) = setup();
-
-    // Grant the caller the `CONTROLLER` role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
-    role_store.grant_role(caller_address, role::CONFIG_KEEPER).unwrap();
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store.contract_address, caller_address);
-
-    // Prank the caller address for calls to market_factory contract.
-    // We need this so that the caller has the CONFIG_KEEPER role.
-    start_prank(config.contract_address, caller_address);
+    let (caller_address, config, role_store, data_store, event_emitter) = setup_contracts();
 
     // ****** LOGIC STARTS HERE ******
 
@@ -152,29 +103,12 @@ fn given_not_allowed_key_when_set_address_then_fails() {
 
     // ****** LOGIC ENDS HERE ******
 
-    // Stop pranking the caller address.
-    stop_prank(data_store.contract_address);
-    stop_prank(config.contract_address);
+    stop_pranking(data_store, config);
 }
 
 #[test]
 fn given_normal_conditions_when_set_felt252_then_works() {
-    // Setup required contracts.
-    let (caller_address, config, role_store, data_store, event_emitter, ) = setup();
-
-    // Grant the caller the `CONTROLLER` role.
-    // We use the same account to deploy data_store and role_store, so we can grant the role
-    // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
-    role_store.grant_role(caller_address, role::CONFIG_KEEPER).unwrap();
-
-    // Prank the caller address for calls to data_store contract.
-    // We need this so that the caller has the CONTROLLER role.
-    start_prank(data_store.contract_address, caller_address);
-
-    // Prank the caller address for calls to market_factory contract.
-    // We need this so that the caller has the CONFIG_KEEPER role.
-    start_prank(config.contract_address, caller_address);
+    let (caller_address, config, role_store, data_store, event_emitter) = setup_contracts();
 
     // ****** LOGIC STARTS HERE ******
 
@@ -199,10 +133,60 @@ fn given_normal_conditions_when_set_felt252_then_works() {
 
     // ****** LOGIC ENDS HERE ******
 
-    // Stop pranking the caller address.
+    stop_pranking(data_store, config);
+}
+
+// Utility function to grant roles and prank the caller address.
+/// Grants roles and pranks the caller address.
+///
+/// # Arguments
+///
+/// * `caller_address` - The address of the caller.
+/// * `role_store` - The role store dispatcher.
+/// * `data_store` - The data store dispatcher.
+/// * `config` - The config dispatcher.
+fn grant_roles_and_prank(
+    caller_address: ContractAddress,
+    role_store: IRoleStoreSafeDispatcher,
+    data_store: IDataStoreSafeDispatcher,
+    config: IConfigSafeDispatcher
+) {
+    // Grant the caller the CONTROLLER role. This is necessary for the caller to have the permissions
+    // to perform certain actions in the tests.
+    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
+
+    // Grant the caller the CONFIG_KEEPER role. This is necessary for the caller to have the permissions
+    // to perform certain actions in the tests.
+    role_store.grant_role(caller_address, role::CONFIG_KEEPER).unwrap();
+
+    // Start pranking the data store contract. This is necessary to mock the behavior of the contract
+    // for testing purposes.
+    start_prank(data_store.contract_address, caller_address);
+
+    // Start pranking the config contract. This is necessary to mock the behavior of the contract
+    // for testing purposes.
+    start_prank(config.contract_address, caller_address);
+}
+
+// Utility function to stop pranking the caller address.
+fn stop_pranking(data_store: IDataStoreSafeDispatcher, config: IConfigSafeDispatcher) {
     stop_prank(data_store.contract_address);
     stop_prank(config.contract_address);
 }
+
+// Utility function to setup and return the required contracts.
+fn setup_contracts() -> (
+    ContractAddress,
+    IConfigSafeDispatcher,
+    IRoleStoreSafeDispatcher,
+    IDataStoreSafeDispatcher,
+    IEventEmitterSafeDispatcher
+) {
+    let (caller_address, config, role_store, data_store, event_emitter, ) = setup();
+    grant_roles_and_prank(caller_address, role_store, data_store, config);
+    return (caller_address, config, role_store, data_store, event_emitter);
+}
+
 
 /// Setup required contracts.
 fn setup() -> (

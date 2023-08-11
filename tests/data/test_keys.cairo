@@ -2,7 +2,7 @@ use gojo::data::keys;
 use starknet::{ContractAddress, contract_address_const};
 
 #[test]
-fn test_constant_keys() {
+fn given_constant_keys_when_tested_then_expected_results() {
     let wnt = keys::wnt();
     assert(wnt == 0x74d98a44e50c39f5a55e16dec65fc43c09ca04efa146e762ab2e4cf8a02ae0e, 'wrong_key');
 
