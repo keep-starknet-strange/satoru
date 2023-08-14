@@ -1,5 +1,8 @@
 // Declare modules.
 
+// `bank` is a module handling storing and transferring of tokens.
+mod bank;
+
 // `chain` is a module that contains utility function for interacting with the chain and getting information.
 mod chain;
 
