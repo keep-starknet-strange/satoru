@@ -78,19 +78,19 @@ mod MarketFactory {
 
     /// Constructor of the contract.
     /// # Arguments
-    /// * `data_store_adress` - The address of the data store contract.
+    /// * `data_store_address` - The address of the data store contract.
     /// * `role_store_address` - The address of the role store contract.
     /// * `event_emitter_address` - The address of the event emitter contract.
     /// * `market_token_class_hash` - The class hash of the `MarketToken` contract to deploy when creating a new market.
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        data_store_adress: ContractAddress,
+        data_store_address: ContractAddress,
         role_store_address: ContractAddress,
         event_emitter_address: ContractAddress,
         market_token_class_hash: ClassHash,
     ) {
-        self.data_store.write(IDataStoreDispatcher { contract_address: data_store_adress });
+        self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
         self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
         self
             .event_emitter
