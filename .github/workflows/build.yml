@@ -30,3 +30,9 @@ jobs:
         run: scarb fmt --check
       - name: Build cairo programs
         run: scarb build
+      - name: Download Semgrep rules
+        run: |
+          wget https://github.com/avnu-labs/semgrep-cairo-rules/releases/tag/v0.0.1/cairo-rules.yml -O /tmp/rules.yml
+
+      - name: Run Semgrep
+        run: semgrep --config /tmp/rules.yml .
