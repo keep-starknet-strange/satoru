@@ -12,6 +12,10 @@ repository = "https://github.com/keep-starknet-strange/gojo"
 [[target.starknet-contract]]
 sierra = true
 casm = true
+allowed-libfuncs-list.name = "experimental"
+
+[cairo]
+sierra-replace-ids = true
 
 [dependencies]
 starknet = ">=2.1.0"

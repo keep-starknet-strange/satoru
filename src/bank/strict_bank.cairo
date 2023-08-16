@@ -12,7 +12,16 @@ use starknet::ContractAddress;
 //                  Interface of the `StrictBank` contract.
 // *************************************************************************
 #[starknet::interface]
-trait IStrictBank<TContractState> {}
+trait IStrictBank<TContractState> {
+    /// Transfer tokens from this contract to a receiver.
+    /// # Arguments
+    /// * `token` - The token address to transfer.
+    /// * `receiver` - The address of the receiver.
+    /// * `amount` - The amount of tokens to transfer.
+    fn transfer_out(
+        ref self: TContractState, token: ContractAddress, receiver: ContractAddress, amount: u128, 
+    );
+}
 
 #[starknet::contract]
 mod StrictBank {
@@ -27,7 +36,7 @@ mod StrictBank {
     use debug::PrintTrait;
 
     // Local imports.
-    use gojo::bank::bank::Bank;
+    use gojo::bank::bank::{Bank, IBank};
 
     // *************************************************************************
     //                              STORAGE
@@ -49,7 +58,7 @@ mod StrictBank {
         role_store_address: ContractAddress,
     ) {
         let mut state: Bank::ContractState = Bank::unsafe_new_contract_state();
-    //Bank::initialize(ref state, data_store_address, role_store_address);
+        IBank::initialize(ref state, data_store_address, role_store_address);
     }
 
 
@@ -57,5 +66,20 @@ mod StrictBank {
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
     #[external(v0)]
-    impl StrictBank of super::IStrictBank<ContractState> {}
+    impl StrictBank of super::IStrictBank<ContractState> {
+        /// Transfer tokens from this contract to a receiver.
+        /// # Arguments
+        /// * `token` - The token address to transfer.
+        /// * `receiver` - The address of the receiver.
+        /// * `amount` - The amount of tokens to transfer.
+        fn transfer_out(
+            ref self: ContractState,
+            token: ContractAddress,
+            receiver: ContractAddress,
+            amount: u128,
+        ) {
+            let mut state: Bank::ContractState = Bank::unsafe_new_contract_state();
+            IBank::transfer_out(ref state, token, receiver, amount);
+        }
+    }
 }
