@@ -12,7 +12,8 @@ use starknet::ContractAddress;
 //                  Interface of the `Bank` contract.
 // *************************************************************************
 #[starknet::interface]
-trait IBank<TContractState> { /// Initialize the contract.
+trait IBank<TContractState> {
+    /// Initialize the contract.
     /// # Arguments
     /// * `data_store_address` - The address of the data store contract.
     /// * `role_store_address` - The address of the role store contract.
@@ -20,6 +21,14 @@ trait IBank<TContractState> { /// Initialize the contract.
         ref self: TContractState,
         data_store_address: ContractAddress,
         role_store_address: ContractAddress,
+    );
+    /// Transfer tokens from this contract to a receiver.
+    /// # Arguments
+    /// * `token` - The token address to transfer.
+    /// * `receiver` - The address of the receiver.
+    /// * `amount` - The amount of tokens to transfer.
+    fn transfer_out(
+        ref self: TContractState, token: ContractAddress, receiver: ContractAddress, amount: u128, 
     );
 }
 
@@ -91,6 +100,21 @@ mod Bank {
             );
             self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
             self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
+        }
+
+        /// Transfer tokens from this contract to a receiver.
+        /// # Arguments
+        /// * `token` - The token address to transfer.
+        /// * `receiver` - The address of the receiver.
+        /// * `amount` - The amount of tokens to transfer.
+        fn transfer_out(
+            ref self: ContractState,
+            token: ContractAddress,
+            receiver: ContractAddress,
+            amount: u128,
+        ) {
+            // FIXME: #29 - https://github.com/keep-starknet-strange/gojo/issues/29
+            'not_implemented'.print();
         }
     }
 }
