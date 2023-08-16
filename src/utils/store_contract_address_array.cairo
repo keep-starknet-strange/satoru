@@ -3,8 +3,8 @@
 // *************************************************************************
 
 // Core lib imports.
-use starknet::{ContractAddress, SyscallResult, };
-use starknet::storage_access::{Store, StorageBaseAddress, };
+use starknet::{ContractAddress, SyscallResult,};
+use starknet::storage_access::{Store, StorageBaseAddress,};
 use array::ArrayTrait;
 use result::ResultTrait;
 use traits::{Into, TryInto};

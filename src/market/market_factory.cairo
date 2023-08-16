@@ -31,7 +31,7 @@ trait IMarketFactory<TContractState> {
     /// # Arguments
     /// * `market_token_class_hash` - The class hash of the `MarketToken` contract to deploy when creating a new market.
     fn update_market_token_class_hash(
-        ref self: TContractState, market_token_class_hash: ClassHash, 
+        ref self: TContractState, market_token_class_hash: ClassHash,
     );
 }
 
@@ -125,7 +125,7 @@ mod MarketFactory {
             // Compute the salt to use when deploying the `MarketToken` contract.
             let salt = self
                 .compute_salt_for_deploy_market_token(
-                    index_token, long_token, short_token, market_type, 
+                    index_token, long_token, short_token, market_type,
                 );
 
             // Deploy the `MarketToken` contract.
@@ -140,7 +140,7 @@ mod MarketFactory {
 
             // Create the market.
             let market = Market {
-                market_token: market_token_deployed_address, index_token, long_token, short_token, 
+                market_token: market_token_deployed_address, index_token, long_token, short_token,
             };
             // Compute the key of the market.
             let market_key = market.unique_id(market_type);
@@ -169,7 +169,7 @@ mod MarketFactory {
         /// # Arguments
         /// * `market_token_class_hash` - The class hash of the `MarketToken` contract to deploy when creating a new market.
         fn update_market_token_class_hash(
-            ref self: ContractState, market_token_class_hash: ClassHash, 
+            ref self: ContractState, market_token_class_hash: ClassHash,
         ) {
             // Get the caller address.
             let caller_address = get_caller_address();
@@ -186,7 +186,7 @@ mod MarketFactory {
                 .event_emitter
                 .read()
                 .emit_market_token_class_hash_updated(
-                    caller_address, old_market_token_class_hash, market_token_class_hash, 
+                    caller_address, old_market_token_class_hash, market_token_class_hash,
                 )
                 .unwrap();
         }

@@ -6,7 +6,7 @@ on:
     branches:
       - main
 env:
-  SCARB_VERSION: 0.6.0+nightly-2023-08-03
+  SCARB_VERSION: 0.6.1+nightly-2023-08-16
 
 # For the moment we will use nightly versions of scarb to be able to use latest features of Cairo.
 # The installation process will be a bit different than when using non nightly versions.
@@ -18,13 +18,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up Scarb
-        uses: software-mansion/setup-scarb@v1
+        #uses: software-mansion/setup-scarb@v1
         # Install Scarb from a nightly release
-        # run: |
-        #   NIGHTLY_DATE=$(echo ${SCARB_VERSION} | cut -d '+' -f 2)
-        #   wget https://github.com/software-mansion/scarb-nightlies/releases/download/${NIGHTLY_DATE}/scarb-v${SCARB_VERSION}-x86_64-unknown-linux-gnu.tar.gz
-        #   tar -xvf scarb-v${SCARB_VERSION}-x86_64-unknown-linux-gnu.tar.gz
-        #   sudo mv scarb-v${SCARB_VERSION}-x86_64-unknown-linux-gnu/bin/scarb /usr/local/bin
+        run: |
+          NIGHTLY_DATE=$(echo ${SCARB_VERSION} | cut -d '+' -f 2)
+          wget https://github.com/software-mansion/scarb-nightlies/releases/download/${NIGHTLY_DATE}/scarb-${NIGHTLY_DATE}-x86_64-unknown-linux-gnu.tar.gz
+          tar -xvf scarb-${NIGHTLY_DATE}-x86_64-unknown-linux-gnu.tar.gz
+          sudo mv scarb-v${SCARB_VERSION}-x86_64-unknown-linux-gnu/bin/scarb /usr/local/bin
 
       - name: Check cairo format
         run: scarb fmt --check
