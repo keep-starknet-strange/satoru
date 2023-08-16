@@ -83,7 +83,7 @@ fn setup_test_environment() -> ( // This caller address will be used with `start
     // Deploy the `Chain` contract.
     let chain = IChainDispatcher {
         contract_address: deploy(
-            PreparedContract { class_hash: declare('Chain'), constructor_calldata: @array![],  }
+            PreparedContract { class_hash: declare('Chain'), constructor_calldata: @array![], }
         )
             .unwrap()
     };

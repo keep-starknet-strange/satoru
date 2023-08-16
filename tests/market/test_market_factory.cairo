@@ -108,7 +108,7 @@ fn given_bad_params_when_create_market_then_fail() {
     let short_token = contract_address_const::<'short_token'>();
     let market_type = 'market_type';
 
-    let new_market = Market { market_token, index_token, long_token, short_token,  };
+    let new_market = Market { market_token, index_token, long_token, short_token, };
 
     // Try to create a market.
     // This must fail because the index token is invalid.
