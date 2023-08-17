@@ -10,3 +10,8 @@
   - [Overview](smart-contracts-architecture/overview.md)
   - [Role](smart-contracts-architecture/role-module.md)
   - [Data](smart-contracts-architecture/data-module.md)
+- [Github Workflows](github-workflows/README.md)
+  - [Gojo Book Workflow Documentation](github-workflows/gojo-book.md)
+  - [Build Workflow Documentation](github-workflows/build.md)
+  - [Security Workflow Documentation](github-workflows/security.md)
+  - [Test Workflow Documentation](github-workflows/test.md)
