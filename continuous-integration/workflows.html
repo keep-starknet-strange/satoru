@@ -3,8 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Gojo Book</title>
-        <meta name="robots" content="noindex" />
+        <title>Github Workflows Documentation - Gojo Book</title>
 
 
         <!-- Custom HTML head -->
@@ -13,21 +12,21 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
 
-        <link rel="icon" href="favicon.svg">
-        <link rel="shortcut icon" href="favicon.png">
-        <link rel="stylesheet" href="css/variables.css">
-        <link rel="stylesheet" href="css/general.css">
-        <link rel="stylesheet" href="css/chrome.css">
-        <link rel="stylesheet" href="css/print.css" media="print">
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-        <link rel="stylesheet" href="fonts/fonts.css">
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="highlight.css">
-        <link rel="stylesheet" href="tomorrow-night.css">
-        <link rel="stylesheet" href="ayu-highlight.css">
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
 
@@ -36,7 +35,7 @@
     <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
-            var path_to_root = "";
+            var path_to_root = "../";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
@@ -84,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Introduction</a></li><li class="chapter-item expanded "><a href="getting-started/index.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="getting-started/prerequisites.html"><strong aria-hidden="true">1.1.</strong> Prerequisites</a></li><li class="chapter-item expanded "><a href="getting-started/build.html"><strong aria-hidden="true">1.2.</strong> Build the contracts</a></li><li class="chapter-item expanded "><a href="getting-started/test.html"><strong aria-hidden="true">1.3.</strong> Test the contracts</a></li></ol></li><li class="chapter-item expanded "><a href="smart-contracts-architecture/index.html"><strong aria-hidden="true">2.</strong> Smart contracts architecture</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="smart-contracts-architecture/overview.html"><strong aria-hidden="true">2.1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="smart-contracts-architecture/role-module.html"><strong aria-hidden="true">2.2.</strong> Role</a></li><li class="chapter-item expanded "><a href="smart-contracts-architecture/data-module.html"><strong aria-hidden="true">2.3.</strong> Data</a></li></ol></li><li class="chapter-item expanded "><a href="continuous-integration/index.html"><strong aria-hidden="true">3.</strong> Continous Integration</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="continuous-integration/workflows.html"><strong aria-hidden="true">3.1.</strong> Github Workflows Documentation</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Introduction</a></li><li class="chapter-item expanded "><a href="../getting-started/index.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../getting-started/prerequisites.html"><strong aria-hidden="true">1.1.</strong> Prerequisites</a></li><li class="chapter-item expanded "><a href="../getting-started/build.html"><strong aria-hidden="true">1.2.</strong> Build the contracts</a></li><li class="chapter-item expanded "><a href="../getting-started/test.html"><strong aria-hidden="true">1.3.</strong> Test the contracts</a></li></ol></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/index.html"><strong aria-hidden="true">2.</strong> Smart contracts architecture</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../smart-contracts-architecture/overview.html"><strong aria-hidden="true">2.1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/role-module.html"><strong aria-hidden="true">2.2.</strong> Role</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/data-module.html"><strong aria-hidden="true">2.3.</strong> Data</a></li></ol></li><li class="chapter-item expanded "><a href="../continuous-integration/index.html"><strong aria-hidden="true">3.</strong> Continous Integration</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../continuous-integration/workflows.html" class="active"><strong aria-hidden="true">3.1.</strong> Github Workflows Documentation</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -138,11 +137,14 @@
                     <h1 class="menu-title">Gojo Book</h1>
 
                     <div class="right-buttons">
-                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
                             <i id="print-button" class="fa fa-print"></i>
                         </a>
                         <a href="https://github.com/keep-starknet-strange/gojo/" title="Git repository" aria-label="Git repository">
                             <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/keep-starknet-strange/gojo/book/src/continuous-integration/workflows.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
                         </a>
 
                     </div>
@@ -170,77 +172,7 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="gojo"><a class="header" href="#gojo">Gojo</a></h1>
-<p>Gojo is a cutting-edge synthetics platform for Starknet, taking inspiration from the modular design of GMX v2.</p>
-<p><img src="./assets/gojo-whats-up.gif" alt="Gojo Whats Up" /></p>
-<p>Like it's namesake, Gojo is <strong>powerful</strong> and <strong>badass</strong>. It's also a bit of a mystery. We don't know what it's capable of yet, but we're excited to find out.</p>
-<p>Combine the power of <strong>Starknet</strong> with it's huge computation capacity to the great design of <strong>GMX v2</strong>, and you get Gojo, a synthetics platform that is fast, cheap and scalable.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="getting-started"><a class="header" href="#getting-started">Getting Started</a></h1>
-<p>In this section, we will go through the steps to build and test the smart contracts.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="prerequisites"><a class="header" href="#prerequisites">Prerequisites</a></h1>
-<ul>
-<li><a href="https://foundry-rs.github.io/starknet-foundry/">Starknet Foundry</a></li>
-</ul>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="build-the-contracts"><a class="header" href="#build-the-contracts">Build the contracts</a></h1>
-<p>Open a terminal and run the following command:</p>
-<pre><code class="language-shell">scarb build
-</code></pre>
-<p>This will build the smart contracts into <code>target</code> directory.</p>
-<p>Sample output:</p>
-<pre><code class="language-shell">tree target/dev
-target/dev
-├── gojo.starknet_artifacts.json
-├── gojo_DataStore.sierra.json
-└── gojo_RoleStore.sierra.json
-</code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="test-the-contracts"><a class="header" href="#test-the-contracts">Test the contracts</a></h1>
-<p>Open a terminal and run the following command:</p>
-<pre><code class="language-shell">snforge
-</code></pre>
-<p>This will execute the tests in <code>tests</code> directory and print the results.</p>
-<p>Sample output:</p>
-<pre><code class="language-shell">Collected 4 test(s) and 3 test file(s)
-Running 0 test(s) from src/lib.cairo
-Running 2 test(s) from tests/data/test_data_store.cairo
-[PASS] test_data_store::test_data_store::test_get_and_set_felt252
-[PASS] test_data_store::test_data_store::test_get_and_set_u256
-Running 2 test(s) from tests/role/test_role_store.cairo
-[PASS] test_role_store::test_role_store::test_grant_role
-[PASS] test_role_store::test_role_store::test_revoke_role
-Tests: 4 passed, 0 failed, 0 skipped
-</code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="smart-contracts-architecture"><a class="header" href="#smart-contracts-architecture">Smart contracts architecture</a></h1>
-<p>In this section, we will go through the smart contracts architecture.</p>
-<p>Gojo is composed of several modules. Each module is a set of smart contracts and libraries that are related to a specific area.</p>
-<p>The goal of this architecture is to make the code more readable and maintainable, as well as to make it easier to add new features.</p>
-<p>Another goal is to enable composability. For example, the <code>Role</code> module can be used in any other module to add role-based access control to the module's functions.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="protocol-overview"><a class="header" href="#protocol-overview">Protocol Overview</a></h1>
-<p><img src="smart-contracts-architecture/../assets/gojo-diagram.png" alt="Schema" />
-Gojo high-level modules overview.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="role-module"><a class="header" href="#role-module">Role module</a></h1>
-<p>The role module is responsible for role-based access control.</p>
-<p>It contains the following smart contracts:</p>
-<ul>
-<li><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/role/role_store.cairo">RoleStore</a>: The main smart contract of the module. It is responsible for storing the roles of the protocol and for managing the access control.</li>
-</ul>
-<p>It contains the following Cairo library files:</p>
-<ul>
-<li><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/role/role.cairo">role.cairo</a>: Contains the different roles of the protocol.</li>
-<li><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/role/error.cairo">error.cairo</a>: Contains the error codes of the module.</li>
-</ul>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="data-module"><a class="header" href="#data-module">Data module</a></h1>
-<p>The data module is reponsible for storing and managing the data of the protocol.</p>
-<p>It contains the following smart contracts:</p>
-<p><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/data/data_store.cairo">DataStore</a>: The main smart contract of the module. It is responsible for storing the data of the protocol.</p>
-<p>It contains the following Cairo library files:</p>
-<ul>
-<li><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/data/keys.cairo">keys.cairo</a>: Contains functions to generate the keys (entries in the data store) of the protocol.</li>
-</ul>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="continuous-integration"><a class="header" href="#continuous-integration">Continuous Integration</a></h1>
-<h2 id="workflows"><a class="header" href="#workflows">Workflows</a></h2>
-<p>A workflow is a configurable automated process that will run one or more jobs. Workflows are defined by a YAML file checked in to your repository and will run when triggered by an event in your repository, or they can be triggered manually, or at a defined schedule.</p>
-<p>In this section we will run through every workflows and give a detailed explanation of their functionalities.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="github-workflows-documentation"><a class="header" href="#github-workflows-documentation">Github Workflows Documentation</a></h1>
+                        <h1 id="github-workflows-documentation"><a class="header" href="#github-workflows-documentation">Github Workflows Documentation</a></h1>
 <h2 id="gojo-book-workflow-documentation"><a class="header" href="#gojo-book-workflow-documentation">Gojo Book Workflow Documentation</a></h2>
 <h3 id="overview"><a class="header" href="#overview">Overview:</a></h3>
 <p>The &quot;Gojo Book&quot; GitHub Actions workflow (<code>book.yml</code>) is specifically designed for the automated build and deployment of the Gojo book's latest version.</p>
@@ -477,6 +409,9 @@ jobs:
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../continuous-integration/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
 
 
                         <div style="clear: both"></div>
@@ -485,6 +420,9 @@ jobs:
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../continuous-integration/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
 
             </nav>
 
@@ -498,21 +436,16 @@ jobs:
         </script>
 
 
-        <script src="elasticlunr.min.js"></script>
-        <script src="mark.min.js"></script>
-        <script src="searcher.js"></script>
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
 
-        <script src="clipboard.min.js"></script>
-        <script src="highlight.js"></script>
-        <script src="book.js"></script>
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
 
         <!-- Custom JS scripts -->
 
-        <script>
-        window.addEventListener('load', function() {
-            window.setTimeout(window.print, 100);
-        });
-        </script>
 
     </div>
     </body>
