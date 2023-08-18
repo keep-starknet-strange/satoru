@@ -83,7 +83,7 @@ fn setup() -> ( // This caller address will be used with `start_prank` cheatcode
     // Deploy the `Chain` contract.
     let chain = IChainDispatcher {
         contract_address: deploy(
-            PreparedContract { class_hash: declare('Chain'), constructor_calldata: @array![],  }
+            PreparedContract { class_hash: declare('Chain'), constructor_calldata: @array![], }
         )
             .unwrap()
     };

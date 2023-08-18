@@ -7,7 +7,7 @@ use array::ArrayTrait;
 use result::ResultTrait;
 use option::OptionTrait;
 use traits::{TryInto, Into};
-use starknet::{ContractAddress, get_caller_address, contract_address_const, ClassHash, };
+use starknet::{ContractAddress, get_caller_address, contract_address_const, ClassHash,};
 use cheatcodes::PreparedContract;
 use debug::PrintTrait;
 
@@ -206,7 +206,7 @@ fn setup() -> (
     IEventEmitterSafeDispatcher
 ) {
     // Setup contracts.
-    let (caller_address, config, role_store, data_store, event_emitter, ) = setup_contracts();
+    let (caller_address, config, role_store, data_store, event_emitter,) = setup_contracts();
     // Grant roles and prank the caller address.
     grant_roles_and_prank(caller_address, role_store, data_store, config);
     // Return the contracts.
@@ -251,7 +251,7 @@ fn setup_contracts() -> (
     // Create a safe dispatcher to interact with the contract.
     let config = IConfigSafeDispatcher { contract_address: config_address };
 
-    (contract_address_const::<'caller'>(), config, role_store, data_store, event_emitter, )
+    (contract_address_const::<'caller'>(), config, role_store, data_store, event_emitter,)
 }
 
 /// Utility function to deploy a market factory contract and return its address.

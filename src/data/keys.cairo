@@ -709,7 +709,7 @@ fn claim_fee_amount_key(market: ContractAddress, token: ContractAddress) -> felt
 /// * `account` - The account that can claim the ui fee.
 /// # Returns
 /// * The key for the claimable ui fee amount.
-fn claim_ui_fee_amount_key(market: ContractAddress, token: ContractAddress, ) -> felt252 {
+fn claim_ui_fee_amount_key(market: ContractAddress, token: ContractAddress,) -> felt252 {
     let mut data = array![];
     data.append(claimable_ui_fee_amount());
     data.append(market.into());
