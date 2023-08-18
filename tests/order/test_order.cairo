@@ -21,9 +21,9 @@ use gojo::order::order::{Order, OrderType, OrderTrait};
 #[test]
 fn given_normal_conditions_when_touch_then_expected_results() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, chain) = setup_test_environment();
+    let (caller_address, chain) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -41,9 +41,9 @@ fn given_normal_conditions_when_touch_then_expected_results() {
     assert(order.updated_at_block == 42000, 'bad value');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment();
+    teardown();
 }
 
 fn create_dummy_order() -> Order {
@@ -74,7 +74,7 @@ fn create_dummy_order() -> Order {
 }
 
 /// Utility function to setup the test environment.
-fn setup_test_environment() -> ( // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
+fn setup() -> ( // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
     ContractAddress, // An interface to interact with `Chain` contract.
      IChainDispatcher,
 ) {
@@ -92,4 +92,4 @@ fn setup_test_environment() -> ( // This caller address will be used with `start
 }
 
 /// Utility function to teardown the test environment.
-fn teardown_test_environment() {}
+fn teardown() {}

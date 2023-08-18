@@ -14,11 +14,11 @@ use gojo::role::role;
 use gojo::order::order::{Order, OrderType, OrderTrait};
 
 #[test]
-fn given_test_environment_when_felt252_functions_then_expected_results() {
+fn given_normal_conditions_when_felt252_functions_then_expected_results() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, role_store, data_store) = setup_test_environment();
+    let (caller_address, role_store, data_store) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -52,17 +52,17 @@ fn given_test_environment_when_felt252_functions_then_expected_results() {
     assert(data_store.get_felt252(1).unwrap() == Default::default(), 'Key was not deleted');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store.contract_address);
+    teardown(data_store.contract_address);
 }
 
 #[test]
-fn given_test_environment_when_u256_functions_then_expected_results() {
+fn given_normal_conditions_when_u256_functions_then_expected_results() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, role_store, data_store) = setup_test_environment();
+    let (caller_address, role_store, data_store) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -96,17 +96,17 @@ fn given_test_environment_when_u256_functions_then_expected_results() {
     assert(data_store.get_u256(1).unwrap() == Default::default(), 'Key was not removed');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store.contract_address);
+    teardown(data_store.contract_address);
 }
 
 #[test]
-fn given_test_environment_when_address_functions_then_expected_results() {
+fn given_normal_conditions_when_address_functions_then_expected_results() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, role_store, data_store) = setup_test_environment();
+    let (caller_address, role_store, data_store) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -126,17 +126,17 @@ fn given_test_environment_when_address_functions_then_expected_results() {
     );
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store.contract_address);
+    teardown(data_store.contract_address);
 }
 
 #[test]
-fn given_test_environment_when_order_functions_then_expected_results() {
+fn given_normal_conditions_when_order_functions_then_expected_results() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, role_store, data_store) = setup_test_environment();
+    let (caller_address, role_store, data_store) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -204,9 +204,9 @@ fn given_test_environment_when_order_functions_then_expected_results() {
     assert(retrieved_order.account == account, 'invalid order');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store.contract_address);
+    teardown(data_store.contract_address);
 }
 
 /// Utility function to deploy a data store contract and return its address.
@@ -246,9 +246,7 @@ fn deploy_role_store() -> ContractAddress {
 /// * `ContractAddress` - The address of the caller.
 /// * `IRoleStoreSafeDispatcher` - The role store dispatcher.
 /// * `IDataStoreSafeDispatcher` - The data store dispatcher.
-fn setup_test_environment() -> (
-    ContractAddress, IRoleStoreSafeDispatcher, IDataStoreSafeDispatcher
-) {
+fn setup() -> (ContractAddress, IRoleStoreSafeDispatcher, IDataStoreSafeDispatcher) {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let role_store_address = deploy_role_store();
     let role_store = IRoleStoreSafeDispatcher { contract_address: role_store_address };
@@ -264,6 +262,6 @@ fn setup_test_environment() -> (
 /// # Arguments
 ///
 /// * `data_store_address` - The address of the data store contract.
-fn teardown_test_environment(data_store_address: ContractAddress) {
+fn teardown(data_store_address: ContractAddress) {
     stop_prank(data_store_address);
 }

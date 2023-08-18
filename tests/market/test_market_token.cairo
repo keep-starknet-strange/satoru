@@ -15,9 +15,9 @@ use gojo::market::market_utils;
 #[test]
 fn given_normal_conditions_when_mint_then_expected_results() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, role_store, market_token) = setup_test_environment();
+    let (caller_address, role_store, market_token) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -35,13 +35,13 @@ fn given_normal_conditions_when_mint_then_expected_results() {
     assert(market_token.balance_of(caller_address).unwrap() == 100, 'wrong balance');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(market_token.contract_address);
+    teardown(market_token.contract_address);
 }
 
 /// Utility function to setup the test environment.
-fn setup_test_environment() -> (
+fn setup() -> (
     // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
     ContractAddress, // Interface to interact with the `RoleStore` contract.
     IRoleStoreSafeDispatcher, // Interface to interact with the `MarketToken` contract.
@@ -76,7 +76,7 @@ fn setup_test_environment() -> (
 /// # Arguments
 ///
 /// * `market_token_address` - The address of the `MarketToken` contract.
-fn teardown_test_environment(market_token_address: ContractAddress) {
+fn teardown(market_token_address: ContractAddress) {
     stop_prank(market_token_address);
 }
 
