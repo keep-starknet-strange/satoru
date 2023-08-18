@@ -30,7 +30,7 @@ use gojo::price::price::{Price, PriceTrait};
 #[test]
 fn given_normal_conditions_when_get_open_interest_then_works() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
         caller_address,
@@ -44,7 +44,7 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
         chain,
         event_emitter,
     ) =
-        setup_test_environment();
+        setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -87,16 +87,16 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
     assert(market_token_name == 'Gojo Market', 'wrong market token name');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store, market_factory);
+    teardown(data_store, market_factory);
 }
 
 
 #[test]
 fn given_normal_conditions_when_get_open_interest_in_tokens_then_works() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
         caller_address,
@@ -110,7 +110,7 @@ fn given_normal_conditions_when_get_open_interest_in_tokens_then_works() {
         chain,
         event_emitter,
     ) =
-        setup_test_environment();
+        setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -133,15 +133,15 @@ fn given_normal_conditions_when_get_open_interest_in_tokens_then_works() {
     assert(open_interest_in_tokens == 100, 'wrong open interest');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store, market_factory);
+    teardown(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_get_open_interest_in_tokens_for_market_then_works() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
         caller_address,
@@ -155,7 +155,7 @@ fn given_normal_conditions_when_get_open_interest_in_tokens_for_market_then_work
         chain,
         event_emitter,
     ) =
-        setup_test_environment();
+        setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -196,16 +196,16 @@ fn given_normal_conditions_when_get_open_interest_in_tokens_for_market_then_work
     assert(open_interest_in_tokens_for_market == 300, 'wrong open interest');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store, market_factory);
+    teardown(data_store, market_factory);
 }
 
 
 #[test]
 fn given_normal_conditions_when_get_pool_amount_then_works() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
         caller_address,
@@ -219,7 +219,7 @@ fn given_normal_conditions_when_get_pool_amount_then_works() {
         chain,
         event_emitter,
     ) =
-        setup_test_environment();
+        setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -261,15 +261,15 @@ fn given_normal_conditions_when_get_pool_amount_then_works() {
     assert(pool_amount_2 == 500, 'wrong pool amount');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store, market_factory);
+    teardown(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_get_max_pool_amount_then_works() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
         caller_address,
@@ -283,7 +283,7 @@ fn given_normal_conditions_when_get_max_pool_amount_then_works() {
         chain,
         event_emitter,
     ) =
-        setup_test_environment();
+        setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -309,15 +309,15 @@ fn given_normal_conditions_when_get_max_pool_amount_then_works() {
     assert(max_pool_amount == 1000, 'wrong pool amount');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store, market_factory);
+    teardown(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_get_max_open_interest_then_works() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
         caller_address,
@@ -331,7 +331,7 @@ fn given_normal_conditions_when_get_max_open_interest_then_works() {
         chain,
         event_emitter,
     ) =
-        setup_test_environment();
+        setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -359,15 +359,15 @@ fn given_normal_conditions_when_get_max_open_interest_then_works() {
     assert(max_open_interest == 1000, 'wrong pool amount');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store, market_factory);
+    teardown(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
         caller_address,
@@ -381,7 +381,7 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
         chain,
         event_emitter,
     ) =
-        setup_test_environment();
+        setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -428,15 +428,15 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
     assert(data_store.get_u128(claimable_collateral_amount_key).unwrap() == 50, 'wrong value');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store, market_factory);
+    teardown(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
         caller_address,
@@ -450,7 +450,7 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
         chain,
         event_emitter,
     ) =
-        setup_test_environment();
+        setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -487,9 +487,9 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
     assert(data_store.get_u128(claimable_funding_amount_key).unwrap() == 50, 'wrong value');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store, market_factory);
+    teardown(data_store, market_factory);
 }
 
 #[test]
@@ -513,7 +513,7 @@ fn given_normal_conditions_when_get_pool_divisor_then_works() {
 #[test]
 fn given_normal_conditions_when_get_pnl_then_works() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
         caller_address,
@@ -527,7 +527,7 @@ fn given_normal_conditions_when_get_pnl_then_works() {
         chain,
         event_emitter,
     ) =
-        setup_test_environment();
+        setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -577,15 +577,15 @@ fn given_normal_conditions_when_get_pnl_then_works() {
     assert(pnl == 22250, 'wrong pnl');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store, market_factory);
+    teardown(data_store, market_factory);
 }
 
 #[test]
 fn given_zero_open_interest_when_get_pnl_then_returns_zero_pnl() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
         caller_address,
@@ -599,7 +599,7 @@ fn given_zero_open_interest_when_get_pnl_then_returns_zero_pnl() {
         chain,
         event_emitter,
     ) =
-        setup_test_environment();
+        setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -649,15 +649,15 @@ fn given_zero_open_interest_when_get_pnl_then_returns_zero_pnl() {
     assert(pnl == 0, 'wrong pnl');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store, market_factory);
+    teardown(data_store, market_factory);
 }
 
 #[test]
 fn given_zero_open_interest_in_tokens_when_get_pnl_then_returns_zero_pnl() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
         caller_address,
@@ -671,7 +671,7 @@ fn given_zero_open_interest_in_tokens_when_get_pnl_then_returns_zero_pnl() {
         chain,
         event_emitter,
     ) =
-        setup_test_environment();
+        setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -721,15 +721,15 @@ fn given_zero_open_interest_in_tokens_when_get_pnl_then_returns_zero_pnl() {
     assert(pnl == 0, 'wrong pnl');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store, market_factory);
+    teardown(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_get_position_impact_pool_amount_then_works() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
         caller_address,
@@ -743,7 +743,7 @@ fn given_normal_conditions_when_get_position_impact_pool_amount_then_works() {
         chain,
         event_emitter,
     ) =
-        setup_test_environment();
+        setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -770,15 +770,15 @@ fn given_normal_conditions_when_get_position_impact_pool_amount_then_works() {
     assert(position_impact_pool_amount == 1000, 'wrong pool amount');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store, market_factory);
+    teardown(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_get_swap_impact_pool_amount_then_works() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
         caller_address,
@@ -792,7 +792,7 @@ fn given_normal_conditions_when_get_swap_impact_pool_amount_then_works() {
         chain,
         event_emitter,
     ) =
-        setup_test_environment();
+        setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -812,7 +812,7 @@ fn given_normal_conditions_when_get_swap_impact_pool_amount_then_works() {
 
     // Actual test case.
     let swap_impact_pool_amount = market_utils::get_swap_impact_pool_amount(
-        data_store, market_token_address, token,
+        data_store, market_token_address, token, 
     );
 
     // Perform assertions.
@@ -820,15 +820,15 @@ fn given_normal_conditions_when_get_swap_impact_pool_amount_then_works() {
     assert(swap_impact_pool_amount == 1000, 'wrong pool amount');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store, market_factory);
+    teardown(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_apply_delta_to_position_impact_pool_then_works() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
         caller_address,
@@ -842,7 +842,7 @@ fn given_normal_conditions_when_apply_delta_to_position_impact_pool_then_works()
         chain,
         event_emitter,
     ) =
-        setup_test_environment();
+        setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -868,15 +868,15 @@ fn given_normal_conditions_when_apply_delta_to_position_impact_pool_then_works()
     assert(next_value == 1050, 'wrong value');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store, market_factory);
+    teardown(data_store, market_factory);
 }
 
 #[test]
 fn given_normal_conditions_when_apply_delta_to_swap_impact_pool_then_works() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
         caller_address,
@@ -890,7 +890,7 @@ fn given_normal_conditions_when_apply_delta_to_swap_impact_pool_then_works() {
         chain,
         event_emitter,
     ) =
-        setup_test_environment();
+        setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -917,14 +917,14 @@ fn given_normal_conditions_when_apply_delta_to_swap_impact_pool_then_works() {
     assert(next_value == 1050, 'wrong value');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store, market_factory);
+    teardown(data_store, market_factory);
 }
 
 
 /// Utility function to setup the test environment.
-fn setup_test_environment() -> (
+fn setup() -> (
     // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
     ContractAddress,
     // Address of the `MarketFactory` contract.
@@ -959,7 +959,7 @@ fn setup_test_environment() -> (
         chain,
         event_emitter,
     ) =
-        setup();
+        setup_contracts();
 
     // Grant roles and prank the caller address.
     grant_roles_and_prank(caller_address, role_store, data_store, market_factory);
@@ -1013,16 +1013,14 @@ fn grant_roles_and_prank(
 }
 
 /// Utility function to teardown the test environment.
-fn teardown_test_environment(
-    data_store: IDataStoreSafeDispatcher, market_factory: IMarketFactorySafeDispatcher
-) {
+fn teardown(data_store: IDataStoreSafeDispatcher, market_factory: IMarketFactorySafeDispatcher) {
     // Stop pranking the caller address.
     stop_prank(data_store.contract_address);
     stop_prank(market_factory.contract_address);
 }
 
 /// Setup required contracts.
-fn setup() -> (
+fn setup_contracts() -> (
     // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
     ContractAddress,
     // Address of the `MarketFactory` contract.

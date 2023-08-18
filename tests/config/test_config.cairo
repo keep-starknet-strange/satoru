@@ -7,7 +7,7 @@ use array::ArrayTrait;
 use result::ResultTrait;
 use option::OptionTrait;
 use traits::{TryInto, Into};
-use starknet::{ContractAddress, get_caller_address, contract_address_const, ClassHash,};
+use starknet::{ContractAddress, get_caller_address, contract_address_const, ClassHash, };
 use cheatcodes::PreparedContract;
 use debug::PrintTrait;
 
@@ -22,9 +22,9 @@ use gojo::config::config::{IConfigSafeDispatcher, IConfigSafeDispatcherTrait};
 #[test]
 fn given_normal_conditions_when_set_bool_then_works() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, config, role_store, data_store, event_emitter) = setup_test_environment();
+    let (caller_address, config, role_store, data_store, event_emitter) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -48,17 +48,17 @@ fn given_normal_conditions_when_set_bool_then_works() {
     // When `data_store::set_bool` is fixed, check that the value was set correctly.
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store, config);
+    teardown(data_store, config);
 }
 
 #[test]
 fn given_normal_conditions_when_set_address_then_works() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, config, role_store, data_store, event_emitter) = setup_test_environment();
+    let (caller_address, config, role_store, data_store, event_emitter) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -84,17 +84,17 @@ fn given_normal_conditions_when_set_address_then_works() {
     assert(actual_value == value, 'wrong_value');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store, config);
+    teardown(data_store, config);
 }
 
 #[test]
 fn given_not_allowed_key_when_set_address_then_fails() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, config, role_store, data_store, event_emitter) = setup_test_environment();
+    let (caller_address, config, role_store, data_store, event_emitter) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -117,17 +117,17 @@ fn given_not_allowed_key_when_set_address_then_fails() {
     }
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store, config);
+    teardown(data_store, config);
 }
 
 #[test]
 fn given_normal_conditions_when_set_felt252_then_works() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, config, role_store, data_store, event_emitter) = setup_test_environment();
+    let (caller_address, config, role_store, data_store, event_emitter) = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -153,9 +153,9 @@ fn given_normal_conditions_when_set_felt252_then_works() {
     assert(actual_value == value, 'wrong_value');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store, config);
+    teardown(data_store, config);
 }
 
 // Utility function to grant roles and prank the caller address.
@@ -191,14 +191,14 @@ fn grant_roles_and_prank(
 }
 
 /// Utility function to teardown the test environment.
-fn teardown_test_environment(data_store: IDataStoreSafeDispatcher, config: IConfigSafeDispatcher) {
+fn teardown(data_store: IDataStoreSafeDispatcher, config: IConfigSafeDispatcher) {
     // Stop pranking contracts.
     stop_prank(data_store.contract_address);
     stop_prank(config.contract_address);
 }
 
 /// Utility function to setup the test environment.
-fn setup_test_environment() -> (
+fn setup() -> (
     ContractAddress,
     IConfigSafeDispatcher,
     IRoleStoreSafeDispatcher,
@@ -206,7 +206,7 @@ fn setup_test_environment() -> (
     IEventEmitterSafeDispatcher
 ) {
     // Setup contracts.
-    let (caller_address, config, role_store, data_store, event_emitter,) = setup();
+    let (caller_address, config, role_store, data_store, event_emitter, ) = setup_contracts();
     // Grant roles and prank the caller address.
     grant_roles_and_prank(caller_address, role_store, data_store, config);
     // Return the contracts.
@@ -215,7 +215,7 @@ fn setup_test_environment() -> (
 
 
 /// Setup required contracts.
-fn setup() -> (
+fn setup_contracts() -> (
     // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
     ContractAddress,
     // Interface to interact with the `Config` contract.
@@ -251,7 +251,7 @@ fn setup() -> (
     // Create a safe dispatcher to interact with the contract.
     let config = IConfigSafeDispatcher { contract_address: config_address };
 
-    (contract_address_const::<'caller'>(), config, role_store, data_store, event_emitter,)
+    (contract_address_const::<'caller'>(), config, role_store, data_store, event_emitter, )
 }
 
 /// Utility function to deploy a market factory contract and return its address.

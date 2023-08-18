@@ -13,9 +13,9 @@ use gojo::role::role_store::IRoleStoreSafeDispatcherTrait;
 #[test]
 fn test_grant_role() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
-    let role_store = setup_test_environment();
+    let role_store = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -31,17 +31,17 @@ fn test_grant_role() {
     assert(role_store.has_role(account_address, ROLE_ADMIN).unwrap(), 'Invalid role');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment();
+    teardown();
 }
 
 #[test]
 fn test_revoke_role() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
-    let role_store = setup_test_environment();
+    let role_store = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -59,18 +59,18 @@ fn test_revoke_role() {
     assert(!role_store.has_role(account_address, ROLE_ADMIN).unwrap(), 'Invalid role');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment();
+    teardown();
 }
 
 /// Utility function to setup the test environment.
-fn setup_test_environment() -> IRoleStoreSafeDispatcher {
+fn setup() -> IRoleStoreSafeDispatcher {
     IRoleStoreSafeDispatcher { contract_address: deploy_role_store() }
 }
 
 /// Utility function to teardown the test environment.
-fn teardown_test_environment() {}
+fn teardown() {}
 
 // Utility function to deploy a data store contract and return its address.
 fn deploy_role_store() -> ContractAddress {

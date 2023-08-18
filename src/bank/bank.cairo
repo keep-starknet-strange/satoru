@@ -28,7 +28,7 @@ trait IBank<TContractState> {
     /// * `receiver` - The address of the receiver.
     /// * `amount` - The amount of tokens to transfer.
     fn transfer_out(
-        ref self: TContractState, token: ContractAddress, receiver: ContractAddress, amount: u128,
+        ref self: TContractState, token: ContractAddress, receiver: ContractAddress, amount: u128, 
     );
 }
 

@@ -25,7 +25,7 @@ use gojo::role::role;
 #[test]
 fn given_normal_conditions_when_create_market_then_market_is_created() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
         caller_address,
@@ -38,7 +38,7 @@ fn given_normal_conditions_when_create_market_then_market_is_created() {
         data_store,
         event_emitter,
     ) =
-        setup_test_environment();
+        setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -73,15 +73,15 @@ fn given_normal_conditions_when_create_market_then_market_is_created() {
     assert(market_token_name == 'Gojo Market', 'bad_market_token_name');
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store, market_factory);
+    teardown(data_store, market_factory);
 }
 
 #[test]
 fn given_bad_params_when_create_market_then_fail() {
     // *********************************************************************************************
-    // *                              SETUP TEST ENVIRONMENT                                       *
+    // *                              SETUP                                                        *
     // *********************************************************************************************
     let (
         caller_address,
@@ -94,7 +94,7 @@ fn given_bad_params_when_create_market_then_fail() {
         data_store,
         event_emitter,
     ) =
-        setup_test_environment();
+        setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -108,7 +108,7 @@ fn given_bad_params_when_create_market_then_fail() {
     let short_token = contract_address_const::<'short_token'>();
     let market_type = 'market_type';
 
-    let new_market = Market { market_token, index_token, long_token, short_token, };
+    let new_market = Market { market_token, index_token, long_token, short_token,  };
 
     // Try to create a market.
     // This must fail because the index token is invalid.
@@ -123,13 +123,13 @@ fn given_bad_params_when_create_market_then_fail() {
     // }
 
     // *********************************************************************************************
-    // *                              TEARDOWN TEST ENVIRONMENT                                    *
+    // *                              TEARDOWN                                                     *
     // *********************************************************************************************
-    teardown_test_environment(data_store, market_factory);
+    teardown(data_store, market_factory);
 }
 
 /// Utility function to setup the test environment.
-fn setup_test_environment() -> (
+fn setup() -> (
     // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
     ContractAddress,
     // Address of the `MarketFactory` contract.
@@ -160,7 +160,7 @@ fn setup_test_environment() -> (
         data_store,
         event_emitter,
     ) =
-        setup();
+        setup_contracts();
     grant_roles_and_prank(caller_address, role_store, data_store, market_factory);
     (
         caller_address,
@@ -207,15 +207,13 @@ fn grant_roles_and_prank(
 }
 
 /// Utility function to teardown the test environment.
-fn teardown_test_environment(
-    data_store: IDataStoreSafeDispatcher, market_factory: IMarketFactorySafeDispatcher
-) {
+fn teardown(data_store: IDataStoreSafeDispatcher, market_factory: IMarketFactorySafeDispatcher) {
     stop_prank(data_store.contract_address);
     stop_prank(market_factory.contract_address);
 }
 
 /// Setup required contracts.
-fn setup() -> (
+fn setup_contracts() -> (
     // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
     ContractAddress,
     // Address of the `MarketFactory` contract.
