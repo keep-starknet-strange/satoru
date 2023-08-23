@@ -39,7 +39,7 @@ mod NonceUtils {
         /// # Returns
         /// Return felt252 hash using the next nonce value
         #[inline(always)]
-        fn get_next_key(self: @TContractState, data_store: IDataStoreSafeDispatcher) -> felt252 {
+        fn get_next_key(ref self: TContractState, data_store: IDataStoreSafeDispatcher) -> felt252 {
             //TODO
             0
         }
