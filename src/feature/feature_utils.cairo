@@ -13,7 +13,9 @@ use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherT
 // *************************************************************************
 #[starknet::interface]
 trait IFeature<TContractState> {
-    fn is_feature_disabled(self: @TContractState, data_store: IDataStoreSafeDispatcher, key: felt252) -> bool;
+    fn is_feature_disabled(
+        self: @TContractState, data_store: IDataStoreSafeDispatcher, key: felt252
+    ) -> bool;
     /// Returns the current block timestamp.
     fn validate_feature(self: @TContractState, data_store: IDataStoreSafeDispatcher, key: felt252);
 }
@@ -35,7 +37,9 @@ mod Feature {
         /// * `key` - The feature key.
         /// # Returns
         /// whether the feature is disabled.
-        fn is_feature_disabled(self: @ContractState, data_store: super::IDataStoreSafeDispatcher, key: felt252) -> bool {
+        fn is_feature_disabled(
+            self: @ContractState, data_store: super::IDataStoreSafeDispatcher, key: felt252
+        ) -> bool {
             // TODO
             true
         }
@@ -44,8 +48,9 @@ mod Feature {
         /// # Arguments
         /// * `data_store` - The data storage contract dispatcher.
         /// * `key` - The feature key.
-        fn validate_feature(self: @ContractState, data_store: super::IDataStoreSafeDispatcher, key: felt252) {
-            // TODO
+        fn validate_feature(
+            self: @ContractState, data_store: super::IDataStoreSafeDispatcher, key: felt252
+        ) { // TODO
         }
     }
 }
