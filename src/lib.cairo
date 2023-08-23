@@ -38,6 +38,11 @@ mod deposit {
     mod execute_deposit_utils;
 }
 
+// `nonce` is a module that maintains a progressively increasing nonce value.
+mod nonce {
+    mod nonce_utils;
+}
+
 // `role` is a module that contains the role store and role management functions.
 mod role {
     // Custom errors.
