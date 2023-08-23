@@ -18,7 +18,7 @@ mod NonceUtils {
         }
 
         /// Increment the current nonce value.
-        fn increment_nonce(self: @TContractState, data_store: DataStore) -> u128{
+        fn increment_nonce(ref self: TContractState, data_store: DataStore) -> u128{
             //TODO
             0
         }
