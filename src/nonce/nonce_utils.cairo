@@ -33,7 +33,7 @@ mod NonceUtils {
             0
         }
 
-        /// Creates a felt252 hash using the next nonce. The nonce can also be used directly as a key, but for positions, a bytes32 key derived from a hash of the position values is used instead.
+        /// Creates a felt252 hash using the next nonce. The nonce can also be used directly as a key, but for positions, a felt252 key derived from a hash of the position values is used instead.
         /// # Arguments
         /// * `data_store` - The data store to use.
         /// # Returns
