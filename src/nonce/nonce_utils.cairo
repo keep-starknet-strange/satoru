@@ -1,6 +1,5 @@
 //! Library to keep track of and increment nonce value.
 
-
 #[starknet::contract]
 mod NonceUtils {
     // Local imports.
