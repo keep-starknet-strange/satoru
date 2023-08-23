@@ -38,9 +38,9 @@ mod deposit {
     mod execute_deposit_utils;
 }
 
-// `feature` is used to validate if a feature is enabled or disabled
-mod feature {
-    mod feature_utils;
+// `nonce` is a module that maintains a progressively increasing nonce value.
+mod nonce {
+    mod nonce_utils;
 }
 
 // `role` is a module that contains the role store and role management functions.
@@ -61,7 +61,7 @@ mod price {
 // `utils` contains utility functions.
 mod utils {
     mod hash;
-    mod store_arrays;
+    mod store_contract_address_array;
 }
 
 // `market` contains market management functions.
@@ -76,12 +76,6 @@ mod market {
 // `order` contains order management functions.
 mod order {
     mod order;
-}
-
-mod swap {
-    mod swap_utils;
-    mod swap_handler;
-    mod error;
 }
 
 // Copied from `https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token`.
