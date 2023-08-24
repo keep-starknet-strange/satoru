@@ -1,5 +1,5 @@
 /// Price
-#[derive(Copy, Drop)]
+#[derive(Copy, starknet::Store, Drop, Serde)]
 struct Price {
     /// The minimum price.
     min: u128,

@@ -73,6 +73,12 @@ mod order {
     mod order;
 }
 
+mod swap {
+    mod swap_utils;
+    mod swap_handler;
+    mod error;
+}
+
 // Copied from `https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token`.
 // TODO: Use openzeppelin as dependency when Scarb versions match.
 mod token {

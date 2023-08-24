@@ -10,5 +10,6 @@
   - [Overview](smart-contracts-architecture/overview.md)
   - [Role](smart-contracts-architecture/role-module.md)
   - [Data](smart-contracts-architecture/data-module.md)
+  - [Swap](smart-contracts-architecture/swap-module.md)
 - [Continous Integration](continuous-integration/README.md)
   - [Github Workflows Documentation](continuous-integration/workflows.md)
