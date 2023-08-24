@@ -38,6 +38,11 @@ mod deposit {
     mod execute_deposit_utils;
 }
 
+// `feature` is used to validate if a feature is enabled or disabled
+mod feature {
+    mod feature_utils;
+}
+
 // `role` is a module that contains the role store and role management functions.
 mod role {
     // Custom errors.
