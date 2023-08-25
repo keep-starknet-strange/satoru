@@ -67,7 +67,7 @@ mod price {
 // `utils` contains utility functions.
 mod utils {
     mod hash;
-    mod store_contract_address_array;
+    mod store_arrays;
 }
 
 // `market` contains market management functions.
@@ -82,6 +82,12 @@ mod market {
 // `order` contains order management functions.
 mod order {
     mod order;
+}
+
+mod swap {
+    mod swap_utils;
+    mod swap_handler;
+    mod error;
 }
 
 // Copied from `https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token`.

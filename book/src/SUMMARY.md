@@ -12,5 +12,6 @@
   - [Feature](smart-contracts-architecture/feature-module.md)
   - [Nonce](smart-contracts-architecture/nonce-module.md)
   - [Role](smart-contracts-architecture/role-module.md)
+  - [Swap](smart-contracts-architecture/swap-module.md)
 - [Continous Integration](continuous-integration/README.md)
   - [Github Workflows Documentation](continuous-integration/workflows.md)

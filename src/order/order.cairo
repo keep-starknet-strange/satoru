@@ -7,7 +7,7 @@ use starknet::{ContractAddress, contract_address_const};
 use debug::PrintTrait;
 
 // Local imports.
-use gojo::utils::store_contract_address_array::StoreContractAddressArray;
+use gojo::utils::store_arrays::StoreContractAddressArray;
 use gojo::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
 
 /// Struct for orders.
