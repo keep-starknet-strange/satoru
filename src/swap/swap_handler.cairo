@@ -3,10 +3,11 @@
 // *************************************************************************
 //                                  IMPORTS
 // *************************************************************************
-use gojo::swap::swap_utils::{SwapParams};
-
 // Core lib imports.
 use starknet::ContractAddress;
+
+// Local imports.
+use gojo::swap::swap_utils::{SwapParams};
 
 // *************************************************************************
 //                  Interface of the `SwapHandler` contract.
@@ -26,19 +27,15 @@ mod SwapHandler {
     // *************************************************************************
     //                               IMPORTS
     // *************************************************************************
-
-    // Local imports.
-    use gojo::swap::swap_utils::{SwapParams};
-    use gojo::role::role_store::{IRoleStoreLibraryDispatcher};
-    use gojo::bank::error::BankError;
-    use gojo::swap::error::SwapError;
-
-    use starknet::ContractAddress;
-
+    // Core lib imports    
     use result::ResultTrait;
     use traits::{Into, TryInto};
     use option::OptionTrait;
+    use starknet::ContractAddress;
 
+    // Local imports.
+    use gojo::swap::error::SwapError;
+    use gojo::swap::swap_utils::{SwapParams};
 
     // *************************************************************************
     //                              STORAGE

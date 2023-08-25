@@ -1,6 +1,6 @@
 # Swap module
 
-The data module is reponsible for storing and managing the data of the protocol.
+The swap module is reponsible for swaping.
 
 It contains the following smart contracts:
 
@@ -8,4 +8,4 @@ It contains the following smart contracts:
 
 It contains the following Cairo library files:
 
-[SwapUtils](https://github.com/keep-starknet-strange/gojo/blob/main/src/swap/swap_utils.cairo): The main smart contract of the module. It is responsible for swaping.
+[SwapUtils](https://github.com/keep-starknet-strange/gojo/blob/main/src/swap/swap_utils.cairo): It is responsible for swaping.

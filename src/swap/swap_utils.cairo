@@ -1,3 +1,8 @@
+
+// *************************************************************************
+//                                  IMPORTS
+// *************************************************************************
+// Core lib imports.
 use starknet::ContractAddress;
 use result::ResultTrait;
 use traits::{Into, TryInto};
@@ -19,7 +24,7 @@ struct SwapParams {
     bank: IBankSafeDispatcher,
     key: felt252,
     token_in: ContractAddress,
-    amount_int: u128,
+    amount_in: u128,
     swap_path_markets: Array<Market>,
     min_output_amount: u128,
     receiver: ContractAddress,
@@ -31,7 +36,7 @@ struct SwapParams {
 struct _SwapParams {
     market: Market,
     token_in: ContractAddress,
-    amount_int: u128,
+    amount_in: u128,
     receiver: ContractAddress,
     should_unwrap_native_token: bool,
 }
@@ -41,14 +46,13 @@ struct SwapCache {
     token_out: ContractAddress,
     token_in_price: Price,
     token_out_price: Price,
-    amount_int: u128,
+    amount_in: u128,
     amount_out: u128,
     pool_amount_out: u128,
     price_impact_usd: u128,
     price_impact_amount: u128,
 }
 
-#[external(v0)]
 #[inline(always)]
 fn swap(param: SwapParams) -> (ContractAddress, u128) {
     //TODO
