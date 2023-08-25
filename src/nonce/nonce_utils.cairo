@@ -1,13 +1,12 @@
 // Local imports.
 use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use starknet::ContractAddress;
 
 /// Get the current nonce value.
 /// # Arguments
 /// * `data_store` - The data store to use.
 /// # Returns
 /// Return the current nonce value.
-fn get_current_nonce(self: @ContractState, data_store: IDataStoreSafeDispatcher) -> u128 {
+fn get_current_nonce(data_store: IDataStoreSafeDispatcher) -> u128 {
     //TODO
     0
 }
@@ -17,7 +16,7 @@ fn get_current_nonce(self: @ContractState, data_store: IDataStoreSafeDispatcher)
 /// * `data_store` - The data store to use.
 /// # Returns
 /// Return the new nonce value.
-fn increment_nonce(ref self: ContractState, data_store: IDataStoreSafeDispatcher) -> u128 {
+fn increment_nonce(data_store: IDataStoreSafeDispatcher) -> u128 {
     //TODO
     0
 }
@@ -27,7 +26,7 @@ fn increment_nonce(ref self: ContractState, data_store: IDataStoreSafeDispatcher
 /// * `data_store` - The data store to use.
 /// # Returns
 /// Return felt252 hash using the next nonce value
-fn get_next_key(ref self: ContractState, data_store: IDataStoreSafeDispatcher) -> felt252 {
+fn get_next_key(data_store: IDataStoreSafeDispatcher) -> felt252 {
     //TODO
     0
 }
