@@ -56,7 +56,7 @@ mod price {
 // `utils` contains utility functions.
 mod utils {
     mod hash;
-    mod store_contract_address_array;
+    mod store_arrays;
 }
 
 // `market` contains market management functions.

@@ -9,6 +9,7 @@ use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeD
 use gojo::bank::bank::{IBankSafeDispatcher, IBankSafeDispatcherTrait};
 use gojo::market::market::{Market};
 use gojo::price::price::{Price};
+use gojo::utils::store_arrays::{StoreMarketArray};
 
 #[derive(Drop, starknet::Store, Serde)]
 struct SwapParams {
@@ -19,7 +20,7 @@ struct SwapParams {
     key: felt252,
     token_in: ContractAddress,
     amount_int: u128,
-    //swap_path_markets: Array<Market>,
+    swap_path_markets: Array<Market>,
     min_output_amount: u128,
     receiver: ContractAddress,
     ui_fee_receiver: ContractAddress,
