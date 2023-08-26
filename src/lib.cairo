@@ -71,17 +71,8 @@ mod price {
 
 // `utils` contains utility functions.
 mod utils {
-    mod array;
-    mod basic_multicall;
-    mod bits;
-    mod calc;
-    mod enumerable_values;
-    mod global_reentrancy_guard;
-    mod precision;
-    mod u128_mask;
     mod hash;
     mod store_arrays;
-    mod validate_account;
 }
 
 // `market` contains market management functions.
