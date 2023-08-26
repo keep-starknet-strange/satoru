@@ -8,6 +8,7 @@
   - [Test the contracts](getting-started/test.md)
 - [Smart contracts architecture](smart-contracts-architecture/README.md)
   - [Overview](smart-contracts-architecture/overview.md)
+  - [Adl](smart-contracts-architecture/adl-module.md)
   - [Data](smart-contracts-architecture/data-module.md)
   - [Feature](smart-contracts-architecture/feature-module.md)
   - [Nonce](smart-contracts-architecture/nonce-module.md)
