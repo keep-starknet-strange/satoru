@@ -2,7 +2,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
+use starknet::{ContractAddress};
 
 // Gojo imports
 use gojo::data::data_store::{IDataStoreDispatcher};

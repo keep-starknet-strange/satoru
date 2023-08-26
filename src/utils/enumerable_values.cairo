@@ -2,9 +2,9 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
+use starknet::{ContractAddress};
 
-// TODO EnumerableSet needs to be implemented before this.
+/// EnumerableSet needs to be implemented before this
 
 /// Returns an array of felt252 values from the given set, starting at the given
 /// start index and ending before the given end index..
@@ -13,7 +13,7 @@ use starknet::ContractAddress;
 /// * `start` - The starting index.
 /// * `end` - The ending index.
 /// # Returns
-/// An array of felt252 values.
+/// An array of felt252 values
 fn values_at_felt252() -> Array<felt252> { // TODO
     ArrayTrait::new()
 }
@@ -25,7 +25,7 @@ fn values_at_felt252() -> Array<felt252> { // TODO
 /// * `start` - The starting index.
 /// * `end` - The ending index.
 /// # Returns
-/// An array of ContractAddress values.
+/// An array of ContractAddress values
 fn values_at_address() -> Array<ContractAddress> { // TODO
     ArrayTrait::new()
 }
@@ -37,7 +37,7 @@ fn values_at_address() -> Array<ContractAddress> { // TODO
 /// * `start` - The starting index.
 /// * `end` - The ending index.
 /// # Returns
-/// An array of u128 values.
+/// An array of u128 values
 fn values_at_u128() -> Array<u128> { // TODO
     ArrayTrait::new()
 }
