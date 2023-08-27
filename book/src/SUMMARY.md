@@ -11,6 +11,7 @@
   - [Adl](smart-contracts-architecture/adl-module.md)
   - [Data](smart-contracts-architecture/data-module.md)
   - [Feature](smart-contracts-architecture/feature-module.md)
+  - [Liquidation](smart-contracts-architecture/liquidation-module.md)
   - [Nonce](smart-contracts-architecture/nonce-module.md)
   - [Role](smart-contracts-architecture/role-module.md)
   - [Swap](smart-contracts-architecture/swap-module.md)
