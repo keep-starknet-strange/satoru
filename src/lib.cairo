@@ -12,6 +12,11 @@ mod bank {
     mod error;
 }
 
+// `callback` is a module that allows for better composability with other contracts.
+mod callback {
+    mod callback_utils;
+}
+
 // `chain` is a module that contains utility function for interacting with the chain and getting information.
 mod chain {
     mod chain;
@@ -26,6 +31,7 @@ mod config {
 
 // `event` is a module event management functions.
 mod event {
+    mod event_utils;
     mod event_emitter;
 }
 

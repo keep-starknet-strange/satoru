@@ -4,7 +4,7 @@ The swap module is reponsible for swaping.
 
 It contains the following smart contracts:
 
-- [SwapHandler](https://github.com/keep-starknet-strange/gojo/blob/main/src/swap/swap_handler): Smart contract to handle swaps.
+[SwapHandler](https://github.com/keep-starknet-strange/gojo/blob/main/src/swap/swap_handler): Smart contract to handle swaps.
 
 It contains the following Cairo library files:
 
