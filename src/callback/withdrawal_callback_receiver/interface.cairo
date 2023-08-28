@@ -1,6 +1,6 @@
 // Gojo imports
 // use gojo::withdrawal::withdrawal::{Withdrawal}; TODO & then remove comments here and on params
-use gojo::event::event_utils::EventLogData;
+use gojo::event::event_utils::{EventLogData};
 
 // *************************************************************************
 //                  Interface of the `WithdrawalCallbackReceiver` contract.
@@ -17,7 +17,6 @@ trait IWithdrawalCallbackReceiver<TContractState> {
         ref self: TContractState, key: felt252, //withdrawal: Withdrawal,
          event_data: EventLogData,
     );
-
     /// Called after an withdrawal cancellation.
     /// # Arguments
     /// * `key` - They key of the withdrawal.

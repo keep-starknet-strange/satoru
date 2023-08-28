@@ -1,6 +1,6 @@
 // Gojo imports
-use gojo::deposit::deposit::Deposit;
-use gojo::event::event_utils::EventLogData;
+use gojo::deposit::deposit::{Deposit};
+use gojo::event::event_utils::{EventLogData};
 
 // *************************************************************************
 //                  Interface of the `DepositCallbackReceiver` contract.
@@ -15,7 +15,6 @@ trait IDepositCallbackReceiver<TContractState> {
     fn after_deposit_execution(
         ref self: TContractState, key: felt252, deposit: Deposit, event_data: EventLogData,
     );
-
     /// Called after a deposit cancellation.
     /// # Arguments
     /// * `key` - They key of the deposit.

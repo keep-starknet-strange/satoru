@@ -4,4 +4,4 @@ Most features of gojo require a two step process to complete. The Callback modul
 
 It contains the following smart contracts:
 
-- [callback_utils.cairo](https://github.com/keep-starknet-strange/gojo/blob/main/src/callback/callback_utils.cairo): It is handling most functions linked to callback.
+[callback_utils.cairo](https://github.com/keep-starknet-strange/gojo/blob/main/src/callback/callback_utils.cairo): It is handling most functions linked to callback.
