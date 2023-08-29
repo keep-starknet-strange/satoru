@@ -54,6 +54,13 @@ mod feature {
     mod feature_utils;
 }
 
+// `fee` is used for fees actions
+mod fee {
+    mod fee_handler;
+    mod fee_utils;
+    mod error;
+}
+
 // `gas` is used for execution fee estimation and payments
 mod gas {
     mod gas_utils;
