@@ -2,27 +2,21 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
+use starknet::{ContractAddress};
 
 // Local imports.
 use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
 use gojo::bank::strict_bank::{IStrictBankSafeDispatcher, IStrictBankSafeDispatcherTrait};
-use gojo::order::order::Order;
-use gojo::deposit::deposit::Deposit;
+use gojo::order::order::{Order};
+use gojo::deposit::deposit::{Deposit};
 
-/// Get the minimal gas to handle execution.
-/// # Arguments
-/// * `data_store` - The data storage dispatcher.
-/// # Returns
-/// The MIN_HANDLE_EXECUTION_ERROR_GAS.
+
 fn get_min_handle_execution_error_gas(data_store: IDataStoreSafeDispatcher) -> u128 {
     //TODO
     0
 }
 
-/// Check that starting gas is higher than min handle execution gas and return starting.
-/// gas minus min_handle_error_gas.
 fn get_execution_gas(data_store: IDataStoreSafeDispatcher, starting_gas: u128) -> u128 {
     //TODO
     0
@@ -75,8 +69,6 @@ fn adjust_gas_usage(data_store: IDataStoreSafeDispatcher, gas_used: u128) -> u12
 /// # Arguments
 /// * `data_store` - The data storage contract dispatcher.
 /// * `estimated_gas_limit` - The estimated gas limit.
-/// # Returns
-/// The adjusted gas limit
 fn adjust_gas_limit_for_estimate(
     data_store: IDataStoreSafeDispatcher, estimated_gas_limit: u128
 ) -> u128 {
@@ -148,21 +140,11 @@ fn estimate_execute_swap_order_gas_limit(
     0
 }
 
-/// Emit events related to keeper execution fee.
-/// # Arguments
-/// * `event_emitter` - The event emitter safe dispatcher.
-/// * `keeper` - The keeper address.
-/// * `refund_fee_amount` - The amount of execution fee for the keeper.
 fn emit_keeper_execution_fee(
     event_emitter: IEventEmitterSafeDispatcher, keeper: ContractAddress, execution_fee_amount: u128
 ) { //TODO
 }
 
-/// Emit events related to execution fee refund.
-/// # Arguments
-/// * `event_emitter` - The event emitter safe dispatcher.
-/// * `receiver` - The receiver of the fee refund.
-/// * `refund_fee_amount` - The amount of fee refunded.
 fn emit_execution_fee_refund(
     event_emitter: IEventEmitterSafeDispatcher, receiver: ContractAddress, refund_fee_amount: u128
 ) { //TODO
