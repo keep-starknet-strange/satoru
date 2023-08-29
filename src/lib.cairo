@@ -116,6 +116,15 @@ mod market {
     mod market;
 }
 
+// `oracle` contains functions related to oracles used by Gojo.
+mod oracle {
+    mod error;
+    mod oracle_modules;
+    mod oracle_store;
+    mod oracle_utils;
+    mod oracle;
+}
+
 // `order` contains order management functions.
 mod order {
     mod order;

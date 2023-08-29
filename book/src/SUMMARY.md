@@ -16,6 +16,7 @@
   - [Gas Module](smart-contracts-architecture/gas-module.md)
   - [Liquidation](smart-contracts-architecture/liquidation-module.md)
   - [Nonce Module](smart-contracts-architecture/nonce-module.md)
+  - [Oracle Module](smart-contracts-architecture/oracle-module.md)
   - [Role Module](smart-contracts-architecture/role-module.md)
   - [Swap Module](smart-contracts-architecture/swap-module.md)
   - [Utils Module](smart-contracts-architecture/utils-module.md)
