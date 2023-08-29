@@ -12,6 +12,7 @@
   - [Callback Module](smart-contracts-architecture/callback-module.md)
   - [Data Module](smart-contracts-architecture/data-module.md)
   - [Feature Module](smart-contracts-architecture/feature-module.md)
+  - [Gas Module](smart-contracts-architecture/gas-module.md)
   - [Liquidation](smart-contracts-architecture/liquidation-module.md)
   - [Nonce Module](smart-contracts-architecture/nonce-module.md)
   - [Role Module](smart-contracts-architecture/role-module.md)

@@ -54,6 +54,11 @@ mod feature {
     mod feature_utils;
 }
 
+// `gas` is used for execution fee estimation and payments
+mod gas {
+    mod gas_utils;
+}
+
 // `nonce` is a module that maintains a progressively increasing nonce value.
 mod nonce {
     mod nonce_utils;
