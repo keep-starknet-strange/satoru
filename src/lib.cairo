@@ -141,3 +141,13 @@ mod swap {
 mod token {
     mod erc20;
 }
+
+// `withdrawal` contains withdrawal management functions
+mod withdrawal {
+    mod error;
+    mod withdrawal_event_utils;
+    mod withdrawal_store_utils;
+    mod withdrawal_utils;
+    mod withdrawal_vault;
+    mod withdrawal;
+}
