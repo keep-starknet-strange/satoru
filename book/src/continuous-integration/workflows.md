@@ -177,8 +177,8 @@ The "Test" GitHub Actions workflow (`test.yml`) ensures the code's integrity by 
 2. **Pull Request Event:** Triggered for pull requests targeting the `main` branch.
 
 **Environment Variables:**
-- **SCARB_VERSION:** Specifies the Scarb version, currently set to `0.6.1+nightly-2023-08-16`.
-- **STARKNET_FOUNDRY_VERSION:** Defines the version of Starknet Foundry, currently set to `0.3.0`.
+- **SCARB_VERSION:** Specifies the Scarb version, currently set to `0.7.0`.
+- **STARKNET_FOUNDRY_VERSION:** Defines the version of Starknet Foundry, currently set to `0.5.0`.
 
 **Jobs:**
 1. **Test & Check Job**:
@@ -200,8 +200,8 @@ on:
     branches:
       - main
 env:
-  SCARB_VERSION: 0.6.1+nightly-2023-08-16
-  STARKNET_FOUNDRY_VERSION: 0.3.0
+  SCARB_VERSION: 0.7.0
+  STARKNET_FOUNDRY_VERSION: 0.5.0
 
 jobs:
   check:
