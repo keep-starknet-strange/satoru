@@ -208,12 +208,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Scarb
-        run: |
-          NIGHTLY_DATE=$(echo ${SCARB_VERSION} | cut -d '+' -f 2)
-          wget https://github.com/software-mansion/scarb-nightlies/releases/download/${NIGHTLY_DATE}/scarb-${NIGHTLY_DATE}-x86_64-unknown-linux-gnu.tar.gz
-          tar -xvf scarb-${NIGHTLY_DATE}-x86_64-unknown-linux-gnu.tar.gz
-          sudo mv scarb-v${SCARB_VERSION}-x86_64-unknown-linux-gnu/bin/scarb /usr/local/bin
+       - uses: software-mansion/setup-scarb@v1
+        with:
+          scarb-version: "0.7.0"
+      # - name: Set up Scarb
+        #ses: software-mansion/setup-scarb@v1
+        # Install Scarb from a nightly release
+        # run: |
+        #   NIGHTLY_DATE=$(echo ${SCARB_VERSION} | cut -d '+' -f 2)
+        #   wget https://github.com/software-mansion/scarb-nightlies/releases/download/${NIGHTLY_DATE}/scarb-${NIGHTLY_DATE}-x86_64-unknown-linux-gnu.tar.gz
+        #   tar -xvf scarb-${NIGHTLY_DATE}-x86_64-unknown-linux-gnu.tar.gz
+        #   sudo mv scarb-v${SCARB_VERSION}-x86_64-unknown-linux-gnu/bin/scarb /usr/local/bin
       - name: Install starknet foundry
         run: curl -L https://raw.githubusercontent.com/foundry-rs/starknet-foundry/master/scripts/install.sh | sh -s -- -v ${STARKNET_FOUNDRY_VERSION}
       - name: Run cairo tests
