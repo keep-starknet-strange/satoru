@@ -49,7 +49,6 @@ mod DepositVault {
     /// Constructor of the contract.
     /// # Arguments
     /// * `role_store_address` - The address of the role store contract.
-
     /// * `data_store_address` - The address of the data store contract.
     #[constructor]
     fn constructor(

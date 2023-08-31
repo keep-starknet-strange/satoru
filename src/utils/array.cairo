@@ -20,7 +20,7 @@ fn get(arr: Span<felt252>, index: u128) -> felt252 {
 /// * `value` - The value to compare the elements to.
 /// # Returns
 /// Wether all of the elements in the array are equal to the given value.
-fn are_equal_to(arr: Span<u128>, value: u128) -> bool {
+fn are_eq(arr: Span<u128>, value: u128) -> bool {
     // TODO
     true
 }
@@ -31,7 +31,7 @@ fn are_equal_to(arr: Span<u128>, value: u128) -> bool {
 /// * `value` - The value to compare the elements to.
 /// # Returns
 /// true if all of the elements in the array are greater than the specified value, false otherwise.
-fn are_greater_than(arr: Span<u128>, value: u128) -> bool {
+fn are_gt(arr: Span<u128>, value: u128) -> bool {
     // TODO
     true
 }
@@ -42,7 +42,7 @@ fn are_greater_than(arr: Span<u128>, value: u128) -> bool {
 /// * `value` - The value to compare the elements to.
 /// # Returns
 /// true if all of the elements in the array are greater than or equal to the specified value, false otherwise.
-fn are_greater_than_or_equal_to(arr: Span<u128>, value: u128) -> bool {
+fn are_gte(arr: Span<u128>, value: u128) -> bool {
     // TODO
     true
 }
@@ -53,7 +53,7 @@ fn are_greater_than_or_equal_to(arr: Span<u128>, value: u128) -> bool {
 /// * `value` - The value to compare the elements to.
 /// # Returns
 /// true if all of the elements in the array are less than the specified value, false otherwise.
-fn are_less_than(arr: Span<u128>, value: u128) -> bool {
+fn are_lt(arr: Span<u128>, value: u128) -> bool {
     // TODO
     true
 }
@@ -64,7 +64,7 @@ fn are_less_than(arr: Span<u128>, value: u128) -> bool {
 /// * `value` - The value to compare the elements to.
 /// # Returns
 /// true if all of the elements in the array are less than or equal to the specified value, false otherwise.
-fn are_less_than_or_equal_to(arr: Span<u128>, value: u128) -> bool {
+fn are_lte(arr: Span<u128>, value: u128) -> bool {
     // TODO
     true
 }

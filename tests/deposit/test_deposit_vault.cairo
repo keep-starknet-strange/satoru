@@ -28,7 +28,7 @@ fn init_deposit_vault_test() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
 
-    let (caller_address, deposit_vault, role_store, data_store,) = setup();
+    let (caller_address, deposit_vault, role_store, data_store) = setup();
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
@@ -53,11 +53,11 @@ fn setup() -> (
     IDataStoreSafeDispatcher,
 ) {
     // Setup the contracts.
-    let (caller_address, deposit_vault, role_store, data_store,) = setup_contracts();
+    let (caller_address, deposit_vault, role_store, data_store) = setup_contracts();
     // Grant roles and prank the caller address.
     grant_roles_and_prank(caller_address, deposit_vault, role_store, data_store);
     // Return the caller address and the contract interfaces.
-    (caller_address, deposit_vault, role_store, data_store,)
+    (caller_address, deposit_vault, role_store, data_store)
 }
 
 // Utility function to grant roles and prank the caller address.
@@ -88,7 +88,7 @@ fn grant_roles_and_prank(
 }
 
 /// Utility function to teardown the test environment.
-fn teardown(data_store: IDataStoreSafeDispatcher, deposit_vault: IDepositVaultSafeDispatcher,) {
+fn teardown(data_store: IDataStoreSafeDispatcher, deposit_vault: IDepositVaultSafeDispatcher) {
     stop_prank(data_store.contract_address);
     stop_prank(deposit_vault.contract_address);
 }
@@ -122,7 +122,7 @@ fn setup_contracts() -> (
     let deposit_vault = IDepositVaultSafeDispatcher { contract_address: deposit_vault_address };
 
     // Return the caller address and the contract interfaces.
-    (caller_address, deposit_vault, role_store, data_store,)
+    (caller_address, deposit_vault, role_store, data_store)
 }
 
 

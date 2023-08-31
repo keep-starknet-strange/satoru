@@ -1,8 +1,8 @@
-//! Contract to validate and store signed values
-// Some calculations e.g. calculating the size in tokens for a position
-// may not work with zero / negative prices
-// as a result, zero / negative prices are considered empty / invalid
-// A market may need to be manually settled in this case
+//! Contract to validate and store signed values.
+//! Some calculations e.g. calculating the size in tokens for a position
+//! may not work with zero / negative prices.
+//! As a result, zero / negative prices are considered empty / invalid.
+//! A market may need to be manually settled in this case.
 
 // *************************************************************************
 //                                  IMPORTS
@@ -18,27 +18,43 @@ use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherT
 use gojo::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use gojo::oracle::{
     oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait},
-    oracle_utils::{SetPricesParams, ReportInfo},
+    oracle_utils::{SetPricesParams, ReportInfo}, error::OracleError,
 };
-use gojo::price::price::{Price};
-use gojo::oracle::error::OracleError;
-use gojo::utils::u128_mask::{Mask};
+use gojo::utils::u128_mask::Mask;
+use gojo::price::price::Price;
 
 // *************************************************************************
 //                  Interface of the `Oracle` contract.
 // *************************************************************************
 #[starknet::interface]
 trait IOracle<TContractState> {
-    //// Initialize the contract.
-    //// # Arguments
-    //// * `role_store_address` - The address of the role store contract.
-    //// * `oracle_store_address` - The address of the oracle store contract.
+    /// Initialize the contract.
+    /// # Arguments
+    /// * `role_store_address` - The address of the role store contract.
+    /// * `oracle_store_address` - The address of the oracle store contract.
     fn initialize(
         ref self: TContractState,
         role_store_address: ContractAddress,
         oracle_store_address: ContractAddress
     );
+
     /// Validate and store signed prices
+    ///
+    /// The set_prices function is used to set the prices of tokens in the Oracle contract.
+    /// It accepts an array of tokens and a signer_info parameter. The signer_info parameter
+    /// contains information about the signers that have signed the transaction to set the prices.
+    /// The first 16 bits of the signer_info parameter contain the number of signers, and the following
+    /// bits contain the index of each signer in the oracle_store. The function checks that the number
+    /// of signers is greater than or equal to the minimum number of signers required, and that
+    /// the signer indices are unique and within the maximum signer index. The function then calls
+    /// set_primary_prices and set_prices_from_price_feeds to set the prices of the tokens.
+    ///
+    /// Oracle prices are signed as a value together with a precision, this allows
+    /// prices to be compacted as uint32 values.
+    ///
+    /// The signed prices represent the price of one unit of the token using a value
+    /// with 30 decimals of precision.
+    ///
     /// # Arguments
     /// * `data_store` - The data store.
     /// * `event_emitter` - The event emitter.
@@ -49,86 +65,119 @@ trait IOracle<TContractState> {
         event_emitter: IEventEmitterDispatcher,
         params: SetPricesParams,
     );
+
     /// Set the primary price
     /// # Arguments
     /// * `token` - The token to set the price for.
     /// * `price` - The price value to set to.
-    fn set_primary_price(ref self: TContractState, token: ContractAddress, price: Price,);
+    fn set_primary_price(ref self: TContractState, token: ContractAddress, price: Price);
+
     /// Clear all prices
-    fn clear_all_prices(ref self: TContractState,);
+    fn clear_all_prices(ref self: TContractState);
+
     /// Get the length of tokens_with_prices
     /// # Returns
     /// The length of tokens_with_prices
-    fn get_tokens_with_prices_count(self: @TContractState,) -> u128;
-    /// Get the length of tokens_with_prices
+    fn get_tokens_with_prices_count(self: @TContractState) -> u128;
+
+    /// Get the tokens_with_prices from start to end.
     /// # Arguments
     /// * `start` - The start index, the value for this index will be included.
     /// * `end` -  The end index, the value for this index will be excluded.
     /// # Returns
-    /// The tokens of tokens_with_prices for the specified indexes
+    /// The tokens of tokens_with_prices for the specified indexes.
     fn get_tokens_with_prices(
         self: @TContractState, start: u128, end: u128
     ) -> Array<ContractAddress>;
-    /// Get the primary price of a token
+
+    /// Get the primary price of a token.
     /// # Arguments
     /// * `token` - The token to get the price for.
     /// # Returns
-    /// The primary price of a token
-    fn get_primary_price(self: @TContractState, token: ContractAddress,) -> Price;
-    /// Get the stable price of a token
+    /// The primary price of a token.
+    fn get_primary_price(self: @TContractState, token: ContractAddress) -> Price;
+
+    /// Get the stable price of a token.
     /// # Arguments
     /// * `token` - The token to get the price for.
     /// # Returns
-    /// The stable price of a token
-    fn get_stable_price(self: @TContractState, token: ContractAddress,) -> u128;
+    /// The stable price of a token.
+    fn get_stable_price(self: @TContractState, token: ContractAddress) -> u128;
+
     /// Get the multiplier value to convert the external price feed price to the price of 1 unit of the token
-    /// represented with 30 decimals
+    /// represented with 30 decimals.
+    /// For example, if USDC has 6 decimals and a price of 1 USD, one unit of USDC would have a price of
+    /// 1 / (10 ^ 6) * (10 ^ 30) => 1 * (10 ^ 24)
+    /// if the external price feed has 8 decimals, the price feed price would be 1 * (10 ^ 8)
+    /// in this case the priceFeedMultiplier should be 10 ^ 46
+    /// the conversion of the price feed price would be 1 * (10 ^ 8) * (10 ^ 46) / (10 ^ 30) => 1 * (10 ^ 24)
+    /// formula for decimals for price feed multiplier: 60 - (external price feed decimals) - (token decimals)
     /// # Arguments
-    /// * `data_store` - The data store.
+    /// * `data_store` - The data store dispatcher.
     /// * `token` - The token to get the price for.
     /// # Returns
-    /// The price feed multiplier
+    /// The price feed multiplier.
     fn get_price_feed_multiplier(
         self: @TContractState, data_store: IDataStoreSafeDispatcher, token: ContractAddress,
     ) -> u128;
+
+    /// Validate prices in `params` for oracles.
+    /// # Arguments
+    /// * `data_store` - The `DataStore` contract dispatcher.
+    /// * `params` - The parameters used to set prices in oracle.
     fn validate_prices(
         self: @TContractState, data_store: IDataStoreSafeDispatcher, params: SetPricesParams,
     ) -> Array<ValidatedPrice>;
 }
 
+/// A price that has been validated in validate_prices().
 #[derive(Drop, starknet::Store, Serde)]
 struct ValidatedPrice {
+    /// The token to validate the price for.
     token: ContractAddress,
+    /// The min price of the token.
     min: u128,
+    /// The max price of the token.
     max: u128,
+    /// The timestamp of the price validated.
     timestamp: u128,
-    min_block_number: u128,
-    max_block_number: u128,
+    min_block_number: u64,
+    max_block_number: u64,
 }
 
+/// Struct used in set_prices as a cache.
 struct SetPricesCache {
     info: ReportInfo,
+    /// The min block confirmations expected.
     min_block_confirmations: u128,
-    /// The max allowed age of price values
-    max_price_age: u128,
+    /// The max allowed age of price values.
+    max_price_age: u64,
+    /// The max ref_price deviation factor allowed.
     max_ref_price_deviation_factor: u128,
-    prev_min_oracle_block_number: u128,
+    /// The previous oracle block number of the loop.
+    prev_min_oracle_block_number: u64,
+    // The prices that have been validated to set.
     validated_prices: Array<ValidatedPrice>,
 }
 
+/// Struct used in validate_prices as an inner cache.
 struct SetPricesInnerCache {
-    /// The current signature index to retrieve from the signatures array
+    /// The current price index to retrieve from compactedMinPrices and compactedMaxPrices
+    /// to construct the minPrices and maxPrices array.
     price_index: u128,
+    /// The current signature index to retrieve from the signatures array.
     signature_index: u128,
-    /// The index of the min price in minPrices for the current signer
+    /// The index of the min price in min_prices for the current signer.
     min_price_index: u128,
-    /// The index of the max price in maxPrices for the current signer
+    /// The index of the max price in max_prices for the current signer.
     max_price_index: u128,
-    /// The min prices
+    /// The min prices.
     min_prices: Array<u128>,
-    /// The max prices
+    /// The max prices.
     max_prices: Array<u128>,
+    /// The min price index using U128Mask.
     min_price_index_mask: Mask,
+    /// The max price index using U128Mask.
     max_price_index_mask: Mask,
 }
 
@@ -149,13 +198,13 @@ mod Oracle {
     use gojo::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
     use gojo::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use gojo::price::price::Price;
+    use super::{IOracle, ValidatedPrice};
     use gojo::oracle::{
         oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait},
-        oracle_utils::{SetPricesParams},
+        oracle_utils::{SetPricesParams, ReportInfo}, error::OracleError,
     };
-    use gojo::price::price::{Price};
-    use super::{IOracle, ValidatedPrice};
-    use gojo::oracle::error::OracleError;
+
 
     // *************************************************************************
     //                              STORAGE
@@ -191,10 +240,6 @@ mod Oracle {
     // *************************************************************************
     #[external(v0)]
     impl OracleImpl of super::IOracle<ContractState> {
-        /// Initialize the contract.
-        /// # Arguments
-        /// * `role_store_address` - The address of the role store contract.
-        /// * `oracle_store_address` - The address of the oracle store contract.
         fn initialize(
             ref self: ContractState,
             role_store_address: ContractAddress,
@@ -210,99 +255,6 @@ mod Oracle {
                 .write(IOracleStoreDispatcher { contract_address: oracle_store_address })
         }
 
-        /// Validate and store signed prices
-        ///
-        /// The setPrices function is used to set the prices of tokens in the Oracle contract.
-        /// It accepts an array of tokens and a signerInfo parameter. The signerInfo parameter
-        /// contains information about the signers that have signed the transaction to set the prices.
-        /// The first 16 bits of the signerInfo parameter contain the number of signers, and the following
-        /// bits contain the index of each signer in the oracleStore. The function checks that the number
-        /// of signers is greater than or equal to the minimum number of signers required, and that
-        /// the signer indices are unique and within the maximum signer index. The function then calls
-        /// _setPrices and _setPricesFromPriceFeeds to set the prices of the tokens.
-        ///
-        /// Oracle prices are signed as a value together with a precision, this allows
-        /// prices to be compacted as uint32 values.
-        ///
-        /// The signed prices represent the price of one unit of the token using a value
-        /// with 30 decimals of precision.
-        ///
-        /// Representing the prices in this way allows for conversions between token amounts
-        /// and fiat values to be simplified, e.g. to calculate the fiat value of a given
-        /// number of tokens the calculation would just be: `token amount * oracle price`,
-        /// to calculate the token amount for a fiat value it would be: `fiat value / oracle price`.
-        ///
-        /// The trade-off of this simplicity in calculation is that tokens with a small USD
-        /// price and a lot of decimals may have precision issues it is also possible that
-        /// a token's price changes significantly and results in requiring higher precision.
-        ///
-        /// ## Example 1
-        ///
-        /// The price of ETH is 5000, and ETH has 18 decimals.
-        ///
-        /// The price of one unit of ETH is `5000 / (10 ^ 18), 5 * (10 ^ -15)`.
-        ///
-        /// To handle the decimals, multiply the value by `(10 ^ 30)`.
-        ///
-        /// Price would be stored as `5000 / (10 ^ 18) * (10 ^ 30) => 5000 * (10 ^ 12)`.
-        ///
-        /// For gas optimization, these prices are sent to the oracle in the form of a uint8
-        /// decimal multiplier value and uint32 price value.
-        ///
-        /// If the decimal multiplier value is set to 8, the uint32 value would be `5000 * (10 ^ 12) / (10 ^ 8) => 5000 * (10 ^ 4)`.
-        ///
-        /// With this config, ETH prices can have a maximum value of `(2 ^ 32) / (10 ^ 4) => 4,294,967,296 / (10 ^ 4) => 429,496.7296` with 4 decimals of precision.
-        ///
-        /// ## Example 2
-        ///
-        /// The price of BTC is 60,000, and BTC has 8 decimals.
-        ///
-        /// The price of one unit of BTC is `60,000 / (10 ^ 8), 6 * (10 ^ -4)`.
-        ///
-        /// Price would be stored as `60,000 / (10 ^ 8) * (10 ^ 30) => 6 * (10 ^ 26) => 60,000 * (10 ^ 22)`.
-        ///
-        /// BTC prices maximum value: `(2 ^ 32) / (10 ^ 2) => 4,294,967,296 / (10 ^ 2) => 42,949,672.96`.
-        ///
-        /// Decimals of precision: 2.
-        ///
-        /// ## Example 3
-        ///
-        /// The price of USDC is 1, and USDC has 6 decimals.
-        ///
-        /// The price of one unit of USDC is `1 / (10 ^ 6), 1 * (10 ^ -6)`.
-        ///
-        /// Price would be stored as `1 / (10 ^ 6) * (10 ^ 30) => 1 * (10 ^ 24)`.
-        ///
-        /// USDC prices maximum value: `(2 ^ 64) / (10 ^ 6) => 4,294,967,296 / (10 ^ 6) => 4294.967296`.
-        ///
-        /// Decimals of precision: 6.
-        ///
-        /// ## Example 4
-        ///
-        /// The price of DG is 0.00000001, and DG has 18 decimals.
-        ///
-        /// The price of one unit of DG is `0.00000001 / (10 ^ 18), 1 * (10 ^ -26)`.
-        ///
-        /// Price would be stored as `1 * (10 ^ -26) * (10 ^ 30) => 1 * (10 ^ 3)`.
-        ///
-        /// DG prices maximum value: `(2 ^ 64) / (10 ^ 11) => 4,294,967,296 / (10 ^ 11) => 0.04294967296`.
-        ///
-        /// Decimals of precision: 11.
-        ///
-        /// ## Decimal Multiplier
-        ///
-        /// The formula to calculate what the decimal multiplier value should be set to:
-        ///
-        /// Decimals: 30 - (token decimals) - (number of decimals desired for precision)
-        ///
-        /// - ETH: 30 - 18 - 4 => 8
-        /// - BTC: 30 - 8 - 2 => 20
-        /// - USDC: 30 - 6 - 6 => 18
-        /// - DG: 30 - 18 - 11 => 1.
-        /// # Arguments
-        /// * `data_store` - The data store.
-        /// * `event_emitter` - The event emitter.
-        /// * `params` - The set price params.
         fn set_prices(
             ref self: ContractState,
             data_store: IDataStoreSafeDispatcher,
@@ -311,33 +263,19 @@ mod Oracle {
         ) { // TODO
         }
 
-        /// Set the primary price
-        /// # Arguments
-        /// * `token` - The token to set the price for.
-        /// * `price` - The price value to set to.
         fn set_primary_price(
             ref self: ContractState, token: ContractAddress, price: Price,
         ) { // TODO
         }
 
-        /// Clear all prices
-        fn clear_all_prices(ref self: ContractState,) { // TODO
+        fn clear_all_prices(ref self: ContractState) { // TODO
         }
 
-        /// Get the length of tokens_with_prices
-        /// # Returns
-        /// The length of tokens_with_prices
-        fn get_tokens_with_prices_count(self: @ContractState,) -> u128 {
+        fn get_tokens_with_prices_count(self: @ContractState) -> u128 {
             // TODO
             0
         }
 
-        /// Get the length of tokens_with_prices
-        /// # Arguments
-        /// * `start` - The start index, the value for this index will be included.
-        /// * `end` -  The end index, the value for this index will be excluded.
-        /// # Returns
-        /// The tokens of tokens_with_prices for the specified indexes
         fn get_tokens_with_prices(
             self: @ContractState, start: u128, end: u128
         ) -> Array<ContractAddress> {
@@ -345,39 +283,16 @@ mod Oracle {
             ArrayTrait::new()
         }
 
-        /// Get the primary price of a token
-        /// # Arguments
-        /// * `token` - The token to get the price for.
-        /// # Returns
-        /// The primary price of a token
-        fn get_primary_price(self: @ContractState, token: ContractAddress,) -> Price {
+        fn get_primary_price(self: @ContractState, token: ContractAddress) -> Price {
             // TODO
             Price { min: 0, max: 0 }
         }
 
-        /// Get the stable price of a token
-        /// # Arguments
-        /// * `token` - The token to get the price for.
-        /// # Returns
-        /// The stable price of a token
-        fn get_stable_price(self: @ContractState, token: ContractAddress,) -> u128 {
+        fn get_stable_price(self: @ContractState, token: ContractAddress) -> u128 {
             // TODO
             0
         }
 
-        /// Get the multiplier value to convert the external price feed price to the price of 1 unit of the token
-        /// represented with 30 decimals
-        /// for example, if USDC has 6 decimals and a price of 1 USD, one unit of USDC would have a price of
-        /// 1 / (10 ^ 6) * (10 ^ 30) => 1 * (10 ^ 24)
-        /// if the external price feed has 8 decimals, the price feed price would be 1 * (10 ^ 8)
-        /// in this case the priceFeedMultiplier should be 10 ^ 46
-        /// the conversion of the price feed price would be 1 * (10 ^ 8) * (10 ^ 46) / (10 ^ 30) => 1 * (10 ^ 24)
-        /// formula for decimals for price feed multiplier: 60 - (external price feed decimals) - (token decimals)
-        /// # Arguments
-        /// * `data_store` - The data store.
-        /// * `token` - The token to get the price for.
-        /// # Returns
-        /// The price feed multiplier
         fn get_price_feed_multiplier(
             self: @ContractState, data_store: IDataStoreSafeDispatcher, token: ContractAddress,
         ) -> u128 {
@@ -398,7 +313,7 @@ mod Oracle {
     // *************************************************************************
     #[generate_trait]
     impl InternalImpl of InternalTrait {
-        /// Validate and set prices
+        /// Validate and set prices.
         /// The _set_prices() function is a helper function that is called by the
         /// setPrices() function. It takes in several parameters: a DataStore contract
         /// instance, an EventEmitter contract instance, an array of signers, and an
@@ -424,7 +339,7 @@ mod Oracle {
         ) { // TODO
         }
 
-        /// Validate
+        /// Validate prices in params.
         /// # Arguments
         /// * `data_store` - The data store.
         /// * `params` - The set price params.
@@ -435,7 +350,7 @@ mod Oracle {
 
         /// Get the signers
         /// # Arguments
-        /// * `data_store` - The data store.
+        /// * `data_store` - The data store dispatcher.
         /// * `token` - The token to get the price for.
         /// # Returns
         /// The signers
@@ -446,28 +361,30 @@ mod Oracle {
             ArrayTrait::new()
         }
 
+        /// Compute a salt for validate_signer().
         /// # Returns
-        /// The salt
-        fn get_salt(
-            self: @ContractState, data_store: IDataStoreSafeDispatcher, params: SetPricesParams,
-        ) -> felt252 {
+        /// The computed salt.
+        fn get_salt(self: @ContractState,) -> felt252 {
             // TODO
             0
         }
 
+        /// Validate that price does not deviate too much from ref_price.
         /// # Arguments
-        /// * `data_store` - The data store.
-        /// * `params` - The set price params.
+        /// * `token` - The token the price is check from.
+        /// * `price` - The price to validate.
+        /// * `ref_price` - The reference price.
+        /// * `max_ref_price_deviation_from_factor` - The max ref_price deviation factor allowed.
         fn validate_ref_price(
             self: @ContractState,
             token: ContractAddress,
             price: u128,
             ref_price: u128,
-            max_ref_price_deviation_from_factor: u128,
+            max_ref_price_deviation_factor: u128,
         ) { // TODO
         }
 
-        /// Set the primary price
+        /// Set the primary price.
         /// # Arguments
         /// * `token` - The token to set the price for.
         /// * `price` - The price value to set to.
@@ -476,20 +393,20 @@ mod Oracle {
         ) { // TODO
         }
 
-        /// Remove the primary price
+        /// Remove the primary price.
         /// # Arguments
         /// * `token` - The token to set the price for.
-        fn remove_primary_price(ref self: ContractState, token: ContractAddress,) { // TODO
+        fn remove_primary_price(ref self: ContractState, token: ContractAddress) { // TODO
         }
 
-        /// Get the price feed prices
-        /// there is a small risk of stale pricing due to latency in price updates or if the chain is down
-        /// this is meant to be for temporary use until low latency price feeds are supported for all tokens
+        /// Get the price feed prices.
+        /// There is a small risk of stale pricing due to latency in price updates or if the chain is down.
+        /// This is meant to be for temporary use until low latency price feeds are supported for all tokens.
         /// # Arguments
         /// * `data_store` - The data store.
         /// * `token` - The token to get the price for.
         /// # Returns
-        /// The price feed multiplier
+        /// The price feed multiplier.
         fn get_price_feed_price(
             self: @ContractState, data_store: IDataStoreSafeDispatcher, token: ContractAddress,
         ) -> (bool, u128) {
@@ -510,6 +427,7 @@ mod Oracle {
         ) { // TODO
         }
 
+        /// Emit events about the new oracle price updates.
         fn emit_oracle_price_updated(
             self: @ContractState,
             event_emitter: IEventEmitterDispatcher,

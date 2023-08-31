@@ -29,7 +29,8 @@ trait IMarketFactory<TContractState> {
 
     /// Update the class hash of the `MarketToken` contract to deploy when creating a new market.
     /// # Arguments
-    /// * `market_token_class_hash` - The class hash of the `MarketToken` contract to deploy when creating a new market.
+    /// * `market_token_class_hash` - The class hash of the `MarketToken` contract to
+    /// deploy when creating a new market.
     fn update_market_token_class_hash(
         ref self: TContractState, market_token_class_hash: ClassHash,
     );
@@ -81,7 +82,8 @@ mod MarketFactory {
     /// * `data_store_address` - The address of the data store contract.
     /// * `role_store_address` - The address of the role store contract.
     /// * `event_emitter_address` - The address of the event emitter contract.
-    /// * `market_token_class_hash` - The class hash of the `MarketToken` contract to deploy when creating a new market.
+    /// * `market_token_class_hash` - The class hash of the `MarketToken` contract to
+    /// deploy when creating a new market.
     #[constructor]
     fn constructor(
         ref self: ContractState,
@@ -104,12 +106,6 @@ mod MarketFactory {
     // *************************************************************************
     #[external(v0)]
     impl MarketFactory of super::IMarketFactory<ContractState> {
-        /// Create a new market.
-        /// # Arguments
-        /// * `index_token` - The token used as the index of the market.
-        /// * `long_token` - The token used as the long side of the market.
-        /// * `short_token` - The token used as the short side of the market.
-        /// * `market_type` - The type of the market.
         fn create_market(
             ref self: ContractState,
             index_token: ContractAddress,
@@ -165,9 +161,6 @@ mod MarketFactory {
             (market_token_deployed_address, market_key)
         }
 
-        /// Update the class hash of the `MarketToken` contract to deploy when creating a new market.
-        /// # Arguments
-        /// * `market_token_class_hash` - The class hash of the `MarketToken` contract to deploy when creating a new market.
         fn update_market_token_class_hash(
             ref self: ContractState, market_token_class_hash: ClassHash,
         ) {

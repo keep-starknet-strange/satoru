@@ -1,4 +1,4 @@
-//! Contract to stores the list of oracle signers
+//! Contract to stores the list of oracle signers.
 
 // *************************************************************************
 //                                  IMPORTS
@@ -21,24 +21,29 @@ trait IOracleStore<TContractState> {
         role_store_address: ContractAddress,
         event_emitter_address: ContractAddress,
     );
+
     /// Adds a signer.
     /// # Arguments
     /// * `signer` - account address of the signer to add.
-    fn add_signer(ref self: TContractState, account: ContractAddress,);
+    fn add_signer(ref self: TContractState, account: ContractAddress);
+
     /// Removes a signer.
     /// # Arguments
     /// * `signer` - account address of the signer to remove.
-    fn remove_signer(ref self: TContractState, account: ContractAddress,);
+    fn remove_signer(ref self: TContractState, account: ContractAddress);
+
     /// Get the total number of signers.
     /// # Returns
     /// Signer count.
-    fn get_signer_count(self: @TContractState,) -> u128;
+    fn get_signer_count(self: @TContractState) -> u128;
+
     /// Get the total signer at index.
     /// # Arguments
     /// * `index` - Index of the signer to get.
     /// # Returns
     /// Signer at index.
     fn get_signer(self: @TContractState, index: u128) -> ContractAddress;
+
     /// Get signers from start to end.
     /// # Arguments
     /// * `start` - Start index, included.
@@ -56,7 +61,7 @@ mod OracleStore {
 
     // Core lib imports.
     use core::zeroable::Zeroable;
-    use starknet::{ContractAddress};
+    use starknet::ContractAddress;
     use array::ArrayTrait;
     use result::ResultTrait;
     use traits::{Into, TryInto};
@@ -102,10 +107,6 @@ mod OracleStore {
     // *************************************************************************
     #[external(v0)]
     impl OracleStoreImpl of super::IOracleStore<ContractState> {
-        /// Initialize the contract.
-        /// # Arguments
-        /// * `role_store_address` - The address of the role store contract.
-        /// * `event_emitter_address` - The address of the event emitter contract.
         fn initialize(
             ref self: ContractState,
             role_store_address: ContractAddress,
@@ -122,40 +123,20 @@ mod OracleStore {
             self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
         }
 
-        /// Adds a signer.
-        /// # Arguments
-        /// * `signer` - account address of the signer to add.
-        fn add_signer(ref self: ContractState, account: ContractAddress,) { // TODO
+        fn add_signer(ref self: ContractState, account: ContractAddress) { // TODO
         }
 
-        /// Removes a signer.
-        /// # Arguments
-        /// * `signer` - account address of the signer to remove.
-        fn remove_signer(ref self: ContractState, account: ContractAddress,) { // TODO
+        fn remove_signer(ref self: ContractState, account: ContractAddress) { // TODO
         }
 
-        /// Get the total number of signers.
-        /// # Returns
-        /// Signer count.
-        fn get_signer_count(self: @ContractState,) -> u128 { // TODO
+        fn get_signer_count(self: @ContractState) -> u128 { // TODO
             0
         }
 
-        /// Get the total signer at index.
-        /// # Arguments
-        /// * `index` - Index of the signer to get.
-        /// # Returns
-        /// Signer at index.
         fn get_signer(self: @ContractState, index: u128) -> ContractAddress { // TODO
             0.try_into().unwrap()
         }
 
-        /// Get signers from start to end.
-        /// # Arguments
-        /// * `start` - Start index, included.
-        /// * `end` - End index, not included.
-        /// # Returns
-        /// Signer for specified indexes.
         fn get_signers(
             self: @ContractState, start: u128, end: u128
         ) -> Array<ContractAddress> { // TODO

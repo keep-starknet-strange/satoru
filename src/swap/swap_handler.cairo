@@ -35,7 +35,7 @@ mod SwapHandler {
 
     // Local imports.
     use gojo::swap::error::SwapError;
-    use gojo::swap::swap_utils::{SwapParams};
+    use gojo::swap::swap_utils::SwapParams;
 
     // *************************************************************************
     //                              STORAGE
@@ -57,11 +57,6 @@ mod SwapHandler {
     // *************************************************************************
     #[external(v0)]
     impl SwapHandler of super::ISwapHandler<ContractState> {
-        /// Perform a swap based on the given params.
-        /// # Arguments
-        /// * `params` - SwapParams.
-        /// # Returns
-        /// * (outputToken, outputAmount)
         fn swap(ref self: ContractState, params: SwapParams) -> (ContractAddress, u128) {
             (0.try_into().unwrap(), 0)
         }

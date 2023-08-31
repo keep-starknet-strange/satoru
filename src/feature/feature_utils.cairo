@@ -1,10 +1,10 @@
 //! Feature is a library contract that allows to validate if a feature is enabled or disabled.
-// disabling a feature should only be used if it is absolutely necessary
-// disabling of features could lead to unexpected effects, e.g. increasing / decreasing of orders
-// could be disabled while liquidations may remain enabled
-// this could also occur if the chain is not producing blocks and lead to liquidatable positions
-// when block production resumes
-// the effects of disabling features should be carefully considered
+//! Disabling a feature should only be used if it is absolutely necessary.
+//! Disabling of features could lead to unexpected effects, e.g. increasing / decreasing of orders
+//! could be disabled while liquidations may remain enabled.
+//! This could also occur if the chain is not producing blocks and lead to liquidatable positions
+//! when block production resumes.
+//! The effects of disabling features should be carefully considered.
 
 use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 

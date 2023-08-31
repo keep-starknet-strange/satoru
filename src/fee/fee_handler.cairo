@@ -24,6 +24,7 @@ trait IFeeHandler<TContractState> {
         role_store_address: ContractAddress,
         event_emitter_address: ContractAddress,
     );
+
     /// Claim fees from the specified markets.
     /// # Arguments
     /// * `market` - The markets to claim fees from.
@@ -92,12 +93,6 @@ mod FeeHandler {
     // *************************************************************************
     #[external(v0)]
     impl FeeHandlerImpl of super::IFeeHandler<ContractState> {
-        /// Initialize the contract.
-        /// # Arguments
-        /// * `data_store_address` - The address of the data store contract.
-        /// * `role_store_address` - The address of the role store contract.
-        /// * `event_emitter_address` - The address of the event emitter contract.
-
         fn initialize(
             ref self: ContractState,
             data_store_address: ContractAddress,
@@ -115,10 +110,6 @@ mod FeeHandler {
                 .write(IEventEmitterSafeDispatcher { contract_address: event_emitter_address });
         }
 
-        /// Claim fees from the specified markets.
-        /// # Arguments
-        /// * `market` - The markets to claim fees from.
-        /// * `tokens` - The fee tokens to claim.
         fn claimFees(
             ref self: ContractState, market: Array<ContractAddress>, tokens: Array<ContractAddress>
         ) { //TODO

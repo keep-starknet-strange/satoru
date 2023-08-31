@@ -1,4 +1,4 @@
-//! Data store for all general state values
+//! Data store for all general state values.
 
 // *************************************************************************
 //                                  IMPORTS
@@ -22,20 +22,24 @@ trait IDataStore<TContractState> {
     /// # Returns
     /// The value for the given key.
     fn get_felt252(self: @TContractState, key: felt252) -> felt252;
+
     /// Set a felt252 value for the given key.
     /// # Arguments
     /// * `key` - The key to set the value for.
     /// * `value` - The value to set.
     fn set_felt252(ref self: TContractState, key: felt252, value: felt252);
+
     /// Delete a felt252 value for the given key.
     /// # Arguments
     /// * `key` - The key to delete the value for.
     fn remove_felt252(ref self: TContractState, key: felt252);
+
     /// Add input to existing value.
     /// # Arguments
     /// * `key` - The key to add the value to.
     /// * `value` - The value to add.
     fn increment_felt252(ref self: TContractState, key: felt252, value: felt252) -> felt252;
+
     /// Subtract input from existing value.
     /// # Arguments
     /// * `key` - The key to subtract the value from.
@@ -51,20 +55,24 @@ trait IDataStore<TContractState> {
     /// # Returns
     /// The value for the given key.
     fn get_u256(self: @TContractState, key: felt252) -> u256;
+
     /// Set a u256 value for the given key.
     /// # Arguments
     /// * `key` - The key to set the value for.
     /// * `value` - The value to set.
     fn set_u256(ref self: TContractState, key: felt252, value: u256);
+
     /// Delete a u256 value for the given key.
     /// # Arguments
     /// * `key` - The key to delete the value for.
     fn remove_u256(ref self: TContractState, key: felt252);
+
     /// Add input to existing value.
     /// # Arguments
     /// * `key` - The key to add the value to.
     /// * `value` - The value to add.
     fn increment_u256(ref self: TContractState, key: felt252, value: u256) -> u256;
+
     /// Subtract input from existing value.
     /// # Arguments
     /// * `key` - The key to subtract the value from.
@@ -81,20 +89,24 @@ trait IDataStore<TContractState> {
     /// # Returns
     /// The value for the given key.
     fn get_u128(self: @TContractState, key: felt252) -> u128;
+
     /// Set a u128 value for the given key.
     /// # Arguments
     /// * `key` - The key to set the value for.
     /// * `value` - The value to set.
     fn set_u128(ref self: TContractState, key: felt252, value: u128);
+
     /// Delete a u128 value for the given key.
     /// # Arguments
     /// * `key` - The key to delete the value for.
     fn remove_u128(ref self: TContractState, key: felt252);
+
     /// Add input to existing value.
     /// # Arguments
     /// * `key` - The key to add the value to.
     /// * `value` - The value to add.
     fn increment_u128(ref self: TContractState, key: felt252, value: u128) -> u128;
+
     /// Subtract input from existing value.
     /// # Arguments
     /// * `key` - The key to subtract the value from.
@@ -110,11 +122,13 @@ trait IDataStore<TContractState> {
     /// # Returns
     /// The value for the given key.
     fn get_address(self: @TContractState, key: felt252) -> ContractAddress;
+
     /// Set an address value for the given key.
     /// # Arguments
     /// * `key` - The key to set the value for.
     /// * `value` - The value to set.
     fn set_address(ref self: TContractState, key: felt252, value: ContractAddress);
+
     /// Remove an address value for the given key.
     /// # Arguments
     /// * `key` - The key to remove the value for.
@@ -128,11 +142,13 @@ trait IDataStore<TContractState> {
     /// # Returns
     /// The value for the given key.
     fn get_bool(self: @TContractState, key: felt252) -> Option<bool>;
+
     /// Set a bool value for the given key.
     /// # Arguments
     /// * `key` - The key to set the value for.
     /// * `value` - The value to set.
     fn set_bool(ref self: TContractState, key: felt252, value: bool);
+
     /// Remove a bool value for the given key.
     /// # Arguments
     /// * - The key to remove the value for.
@@ -147,6 +163,7 @@ trait IDataStore<TContractState> {
     /// # Returns
     /// The value for the given key.
     fn get_market(self: @TContractState, key: felt252) -> Option<Market>;
+
     /// Set a market value for the given key.
     /// # Arguments
     /// * `key` - The key to set the value for.
@@ -163,6 +180,7 @@ trait IDataStore<TContractState> {
     /// # Returns
     /// The value for the given key.
     fn get_order(self: @TContractState, key: felt252) -> Option<Order>;
+
     /// Set a order value for the given key.
     /// # Arguments
     /// * `key` - The key to set the value for.

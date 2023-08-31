@@ -22,6 +22,7 @@ trait IBank<TContractState> {
         data_store_address: ContractAddress,
         role_store_address: ContractAddress,
     );
+
     /// Transfer tokens from this contract to a receiver.
     /// # Arguments
     /// * `token` - The token address to transfer.
@@ -85,10 +86,6 @@ mod Bank {
     // *************************************************************************
     #[external(v0)]
     impl BankImpl of super::IBank<ContractState> {
-        /// Initialize the contract.
-        /// # Arguments
-        /// * `data_store_address` - The address of the data store contract.
-        /// * `role_store_address` - The address of the role store contract.
         fn initialize(
             ref self: ContractState,
             data_store_address: ContractAddress,
@@ -102,11 +99,6 @@ mod Bank {
             self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
         }
 
-        /// Transfer tokens from this contract to a receiver.
-        /// # Arguments
-        /// * `token` - The token address to transfer.
-        /// * `receiver` - The address of the receiver.
-        /// * `amount` - The amount of tokens to transfer.
         fn transfer_out(
             ref self: ContractState,
             token: ContractAddress,

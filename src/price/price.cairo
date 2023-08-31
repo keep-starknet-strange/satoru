@@ -15,6 +15,7 @@ trait PriceTrait {
     /// # Returns
     /// * The average of the min and max values.
     fn mid_price(self: @Price) -> u128;
+
     /// Pick either the min or max value.
     /// # Arguments
     /// * `self` - The `Price` struct.
@@ -22,6 +23,7 @@ trait PriceTrait {
     /// # Returns
     /// * The min or max value.
     fn pick_price(self: @Price, maximize: bool) -> u128;
+
     /// Pick the min or max price depending on wheter it is for a long or a short position,
     /// and whether the pending pnl should be maximized or not.
     /// # Arguments

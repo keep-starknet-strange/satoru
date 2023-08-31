@@ -1,5 +1,5 @@
-// Equivalent of solidity modifers with before functions to put at the beginning of
-// functions and after functions to put at the end.
+//! Equivalent of solidity modifers with before functions to put at the beginning of
+//! functions and after functions to put at the end.
 
 // *************************************************************************
 //                                  IMPORTS
@@ -9,8 +9,9 @@
 // Local imports.
 use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use gojo::oracle::oracle::{IOracleDispatcher};
-// use gojo::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams}; TODO
+use gojo::oracle::{
+    oracle::{IOracleDispatcher}, oracle_utils::{SetPricesParams, SimulatePricesParams},
+};
 
 /// Sets oracle prices, perform any additional tasks required,
 /// and clear the oracle prices after.
@@ -18,19 +19,19 @@ use gojo::oracle::oracle::{IOracleDispatcher};
 /// Care should be taken to avoid re-entrancy while using this call
 /// since re-entrancy could allow functions to be called with prices
 /// meant for a different type of transaction.
-/// The tokensWithPrices.length check in oracle.setPrices should help
-/// mitigate this
+/// The tokensWithPrices.length check in oracle.set_prices should help
+/// mitigate this.
 /// # Arguments
-/// * `oracle` - Oracle
-/// * `dataStore` DataStore
-/// * `eventEmitter` EventEmitter
-/// * `params` OracleUtils.SetPricesParams
+/// * `oracle` - `Oracle` contract dispatcher
+/// * `dataStore` - `DataStore` contract dispatcher
+/// * `eventEmitter` - `EventEmitter` contract dispatcher
+/// * `params` - parameters used to set oracle price
 #[inline(always)]
 fn with_oracle_prices_before(
     oracle: IOracleDispatcher,
     data_store: IDataStoreSafeDispatcher,
     event_emitter: IEventEmitterSafeDispatcher,
-//params: SetPricesParams todo
+    params: SetPricesParams
 ) { //TODO
 }
 
@@ -47,11 +48,11 @@ fn with_oracle_prices_after() { //TODO
 /// and any state changes based on simulated prices as well as the setting of simulated
 /// prices should not be persisted
 /// # Arguments
-/// * `oracle` - Oracle
-/// * `params` OracleUtils.SimulatedPricesParams
+/// * `oracle` - `Oracle` contract dispatcher
+/// * `params` - parameters used to set oracle price
 #[inline(always)]
 fn with_simulated_oracle_prices_before(
-    oracle: IOracleDispatcher, //params: SimulatePricesParams
+    oracle: IOracleDispatcher, params: SimulatePricesParams
 ) { //TODO
 }
 

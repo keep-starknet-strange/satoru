@@ -2,7 +2,7 @@
 use starknet::ContractAddress;
 
 // Gojo imports
-use gojo::utils::store_arrays::{StoreContractAddressArray};
+use gojo::utils::store_arrays::StoreContractAddressArray;
 
 /// Deposit
 #[derive(Drop, starknet::Store, Serde)]
