@@ -140,7 +140,7 @@ fn setup() -> (
     // Address of the `DataStore` contract.
     ContractAddress,
     // The `MarketToken` class hash for the factory.
-    ClassHash,
+    ContractClass,
     // Interface to interact with the `MarketFactory` contract.
     IMarketFactorySafeDispatcher,
     // Interface to interact with the `RoleStore` contract.
@@ -224,7 +224,7 @@ fn setup_contracts() -> (
     // Address of the `DataStore` contract.
     ContractAddress,
     // The `MarketToken` class hash for the factory.
-    ClassHash,
+    ContractClass,
     // Interface to interact with the `MarketFactory` contract.
     IMarketFactorySafeDispatcher,
     // Interface to interact with the `RoleStore` contract.
@@ -255,7 +255,7 @@ fn setup_contracts() -> (
 
     // Deploy the market factory.
     let market_factory_address = deploy_market_factory(
-        data_store_address, role_store_address, event_emitter_address, market_token_class_hash
+        data_store_address, role_store_address, event_emitter_address, market_token_class_hash.clone()
     );
     // Create a safe dispatcher to interact with the contract.
     let market_factory = IMarketFactorySafeDispatcher { contract_address: market_factory_address };
