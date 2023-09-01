@@ -4,7 +4,8 @@ use option::OptionTrait;
 use traits::TryInto;
 use starknet::{ContractAddress, contract_address_const};
 use starknet::Felt252TryIntoContractAddress;
-use cheatcodes::PreparedContract;
+use snforge_std::{ declare, start_prank };
+
 
 use gojo::role::role::ROLE_ADMIN;
 use gojo::role::role_store::IRoleStoreSafeDispatcher;
@@ -74,7 +75,7 @@ fn teardown() {}
 
 // Utility function to deploy a data store contract and return its address.
 fn deploy_role_store() -> ContractAddress {
-    let class_hash = declare('RoleStore');
-    let prepared = PreparedContract { class_hash: class_hash, constructor_calldata: @array![] };
-    deploy(prepared).unwrap()
+    let contract = declare('RoleStore');
+    let constructor_arguments : @Array::<felt252> = @ArrayTrait::new();
+    contract.deploy(constructor_arguments).unwrap()
 }

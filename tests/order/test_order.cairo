@@ -12,7 +12,6 @@ use starknet::{
     ClassHash,
 };
 use debug::PrintTrait;
-use cheatcodes::PreparedContract;
 
 // Local imports.
 use gojo::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
@@ -81,11 +80,13 @@ fn setup() -> ( // This caller address will be used with `start_prank` cheatcode
     // Create a fake caller address.
     let caller_address = contract_address_const::<'caller'>();
     // Deploy the `Chain` contract.
+
+    let contract = declare('Chain');
+    let constructor_arguments : @Array::<felt252> = @ArrayTrait::new();
+    let contract_address_chain = contract.deploy(constructor_arguments).unwrap();
+
     let chain = IChainDispatcher {
-        contract_address: deploy(
-            PreparedContract { class_hash: declare('Chain'), constructor_calldata: @array![], }
-        )
-            .unwrap()
+        contract_address: contract_address_chain
     };
     // Return the test environment.
     (caller_address, chain)

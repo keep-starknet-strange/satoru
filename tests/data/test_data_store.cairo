@@ -6,7 +6,7 @@ use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const
 };
 use debug::PrintTrait;
-use cheatcodes::PreparedContract;
+use snforge_std::{ declare, start_prank, stop_prank, ContractClassTrait };
 
 use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
@@ -219,13 +219,10 @@ fn given_normal_conditions_when_order_functions_then_expected_results() {
 ///
 /// * `ContractAddress` - The address of the deployed data store contract.
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let class_hash = declare('DataStore');
-    let mut constructor_calldata = array![];
+    let contract = declare('DataStore');
+    let mut constructor_calldata : @Array::<felt252> = ArrayTrait::new();
     constructor_calldata.append(role_store_address.into());
-    let prepared = PreparedContract {
-        class_hash: class_hash, constructor_calldata: @constructor_calldata
-    };
-    deploy(prepared).unwrap()
+    contract.deploy(@constructor_calldata).unwrap()
 }
 
 /// Utility function to deploy a role store contract and return its address.
@@ -234,9 +231,9 @@ fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
 ///
 /// * `ContractAddress` - The address of the deployed role store contract.
 fn deploy_role_store() -> ContractAddress {
-    let class_hash = declare('RoleStore');
-    let prepared = PreparedContract { class_hash: class_hash, constructor_calldata: @array![] };
-    deploy(prepared).unwrap()
+    let contract = declare('RoleStore');
+    let constructor_arguments : @Array::<felt252> = @ArrayTrait::new();
+    contract.deploy(constructor_arguments).unwrap()
 }
 
 /// Utility function to setup the test environment.

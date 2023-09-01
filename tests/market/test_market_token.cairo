@@ -5,7 +5,8 @@ use traits::{TryInto, Into};
 use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const
 };
-use cheatcodes::PreparedContract;
+use snforge_std::{ declare, start_prank, stop_prank };
+
 
 use gojo::market::market_token::{IMarketTokenSafeDispatcher, IMarketTokenSafeDispatcherTrait};
 use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
@@ -82,20 +83,17 @@ fn teardown(market_token_address: ContractAddress) {
 
 /// Utility function to deploy a market token and return its address.
 fn deploy_market_token(role_store_address: ContractAddress) -> ContractAddress {
-    let class_hash = declare('MarketToken');
-    let mut constructor_calldata = array![];
+    let contract = declare('MarketToken');
+    let constructor_calldata : @Array::<felt252> = ArrayTrait::new();
     constructor_calldata.append(role_store_address.into());
-    let prepared = PreparedContract {
-        class_hash: class_hash, constructor_calldata: @constructor_calldata
-    };
-    deploy(prepared).unwrap()
+    contract.deploy(@constructor_calldata).unwrap()
 }
 
 /// Utility function to deploy a data store contract and return its address.
 /// Copied from `tests/role/test_role_store.rs`.
 /// TODO: Find a way to share this code.
 fn deploy_role_store() -> ContractAddress {
-    let class_hash = declare('RoleStore');
-    let prepared = PreparedContract { class_hash: class_hash, constructor_calldata: @array![] };
-    deploy(prepared).unwrap()
+    let contract = declare('RoleStore');
+    let constructor_arguments : @Array::<felt252> = @ArrayTrait::new();
+    contract.deploy(constructor_arguments).unwrap()
 }

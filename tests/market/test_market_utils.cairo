@@ -11,8 +11,9 @@ use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
     ClassHash,
 };
-use cheatcodes::PreparedContract;
 use debug::PrintTrait;
+use snforge_std::{ declare, start_prank, stop_prank, start_warp };
+
 
 // Local imports.
 use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
@@ -1094,49 +1095,45 @@ fn deploy_market_factory(
     event_emitter_address: ContractAddress,
     market_token_class_hash: ClassHash,
 ) -> ContractAddress {
-    let class_hash = declare('MarketFactory');
-    let mut constructor_calldata = array![];
+    let contract = declare('MarketFactory');
+    let constructor_calldata : @Array::<felt252> = ArrayTrait::new();
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
     constructor_calldata.append(event_emitter_address.into());
     constructor_calldata.append(market_token_class_hash.into());
-    let prepared = PreparedContract {
-        class_hash: class_hash, constructor_calldata: @constructor_calldata
-    };
-    deploy(prepared).unwrap()
+    constructor_calldata.append(role_store_address.into());
+    contract.deploy(@constructor_calldata).unwrap()
 }
 
 
 /// Utility function to deploy a data store contract and return its address.
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
-    let class_hash = declare('DataStore');
-    let mut constructor_calldata = array![];
+    let contract = declare('DataStore');
+    let constructor_calldata : @Array::<felt252> = ArrayTrait::new();
     constructor_calldata.append(role_store_address.into());
-    let prepared = PreparedContract {
-        class_hash: class_hash, constructor_calldata: @constructor_calldata
-    };
-    deploy(prepared).unwrap()
+    contract.deploy(@constructor_calldata).unwrap()
+
 }
 
 /// Utility function to deploy a data store contract and return its address.
 /// Copied from `tests/role/test_role_store.rs`.
 /// TODO: Find a way to share this code.
 fn deploy_role_store() -> ContractAddress {
-    let class_hash = declare('RoleStore');
-    let prepared = PreparedContract { class_hash: class_hash, constructor_calldata: @array![] };
-    deploy(prepared).unwrap()
+    let contract = declare('RoleStore');
+    let constructor_arguments : @Array::<felt252> = @ArrayTrait::new();
+    contract.deploy(constructor_arguments).unwrap()
 }
 
 /// Utility function to deploy a `Chain` contract and return its address.
 fn deploy_chain() -> ContractAddress {
-    let class_hash = declare('Chain');
-    let prepared = PreparedContract { class_hash: class_hash, constructor_calldata: @array![] };
-    deploy(prepared).unwrap()
+    let contract = declare('Chain');
+    let constructor_arguments : @Array::<felt252> = @ArrayTrait::new();
+    contract.deploy(constructor_arguments).unwrap()
 }
 
 /// Utility function to deploy a `EventEmitter` contract and return its address.
 fn deploy_event_emitter() -> ContractAddress {
-    let class_hash = declare('EventEmitter');
-    let prepared = PreparedContract { class_hash: class_hash, constructor_calldata: @array![] };
-    deploy(prepared).unwrap()
+    let contract = declare('EventEmitter');
+    let constructor_arguments : @Array::<felt252> = @ArrayTrait::new();
+    contract.deploy(constructor_arguments).unwrap()
 }
