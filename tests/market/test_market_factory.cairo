@@ -318,7 +318,7 @@ fn deploy_role_store() -> ContractAddress {
 /// Utility function to deploy a `EventEmitter` contract and return its address.
 fn deploy_event_emitter() -> ContractAddress {
     let contract = declare('EventEmitter');
-    let constructor_arguments : @Array::<felt252> = @ArrayTrait::new();
+    let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
     contract.deploy(constructor_arguments).unwrap()
 }
 

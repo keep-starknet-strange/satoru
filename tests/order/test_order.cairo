@@ -84,7 +84,7 @@ fn setup() -> ( // This caller address will be used with `start_prank` cheatcode
     // Deploy the `Chain` contract.
 
     let contract = declare('Chain');
-    let constructor_arguments : @Array::<felt252> = @ArrayTrait::new();
+    let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
     let contract_address_chain = contract.deploy(constructor_arguments).unwrap();
 
     let chain = IChainDispatcher { contract_address: contract_address_chain };
