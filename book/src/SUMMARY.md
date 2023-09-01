@@ -20,5 +20,6 @@
   - [Role Module](smart-contracts-architecture/role-module.md)
   - [Swap Module](smart-contracts-architecture/swap-module.md)
   - [Utils Module](smart-contracts-architecture/utils-module.md)
+  - [Withdrawal Module](smart-contracts-architecture/withdrawal-module.md)
 - [Continuous Integration](continuous-integration/README.md)
   - [Github Workflows Documentation](continuous-integration/workflows.md)
