@@ -5,7 +5,7 @@ use traits::{TryInto, Into};
 use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const
 };
-use snforge_std::{ declare, start_prank, stop_prank };
+use snforge_std::{ declare, start_prank, stop_prank, ContractClassTrait };
 
 
 use gojo::market::market_token::{IMarketTokenSafeDispatcher, IMarketTokenSafeDispatcherTrait};
@@ -84,7 +84,7 @@ fn teardown(market_token_address: ContractAddress) {
 /// Utility function to deploy a market token and return its address.
 fn deploy_market_token(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('MarketToken');
-    let constructor_calldata : @Array::<felt252> = ArrayTrait::new();
+    let mut constructor_calldata = array![];
     constructor_calldata.append(role_store_address.into());
     contract.deploy(@constructor_calldata).unwrap()
 }

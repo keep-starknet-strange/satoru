@@ -13,7 +13,7 @@ use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
     ClassHash,
 };
-use snforge_std::{ declare, start_prank, stop_prank };
+use snforge_std::{ declare, start_prank, stop_prank, ContractClassTrait };
 
 
 // Local imports.
@@ -132,7 +132,7 @@ fn deploy_deposit_vault(
     role_store_address: ContractAddress, data_store_address: ContractAddress,
 ) -> ContractAddress {
     let contract = declare('DepositVault');
-    let mut constructor_calldata : @Array::<felt252> = ArrayTrait::new();
+    let mut constructor_calldata = array![];
     constructor_calldata.append(role_store_address.into());
     contract.deploy(@constructor_calldata).unwrap()
 }
@@ -141,7 +141,7 @@ fn deploy_deposit_vault(
 /// Utility function to deploy a data store contract and return its address.
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('DataStore');
-    let mut constructor_calldata : @Array::<felt252> = ArrayTrait::new();
+    let mut constructor_calldata = array![];
     constructor_calldata.append(role_store_address.into());
     contract.deploy(@constructor_calldata).unwrap()
 }

@@ -4,7 +4,7 @@ use option::OptionTrait;
 use traits::TryInto;
 use starknet::{ContractAddress, contract_address_const};
 use starknet::Felt252TryIntoContractAddress;
-use snforge_std::{ declare, start_prank };
+use snforge_std::{ declare, start_prank, ContractClassTrait };
 
 
 use gojo::role::role::ROLE_ADMIN;

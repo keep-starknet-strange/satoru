@@ -261,7 +261,7 @@ fn deploy_config(
     event_emitter_address: ContractAddress,
 ) -> ContractAddress {
     let contract = declare('Config');
-    let mut constructor_calldata : @Array::<felt252> = ArrayTrait::new();
+    let mut constructor_calldata = array![];
     constructor_calldata.append(role_store_address.into());
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(event_emitter_address.into());
@@ -272,7 +272,7 @@ fn deploy_config(
 /// Utility function to deploy a data store contract and return its address.
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('DataStore');
-    let mut constructor_calldata : @Array::<felt252> = ArrayTrait::new();
+    let mut constructor_calldata = array![];
     constructor_calldata.append(role_store_address.into());
     contract.deploy(@constructor_calldata).unwrap()
 }

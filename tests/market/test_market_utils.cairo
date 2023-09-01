@@ -12,7 +12,7 @@ use starknet::{
     ClassHash,
 };
 use debug::PrintTrait;
-use snforge_std::{ declare, start_prank, stop_prank, start_warp };
+use snforge_std::{ declare, start_prank, stop_prank, start_warp, ContractClassTrait, ContractClass };
 
 
 // Local imports.
@@ -1093,15 +1093,14 @@ fn deploy_market_factory(
     data_store_address: ContractAddress,
     role_store_address: ContractAddress,
     event_emitter_address: ContractAddress,
-    market_token_class_hash: ClassHash,
+    market_token_class_hash: ContractClass,
 ) -> ContractAddress {
     let contract = declare('MarketFactory');
-    let constructor_calldata : @Array::<felt252> = ArrayTrait::new();
+    let mut constructor_calldata = array![];
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
     constructor_calldata.append(event_emitter_address.into());
-    constructor_calldata.append(market_token_class_hash.into());
-    constructor_calldata.append(role_store_address.into());
+    constructor_calldata.append(market_token_class_hash.class_hash.into());
     contract.deploy(@constructor_calldata).unwrap()
 }
 
@@ -1109,7 +1108,7 @@ fn deploy_market_factory(
 /// Utility function to deploy a data store contract and return its address.
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('DataStore');
-    let constructor_calldata : @Array::<felt252> = ArrayTrait::new();
+    let mut constructor_calldata = array![];
     constructor_calldata.append(role_store_address.into());
     contract.deploy(@constructor_calldata).unwrap()
 
