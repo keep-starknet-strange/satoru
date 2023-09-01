@@ -13,7 +13,7 @@ use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
     ClassHash,
 };
-use snforge_std::{ declare, start_prank, stop_prank, ContractClassTrait };
+use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 
 
 // Local imports.
@@ -151,6 +151,6 @@ fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
 /// TODO: Find a way to share this code.
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
-    let constructor_arguments : @Array::<felt252> = @ArrayTrait::new();
+    let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
     contract.deploy(constructor_arguments).unwrap()
 }

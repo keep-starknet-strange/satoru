@@ -12,7 +12,7 @@ use starknet::{
     ClassHash,
 };
 use debug::PrintTrait;
-use snforge_std::{ declare, ContractClassTrait, start_roll };
+use snforge_std::{declare, ContractClassTrait, start_roll};
 
 
 // Local imports.
@@ -87,9 +87,7 @@ fn setup() -> ( // This caller address will be used with `start_prank` cheatcode
     let constructor_arguments : @Array::<felt252> = @ArrayTrait::new();
     let contract_address_chain = contract.deploy(constructor_arguments).unwrap();
 
-    let chain = IChainDispatcher {
-        contract_address: contract_address_chain
-    };
+    let chain = IChainDispatcher { contract_address: contract_address_chain };
     // Return the test environment.
     (caller_address, chain)
 }

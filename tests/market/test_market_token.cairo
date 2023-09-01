@@ -5,7 +5,7 @@ use traits::{TryInto, Into};
 use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const
 };
-use snforge_std::{ declare, start_prank, stop_prank, ContractClassTrait };
+use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 
 
 use gojo::market::market_token::{IMarketTokenSafeDispatcher, IMarketTokenSafeDispatcherTrait};
@@ -94,6 +94,6 @@ fn deploy_market_token(role_store_address: ContractAddress) -> ContractAddress {
 /// TODO: Find a way to share this code.
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
-    let constructor_arguments : @Array::<felt252> = @ArrayTrait::new();
+    let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
     contract.deploy(constructor_arguments).unwrap()
 }

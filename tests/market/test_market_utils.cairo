@@ -12,7 +12,7 @@ use starknet::{
     ClassHash,
 };
 use debug::PrintTrait;
-use snforge_std::{ declare, start_prank, stop_prank, start_warp, ContractClassTrait, ContractClass };
+use snforge_std::{declare, start_prank, stop_prank, start_warp, ContractClassTrait, ContractClass};
 
 
 // Local imports.
@@ -1069,7 +1069,10 @@ fn setup_contracts() -> (
 
     // Deploy the market factory.
     let market_factory_address = deploy_market_factory(
-        data_store_address, role_store_address, event_emitter_address, market_token_class_hash.clone()
+        data_store_address,
+        role_store_address,
+        event_emitter_address,
+        market_token_class_hash.clone()
     );
     // Create a safe dispatcher to interact with the contract.
     let market_factory = IMarketFactorySafeDispatcher { contract_address: market_factory_address };
@@ -1119,7 +1122,7 @@ fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
 /// TODO: Find a way to share this code.
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
-    let constructor_arguments : @Array::<felt252> = @ArrayTrait::new();
+    let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
     contract.deploy(constructor_arguments).unwrap()
 }
 
