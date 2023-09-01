@@ -1,6 +1,11 @@
+// Core Lib imports
 use starknet::ContractAddress;
 
+// Gojo imports
+use gojo::utils::store_arrays::StoreContractAddressArray;
+
 /// Deposit
+#[derive(Drop, starknet::Store, Serde)]
 struct Deposit {
     /// The account depositing liquidity.
     account: ContractAddress,

@@ -67,11 +67,6 @@ mod StrictBank {
     // *************************************************************************
     #[external(v0)]
     impl StrictBank of super::IStrictBank<ContractState> {
-        /// Transfer tokens from this contract to a receiver.
-        /// # Arguments
-        /// * `token` - The token address to transfer.
-        /// * `receiver` - The address of the receiver.
-        /// * `amount` - The amount of tokens to transfer.
         fn transfer_out(
             ref self: ContractState,
             token: ContractAddress,

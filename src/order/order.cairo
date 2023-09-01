@@ -7,7 +7,7 @@ use starknet::{ContractAddress, contract_address_const};
 use debug::PrintTrait;
 
 // Local imports.
-use gojo::utils::store_contract_address_array::StoreContractAddressArray;
+use gojo::utils::store_arrays::StoreContractAddressArray;
 use gojo::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
 
 /// Struct for orders.
@@ -64,24 +64,24 @@ impl OrderImpl of OrderTrait {
 
 #[derive(Drop, starknet::Store, Serde)]
 enum OrderType {
-    ///  MarketSwap: swap token A to token B at the current market price
-    /// the order will be cancelled if the minOutputAmount cannot be fulfilled
+    ///  MarketSwap: swap token A to token B at the current market price.
+    /// The order will be cancelled if the minOutputAmount cannot be fulfilled.
     MarketSwap: (),
-    ///  LimitSwap: swap token A to token B if the minOutputAmount can be fulfilled
+    ///  LimitSwap: swap token A to token B if the minOutputAmount can be fulfilled.
     LimitSwap: (),
-    ///  MarketIncrease: increase position at the current market price
-    /// the order will be cancelled if the position cannot be increased at the acceptablePrice
+    ///  MarketIncrease: increase position at the current market price.
+    /// The order will be cancelled if the position cannot be increased at the acceptablePrice.
     MarketIncrease: (),
-    /// LimitIncrease: increase position if the triggerPrice is reached and the acceptablePrice can be fulfilled
+    /// LimitIncrease: increase position if the triggerPrice is reached and the acceptablePrice can be fulfilled.
     LimitIncrease: (),
-    ///  MarketDecrease: decrease position at the current market price
-    /// the order will be cancelled if the position cannot be decreased at the acceptablePrice
+    ///  MarketDecrease: decrease position at the current market price.
+    /// The order will be cancelled if the position cannot be decreased at the acceptablePrice.
     MarketDecrease: (),
-    ///  LimitDecrease: decrease position if the triggerPrice is reached and the acceptablePrice can be fulfilled
+    ///  LimitDecrease: decrease position if the triggerPrice is reached and the acceptablePrice can be fulfilled.
     LimitDecrease: (),
-    ///  StopLossDecrease: decrease position if the triggerPrice is reached and the acceptablePrice can be fulfilled
+    ///  StopLossDecrease: decrease position if the triggerPrice is reached and the acceptablePrice can be fulfilled.
     StopLossDecrease: (),
-    ///  Liquidation: allows liquidation of positions if the criteria for liquidation are met
+    ///  Liquidation: allows liquidation of positions if the criteria for liquidation are met.
     Liquidation: (),
 }
 
@@ -100,7 +100,8 @@ impl SecondaryOrderTypePrintImpl of PrintTrait<SecondaryOrderType> {
     }
 }
 
-/// `DecreasePositionSwapType` is used to indicate whether the decrease order should swap the pnl token to collateral token or vice versa.
+/// `DecreasePositionSwapType` is used to indicate whether the decrease order should swap
+/// the pnl token to collateral token or vice versa.
 #[derive(Drop, starknet::Store, Serde)]
 enum DecreasePositionSwapType {
     NoSwap: (),

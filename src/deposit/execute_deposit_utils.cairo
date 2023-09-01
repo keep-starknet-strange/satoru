@@ -1,5 +1,5 @@
 //! Library for deposit functions, to help with the depositing of liquidity
-// into a market in return for market tokens.
+//! into a market in return for market tokens.
 
 // *************************************************************************
 //                                  IMPORTS

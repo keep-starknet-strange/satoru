@@ -14,6 +14,7 @@
 trait IChain<TContractState> {
     /// Returns the current block number.
     fn get_block_number(self: @TContractState) -> u64;
+
     /// Returns the current block timestamp.
     fn get_block_timestamp(self: @TContractState) -> u64;
 }
@@ -29,12 +30,10 @@ mod Chain {
     // *************************************************************************
     #[external(v0)]
     impl Chain of super::IChain<ContractState> {
-        /// Returns the current block number.
         fn get_block_number(self: @ContractState) -> u64 {
             starknet::info::get_block_number()
         }
 
-        /// Returns the current block timestamp.
         fn get_block_timestamp(self: @ContractState) -> u64 {
             starknet::info::get_block_timestamp()
         }

@@ -17,6 +17,7 @@ trait IConfig<TContractState> {
     /// * `data` - The additional data to be combined with the base key.
     /// * `value` - The value to set.
     fn set_bool(ref self: TContractState, base_key: felt252, data: Array<felt252>, value: bool);
+
     /// Set an address value.
     /// # Arguments
     /// * `base_key` - The base key of the value to set.
@@ -25,6 +26,7 @@ trait IConfig<TContractState> {
     fn set_address(
         ref self: TContractState, base_key: felt252, data: Array<felt252>, value: ContractAddress,
     );
+
     /// Set a felt252 value.
     /// # Arguments
     /// * `base_key` - The base key of the value to set.
@@ -98,11 +100,6 @@ mod Config {
     // *************************************************************************
     #[external(v0)]
     impl ConfigImpl of super::IConfig<ContractState> {
-        /// Set a bool value.
-        /// # Arguments
-        /// * `base_key` - The base key of the value to set.
-        /// * `data` - The additional data to be combined with the base key.
-        /// * `value` - The value to set.
         fn set_bool(
             ref self: ContractState, base_key: felt252, data: Array<felt252>, value: bool,
         ) {
@@ -116,11 +113,6 @@ mod Config {
             self.data_store.read().set_bool(full_key, value);
         }
 
-        /// Set an address value.
-        /// # Arguments
-        /// * `base_key` - The base key of the value to set.
-        /// * `data` - The additional data to be combined with the base key.
-        /// * `value` - The value to set.
         fn set_address(
             ref self: ContractState,
             base_key: felt252,
@@ -137,11 +129,6 @@ mod Config {
             self.data_store.read().set_address(full_key, value);
         }
 
-        /// Set a felt252 value.
-        /// # Arguments
-        /// * `base_key` - The base key of the value to set.
-        /// * `data` - The additional data to be combined with the base key.
-        /// * `value` - The value to set.
         fn set_felt252(
             ref self: ContractState, base_key: felt252, data: Array<felt252>, value: felt252,
         ) {
