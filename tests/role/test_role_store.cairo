@@ -17,17 +17,20 @@ fn test_grant_role() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let role_store = setup();
-
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
+
+    // Use the address that has been used to deploy role_store.
+    let caller_address: ContractAddress = 0x101.try_into().unwrap(); 
+    start_prank(role_store.contract_address, caller_address);
 
     let account_address: ContractAddress = contract_address_const::<1>();
 
     // Check that the account address does not have the admin role.
     assert(!role_store.has_role(account_address, ROLE_ADMIN).unwrap(), 'Invalid role');
     // Grant admin role to account address.
-    role_store.grant_role(account_address, ROLE_ADMIN).unwrap();
+    role_store.grant_role(account_address, ROLE_ADMIN);
     // Check that the account address has the admin role.
     assert(role_store.has_role(account_address, ROLE_ADMIN).unwrap(), 'Invalid role');
 
@@ -76,6 +79,5 @@ fn teardown() {}
 // Utility function to deploy a data store contract and return its address.
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
-    let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
-    contract.deploy(constructor_arguments).unwrap()
+    contract.deploy(@ArrayTrait::new()).unwrap()
 }
