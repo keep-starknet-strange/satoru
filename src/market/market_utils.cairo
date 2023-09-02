@@ -17,6 +17,14 @@ use gojo::market::error::MarketError;
 use gojo::market::market::Market;
 use gojo::price::price::{Price, PriceTrait};
 
+/// Struct to store the prices of tokens of a market
+#[derive(Drop, starknet::Store, Serde)]
+struct MarketPrices {
+    index_token_price: Price,
+    long_token_price: Price,
+    short_token_price: Price,
+}
+
 /// Get the long and short open interest for a market based on the collateral token used.
 /// # Arguments
 /// * `data_store` - The data store to use.

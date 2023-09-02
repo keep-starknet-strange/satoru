@@ -130,6 +130,25 @@ mod order {
     mod order;
 }
 
+// `position` contains positions management functions
+mod position {
+    mod decrease_position_collateral_utils;
+    mod decrease_position_swap_utils;
+    mod decrease_position_utils;
+    mod increase_position_utils;
+    mod position_event_utils;
+    mod position_store_utils;
+    mod position_utils;
+    mod position;
+}
+
+// `pricing` contains pricing utils
+mod pricing {
+    mod position_pricing_utils;
+    mod pricing_utils;
+    mod swap_pricing_utils;
+}
+
 mod swap {
     mod swap_utils;
     mod swap_handler;
