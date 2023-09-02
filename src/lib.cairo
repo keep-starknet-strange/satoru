@@ -71,6 +71,12 @@ mod nonce {
     mod nonce_utils;
 }
 
+// 'reader' is a module that retrieves the financial market data and trading utility.
+mod reader {
+    mod reader_pricing_utils;
+    mod reader_utils;
+    mod reader;
+}
 
 // `role` is a module that contains the role store and role management functions.
 mod role {
@@ -114,6 +120,7 @@ mod market {
     mod market_token;
     mod market_factory;
     mod market;
+    mod market_pool_value_info;
 }
 
 // `oracle` contains functions related to oracles used by Gojo.
