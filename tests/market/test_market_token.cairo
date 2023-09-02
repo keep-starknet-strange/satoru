@@ -48,7 +48,7 @@ fn setup() -> (
     IRoleStoreSafeDispatcher, // Interface to interact with the `MarketToken` contract.
     IMarketTokenSafeDispatcher,
 ) {
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let caller_address: ContractAddress = 0x101.try_into().unwrap();
 
     // Deploy the role store contract.
     let role_store_address = deploy_role_store();
@@ -60,6 +60,9 @@ fn setup() -> (
     let market_token_address = deploy_market_token(role_store_address);
     // Create a safe dispatcher to interact with the contract.
     let market_token = IMarketTokenSafeDispatcher { contract_address: market_token_address };
+
+    start_prank(role_store.contract_address, caller_address);
+
     // Grant the caller the CONTROLLER role.
     // We use the same account to deploy data_store and role_store, so we can grant the role
     // because the caller is the owner of role_store contract.

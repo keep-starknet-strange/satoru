@@ -76,6 +76,8 @@ fn grant_roles_and_prank(
     role_store: IRoleStoreSafeDispatcher,
     data_store: IDataStoreSafeDispatcher,
 ) {
+    start_prank(role_store.contract_address, caller_address);
+
     // Grant the caller the `CONTROLLER` role.
     role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
 
@@ -105,7 +107,7 @@ fn setup_contracts() -> (
     // Interface to interact with the `DataStore` contract.
     IDataStoreSafeDispatcher,
 ) {
-    let caller_address = contract_address_const::<'caller'>();
+    let caller_address = 0x101.try_into().unwrap();
     // Deploy the role store contract.
     let role_store_address = deploy_role_store();
 
@@ -151,6 +153,5 @@ fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
 /// TODO: Find a way to share this code.
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
-    let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
-    contract.deploy(constructor_arguments).unwrap()
+    contract.deploy(@ArrayTrait::new()).unwrap()
 }

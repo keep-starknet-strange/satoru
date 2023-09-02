@@ -51,6 +51,10 @@ fn test_revoke_role() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
+    // Use the address that has been used to deploy role_store.
+    let caller_address: ContractAddress = 0x101.try_into().unwrap(); 
+    start_prank(role_store.contract_address, caller_address);
+
     let account_address: ContractAddress = contract_address_const::<1>();
 
     // Grant admin role to account address.

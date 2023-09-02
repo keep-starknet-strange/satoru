@@ -191,6 +191,8 @@ fn grant_roles_and_prank(
     data_store: IDataStoreSafeDispatcher,
     market_factory: IMarketFactorySafeDispatcher,
 ) {
+    start_prank(role_store.contract_address, caller_address);
+
     // Grant the caller the `CONTROLLER` role.
     role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
 
@@ -264,7 +266,7 @@ fn setup_contracts() -> (
     let market_factory = IMarketFactorySafeDispatcher { contract_address: market_factory_address };
 
     (
-        contract_address_const::<'caller'>(),
+        0x101.try_into().unwrap(),
         market_factory_address,
         role_store_address,
         data_store_address,

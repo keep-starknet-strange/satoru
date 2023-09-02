@@ -244,11 +244,12 @@ fn deploy_role_store() -> ContractAddress {
 /// * `IRoleStoreSafeDispatcher` - The role store dispatcher.
 /// * `IDataStoreSafeDispatcher` - The data store dispatcher.
 fn setup() -> (ContractAddress, IRoleStoreSafeDispatcher, IDataStoreSafeDispatcher) {
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let caller_address: ContractAddress = 0x101.try_into().unwrap();
     let role_store_address = deploy_role_store();
     let role_store = IRoleStoreSafeDispatcher { contract_address: role_store_address };
     let data_store_address = deploy_data_store(role_store_address);
     let data_store = IDataStoreSafeDispatcher { contract_address: data_store_address };
+    start_prank(role_store_address, caller_address);
     role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
     start_prank(data_store_address, caller_address);
     (caller_address, role_store, data_store)
