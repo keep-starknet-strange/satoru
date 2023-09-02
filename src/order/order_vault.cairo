@@ -9,20 +9,10 @@ use core::traits::Into;
 use starknet::ContractAddress;
 
 // *************************************************************************
-//                  Interface of the `StrictBank` contract.
+//                  Interface of the `OrderVault` contract.
 // *************************************************************************
 #[starknet::interface]
-trait IStrictBank<TContractState> {
-    /// Initialize the contract.
-    /// # Arguments
-    /// * `data_store_address` - The address of the data store contract.
-    /// * `role_store_address` - The address of the role store contract.
-    fn initialize(
-        ref self: TContractState,
-        data_store_address: ContractAddress,
-        role_store_address: ContractAddress,
-    );
-
+trait IOrderVault<TContractState> {
     /// Transfer tokens from this contract to a receiver.
     /// # Arguments
     /// * `token` - The token address to transfer.
@@ -34,7 +24,7 @@ trait IStrictBank<TContractState> {
 }
 
 #[starknet::contract]
-mod StrictBank {
+mod OrderVault {
     // *************************************************************************
     //                               IMPORTS
     // *************************************************************************
@@ -46,8 +36,7 @@ mod StrictBank {
     use debug::PrintTrait;
 
     // Local imports.
-    use gojo::bank::bank::{Bank, IBank};
-    use super::IStrictBank;
+    use gojo::bank::strict_bank::{StrictBank, IStrictBank};
 
     // *************************************************************************
     //                              STORAGE
@@ -68,32 +57,7 @@ mod StrictBank {
         data_store_address: ContractAddress,
         role_store_address: ContractAddress,
     ) {
-        self.initialize(data_store_address, role_store_address);
-    }
-
-
-    // *************************************************************************
-    //                          EXTERNAL FUNCTIONS
-    // *************************************************************************
-    #[external(v0)]
-    impl StrictBank of super::IStrictBank<ContractState> {
-        fn initialize(
-            ref self: ContractState,
-            data_store_address: ContractAddress,
-            role_store_address: ContractAddress,
-        ) {
-            let mut state: Bank::ContractState = Bank::unsafe_new_contract_state();
-            IBank::initialize(ref state, data_store_address, role_store_address);
-        }
-
-        fn transfer_out(
-            ref self: ContractState,
-            token: ContractAddress,
-            receiver: ContractAddress,
-            amount: u128,
-        ) {
-            let mut state: Bank::ContractState = Bank::unsafe_new_contract_state();
-            IBank::transfer_out(ref state, token, receiver, amount);
-        }
+        let mut state: StrictBank::ContractState = StrictBank::unsafe_new_contract_state();
+        IStrictBank::initialize(ref state, data_store_address, role_store_address);
     }
 }

@@ -49,6 +49,18 @@ mod deposit {
     mod execute_deposit_utils;
 }
 
+// `exchange` contains main gojo handlers to create and execute actions.
+mod exchange {
+    mod adl_handler;
+    mod base_order_handler;
+    mod deposit_handler;
+    mod error;
+    mod exchange_utils;
+    mod liquidation_handler;
+    mod order_handler;
+    mod withdrawal_handler;
+}
+
 // `feature` is used to validate if a feature is enabled or disabled.
 mod feature {
     mod feature_utils;
@@ -134,6 +146,8 @@ mod oracle {
 
 // `order` contains order management functions.
 mod order {
+    mod base_order_utils;
+    mod order_vault;
     mod order;
 }
 

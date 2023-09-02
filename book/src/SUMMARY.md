@@ -11,6 +11,7 @@
   - [Adl Module](smart-contracts-architecture/adl-module.md)
   - [Callback Module](smart-contracts-architecture/callback-module.md)
   - [Data Module](smart-contracts-architecture/data-module.md)
+  - [Exchange Module](smart-contracts-architecture/exchange-module.md)
   - [Feature Module](smart-contracts-architecture/feature-module.md)
   - [Fee Module](smart-contracts-architecture/fee-module.md)
   - [Gas Module](smart-contracts-architecture/gas-module.md)
