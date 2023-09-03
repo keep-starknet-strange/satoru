@@ -59,9 +59,7 @@ Once your smart wallet is set up, you can now run deployment files to deploy con
 
 ```bash
 cd scripts
-```
 
-```bash
 ./deploy_chain_contract.sh
 ```
 
