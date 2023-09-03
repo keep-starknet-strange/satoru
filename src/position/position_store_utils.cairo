@@ -53,7 +53,7 @@ struct PositionIncreaseParams {
 /// # Returns
 /// Position linked to key.
 fn get(data_store: IDataStoreSafeDispatcher, key: felt252) -> Position {
-    //TODO
+    // TODO
     let address_zero: ContractAddress = 0.try_into().unwrap();
     Position {
         account: address_zero,
@@ -78,7 +78,7 @@ fn get(data_store: IDataStoreSafeDispatcher, key: felt252) -> Position {
 /// * `key` - The key of the position to store.
 /// * `position` - The position to store.
 #[inline(always)]
-fn set(data_store: IDataStoreSafeDispatcher, key: felt252, position: Position) { //TODO
+fn set(data_store: IDataStoreSafeDispatcher, key: felt252, position: Position) { // TODO
 }
 
 /// Remove a position at key.
@@ -86,12 +86,12 @@ fn set(data_store: IDataStoreSafeDispatcher, key: felt252, position: Position) {
 /// * `data_store` - The `DataStore` contract dispatcher.
 /// * `key` - The key of the position to remove.
 /// * `account` - The account of user.
-fn remove(data_store: IDataStoreSafeDispatcher, key: felt252, account: ContractAddress) { //TODO
+fn remove(data_store: IDataStoreSafeDispatcher, key: felt252, account: ContractAddress) { // TODO
 }
 
 /// Get positions length.
 fn get_position_count(data_store: IDataStoreSafeDispatcher) -> u128 {
-    //TODO
+    // TODO
     0
 }
 
@@ -103,7 +103,7 @@ fn get_position_count(data_store: IDataStoreSafeDispatcher) -> u128 {
 fn get_position_keys(
     data_store: IDataStoreSafeDispatcher, start: u128, end: u128
 ) -> Array<felt252> {
-    //TODO
+    // TODO
     ArrayTrait::new()
 }
 
@@ -114,7 +114,7 @@ fn get_position_keys(
 fn get_account_position_count(
     data_store: IDataStoreSafeDispatcher, account: ContractAddress
 ) -> u128 {
-    //TODO
+    // TODO
     0
 }
 
@@ -127,6 +127,6 @@ fn get_account_position_count(
 fn get_account_position_keys(
     data_store: IDataStoreSafeDispatcher, account: ContractAddress, start: u128, end: u128
 ) -> Array<felt252> {
-    //TODO
+    // TODO
     ArrayTrait::new()
 }

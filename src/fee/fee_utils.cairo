@@ -23,7 +23,7 @@ fn increment_claimable_fee_amount(
     token: ContractAddress,
     delta: u128,
     fee_type: felt252,
-) { //TODO
+) { // TODO
 }
 
 /// Increment the claimable ui fee amount for the specified market.
@@ -42,7 +42,7 @@ fn increment_claimable_ui_fee_amount(
     token: ContractAddress,
     delta: u128,
     fee_type: felt252,
-) { //TODO
+) { // TODO
 }
 
 /// Claim fees for the specified market.
@@ -58,7 +58,7 @@ fn claim_fees(
     market: ContractAddress,
     token: ContractAddress,
     receiver: ContractAddress,
-) { //TODO
+) { // TODO
 }
 
 /// Claim ui fees for the specified market.
@@ -77,7 +77,7 @@ fn claim_ui_fees(
     token: ContractAddress,
     receiver: ContractAddress,
 ) -> u128 {
-    //TODO
+    // TODO
     0
 }
 
@@ -96,7 +96,7 @@ fn emit_claimable_fee_amount_updated(
     delta: u128,
     next_value: u128,
     fee_type: felt252
-) { //TODO
+) { // TODO
 }
 
 /// Emits event about ui fee amount update
@@ -117,7 +117,7 @@ fn emit_claimable_ui_fee_amount_updated(
     next_value: u128,
     next_pool_value: u128,
     fee_type: felt252
-) { //TODO
+) { // TODO
 }
 
 /// Emits event about claimed fees
@@ -131,7 +131,7 @@ fn emit_fees_claimed(
     market: ContractAddress,
     receiver: ContractAddress,
     fee_amount: u128
-) { //TODO
+) { // TODO
 }
 
 /// Emits event about claimed fees
@@ -149,5 +149,5 @@ fn emit_ui_fees_claimed(
     receiver: ContractAddress,
     fee_amount: u128,
     next_pool_value: u128,
-) { //TODO
+) { // TODO
 }

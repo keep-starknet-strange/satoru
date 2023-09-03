@@ -21,10 +21,10 @@ use gojo::utils::store_arrays::{StoreContractAddressArray, StoreU128Array};
 #[inline(always)]
 fn emit_withdrawal_created(
     event_emitter: IEventEmitterSafeDispatcher, key: felt252, withdrawal: Withdrawal,
-) { //TODO
+) { // TODO
 }
 
-fn emit_withdrawal_executed(event_emitter: IEventEmitterSafeDispatcher, key: felt252,) { //TODO
+fn emit_withdrawal_executed(event_emitter: IEventEmitterSafeDispatcher, key: felt252,) { // TODO
 }
 
 fn emit_withdrawal_cancelled(
@@ -32,5 +32,5 @@ fn emit_withdrawal_cancelled(
     key: felt252,
     reason: felt252,
     reason_bytes: Array<felt252>,
-) { //TODO
+) { // TODO
 }

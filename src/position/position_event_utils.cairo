@@ -47,7 +47,7 @@ struct PositionIncreaseParams {
 /// # Arguments
 /// * `params` - The position increase parameters.
 #[inline(always)]
-fn emit_position_increase(params: PositionIncreaseParams) { //TODO
+fn emit_position_increase(params: PositionIncreaseParams) { // TODO
 }
 
 /// Emit events linked to a position decrease.
@@ -74,7 +74,7 @@ fn emit_position_decrease(
     values: DecreasePositionCollateralValues,
     index_token_price: Price,
     collateral_token_price: Price
-) { //TODO
+) { // TODO
 }
 
 /// Emit events linked to an insolvent position close.
@@ -90,7 +90,7 @@ fn emit_insolvent_close_info(
     position_collateral_amount: u128,
     base_pnl_usd: i128,
     remaining_cost_usd: u128
-) { //TODO
+) { // TODO
 }
 
 /// Emit events linked to an insolvent funding fee payment.
@@ -108,7 +108,7 @@ fn emit_insufficient_funding_fee_payment(
     expected_amount: u128,
     amount_paid_in_collateral_token: u128,
     amount_paid_in_secondary_output_token: u128
-) { //TODO
+) { // TODO
 }
 
 /// Emit events linked to collect of position fees.
@@ -130,7 +130,7 @@ fn emit_position_fees_collected(
     trade_size_usd: u128,
     is_increase: bool,
     fees: PositionFees
-) { //TODO
+) { // TODO
 }
 
 /// Emit events linked to position fees info.
@@ -152,7 +152,7 @@ fn emit_position_fees_info(
     trade_size_usd: u128,
     is_increase: bool,
     fees: PositionFees
-) { //TODO
+) { // TODO
 }
 
 /// Emit events linked to position fees. 
@@ -176,5 +176,5 @@ fn emit_position_fees(
     is_increase: bool,
     fees: PositionFees,
     event_name: felt252
-) { //TODO
+) { // TODO
 }

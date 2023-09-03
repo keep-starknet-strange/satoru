@@ -7,7 +7,7 @@ use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherT
 /// # Returns
 /// Return the current nonce value.
 fn get_current_nonce(data_store: IDataStoreSafeDispatcher) -> u128 {
-    //TODO
+    // TODO
     0
 }
 
@@ -17,7 +17,7 @@ fn get_current_nonce(data_store: IDataStoreSafeDispatcher) -> u128 {
 /// # Returns
 /// Return the new nonce value.
 fn increment_nonce(data_store: IDataStoreSafeDispatcher) -> u128 {
-    //TODO
+    // TODO
     0
 }
 
@@ -28,6 +28,6 @@ fn increment_nonce(data_store: IDataStoreSafeDispatcher) -> u128 {
 /// # Returns
 /// Return felt252 hash using the next nonce value
 fn get_next_key(data_store: IDataStoreSafeDispatcher) -> felt252 {
-    //TODO
+    // TODO
     0
 }

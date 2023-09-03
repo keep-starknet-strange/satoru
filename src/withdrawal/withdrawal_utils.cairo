@@ -111,7 +111,7 @@ fn create_withdrawal(
     account: ContractAddress,
     params: CreateWithdrawalParams
 ) -> felt252 {
-    //TODO
+    // TODO
     0
 }
 
@@ -120,7 +120,7 @@ fn create_withdrawal(
 /// # Arguments
 /// * `params` - The parameters for executing the withdrawal.
 #[inline(always)]
-fn execute_withdrawal(params: ExecuteWithdrawalParams) { //TODO
+fn execute_withdrawal(params: ExecuteWithdrawalParams) { // TODO
 }
 
 /// Cancel a withdrawal.
@@ -142,7 +142,7 @@ fn cancel_withdrawal(
     starting_gas: u128,
     reason: felt252,
     reason_bytes: Array<felt252>,
-) { //TODO
+) { // TODO
 }
 
 /// Executes a withdrawal.
@@ -155,7 +155,7 @@ fn cancel_withdrawal(
 fn execute_withdrawal_(
     params: ExecuteWithdrawalParams, withdrawal: Withdrawal
 ) -> ExecuteWithdrawalResult {
-    //TODO
+    // TODO
     let address_zero: ContractAddress = 0.try_into().unwrap();
     ExecuteWithdrawalResult {
         output_token: address_zero,
@@ -188,7 +188,7 @@ fn swap(
     receiver: ContractAddress,
     ui_fee_receiver: ContractAddress,
     should_unwrap_native_token: bool,
-) -> (ContractAddress, u128) { //TODO
+) -> (ContractAddress, u128) { // TODO
     (0.try_into().unwrap(), 0)
 }
 
@@ -196,6 +196,6 @@ fn swap(
 fn get_output_amounts(
     params: ExecuteWithdrawalParams, market: Market, prices: MarketPrices, market_token_amount: u128
 ) -> (u128, u128) {
-    //TODO
+    // TODO
     (0, 0)
 }

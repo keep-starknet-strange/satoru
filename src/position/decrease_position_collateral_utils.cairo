@@ -62,7 +62,7 @@ struct GetExecutionPriceCache {
 fn process_collateral(
     params: UpdatePositionParams, cache: DecreasePositionCache
 ) -> (DecreasePositionCollateralValues, PositionFees) {
-    //TODO
+    // TODO
     let address_zero: ContractAddress = 0.try_into().unwrap();
     let decrease_position_collateral_values_output = DecreasePositionCollateralValuesOutput {
         output_token: address_zero,
@@ -195,7 +195,7 @@ fn handle_early_return(
     fees: PositionFees,
     collateral_cache: ProcessCollateralCache,
 ) -> (DecreasePositionCollateralValues, PositionFees) {
-    //TODO
+    // TODO
     let address_zero: ContractAddress = 0.try_into().unwrap();
     let decrease_position_collateral_values_output = DecreasePositionCollateralValuesOutput {
         output_token: address_zero,

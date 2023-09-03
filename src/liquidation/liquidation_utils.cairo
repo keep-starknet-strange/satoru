@@ -24,6 +24,6 @@ fn create_liquidation_order(
     collateral_token: ContractAddress,
     is_long: bool
 ) -> felt252 {
-    //TODO
+    // TODO
     0
 }

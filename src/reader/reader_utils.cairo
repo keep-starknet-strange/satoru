@@ -64,7 +64,7 @@ struct BaseFundingValues {
 fn get_next_borrowing_fees(
     data_store: IDataStoreSafeDispatcher, position: Position, market: Market, prices: MarketPrices
 ) -> u128 {
-    //TODO
+    // TODO
     0
 }
 
@@ -78,7 +78,7 @@ fn get_next_borrowing_fees(
 fn get_borrowing_fees(
     data_store: IDataStoreSafeDispatcher, collateral_token_price: Price, borrwing_fee_usd: u128
 ) -> PositionBorrowingFees {
-    //TODO
+    // TODO
     PositionBorrowingFees {
         borrowing_fee_usd: 0,
         borrowing_fee_amount: 0,
@@ -97,7 +97,7 @@ fn get_borrowing_fees(
 fn get_base_funding_values(
     data_store: IDataStoreSafeDispatcher, market: Market
 ) -> BaseFundingValues {
-    //TODO
+    // TODO
     let collateral_type = CollateralType { long_token: 0, short_token: 0, };
 
     let funding_fee_amount_per_size_collateral_type_long = CollateralType {
@@ -135,7 +135,7 @@ fn get_base_funding_values(
 fn get_next_funding_amount_per_size(
     data_store: IDataStoreSafeDispatcher, market: Market, prices: MarketPrices
 ) -> GetNextFundingAmountPerSizeResult {
-    //TODO
+    // TODO
     let funding_fee_amount_per_size_collateral_type_long = CollateralType {
         long_token: 0, short_token: 0,
     };

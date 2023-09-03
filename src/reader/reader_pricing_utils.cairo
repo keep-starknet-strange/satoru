@@ -59,7 +59,7 @@ fn get_swap_amount_out(
     amount_in: u128,
     ui_fee_receiver: ContractAddress
 ) -> (u128, i128, SwapFees) {
-    //TODO
+    // TODO
     (
         0,
         0,
@@ -94,7 +94,7 @@ fn get_execution_price(
     size_delta_usd: i128,
     is_long: bool
 ) -> ExecutionPriceResult {
-    //TODO
+    // TODO
     ExecutionPriceResult { price_impact_usd: 0, price_impact_diff_usd: 0, execution_price: 0, }
 }
 
@@ -118,6 +118,6 @@ fn get_swap_price_impact(
     amount_in: u128,
     token_in_price: Price,
     token_out_price: Price
-) -> (i128, i128) { //TODO
+) -> (i128, i128) { // TODO
     (0, 0)
 }

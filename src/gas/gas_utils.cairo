@@ -18,14 +18,14 @@ use gojo::withdrawal::withdrawal::Withdrawal;
 /// # Returns
 /// The MIN_HANDLE_EXECUTION_ERROR_GAS.
 fn get_min_handle_execution_error_gas(data_store: IDataStoreSafeDispatcher) -> u128 {
-    //TODO
+    // TODO
     0
 }
 
 /// Check that starting gas is higher than min handle execution gas and return starting.
 /// gas minus min_handle_error_gas.
 fn get_execution_gas(data_store: IDataStoreSafeDispatcher, starting_gas: u128) -> u128 {
-    //TODO
+    // TODO
     0
 }
 
@@ -48,7 +48,7 @@ fn pay_execution_fee(
     starting_gas: u128,
     keeper: ContractAddress,
     refund_receiver: ContractAddress
-) { //TODO
+) { // TODO
 }
 
 /// Validate that the provided executionFee is sufficient based on the estimated_gas_limit.
@@ -60,7 +60,7 @@ fn pay_execution_fee(
 /// * The key for the account order list.
 fn validate_execution_fee(
     data_store: IDataStoreSafeDispatcher, estimated_gas_limit: u128, execution_fee: u128
-) { //TODO
+) { // TODO
 }
 
 /// Adjust the gas usage to pay a small amount to keepers.
@@ -68,7 +68,7 @@ fn validate_execution_fee(
 /// * `data_store` - The data storage contract dispatcher.
 /// * `gas_used` - The amount of gas used.
 fn adjust_gas_usage(data_store: IDataStoreSafeDispatcher, gas_used: u128) -> u128 {
-    //TODO
+    // TODO
     0
 }
 
@@ -81,7 +81,7 @@ fn adjust_gas_usage(data_store: IDataStoreSafeDispatcher, gas_used: u128) -> u12
 fn adjust_gas_limit_for_estimate(
     data_store: IDataStoreSafeDispatcher, estimated_gas_limit: u128
 ) -> u128 {
-    //TODO
+    // TODO
     0
 }
 
@@ -92,7 +92,7 @@ fn adjust_gas_limit_for_estimate(
 fn estimate_execute_deposit_gas_limit(
     data_store: IDataStoreSafeDispatcher, deposit: Deposit
 ) -> u128 {
-    //TODO
+    // TODO
     0
 }
 
@@ -112,7 +112,7 @@ fn estimate_execute_withdrawal_gas_limit(
 /// * `data_store` - The data storage contract dispatcher.
 /// * `order` - The order to estimate the gas limit for.
 fn estimate_execute_order_gas_limit(data_store: IDataStoreSafeDispatcher, order: Order) -> u128 {
-    //TODO
+    // TODO
     0
 }
 
@@ -123,7 +123,7 @@ fn estimate_execute_order_gas_limit(data_store: IDataStoreSafeDispatcher, order:
 fn estimate_execute_increase_order_gas_limit(
     data_store: IDataStoreSafeDispatcher, order: Order
 ) -> u128 {
-    //TODO
+    // TODO
     0
 }
 
@@ -134,7 +134,7 @@ fn estimate_execute_increase_order_gas_limit(
 fn estimate_execute_decrease_order_gas_limit(
     data_store: IDataStoreSafeDispatcher, order: Order
 ) -> u128 {
-    //TODO
+    // TODO
     0
 }
 
@@ -145,7 +145,7 @@ fn estimate_execute_decrease_order_gas_limit(
 fn estimate_execute_swap_order_gas_limit(
     data_store: IDataStoreSafeDispatcher, order: Order
 ) -> u128 {
-    //TODO
+    // TODO
     0
 }
 
@@ -156,7 +156,7 @@ fn estimate_execute_swap_order_gas_limit(
 /// * `refund_fee_amount` - The amount of execution fee for the keeper.
 fn emit_keeper_execution_fee(
     event_emitter: IEventEmitterSafeDispatcher, keeper: ContractAddress, execution_fee_amount: u128
-) { //TODO
+) { // TODO
 }
 
 /// Emit events related to execution fee refund.
@@ -166,5 +166,5 @@ fn emit_keeper_execution_fee(
 /// * `refund_fee_amount` - The amount of fee refunded.
 fn emit_execution_fee_refund(
     event_emitter: IEventEmitterSafeDispatcher, receiver: ContractAddress, refund_fee_amount: u128
-) { //TODO
+) { // TODO
 }

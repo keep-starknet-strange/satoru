@@ -12,7 +12,7 @@ use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherT
 use gojo::withdrawal::withdrawal::{Withdrawal};
 
 fn get(data_store: IDataStoreSafeDispatcher, key: felt252) -> Withdrawal {
-    //TODO
+    // TODO
     let contrac_zero: ContractAddress = 0.try_into().unwrap();
     Withdrawal {
         account: contrac_zero,
@@ -33,34 +33,34 @@ fn get(data_store: IDataStoreSafeDispatcher, key: felt252) -> Withdrawal {
 }
 
 #[inline(always)]
-fn set(data_store: IDataStoreSafeDispatcher, key: felt252, withdrawal: Withdrawal) { //TODO
+fn set(data_store: IDataStoreSafeDispatcher, key: felt252, withdrawal: Withdrawal) { // TODO
 }
 
-fn remove(data_store: IDataStoreSafeDispatcher, key: felt252, account: ContractAddress) { //TODO
+fn remove(data_store: IDataStoreSafeDispatcher, key: felt252, account: ContractAddress) { // TODO
 }
 
 fn get_withdrawal_count(data_store: IDataStoreSafeDispatcher) -> u128 {
-    //TODO
+    // TODO
     0
 }
 
 fn get_withdrawal_keys(
     data_store: IDataStoreSafeDispatcher, start: u128, end: u128
 ) -> Array<felt252> {
-    //TODO
+    // TODO
     ArrayTrait::new()
 }
 
 fn get_account_withdrawal_count(
     data_store: IDataStoreSafeDispatcher, account: ContractAddress
 ) -> u128 {
-    //TODO
+    // TODO
     0
 }
 
 fn get_account_withdrawal_keys(
     data_store: IDataStoreSafeDispatcher, account: ContractAddress, start: u128, end: u128
 ) -> Array<felt252> {
-    //TODO
+    // TODO
     ArrayTrait::new()
 }

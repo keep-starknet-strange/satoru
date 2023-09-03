@@ -17,7 +17,7 @@ use gojo::position::position_utils::{
 fn swap_withdrawn_collateral_to_pnl_token(
     params: UpdatePositionParams, values: DecreasePositionCollateralValues
 ) -> DecreasePositionCollateralValues {
-    //TODO
+    // TODO
     let address_zero: ContractAddress = 0.try_into().unwrap();
     let decrease_position_collateral_values_output = DecreasePositionCollateralValuesOutput {
         output_token: address_zero,
@@ -47,6 +47,6 @@ fn swap_withdrawn_collateral_to_pnl_token(
 fn swap_profit_to_collateral_token(
     params: UpdatePositionParams, pnl_token: ContractAddress, profit_amount: u128
 ) -> (bool, u128) {
-    //TODO
+    // TODO
     (false, 0)
 }

@@ -90,6 +90,13 @@ mod reader {
     mod reader;
 }
 
+// 'router' is a module where users utilize the router to initiate token transactions, exchanges, and transfers.
+mod router {
+    mod router;
+    mod exchange_router;
+    mod error;
+}
+
 // `role` is a module that contains the role store and role management functions.
 mod role {
     // Custom errors.
