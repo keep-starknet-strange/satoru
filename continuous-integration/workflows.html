@@ -243,7 +243,7 @@ jobs:
 </ol>
 <p><strong>Environment Variables:</strong></p>
 <ul>
-<li><strong>SCARB_VERSION:</strong> Specifies the version of Scarb to be used, currently set to <code>0.6.1+nightly-2023-08-16</code>.</li>
+<li><strong>SCARB_VERSION:</strong> Specifies the version of Scarb to be used, currently set to <code>0.7.0</code>.</li>
 </ul>
 <blockquote>
 <p><strong>Note:</strong> Currently, we are utilizing the nightly versions of Scarb to leverage the latest features of Cairo. The installation process is slightly different than using non-nightly versions. Once Cairo and Scarb stabilize, we will migrate to stable versions and employ the <code>software-mansion/setup-scarb</code> action for easier setup.</p>
@@ -274,19 +274,16 @@ on:
     branches:
       - main
 env:
-  SCARB_VERSION: 0.6.1+nightly-2023-08-16
+  SCARB_VERSION: 0.7.0
 
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Scarb
-        run: |
-          NIGHTLY_DATE=$(echo ${SCARB_VERSION} | cut -d '+' -f 2)
-          wget https://github.com/software-mansion/scarb-nightlies/releases/download/${NIGHTLY_DATE}/scarb-${NIGHTLY_DATE}-x86_64-unknown-linux-gnu.tar.gz
-          tar -xvf scarb-${NIGHTLY_DATE}-x86_64-unknown-linux-gnu.tar.gz
-          sudo mv scarb-v${SCARB_VERSION}-x86_64-unknown-linux-gnu/bin/scarb /usr/local/bin
+      - uses: software-mansion/setup-scarb@v1
+        with:
+          scarb-version: &quot;0.7.0&quot;
       - name: Check cairo format
         run: scarb fmt --check
       - name: Build cairo programs
@@ -356,8 +353,8 @@ jobs:
 </ol>
 <p><strong>Environment Variables:</strong></p>
 <ul>
-<li><strong>SCARB_VERSION:</strong> Specifies the Scarb version, currently set to <code>0.6.1+nightly-2023-08-16</code>.</li>
-<li><strong>STARKNET_FOUNDRY_VERSION:</strong> Defines the version of Starknet Foundry, currently set to <code>0.3.0</code>.</li>
+<li><strong>SCARB_VERSION:</strong> Specifies the Scarb version, currently set to <code>0.7.0</code>.</li>
+<li><strong>STARKNET_FOUNDRY_VERSION:</strong> Defines the version of Starknet Foundry, currently set to <code>0.5.0</code>.</li>
 </ul>
 <p><strong>Jobs:</strong></p>
 <ol>
@@ -385,20 +382,17 @@ on:
     branches:
       - main
 env:
-  SCARB_VERSION: 0.6.1+nightly-2023-08-16
-  STARKNET_FOUNDRY_VERSION: 0.3.0
+  SCARB_VERSION: 0.7.0
+  STARKNET_FOUNDRY_VERSION: 0.5.0
 
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Scarb
-        run: |
-          NIGHTLY_DATE=$(echo ${SCARB_VERSION} | cut -d '+' -f 2)
-          wget https://github.com/software-mansion/scarb-nightlies/releases/download/${NIGHTLY_DATE}/scarb-${NIGHTLY_DATE}-x86_64-unknown-linux-gnu.tar.gz
-          tar -xvf scarb-${NIGHTLY_DATE}-x86_64-unknown-linux-gnu.tar.gz
-          sudo mv scarb-v${SCARB_VERSION}-x86_64-unknown-linux-gnu/bin/scarb /usr/local/bin
+      - uses: software-mansion/setup-scarb@v1
+        with:
+          scarb-version: &quot;0.7.0&quot;
       - name: Install starknet foundry
         run: curl -L https://raw.githubusercontent.com/foundry-rs/starknet-foundry/master/scripts/install.sh | sh -s -- -v ${STARKNET_FOUNDRY_VERSION}
       - name: Run cairo tests
