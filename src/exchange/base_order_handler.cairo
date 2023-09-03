@@ -21,6 +21,7 @@ trait IBaseOrderHandler<TContractState> {
     /// * `order_vault_address` - The address of the `OrderVault` contract.
     /// * `swap_handler_address` - The address of the `SwapHandler` contract.
     /// * `oracle_address` - The address of the `Oracle` contract.
+    /// * `referral_storage_address` - The address of the `ReferralStorage` contract.
     fn initialize(
         ref self: TContractState,
         data_store_address: ContractAddress,
@@ -28,8 +29,8 @@ trait IBaseOrderHandler<TContractState> {
         event_emitter_address: ContractAddress,
         order_vault_address: ContractAddress,
         oracle_address: ContractAddress,
-        swap_handler_address: ContractAddress
-    // TODO add Referral when available
+        swap_handler_address: ContractAddress,
+        referral_storage_address: ContractAddress
     );
 }
 
@@ -66,6 +67,9 @@ mod BaseOrderHandler {
     use gojo::swap::swap_handler::{ISwapHandlerSafeDispatcher, ISwapHandlerSafeDispatcherTrait};
     use gojo::exchange::error::ExchangeError;
     use gojo::market::market::Market;
+    use gojo::referral::referral_storage::interface::{
+        IReferralStorageSafeDispatcher, IReferralStorageSafeDispatcherTrait
+    };
 
     // *************************************************************************
     //                              STORAGE
@@ -84,7 +88,8 @@ mod BaseOrderHandler {
         swap_handler: ISwapHandlerSafeDispatcher,
         /// Interface to interact with the `Oracle` contract.
         oracle: IOracleSafeDispatcher,
-    // TODO add ReferralStorage when available.
+        /// Interface to interact with the `ReferralStorage` contract.
+        referral_storage: IReferralStorageSafeDispatcher
     }
 
     // *************************************************************************
@@ -99,6 +104,7 @@ mod BaseOrderHandler {
     /// * `order_vault_address` - The address of the `OrderVault` contract.
     /// * `oracle_address` - The address of the `Oracle` contract.
     /// * `swap_handler_address` - The address of the `SwapHandler` contract.
+    /// * `referral_storage_address` - The address of the `ReferralStorage` contract.
     #[constructor]
     fn constructor(
         ref self: ContractState,
@@ -107,7 +113,8 @@ mod BaseOrderHandler {
         event_emitter_address: ContractAddress,
         order_vault_address: ContractAddress,
         oracle_address: ContractAddress,
-        swap_handler_address: ContractAddress
+        swap_handler_address: ContractAddress,
+        referral_storage_address: ContractAddress
     ) {
         self
             .initialize(
@@ -116,7 +123,8 @@ mod BaseOrderHandler {
                 event_emitter_address,
                 order_vault_address,
                 oracle_address,
-                swap_handler_address
+                swap_handler_address,
+                referral_storage_address
             );
     }
 
@@ -133,7 +141,8 @@ mod BaseOrderHandler {
             event_emitter_address: ContractAddress,
             order_vault_address: ContractAddress,
             oracle_address: ContractAddress,
-            swap_handler_address: ContractAddress
+            swap_handler_address: ContractAddress,
+            referral_storage_address: ContractAddress
         ) {
             // Make sure the contract is not already initialized.
             assert(
@@ -156,6 +165,11 @@ mod BaseOrderHandler {
             self
                 .swap_handler
                 .write(ISwapHandlerSafeDispatcher { contract_address: swap_handler_address });
+            self
+                .referral_storage
+                .write(
+                    IReferralStorageSafeDispatcher { contract_address: referral_storage_address }
+                );
         }
     }
 
@@ -184,7 +198,8 @@ mod BaseOrderHandler {
                 event_emitter: self.event_emitter.read(),
                 order_vault: self.order_vault.read(),
                 oracle: self.oracle.read(),
-                swap_handler: self.swap_handler.read()
+                swap_handler: self.swap_handler.read(),
+                referral_storage: self.referral_storage.read(),
             };
             let order = Order {
                 order_type: OrderType::MarketSwap(()),

@@ -38,7 +38,9 @@ use gojo::position::position::Position;
 use gojo::order::order::OrderType;
 use gojo::pricing::swap_pricing_utils::SwapFees;
 use gojo::deposit::deposit::Deposit;
-
+use gojo::referral::referral_storage::interface::{
+    IReferralStorageSafeDispatcher, IReferralStorageSafeDispatcherTrait
+};
 
 #[derive(Drop, starknet::Store, Serde)]
 struct VirtualInventory {
@@ -246,7 +248,7 @@ fn get_account_positions(
 /// Returns an array of PositionInfo representing position-related information.
 fn get_account_position_info_list(
     data_store: IDataStoreSafeDispatcher,
-    referral_storage: felt252, //TODO add the referral dispatcher
+    referral_storage: IReferralStorageSafeDispatcher,
     position_keys: Array<felt252>,
     prices: Array<MarketPrices>,
     ui_fee_receiver: ContractAddress
@@ -268,7 +270,7 @@ fn get_account_position_info_list(
 /// Returns a struct representing comprehensive information about the specified position.
 fn get_position_info(
     data_store: IDataStoreSafeDispatcher,
-    referral_storage: felt252, //TODO add the referral dispatcher
+    referral_storage: IReferralStorageSafeDispatcher,
     position_key: felt252,
     prices: MarketPrices,
     size_delta_usd: u128,

@@ -10,6 +10,7 @@ use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeD
 use gojo::bank::strict_bank::{IStrictBankSafeDispatcher, IStrictBankSafeDispatcherTrait};
 use gojo::order::order::Order;
 use gojo::deposit::deposit::Deposit;
+use gojo::withdrawal::withdrawal::Withdrawal;
 
 /// Get the minimal gas to handle execution.
 /// # Arguments
@@ -100,9 +101,9 @@ fn estimate_execute_deposit_gas_limit(
 /// * `data_store` - The data storage contract dispatcher.
 /// * `withdrawal` - The withdrawal to estimate the gas limit for.
 fn estimate_execute_withdrawal_gas_limit(
-    data_store: IDataStoreSafeDispatcher, withdrawal: felt252
+    data_store: IDataStoreSafeDispatcher, withdrawal: Withdrawal
 ) -> u128 {
-    //TODO dont forget to switch withdrawal type to Withdrawal (Wasnt implemented when created the signature)
+    //TODO
     0
 }
 

@@ -14,9 +14,11 @@ use gojo::withdrawal::withdrawal_vault::{
 };
 use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use gojo::swap::swap_utils::{SwapParams};
-use gojo::market::market::{Market};
+use gojo::swap::swap_utils::SwapParams;
+use gojo::market::{market::Market, market_utils::MarketPrices};
+use gojo::pricing::swap_pricing_utils::SwapFees;
 use gojo::utils::store_arrays::{StoreContractAddressArray, StoreU128Array};
+use gojo::oracle::oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait};
 
 #[derive(Drop, starknet::Store, Serde)]
 struct CreateWithdrawalParams {
@@ -53,7 +55,7 @@ struct ExecuteWithdrawalParams {
     /// The withdrawal vault.
     withdrawal_vault: IWithdrawalVaultSafeDispatcher,
     /// The oracle that provides market prices.
-    oracle: u128, // TODO add Oracle when available
+    oracle: IOracleSafeDispatcher,
     /// The unique identifier of the withdrawal to execute.
     key: felt252,
     /// The min block numbers for the oracle prices.
@@ -70,8 +72,8 @@ struct ExecuteWithdrawalParams {
 struct ExecuteWithdrawalCache {
     long_token_output_amount: u128,
     short_token_output_amount: u128,
-    long_token_fees: u128, // TODO add SwapFees when available in pricing
-    short_token_fees: u128, // TODO add SwapFees when available in pricing
+    long_token_fees: SwapFees,
+    short_token_fees: SwapFees,
     long_token_pool_amount_delta: u128,
     short_token_pool_amount_delta: u128,
 }
@@ -192,10 +194,7 @@ fn swap(
 
 #[inline(always)]
 fn get_output_amounts(
-    params: ExecuteWithdrawalParams,
-    market: Market,
-    prices: u128, // TODO add MarketPrices when available
-    market_token_amount: u128
+    params: ExecuteWithdrawalParams, market: Market, prices: MarketPrices, market_token_amount: u128
 ) -> (u128, u128) {
     //TODO
     (0, 0)

@@ -14,6 +14,9 @@ use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherT
 use gojo::market::market::Market;
 use gojo::price::price::Price;
 use gojo::position::position::Position;
+use gojo::referral::referral_storage::interface::{
+    IReferralStorageSafeDispatcher, IReferralStorageSafeDispatcherTrait
+};
 
 /// Struct used in get_position_fees.
 #[derive(Drop, starknet::Store, Serde)]
@@ -21,7 +24,7 @@ struct GetPositionFeesParams {
     /// The `DataStore` contract dispatcher.
     data_store: IDataStoreSafeDispatcher,
     /// The `ReferralStorage` contract dispatcher.
-    referral_storage: u128, // TODO Referral storage dispatcher
+    referral_storage: IReferralStorageSafeDispatcher,
     /// The position struct.
     position: Position,
     /// The price of the collateral token.
@@ -348,7 +351,7 @@ fn get_ui_fees(
 /// Updated position fees.
 fn get_position_fees_after_referral(
     data_store: IDataStoreSafeDispatcher,
-    referral_storage: u128, // TODO IReferralStorageSafeDispatcher when available
+    referral_storage: IReferralStorageSafeDispatcher,
     collateral_token_price: Price,
     for_positive_impact: bool,
     account: ContractAddress,

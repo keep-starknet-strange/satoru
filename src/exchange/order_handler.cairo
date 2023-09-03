@@ -139,7 +139,8 @@ mod OrderHandler {
         event_emitter_address: ContractAddress,
         order_vault_address: ContractAddress,
         oracle_address: ContractAddress,
-        swap_handler_address: ContractAddress
+        swap_handler_address: ContractAddress,
+        referral_storage_address: ContractAddress
     ) {
         let mut state: BaseOrderHandler::ContractState =
             BaseOrderHandler::unsafe_new_contract_state();
@@ -150,7 +151,8 @@ mod OrderHandler {
             event_emitter_address,
             order_vault_address,
             oracle_address,
-            swap_handler_address
+            swap_handler_address,
+            referral_storage_address
         );
     }
 

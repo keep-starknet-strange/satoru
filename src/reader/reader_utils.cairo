@@ -26,6 +26,9 @@ use gojo::pricing::position_pricing_utils::PositionBorrowingFees;
 use gojo::pricing::position_pricing_utils::PositionReferralFees;
 use gojo::pricing::position_pricing_utils::PositionFundingFees;
 use gojo::pricing::position_pricing_utils::PositionUiFees;
+use gojo::referral::referral_storage::interface::{
+    IReferralStorageSafeDispatcher, IReferralStorageSafeDispatcherTrait
+};
 
 #[derive(Drop, starknet::Store, Serde)]
 struct PositionInfo {
@@ -177,7 +180,7 @@ fn get_next_funding_amount_per_size(
 /// Struct containing detailed information about the position, including execution prices, fees, and funding data.
 fn get_position_info(
     data_store: IDataStoreSafeDispatcher,
-    referral_storage: felt252, //TODO add the referral dispatcher
+    referral_storage: IReferralStorageSafeDispatcher,
     position_key: felt252,
     prices: MarketPrices,
     size_delta_usd: u128,

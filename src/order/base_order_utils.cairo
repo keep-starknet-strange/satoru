@@ -15,6 +15,9 @@ use gojo::order::{
 };
 use gojo::market::market::Market;
 use gojo::utils::store_arrays::{StoreMarketArray, StoreU64Array, StoreContractAddressArray};
+use gojo::referral::referral_storage::interface::{
+    IReferralStorageSafeDispatcher, IReferralStorageSafeDispatcherTrait
+};
 
 #[derive(Drop, starknet::Store, Serde)]
 struct ExecuteOrderParams {
@@ -50,8 +53,9 @@ struct ExecuteOrderParamsContracts {
     /// The dispatcher to interact with the `Oracle` contract
     oracle: IOracleSafeDispatcher,
     /// The dispatcher to interact with the `SwapHandler` contract
-    swap_handler: ISwapHandlerSafeDispatcher
-// TODO referralStorage;
+    swap_handler: ISwapHandlerSafeDispatcher,
+    /// The dispatcher to interact with the `ReferralStorage` contract
+    referral_storage: IReferralStorageSafeDispatcher
 }
 
 /// CreateOrderParams struct used in create_order.

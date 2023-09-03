@@ -17,13 +17,16 @@ use gojo::price::price::Price;
 use gojo::position::position::Position;
 use gojo::pricing::position_pricing_utils::PositionFees;
 use gojo::order::order::{Order, SecondaryOrderType};
-
+use gojo::referral::referral_storage::interface::{
+    IReferralStorageSafeDispatcher, IReferralStorageSafeDispatcherTrait
+};
+use gojo::order::base_order_utils::ExecuteOrderParamsContracts;
 
 /// Struct used in increasePosition and decreasePosition.
 #[derive(Drop, starknet::Store, Serde)]
 struct UpdatePositionParams {
     /// BaseOrderUtils.ExecuteOrderParamsContracts
-    contracts: u128, // TODO BaseOrderUtils.ExecuteOrderParamsContracts
+    contracts: ExecuteOrderParamsContracts,
     /// The values of the trading market.
     market: Market,
     /// The decrease position order.
@@ -228,7 +231,7 @@ fn validate_non_empty_position(position: Position,) { // TODO
 /// keepers.
 fn validate_position(
     data_store: IDataStoreSafeDispatcher,
-    referral_storage: u128, // TODO replace by referral storage dispatcher when available
+    referral_storage: IReferralStorageSafeDispatcher,
     position: Position,
     market: Market,
     prices: MarketPrices,
@@ -248,7 +251,7 @@ fn validate_position(
 /// True if liquiditable and reason of liquiditability, false else.
 fn is_position_liquiditable(
     data_store: IDataStoreSafeDispatcher,
-    referral_storage: u128, // TODO replace by referral storage dispatcher when available
+    referral_storage: IReferralStorageSafeDispatcher,
     position: Position,
     market: Market,
     prices: MarketPrices,
