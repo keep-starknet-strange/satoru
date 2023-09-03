@@ -170,6 +170,16 @@ mod pricing {
     mod swap_pricing_utils;
 }
 
+// `referral` contains referral logic.
+mod referral {
+    mod referral_utils;
+    mod referral_tier;
+    mod referral_event_utils;
+    mod referral_storage {
+        mod interface;
+    }
+}
+
 mod swap {
     mod swap_utils;
     mod swap_handler;

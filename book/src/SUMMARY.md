@@ -20,6 +20,7 @@
   - [Oracle Module](smart-contracts-architecture/oracle-module.md)
   - [Position Module](smart-contracts-architecture/position-module.md)
   - [Pricing Module](smart-contracts-architecture/pricing-module.md)
+  - [Referral Module](smart-contracts-architecture/referral-module.md)
   - [Reader Module](smart-contracts-architecture/reader-module.md)
   - [Role Module](smart-contracts-architecture/role-module.md)
   - [Swap Module](smart-contracts-architecture/swap-module.md)
