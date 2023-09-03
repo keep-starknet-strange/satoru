@@ -49,13 +49,17 @@ snforge
 
 ## 🚀 Deploy
 
-To deploy contracts of the projects, you need to set up a smart wallet :
+To deploy contracts of the projects, you first need to set up a smart wallet :
 
-- Create a signer by following the tutorial : [Starkli Book](https://book.starkli.rs/signers)
+- Create a signer by following the tutorial : [Signers](https://book.starkli.rs/signers)
 
-- Create an account by following the tutorial : [Starkli Book](https://book.starkli.rs/accounts/) 
+- Create an account by following the tutorial : [Accounts](https://book.starkli.rs/accounts/) 
 
 Once your smart wallet is set up, you can now run deployment files to deploy contracts, for example :
+
+```bash
+cd scripts
+```
 
 ```bash
 ./deploy_chain_contract.sh
