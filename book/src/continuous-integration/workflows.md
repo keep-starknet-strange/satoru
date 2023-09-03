@@ -70,7 +70,7 @@ The "Build" GitHub Actions workflow (`build.yml`) is made for building Cairo fil
 2. **Pull Request Event:** Triggered for every pull request targeting the `main` branch.
 
 **Environment Variables:**
-- **SCARB_VERSION:** Specifies the version of Scarb to be used, currently set to `0.6.1+nightly-2023-08-16`.
+- **SCARB_VERSION:** Specifies the version of Scarb to be used, currently set to `0.7.0`.
 
 > **Note:** Currently, we are utilizing the nightly versions of Scarb to leverage the latest features of Cairo. The installation process is slightly different than using non-nightly versions. Once Cairo and Scarb stabilize, we will migrate to stable versions and employ the `software-mansion/setup-scarb` action for easier setup.
 
@@ -94,7 +94,7 @@ on:
     branches:
       - main
 env:
-  SCARB_VERSION: 0.6.1+nightly-2023-08-16
+  SCARB_VERSION: 0.7.0
 
 jobs:
   check:

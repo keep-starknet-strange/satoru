@@ -173,6 +173,8 @@ fn grant_roles_and_prank(
     data_store: IDataStoreSafeDispatcher,
     config: IConfigSafeDispatcher
 ) {
+    start_prank(role_store.contract_address, caller_address);
+
     // Grant the caller the CONTROLLER role. This is necessary for the caller to have the permissions
     // to perform certain actions in the tests.
     role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
@@ -251,7 +253,7 @@ fn setup_contracts() -> (
     // Create a safe dispatcher to interact with the contract.
     let config = IConfigSafeDispatcher { contract_address: config_address };
 
-    (contract_address_const::<'caller'>(), config, role_store, data_store, event_emitter)
+    (0x101.try_into().unwrap(), config, role_store, data_store, event_emitter)
 }
 
 /// Utility function to deploy a market factory contract and return its address.
