@@ -47,6 +47,20 @@ To test the project, run:
 snforge
 ```
 
+## 🚀 Deploy
+
+To deploy contracts of the projects, you need to set up a smart wallet :
+
+- Create a signer by following the tutorial : [Starkli Book](https://book.starkli.rs/signers)
+
+- Create an account by following the tutorial : [Starkli Book](https://book.starkli.rs/accounts/) 
+
+Once your smart wallet is set up, you can now run deployment files to deploy contracts, for example :
+
+```bash
+./deploy_chain_contract.sh
+```
+
 ## 📚 Resources
 
 Here are some resources to help you get started:
