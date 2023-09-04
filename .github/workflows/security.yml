@@ -1,12 +1,7 @@
-on:
-  pull_request:
-    branches:
-      - main
-  push:
-    branches:
-      - main
-
 name: Security
+
+on: [push, pull_request]
+
 jobs:
   check:
     runs-on: ubuntu-latest
