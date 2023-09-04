@@ -9,13 +9,13 @@ use debug::PrintTrait;
 use zeroable::Zeroable;
 
 // Local imports.
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use gojo::chain::chain::{IChainSafeDispatcher, IChainSafeDispatcherTrait};
-use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use gojo::data::keys;
-use gojo::market::error::MarketError;
-use gojo::market::market::Market;
-use gojo::price::price::{Price, PriceTrait};
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::chain::chain::{IChainSafeDispatcher, IChainSafeDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::data::keys;
+use satoru::market::error::MarketError;
+use satoru::market::market::Market;
+use satoru::price::price::{Price, PriceTrait};
 
 /// Struct to store the prices of tokens of a market.
 /// # Params

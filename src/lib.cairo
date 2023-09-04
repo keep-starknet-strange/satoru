@@ -49,7 +49,7 @@ mod deposit {
     mod execute_deposit_utils;
 }
 
-// `exchange` contains main gojo handlers to create and execute actions.
+// `exchange` contains main satoru handlers to create and execute actions.
 mod exchange {
     mod adl_handler;
     mod base_order_handler;
@@ -142,7 +142,7 @@ mod market {
     mod market_pool_value_info;
 }
 
-// `oracle` contains functions related to oracles used by Gojo.
+// `oracle` contains functions related to oracles used by Satoru.
 mod oracle {
     mod error;
     mod oracle_modules;

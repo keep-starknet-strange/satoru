@@ -6,11 +6,11 @@ use starknet::ContractAddress;
 
 // Local imports.
 
-use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use gojo::order::order::OrderType;
-use gojo::position::{position_utils::DecreasePositionCollateralValues, position::Position,};
-use gojo::price::price::Price;
-use gojo::pricing::position_pricing_utils::PositionFees;
+use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::order::order::OrderType;
+use satoru::position::{position_utils::DecreasePositionCollateralValues, position::Position,};
+use satoru::price::price::Price;
+use satoru::pricing::position_pricing_utils::PositionFees;
 
 /// Struct to store a position increase parameters.
 #[derive(Drop, starknet::Store, Serde)]

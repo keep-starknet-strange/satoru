@@ -6,7 +6,7 @@
 //! when block production resumes.
 //! The effects of disabling features should be carefully considered.
 
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 
 /// Return if a feature is disabled.
 /// # Arguments

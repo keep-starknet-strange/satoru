@@ -48,11 +48,13 @@ mod FeeHandler {
     use debug::PrintTrait;
 
     // Local imports.
-    use gojo::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use gojo::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use satoru::event::event_emitter::{
+        IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait
+    };
     use super::IFeeHandler;
-    use gojo::fee::error::FeeError;
+    use satoru::fee::error::FeeError;
 
     // *************************************************************************
     //                              STORAGE

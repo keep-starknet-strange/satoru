@@ -1,13 +1,13 @@
 # Github Workflows Documentation
 
-## Gojo Book Workflow Documentation
+## Satoru Book Workflow Documentation
 
 ### Overview:
-The "Gojo Book" GitHub Actions workflow (`book.yml`) is specifically designed for the automated build and deployment of the Gojo book's latest version.
+The "Satoru Book" GitHub Actions workflow (`book.yml`) is specifically designed for the automated build and deployment of the Satoru book's latest version.
 
 ### Workflow Details:
 
-**Workflow Name:** Gojo Book
+**Workflow Name:** Satoru Book
 
 **Trigger Conditions:**
 1. **Push Event:** Activated when changes are pushed to the `main` branch.
@@ -24,7 +24,7 @@ The "Gojo Book" GitHub Actions workflow (`book.yml`) is specifically designed fo
      4. **Deploy**: If the trigger branch is `main`, the built book is deployed to GitHub Pages using the specified token. The content to be published is sourced from the `./book/book` directory.
 
 ```yml
-name: Gojo Book
+name: Satoru Book
 
 on:
   push:

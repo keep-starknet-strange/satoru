@@ -10,7 +10,7 @@ use result::ResultTrait;
 use traits::Into;
 use debug::PrintTrait;
 // Local imports.
-use gojo::utils::store_arrays::StoreContractAddressArray;
+use satoru::utils::store_arrays::StoreContractAddressArray;
 
 /// Helps with deposit creation.
 #[derive(Drop, starknet::Store, Serde)]

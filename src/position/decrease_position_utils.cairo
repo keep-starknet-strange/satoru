@@ -10,7 +10,7 @@ use traits::{Into, TryInto};
 use option::OptionTrait;
 
 // Local imports
-use gojo::position::position_utils::UpdatePositionParams;
+use satoru::position::position_utils::UpdatePositionParams;
 
 /// Struct used as result for decrease_position_function output.
 #[derive(Drop, starknet::Store, Serde)]

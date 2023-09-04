@@ -10,9 +10,9 @@ use result::ResultTrait;
 use traits::{Into, TryInto};
 use option::OptionTrait;
 
-// Gojo imports
-use gojo::market::market::{Market};
-use gojo::price::price::{Price};
+// Satoru imports
+use satoru::market::market::{Market};
+use satoru::price::price::{Price};
 
 impl StoreContractAddressArray of Store<Array<ContractAddress>> {
     fn read(

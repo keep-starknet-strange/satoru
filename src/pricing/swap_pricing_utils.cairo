@@ -10,9 +10,9 @@ use traits::{Into, TryInto};
 use option::OptionTrait;
 
 // Local imports.
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use gojo::market::market::Market;
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::market::market::Market;
 
 /// Struct used in get_price_impact_usd.
 #[derive(Drop, starknet::Store, Serde)]

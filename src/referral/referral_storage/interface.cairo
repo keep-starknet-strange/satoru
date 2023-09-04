@@ -2,8 +2,8 @@
 use starknet::ContractAddress;
 
 // Local imports.
-use gojo::order::order::Order;
-use gojo::event::event_utils::EventLogData;
+use satoru::order::order::Order;
+use satoru::event::event_utils::EventLogData;
 
 // *************************************************************************
 //                  Interface of the `ReferralStorage` contract.

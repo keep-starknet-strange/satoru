@@ -48,9 +48,9 @@ mod Router {
 
 
     // Local imports.
-    use gojo::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use super::IRouter;
-    use gojo::router::error::RouterError;
+    use satoru::router::error::RouterError;
 
     // *************************************************************************
     //                              STORAGE

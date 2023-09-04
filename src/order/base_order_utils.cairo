@@ -5,17 +5,17 @@
 use starknet::ContractAddress;
 
 // Local imports.
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use gojo::oracle::oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait};
-use gojo::swap::swap_handler::{ISwapHandlerSafeDispatcher, ISwapHandlerSafeDispatcherTrait};
-use gojo::order::{
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::oracle::oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait};
+use satoru::swap::swap_handler::{ISwapHandlerSafeDispatcher, ISwapHandlerSafeDispatcherTrait};
+use satoru::order::{
     order::{Order, SecondaryOrderType, OrderType, DecreasePositionSwapType},
     order_vault::{IOrderVaultSafeDispatcher, IOrderVaultSafeDispatcherTrait}
 };
-use gojo::market::market::Market;
-use gojo::utils::store_arrays::{StoreMarketArray, StoreU64Array, StoreContractAddressArray};
-use gojo::referral::referral_storage::interface::{
+use satoru::market::market::Market;
+use satoru::utils::store_arrays::{StoreMarketArray, StoreU64Array, StoreContractAddressArray};
+use satoru::referral::referral_storage::interface::{
     IReferralStorageSafeDispatcher, IReferralStorageSafeDispatcherTrait
 };
 

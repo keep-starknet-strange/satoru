@@ -68,9 +68,9 @@ mod OracleStore {
     use option::OptionTrait;
 
     // Local imports.
-    use gojo::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use gojo::event::event_emitter::{IEventEmitterDispatcher};
-    use gojo::oracle::error::OracleError;
+    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::event::event_emitter::{IEventEmitterDispatcher};
+    use satoru::oracle::error::OracleError;
     use super::IOracleStore;
 
     // *************************************************************************

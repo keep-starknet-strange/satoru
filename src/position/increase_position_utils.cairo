@@ -10,11 +10,11 @@ use traits::{Into, TryInto};
 use option::OptionTrait;
 
 // Local imports
-use gojo::position::position_utils::UpdatePositionParams;
-use gojo::pricing::position_pricing_utils::{
+use satoru::position::position_utils::UpdatePositionParams;
+use satoru::pricing::position_pricing_utils::{
     PositionFees, PositionBorrowingFees, PositionFundingFees, PositionReferralFees, PositionUiFees,
 };
-use gojo::price::price::Price;
+use satoru::price::price::Price;
 
 #[derive(Drop, starknet::Store, Serde)]
 struct IncreasePositionCache {

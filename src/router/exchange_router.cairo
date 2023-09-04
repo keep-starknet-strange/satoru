@@ -13,15 +13,15 @@ use traits::Into;
 use debug::PrintTrait;
 
 // Local imports.
-use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use gojo::router::router::{IRouterSafeDispatcher, IRouterSafeDispatcherTrait};
-use gojo::deposit::deposit_utils::CreateDepositParams;
-use gojo::withdrawal::withdrawal_utils::CreateWithdrawalParams;
-use gojo::order::base_order_utils::CreateOrderParams;
-use gojo::oracle::oracle_utils::SimulatePricesParams;
-use gojo::exchange::{
+use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::router::router::{IRouterSafeDispatcher, IRouterSafeDispatcherTrait};
+use satoru::deposit::deposit_utils::CreateDepositParams;
+use satoru::withdrawal::withdrawal_utils::CreateWithdrawalParams;
+use satoru::order::base_order_utils::CreateOrderParams;
+use satoru::oracle::oracle_utils::SimulatePricesParams;
+use satoru::exchange::{
     deposit_handler::{IDepositHandlerSafeDispatcher, IDepositHandlerSafeDispatcherTrait},
     withdrawal_handler::{IWithdrawalHandlerSafeDispatcher, IWithdrawalHandlerSafeDispatcherTrait},
     order_handler::{IOrderHandlerSafeDispatcher, IOrderHandlerSafeDispatcherTrait},
@@ -189,11 +189,11 @@ mod ExchangeRouter {
     use debug::PrintTrait;
 
     // Local imports.
-    use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-    use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-    use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-    use gojo::router::router::{IRouterSafeDispatcher, IRouterSafeDispatcherTrait};
-    use gojo::exchange::{
+    use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+    use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+    use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+    use satoru::router::router::{IRouterSafeDispatcher, IRouterSafeDispatcherTrait};
+    use satoru::exchange::{
         deposit_handler::{IDepositHandlerSafeDispatcher, IDepositHandlerSafeDispatcherTrait},
         withdrawal_handler::{
             IWithdrawalHandlerSafeDispatcher, IWithdrawalHandlerSafeDispatcherTrait
@@ -202,10 +202,10 @@ mod ExchangeRouter {
     };
 
     use super::IExchangeRouter;
-    use gojo::deposit::deposit_utils::CreateDepositParams;
-    use gojo::withdrawal::withdrawal_utils::CreateWithdrawalParams;
-    use gojo::order::base_order_utils::CreateOrderParams;
-    use gojo::oracle::oracle_utils::SimulatePricesParams;
+    use satoru::deposit::deposit_utils::CreateDepositParams;
+    use satoru::withdrawal::withdrawal_utils::CreateWithdrawalParams;
+    use satoru::order::base_order_utils::CreateOrderParams;
+    use satoru::oracle::oracle_utils::SimulatePricesParams;
 
     // *************************************************************************
     //                              STORAGE

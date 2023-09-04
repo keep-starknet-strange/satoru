@@ -12,12 +12,12 @@ use debug::PrintTrait;
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 
 // Local imports.
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use gojo::data::keys;
-use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-use gojo::role::role;
-use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use gojo::config::config::{IConfigSafeDispatcher, IConfigSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::data::keys;
+use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+use satoru::role::role;
+use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::config::config::{IConfigSafeDispatcher, IConfigSafeDispatcherTrait};
 
 #[test]
 fn given_normal_conditions_when_set_bool_then_works() {
@@ -44,7 +44,7 @@ fn given_normal_conditions_when_set_bool_then_works() {
     // Perform assertions.
 
     // Check that the value was set correctly.
-    // FIXME: #18 https://github.com/keep-starknet-strange/gojo/issues/18
+    // FIXME: #18 https://github.com/keep-starknet-strange/satoru/issues/18
     // When `data_store::set_bool` is fixed, check that the value was set correctly.
 
     // *********************************************************************************************

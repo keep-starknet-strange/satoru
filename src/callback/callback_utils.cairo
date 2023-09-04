@@ -24,11 +24,11 @@ use traits::{Into, TryInto};
 use option::OptionTrait;
 
 // Local imports.
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use gojo::event::event_utils::EventLogData;
-use gojo::order::order::Order;
-use gojo::deposit::deposit::Deposit;
-use gojo::withdrawal::withdrawal::Withdrawal;
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::event::event_utils::EventLogData;
+use satoru::order::order::Order;
+use satoru::deposit::deposit::Deposit;
+use satoru::withdrawal::withdrawal::Withdrawal;
 
 /// Validate that the callbackGasLimit is less than the max specified value.
 /// This is to prevent callback gas limits which are larger than the max gas limits per block

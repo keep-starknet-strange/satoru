@@ -10,11 +10,11 @@ use traits::{Into, TryInto};
 use option::OptionTrait;
 
 // Local imports.
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use gojo::market::market::Market;
-use gojo::price::price::Price;
-use gojo::position::position::Position;
-use gojo::referral::referral_storage::interface::{
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::market::market::Market;
+use satoru::price::price::Price;
+use satoru::position::position::Position;
+use satoru::referral::referral_storage::interface::{
     IReferralStorageSafeDispatcher, IReferralStorageSafeDispatcherTrait
 };
 

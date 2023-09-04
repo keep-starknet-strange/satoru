@@ -10,15 +10,15 @@ use traits::{Into, TryInto};
 use option::OptionTrait;
 
 // Local imports.
-use gojo::position::position_utils::{
+use satoru::position::position_utils::{
     DecreasePositionCollateralValues, UpdatePositionParams, DecreasePositionCache,
     DecreasePositionCollateralValuesOutput
 };
-use gojo::pricing::position_pricing_utils::{
+use satoru::pricing::position_pricing_utils::{
     PositionFees, PositionBorrowingFees, PositionFundingFees, PositionReferralFees, PositionUiFees,
 };
-use gojo::market::market_utils::MarketPrices;
-use gojo::price::price::Price;
+use satoru::market::market_utils::MarketPrices;
+use satoru::price::price::Price;
 
 /// Struct used in process_collateral function as cache.
 #[derive(Drop, starknet::Store, Serde)]

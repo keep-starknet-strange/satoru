@@ -8,7 +8,7 @@ use traits::{Into, TryInto};
 use option::OptionTrait;
 
 // Local imports.
-use gojo::position::position_utils::{
+use satoru::position::position_utils::{
     DecreasePositionCollateralValues, UpdatePositionParams, DecreasePositionCollateralValuesOutput
 };
 

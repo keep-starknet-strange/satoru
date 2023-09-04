@@ -8,12 +8,12 @@ use traits::{Into, TryInto};
 use option::OptionTrait;
 
 // Local imports.
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use gojo::bank::bank::{IBankSafeDispatcher, IBankSafeDispatcherTrait};
-use gojo::market::market::{Market};
-use gojo::price::price::{Price};
-use gojo::utils::store_arrays::{
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::bank::bank::{IBankSafeDispatcher, IBankSafeDispatcherTrait};
+use satoru::market::market::{Market};
+use satoru::price::price::{Price};
+use satoru::utils::store_arrays::{
     StoreContractAddressArray, StorePriceArray, StoreU128Array, StoreFelt252Array
 };
 

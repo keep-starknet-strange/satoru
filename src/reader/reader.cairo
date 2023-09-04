@@ -14,31 +14,31 @@ use option::OptionTrait;
 
 // Local imports.
 
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use gojo::market::{
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::market::{
     market_utils::GetNextFundingAmountPerSizeResult, market::Market, market_utils::MarketPrices,
     market_utils::PositionType, market_utils::CollateralType,
     market_pool_value_info::MarketPoolValueInfo,
 };
-use gojo::price::price::Price;
-use gojo::order::order::Order;
-use gojo::pricing::position_pricing_utils::PositionBorrowingFees;
-use gojo::pricing::position_pricing_utils::PositionReferralFees;
-use gojo::pricing::position_pricing_utils::PositionFundingFees;
-use gojo::pricing::position_pricing_utils::PositionUiFees;
-use gojo::pricing::position_pricing_utils::PositionFees;
+use satoru::price::price::Price;
+use satoru::order::order::Order;
+use satoru::pricing::position_pricing_utils::PositionBorrowingFees;
+use satoru::pricing::position_pricing_utils::PositionReferralFees;
+use satoru::pricing::position_pricing_utils::PositionFundingFees;
+use satoru::pricing::position_pricing_utils::PositionUiFees;
+use satoru::pricing::position_pricing_utils::PositionFees;
 
-use gojo::reader::{
+use satoru::reader::{
     reader_utils::PositionInfo, reader_utils::BaseFundingValues,
     reader_pricing_utils::ExecutionPriceResult,
 };
 
-use gojo::withdrawal::withdrawal::Withdrawal;
-use gojo::position::position::Position;
-use gojo::order::order::OrderType;
-use gojo::pricing::swap_pricing_utils::SwapFees;
-use gojo::deposit::deposit::Deposit;
-use gojo::referral::referral_storage::interface::{
+use satoru::withdrawal::withdrawal::Withdrawal;
+use satoru::position::position::Position;
+use satoru::order::order::OrderType;
+use satoru::pricing::swap_pricing_utils::SwapFees;
+use satoru::deposit::deposit::Deposit;
+use satoru::referral::referral_storage::interface::{
     IReferralStorageSafeDispatcher, IReferralStorageSafeDispatcherTrait
 };
 

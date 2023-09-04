@@ -8,15 +8,15 @@ use traits::{Into, TryInto};
 use option::OptionTrait;
 
 // Local imports.
-use gojo::withdrawal::withdrawal::{Withdrawal};
-use gojo::withdrawal::withdrawal_vault::{
+use satoru::withdrawal::withdrawal::{Withdrawal};
+use satoru::withdrawal::withdrawal_vault::{
     IWithdrawalVaultSafeDispatcher, IWithdrawalVaultSafeDispatcherTrait
 };
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use gojo::swap::swap_utils::{SwapParams};
-use gojo::market::market::{Market};
-use gojo::utils::store_arrays::{StoreContractAddressArray, StoreU128Array};
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::swap::swap_utils::{SwapParams};
+use satoru::market::market::{Market};
+use satoru::utils::store_arrays::{StoreContractAddressArray, StoreU128Array};
 
 #[inline(always)]
 fn emit_withdrawal_created(

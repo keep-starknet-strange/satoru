@@ -52,11 +52,13 @@ mod MarketFactory {
     use debug::PrintTrait;
 
     // Local imports.
-    use gojo::role::role;
-    use gojo::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use gojo::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-    use gojo::market::market::{Market, UniqueIdMarket};
+    use satoru::role::role;
+    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use satoru::event::event_emitter::{
+        IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait
+    };
+    use satoru::market::market::{Market, UniqueIdMarket};
 
     // *************************************************************************
     //                              STORAGE
@@ -201,7 +203,7 @@ mod MarketFactory {
             market_type: felt252,
         ) -> felt252 {
             let mut data = array![];
-            data.append('GOJO_MARKET');
+            data.append('SATORU_MARKET');
             data.append(index_token.into());
             data.append(long_token.into());
             data.append(short_token.into());

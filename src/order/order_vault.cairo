@@ -36,7 +36,7 @@ mod OrderVault {
     use debug::PrintTrait;
 
     // Local imports.
-    use gojo::bank::strict_bank::{StrictBank, IStrictBank};
+    use satoru::bank::strict_bank::{StrictBank, IStrictBank};
 
     // *************************************************************************
     //                              STORAGE

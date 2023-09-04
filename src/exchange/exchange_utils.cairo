@@ -4,7 +4,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Local imports.
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 
 
 /// Validates that request age is lower than request age expiration.

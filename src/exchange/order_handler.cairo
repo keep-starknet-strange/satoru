@@ -9,8 +9,8 @@ use core::traits::Into;
 use starknet::ContractAddress;
 
 // Local imports.
-use gojo::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
-use gojo::order::{base_order_utils::CreateOrderParams, order::Order};
+use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
+use satoru::order::{base_order_utils::CreateOrderParams, order::Order};
 
 // *************************************************************************
 //                  Interface of the `OrderHandler` contract.
@@ -105,13 +105,13 @@ mod OrderHandler {
 
     // Local imports.
     use super::IOrderHandler;
-    use gojo::oracle::{
+    use satoru::oracle::{
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
         oracle_utils::{SetPricesParams, SimulatePricesParams}
     };
-    use gojo::order::{order::Order, base_order_utils::CreateOrderParams};
-    use gojo::market::market::Market;
-    use gojo::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
+    use satoru::order::{order::Order, base_order_utils::CreateOrderParams};
+    use satoru::market::market::Market;
+    use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
 
     // *************************************************************************
     //                              STORAGE

@@ -16,17 +16,19 @@ use snforge_std::{declare, start_prank, stop_prank, start_warp, ContractClassTra
 
 
 // Local imports.
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-use gojo::chain::chain::{IChainSafeDispatcher, IChainSafeDispatcherTrait};
-use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use gojo::market::market_factory::{IMarketFactorySafeDispatcher, IMarketFactorySafeDispatcherTrait};
-use gojo::market::market::{Market, UniqueIdMarket, IntoMarketToken};
-use gojo::market::market_token::{IMarketTokenSafeDispatcher, IMarketTokenSafeDispatcherTrait};
-use gojo::market::market_utils;
-use gojo::data::keys;
-use gojo::role::role;
-use gojo::price::price::{Price, PriceTrait};
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+use satoru::chain::chain::{IChainSafeDispatcher, IChainSafeDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::market::market_factory::{
+    IMarketFactorySafeDispatcher, IMarketFactorySafeDispatcherTrait
+};
+use satoru::market::market::{Market, UniqueIdMarket, IntoMarketToken};
+use satoru::market::market_token::{IMarketTokenSafeDispatcher, IMarketTokenSafeDispatcherTrait};
+use satoru::market::market_utils;
+use satoru::data::keys;
+use satoru::role::role;
+use satoru::price::price::{Price, PriceTrait};
 
 #[test]
 fn given_normal_conditions_when_get_open_interest_then_works() {
@@ -85,7 +87,7 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
 
     // Get the name of the market token.
     let market_token_name = market_token.name().unwrap();
-    assert(market_token_name == 'Gojo Market', 'wrong market token name');
+    assert(market_token_name == 'Satoru Market', 'wrong market token name');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *

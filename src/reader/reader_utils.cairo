@@ -12,21 +12,21 @@ use result::ResultTrait;
 use option::OptionTrait;
 
 // Local imports.
-use gojo::position::position::Position;
-use gojo::pricing::position_pricing_utils::PositionFees;
-use gojo::reader::reader_pricing_utils::ExecutionPriceResult;
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use gojo::market::{
+use satoru::position::position::Position;
+use satoru::pricing::position_pricing_utils::PositionFees;
+use satoru::reader::reader_pricing_utils::ExecutionPriceResult;
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::market::{
     market::Market, market_utils::PositionType, market_utils::MarketPrices,
     market_utils::CollateralType, market_utils::GetNextFundingAmountPerSizeResult
 };
-use gojo::price::price::Price;
-use gojo::pricing::position_pricing_utils::PositionBorrowingFees;
-use gojo::pricing::position_pricing_utils::PositionReferralFees;
-use gojo::pricing::position_pricing_utils::PositionFundingFees;
-use gojo::pricing::position_pricing_utils::PositionUiFees;
-use gojo::referral::referral_storage::interface::{
+use satoru::price::price::Price;
+use satoru::pricing::position_pricing_utils::PositionBorrowingFees;
+use satoru::pricing::position_pricing_utils::PositionReferralFees;
+use satoru::pricing::position_pricing_utils::PositionFundingFees;
+use satoru::pricing::position_pricing_utils::PositionUiFees;
+use satoru::referral::referral_storage::interface::{
     IReferralStorageSafeDispatcher, IReferralStorageSafeDispatcherTrait
 };
 

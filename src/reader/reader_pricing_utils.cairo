@@ -7,14 +7,14 @@ use option::OptionTrait;
 use core::traits::TryInto;
 
 // Local imports.
-use gojo::position::position::Position;
-use gojo::market::market::Market;
-use gojo::market::market_utils::MarketPrices;
-use gojo::price::price::Price;
-use gojo::pricing::position_pricing_utils::PositionFees;
-use gojo::pricing::swap_pricing_utils::SwapFees;
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::position::position::Position;
+use satoru::market::market::Market;
+use satoru::market::market_utils::MarketPrices;
+use satoru::price::price::Price;
+use satoru::pricing::position_pricing_utils::PositionFees;
+use satoru::pricing::swap_pricing_utils::SwapFees;
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
 
 #[derive(Drop, starknet::Store, Serde)]
 struct ExecutionPriceResult {

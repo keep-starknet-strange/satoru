@@ -9,8 +9,8 @@ use core::traits::Into;
 use starknet::ContractAddress;
 
 // Local imports.
-use gojo::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
-use gojo::deposit::deposit_utils::CreateDepositParams;
+use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
+use satoru::deposit::deposit_utils::CreateDepositParams;
 
 // *************************************************************************
 //                  Interface of the `DepositHandler` contract.
@@ -71,18 +71,18 @@ mod DepositHandler {
 
     // Local imports.
     use super::IDepositHandler;
-    use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-    use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-    use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-    use gojo::oracle::{
+    use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+    use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+    use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+    use satoru::oracle::{
         oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
         oracle_utils::{SetPricesParams, SimulatePricesParams}
     };
-    use gojo::order::base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts};
-    use gojo::swap::swap_handler::{ISwapHandlerSafeDispatcher, ISwapHandlerSafeDispatcherTrait};
-    use gojo::market::market::Market;
-    use gojo::deposit::{
+    use satoru::order::base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts};
+    use satoru::swap::swap_handler::{ISwapHandlerSafeDispatcher, ISwapHandlerSafeDispatcherTrait};
+    use satoru::market::market::Market;
+    use satoru::deposit::{
         deposit_utils::CreateDepositParams,
         deposit_vault::{IDepositVaultSafeDispatcher, IDepositVaultSafeDispatcherTrait}
     };

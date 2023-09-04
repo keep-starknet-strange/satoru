@@ -9,11 +9,11 @@ use option::OptionTrait;
 
 // Local imports.
 
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use gojo::order::order::OrderType;
-use gojo::position::position::Position;
-use gojo::price::price::Price;
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::order::order::OrderType;
+use satoru::position::position::Position;
+use satoru::price::price::Price;
 
 /// Struct used for a position increase.
 #[derive(Drop, starknet::Store, Serde)]

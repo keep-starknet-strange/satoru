@@ -1,6 +1,6 @@
-// Gojo imports
-// use gojo::withdrawal::withdrawal::{Withdrawal}; TODO & then remove comments here and on params
-use gojo::event::event_utils::EventLogData;
+// Satoru imports
+// use satoru::withdrawal::withdrawal::{Withdrawal}; TODO & then remove comments here and on params
+use satoru::event::event_utils::EventLogData;
 
 // *************************************************************************
 //                  Interface of the `WithdrawalCallbackReceiver` contract.

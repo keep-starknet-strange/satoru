@@ -9,7 +9,7 @@ use core::traits::Into;
 use starknet::ContractAddress;
 
 // Local imports.
-use gojo::oracle::oracle_utils::SetPricesParams;
+use satoru::oracle::oracle_utils::SetPricesParams;
 
 // *************************************************************************
 //                  Interface of the `LiquidationHandler` contract.
@@ -45,22 +45,22 @@ mod LiquidationHandler {
 
     // Local imports.
     use super::ILiquidationHandler;
-    use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-    use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-    use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-    use gojo::oracle::{
+    use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+    use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+    use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+    use satoru::oracle::{
         oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
         oracle_utils::SetPricesParams
     };
-    use gojo::order::{
+    use satoru::order::{
         order::{SecondaryOrderType, OrderType, Order},
         order_vault::{IOrderVaultSafeDispatcher, IOrderVaultSafeDispatcherTrait},
         base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}
     };
-    use gojo::swap::swap_handler::{ISwapHandlerSafeDispatcher, ISwapHandlerSafeDispatcherTrait};
-    use gojo::market::market::Market;
-    use gojo::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
+    use satoru::swap::swap_handler::{ISwapHandlerSafeDispatcher, ISwapHandlerSafeDispatcherTrait};
+    use satoru::market::market::Market;
+    use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
 
     // *************************************************************************
     //                              STORAGE

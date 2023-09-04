@@ -8,8 +8,8 @@ use traits::{Into, TryInto};
 use option::OptionTrait;
 
 // Local imports.
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use gojo::withdrawal::withdrawal::{Withdrawal};
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::withdrawal::withdrawal::{Withdrawal};
 
 fn get(data_store: IDataStoreSafeDispatcher, key: felt252) -> Withdrawal {
     // TODO

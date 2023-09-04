@@ -5,7 +5,7 @@ mod ERC20 {
     use starknet::get_caller_address;
     use zeroable::Zeroable;
 
-    use gojo::token::erc20::interface::IERC20;
+    use satoru::token::erc20::interface::IERC20;
 
     #[storage]
     struct Storage {

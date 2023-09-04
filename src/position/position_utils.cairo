@@ -7,20 +7,20 @@
 use starknet::ContractAddress;
 
 // Local imports.
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use gojo::oracle::oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait};
-use gojo::swap::swap_handler::{ISwapHandlerSafeDispatcher, ISwapHandlerSafeDispatcherTrait};
-use gojo::market::market::Market;
-use gojo::market::market_utils::MarketPrices;
-use gojo::price::price::Price;
-use gojo::position::position::Position;
-use gojo::pricing::position_pricing_utils::PositionFees;
-use gojo::order::order::{Order, SecondaryOrderType};
-use gojo::referral::referral_storage::interface::{
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::oracle::oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait};
+use satoru::swap::swap_handler::{ISwapHandlerSafeDispatcher, ISwapHandlerSafeDispatcherTrait};
+use satoru::market::market::Market;
+use satoru::market::market_utils::MarketPrices;
+use satoru::price::price::Price;
+use satoru::position::position::Position;
+use satoru::pricing::position_pricing_utils::PositionFees;
+use satoru::order::order::{Order, SecondaryOrderType};
+use satoru::referral::referral_storage::interface::{
     IReferralStorageSafeDispatcher, IReferralStorageSafeDispatcherTrait
 };
-use gojo::order::base_order_utils::ExecuteOrderParamsContracts;
+use satoru::order::base_order_utils::ExecuteOrderParamsContracts;
 
 /// Struct used in increasePosition and decreasePosition.
 #[derive(Drop, starknet::Store, Serde)]

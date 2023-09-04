@@ -15,13 +15,15 @@ use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait, Contract
 
 
 // Local imports.
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-use gojo::market::market_factory::{IMarketFactorySafeDispatcher, IMarketFactorySafeDispatcherTrait};
-use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use gojo::market::market::{Market, UniqueIdMarket};
-use gojo::market::market_token::{IMarketTokenSafeDispatcher, IMarketTokenSafeDispatcherTrait};
-use gojo::role::role;
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+use satoru::market::market_factory::{
+    IMarketFactorySafeDispatcher, IMarketFactorySafeDispatcherTrait
+};
+use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::market::market::{Market, UniqueIdMarket};
+use satoru::market::market_token::{IMarketTokenSafeDispatcher, IMarketTokenSafeDispatcherTrait};
+use satoru::role::role;
 
 #[test]
 fn given_normal_conditions_when_create_market_then_market_is_created() {
@@ -71,7 +73,7 @@ fn given_normal_conditions_when_create_market_then_market_is_created() {
     };
     // Query the name of the market token.
     let market_token_name = market_token.name().unwrap();
-    assert(market_token_name == 'Gojo Market', 'bad_market_token_name');
+    assert(market_token_name == 'Satoru Market', 'bad_market_token_name');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *

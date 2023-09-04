@@ -16,8 +16,8 @@ use snforge_std::{declare, ContractClassTrait, start_roll};
 
 
 // Local imports.
-use gojo::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
-use gojo::order::order::{Order, OrderType, OrderTrait};
+use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
+use satoru::order::order::{Order, OrderType, OrderTrait};
 
 #[test]
 fn given_normal_conditions_when_touch_then_expected_results() {

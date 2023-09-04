@@ -4,7 +4,7 @@
   <img src="docs/images/logo.png" height="256">
 </p>
 
-<h1 align="center">⚡ Gojo ⚡</h1>
+<h1 align="center">⚡ Satoru ⚡</h1>
 
 <p align="center">
   <strong>Synthetics platform for Starknet, inspired by GMX v2 design.</strong>
@@ -12,24 +12,24 @@
 
 <p align="center">
   <a href="LICENSE">
-    <img src="https://img.shields.io/github/license/keep-starknet-strange/gojo.svg?style=flat-square" alt="Project license">
+    <img src="https://img.shields.io/github/license/keep-starknet-strange/satoru.svg?style=flat-square" alt="Project license">
   </a>
-  <a href="https://github.com/keep-starknet-strange/gojo/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22">
+  <a href="https://github.com/keep-starknet-strange/satoru/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22">
     <img src="https://img.shields.io/badge/PRs-welcome-ff69b4.svg?style=flat-square" alt="Pull Requests welcome">
   </a>
-  <a href="https://keep-starknet-strange.github.io/gojo/">
-    <img src="https://img.shields.io/badge/Read-Gojo_Book-blue" alt="Read the Gojo Book">
+  <a href="https://keep-starknet-strange.github.io/satoru/">
+    <img src="https://img.shields.io/badge/Read-Satoru_Book-blue" alt="Read the Satoru Book">
   </a>
 </p>
 
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
 
-## ⚡ About Gojo ⚡
+## ⚡ About Satoru ⚡
 
-Gojo is a cutting-edge synthetics platform for Starknet, taking inspiration from the modular design of GMX v2.
+Satoru is a cutting-edge synthetics platform for Starknet, taking inspiration from the modular design of GMX v2.
 
-Read the [Gojo Book](https://keep-starknet-strange.github.io/gojo/) to learn more about the project.
+Read the [Satoru Book](https://keep-starknet-strange.github.io/satoru/) to learn more about the project.
 
 ## 🛠️ Build
 
@@ -51,7 +51,7 @@ snforge
 
 Here are some resources to help you get started:
 
-- [Gojo Book](https://keep-starknet-strange.github.io/gojo/)
+- [Satoru Book](https://keep-starknet-strange.github.io/satoru/)
 - [Cairo Book](https://book.cairo-lang.org/)
 - [Starknet Book](https://book.starknet.io/)
 - [Starknet Foundry Book](https://foundry-rs.github.io/starknet-foundry/)
@@ -76,9 +76,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/abdelhamidbakhta"><img src="https://avatars.githubusercontent.com/u/45264458?v=4?s=100" width="100px;" alt="Abdel @ StarkWare "/><br /><sub><b>Abdel @ StarkWare </b></sub></a><br /><a href="https://github.com/keep-starknet-strange/gojo/commits?author=abdelhamidbakhta" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/sparqet"><img src="https://avatars.githubusercontent.com/u/37338401?v=4?s=100" width="100px;" alt="sparqet"/><br /><sub><b>sparqet</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/gojo/commits?author=sparqet" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/zarboq"><img src="https://avatars.githubusercontent.com/u/37303126?v=4?s=100" width="100px;" alt="zarboq"/><br /><sub><b>zarboq</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/gojo/commits?author=zarboq" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/abdelhamidbakhta"><img src="https://avatars.githubusercontent.com/u/45264458?v=4?s=100" width="100px;" alt="Abdel @ StarkWare "/><br /><sub><b>Abdel @ StarkWare </b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=abdelhamidbakhta" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/sparqet"><img src="https://avatars.githubusercontent.com/u/37338401?v=4?s=100" width="100px;" alt="sparqet"/><br /><sub><b>sparqet</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=sparqet" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/zarboq"><img src="https://avatars.githubusercontent.com/u/37303126?v=4?s=100" width="100px;" alt="zarboq"/><br /><sub><b>zarboq</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=zarboq" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

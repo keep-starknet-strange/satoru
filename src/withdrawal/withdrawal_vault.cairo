@@ -29,9 +29,9 @@ mod WithdrawalVault {
     use starknet::{ContractAddress};
 
     // Local imports.
-    use gojo::bank::strict_bank::{IStrictBankSafeDispatcher};
+    use satoru::bank::strict_bank::{IStrictBankSafeDispatcher};
     use super::IWithdrawalVault;
-    use gojo::withdrawal::error::WithdrawalError;
+    use satoru::withdrawal::error::WithdrawalError;
 
     // *************************************************************************
     //                              STORAGE
