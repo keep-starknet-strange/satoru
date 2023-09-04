@@ -7,9 +7,9 @@
 // Core lib imports.
 
 // Local imports.
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use gojo::oracle::{
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::oracle::{
     oracle::{IOracleDispatcher}, oracle_utils::{SetPricesParams, SimulatePricesParams},
 };
 

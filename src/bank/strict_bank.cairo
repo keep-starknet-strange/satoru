@@ -36,7 +36,7 @@ mod StrictBank {
     use debug::PrintTrait;
 
     // Local imports.
-    use gojo::bank::bank::{Bank, IBank};
+    use satoru::bank::bank::{Bank, IBank};
 
     // *************************************************************************
     //                              STORAGE

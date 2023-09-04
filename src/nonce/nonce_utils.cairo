@@ -1,5 +1,5 @@
 // Local imports.
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 
 /// Get the current nonce value.
 /// # Arguments

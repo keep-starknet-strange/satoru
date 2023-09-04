@@ -51,12 +51,14 @@ mod Config {
     use debug::PrintTrait;
 
     // Local imports.
-    use gojo::role::role;
-    use gojo::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use gojo::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use gojo::data::keys;
-    use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-    use gojo::config::error::ConfigError;
+    use satoru::role::role;
+    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use satoru::data::keys;
+    use satoru::event::event_emitter::{
+        IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait
+    };
+    use satoru::config::error::ConfigError;
 
     // External imports.
     use alexandria_data_structures::array_ext::ArrayTraitExt;

@@ -7,8 +7,8 @@ use starknet::{ContractAddress, contract_address_const};
 use debug::PrintTrait;
 
 // Local imports.
-use gojo::utils::store_arrays::StoreContractAddressArray;
-use gojo::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
+use satoru::utils::store_arrays::StoreContractAddressArray;
+use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
 
 /// Struct for orders.
 #[derive(Drop, starknet::Store, Serde)]

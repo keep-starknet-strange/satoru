@@ -1,6 +1,6 @@
-// Gojo imports
-use gojo::deposit::deposit::Deposit;
-use gojo::event::event_utils::EventLogData;
+// Satoru imports
+use satoru::deposit::deposit::Deposit;
+use satoru::event::event_utils::EventLogData;
 
 // *************************************************************************
 //                  Interface of the `DepositCallbackReceiver` contract.

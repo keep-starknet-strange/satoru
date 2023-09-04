@@ -1,8 +1,8 @@
 // Core Lib imports
 use starknet::ContractAddress;
 
-// Gojo imports
-use gojo::utils::store_arrays::StoreContractAddressArray;
+// Satoru imports
+use satoru::utils::store_arrays::StoreContractAddressArray;
 
 /// Deposit
 #[derive(Drop, starknet::Store, Serde)]

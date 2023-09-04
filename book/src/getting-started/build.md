@@ -13,7 +13,7 @@ Sample output:
 ```shell
 tree target/dev
 target/dev
-├── gojo.starknet_artifacts.json
-├── gojo_DataStore.sierra.json
-└── gojo_RoleStore.sierra.json
+├── satoru.starknet_artifacts.json
+├── satoru_DataStore.sierra.json
+└── satoru_RoleStore.sierra.json
 ```

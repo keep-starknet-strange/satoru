@@ -28,8 +28,8 @@ mod DepositVault {
     use debug::PrintTrait;
 
     // Local imports.
-    use gojo::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use gojo::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 
     // *************************************************************************
     //                              STORAGE

@@ -13,15 +13,15 @@ use core::traits::Into;
 use starknet::ContractAddress;
 
 // Local imports
-use gojo::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use gojo::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use gojo::oracle::{
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::oracle::{
     oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait},
     oracle_utils::{SetPricesParams, ReportInfo}, error::OracleError,
 };
-use gojo::utils::u128_mask::Mask;
-use gojo::price::price::Price;
+use satoru::utils::u128_mask::Mask;
+use satoru::price::price::Price;
 
 // *************************************************************************
 //                  Interface of the `Oracle` contract.
@@ -195,12 +195,12 @@ mod Oracle {
     use debug::PrintTrait;
 
     // Local imports.
-    use gojo::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-    use gojo::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use gojo::price::price::Price;
+    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use satoru::price::price::Price;
     use super::{IOracle, ValidatedPrice};
-    use gojo::oracle::{
+    use satoru::oracle::{
         oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait},
         oracle_utils::{SetPricesParams, ReportInfo}, error::OracleError,
     };

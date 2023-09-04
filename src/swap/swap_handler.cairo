@@ -7,7 +7,7 @@
 use starknet::ContractAddress;
 
 // Local imports.
-use gojo::swap::swap_utils::{SwapParams};
+use satoru::swap::swap_utils::{SwapParams};
 
 // *************************************************************************
 //                  Interface of the `SwapHandler` contract.
@@ -34,8 +34,8 @@ mod SwapHandler {
     use starknet::ContractAddress;
 
     // Local imports.
-    use gojo::swap::error::SwapError;
-    use gojo::swap::swap_utils::SwapParams;
+    use satoru::swap::error::SwapError;
+    use satoru::swap::swap_utils::SwapParams;
 
     // *************************************************************************
     //                              STORAGE

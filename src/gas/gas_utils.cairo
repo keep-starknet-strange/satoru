@@ -5,11 +5,11 @@
 use starknet::ContractAddress;
 
 // Local imports.
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use gojo::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use gojo::bank::strict_bank::{IStrictBankSafeDispatcher, IStrictBankSafeDispatcherTrait};
-use gojo::order::order::Order;
-use gojo::deposit::deposit::Deposit;
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::bank::strict_bank::{IStrictBankSafeDispatcher, IStrictBankSafeDispatcherTrait};
+use satoru::order::order::Order;
+use satoru::deposit::deposit::Deposit;
 
 /// Get the minimal gas to handle execution.
 /// # Arguments

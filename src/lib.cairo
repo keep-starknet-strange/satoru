@@ -116,7 +116,7 @@ mod market {
     mod market;
 }
 
-// `oracle` contains functions related to oracles used by Gojo.
+// `oracle` contains functions related to oracles used by Satoru.
 mod oracle {
     mod error;
     mod oracle_modules;
