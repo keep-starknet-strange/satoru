@@ -190,7 +190,9 @@ mod ExchangeRouter {
 
     // Local imports.
     use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-    use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+    use satoru::event::event_emitter::{
+        IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait
+    };
     use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
     use satoru::router::router::{IRouterSafeDispatcher, IRouterSafeDispatcherTrait};
     use satoru::exchange::{
