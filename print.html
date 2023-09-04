@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Gojo Book</title>
+        <title>Satoru Book</title>
         <meta name="robots" content="noindex" />
 
 
@@ -135,13 +135,13 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Gojo Book</h1>
+                    <h1 class="menu-title">Satoru Book</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
                             <i id="print-button" class="fa fa-print"></i>
                         </a>
-                        <a href="https://github.com/keep-starknet-strange/gojo/" title="Git repository" aria-label="Git repository">
+                        <a href="https://github.com/keep-starknet-strange/satoru/" title="Git repository" aria-label="Git repository">
                             <i id="git-repository-button" class="fa fa-github"></i>
                         </a>
 
@@ -170,11 +170,11 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="gojo"><a class="header" href="#gojo">Gojo</a></h1>
-<p>Gojo is a cutting-edge synthetics platform for Starknet, taking inspiration from the modular design of GMX v2.</p>
-<p><img src="./assets/gojo-whats-up.gif" alt="Gojo Whats Up" /></p>
-<p>Like it's namesake, Gojo is <strong>powerful</strong> and <strong>badass</strong>. It's also a bit of a mystery. We don't know what it's capable of yet, but we're excited to find out.</p>
-<p>Combine the power of <strong>Starknet</strong> with it's huge computation capacity to the great design of <strong>GMX v2</strong>, and you get Gojo, a synthetics platform that is fast, cheap and scalable.</p>
+                        <h1 id="satoru"><a class="header" href="#satoru">Satoru</a></h1>
+<p>Satoru is a cutting-edge synthetics platform for Starknet, taking inspiration from the modular design of GMX v2.</p>
+<p><img src="./assets/satoru-whats-up.gif" alt="Satoru Whats Up" /></p>
+<p>Like it's namesake, Satoru is <strong>powerful</strong> and <strong>badass</strong>. It's also a bit of a mystery. We don't know what it's capable of yet, but we're excited to find out.</p>
+<p>Combine the power of <strong>Starknet</strong> with it's huge computation capacity to the great design of <strong>GMX v2</strong>, and you get Satoru, a synthetics platform that is fast, cheap and scalable.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="getting-started"><a class="header" href="#getting-started">Getting Started</a></h1>
 <p>In this section, we will go through the steps to build and test the smart contracts.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="prerequisites"><a class="header" href="#prerequisites">Prerequisites</a></h1>
@@ -189,9 +189,9 @@
 <p>Sample output:</p>
 <pre><code class="language-shell">tree target/dev
 target/dev
-├── gojo.starknet_artifacts.json
-├── gojo_DataStore.sierra.json
-└── gojo_RoleStore.sierra.json
+├── satoru.starknet_artifacts.json
+├── satoru_DataStore.sierra.json
+└── satoru_RoleStore.sierra.json
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="test-the-contracts"><a class="header" href="#test-the-contracts">Test the contracts</a></h1>
 <p>Open a terminal and run the following command:</p>
@@ -211,15 +211,15 @@ Tests: 4 passed, 0 failed, 0 skipped
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="smart-contracts-architecture"><a class="header" href="#smart-contracts-architecture">Smart contracts architecture</a></h1>
 <p>In this section, we will go through the smart contracts architecture.</p>
-<p>Gojo is composed of several modules. Each module is a set of smart contracts and libraries that are related to a specific area.</p>
+<p>Satoru is composed of several modules. Each module is a set of smart contracts and libraries that are related to a specific area.</p>
 <p>The goal of this architecture is to make the code more readable and maintainable, as well as to make it easier to add new features.</p>
 <p>Another goal is to enable composability. For example, the <code>Role</code> module can be used in any other module to add role-based access control to the module's functions.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="protocol-overview"><a class="header" href="#protocol-overview">Protocol Overview</a></h1>
-<p><img src="smart-contracts-architecture/../assets/gojo-diagram.png" alt="Schema" />
-Gojo high-level modules overview.</p>
-<h2 id="two-steps-actions-in-gojo"><a class="header" href="#two-steps-actions-in-gojo">Two steps actions in Gojo</a></h2>
-<p>Gojo employs a two-step approach for critical actions like Deposit, Withdrawal, and Order execution. This method ensures enhanced security and guards against front-running risks.</p>
-<p><img src="smart-contracts-architecture/../assets/gojo-two-steps.png" alt="TwoStepsActions" /></p>
+<p><img src="smart-contracts-architecture/../assets/satoru-diagram.png" alt="Schema" />
+Satoru high-level modules overview.</p>
+<h2 id="two-steps-actions-in-satoru"><a class="header" href="#two-steps-actions-in-satoru">Two steps actions in Satoru</a></h2>
+<p>Satoru employs a two-step approach for critical actions like Deposit, Withdrawal, and Order execution. This method ensures enhanced security and guards against front-running risks.</p>
+<p><img src="smart-contracts-architecture/../assets/satoru-two-steps.png" alt="TwoStepsActions" /></p>
 <p>First user send its request and then it is verified and executed by a Keeper. This helps protect users from front-running issues.</p>
 <p><strong>Process Overview:</strong></p>
 <ol>
@@ -235,62 +235,62 @@ Gojo high-level modules overview.</p>
 <p>The adl module helps with the auto-deleveraging.</p>
 <p>It contains the following Cairo library files:</p>
 <ul>
-<li><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/adl/adl.cairo">adl.cairo</a>: Helps with the auto-deleveraging. This is particularly for markets with an index token that is different from the long token.</li>
+<li><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/adl/adl.cairo">adl.cairo</a>: Helps with the auto-deleveraging. This is particularly for markets with an index token that is different from the long token.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="callback-module"><a class="header" href="#callback-module">Callback module</a></h1>
-<p>Most features of gojo require a two step process to complete. The Callback module is used to facilitate usage of other contracts interacting with Gojo protocol, thus allowing better composability.</p>
+<p>Most features of satoru require a two step process to complete. The Callback module is used to facilitate usage of other contracts interacting with Satoru protocol, thus allowing better composability.</p>
 <p>It contains the following smart contracts:</p>
 <ul>
-<li><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/callback/callback_utils.cairo">callback_utils.cairo</a>: It is handling most functions linked to callback.</li>
+<li><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/callback/callback_utils.cairo">callback_utils.cairo</a>: It is handling most functions linked to callback.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="data-module"><a class="header" href="#data-module">Data module</a></h1>
 <p>The data module is reponsible for storing and managing the data of the protocol.</p>
 <p>It contains the following smart contracts:</p>
 <ul>
-<li><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/data/data_store.cairo">DataStore</a>: The main smart contract of the module. It is responsible for storing the data of the protocol.</li>
+<li><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/data/data_store.cairo">DataStore</a>: The main smart contract of the module. It is responsible for storing the data of the protocol.</li>
 </ul>
 <p>It contains the following Cairo library files:</p>
 <ul>
-<li><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/data/keys.cairo">keys.cairo</a>: Contains functions to generate the keys (entries in the data store) of the protocol.</li>
+<li><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/data/keys.cairo">keys.cairo</a>: Contains functions to generate the keys (entries in the data store) of the protocol.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="feature-module"><a class="header" href="#feature-module">Feature module</a></h1>
 <p>The Feature is used to validate if a feature is enabled or disabled.</p>
 <p>It contains the following smart contracts:</p>
 <ul>
-<li><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/feature/feature_utils.cairo">feature_utils.cairo</a>: It is responsible for validating if a feature is enabled or disabled.</li>
+<li><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/feature/feature_utils.cairo">feature_utils.cairo</a>: It is responsible for validating if a feature is enabled or disabled.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="fee-module"><a class="header" href="#fee-module">Fee module</a></h1>
 <p>The fee module is for the fees actions.</p>
 <p>It contains the following smart contracts:</p>
 <ul>
-<li><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/fee/fee_handler.cairo">FeeHandler</a>: The main smart contract of the module. It is responsible for claiming the fees from the specified markets.</li>
+<li><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/fee/fee_handler.cairo">FeeHandler</a>: The main smart contract of the module. It is responsible for claiming the fees from the specified markets.</li>
 </ul>
 <p>It contains the following Cairo library files:</p>
 <ul>
 <li>
-<p><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/fee/error.cairo">fee_utils.cairo</a>: Fee actions</p>
+<p><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/fee/error.cairo">fee_utils.cairo</a>: Fee actions</p>
 </li>
 <li>
-<p><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/fee/error.cairo">error.cairo</a>: Contains the error codes of the module.</p>
+<p><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/fee/error.cairo">error.cairo</a>: Contains the error codes of the module.</p>
 </li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="gas-module"><a class="header" href="#gas-module">Gas Module</a></h1>
 <p>The purpose of the gas module is for the execution fee estimation and payments.</p>
 <p>It contains the following Cairo library files:</p>
 <ul>
-<li><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/gas/gas_utils.cairo">GasUtils</a>: It is responsible for the execution fee estimation and payments</li>
+<li><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/gas/gas_utils.cairo">GasUtils</a>: It is responsible for the execution fee estimation and payments</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="liquidation-module"><a class="header" href="#liquidation-module">Liquidation module</a></h1>
 <p>The Liquidation is used to to help with liquidations.</p>
 <p>It contains the following Cairo library files:</p>
 <ul>
-<li><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/liquidation/liquidation_utils.cairo">liquidation_utils.cairo</a>: It is responsible for liquidations.</li>
+<li><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/liquidation/liquidation_utils.cairo">liquidation_utils.cairo</a>: It is responsible for liquidations.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="nonce-module"><a class="header" href="#nonce-module">Nonce Module</a></h1>
 <p>The purpose of the nonce module is to maintain a progressively increasing nonce value. This value plays a crucial role in the generation of keys.</p>
 <p>It contains the following smart contracts:</p>
 <ul>
-<li><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/nonce/nonce_utils.cairo">NonceUtils</a>: The main smart contract of the module. It is used to maintain a progressively increasing nonce value. This value plays a crucial role in the generation of keys.</li>
+<li><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/nonce/nonce_utils.cairo">NonceUtils</a>: The main smart contract of the module. It is used to maintain a progressively increasing nonce value. This value plays a crucial role in the generation of keys.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="oracle-module"><a class="header" href="#oracle-module">Oracle Module</a></h1>
 <p>The purpose of the oracle module is to validate and store signed values.</p>
@@ -341,68 +341,68 @@ decimal multiplier value and uint32 price value.</p>
 <hr />
 <p>It contains the following files:</p>
 <ul>
-<li><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/oracle/oracle_modules.cairo">oracle_modules.cairo</a>: Modifiers for oracles.</li>
-<li><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/oracle/oracle_modules.cairo">oracle_store.cairo</a>: Storage for oracles.</li>
-<li><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/oracle/oracle_utils.cairo">oracle_utils.cairo</a>: Contains utility structs and functions for Oracles.</li>
-<li><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/oracle/oracle_modules.cairo">oracle.cairo</a>: Main oracle smart contract.</li>
+<li><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/oracle/oracle_modules.cairo">oracle_modules.cairo</a>: Modifiers for oracles.</li>
+<li><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/oracle/oracle_modules.cairo">oracle_store.cairo</a>: Storage for oracles.</li>
+<li><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/oracle/oracle_utils.cairo">oracle_utils.cairo</a>: Contains utility structs and functions for Oracles.</li>
+<li><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/oracle/oracle_modules.cairo">oracle.cairo</a>: Main oracle smart contract.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="role-module"><a class="header" href="#role-module">Role module</a></h1>
 <p>The role module is responsible for role-based access control.</p>
 <p>It contains the following smart contracts:</p>
 <ul>
-<li><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/role/role_store.cairo">RoleStore</a>: The main smart contract of the module. It is responsible for storing the roles of the protocol and for managing the access control.</li>
+<li><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/role/role_store.cairo">RoleStore</a>: The main smart contract of the module. It is responsible for storing the roles of the protocol and for managing the access control.</li>
 </ul>
 <p>It contains the following Cairo library files:</p>
 <ul>
-<li><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/role/role.cairo">role.cairo</a>: Contains the different roles of the protocol.</li>
-<li><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/role/error.cairo">error.cairo</a>: Contains the error codes of the module.</li>
+<li><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/role/role.cairo">role.cairo</a>: Contains the different roles of the protocol.</li>
+<li><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/role/error.cairo">error.cairo</a>: Contains the error codes of the module.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="swap-module"><a class="header" href="#swap-module">Swap module</a></h1>
 <p>The swap module is reponsible for swaping.</p>
 <p>It contains the following smart contracts:</p>
 <ul>
-<li><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/swap/swap_handler">SwapHandler</a>: Smart contract to handle swaps.</li>
+<li><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/swap/swap_handler">SwapHandler</a>: Smart contract to handle swaps.</li>
 </ul>
 <p>It contains the following Cairo library files:</p>
 <ul>
-<li><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/swap/swap_utils.cairo">swap_utils.cairo</a>: It is responsible for swaping.</li>
+<li><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/swap/swap_utils.cairo">swap_utils.cairo</a>: It is responsible for swaping.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="utils-module"><a class="header" href="#utils-module">Utils module</a></h1>
 <p>The Utils module is a various collection of utility functions and tools designed to streamline various tasks within the protocol. This module serves as a repository for functions that do not fit into specific categories but are essential for enhancing the efficiency and readability of the codebase.</p>
 <p>It contains the following files:</p>
 <ul>
 <li>
-<p><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/utils/array.cairo">array.cairo</a>: Helps with array manipulation.</p>
+<p><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/array.cairo">array.cairo</a>: Helps with array manipulation.</p>
 </li>
 <li>
-<p><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/utils/keys.cairo">basic_multicall.cairo</a>: Helps with multicall.</p>
+<p><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/keys.cairo">basic_multicall.cairo</a>: Helps with multicall.</p>
 </li>
 <li>
-<p><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/utils/keys.cairo">bits.cairo</a>: Bits constants.</p>
+<p><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/keys.cairo">bits.cairo</a>: Bits constants.</p>
 </li>
 <li>
-<p><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/utils/keys.cairo">calc.cairo</a>: Various calculations.</p>
+<p><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/keys.cairo">calc.cairo</a>: Various calculations.</p>
 </li>
 <li>
-<p><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/utils/keys.cairo">enumerable_values.cairo</a>: Extends EnumerableSet.</p>
+<p><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/keys.cairo">enumerable_values.cairo</a>: Extends EnumerableSet.</p>
 </li>
 <li>
-<p><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/utils/keys.cairo">global_reentrancy_guard.cairo</a>: Reentrancy security on a global level.</p>
+<p><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/keys.cairo">global_reentrancy_guard.cairo</a>: Reentrancy security on a global level.</p>
 </li>
 <li>
-<p><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/utils/keys.cairo">hash.cairo</a>: Hash utils.</p>
+<p><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/keys.cairo">hash.cairo</a>: Hash utils.</p>
 </li>
 <li>
-<p><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/utils/keys.cairo">precision.cairo</a>: Precisions utils.</p>
+<p><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/keys.cairo">precision.cairo</a>: Precisions utils.</p>
 </li>
 <li>
-<p><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/utils/keys.cairo">store_contract_address_array.cairo</a>: Implementation of store for Array of ContractAddress.</p>
+<p><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/keys.cairo">store_contract_address_array.cairo</a>: Implementation of store for Array of ContractAddress.</p>
 </li>
 <li>
-<p><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/utils/keys.cairo">u128_mask.cairo</a>: Mask function.</p>
+<p><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/keys.cairo">u128_mask.cairo</a>: Mask function.</p>
 </li>
 <li>
-<p><a href="https://github.com/keep-starknet-strange/gojo/blob/main/src/utils/keys.cairo">validate_account.cairo</a>: Helps validating accounts.</p>
+<p><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/keys.cairo">validate_account.cairo</a>: Helps validating accounts.</p>
 </li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="continuous-integration"><a class="header" href="#continuous-integration">Continuous Integration</a></h1>
@@ -410,11 +410,11 @@ decimal multiplier value and uint32 price value.</p>
 <p>A workflow is a configurable automated process that will run one or more jobs. Workflows are defined by a YAML file checked in to your repository and will run when triggered by an event in your repository, or they can be triggered manually, or at a defined schedule.</p>
 <p>In this section we will run through every workflows and give a detailed explanation of their functionalities.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="github-workflows-documentation"><a class="header" href="#github-workflows-documentation">Github Workflows Documentation</a></h1>
-<h2 id="gojo-book-workflow-documentation"><a class="header" href="#gojo-book-workflow-documentation">Gojo Book Workflow Documentation</a></h2>
+<h2 id="satoru-book-workflow-documentation"><a class="header" href="#satoru-book-workflow-documentation">Satoru Book Workflow Documentation</a></h2>
 <h3 id="overview"><a class="header" href="#overview">Overview:</a></h3>
-<p>The &quot;Gojo Book&quot; GitHub Actions workflow (<code>book.yml</code>) is specifically designed for the automated build and deployment of the Gojo book's latest version.</p>
+<p>The &quot;Satoru Book&quot; GitHub Actions workflow (<code>book.yml</code>) is specifically designed for the automated build and deployment of the Satoru book's latest version.</p>
 <h3 id="workflow-details"><a class="header" href="#workflow-details">Workflow Details:</a></h3>
-<p><strong>Workflow Name:</strong> Gojo Book</p>
+<p><strong>Workflow Name:</strong> Satoru Book</p>
 <p><strong>Trigger Conditions:</strong></p>
 <ol>
 <li><strong>Push Event:</strong> Activated when changes are pushed to the <code>main</code> branch.</li>
@@ -437,7 +437,7 @@ decimal multiplier value and uint32 price value.</p>
 </ul>
 </li>
 </ol>
-<pre><code class="language-yml">name: Gojo Book
+<pre><code class="language-yml">name: Satoru Book
 
 on:
   push:
