@@ -58,6 +58,36 @@ fn given_normal_conditions_when_felt252_functions_then_expected_results() {
 }
 
 #[test]
+fn given_normal_conditions_when_bool_functions_then_expected_results() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (caller_address, role_store, data_store) = setup();
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Set key 1 to value true.
+    data_store.set_bool(1, true).unwrap();
+    // Safe to unwrap because we know that the key exists and if it doesn't the test should fail.
+    let value = data_store.get_bool(1).unwrap().unwrap();
+    // Check that the value read is true.
+    assert(value == true, 'Invalid value');
+
+    // Remove key 1.
+    data_store.remove_bool(1).unwrap();
+    // Check that the key was removed.
+    assert(data_store.get_bool(1).unwrap() == Option::None, 'Key was not deleted');
+
+    // *********************************************************************************************
+    // *                              TEARDOWN                                                     *
+    // *********************************************************************************************
+    teardown(data_store.contract_address);
+}
+
+
+#[test]
 fn given_normal_conditions_when_u256_functions_then_expected_results() {
     // *********************************************************************************************
     // *                              SETUP                                                        *

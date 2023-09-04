@@ -216,10 +216,7 @@ mod DataStore {
         u256_values: LegacyMap::<felt252, u256>,
         u128_values: LegacyMap::<felt252, u128>,
         address_values: LegacyMap::<felt252, ContractAddress>,
-        // FIXME: #9 https://github.com/keep-starknet-strange/satoru/issues/9
-        // For some reason it's not possible to store `Option<bool>` in the storage.
-        // Error: Trait has no implementation in context: core::starknet::storage_access::Store::<core::option::Option::<core::bool>>
-        //bool_values: LegacyMap::<felt252, Option<bool>>,
+        bool_values: LegacyMap::<felt252, Option<bool>>,
         market_values: LegacyMap::<felt252, Market>,
         order_values: LegacyMap::<felt252, Order>,
     }
@@ -404,24 +401,21 @@ mod DataStore {
         //                      Bool related functions.
         // *************************************************************************
         fn get_bool(self: @ContractState, key: felt252) -> Option<bool> {
-            //self.bool_values.read(key)
-            Option::None
+            self.bool_values.read(key)
         }
 
-        fn set_bool(
-            ref self: ContractState, key: felt252, value: bool
-        ) { // Check that the caller has permission to set the value.
-        //self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
-        // Set the value.
-        //self.bool_values.write(key, Option::Some(value));
+        fn set_bool(ref self: ContractState, key: felt252, value: bool) {
+            // Check that the caller has permission to set the value.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            // Set the value.
+            self.bool_values.write(key, Option::Some(value));
         }
 
-        fn remove_bool(
-            ref self: ContractState, key: felt252
-        ) { // Check that the caller has permission to delete the value.
-        //self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
-        // Delete the value.
-        //self.bool_values.write(key, Option::None);
+        fn remove_bool(ref self: ContractState, key: felt252) {
+            // Check that the caller has permission to delete the value.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            // Delete the value.
+            self.bool_values.write(key, Option::None);
         }
 
         // *************************************************************************
