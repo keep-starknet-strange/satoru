@@ -5,8 +5,8 @@
 // *************************************************************************
 use core::traits::Into;
 use starknet::ContractAddress;
-use gojo::market::market::Market;
-use gojo::order::order::Order;
+use satoru::market::market::Market;
+use satoru::order::order::Order;
 
 // *************************************************************************
 //                  Interface of the `DataStore` contract.
@@ -201,10 +201,10 @@ mod DataStore {
     use zeroable::Zeroable;
 
     // Local imports.
-    use gojo::role::role;
-    use gojo::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use gojo::market::market::{Market, ValidateMarket};
-    use gojo::order::order::Order;
+    use satoru::role::role;
+    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::market::market::{Market, ValidateMarket};
+    use satoru::order::order::Order;
 
     // *************************************************************************
     //                              STORAGE
@@ -216,7 +216,7 @@ mod DataStore {
         u256_values: LegacyMap::<felt252, u256>,
         u128_values: LegacyMap::<felt252, u128>,
         address_values: LegacyMap::<felt252, ContractAddress>,
-        // FIXME: #9 https://github.com/keep-starknet-strange/gojo/issues/9
+        // FIXME: #9 https://github.com/keep-starknet-strange/satoru/issues/9
         // For some reason it's not possible to store `Option<bool>` in the storage.
         // Error: Trait has no implementation in context: core::starknet::storage_access::Store::<core::option::Option::<core::bool>>
         //bool_values: LegacyMap::<felt252, Option<bool>>,

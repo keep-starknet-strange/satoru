@@ -26,12 +26,12 @@ mod MarketToken {
     use starknet::get_caller_address;
     use zeroable::Zeroable;
 
-    use gojo::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use gojo::role::role;
+    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::role::role;
 
     use super::IMarketToken;
 
-    const NAME: felt252 = 'Gojo Market';
+    const NAME: felt252 = 'Satoru Market';
     const SYMBOL: felt252 = 'GM';
     const DECIMALS: u8 = 6;
 

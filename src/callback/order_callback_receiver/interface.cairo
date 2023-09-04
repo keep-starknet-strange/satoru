@@ -1,6 +1,6 @@
-// Gojo imports
-use gojo::order::order::Order;
-use gojo::event::event_utils::EventLogData;
+// Satoru imports
+use satoru::order::order::Order;
+use satoru::event::event_utils::EventLogData;
 
 // *************************************************************************
 //                  Interface of the `OrderCallbackReceiver` contract.

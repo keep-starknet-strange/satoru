@@ -1,4 +1,4 @@
-use gojo::data::keys;
+use satoru::data::keys;
 use starknet::{ContractAddress, contract_address_const};
 
 #[test]

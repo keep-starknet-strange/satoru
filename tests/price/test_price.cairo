@@ -1,4 +1,4 @@
-use gojo::price::price::{Price, PriceTrait};
+use satoru::price::price::{Price, PriceTrait};
 
 #[test]
 fn test_mid_price() {

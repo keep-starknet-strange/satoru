@@ -36,8 +36,8 @@ use array::ArrayTrait;
 use zeroable::Zeroable;
 
 // Local imports.
-use gojo::market::error::MarketError;
-use gojo::market::market_token::{IMarketTokenSafeDispatcher, IMarketTokenSafeDispatcherTrait};
+use satoru::market::error::MarketError;
+use satoru::market::market_token::{IMarketTokenSafeDispatcher, IMarketTokenSafeDispatcherTrait};
 
 /// Deriving the `storage_access::StorageAccess` trait
 /// allows us to store the `Market` struct in a contract's storage.

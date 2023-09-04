@@ -7,9 +7,9 @@ use starknet::Felt252TryIntoContractAddress;
 use snforge_std::{declare, start_prank, ContractClassTrait};
 
 
-use gojo::role::role::ROLE_ADMIN;
-use gojo::role::role_store::IRoleStoreSafeDispatcher;
-use gojo::role::role_store::IRoleStoreSafeDispatcherTrait;
+use satoru::role::role::ROLE_ADMIN;
+use satoru::role::role_store::IRoleStoreSafeDispatcher;
+use satoru::role::role_store::IRoleStoreSafeDispatcherTrait;
 
 #[test]
 fn test_grant_role() {

@@ -51,7 +51,7 @@ mod RoleStore {
     use starknet::{ContractAddress, get_caller_address};
 
     // Local imports.
-    use gojo::role::{role, error::RoleError};
+    use satoru::role::{role, error::RoleError};
 
     // *************************************************************************
     // STORAGE

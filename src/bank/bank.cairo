@@ -47,10 +47,10 @@ mod Bank {
     use debug::PrintTrait;
 
     // Local imports.
-    use gojo::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use gojo::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use super::IBank;
-    use gojo::bank::error::BankError;
+    use satoru::bank::error::BankError;
 
     // *************************************************************************
     //                              STORAGE
@@ -105,7 +105,7 @@ mod Bank {
             receiver: ContractAddress,
             amount: u128,
         ) {
-            // FIXME: #29 - https://github.com/keep-starknet-strange/gojo/issues/29
+            // FIXME: #29 - https://github.com/keep-starknet-strange/satoru/issues/29
             'not_implemented'.print();
         }
     }

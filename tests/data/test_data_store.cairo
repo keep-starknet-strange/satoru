@@ -8,10 +8,10 @@ use starknet::{
 use debug::PrintTrait;
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-use gojo::role::role;
-use gojo::order::order::{Order, OrderType, OrderTrait};
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+use satoru::role::role;
+use satoru::order::order::{Order, OrderType, OrderTrait};
 
 #[test]
 fn given_normal_conditions_when_felt252_functions_then_expected_results() {

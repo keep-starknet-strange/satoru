@@ -17,10 +17,10 @@ use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 
 
 // Local imports.
-use gojo::deposit::deposit_vault::{IDepositVaultSafeDispatcher, IDepositVaultSafeDispatcherTrait};
-use gojo::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-use gojo::role::role;
+use satoru::deposit::deposit_vault::{IDepositVaultSafeDispatcher, IDepositVaultSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+use satoru::role::role;
 
 /// TODO: Implement actual test and change the name of this function.
 // #[test]

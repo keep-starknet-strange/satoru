@@ -1,7 +1,7 @@
 //! Key management for the values in the `DataStore` contract.
 
 // IMPORTS
-use gojo::utils::hash::hash_poseidon_single;
+use satoru::utils::hash::hash_poseidon_single;
 use starknet::ContractAddress;
 use array::ArrayTrait;
 use poseidon::poseidon_hash_span;

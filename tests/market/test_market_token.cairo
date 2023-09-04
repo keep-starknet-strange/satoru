@@ -8,10 +8,10 @@ use starknet::{
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 
 
-use gojo::market::market_token::{IMarketTokenSafeDispatcher, IMarketTokenSafeDispatcherTrait};
-use gojo::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-use gojo::role::role;
-use gojo::market::market_utils;
+use satoru::market::market_token::{IMarketTokenSafeDispatcher, IMarketTokenSafeDispatcherTrait};
+use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+use satoru::role::role;
+use satoru::market::market_utils;
 
 #[test]
 fn given_normal_conditions_when_mint_then_expected_results() {
