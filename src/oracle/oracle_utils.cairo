@@ -85,7 +85,7 @@ struct ReportInfo {
 /// * `block_number` - The block number to compare to.
 fn validate_block_number_within_range(
     min_oracle_block_numbers: Array<u128>, max_oracle_block_numbers: Array<u128>, block_number: u128
-) { //TODO
+) { // TODO
 }
 
 /// Validates wether a block number is in range.
@@ -98,7 +98,7 @@ fn validate_block_number_within_range(
 fn is_block_number_within_range(
     min_oracle_block_numbers: Array<u128>, max_oracle_block_numbers: Array<u128>, block_number: u128
 ) -> bool {
-    //TODO
+    // TODO
     true
 }
 
@@ -109,7 +109,7 @@ fn is_block_number_within_range(
 /// # Returns
 /// The price at the specified index.
 fn get_uncompacted_price(compacted_prices: Array<u128>, index: u128) -> u128 {
-    //TODO
+    // TODO
     0
 }
 
@@ -120,7 +120,7 @@ fn get_uncompacted_price(compacted_prices: Array<u128>, index: u128) -> u128 {
 /// # Returns
 /// The decimal at the specified index.
 fn get_uncompacted_decimal(compacted_decimals: Array<u128>, index: u128) -> u128 {
-    //TODO
+    // TODO
     0
 }
 
@@ -131,7 +131,7 @@ fn get_uncompacted_decimal(compacted_decimals: Array<u128>, index: u128) -> u128
 /// # Returns
 /// The uncompacted price index at the specified index.
 fn get_uncompacted_price_index(compacted_price_indexes: Array<u128>, index: u128) -> u128 {
-    //TODO
+    // TODO
     0
 }
 
@@ -144,7 +144,7 @@ fn get_uncompacted_price_index(compacted_price_indexes: Array<u128>, index: u128
 fn get_uncompacted_oracle_block_numbers(
     compacted_oracle_block_numbers: Array<u128>, length: u128
 ) -> Array<u128> {
-    //TODO
+    // TODO
     ArrayTrait::new()
 }
 
@@ -157,7 +157,7 @@ fn get_uncompacted_oracle_block_numbers(
 fn get_uncompacted_oracle_block_number(
     compacted_oracle_block_numbers: Array<u128>, index: u128
 ) -> u128 {
-    //TODO
+    // TODO
     0
 }
 
@@ -168,7 +168,7 @@ fn get_uncompacted_oracle_block_number(
 /// # Returns
 /// The uncompacted oracle timestamp.
 fn get_uncompacted_oracle_timestamp(compacted_oracle_timestamps: Array<u128>, index: u128) -> u128 {
-    //TODO
+    // TODO
     0
 }
 
@@ -189,7 +189,7 @@ fn get_uncompacted_oracle_timestamp(compacted_oracle_timestamps: Array<u128>, in
 /// * `expected_signer` - The address of the expected signer.
 fn validate_signer(
     salt: felt252, info: ReportInfo, signature: Array<felt252>, expected_signer: ContractAddress
-) { //TODO
+) { // TODO
 }
 
 /// Revert with OracleBlockNumberNotWithinRange error.
@@ -198,7 +198,7 @@ fn validate_signer(
 /// * `block` - The current block number.
 fn revert_oracle_block_number_not_within_range(
     min_oracle_block_numbers: Array<u128>, max_oracle_block_numbers: Array<u128>, block_number: u64
-) { //TODO
+) { // TODO
 }
 
 /// Check wether `error` is an OracleError.
@@ -207,7 +207,7 @@ fn revert_oracle_block_number_not_within_range(
 /// # Returns
 /// Wether it's the right error.
 fn is_oracle_error(error_selector: felt252) -> bool {
-    //TODO
+    // TODO
     true
 }
 
@@ -217,7 +217,7 @@ fn is_oracle_error(error_selector: felt252) -> bool {
 /// # Returns
 /// Wether it's the right error.
 fn is_empty_price_error(error_selector: felt252) -> bool {
-    //TODO
+    // TODO
     true
 }
 
@@ -227,6 +227,6 @@ fn is_empty_price_error(error_selector: felt252) -> bool {
 /// # Returns
 /// Wether it's the right error.
 fn is_oracle_block_number_error(error_selector: felt252) -> bool {
-    //TODO
+    // TODO
     true
 }

@@ -90,7 +90,7 @@ struct SwapCache {
 /// part of the swap and the amount of the received token.
 #[inline(always)]
 fn swap(params: SwapParams) -> (ContractAddress, u128) {
-    //TODO
+    // TODO
     (0.try_into().unwrap(), 0)
 }
 
@@ -101,6 +101,6 @@ fn swap(params: SwapParams) -> (ContractAddress, u128) {
 /// The amount that was swapped.
 #[inline(always)]
 fn _swap(params: SwapParams, _params: _SwapParams) -> (ContractAddress, u128) {
-    //TODO
+    // TODO
     (0.try_into().unwrap(), 0)
 }

@@ -32,11 +32,11 @@ fn with_oracle_prices_before(
     data_store: IDataStoreSafeDispatcher,
     event_emitter: IEventEmitterSafeDispatcher,
     params: SetPricesParams
-) { //TODO
+) { // TODO
 }
 
 #[inline(always)]
-fn with_oracle_prices_after() { //TODO
+fn with_oracle_prices_after() { // TODO
 }
 
 /// Set oracle prices for a simulation.
@@ -53,9 +53,9 @@ fn with_oracle_prices_after() { //TODO
 #[inline(always)]
 fn with_simulated_oracle_prices_before(
     oracle: IOracleDispatcher, params: SimulatePricesParams
-) { //TODO
+) { // TODO
 }
 
 #[inline(always)]
-fn with_simulated_oracle_prices_after() { //TODO
+fn with_simulated_oracle_prices_after() { // TODO
 }

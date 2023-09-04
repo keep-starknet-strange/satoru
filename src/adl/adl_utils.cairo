@@ -76,7 +76,7 @@ fn update_adl_state(
     market: ContractAddress,
     is_long: bool,
     max_oracle_block_numbers: Span<u64>
-) { //TODO
+) { // TODO
 }
 
 /// Construct an ADL order, a decrease order is used to reduce a profitable position.
@@ -85,7 +85,7 @@ fn update_adl_state(
 /// # Returns
 /// Return the key of the created order.
 fn create_adl_order(params: CreateAdlOrderParams) -> felt252 {
-    //TODO
+    // TODO
     0
 }
 
@@ -100,7 +100,7 @@ fn validate_adl(
     market: ContractAddress,
     is_long: bool,
     max_oracle_block_numbers: Span<u128>
-) { //TODO
+) { // TODO
 }
 
 /// Get the latest block at which the ADL flag was updated.
@@ -113,7 +113,7 @@ fn validate_adl(
 fn get_latest_adl_block(
     data_store: IDataStoreSafeDispatcher, market: ContractAddress, is_long: bool
 ) -> u64 {
-    //TODO
+    // TODO
     0
 }
 
@@ -128,7 +128,7 @@ fn get_latest_adl_block(
 fn set_latest_adl_block(
     data_store: IDataStoreSafeDispatcher, market: ContractAddress, is_long: bool, value: u64
 ) -> u64 {
-    //TODO
+    // TODO
     0
 }
 
@@ -141,7 +141,7 @@ fn set_latest_adl_block(
 /// Return whether ADL is enabled.
 fn get_adl_enabled(
     data_store: IDataStoreSafeDispatcher, market: ContractAddress, is_long: bool
-) -> bool { //TODO
+) -> bool { // TODO
     true
 }
 
@@ -156,7 +156,7 @@ fn get_adl_enabled(
 fn set_adl_enabled(
     data_store: IDataStoreSafeDispatcher, market: ContractAddress, is_long: bool, value: bool
 ) -> bool {
-    //TODO
+    // TODO
     true
 }
 
@@ -175,5 +175,5 @@ fn emit_adl_state_updated(
     pnt_to_pool_factor: i128,
     max_pnl_factor: u128,
     should_enable_adl: bool
-) { //TODO
+) { // TODO
 }

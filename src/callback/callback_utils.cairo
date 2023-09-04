@@ -28,6 +28,7 @@ use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatche
 use satoru::event::event_utils::EventLogData;
 use satoru::order::order::Order;
 use satoru::deposit::deposit::Deposit;
+use satoru::withdrawal::withdrawal::Withdrawal;
 
 /// Validate that the callbackGasLimit is less than the max specified value.
 /// This is to prevent callback gas limits which are larger than the max gas limits per block
@@ -90,8 +91,7 @@ fn after_deposit_cancellation(key: felt252, deposit: Deposit, event_data: EventL
 /// * `withdrawal` - The withdrawal that was executed.
 /// * `event_data` - The event log data.
 fn after_withdrawal_execution(
-    key: felt252, //withdrawal: Withdrawal,
-     event_data: EventLogData
+    key: felt252, withdrawal: Withdrawal, event_data: EventLogData
 ) { // TODO + need to add withdrawal param also
 }
 
@@ -101,8 +101,7 @@ fn after_withdrawal_execution(
 /// * `withdrawal` - The withdrawal that was cancelled.
 /// * `event_data` - The event log data.
 fn after_withdrawal_cancellation(
-    key: felt252, //withdrawal: Withdrawal,
-     event_data: EventLogData
+    key: felt252, withdrawal: Withdrawal, event_data: EventLogData
 ) { // TODO + need to add withdrawal param also
 }
 

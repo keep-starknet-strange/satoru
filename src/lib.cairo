@@ -49,6 +49,18 @@ mod deposit {
     mod execute_deposit_utils;
 }
 
+// `exchange` contains main satoru handlers to create and execute actions.
+mod exchange {
+    mod adl_handler;
+    mod base_order_handler;
+    mod deposit_handler;
+    mod error;
+    mod exchange_utils;
+    mod liquidation_handler;
+    mod order_handler;
+    mod withdrawal_handler;
+}
+
 // `feature` is used to validate if a feature is enabled or disabled.
 mod feature {
     mod feature_utils;
@@ -71,6 +83,19 @@ mod nonce {
     mod nonce_utils;
 }
 
+// 'reader' is a module that retrieves the financial market data and trading utility.
+mod reader {
+    mod reader_pricing_utils;
+    mod reader_utils;
+    mod reader;
+}
+
+// 'router' is a module where users utilize the router to initiate token transactions, exchanges, and transfers.
+mod router {
+    mod router;
+    mod exchange_router;
+    mod error;
+}
 
 // `role` is a module that contains the role store and role management functions.
 mod role {
@@ -114,6 +139,7 @@ mod market {
     mod market_token;
     mod market_factory;
     mod market;
+    mod market_pool_value_info;
 }
 
 // `oracle` contains functions related to oracles used by Satoru.
@@ -127,7 +153,38 @@ mod oracle {
 
 // `order` contains order management functions.
 mod order {
+    mod base_order_utils;
+    mod order_vault;
     mod order;
+}
+
+// `position` contains positions management functions
+mod position {
+    mod decrease_position_collateral_utils;
+    mod decrease_position_swap_utils;
+    mod decrease_position_utils;
+    mod increase_position_utils;
+    mod position_event_utils;
+    mod position_store_utils;
+    mod position_utils;
+    mod position;
+}
+
+// `pricing` contains pricing utils
+mod pricing {
+    mod position_pricing_utils;
+    mod pricing_utils;
+    mod swap_pricing_utils;
+}
+
+// `referral` contains referral logic.
+mod referral {
+    mod referral_utils;
+    mod referral_tier;
+    mod referral_event_utils;
+    mod referral_storage {
+        mod interface;
+    }
 }
 
 mod swap {
@@ -140,4 +197,14 @@ mod swap {
 // TODO: Use openzeppelin as dependency when Scarb versions match.
 mod token {
     mod erc20;
+}
+
+// `withdrawal` contains withdrawal management functions
+mod withdrawal {
+    mod error;
+    mod withdrawal_event_utils;
+    mod withdrawal_store_utils;
+    mod withdrawal_utils;
+    mod withdrawal_vault;
+    mod withdrawal;
 }

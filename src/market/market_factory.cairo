@@ -203,7 +203,7 @@ mod MarketFactory {
             market_type: felt252,
         ) -> felt252 {
             let mut data = array![];
-            data.append('GOJO_MARKET');
+            data.append('SATORU_MARKET');
             data.append(index_token.into());
             data.append(long_token.into());
             data.append(short_token.into());

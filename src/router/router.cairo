@@ -1,4 +1,4 @@
-//! Contract to handle storing and transferring of tokens.
+//! Users will approve this router for token expenditure.
 
 // *************************************************************************
 //                                  IMPORTS
@@ -9,91 +9,90 @@ use core::traits::Into;
 use starknet::ContractAddress;
 
 // *************************************************************************
-//                  Interface of the `StrictBank` contract.
+//                  Interface of the `Router` contract.
 // *************************************************************************
 #[starknet::interface]
-trait IStrictBank<TContractState> {
+trait IRouter<TContractState> {
     /// Initialize the contract.
     /// # Arguments
-    /// * `data_store_address` - The address of the data store contract.
     /// * `role_store_address` - The address of the role store contract.
-    fn initialize(
-        ref self: TContractState,
-        data_store_address: ContractAddress,
-        role_store_address: ContractAddress,
-    );
+    fn initialize(ref self: TContractState, role_store_address: ContractAddress,);
 
-    /// Transfer tokens from this contract to a receiver.
+    /// Transfer the specified amount of tokens from the account to the receiver.
     /// # Arguments
     /// * `token` - The token address to transfer.
+    /// * `account` - The account to transfer from.
     /// * `receiver` - The address of the receiver.
     /// * `amount` - The amount of tokens to transfer.
-    fn transfer_out(
-        ref self: TContractState, token: ContractAddress, receiver: ContractAddress, amount: u128,
+    fn plugin_transfer(
+        ref self: TContractState,
+        token: ContractAddress,
+        account: ContractAddress,
+        receiver: ContractAddress,
+        amount: u128
     );
 }
 
 #[starknet::contract]
-mod StrictBank {
+mod Router {
     // *************************************************************************
     //                               IMPORTS
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{get_caller_address, ContractAddress, contract_address_const};
+    use core::zeroable::Zeroable;
     use array::ArrayTrait;
     use traits::Into;
     use debug::PrintTrait;
+    use starknet::ContractAddress;
+
 
     // Local imports.
-    use satoru::bank::bank::{Bank, IBank};
-    use super::IStrictBank;
+    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use super::IRouter;
+    use satoru::router::error::RouterError;
 
     // *************************************************************************
     //                              STORAGE
     // *************************************************************************
     #[storage]
-    struct Storage {}
+    struct Storage {
+        /// Interface to interact with the `RoleStore` contract.
+        role_store: IRoleStoreDispatcher
+    }
 
     // *************************************************************************
     //                              CONSTRUCTOR
     // *************************************************************************
+
     /// Constructor of the contract.
     /// # Arguments
-    /// * `data_store_address` - The address of the data store contract.
     /// * `role_store_address` - The address of the role store contract.
     #[constructor]
-    fn constructor(
-        ref self: ContractState,
-        data_store_address: ContractAddress,
-        role_store_address: ContractAddress,
-    ) {
-        self.initialize(data_store_address, role_store_address);
+    fn constructor(ref self: ContractState, role_store_address: ContractAddress) {
+        self.initialize(role_store_address);
     }
-
 
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
     #[external(v0)]
-    impl StrictBank of super::IStrictBank<ContractState> {
-        fn initialize(
-            ref self: ContractState,
-            data_store_address: ContractAddress,
-            role_store_address: ContractAddress,
-        ) {
-            let mut state: Bank::ContractState = Bank::unsafe_new_contract_state();
-            IBank::initialize(ref state, data_store_address, role_store_address);
+    impl RouterImpl of super::IRouter<ContractState> {
+        fn initialize(ref self: ContractState, role_store_address: ContractAddress,) {
+            // Make sure the contract is not already initialized.
+            assert(
+                self.role_store.read().contract_address.is_zero(), RouterError::ALREADY_INITIALIZED
+            );
+            self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
         }
 
-        fn transfer_out(
+        fn plugin_transfer(
             ref self: ContractState,
             token: ContractAddress,
+            account: ContractAddress,
             receiver: ContractAddress,
-            amount: u128,
-        ) {
-            let mut state: Bank::ContractState = Bank::unsafe_new_contract_state();
-            IBank::transfer_out(ref state, token, receiver, amount);
+            amount: u128
+        ) { // TODO
         }
     }
 }
