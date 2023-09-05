@@ -12,46 +12,6 @@ use core::serde::Serde;
 use core::starknet::storage_access::{Store, StorageBaseAddress};
 use core::starknet::SyscallResult;
 
-impl I128Serde of Serde<i128> {
-    fn serialize(self: @i128, ref output: Array<felt252>) {
-        Into::<i128, felt252>::into(*self).serialize(ref output);
-    }
-    fn deserialize(ref serialized: Span<felt252>) -> Option<i128> {
-        Option::Some(((*serialized.pop_front()?).try_into())?)
-    }
-}
-
-impl StoreI128 of Store<i128> {
-    fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<i128> {
-        Result::Ok(
-            Store::<felt252>::read(address_domain, base)?.try_into().expect('StoreI128 - non i128')
-        )
-    }
-    #[inline(always)]
-    fn write(address_domain: u32, base: StorageBaseAddress, value: i128) -> SyscallResult<()> {
-        Store::<felt252>::write(address_domain, base, value.into())
-    }
-    #[inline(always)]
-    fn read_at_offset(
-        address_domain: u32, base: StorageBaseAddress, offset: u8
-    ) -> SyscallResult<i128> {
-        Result::Ok(
-            Store::<felt252>::read_at_offset(address_domain, base, offset)?
-                .try_into()
-                .expect('StoreI128 - non i128')
-        )
-    }
-    #[inline(always)]
-    fn write_at_offset(
-        address_domain: u32, base: StorageBaseAddress, offset: u8, value: i128
-    ) -> SyscallResult<()> {
-        Store::<felt252>::write_at_offset(address_domain, base, offset, value.into())
-    }
-    #[inline(always)]
-    fn size() -> u8 {
-        1_u8
-    }
-}
 
 // *************************************************************************
 //                  Interface of the `DataStore` contract.
