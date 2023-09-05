@@ -63,7 +63,7 @@ impl Felt252SetImpl of SetTrait<felt252> {
 
         if is_removed {
             // Swap element to delete with last one then remove last element.
-            let last_value = self.indexes.get(self.length);
+            let last_value = self.values.get(self.length);
             self.indexes.insert(value, 0);
             self.values.insert(value_index, last_value);
             self.indexes.insert(last_value, value_index);
@@ -105,6 +105,7 @@ impl Felt252SetImpl of SetTrait<felt252> {
         loop {
             if i == 0 { break (); }
             values.append(self.at(i));
+            i -= 1;
         };
         values
     }
@@ -115,11 +116,7 @@ impl ContractAddressSetImpl of SetTrait<ContractAddress> {
     /// # Returns
     /// * A new set.
     fn new() -> Set {
-        Set { 
-            indexes: Default::default(), 
-            values: Default::default(), 
-            length: 0,
-        }
+        Felt252SetImpl::new()
     }
     
     /// Adds a value to the set.
@@ -128,15 +125,7 @@ impl ContractAddressSetImpl of SetTrait<ContractAddress> {
     /// # Returns
     /// * `true` if the value was added to the set, `false` otherwise.
     fn add(ref self: Set, value: ContractAddress) -> bool {
-        let is_new = !self.contains(value);
-
-        if is_new {
-            self.length += 1;
-            self.values.insert(self.length, value.into());
-            self.indexes.insert(value.into(), self.length);
-        }
-
-        is_new
+        Felt252SetImpl::add(ref self, value.into())
     }
 
     /// Removes a value from the set.
@@ -145,19 +134,7 @@ impl ContractAddressSetImpl of SetTrait<ContractAddress> {
     /// # Returns
     /// * `true` if the value was removed from the set, `false` otherwise.
     fn remove(ref self: Set, value: ContractAddress) -> bool {
-        let value_index = self.indexes.get(value.into());
-        let is_removed = value_index != 0;
-
-        if is_removed {
-            // Swap element to delete with last one then remove last element.
-            let last_value = self.indexes.get(self.length);
-            self.indexes.insert(value.into(), 0);
-            self.values.insert(value_index, last_value);
-            self.indexes.insert(last_value, value_index);
-            self.length -= 1;
-        }
-
-        is_removed
+        Felt252SetImpl::remove(ref self, value.into())
     }
 
     /// Checks if a value is in the set.
@@ -166,7 +143,7 @@ impl ContractAddressSetImpl of SetTrait<ContractAddress> {
     /// # Returns
     /// * `true` if the value is in the set, `false` otherwise.
     fn contains(ref self: Set, value: ContractAddress) -> bool {
-        self.indexes.get(value.into()) != 0
+        Felt252SetImpl::contains(ref self, value.into())
     }
 
     /// Returns the number of elements in the set.
@@ -192,6 +169,7 @@ impl ContractAddressSetImpl of SetTrait<ContractAddress> {
         loop {
             if i == 0 { break (); }
             values.append(self.at(i));
+            i -= 1;
         };
         values
     }
@@ -202,11 +180,7 @@ impl U128SetImpl of SetTrait<u128> {
     /// # Returns
     /// * A new set.
     fn new() -> Set {
-        Set { 
-            indexes: Default::default(), 
-            values: Default::default(), 
-            length: 0,
-        }
+        Felt252SetImpl::new()
     }
     
     /// Adds a value to the set.
@@ -215,15 +189,7 @@ impl U128SetImpl of SetTrait<u128> {
     /// # Returns
     /// * `true` if the value was added to the set, `false` otherwise.
     fn add(ref self: Set, value: u128) -> bool {
-        let is_new = !self.contains(value);
-
-        if is_new {
-            self.length += 1;
-            self.values.insert(self.length, value.into());
-            self.indexes.insert(value.into(), self.length);
-        }
-
-        is_new
+        Felt252SetImpl::add(ref self, value.into())
     }
 
     /// Removes a value from the set.
@@ -232,19 +198,7 @@ impl U128SetImpl of SetTrait<u128> {
     /// # Returns
     /// * `true` if the value was removed from the set, `false` otherwise.
     fn remove(ref self: Set, value: u128) -> bool {
-        let value_index = self.indexes.get(value.into());
-        let is_removed = value_index != 0;
-
-        if is_removed {
-            // Swap element to delete with last one then remove last element.
-            let last_value = self.indexes.get(self.length);
-            self.indexes.insert(value.into(), 0);
-            self.values.insert(value_index, last_value);
-            self.indexes.insert(last_value, value_index);
-            self.length -= 1;
-        }
-
-        is_removed
+        Felt252SetImpl::remove(ref self, value.into())
     }
 
     /// Checks if a value is in the set.
@@ -253,7 +207,7 @@ impl U128SetImpl of SetTrait<u128> {
     /// # Returns
     /// * `true` if the value is in the set, `false` otherwise.
     fn contains(ref self: Set, value: u128) -> bool {
-        self.indexes.get(value.into()) != 0
+        Felt252SetImpl::contains(ref self, value.into())
     }
 
     /// Returns the number of elements in the set.
@@ -267,7 +221,7 @@ impl U128SetImpl of SetTrait<u128> {
     /// # Arguments
     /// * `index` - The index of the value to return.
     fn at(ref self: Set, index: felt252) -> u128 {
-        self.values.get(index).try_into().expect('Invalid address')
+        self.values.get(index).try_into().expect('Invalid u128')
     }
 
     /// Returns the entire set as an array.
@@ -279,6 +233,7 @@ impl U128SetImpl of SetTrait<u128> {
         loop {
             if i == 0 { break (); }
             values.append(self.at(i));
+            i -= 1;
         };
         values
     }
