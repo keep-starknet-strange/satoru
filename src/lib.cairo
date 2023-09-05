@@ -119,6 +119,7 @@ mod utils {
     mod bits;
     mod calc;
     mod enumerable_values;
+    mod error;
     mod global_reentrancy_guard;
     mod precision;
     mod u128_mask;
