@@ -130,6 +130,50 @@ fn given_normal_conditions_when_u256_functions_then_expected_results() {
 }
 
 #[test]
+fn given_normal_conditions_when_i128_functions_then_expected_results() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (caller_address, role_store, data_store) = setup();
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Set key 1 to value 42.
+    data_store.set_i128(1, 42).unwrap();
+    let value = data_store.get_i128(1).unwrap();
+    // Check that the value read is 42.
+    assert(value == 42, 'Invalid value');
+
+    // Increment key 1 by 5.
+    let new_value = data_store.increment_i128(1, 5).unwrap();
+    // Check that the new value is 47.
+    assert(new_value == 47, 'Invalid value');
+    let value = data_store.get_i128(1).unwrap();
+    // Check that the value read is 47.
+    assert(value == 47, 'Invalid value');
+
+    // Decrement key 1 by 2.
+    let new_value = data_store.decrement_i128(1, 2).unwrap();
+    // Check that the new value is 45.
+    assert(new_value == 45, 'Invalid value');
+    let value = data_store.get_i128(1).unwrap();
+    // Check that the value read is 45.
+    assert(value == 45, 'Invalid value');
+
+    // Remove key 1.
+    data_store.remove_i128(1).unwrap();
+    // Check that the key was removed.
+    assert(data_store.get_i128(1).unwrap() == Default::default(), 'Key was not deleted');
+
+    // *********************************************************************************************
+    // *                              TEARDOWN                                                     *
+    // *********************************************************************************************
+    teardown(data_store.contract_address);
+}
+
+#[test]
 fn given_normal_conditions_when_address_functions_then_expected_results() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
