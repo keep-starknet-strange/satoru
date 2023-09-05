@@ -157,15 +157,11 @@ fn to_signed(a: u128, is_positive: bool) -> i128 {
         a_felt.try_into().expect('i128 Overflow')
     } else {
         let a_felt: felt252 = a.into();
-        0 - a_felt.try_into().expect('i128 Overflow')
+        -a_felt.try_into().expect('i128 Overflow')
     }
 }
 
 fn max_i128() -> i128 {
     // Comes from https://doc.rust-lang.org/std/i128/constant.MAX.html
-    170_141_183_460_469_231_731_687_303_715_884_105_727
-}
-
-fn max_i128_as_u128() -> u128 {
     170_141_183_460_469_231_731_687_303_715_884_105_727
 }

@@ -3,8 +3,12 @@ use integer::BoundedInt;
 use satoru::role::role;
 use satoru::utils::calc::{
     roundup_division, roundup_magnitude_division, sum_return_uint_128, sum_return_int_128, diff,
-    bounded_add, bounded_sub, to_signed, max_i128, max_i128_as_u128,
+    bounded_add, bounded_sub, to_signed, max_i128,
 };
+
+fn max_i128_as_u128() -> u128 {
+    170_141_183_460_469_231_731_687_303_715_884_105_727
+}
 
 #[test]
 fn roundup_division_test() {
