@@ -5,11 +5,11 @@
 use starknet::ContractAddress;
 
 // Satoru imports
-use satoru::data::data_store::{IDataStoreDispatcher};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 
 /// Modifier to avoid reentrancy.
 fn non_reentrant_before(data_store: IDataStoreDispatcher) { 
-    let status = data_store.get_bool('REENTRANCY_GUARD_STATUS'); // Read key from Data Store
+    let status = data_store.get_bool('REENTRANCY_GUARD_STATUS').unwrap(); // Read key from Data Store
 
     assert(!status, 'ReentrancyGuard: reentrant call');
 
