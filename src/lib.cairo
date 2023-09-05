@@ -125,6 +125,7 @@ mod utils {
     mod hash;
     mod store_arrays;
     mod validate_account;
+    mod error;
 }
 
 // `liquidation` function to help with liquidations.
