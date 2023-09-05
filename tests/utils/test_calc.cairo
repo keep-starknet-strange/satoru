@@ -3,7 +3,7 @@ use integer::BoundedInt;
 use satoru::role::role;
 use satoru::utils::calc::{
     roundup_division, roundup_magnitude_division, sum_return_uint_128, sum_return_int_128, diff,
-    bounded_add, bounded_sub, to_signed, max_i128,
+    bounded_add, bounded_sub, to_signed, max_i128, min_i128
 };
 
 fn max_i128_as_u128() -> u128 {
@@ -44,10 +44,16 @@ fn roundup_magnitude_division_test() {
     assert(roundup_magnitude_division(-9, 99) == 0, '-9/99 should be 0');
     assert(roundup_magnitude_division(max_i128(), max_i128_as_u128()) == 1, 'max/max should be 1');
     assert(
-        roundup_magnitude_division(-max_i128(), max_i128_as_u128()) == -1, '-max/max should be -1'
+        roundup_magnitude_division(min_i128() + 1, max_i128_as_u128()) == -1, 'min/max should be -1'
     );
-
     assert(roundup_magnitude_division(0, 12) == 0, '0/12 should be 0');
+}
+
+#[test]
+#[should_panic(expected: ('i128_sub Overflow',))]
+fn roundup_magnitude_min_test() {
+    // Because there min is 1 bigger than max, there is an overflow
+    roundup_magnitude_division(min_i128(), 1);
 }
 
 #[test]
@@ -68,11 +74,18 @@ fn sum_return_uint_128_test() {
         sum_return_uint_128(BoundedInt::max(), -1) == BoundedInt::max() - 1, 'Should be max - 1'
     );
     assert(
-        sum_return_uint_128(BoundedInt::max(), -max_i128()) == max_i128_as_u128() + 1,
+        sum_return_uint_128(BoundedInt::max(), min_i128() + 1) == max_i128_as_u128() + 1,
         'Should be max/2 +1 (1)'
     );
 
     assert(sum_return_uint_128(0, max_i128()) == max_i128_as_u128(), 'Should be max/2 (2)');
+}
+
+#[test]
+#[should_panic(expected: ('i128_sub Overflow',))]
+fn sum_return_uint_128_overflow_min_test() {
+    // Because there min is 1 bigger than max, there is an overflow
+    sum_return_uint_128(BoundedInt::max(), min_i128());
 }
 
 #[test]
@@ -141,9 +154,10 @@ fn bounded_add_test() {
     assert(bounded_add(-10, -10) == -20, 'Should be -20');
 
     let max = max_i128();
+    let min = min_i128();
     // This tests the second if 
-    assert(bounded_add(-max, -1) == -max, 'Should be -max (1)');
-    assert(bounded_add(-max + 1, -1) == -max, 'Should be -max (2)');
+    assert(bounded_add(min, -1) == min, 'Should be min (1)');
+    assert(bounded_add(min + 1, -1) == min, 'Should be min (2)');
     // This tests the third if 
     assert(bounded_add(max, 1) == max, 'Should be max (1)');
     assert(bounded_add(max - 1, 1) == max, 'Should be max (2)');
@@ -165,12 +179,13 @@ fn bounded_sub_test() {
     assert(bounded_sub(-12, -10) == -2, 'Should be -2');
 
     let max = max_i128();
+    let min = min_i128();
     // This tests the second if 
     assert(bounded_sub(max, -1) == max, 'Should be max (1)');
     assert(bounded_sub(max - 1, -1) == max, 'Should be max (2)');
     // This tests the third if 
-    assert(bounded_sub(-max, 1) == -max, 'Should be -max (1)');
-    assert(bounded_sub(-max + 1, 1) == -max, 'Should be -max (2)');
+    assert(bounded_sub(min, 1) == min, 'Should be min (1)');
+    assert(bounded_sub(min + 1, 1) == min, 'Should be min (2)');
 
     // Zero test case
     assert(bounded_sub(10, 10) == 0, 'Shoud be 0');
@@ -185,8 +200,9 @@ fn to_signed_test() {
     assert(to_signed(12, false) == -12, 'Should be -12');
 
     let max = max_i128();
+    let min = min_i128();
     assert(to_signed(max_i128_as_u128(), true) == max, 'Should be max');
-    assert(to_signed(max_i128_as_u128(), false) == -max, 'Should be -max)');
+    assert(to_signed(max_i128_as_u128(), false) == min + 1, 'Should be min)');
 }
 
 #[test]

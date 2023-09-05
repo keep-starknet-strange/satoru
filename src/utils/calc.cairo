@@ -103,17 +103,16 @@ fn bounded_add(a: i128, b: i128) -> i128 {
         return a + b;
     }
 
-    let max = max_i128();
     // if adding `b` to `a` would result in a value less than the min int256 value
     // then return the min int256 value
-    if (a < 0 && b <= -max - a) {
-        return -max;
+    if (a < 0 && b <= min_i128() - a) {
+        return min_i128();
     }
 
     // if adding `b` to `a` would result in a value more than the max int256 value
     // then return the max int256 value
-    if (a > 0 && b >= max - a) {
-        return max;
+    if (a > 0 && b >= max_i128() - a) {
+        return max_i128();
     }
 
     return a + b;
@@ -129,17 +128,17 @@ fn bounded_sub(a: i128, b: i128) -> i128 {
     if (a == 0 || b == 0 || (a > 0 && b > 0) || (a < 0 && b < 0)) {
         return a - b;
     }
-    let max = max_i128();
+
     // if adding `-b` to `a` would result in a value greater than the max int256 value
     // then return the max int256 value
-    if (a > 0 && -b >= max - a) {
-        return max;
+    if (a > 0 && -b >= max_i128() - a) {
+        return max_i128();
     }
 
     // if subtracting `b` from `a` would result in a value less than the min int256 value
     // then return the min int256 value
-    if (a < 0 && -b <= -max - a) {
-        return -max;
+    if (a < 0 && -b <= min_i128() - a) {
+        return min_i128();
     }
 
     return a - b;
@@ -165,4 +164,10 @@ fn max_i128() -> i128 {
     // Comes from https://doc.rust-lang.org/std/i128/constant.MAX.html
     // should use BoundedInt::max()
     170_141_183_460_469_231_731_687_303_715_884_105_727
+}
+
+fn min_i128() -> i128 {
+    // Comes from https://doc.rust-lang.org/std/i128/constant.MIN.html
+    // should use BoundedInt::min()
+    -170_141_183_460_469_231_731_687_303_715_884_105_728
 }
