@@ -114,7 +114,7 @@ mod price {
 
 // `utils` contains utility functions.
 mod utils {
-    mod array;
+    mod arrays;
     mod basic_multicall;
     mod bits;
     mod calc;
