@@ -7,11 +7,6 @@ use core::traits::Into;
 use starknet::ContractAddress;
 use satoru::market::market::Market;
 use satoru::order::order::Order;
-use core::integer::i128;
-use core::serde::Serde;
-use core::starknet::storage_access::{Store, StorageBaseAddress};
-use core::starknet::SyscallResult;
-
 
 // *************************************************************************
 //                  Interface of the `DataStore` contract.
