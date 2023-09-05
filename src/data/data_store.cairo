@@ -207,7 +207,7 @@ trait IDataStore<TContractState> {
     fn set_i128(ref self: TContractState, key: felt252, value: u128);
 
 
-    /// Delete a u256 value for the given key.
+    /// Delete a i128 value for the given key.
     /// # Arguments
     /// * `key` - The key to delete the value for.
     fn remove_i128(ref self: TContractState, key: felt252);
