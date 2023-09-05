@@ -9,7 +9,7 @@ use satoru::market::market::Market;
 use satoru::order::order::Order;
 use core::integer::i128;
 use core::serde::Serde;
-use core::starknet::storage_access::{Store,StorageBaseAddress};
+use core::starknet::storage_access::{Store, StorageBaseAddress};
 use core::starknet::SyscallResult;
 
 impl I128Serde of Serde<i128> {
@@ -241,7 +241,7 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to get the value for.
     /// # Returns
     /// The value for the given key.
-    fn get_int(self: @TContractState, key: felt252) -> u128;
+    fn get_i128(self: @TContractState, key: felt252) -> u128;
 
     /// Set the int value for the given key.
     /// # Arguments
@@ -249,25 +249,25 @@ trait IDataStore<TContractState> {
     /// `value` - The value to set
     /// # Return
     /// The int value for the key.
-    fn set_int(ref self: TContractState, key: felt252, value: u128);
+    fn set_i128(ref self: TContractState, key: felt252, value: u128);
 
 
     /// Delete a u256 value for the given key.
     /// # Arguments
     /// * `key` - The key to delete the value for.
-    fn remove_int(ref self: TContractState, key: felt252);
+    fn remove_i128(ref self: TContractState, key: felt252);
 
     /// Add input to existing value.
     /// # Arguments
     /// * `key` - The key to add the value to.
     /// * `value` - The value to add.
-    fn increment_int(ref self: TContractState, key: felt252, value: u128) -> u128;
+    fn increment_i128(ref self: TContractState, key: felt252, value: u128) -> u128;
 
     /// Subtract input from existing value.
     /// # Arguments
     /// * `key` - The key to subtract the value from.
     /// * `value` - The value to subtract.
-    fn decrement_int(ref self: TContractState, key: felt252, value: u128) -> u128;    
+    fn decrement_i128(ref self: TContractState, key: felt252, value: u128) -> u128;
 }
 
 #[starknet::contract]
@@ -458,28 +458,29 @@ mod DataStore {
             new_value
         }
 
+        //TODO: Update u128 to i128 when Serde and Store for i128 implementations are released.
         // *************************************************************************
         //                      i128 related functions.
         // *************************************************************************
-        fn get_int(self: @ContractState, key: felt252) -> u128 {
+        fn get_i128(self: @ContractState, key: felt252) -> u128 {
             self.i128_values.read(key)
         }
 
-        fn set_int(ref self: ContractState, key: felt252, value: u128) {
+        fn set_i128(ref self: ContractState, key: felt252, value: u128) {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             // Set the value.
             self.i128_values.write(key, value);
-        }        
+        }
 
-        fn remove_int(ref self: ContractState, key: felt252) {
+        fn remove_i128(ref self: ContractState, key: felt252) {
             // Check that the caller has permission to delete the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             // Delete the value.
             self.i128_values.write(key, Default::default());
         }
 
-        fn increment_int(ref self: ContractState, key: felt252, value: u128) -> u128 {
+        fn increment_i128(ref self: ContractState, key: felt252, value: u128) -> u128 {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             // Get the current value.
@@ -493,7 +494,7 @@ mod DataStore {
             new_value
         }
 
-        fn decrement_int(ref self: ContractState, key: felt252, value: u128) -> u128 {
+        fn decrement_i128(ref self: ContractState, key: felt252, value: u128) -> u128 {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             // Get the current value.
@@ -504,7 +505,7 @@ mod DataStore {
             self.i128_values.write(key, new_value);
             // Return the new value.
             new_value
-        }        
+        }
 
         // *************************************************************************
         //                      Address related functions.
