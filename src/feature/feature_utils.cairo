@@ -7,6 +7,7 @@
 //! The effects of disabling features should be carefully considered.
 
 use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::feature::error::FeatureError;
 
 /// Return if a feature is disabled.
 /// # Arguments
@@ -15,13 +16,21 @@ use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatche
 /// # Returns
 /// whether the feature is disabled.
 fn is_feature_disabled(data_store: IDataStoreSafeDispatcher, key: felt252) -> bool {
-    // TODO
-    true
+    let response = match data_store.get_bool(key) {
+        Result::Ok(v) => v,
+        Result::Err => Option::None
+    };
+
+    match response {
+        Option::Some(v) => !v,
+        Option::None => true
+    }
 }
 
 /// Validate whether a feature is enabled, reverts if the feature is disabled.
 /// # Arguments
 /// * `data_store` - The data storage contract dispatcher.
 /// * `key` - The feature key.
-fn validate_feature(data_store: IDataStoreSafeDispatcher, key: felt252) { // TODO
+fn validate_feature(data_store: IDataStoreSafeDispatcher, key: felt252) {
+    assert(!is_feature_disabled(data_store, key), FeatureError::DISABLED_FEATURE);
 }
