@@ -163,5 +163,6 @@ fn to_signed(a: u128, is_positive: bool) -> i128 {
 
 fn max_i128() -> i128 {
     // Comes from https://doc.rust-lang.org/std/i128/constant.MAX.html
+    // should use BoundedInt::max()
     170_141_183_460_469_231_731_687_303_715_884_105_727
 }
