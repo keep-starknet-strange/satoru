@@ -160,6 +160,8 @@ fn to_signed(a: u128, is_positive: bool) -> i128 {
     }
 }
 
+
+// Can't impl trait BoundedInt because of "-" that can panic (unless I can do it without using the minus operator)
 fn max_i128() -> i128 {
     // Comes from https://doc.rust-lang.org/std/i128/constant.MAX.html
     // should use BoundedInt::max()
