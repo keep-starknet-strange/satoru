@@ -2,8 +2,6 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use integer::BoundedInt;
-use traits::{Into, TryInto};
 
 /// Calculates the result of dividing the first number by the second number 
 /// rounded up to the nearest integer.
