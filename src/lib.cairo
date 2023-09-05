@@ -165,7 +165,6 @@ mod position {
     mod decrease_position_utils;
     mod increase_position_utils;
     mod position_event_utils;
-    mod position_store_utils;
     mod position_utils;
     mod position;
 }
@@ -203,7 +202,6 @@ mod token {
 mod withdrawal {
     mod error;
     mod withdrawal_event_utils;
-    mod withdrawal_store_utils;
     mod withdrawal_utils;
     mod withdrawal_vault;
     mod withdrawal;
