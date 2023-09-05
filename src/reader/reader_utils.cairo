@@ -9,7 +9,6 @@
 use starknet::ContractAddress;
 use core::traits::TryInto;
 use result::ResultTrait;
-use option::OptionTrait;
 
 // Local imports.
 use satoru::position::position::Position;

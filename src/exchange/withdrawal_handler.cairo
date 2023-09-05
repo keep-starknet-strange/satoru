@@ -67,7 +67,7 @@ mod WithdrawalHandler {
 
     // Core lib imports.
     use starknet::ContractAddress;
-    use array::ArrayTrait;
+
 
     // Local imports.
     use super::IWithdrawalHandler;

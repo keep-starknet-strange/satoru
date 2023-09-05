@@ -8,8 +8,8 @@
 // Core lib imports.
 use starknet::ContractAddress;
 use core::zeroable::Zeroable;
-use array::ArrayTrait;
-use traits::Into;
+
+
 use debug::PrintTrait;
 
 // Local imports.
@@ -184,8 +184,7 @@ mod ExchangeRouter {
     // Core lib imports.
     use starknet::ContractAddress;
     use core::zeroable::Zeroable;
-    use array::ArrayTrait;
-    use traits::Into;
+
     use debug::PrintTrait;
 
     // Local imports.

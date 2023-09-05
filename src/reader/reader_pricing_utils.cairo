@@ -3,7 +3,6 @@
 // *************************************************************************
 // Core lib imports.
 use starknet::ContractAddress;
-use option::OptionTrait;
 use core::traits::TryInto;
 
 // Local imports.

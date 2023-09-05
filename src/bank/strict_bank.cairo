@@ -41,8 +41,7 @@ mod StrictBank {
 
     // Core lib imports.
     use starknet::{get_caller_address, ContractAddress, contract_address_const};
-    use array::ArrayTrait;
-    use traits::Into;
+
     use debug::PrintTrait;
 
     // Local imports.

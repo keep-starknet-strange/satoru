@@ -5,10 +5,8 @@
 // Core lib imports.
 use starknet::{ContractAddress, SyscallResult,};
 use starknet::storage_access::{Store, StorageBaseAddress,};
-use array::ArrayTrait;
+
 use result::ResultTrait;
-use traits::{Into, TryInto};
-use option::OptionTrait;
 
 // Satoru imports
 use satoru::market::market::{Market};

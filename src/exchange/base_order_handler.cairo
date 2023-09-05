@@ -43,11 +43,9 @@ mod BaseOrderHandler {
     // Core lib imports.
     use core::zeroable::Zeroable;
     use starknet::{get_caller_address, ContractAddress, contract_address_const};
-    use array::ArrayTrait;
+
     use debug::PrintTrait;
     use result::ResultTrait;
-    use traits::{Into, TryInto};
-    use option::OptionTrait;
 
     // Local imports.
     use super::IBaseOrderHandler;

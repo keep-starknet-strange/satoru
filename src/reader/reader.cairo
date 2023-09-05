@@ -6,10 +6,9 @@
 
 // Core lib imports.
 use starknet::ContractAddress;
-use array::ArrayTrait;
+
 use core::traits::TryInto;
 use result::ResultTrait;
-use option::OptionTrait;
 
 
 // Local imports.

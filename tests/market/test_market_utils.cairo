@@ -3,9 +3,8 @@
 // *************************************************************************
 
 // Core lib imports.
-use array::ArrayTrait;
+
 use result::ResultTrait;
-use option::OptionTrait;
 use traits::{TryInto, Into};
 use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,

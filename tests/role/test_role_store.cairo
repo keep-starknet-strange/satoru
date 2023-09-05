@@ -1,6 +1,4 @@
-use array::ArrayTrait;
 use result::ResultTrait;
-use option::OptionTrait;
 use traits::TryInto;
 use starknet::{ContractAddress, contract_address_const};
 use starknet::Felt252TryIntoContractAddress;

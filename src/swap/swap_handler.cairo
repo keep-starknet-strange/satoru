@@ -29,8 +29,6 @@ mod SwapHandler {
     // *************************************************************************
     // Core lib imports    
     use result::ResultTrait;
-    use traits::{Into, TryInto};
-    use option::OptionTrait;
     use starknet::ContractAddress;
 
     // Local imports.

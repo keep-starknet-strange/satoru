@@ -4,7 +4,7 @@
 // Core lib imports.
 use starknet::{ContractAddress, get_block_timestamp};
 use result::ResultTrait;
-use traits::Into;
+
 use debug::PrintTrait;
 use zeroable::Zeroable;
 

@@ -3,9 +3,9 @@
 // IMPORTS
 use satoru::utils::hash::hash_poseidon_single;
 use starknet::ContractAddress;
-use array::ArrayTrait;
+
 use poseidon::poseidon_hash_span;
-use traits::Into;
+
 
 // *************************************************************************
 // *                        CONSTANT KEYS                                  *

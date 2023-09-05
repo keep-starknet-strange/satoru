@@ -62,10 +62,8 @@ mod OracleStore {
     // Core lib imports.
     use core::zeroable::Zeroable;
     use starknet::ContractAddress;
-    use array::ArrayTrait;
+
     use result::ResultTrait;
-    use traits::{Into, TryInto};
-    use option::OptionTrait;
 
     // Local imports.
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};

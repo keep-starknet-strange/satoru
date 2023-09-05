@@ -31,8 +31,8 @@
 // Core lib imports.
 use starknet::{ContractAddress, contract_address_const};
 use poseidon::poseidon_hash_span;
-use traits::Into;
-use array::ArrayTrait;
+
+
 use zeroable::Zeroable;
 
 // Local imports.

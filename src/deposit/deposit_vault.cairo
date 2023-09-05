@@ -23,8 +23,7 @@ mod DepositVault {
     // Core lib imports.
     use core::zeroable::Zeroable;
     use starknet::{get_caller_address, ContractAddress, contract_address_const};
-    use array::ArrayTrait;
-    use traits::Into;
+
     use debug::PrintTrait;
 
     // Local imports.

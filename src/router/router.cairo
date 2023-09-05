@@ -41,8 +41,7 @@ mod Router {
 
     // Core lib imports.
     use core::zeroable::Zeroable;
-    use array::ArrayTrait;
-    use traits::Into;
+
     use debug::PrintTrait;
     use starknet::ContractAddress;
 

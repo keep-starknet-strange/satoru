@@ -1,5 +1,5 @@
 // IMPORTS
-use array::ArrayTrait;
+
 use poseidon::poseidon_hash_span;
 
 /// Hash a single felt value using Poseidon hash function.

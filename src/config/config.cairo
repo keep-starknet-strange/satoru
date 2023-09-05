@@ -4,7 +4,7 @@
 //                                  IMPORTS
 // *************************************************************************
 use starknet::ContractAddress;
-use array::ArrayTrait;
+
 
 // *************************************************************************
 //                  Interface of the `Config` contract.
@@ -47,7 +47,7 @@ mod Config {
     use core::clone::Clone;
     use starknet::{get_caller_address, ContractAddress, contract_address_const,};
     use poseidon::poseidon_hash_span;
-    use array::ArrayTrait;
+
     use debug::PrintTrait;
 
     // Local imports.

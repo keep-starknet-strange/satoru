@@ -47,8 +47,7 @@ mod MarketFactory {
     use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
     use starknet::syscalls::deploy_syscall;
     use poseidon::poseidon_hash_span;
-    use array::ArrayTrait;
-    use traits::Into;
+
     use debug::PrintTrait;
 
     // Local imports.
