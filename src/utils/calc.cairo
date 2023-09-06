@@ -30,6 +30,7 @@ fn roundup_magnitude_division(a: i128, b: u128) -> i128 {
     } else {
         a
     };
+    // TODO remove all felt conversion when possible to try_into from u128 -> i128
     let a_felt: felt252 = a_abs.into();
     let a_u128: u128 = a_felt.try_into().unwrap();
     if a < 0 {
