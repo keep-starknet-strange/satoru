@@ -107,6 +107,28 @@ trait IEventEmitter<TContractState> {
         fee_amount: u128,
         next_pool_value: u128
     );
+
+    /// Emits the `AffiliateRewardUpdated` event.
+    fn emit_affiliate_reward_updated(
+        ref self: TContractState,
+        market: ContractAddress,
+        token: ContractAddress,
+        affiliate: ContractAddress,
+        delta: u128,
+        next_value: u128,
+        next_pool_value: u128
+    );
+
+    /// Emits the `AffiliateRewardClaimed` event.
+    fn emit_affiliate_reward_claimed(
+        ref self: TContractState,
+        market: ContractAddress,
+        token: ContractAddress,
+        affiliate: ContractAddress,
+        receiver: ContractAddress,
+        amount: u128,
+        next_pool_value: u128
+    );
 }
 
 #[starknet::contract]
@@ -140,6 +162,8 @@ mod EventEmitter {
         ClaimableUiFeeAmountUpdated: ClaimableUiFeeAmountUpdated,
         FeesClaimed: FeesClaimed,
         UiFeesClaimed: UiFeesClaimed,
+        AffiliateRewardUpdated: AffiliateRewardUpdated,
+        AffiliateRewardClaimed: AffiliateRewardClaimed,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -231,6 +255,25 @@ mod EventEmitter {
         next_pool_value: u128,
     }
 
+    #[derive(Drop, starknet::Event)]
+    struct AffiliateRewardUpdated {
+        market: ContractAddress,
+        token: ContractAddress,
+        affiliate: ContractAddress,
+        delta: u128,
+        next_value: u128,
+        next_pool_value: u128,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct AffiliateRewardClaimed {
+        market: ContractAddress,
+        token: ContractAddress,
+        affiliate: ContractAddress,
+        receiver: ContractAddress,
+        amount: u128,
+        next_pool_value: u128,
+    }
 
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
@@ -373,6 +416,38 @@ mod EventEmitter {
             self
                 .emit(
                     UiFeesClaimed { ui_fee_receiver, market, receiver, fee_amount, next_pool_value }
+                );
+        }
+
+        /// Emits the `AffiliateRewardUpdated` event.
+        fn emit_affiliate_reward_updated(
+            ref self: ContractState,
+            market: ContractAddress,
+            token: ContractAddress,
+            affiliate: ContractAddress,
+            delta: u128,
+            next_value: u128,
+            next_pool_value: u128
+        ) {
+            self
+                .emit(
+                    AffiliateRewardUpdated { market, token, affiliate, delta, next_value, next_pool_value }
+            );
+        }
+
+        /// Emits the `AffiliateRewardClaimed` event.
+        fn emit_affiliate_reward_claimed(
+            ref self: ContractState,
+            market: ContractAddress,
+            token: ContractAddress,
+            affiliate: ContractAddress,
+            receiver: ContractAddress,
+            amount: u128,
+            next_pool_value: u128
+        ) {
+            self
+                .emit(
+                    AffiliateRewardClaimed { market, token, affiliate, receiver, amount, next_pool_value }
                 );
         }
     }
