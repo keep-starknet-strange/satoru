@@ -3,12 +3,13 @@
 // *************************************************************************
 //                                  IMPORTS
 // *************************************************************************
-
 // Core lib imports.
 use starknet::{ContractAddress, ClassHash};
 
 // Local imports.
+use satoru::deposit::deposit::Deposit;
 use satoru::withdrawal::withdrawal::Withdrawal;
+
 
 // *************************************************************************
 //                  Interface of the `EventEmitter` contract.
@@ -71,10 +72,72 @@ trait IEventEmitter<TContractState> {
         new_value: ClassHash,
     );
 
+    /// Emits the `ClaimableFeeAmountUpdated` event.
+    fn emit_claimable_fee_amount_updated(
+        ref self: TContractState,
+        market: ContractAddress,
+        token: ContractAddress,
+        delta: u128,
+        next_value: u128,
+        fee_type: felt252
+    );
+
+    /// Emits the `ClaimableUiFeeAmountUpdated` event.
+    fn emit_claimable_ui_fee_amount_updated(
+        ref self: TContractState,
+        ui_fee_receiver: ContractAddress,
+        market: ContractAddress,
+        token: ContractAddress,
+        delta: u128,
+        next_value: u128,
+        next_pool_value: u128,
+        fee_type: felt252
+    );
+
+    /// Emits the `FeesClaimed` event.
+    fn emit_fees_claimed(
+        ref self: TContractState,
+        market: ContractAddress,
+        receiver: ContractAddress,
+        fee_amount: u128
+    );
+
+    /// Emits the `UiFeesClaimed` event.
+    fn emit_ui_fees_claimed(
+        ref self: TContractState,
+        ui_fee_receiver: ContractAddress,
+        market: ContractAddress,
+        receiver: ContractAddress,
+        fee_amount: u128,
+        next_pool_value: u128
+    );
+
+    /// Emits the `DepositCreated` event.
+    #[inline(always)]
+    fn emit_deposit_created(ref self: TContractState, key: felt252, deposit: Deposit);
+
+    /// Emits the `DepositExecuted` event.
+    fn emit_deposit_executed(
+        ref self: TContractState,
+        key: felt252,
+        long_token_amount: u128,
+        short_token_amount: u128,
+        received_market_tokens: u128,
+    );
+
+    /// Emits the `DepositCancelled` event.
+    fn emit_deposit_cancelled(
+        ref self: TContractState, key: felt252, reason: felt252, reasonBytes: Array<felt252>
+    );
+
+    /// Emits the `WithdrawalCreated` event.
+    #[inline(always)]
     fn emit_withdrawal_created(ref self: TContractState, key: felt252, withdrawal: Withdrawal);
 
+    /// Emits the `WithdrawalExecuted` event.
     fn emit_withdrawal_executed(ref self: TContractState, key: felt252);
 
+    /// Emits the `WithdrawalCancelled` event.
     fn emit_withdrawal_cancelled(
         ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
     );
@@ -90,6 +153,7 @@ mod EventEmitter {
     use starknet::{ContractAddress, ClassHash};
 
     // Local imports.
+    use satoru::deposit::deposit::Deposit;
     use satoru::withdrawal::withdrawal::Withdrawal;
 
     // *************************************************************************
@@ -110,6 +174,13 @@ mod EventEmitter {
         SwapImpactPoolAmountUpdated: SwapImpactPoolAmountUpdated,
         MarketCreated: MarketCreated,
         MarketTokenClassHashUpdated: MarketTokenClassHashUpdated,
+        ClaimableFeeAmountUpdated: ClaimableFeeAmountUpdated,
+        ClaimableUiFeeAmountUpdated: ClaimableUiFeeAmountUpdated,
+        FeesClaimed: FeesClaimed,
+        UiFeesClaimed: UiFeesClaimed,
+        DepositCreated: DepositCreated,
+        DepositExecuted: DepositExecuted,
+        DepositCancelled: DepositCancelled,
         WithdrawalCreated: WithdrawalCreated,
         WithdrawalExecuted: WithdrawalExecuted,
         WithdrawalCancelled: WithdrawalCancelled,
@@ -169,6 +240,76 @@ mod EventEmitter {
     }
 
     #[derive(Drop, starknet::Event)]
+    struct ClaimableFeeAmountUpdated {
+        market: ContractAddress,
+        token: ContractAddress,
+        delta: u128,
+        next_value: u128,
+        fee_type: felt252,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct ClaimableUiFeeAmountUpdated {
+        ui_fee_receiver: ContractAddress,
+        market: ContractAddress,
+        token: ContractAddress,
+        delta: u128,
+        next_value: u128,
+        next_pool_value: u128,
+        fee_type: felt252,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct FeesClaimed {
+        market: ContractAddress,
+        receiver: ContractAddress,
+        fee_amount: u128,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct UiFeesClaimed {
+        ui_fee_receiver: ContractAddress,
+        market: ContractAddress,
+        receiver: ContractAddress,
+        fee_amount: u128,
+        next_pool_value: u128,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct DepositCreated {
+        key: felt252,
+        account: ContractAddress,
+        receiver: ContractAddress,
+        callback_contract: ContractAddress,
+        market: ContractAddress,
+        initial_long_token: ContractAddress,
+        initial_short_token: ContractAddress,
+        long_token_swap_path: Array<ContractAddress>,
+        short_token_swap_path: Array<ContractAddress>,
+        initial_long_token_amount: u256,
+        initial_short_token_amount: u256,
+        min_market_tokens: u256,
+        updated_at_block: u256,
+        execution_fee: u256,
+        callback_gas_limit: u256,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct DepositExecuted {
+        key: felt252,
+        long_token_amount: u128,
+        short_token_amount: u128,
+        received_market_tokens: u128,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct DepositCancelled {
+        key: felt252,
+        reason: felt252,
+        reasonBytes: Array<felt252>,
+    }
+
+    #[derive(Drop, starknet::Event)]
     struct WithdrawalCreated {
         key: felt252,
         account: ContractAddress,
@@ -195,6 +336,7 @@ mod EventEmitter {
         reason: felt252,
         reason_bytes: Array<felt252>
     }
+
 
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
@@ -282,6 +424,110 @@ mod EventEmitter {
             new_value: ClassHash,
         ) {
             self.emit(MarketTokenClassHashUpdated { updated_by, previous_value, new_value, });
+        }
+
+        /// Emits the `ClaimableFeeAmountUpdated` event.
+        fn emit_claimable_fee_amount_updated(
+            ref self: ContractState,
+            market: ContractAddress,
+            token: ContractAddress,
+            delta: u128,
+            next_value: u128,
+            fee_type: felt252
+        ) {
+            self.emit(ClaimableFeeAmountUpdated { market, token, delta, next_value, fee_type });
+        }
+
+        /// Emits the `ClaimableUiFeeAmountUpdated` event.
+        fn emit_claimable_ui_fee_amount_updated(
+            ref self: ContractState,
+            ui_fee_receiver: ContractAddress,
+            market: ContractAddress,
+            token: ContractAddress,
+            delta: u128,
+            next_value: u128,
+            next_pool_value: u128,
+            fee_type: felt252
+        ) {
+            self
+                .emit(
+                    ClaimableUiFeeAmountUpdated {
+                        ui_fee_receiver, market, token, delta, next_value, next_pool_value, fee_type
+                    }
+                );
+        }
+
+        /// Emits the `FeesClaimed` event.
+        fn emit_fees_claimed(
+            ref self: ContractState,
+            market: ContractAddress,
+            receiver: ContractAddress,
+            fee_amount: u128
+        ) {
+            self.emit(FeesClaimed { market, receiver, fee_amount });
+        }
+
+        /// Emits the `UiFeesClaimed` event.
+        fn emit_ui_fees_claimed(
+            ref self: ContractState,
+            ui_fee_receiver: ContractAddress,
+            market: ContractAddress,
+            receiver: ContractAddress,
+            fee_amount: u128,
+            next_pool_value: u128
+        ) {
+            self
+                .emit(
+                    UiFeesClaimed { ui_fee_receiver, market, receiver, fee_amount, next_pool_value }
+                );
+        }
+
+        /// Emits the `DepositCreated` event.
+        #[inline(always)]
+        fn emit_deposit_created(ref self: ContractState, key: felt252, deposit: Deposit) {
+            self
+                .emit(
+                    DepositCreated {
+                        key,
+                        account: deposit.account,
+                        receiver: deposit.receiver,
+                        callback_contract: deposit.callback_contract,
+                        market: deposit.market,
+                        initial_long_token: deposit.initial_long_token,
+                        initial_short_token: deposit.initial_short_token,
+                        long_token_swap_path: deposit.long_token_swap_path,
+                        short_token_swap_path: deposit.short_token_swap_path,
+                        initial_long_token_amount: deposit.initial_long_token_amount,
+                        initial_short_token_amount: deposit.initial_short_token_amount,
+                        min_market_tokens: deposit.min_market_tokens,
+                        updated_at_block: deposit.updated_at_block,
+                        execution_fee: deposit.execution_fee,
+                        callback_gas_limit: deposit.callback_gas_limit
+                    }
+                );
+        }
+
+        /// Emits the `DepositExecuted` event.
+        fn emit_deposit_executed(
+            ref self: ContractState,
+            key: felt252,
+            long_token_amount: u128,
+            short_token_amount: u128,
+            received_market_tokens: u128
+        ) {
+            self
+                .emit(
+                    DepositExecuted {
+                        key, long_token_amount, short_token_amount, received_market_tokens
+                    }
+                );
+        }
+
+        /// Emits the `DepositCancelled` event.
+        fn emit_deposit_cancelled(
+            ref self: ContractState, key: felt252, reason: felt252, reasonBytes: Array<felt252>
+        ) {
+            self.emit(DepositCancelled { key, reason, reasonBytes });
         }
 
         /// Emits the `WithdrawalCreated` event.

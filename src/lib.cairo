@@ -208,3 +208,5 @@ mod withdrawal {
     mod withdrawal_vault;
     mod withdrawal;
 }
+
+mod tests_lib;
