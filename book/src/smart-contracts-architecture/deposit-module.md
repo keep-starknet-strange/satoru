@@ -1,4 +1,4 @@
-# Exchange module
+# Deposit module
 
 The deposit module contains main satoru functions for deposit, to manage the depositing of liquidity into a market.
 
