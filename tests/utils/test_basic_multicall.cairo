@@ -92,6 +92,38 @@ fn test_multicall() {
     teardown(data_store.contract_address);
 }
 
+#[test]
+#[should_panic(expected: ('no data for multicall',))]
+fn test_no_data_for_multicall() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (role_store, data_store) = setup();
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    let mut calls = array![];
+    let mut calldata_param = array![1, 42];
+    let first_call = Call {
+        to: data_store.contract_address,
+        selector: selector!("set_felt25"), /// generate keccak hash for 'set_felt252' in cairo
+        calldata: calldata_param
+    };
+
+    // should panic due to empty calls. Notice that calls has no append()
+    let result: Array<Span<felt252>> = multicall(calls);
+
+    // check first call result
+    assert(data_store.get_felt252(1).unwrap() == 42, 'Invalid value');
+
+    // *********************************************************************************************
+    // *                              TEARDOWN                                                     *
+    // *********************************************************************************************
+    teardown(data_store.contract_address);
+}
+
 
 #[test]
 #[should_panic]
