@@ -113,11 +113,7 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `DepositCreated` event.
     #[inline(always)]
-    fn emit_deposit_created(
-        ref self: TContractState,
-        key: felt252,
-        deposit: Deposit,
-    );
+    fn emit_deposit_created(ref self: TContractState, key: felt252, deposit: Deposit,);
 
     /// Emits the `DepositExecuted` event.
     fn emit_deposit_executed(
@@ -129,12 +125,7 @@ trait IEventEmitter<TContractState> {
     );
 
     /// Emits the `DepositCancelled` event.
-    fn emit_deposit_cancelled(
-        ref self: TContractState,
-        key: felt252,
-        reason: felt252,
-        reasonBytes: Array<felt252>,
-    );
+    fn emit_deposit_cancelled(ref self: TContractState, key: felt252, reason: felt252, reasonBytes: Array<felt252>,);
 }
 
 #[starknet::contract]
@@ -446,25 +437,7 @@ mod EventEmitter {
 
         /// Emits the `DepositCreated` event.
         #[inline(always)]
-        fn emit_deposit_created(
-            ref self: ContractState,
-            key: felt252,
-            deposit: Deposit,
-        ) {
-            let account = deposit.account;
-            let receiver = deposit.receiver;
-            let callback_contract = deposit.callback_contract;
-            let market = deposit.market;
-            let initial_long_token = deposit.initial_long_token;
-            let initial_short_token = deposit.initial_short_token;
-            let long_token_swap_path = deposit.long_token_swap_path;
-            let short_token_swap_path = deposit.short_token_swap_path;
-            let initial_long_token_amount = deposit.initial_long_token_amount;
-            let initial_short_token_amount = deposit.initial_short_token_amount;
-            let min_market_tokens = deposit.min_market_tokens;
-            let updated_at_block = deposit.updated_at_block;
-            let execution_fee = deposit.execution_fee;
-            let callback_gas_limit = deposit.callback_gas_limit;
+        fn emit_deposit_created(ref self: ContractState, key: felt252, deposit: Deposit,) {
             self
                 .emit(
                     DepositCreated { 
@@ -488,30 +461,18 @@ mod EventEmitter {
         }
 
         /// Emits the `DepositExecuted` event.
-        fn emit_deposit_executed(
-            ref self: ContractState,
-            key: felt252,
-            long_token_amount: u128,
-            short_token_amount: u128,
-            received_market_tokens: u128
-        ) {
+        fn emit_deposit_executed(ref self: ContractState, key: felt252, long_token_amount: u128, short_token_amount: u128, received_market_tokens: u128) {
             self
                 .emit(
-                    DepositExecuted { key, long_token_amount, short_token_amount, received_market_tokens }
+                    DepositExecuted { 
+                        key, long_token_amount, short_token_amount, received_market_tokens 
+                    }
                 );
         }
 
         /// Emits the `DepositCancelled` event.
-        fn emit_deposit_cancelled(
-            ref self: ContractState,
-            key: felt252,
-            reason: felt252,
-            reasonBytes: Array<felt252>
-        ) {
-            self
-                .emit(
-                    DepositCancelled { key, reason, reasonBytes }
-                );
+        fn emit_deposit_cancelled(ref self: ContractState, key: felt252, reason: felt252, reasonBytes: Array<felt252>) {
+            self.emit(DepositCancelled { key, reason, reasonBytes });
         }
     }
 }
