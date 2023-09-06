@@ -15,26 +15,25 @@ use satoru::feature::feature_utils::{is_feature_disabled, validate_feature};
 fn test_nonexist_feature() {
     let (caller_address, role_store, data_store) = setup();
 
-    let nonexist_feature = is_feature_disabled(data_store, 'NONEXIST_FEATURE'); // Returns true because feature is not exist
-    assert(nonexist_feature, 'Nonexist feature wrong');
+    let nonexist_feature = is_feature_disabled(data_store, 'NONEXIST_FEATURE'); // Returns false because feature is exist so not disabled.
+    assert(!nonexist_feature, 'Nonexist feature wrong');
 }
 
 #[test]
-fn test_exist_enabled_feature() {
+fn test_exist_disable_feature() {
     let (caller_address, role_store, data_store) = setup();
 
     data_store.set_bool('EXIST_FEATURE', true);
 
-    let exist_feature = is_feature_disabled(data_store, 'EXIST_FEATURE'); // Returns false because feature is not disabled
-    assert(!exist_feature, 'Exist feature wrong');
+    let exist_feature = is_feature_disabled(data_store, 'EXIST_FEATURE'); // Returns true because feature is disabled
+    assert(exist_feature, 'Exist feature wrong');
 }
 
 #[test]
-#[should_panic(expected: ('FeatureUtils: disabled feature',))]
 fn test_nonexist_feature_validate() {
     let (caller_address, role_store, data_store) = setup();
 
-    validate_feature(data_store, 'NONEXIST_FEATURE'); // Should revert because feature is not exist
+    validate_feature(data_store, 'NONEXIST_FEATURE'); // Should not revert because feature is not exist
 }
 
 #[test]
@@ -42,7 +41,7 @@ fn test_nonexist_feature_validate() {
 fn test_exist_feature_validate() {
     let (caller_address, role_store, data_store) = setup();
 
-    data_store.set_bool('EXIST_FEATURE', false);
+    data_store.set_bool('EXIST_FEATURE', true);
 
     validate_feature(data_store, 'EXIST_FEATURE'); // Should revert because feature is disabled
 }
@@ -51,7 +50,7 @@ fn test_exist_feature_validate() {
 fn test_exist_enabled_feature_validate() {
     let (caller_address, role_store, data_store) = setup();
 
-    data_store.set_bool('EXIST_FEATURE', true);
+    data_store.set_bool('EXIST_FEATURE', false);
 
     validate_feature(data_store, 'EXIST_FEATURE'); // Should work because feature is enabled
 }
