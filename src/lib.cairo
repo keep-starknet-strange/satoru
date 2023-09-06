@@ -119,6 +119,7 @@ mod utils {
     mod basic_multicall;
     mod bits;
     mod calc;
+    mod enumerable_set;
     mod enumerable_values;
     mod error;
     mod global_reentrancy_guard;
