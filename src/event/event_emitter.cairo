@@ -332,6 +332,7 @@ mod EventEmitter {
             self.emit(ClaimableFeeAmountUpdated { market, token, delta, next_value, fee_type });
         }
 
+        /// Emits the `ClaimableUiFeeAmountUpdated` event.
         fn emit_claimable_ui_fee_amount_updated(
             ref self: ContractState,
             ui_fee_receiver: ContractAddress,
@@ -350,6 +351,7 @@ mod EventEmitter {
                 );
         }
 
+        /// Emits the `FeesClaimed` event.
         fn emit_fees_claimed(
             ref self: ContractState,
             market: ContractAddress,
@@ -359,6 +361,7 @@ mod EventEmitter {
             self.emit(FeesClaimed { market, receiver, fee_amount });
         }
 
+        /// Emits the `UiFeesClaimed` event.
         fn emit_ui_fees_claimed(
             ref self: ContractState,
             ui_fee_receiver: ContractAddress,
