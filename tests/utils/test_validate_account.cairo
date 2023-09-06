@@ -8,7 +8,7 @@ fn test_validate_account() {
 }
 
 #[test]
-#[should_panic(expected: ('satoru/null-account',))]
+#[should_panic(expected: ('null_account',))]
 fn test_validate_account_fail() {
     let account = contract_address_const::<0>();
     validate_account(account);
