@@ -20,7 +20,6 @@ use satoru::oracle::{
     oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait},
     oracle_utils::{SetPricesParams, ReportInfo}, error::OracleError,
 };
-use satoru::utils::u128_mask::Mask;
 use satoru::price::price::Price;
 
 // *************************************************************************
@@ -176,9 +175,9 @@ struct SetPricesInnerCache {
     /// The max prices.
     max_prices: Array<u128>,
     /// The min price index using U128Mask.
-    min_price_index_mask: Mask,
+    min_price_index_mask: u128,
     /// The max price index using U128Mask.
-    max_price_index_mask: Mask,
+    max_price_index_mask: u128,
 }
 
 #[starknet::contract]
