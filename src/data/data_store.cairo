@@ -7,6 +7,7 @@ use core::traits::Into;
 use starknet::ContractAddress;
 use satoru::market::market::Market;
 use satoru::order::order::Order;
+use satoru::withdrawal::withdrawal::Withdrawal;
 
 // *************************************************************************
 //                  Interface of the `DataStore` contract.
@@ -187,6 +188,35 @@ trait IDataStore<TContractState> {
     /// * `value` - The value to set.
     fn set_order(ref self: TContractState, key: felt252, order: Order);
 
+    // *************************************************************************
+    //                      Withdrawal related functions.
+    // *************************************************************************
+    /// Get a withdrawal value for the given key.
+    /// # Arguments
+    /// * `key` - The key to get the value for.
+    /// # Returns
+    /// The value for the given key.
+    fn get_withdrawal(self: @TContractState, key: felt252) -> Option<Withdrawal>;
+
+    /// Set a withdrawal value for the given key.
+    /// # Arguments
+    /// * `key` - The key to set the value for.
+    /// * `value` - The value to set.
+    fn set_withdrawal(ref self: TContractState, key: felt252, withdrawal: Withdrawal);
+
+    /// Removes a withdrawal value for the given key.
+    /// Sets the withdrawal account address to zero.
+    /// # Arguments
+    /// * `key` - The key to set the value for.
+    /// * `account` - The value to set.
+    fn remove_withdrawal(ref self: TContractState, key: felt252, account: ContractAddress);
+
+    fn get_account_withdrawal_count(self: @TContractState, account: ContractAddress) -> u32;
+
+    fn get_account_withdrawal_keys(
+        self: @TContractState, account: ContractAddress, start: u32, end: u32
+    ) -> Array<felt252>;
+
     //TODO: Update u128 to i128 when Serde and Store for i128 implementations are released.
     // *************************************************************************
     //                          int128 related functions.
@@ -232,15 +262,18 @@ mod DataStore {
     // *************************************************************************
 
     // Core lib imports.
+    use core::traits::TryInto;
     use starknet::{get_caller_address, ContractAddress, contract_address_const,};
     use nullable::NullableTrait;
     use zeroable::Zeroable;
+    use alexandria_storage::list::{ListTrait, List};
 
     // Local imports.
     use satoru::role::role;
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::market::market::{Market, ValidateMarket};
     use satoru::order::order::Order;
+    use satoru::withdrawal::{withdrawal::Withdrawal, error::WithdrawalError};
 
     // *************************************************************************
     //                              STORAGE
@@ -256,6 +289,8 @@ mod DataStore {
         bool_values: LegacyMap::<felt252, Option<bool>>,
         market_values: LegacyMap::<felt252, Market>,
         order_values: LegacyMap::<felt252, Order>,
+        withdrawals: List<Withdrawal>,
+        withdrawal_indexes: LegacyMap::<felt252, usize>,
     }
 
     // *************************************************************************
@@ -551,6 +586,84 @@ mod DataStore {
 
             // Set the value.
             self.order_values.write(key, order);
+        }
+
+        // *************************************************************************
+        //                      Withdrawal related functions.
+        // *************************************************************************
+
+        fn get_withdrawal(self: @ContractState, key: felt252) -> Option<Withdrawal> {
+            let index: usize = self.withdrawal_indexes.read(key);
+            let withdrawals: List<Withdrawal> = self.withdrawals.read();
+            withdrawals.get(index)
+        }
+
+        fn set_withdrawal(ref self: ContractState, key: felt252, withdrawal: Withdrawal) {
+            // Check that the caller has permission to set the value.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            assert(withdrawal.account != 0.try_into().unwrap(), WithdrawalError::CANT_BE_ZERO);
+
+            let mut withdrawals = self.withdrawals.read();
+            // If the index is 0, it means the key has not been registered yet.
+            // In that case, we need to register the key and append the withdrawal to the list.
+            let index: usize = self.withdrawal_indexes.read(key);
+            assert(index <= withdrawals.len(), WithdrawalError::NOT_FOUND);
+            if index == 0 {
+                // Valid indexes start from 1, the key index is the length of the list + 1.
+                self.withdrawal_indexes.write(key, withdrawals.len() + 1);
+                withdrawals.append(withdrawal);
+            }
+
+            // Replace the previously existing withdrawal value.
+            withdrawals.set(index, withdrawal);
+        }
+
+        fn remove_withdrawal(ref self: ContractState, key: felt252, account: ContractAddress) {
+            // Check that the caller has permission to set the value.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            let index: usize = self.withdrawal_indexes.read(key);
+            let mut withdrawals = self.withdrawals.read();
+            assert(index <= withdrawals.len(), WithdrawalError::NOT_FOUND);
+
+            // Replace the previously existing withdrawal value by the last withdrawal in the list.
+            let mut last_withdrawal_maybe = withdrawals.pop_front();
+            match last_withdrawal_maybe {
+                Option::Some(last_withdrawal) => {
+                    withdrawals.set(index, last_withdrawal);
+                    self.withdrawal_indexes.write(last_withdrawal.key, index);
+                    self.withdrawal_indexes.write(key, 0);
+                },
+                Option::None => {
+                    // This case should never happen, because index is always <= length
+                    return;
+                }
+            }
+        }
+
+        fn get_account_withdrawal_count(self: @ContractState, account: ContractAddress) -> u32 {
+            self.withdrawals.read().len()
+        }
+
+        fn get_account_withdrawal_keys(
+            self: @ContractState, account: ContractAddress, start: u32, end: u32
+        ) -> Array<felt252> {
+            let mut accumulator: Array<felt252> = Default::default();
+            let mut withdrawals = self.withdrawals.read();
+
+            assert(start <= end, 'start must be <= end');
+            if end <= withdrawals.len() {
+                return accumulator;
+            }
+
+            let mut i = start;
+            loop {
+                if i == end {
+                    break;
+                }
+                let withdrawal = withdrawals[i];
+                accumulator.append(withdrawal.key);
+            };
+            accumulator
         }
     }
 }
