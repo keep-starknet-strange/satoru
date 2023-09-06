@@ -15,7 +15,9 @@ use satoru::feature::feature_utils::{is_feature_disabled, validate_feature};
 fn test_nonexist_feature() {
     let (caller_address, role_store, data_store) = setup();
 
-    let nonexist_feature = is_feature_disabled(data_store, 'NONEXIST_FEATURE'); // Returns false because feature is exist so not disabled.
+    let nonexist_feature = is_feature_disabled(
+        data_store, 'NONEXIST_FEATURE'
+    ); // Returns false because feature is exist so not disabled.
     assert(!nonexist_feature, 'Nonexist feature wrong');
 }
 
@@ -25,7 +27,9 @@ fn test_exist_disable_feature() {
 
     data_store.set_bool('EXIST_FEATURE', true);
 
-    let exist_feature = is_feature_disabled(data_store, 'EXIST_FEATURE'); // Returns true because feature is disabled
+    let exist_feature = is_feature_disabled(
+        data_store, 'EXIST_FEATURE'
+    ); // Returns true because feature is disabled
     assert(exist_feature, 'Exist feature wrong');
 }
 
@@ -33,7 +37,9 @@ fn test_exist_disable_feature() {
 fn test_nonexist_feature_validate() {
     let (caller_address, role_store, data_store) = setup();
 
-    validate_feature(data_store, 'NONEXIST_FEATURE'); // Should not revert because feature is not exist
+    validate_feature(
+        data_store, 'NONEXIST_FEATURE'
+    ); // Should not revert because feature is not exist
 }
 
 #[test]
