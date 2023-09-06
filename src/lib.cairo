@@ -114,17 +114,18 @@ mod price {
 
 // `utils` contains utility functions.
 mod utils {
-    mod array;
+    mod account_utils;
+    mod arrays;
     mod basic_multicall;
     mod bits;
     mod calc;
     mod enumerable_values;
+    mod error;
     mod global_reentrancy_guard;
     mod precision;
     mod u128_mask;
     mod hash;
     mod store_arrays;
-    mod validate_account;
     mod error;
 }
 
@@ -166,7 +167,6 @@ mod position {
     mod decrease_position_utils;
     mod increase_position_utils;
     mod position_event_utils;
-    mod position_store_utils;
     mod position_utils;
     mod position;
 }
@@ -204,7 +204,6 @@ mod token {
 mod withdrawal {
     mod error;
     mod withdrawal_event_utils;
-    mod withdrawal_store_utils;
     mod withdrawal_utils;
     mod withdrawal_vault;
     mod withdrawal;
