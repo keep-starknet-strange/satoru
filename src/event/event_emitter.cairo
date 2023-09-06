@@ -439,38 +439,24 @@ mod EventEmitter {
         /// Emits the `DepositCreated` event.
         #[inline(always)]
         fn emit_deposit_created(ref self: ContractState, key: felt252, deposit: Deposit) {
-            let account = deposit.account;
-            let receiver = deposit.receiver;
-            let callback_contract = deposit.callback_contract;
-            let market = deposit.market;
-            let initial_long_token = deposit.initial_long_token;
-            let initial_short_token = deposit.initial_short_token;
-            let long_token_swap_path = deposit.long_token_swap_path;
-            let short_token_swap_path = deposit.short_token_swap_path;
-            let initial_long_token_amount = deposit.initial_long_token_amount;
-            let initial_short_token_amount = deposit.initial_short_token_amount;
-            let min_market_tokens = deposit.min_market_tokens;
-            let updated_at_block = deposit.updated_at_block;
-            let execution_fee = deposit.execution_fee;
-            let callback_gas_limit = deposit.callback_gas_limit;
             self
                 .emit(
                     DepositCreated {
                         key,
-                        account,
-                        receiver,
-                        callback_contract,
-                        market,
-                        initial_long_token,
-                        initial_short_token,
-                        long_token_swap_path,
-                        short_token_swap_path,
-                        initial_long_token_amount,
-                        initial_short_token_amount,
-                        min_market_tokens,
-                        updated_at_block,
-                        execution_fee,
-                        callback_gas_limit,
+                        account: deposit.account,
+                        receiver: deposit.receiver,
+                        callback_contract: deposit.callback_contract,
+                        market: deposit.market,
+                        initial_long_token: deposit.initial_long_token,
+                        initial_short_token: deposit.initial_short_token,
+                        long_token_swap_path: deposit.long_token_swap_path,
+                        short_token_swap_path: deposit.short_token_swap_path,
+                        initial_long_token_amount: deposit.initial_long_token_amount,
+                        initial_short_token_amount: deposit.initial_short_token_amount,
+                        min_market_tokens: deposit.min_market_tokens,
+                        updated_at_block: deposit.updated_at_block,
+                        execution_fee: deposit.execution_fee,
+                        callback_gas_limit: deposit.callback_gas_limit,
                     }
                 );
         }
