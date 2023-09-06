@@ -27,6 +27,5 @@ It contains the following files:
 - [decrease_position_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/position/decrease_position_utils.cairo): Library for functions to help with decreasing a position.
 - [increase_position_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/position/increase_position_utils.cairo): Library for functions to help with increasing a position.
 - [position_event_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/position/position_event_utils.cairo): Library with helper functions to emit position related events.
-- [position_store_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/position/position_store_utils.cairo): Library with functions to manipulate position in data store.
 - [position_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/position/position_utils.cairo): Library with various utility functions for positions.
 - [position.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/position/position.cairo): Contains main Position struct.
