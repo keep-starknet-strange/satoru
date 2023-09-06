@@ -1,5 +1,5 @@
 use starknet::{ContractAddress, contract_address_const};
-use satoru::utils::validate_account::{validate_account, validate_receiver};
+use satoru::utils::account_utils::{validate_account, validate_receiver};
 
 #[test]
 fn test_validate_account() {

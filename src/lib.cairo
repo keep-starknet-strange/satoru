@@ -114,6 +114,7 @@ mod price {
 
 // `utils` contains utility functions.
 mod utils {
+    mod account_utils;
     mod arrays;
     mod basic_multicall;
     mod bits;
@@ -125,7 +126,6 @@ mod utils {
     mod u128_mask;
     mod hash;
     mod store_arrays;
-    mod validate_account;
 }
 
 // `liquidation` function to help with liquidations.
