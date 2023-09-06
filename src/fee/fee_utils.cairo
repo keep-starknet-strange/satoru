@@ -88,7 +88,7 @@ fn claim_fees(
     market: ContractAddress,
     token: ContractAddress,
     receiver: ContractAddress,
-) {// TODO
+) { // TODO
 }
 
 /// Claim ui fees for the specified market.
