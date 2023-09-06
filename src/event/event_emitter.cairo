@@ -137,9 +137,9 @@ mod EventEmitter {
 
     // Core lib imports.
     use starknet::{ContractAddress, ClassHash};
-    
+
     // Local imports.
-    use satoru::deposit::deposit::Deposit;   
+    use satoru::deposit::deposit::Deposit;
 
     // *************************************************************************
     //                              STORAGE
@@ -441,7 +441,7 @@ mod EventEmitter {
         fn emit_deposit_created(ref self: ContractState, key: felt252, deposit: Deposit,) {
             self
                 .emit(
-                    DepositCreated { 
+                    DepositCreated {
                         key,
                         account,
                         receiver,
@@ -473,6 +473,7 @@ mod EventEmitter {
                 .emit(
                     DepositExecuted {
                         key, long_token_amount, short_token_amount, received_market_tokens
+                    }
                 );
         }
 
