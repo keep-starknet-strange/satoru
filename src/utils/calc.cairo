@@ -23,6 +23,7 @@ fn roundup_division(a: u128, b: u128) -> u128 {
 /// * `b` - the divisor.
 /// # Return
 /// The result of dividing the first number by the second number, rounded up to the nearest integer.
+// TODO Update to use i128 division when available
 fn roundup_magnitude_division(a: i128, b: u128) -> i128 {
     let a_abs = if a < 0 {
         -a
@@ -160,16 +161,14 @@ fn to_signed(a: u128, is_positive: bool) -> i128 {
     }
 }
 
-
+// TODO use BoundedInt::max() && BoundedInt::mint() when possible
 // Can't impl trait BoundedInt because of "-" that can panic (unless I can do it without using the minus operator)
 fn max_i128() -> i128 {
     // Comes from https://doc.rust-lang.org/std/i128/constant.MAX.html
-    // should use BoundedInt::max()
     170_141_183_460_469_231_731_687_303_715_884_105_727
 }
 
 fn min_i128() -> i128 {
     // Comes from https://doc.rust-lang.org/std/i128/constant.MIN.html
-    // should use BoundedInt::min()
     -170_141_183_460_469_231_731_687_303_715_884_105_728
 }

@@ -11,6 +11,18 @@ fn max_i128_as_u128() -> u128 {
 }
 
 #[test]
+#[should_panic(expected: ('i128_add Overflow',))]
+fn max_i128_test() {
+    max_i128() + 1;
+}
+
+#[test]
+#[should_panic(expected: ('i128_sub Underflow',))]
+fn min_i128_test() {
+    min_i128() - 1;
+}
+
+#[test]
 fn roundup_division_test() {
     assert(roundup_division(12, 3) == 4, '12/3 should be 4');
     assert(roundup_division(13, 3) == 5, '13/3 should be 4');
@@ -52,7 +64,7 @@ fn roundup_magnitude_division_test() {
 #[test]
 #[should_panic(expected: ('i128_sub Overflow',))]
 fn roundup_magnitude_min_test() {
-    // Because there min is 1 bigger than max, there is an overflow
+    // Because here min is 1 bigger than max, there is an overflow
     roundup_magnitude_division(min_i128(), 1);
 }
 
@@ -84,7 +96,7 @@ fn sum_return_uint_128_test() {
 #[test]
 #[should_panic(expected: ('i128_sub Overflow',))]
 fn sum_return_uint_128_overflow_min_test() {
-    // Because there min is 1 bigger than max, there is an overflow
+    // Because here min is 1 bigger than max, there is an overflow
     sum_return_uint_128(BoundedInt::max(), min_i128());
 }
 
