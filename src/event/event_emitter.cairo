@@ -112,7 +112,7 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `DepositCreated` event.
     #[inline(always)]
-    fn emit_deposit_created(ref self: TContractState, key: felt252, deposit: Deposit,);
+    fn emit_deposit_created(ref self: TContractState, key: felt252, deposit: Deposit);
 
     /// Emits the `DepositExecuted` event.
     fn emit_deposit_executed(
@@ -125,7 +125,7 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `DepositCancelled` event.
     fn emit_deposit_cancelled(
-        ref self: TContractState, key: felt252, reason: felt252, reasonBytes: Array<felt252>,
+        ref self: TContractState, key: felt252, reason: felt252, reasonBytes: Array<felt252>
     );
 }
 
@@ -456,7 +456,7 @@ mod EventEmitter {
                         min_market_tokens: deposit.min_market_tokens,
                         updated_at_block: deposit.updated_at_block,
                         execution_fee: deposit.execution_fee,
-                        callback_gas_limit: deposit.callback_gas_limit,
+                        callback_gas_limit: deposit.callback_gas_limit
                     }
                 );
         }
