@@ -3,7 +3,6 @@
 // *************************************************************************
 //                                  IMPORTS
 // *************************************************************************
-
 // Core lib imports.
 use starknet::{ContractAddress, ClassHash};
 
@@ -125,7 +124,9 @@ trait IEventEmitter<TContractState> {
     );
 
     /// Emits the `DepositCancelled` event.
-    fn emit_deposit_cancelled(ref self: TContractState, key: felt252, reason: felt252, reasonBytes: Array<felt252>,);
+    fn emit_deposit_cancelled(
+        ref self: TContractState, key: felt252, reason: felt252, reasonBytes: Array<felt252>,
+    );
 }
 
 #[starknet::contract]
@@ -461,17 +462,24 @@ mod EventEmitter {
         }
 
         /// Emits the `DepositExecuted` event.
-        fn emit_deposit_executed(ref self: ContractState, key: felt252, long_token_amount: u128, short_token_amount: u128, received_market_tokens: u128) {
+        fn emit_deposit_executed(
+            ref self: ContractState,
+            key: felt252,
+            long_token_amount: u128,
+            short_token_amount: u128,
+            received_market_tokens: u128
+        ) {
             self
                 .emit(
-                    DepositExecuted { 
-                        key, long_token_amount, short_token_amount, received_market_tokens 
-                    }
+                    DepositExecuted {
+                        key, long_token_amount, short_token_amount, received_market_tokens
                 );
         }
 
         /// Emits the `DepositCancelled` event.
-        fn emit_deposit_cancelled(ref self: ContractState, key: felt252, reason: felt252, reasonBytes: Array<felt252>) {
+        fn emit_deposit_cancelled(
+            ref self: ContractState, key: felt252, reason: felt252, reasonBytes: Array<felt252>
+        ) {
             self.emit(DepositCancelled { key, reason, reasonBytes });
         }
     }
