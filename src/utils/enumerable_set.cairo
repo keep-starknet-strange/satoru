@@ -28,13 +28,9 @@ impl Felt252SetImpl of SetTrait<felt252> {
     /// # Returns
     /// * A new set.
     fn new() -> Set {
-        Set { 
-            indexes: Default::default(), 
-            values: Default::default(), 
-            length: 0,
-        }
+        Set { indexes: Default::default(), values: Default::default(), length: 0, }
     }
-    
+
     /// Adds a value to the set.
     /// # Arguments
     /// * `value` - The value to add.
@@ -103,7 +99,9 @@ impl Felt252SetImpl of SetTrait<felt252> {
         let mut values = ArrayTrait::<felt252>::new();
         let mut i = self.length;
         loop {
-            if i == 0 { break (); }
+            if i == 0 {
+                break ();
+            }
             values.append(self.at(i));
             i -= 1;
         };
@@ -118,7 +116,7 @@ impl ContractAddressSetImpl of SetTrait<ContractAddress> {
     fn new() -> Set {
         Felt252SetImpl::new()
     }
-    
+
     /// Adds a value to the set.
     /// # Arguments
     /// * `value` - The value to add.
@@ -167,7 +165,9 @@ impl ContractAddressSetImpl of SetTrait<ContractAddress> {
         let mut values = ArrayTrait::<ContractAddress>::new();
         let mut i = self.length;
         loop {
-            if i == 0 { break (); }
+            if i == 0 {
+                break ();
+            }
             values.append(self.at(i));
             i -= 1;
         };
@@ -182,7 +182,7 @@ impl U128SetImpl of SetTrait<u128> {
     fn new() -> Set {
         Felt252SetImpl::new()
     }
-    
+
     /// Adds a value to the set.
     /// # Arguments
     /// * `value` - The value to add.
@@ -231,7 +231,9 @@ impl U128SetImpl of SetTrait<u128> {
         let mut values = ArrayTrait::<u128>::new();
         let mut i = self.length;
         loop {
-            if i == 0 { break (); }
+            if i == 0 {
+                break ();
+            }
             values.append(self.at(i));
             i -= 1;
         };
