@@ -13,6 +13,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Check for changes in the book directory
+        id: check_changes
+        run: |
+          if git diff --quiet --exit-code HEAD^ HEAD -- book; then
+            echo "No changes in the 'book' directory. Exiting..."
+            exit 0
+          else
+            echo "Changes detected in the book directory. Continuing..."
+          fi
+
       - name: Setup mdBook
         uses: peaceiris/actions-mdbook@v1
         with:
