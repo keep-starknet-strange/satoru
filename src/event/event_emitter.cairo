@@ -183,7 +183,7 @@ mod EventEmitter {
         DepositCancelled: DepositCancelled,
         WithdrawalCreated: WithdrawalCreated,
         WithdrawalExecuted: WithdrawalExecuted,
-        WithdrawalCancelled: WithdrawalCancelled,
+        WithdrawalCancelled: WithdrawalCancelled
     }
 
     #[derive(Drop, starknet::Event)]
@@ -322,12 +322,12 @@ mod EventEmitter {
         updated_at_block: u128,
         execution_fee: u128,
         callback_gas_limit: u128,
-        should_unwrap_native_token: bool,
+        should_unwrap_native_token: bool
     }
 
     #[derive(Drop, starknet::Event)]
     struct WithdrawalExecuted {
-        key: felt252,
+        key: felt252
     }
 
     #[derive(Drop, starknet::Event)]
