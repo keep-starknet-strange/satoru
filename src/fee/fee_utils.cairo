@@ -7,6 +7,10 @@ use starknet::ContractAddress;
 // Local imports.
 use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::data::keys::{
+    claim_fee_amount_key, claim_ui_fee_amount_key, claim_ui_fee_amount_for_account_key
+};
+use satoru::utils::account_utils::validate_receiver;
 
 /// Increment the claimable fee amount for the specified market.
 /// # Arguments
@@ -23,13 +27,23 @@ fn increment_claimable_fee_amount(
     token: ContractAddress,
     delta: u128,
     fee_type: felt252,
-) { // TODO
+) {
+    if delta == 0 {
+        return;
+    }
+
+    let key = claim_fee_amount_key(market, token);
+
+    let next_value = data_store.increment_u128(key, delta).unwrap();
+
+    event_emitter.emit_claimable_fee_amount_updated(market, token, delta, next_value, fee_type);
 }
 
 /// Increment the claimable ui fee amount for the specified market.
 /// # Arguments
 /// * `data_store` - The `DataStore` contract dispatcher.
 /// * `event_emitter` - The `EventEmitter` contract dispatcher.
+/// * `ui_fee_receiver` - The ui fees receiver.
 /// * `market` - The market to increment claimable fees for.
 /// * `token` - The fee token.
 /// * `delta` - The amount to increment.
@@ -37,12 +51,28 @@ fn increment_claimable_fee_amount(
 fn increment_claimable_ui_fee_amount(
     data_store: IDataStoreSafeDispatcher,
     event_emitter: IEventEmitterSafeDispatcher,
-    uiFeeReceiver: ContractAddress,
+    ui_fee_receiver: ContractAddress,
     market: ContractAddress,
     token: ContractAddress,
     delta: u128,
     fee_type: felt252,
-) { // TODO
+) {
+    if delta == 0 {
+        return;
+    }
+
+    let next_value = data_store
+        .increment_u128(claim_ui_fee_amount_for_account_key(market, token, ui_fee_receiver), delta)
+        .unwrap();
+
+    let next_pool_value = data_store
+        .increment_u128(claim_ui_fee_amount_key(market, token), delta)
+        .unwrap();
+
+    event_emitter
+        .emit_claimable_ui_fee_amount_updated(
+            ui_fee_receiver, market, token, delta, next_value, next_pool_value, fee_type
+        );
 }
 
 /// Claim fees for the specified market.
@@ -79,75 +109,4 @@ fn claim_ui_fees(
 ) -> u128 {
     // TODO
     0
-}
-
-/// Emits event about fee amount update
-/// # Arguments
-/// * `event_emitter` - The `EventEmitter` contract dispatcher.
-/// * `market` - The market where the fee amount was updated.
-/// * `token` - The fee token.
-/// * `delta` - The variation in fee amount.
-/// * `next_value` - The new fee amount value.
-/// * `fee_type` - The type of the fee.
-fn emit_claimable_fee_amount_updated(
-    event_emitter: IEventEmitterSafeDispatcher,
-    market: ContractAddress,
-    token: ContractAddress,
-    delta: u128,
-    next_value: u128,
-    fee_type: felt252
-) { // TODO
-}
-
-/// Emits event about ui fee amount update
-/// # Arguments
-/// * `event_emitter` - The `EventEmitter` contract dispatcher.
-/// * `ui_fee_receiver` - The ui fee receiver,
-/// * `market` - The market where the fee amount was updated.
-/// * `token` - The fee token.
-/// * `delta` - The variation in fee amount.
-/// * `next_value` - The new fee amount value.
-/// * `fee_type` - The type of the fee.
-fn emit_claimable_ui_fee_amount_updated(
-    event_emitter: IEventEmitterSafeDispatcher,
-    ui_fee_receiver: ContractAddress,
-    market: ContractAddress,
-    token: ContractAddress,
-    delta: u128,
-    next_value: u128,
-    next_pool_value: u128,
-    fee_type: felt252
-) { // TODO
-}
-
-/// Emits event about claimed fees
-/// # Arguments
-/// * `event_emitter` - The `EventEmitter` contract dispatcher.
-/// * `market` - The market where the fee amount was updated.
-/// * `receiver` - The receiver of the fees.
-/// * `fee_amount` - The amount of claimed fees.
-fn emit_fees_claimed(
-    event_emitter: IEventEmitterSafeDispatcher,
-    market: ContractAddress,
-    receiver: ContractAddress,
-    fee_amount: u128
-) { // TODO
-}
-
-/// Emits event about claimed fees
-/// # Arguments
-/// * `event_emitter` - The `EventEmitter` contract dispatcher.
-/// * `ui_fee_receiver` - The ui fee receiver.
-/// * `market` - The market where the fee amount was updated.
-/// * `receiver` - The receiver of the fees.
-/// * `fee_amount` - The amount of claimed fees.
-/// * `next_pool_value` - The new amount of the pool.
-fn emit_ui_fees_claimed(
-    event_emitter: IEventEmitterSafeDispatcher,
-    ui_fee_receiver: ContractAddress,
-    market: ContractAddress,
-    receiver: ContractAddress,
-    fee_amount: u128,
-    next_pool_value: u128,
-) { // TODO
 }
