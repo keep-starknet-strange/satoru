@@ -3,9 +3,11 @@
 // *************************************************************************
 //                                  IMPORTS
 // *************************************************************************
-
 // Core lib imports.
 use starknet::{ContractAddress, ClassHash};
+
+// Local imports.
+use satoru::deposit::deposit::Deposit;
 
 // *************************************************************************
 //                  Interface of the `EventEmitter` contract.
@@ -107,6 +109,24 @@ trait IEventEmitter<TContractState> {
         fee_amount: u128,
         next_pool_value: u128
     );
+
+    /// Emits the `DepositCreated` event.
+    #[inline(always)]
+    fn emit_deposit_created(ref self: TContractState, key: felt252, deposit: Deposit);
+
+    /// Emits the `DepositExecuted` event.
+    fn emit_deposit_executed(
+        ref self: TContractState,
+        key: felt252,
+        long_token_amount: u128,
+        short_token_amount: u128,
+        received_market_tokens: u128,
+    );
+
+    /// Emits the `DepositCancelled` event.
+    fn emit_deposit_cancelled(
+        ref self: TContractState, key: felt252, reason: felt252, reasonBytes: Array<felt252>
+    );
 }
 
 #[starknet::contract]
@@ -117,6 +137,9 @@ mod EventEmitter {
 
     // Core lib imports.
     use starknet::{ContractAddress, ClassHash};
+
+    // Local imports.
+    use satoru::deposit::deposit::Deposit;
 
     // *************************************************************************
     //                              STORAGE
@@ -140,6 +163,9 @@ mod EventEmitter {
         ClaimableUiFeeAmountUpdated: ClaimableUiFeeAmountUpdated,
         FeesClaimed: FeesClaimed,
         UiFeesClaimed: UiFeesClaimed,
+        DepositCreated: DepositCreated,
+        DepositExecuted: DepositExecuted,
+        DepositCancelled: DepositCancelled,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -229,6 +255,40 @@ mod EventEmitter {
         receiver: ContractAddress,
         fee_amount: u128,
         next_pool_value: u128,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct DepositCreated {
+        key: felt252,
+        account: ContractAddress,
+        receiver: ContractAddress,
+        callback_contract: ContractAddress,
+        market: ContractAddress,
+        initial_long_token: ContractAddress,
+        initial_short_token: ContractAddress,
+        long_token_swap_path: Array<ContractAddress>,
+        short_token_swap_path: Array<ContractAddress>,
+        initial_long_token_amount: u256,
+        initial_short_token_amount: u256,
+        min_market_tokens: u256,
+        updated_at_block: u256,
+        execution_fee: u256,
+        callback_gas_limit: u256,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct DepositExecuted {
+        key: felt252,
+        long_token_amount: u128,
+        short_token_amount: u128,
+        received_market_tokens: u128,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct DepositCancelled {
+        key: felt252,
+        reason: felt252,
+        reasonBytes: Array<felt252>,
     }
 
 
@@ -374,6 +434,54 @@ mod EventEmitter {
                 .emit(
                     UiFeesClaimed { ui_fee_receiver, market, receiver, fee_amount, next_pool_value }
                 );
+        }
+
+        /// Emits the `DepositCreated` event.
+        #[inline(always)]
+        fn emit_deposit_created(ref self: ContractState, key: felt252, deposit: Deposit) {
+            self
+                .emit(
+                    DepositCreated {
+                        key,
+                        account: deposit.account,
+                        receiver: deposit.receiver,
+                        callback_contract: deposit.callback_contract,
+                        market: deposit.market,
+                        initial_long_token: deposit.initial_long_token,
+                        initial_short_token: deposit.initial_short_token,
+                        long_token_swap_path: deposit.long_token_swap_path,
+                        short_token_swap_path: deposit.short_token_swap_path,
+                        initial_long_token_amount: deposit.initial_long_token_amount,
+                        initial_short_token_amount: deposit.initial_short_token_amount,
+                        min_market_tokens: deposit.min_market_tokens,
+                        updated_at_block: deposit.updated_at_block,
+                        execution_fee: deposit.execution_fee,
+                        callback_gas_limit: deposit.callback_gas_limit
+                    }
+                );
+        }
+
+        /// Emits the `DepositExecuted` event.
+        fn emit_deposit_executed(
+            ref self: ContractState,
+            key: felt252,
+            long_token_amount: u128,
+            short_token_amount: u128,
+            received_market_tokens: u128
+        ) {
+            self
+                .emit(
+                    DepositExecuted {
+                        key, long_token_amount, short_token_amount, received_market_tokens
+                    }
+                );
+        }
+
+        /// Emits the `DepositCancelled` event.
+        fn emit_deposit_cancelled(
+            ref self: ContractState, key: felt252, reason: felt252, reasonBytes: Array<felt252>
+        ) {
+            self.emit(DepositCancelled { key, reason, reasonBytes });
         }
     }
 }
