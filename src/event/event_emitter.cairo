@@ -8,6 +8,8 @@ use starknet::{ContractAddress, ClassHash};
 
 // Local imports.
 use satoru::deposit::deposit::Deposit;
+use satoru::withdrawal::withdrawal::Withdrawal;
+
 
 // *************************************************************************
 //                  Interface of the `EventEmitter` contract.
@@ -127,6 +129,18 @@ trait IEventEmitter<TContractState> {
     fn emit_deposit_cancelled(
         ref self: TContractState, key: felt252, reason: felt252, reasonBytes: Array<felt252>
     );
+
+    /// Emits the `WithdrawalCreated` event.
+    #[inline(always)]
+    fn emit_withdrawal_created(ref self: TContractState, key: felt252, withdrawal: Withdrawal);
+
+    /// Emits the `WithdrawalExecuted` event.
+    fn emit_withdrawal_executed(ref self: TContractState, key: felt252);
+
+    /// Emits the `WithdrawalCancelled` event.
+    fn emit_withdrawal_cancelled(
+        ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
+    );
 }
 
 #[starknet::contract]
@@ -140,6 +154,7 @@ mod EventEmitter {
 
     // Local imports.
     use satoru::deposit::deposit::Deposit;
+    use satoru::withdrawal::withdrawal::Withdrawal;
 
     // *************************************************************************
     //                              STORAGE
@@ -166,6 +181,9 @@ mod EventEmitter {
         DepositCreated: DepositCreated,
         DepositExecuted: DepositExecuted,
         DepositCancelled: DepositCancelled,
+        WithdrawalCreated: WithdrawalCreated,
+        WithdrawalExecuted: WithdrawalExecuted,
+        WithdrawalCancelled: WithdrawalCancelled
     }
 
     #[derive(Drop, starknet::Event)]
@@ -289,6 +307,34 @@ mod EventEmitter {
         key: felt252,
         reason: felt252,
         reasonBytes: Array<felt252>,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct WithdrawalCreated {
+        key: felt252,
+        account: ContractAddress,
+        receiver: ContractAddress,
+        callback_contract: ContractAddress,
+        market: ContractAddress,
+        market_token_amount: u128,
+        min_long_token_amount: u128,
+        min_short_token_amount: u128,
+        updated_at_block: u128,
+        execution_fee: u128,
+        callback_gas_limit: u128,
+        should_unwrap_native_token: bool
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct WithdrawalExecuted {
+        key: felt252
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct WithdrawalCancelled {
+        key: felt252,
+        reason: felt252,
+        reason_bytes: Array<felt252>
     }
 
 
@@ -482,6 +528,39 @@ mod EventEmitter {
             ref self: ContractState, key: felt252, reason: felt252, reasonBytes: Array<felt252>
         ) {
             self.emit(DepositCancelled { key, reason, reasonBytes });
+        }
+
+        /// Emits the `WithdrawalCreated` event.
+        fn emit_withdrawal_created(ref self: ContractState, key: felt252, withdrawal: Withdrawal) {
+            self
+                .emit(
+                    WithdrawalCreated {
+                        key,
+                        account: withdrawal.account,
+                        receiver: withdrawal.receiver,
+                        callback_contract: withdrawal.callback_contract,
+                        market: withdrawal.market,
+                        market_token_amount: withdrawal.market_token_amount,
+                        min_long_token_amount: withdrawal.min_long_token_amount,
+                        min_short_token_amount: withdrawal.min_short_token_amount,
+                        updated_at_block: withdrawal.updated_at_block,
+                        execution_fee: withdrawal.execution_fee,
+                        callback_gas_limit: withdrawal.callback_gas_limit,
+                        should_unwrap_native_token: withdrawal.should_unwrap_native_token
+                    }
+                );
+        }
+
+        /// Emits the `WithdrawalExecuted` event.
+        fn emit_withdrawal_executed(ref self: ContractState, key: felt252) {
+            self.emit(WithdrawalExecuted { key });
+        }
+
+        /// Emits the `WithdrawalCancelled` event.
+        fn emit_withdrawal_cancelled(
+            ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
+        ) {
+            self.emit(WithdrawalCancelled { key, reason, reason_bytes });
         }
     }
 }
