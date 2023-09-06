@@ -286,33 +286,21 @@ mod EventEmitter {
 
         /// Emits the `WithdrawalCreated` event.
         fn emit_withdrawal_created(ref self: ContractState, key: felt252, withdrawal: Withdrawal) {
-            let account = withdrawal.account;
-            let receiver = withdrawal.account;
-            let callback_contract = withdrawal.callback_contract;
-            let market = withdrawal.market;
-            let market_token_amount = withdrawal.market_token_amount;
-            let min_long_token_amount = withdrawal.min_long_token_amount;
-            let min_short_token_amount = withdrawal.min_short_token_amount;
-            let updated_at_block = withdrawal.updated_at_block;
-            let execution_fee = withdrawal.execution_fee;
-            let callback_gas_limit = withdrawal.callback_gas_limit;
-            let should_unwrap_native_token = withdrawal.should_unwrap_native_token;
-
             self
                 .emit(
                     WithdrawalCreated {
                         key,
-                        account,
-                        receiver,
-                        callback_contract,
-                        market,
-                        market_token_amount,
-                        min_long_token_amount,
-                        min_short_token_amount,
-                        updated_at_block,
-                        execution_fee,
-                        callback_gas_limit,
-                        should_unwrap_native_token
+                        account: withdrawal.account,
+                        receiver: withdrawal.receiver,
+                        callback_contract: withdrawal.callback_contract,
+                        market: withdrawal.market,
+                        market_token_amount: withdrawal.market_token_amount,
+                        min_long_token_amount: withdrawal.min_long_token_amount,
+                        min_short_token_amount: withdrawal.min_short_token_amount,
+                        updated_at_block: withdrawal.updated_at_block,
+                        execution_fee: withdrawal.execution_fee,
+                        callback_gas_limit: withdrawal.callback_gas_limit,
+                        should_unwrap_native_token: withdrawal.should_unwrap_native_token
                     }
                 );
         }
