@@ -39,7 +39,7 @@ fn test_nonexist_feature_validate() {
 
     validate_feature(
         data_store, 'NONEXIST_FEATURE'
-    ); // Should not revert because feature is not exist
+    ); // Should not revert because feature does not exist
 }
 
 #[test]
