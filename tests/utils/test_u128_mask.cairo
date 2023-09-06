@@ -20,7 +20,7 @@ fn test_valid_index_bit_already_set() {
 #[should_panic(expected: ('mask index out of bounds',))]
 fn test_invalid_index() {
     let mut mask = 0b0000_0000;
-    validate_unique_and_set_index(ref mask, 260);
+    validate_unique_and_set_index(ref mask, 128);
 }
 
 #[test]

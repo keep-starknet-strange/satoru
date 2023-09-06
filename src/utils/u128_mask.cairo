@@ -7,7 +7,7 @@ use alexandria_math::BitShift;
 
 /// Validate that the index is unique.
 fn validate_unique_and_set_index(ref mask: u128, index: u128) {
-    if index >= 256 {
+    if index >= 128 {
         panic_with_felt252(UtilsError::MASK_OUT_OF_BOUNDS);
     }
 
