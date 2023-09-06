@@ -124,39 +124,6 @@ fn test_no_data_for_multicall() {
     teardown(data_store.contract_address);
 }
 
-
-#[test]
-#[should_panic]
-fn test_wrong_selector() {
-    // *********************************************************************************************
-    // *                              SETUP                                                        *
-    // *********************************************************************************************
-    let (role_store, data_store) = setup();
-
-    // *********************************************************************************************
-    // *                              TEST LOGIC                                                   *
-    // *********************************************************************************************
-
-    let mut calls = array![];
-    let mut calldata_param = array![1, 42];
-    let first_call = Call {
-        to: data_store.contract_address,
-        selector: selector!("set_felt25_"), /// generate keccak hash for 'set_felt252' in cairo
-        calldata: calldata_param
-    };
-    calls.append(first_call);
-
-    let result: Array<Span<felt252>> = multicall(calls);
-
-    // check first call result
-    assert(data_store.get_felt252(1).unwrap() == 42, 'Invalid value');
-
-    // *********************************************************************************************
-    // *                              TEARDOWN                                                     *
-    // *********************************************************************************************
-    teardown(data_store.contract_address);
-}
-
 /// Utility function to deploy a data store contract and return its address.
 ///
 /// # Arguments

@@ -1,11 +1,9 @@
-/// Receives and executes a batch of function calls on this contract.
-/// # Arguments
-/// * `data` - calls to execute.
-
 use satoru::utils::error::UtilsError;
 use starknet::{account::Call, call_contract_syscall, SyscallResultTrait};
 
-
+/// Receives and executes a batch of function calls on this contract.
+/// # Arguments
+/// * `data` - calls to execute.
 fn multicall(mut data: Array<Call>) -> Array<Span<felt252>> {
     assert(data.len() > 0, UtilsError::NO_DATA_FOR_MULTICALL);
     let mut result = ArrayTrait::new();
