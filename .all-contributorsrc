@@ -72,6 +72,33 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "ermvrs",
+      "name": "Erim",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3417324?v=4",
+      "profile": "https://github.com/ermvrs",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "parketh",
+      "name": "parketh",
+      "avatar_url": "https://avatars.githubusercontent.com/u/27808560?v=4",
+      "profile": "https://github.com/parketh",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "enitrat",
+      "name": "Mathieu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/60658558?v=4",
+      "profile": "https://github.com/enitrat",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

@@ -8,7 +8,6 @@ use poseidon::poseidon_hash_span;
 /// # Returns
 /// * The hash of the value.
 fn hash_poseidon_single(value: felt252) -> felt252 {
-    let mut data = array![];
-    data.append(value);
+    let data = array![value];
     poseidon_hash_span(data.span())
 }
