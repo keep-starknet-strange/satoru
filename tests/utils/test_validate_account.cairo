@@ -21,7 +21,7 @@ fn test_validate_receiver() {
 }
 
 #[test]
-#[should_panic(expected: ('satoru/null-receiver',))]
+#[should_panic(expected: ('null_receiver',))]
 fn test_validate_receiver_fail() {
     let account = contract_address_const::<0>();
     validate_receiver(account);
