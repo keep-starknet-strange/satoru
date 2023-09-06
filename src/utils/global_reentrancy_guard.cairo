@@ -6,7 +6,7 @@ use starknet::ContractAddress;
 
 // Satoru imports
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::utils::error::{ReentrancyGuardError};
+use satoru::utils::error::ReentrancyGuardError;
 
 const REENTRANCY_GUARD_STATUS: felt252 = 'REENTRANCY_GUARD_STATUS';
 

@@ -126,6 +126,7 @@ mod utils {
     mod u128_mask;
     mod hash;
     mod store_arrays;
+    mod validate_account;
     mod error;
 }
 
