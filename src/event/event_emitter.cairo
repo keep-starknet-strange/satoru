@@ -431,8 +431,10 @@ mod EventEmitter {
         ) {
             self
                 .emit(
-                    AffiliateRewardUpdated { market, token, affiliate, delta, next_value, next_pool_value }
-            );
+                    AffiliateRewardUpdated {
+                        market, token, affiliate, delta, next_value, next_pool_value
+                    }
+                );
         }
 
         /// Emits the `AffiliateRewardClaimed` event.
@@ -447,7 +449,9 @@ mod EventEmitter {
         ) {
             self
                 .emit(
-                    AffiliateRewardClaimed { market, token, affiliate, receiver, amount, next_pool_value }
+                    AffiliateRewardClaimed {
+                        market, token, affiliate, receiver, amount, next_pool_value
+                    }
                 );
         }
     }
