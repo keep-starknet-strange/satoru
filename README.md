@@ -86,6 +86,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/ermvrs"><img src="https://avatars.githubusercontent.com/u/3417324?v=4?s=100" width="100px;" alt="Erim"/><br /><sub><b>Erim</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=ermvrs" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/parketh"><img src="https://avatars.githubusercontent.com/u/27808560?v=4?s=100" width="100px;" alt="parketh"/><br /><sub><b>parketh</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=parketh" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
