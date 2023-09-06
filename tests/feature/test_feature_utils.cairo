@@ -17,7 +17,7 @@ fn test_nonexist_feature() {
 
     let nonexist_feature = is_feature_disabled(
         data_store, 'NONEXIST_FEATURE'
-    ); // Returns false because feature is exist so not disabled.
+    ); // Returns false because feature does not exist so cannot be disabled.
     assert(!nonexist_feature, 'Nonexist feature wrong');
 }
 
