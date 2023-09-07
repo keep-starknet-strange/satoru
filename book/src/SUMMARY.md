@@ -18,6 +18,7 @@
   - [Liquidation](smart-contracts-architecture/liquidation-module.md)
   - [Nonce Module](smart-contracts-architecture/nonce-module.md)
   - [Oracle Module](smart-contracts-architecture/oracle-module.md)
+  - [Order Module](smart-contracts-architecture/order-module.md)
   - [Position Module](smart-contracts-architecture/position-module.md)
   - [Pricing Module](smart-contracts-architecture/pricing-module.md)
   - [Reader Module](smart-contracts-architecture/reader-module.md)
