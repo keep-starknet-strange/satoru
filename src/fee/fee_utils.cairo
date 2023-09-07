@@ -8,7 +8,7 @@ use starknet::ContractAddress;
 use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
 use satoru::data::keys::{
-    claim_fee_amount_key, claim_ui_fee_amount_key, claim_ui_fee_amount_for_account_key
+    claimable_fee_amount_key, claimable_ui_fee_amount_key, claimable_ui_fee_amount_for_account_key,
 };
 use satoru::utils::account_utils::validate_receiver;
 
@@ -32,7 +32,7 @@ fn increment_claimable_fee_amount(
         return;
     }
 
-    let key = claim_fee_amount_key(market, token);
+    let key = claimable_fee_amount_key(market, token);
 
     let next_value = data_store.increment_u128(key, delta).unwrap();
 
@@ -62,11 +62,13 @@ fn increment_claimable_ui_fee_amount(
     }
 
     let next_value = data_store
-        .increment_u128(claim_ui_fee_amount_for_account_key(market, token, ui_fee_receiver), delta)
+        .increment_u128(
+            claimable_ui_fee_amount_for_account_key(market, token, ui_fee_receiver), delta
+        )
         .unwrap();
 
     let next_pool_value = data_store
-        .increment_u128(claim_ui_fee_amount_key(market, token), delta)
+        .increment_u128(claimable_ui_fee_amount_key(market, token), delta)
         .unwrap();
 
     event_emitter
@@ -88,7 +90,20 @@ fn claim_fees(
     market: ContractAddress,
     token: ContractAddress,
     receiver: ContractAddress,
-) { // TODO
+) {
+    // AccountUtils.validateReceiver(receiver);
+
+    let key = claimable_fee_amount_key(market, token);
+
+    // let feeAmount = data_store.get_uint(key);
+    // dataStore.setUint(key, 0);
+
+    // MarketToken(payable(market)).transferOut(token, receiver, feeAmount);
+
+    // MarketUtils.validateMarketTokenBalance(dataStore, market);
+
+    // emitFeesClaimed(eventEmitter, market, receiver, feeAmount);
+    0;
 }
 
 /// Claim ui fees for the specified market.
@@ -107,6 +122,21 @@ fn claim_ui_fees(
     token: ContractAddress,
     receiver: ContractAddress,
 ) -> u128 {
-    // TODO
+    // AccountUtils.validateReceiver(receiver);
+
+    // let key = Keys.claimableUiFeeAmountKey(market, token, uiFeeReceiver);
+
+    // let feeAmount = dataStore.getUint(key);
+    // dataStore.setUint(key, 0);
+
+    // let nextPoolValue = dataStore.decrementUint(Keys.claimableUiFeeAmountKey(market, token), feeAmount);
+
+    // MarketToken(payable(market)).transferOut(token, receiver, feeAmount);
+
+    // MarketUtils.validateMarketTokenBalance(dataStore, market);
+
+    // emitUiFeesClaimed(eventEmitter, uiFeeReceiver, market, receiver, feeAmount, nextPoolValue);
+
+    // return feeAmount;
     0
 }
