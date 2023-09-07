@@ -9,6 +9,7 @@ use starknet::{ContractAddress, ClassHash};
 // Local imports.
 use satoru::deposit::deposit::Deposit;
 use satoru::withdrawal::withdrawal::Withdrawal;
+use satoru::order::order::{Order, SecondaryOrderType};
 
 
 // *************************************************************************
@@ -141,6 +142,47 @@ trait IEventEmitter<TContractState> {
     fn emit_withdrawal_cancelled(
         ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
     );
+
+    /// Emits the `OrderCreated` event.
+    fn emit_order_created(ref self: TContractState, key: felt252, order: Order);
+
+    /// Emits the `OrderExecuted` event.
+    fn emit_order_executed(
+        ref self: TContractState, key: felt252, secondary_order_type: SecondaryOrderType
+    );
+
+    /// Emits the `OrderUpdated` event.
+    fn emit_order_updated(
+        ref self: TContractState,
+        key: felt252,
+        size_delta_usd: u128,
+        acceptable_price: u128,
+        trigger_price: u128,
+        min_output_amount: u128
+    );
+
+    /// Emits the `OrderSizeDeltaAutoUpdated` event.
+    fn emit_order_size_delta_auto_updated(
+        ref self: TContractState, key: felt252, size_delta_usd: u128, next_size_delta_usd: u128
+    );
+
+    /// Emits the `OrderCollateralDeltaAmountAutoUpdated` event.
+    fn emit_order_collateral_delta_amount_auto_updated(
+        ref self: TContractState,
+        key: felt252,
+        collateral_delta_amount: u128,
+        next_collateral_delta_amount: u128
+    );
+
+    /// Emits the `OrderCancelled` event.
+    fn emit_order_cancelled(
+        ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
+    );
+
+    /// Emits the `OrderFrozen` event.
+    fn emit_order_frozen(
+        ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
+    );
 }
 
 #[starknet::contract]
@@ -155,6 +197,7 @@ mod EventEmitter {
     // Local imports.
     use satoru::deposit::deposit::Deposit;
     use satoru::withdrawal::withdrawal::Withdrawal;
+    use satoru::order::order::{Order, SecondaryOrderType};
 
     // *************************************************************************
     //                              STORAGE
@@ -183,7 +226,14 @@ mod EventEmitter {
         DepositCancelled: DepositCancelled,
         WithdrawalCreated: WithdrawalCreated,
         WithdrawalExecuted: WithdrawalExecuted,
-        WithdrawalCancelled: WithdrawalCancelled
+        WithdrawalCancelled: WithdrawalCancelled,
+        OrderCreated: OrderCreated,
+        OrderExecuted: OrderExecuted,
+        OrderUpdated: OrderUpdated,
+        OrderSizeDeltaAutoUpdated: OrderSizeDeltaAutoUpdated,
+        OrderCollateralDeltaAmountAutoUpdated: OrderCollateralDeltaAmountAutoUpdated,
+        OrderCancelled: OrderCancelled,
+        OrderFrozen: OrderFrozen,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -332,6 +382,55 @@ mod EventEmitter {
 
     #[derive(Drop, starknet::Event)]
     struct WithdrawalCancelled {
+        key: felt252,
+        reason: felt252,
+        reason_bytes: Array<felt252>
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct OrderCreated {
+        key: felt252,
+        order: Order
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct OrderExecuted {
+        key: felt252,
+        secondary_order_type: SecondaryOrderType
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct OrderUpdated {
+        key: felt252,
+        size_delta_usd: u128,
+        acceptable_price: u128,
+        trigger_price: u128,
+        min_output_amount: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct OrderSizeDeltaAutoUpdated {
+        key: felt252,
+        size_delta_usd: u128,
+        next_size_delta_usd: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct OrderCollateralDeltaAmountAutoUpdated {
+        key: felt252,
+        collateral_delta_amount: u128,
+        next_collateral_delta_amount: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct OrderCancelled {
+        key: felt252,
+        reason: felt252,
+        reason_bytes: Array<felt252>
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct OrderFrozen {
         key: felt252,
         reason: felt252,
         reason_bytes: Array<felt252>
@@ -561,6 +660,71 @@ mod EventEmitter {
             ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
         ) {
             self.emit(WithdrawalCancelled { key, reason, reason_bytes });
+        }
+
+        /// Emits the `OrderCreated` event.
+        fn emit_order_created(ref self: ContractState, key: felt252, order: Order) {
+            self.emit(OrderCreated { key, order });
+        }
+
+        /// Emits the `OrderExecuted` event.
+        fn emit_order_executed(
+            ref self: ContractState, key: felt252, secondary_order_type: SecondaryOrderType
+        ) {
+            self.emit(OrderExecuted { key, secondary_order_type });
+        }
+
+        /// Emits the `OrderUpdated` event.
+        fn emit_order_updated(
+            ref self: ContractState,
+            key: felt252,
+            size_delta_usd: u128,
+            acceptable_price: u128,
+            trigger_price: u128,
+            min_output_amount: u128
+        ) {
+            self
+                .emit(
+                    OrderUpdated {
+                        key, size_delta_usd, acceptable_price, trigger_price, min_output_amount
+                    }
+                );
+        }
+
+        /// Emits the `OrderSizeDeltaAutoUpdated` event.
+        fn emit_order_size_delta_auto_updated(
+            ref self: ContractState, key: felt252, size_delta_usd: u128, next_size_delta_usd: u128
+        ) {
+            self.emit(OrderSizeDeltaAutoUpdated { key, size_delta_usd, next_size_delta_usd });
+        }
+
+        /// Emits the `OrderCollateralDeltaAmountAutoUpdated` event.
+        fn emit_order_collateral_delta_amount_auto_updated(
+            ref self: ContractState,
+            key: felt252,
+            collateral_delta_amount: u128,
+            next_collateral_delta_amount: u128
+        ) {
+            self
+                .emit(
+                    OrderCollateralDeltaAmountAutoUpdated {
+                        key, collateral_delta_amount, next_collateral_delta_amount
+                    }
+                );
+        }
+
+        /// Emits the `OrderCancelled` event.
+        fn emit_order_cancelled(
+            ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
+        ) {
+            self.emit(OrderCancelled { key, reason, reason_bytes });
+        }
+
+        /// Emits the `OrderFrozen` event.
+        fn emit_order_frozen(
+            ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
+        ) {
+            self.emit(OrderFrozen { key, reason, reason_bytes });
         }
     }
 }
