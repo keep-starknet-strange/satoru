@@ -186,6 +186,7 @@ trait IEventEmitter<TContractState> {
         amount_paid_in_secondary_output_token: u128
     );
 
+    #[inline(always)]
     fn emit_position_fees_collected(
         ref self: TContractState,
         order_key: felt252,
@@ -197,6 +198,7 @@ trait IEventEmitter<TContractState> {
         fees: PositionFees
     );
 
+    #[inline(always)]
     fn emit_position_fees_info(
         ref self: TContractState,
         order_key: felt252,
@@ -206,7 +208,10 @@ trait IEventEmitter<TContractState> {
         trade_size_usd: u128,
         is_increase: bool,
         fees: PositionFees
+    );
+
     /// Emits the `OrderCreated` event.
+    #[inline(always)]
     fn emit_order_created(ref self: TContractState, key: felt252, order: Order);
 
     /// Emits the `OrderExecuted` event.
@@ -296,12 +301,6 @@ mod EventEmitter {
         WithdrawalCreated: WithdrawalCreated,
         WithdrawalExecuted: WithdrawalExecuted,
         WithdrawalCancelled: WithdrawalCancelled,
-        PositionIncrease: PositionIncrease,
-        PositionDecrease: PositionDecrease,
-        InsolventClose: InsolventClose,
-        InsufficientFundingFeePayment: InsufficientFundingFeePayment,
-        PositionFeesCollected: PositionFeesCollected,
-        PositionFeesInfo: PositionFeesInfo
         OrderCreated: OrderCreated,
         OrderExecuted: OrderExecuted,
         OrderUpdated: OrderUpdated,
@@ -309,6 +308,12 @@ mod EventEmitter {
         OrderCollateralDeltaAmountAutoUpdated: OrderCollateralDeltaAmountAutoUpdated,
         OrderCancelled: OrderCancelled,
         OrderFrozen: OrderFrozen,
+        PositionIncrease: PositionIncrease,
+        PositionDecrease: PositionDecrease,
+        InsolventClose: InsolventClose,
+        InsufficientFundingFeePayment: InsufficientFundingFeePayment,
+        PositionFeesCollected: PositionFeesCollected,
+        PositionFeesInfo: PositionFeesInfo
     }
 
     #[derive(Drop, starknet::Event)]
@@ -618,6 +623,8 @@ mod EventEmitter {
         ui_fee_amount: u128,
         is_increase: bool
     }
+
+    #[derive(Drop, starknet::Event)]
     struct OrderCreated {
         key: felt252,
         order: Order
@@ -987,6 +994,10 @@ mod EventEmitter {
                         is_long: position.is_long,
                         order_key: order_key,
                         position_key: position_key
+                    }
+                );
+        }
+
         /// Emits the `OrderCreated` event.
         fn emit_order_created(ref self: ContractState, key: felt252, order: Order) {
             self.emit(OrderCreated { key, order });
@@ -1226,6 +1237,8 @@ mod EventEmitter {
                         is_increase: is_increase
                     }
                 );
+        }
+
         /// Emits the `OrderCancelled` event.
         fn emit_order_cancelled(
             ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
