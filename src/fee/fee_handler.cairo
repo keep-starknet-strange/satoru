@@ -29,7 +29,7 @@ trait IFeeHandler<TContractState> {
     /// # Arguments
     /// * `market` - The markets to claim fees from.
     /// * `tokens` - The fee tokens to claim.
-    fn claimFees(
+    fn claim_fees(
         ref self: TContractState, market: Array<ContractAddress>, tokens: Array<ContractAddress>
     );
 }
@@ -48,12 +48,17 @@ mod FeeHandler {
 
     // Local imports.
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use satoru::data::data_store::{
+        IDataStoreDispatcher, IDataStoreDispatcherTrait, IDataStoreSafeDispatcher,
+        IDataStoreSafeDispatcherTrait
+    };
+    use satoru::data::keys;
     use satoru::event::event_emitter::{
         IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait
     };
     use super::IFeeHandler;
     use satoru::fee::error::FeeError;
+    use satoru::fee::fee_utils;
 
     // *************************************************************************
     //                              STORAGE
@@ -111,9 +116,30 @@ mod FeeHandler {
                 .write(IEventEmitterSafeDispatcher { contract_address: event_emitter_address });
         }
 
-        fn claimFees(
+        fn claim_fees(
             ref self: ContractState, market: Array<ContractAddress>, tokens: Array<ContractAddress>
-        ) { // TODO
+        ) {
+            assert(market.len() == tokens.len(), FeeError::INVALID_CLAIM_FEES_INPUT);
+
+            let data_store = self.data_store.read();
+            let receiver = data_store.get_address(keys::fee_receiver());
+
+            let mut i = 0;
+            loop {
+                if i == market.len() {
+                    break;
+                }
+
+                fee_utils::claim_fees(
+                    IDataStoreSafeDispatcher { contract_address: data_store.contract_address },
+                    self.event_emitter.read(),
+                    *market.at(i),
+                    *tokens.at(i),
+                    receiver
+                );
+
+                i += 1;
+            };
         }
     }
 }
