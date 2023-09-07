@@ -6,7 +6,7 @@ use snforge_std::{declare, start_prank, ContractClassTrait};
 
 use satoru::role::role::CONTROLLER;
 use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 use satoru::utils::global_reentrancy_guard::{non_reentrant_before, non_reentrant_after};
 
 /// Utility function to deploy a data store contract and return its address.
@@ -43,12 +43,12 @@ fn deploy_role_store() -> ContractAddress {
 /// * `ContractAddress` - The address of the caller.
 /// * `IRoleStoreSafeDispatcher` - The role store dispatcher.
 /// * `IDataStoreDispatcher` - The data store dispatcher.
-fn setup() -> (ContractAddress, IRoleStoreSafeDispatcher, IDataStoreDispatcher) {
+fn setup() -> (ContractAddress, IRoleStoreSafeDispatcher, IDataStoreSafeDispatcher) {
     let caller_address: ContractAddress = 0x101.try_into().unwrap();
     let role_store_address = deploy_role_store();
     let role_store = IRoleStoreSafeDispatcher { contract_address: role_store_address };
     let data_store_address = deploy_data_store(role_store_address);
-    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
+    let data_store = IDataStoreSafeDispatcher { contract_address: data_store_address };
     start_prank(role_store_address, caller_address);
     role_store.grant_role(caller_address, CONTROLLER).unwrap();
     start_prank(data_store_address, caller_address);
