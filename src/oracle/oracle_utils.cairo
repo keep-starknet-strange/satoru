@@ -145,7 +145,7 @@ fn get_uncompacted_price_index(compacted_price_indexes: Array<u128>, index: u128
 /// # Returns
 /// The uncompacted oracle block numbers.
 fn get_uncompacted_oracle_block_numbers(
-    compacted_oracle_block_numbers: Array<u128>, length: usize
+    compacted_oracle_block_numbers: @Array<u128>, length: usize
 ) -> Array<u128> {
     let mut block_numbers = array![];
     let mut index = 0;
@@ -155,7 +155,7 @@ fn get_uncompacted_oracle_block_numbers(
             break;
         }
         let block_number = get_uncompacted_oracle_block_number(
-            @compacted_oracle_block_numbers, length
+            compacted_oracle_block_numbers, length
         );
         block_numbers.append(block_number);
         index += 1;

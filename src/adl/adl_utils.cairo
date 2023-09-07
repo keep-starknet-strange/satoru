@@ -23,6 +23,7 @@ use satoru::data::keys;
 use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
 use satoru::market::{market::Market, market_utils};
 use satoru::oracle::oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait};
+use satoru::position::position_utils;
 use satoru::utils::arrays::are_gte;
 
 
@@ -93,7 +94,7 @@ fn update_adl_state(
     // this is similar to the case where there is a large amount of open positions relative
     // to the amount of tokens in the pool
     let (should_enable_adl, pnl_to_pool_factor, max_pnl_factor) =
-        market_utils::is_pnl_factor_exceeded(
+        market_utils::is_pnl_factor_exceeded_(
         data_store, market, @prices, is_long, keys::max_pnl_factor()
     );
     set_adl_enabled(data_store, market_address, is_long, should_enable_adl);
@@ -118,7 +119,6 @@ fn update_adl_state(
 /// # Returns
 /// Return the key of the created order.
 fn create_adl_order(params: CreateAdlOrderParams) -> felt252 {
-    // TODO
     0
 }
 
@@ -132,8 +132,22 @@ fn validate_adl(
     data_store: IDataStoreSafeDispatcher,
     market: ContractAddress,
     is_long: bool,
-    max_oracle_block_numbers: Span<u128>
-) { // TODO
+    mut max_oracle_block_numbers: Span<u128>
+) {
+    let is_adl_enabled = get_adl_enabled(data_store, market, is_long);
+    assert(is_adl_enabled, 'adl not enabled');
+
+    let latest_adl_block = get_latest_adl_block(data_store, market, is_long);
+
+    let mut len = max_oracle_block_numbers.len();
+    loop {
+        if len == 0 {
+            break;
+        }
+        let block_number = max_oracle_block_numbers.pop_front().unwrap();
+        assert(*block_number >= latest_adl_block, 'block # smaller than req');
+        len -= 1;
+    };
 }
 
 /// Get the latest block at which the ADL flag was updated.
@@ -172,8 +186,8 @@ fn set_latest_adl_block(
 /// Return whether ADL is enabled.
 fn get_adl_enabled(
     data_store: IDataStoreSafeDispatcher, market: ContractAddress, is_long: bool
-) -> bool { // TODO
-    true
+) -> bool {
+    data_store.get_bool(keys::is_adl_enabled_key(market, is_long)).unwrap().unwrap()
 }
 
 /// Set whether ADL is enabled.

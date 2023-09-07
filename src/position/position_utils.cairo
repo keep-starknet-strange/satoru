@@ -5,6 +5,7 @@
 // *************************************************************************
 // Core lib imports.
 use starknet::ContractAddress;
+use poseidon::poseidon_hash_span;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
@@ -201,8 +202,16 @@ fn get_position_pnl_usd(
 fn get_position_key(
     account: ContractAddress, market: Market, collateral_token: ContractAddress, is_long: bool,
 ) -> felt252 {
-    // TODO
-    0
+    let data: Array<felt252> = array![
+        account.into(),
+        market.market_token.into(),
+        market.index_token.into(),
+        market.long_token.into(),
+        market.short_token.into(),
+        collateral_token.into(),
+        is_long.into()
+    ];
+    poseidon_hash_span(data.span())
 }
 
 /// Validate that a position is not empty.

@@ -256,6 +256,7 @@ mod DataStore {
         bool_values: LegacyMap::<felt252, Option<bool>>,
         market_values: LegacyMap::<felt252, Market>,
         order_values: LegacyMap::<felt252, Order>,
+        position_values: LegacyMap::<felt252, felt252>,
     }
 
     // *************************************************************************

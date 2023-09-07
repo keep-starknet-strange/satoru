@@ -4,6 +4,7 @@
 use satoru::utils::hash::hash_poseidon_single;
 use starknet::ContractAddress;
 
+use satoru::order::order::OrderType;
 use poseidon::poseidon_hash_span;
 
 

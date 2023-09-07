@@ -241,7 +241,7 @@ fn given_normal_conditions_when_get_pool_amount_then_works() {
     let pool_amount_key = keys::pool_amount_key(market_token_address, token_address);
     data_store.set_u128(pool_amount_key, 1000);
 
-    let pool_amount = market_utils::get_pool_amount(data_store, @market, token_address);
+    let pool_amount = market_utils::get_pool_amount(data_store, market, token_address);
     // long_token != short_token, so the pool amount is 1000 because the divisor is 1.
     assert(pool_amount == 1000, 'wrong pool amount');
 
@@ -258,7 +258,7 @@ fn given_normal_conditions_when_get_pool_amount_then_works() {
     };
     let pool_amount_key_2 = keys::pool_amount_key(market_token_address_2, token_address_2);
     data_store.set_u128(pool_amount_key_2, 1000);
-    let pool_amount_2 = market_utils::get_pool_amount(data_store, @market_2, token_address_2);
+    let pool_amount_2 = market_utils::get_pool_amount(data_store, market_2, token_address_2);
     // long_token == short_token, so the pool amount is 500 because the divisor is 2.
     assert(pool_amount_2 == 500, 'wrong pool amount');
 

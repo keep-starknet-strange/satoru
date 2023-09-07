@@ -492,18 +492,40 @@ fn get_market_prices(oracle: IOracleSafeDispatcher, market: Market) -> MarketPri
 // Check if the pending pnl exceeds the allowed amount
 // # Arguments
 // * `data_store` - The data_store dispatcher.
+// * `oracle` - The oracle dispatcher.
 // * `market` - The market to check.
 // * `prices` - The prices of the market tokens.
 // * `is_long` - Whether to check the long or short side.
 // * `pnl_factor_type` - The pnl factor type to check.
 fn is_pnl_factor_exceeded(
     data_store: IDataStoreSafeDispatcher,
+    oracle: IOracleSafeDispatcher,
+    market_address: ContractAddress,
+    is_long: bool,
+    pnl_factor_type: felt252
+) -> (bool, u128, u128) {
+    let market: Market = get_enabled_market(data_store, market_address);
+
+    let prices: MarketPrices = get_market_prices(oracle, market);
+
+    is_pnl_factor_exceeded_(data_store, market, @prices, is_long, pnl_factor_type)
+}
+
+// Check if the pending pnl exceeds the allowed amount
+// # Arguments
+// * `data_store` - The data_store dispatcher.
+// * `market` - The market to check.
+// * `prices` - The prices of the market tokens.
+// * `is_long` - Whether to check the long or short side.
+// * `pnl_factor_type` - The pnl factor type to check.
+fn is_pnl_factor_exceeded_(
+    data_store: IDataStoreSafeDispatcher,
     market: Market,
     prices: @MarketPrices,
     is_long: bool,
     pnl_factor_type: felt252
 ) -> (bool, u128, u128) {
-    let pnl_to_pool_factor = get_pnl_to_pool_factor(data_store, market, prices, is_long, true);
+    let pnl_to_pool_factor = get_pnl_to_pool_factor_(data_store, market, prices, is_long, true);
     let max_pnl_factor = get_max_pnl_factor(
         data_store, pnl_factor_type, market.market_token, is_long
     );
@@ -523,6 +545,32 @@ fn is_pnl_factor_exceeded(
 // # Returns
 // (pnl of positions) / (long or short pool value)
 fn get_pnl_to_pool_factor(
+    data_store: IDataStoreSafeDispatcher,
+    oracle: IOracleSafeDispatcher,
+    market: ContractAddress,
+    is_long: bool,
+    maximize: bool
+) -> u128 {
+    let market_ = get_enabled_market(data_store, market);
+    let prices = MarketPrices {
+        index_token_price: oracle.get_primary_price(market_.index_token).unwrap(),
+        long_token_price: oracle.get_primary_price(market_.long_token).unwrap(),
+        short_token_price: oracle.get_primary_price(market_.short_token).unwrap()
+    };
+
+    get_pnl_to_pool_factor_(data_store, market_, @prices, is_long, maximize)
+}
+
+// Get the ratio of pnl to pool value.
+// # Arguments
+// * `data_store` - The data_store dispatcher.
+// * `market` the market values.
+// * `prices` the prices of the market tokens.
+// * `is_long` whether to get the value for the long or short side.
+// * `maximize` whether to maximize the factor.
+// # Returns
+// (pnl of positions) / (long or short pool value)
+fn get_pnl_to_pool_factor_(
     data_store: IDataStoreSafeDispatcher,
     market: Market,
     prices: @MarketPrices,
@@ -609,3 +657,49 @@ fn get_max_pnl_factor(
 ) -> u128 {
     data_store.get_u128(keys::max_pnl_factor_key(pnl_factor_type, market, is_long)).unwrap()
 }
+
+// Get the enabled market, revert if the market does not exist or is not enabled
+// @param dataStore DataStore
+// @param marketAddress the address of the market
+fn get_enabled_market(
+    data_store: IDataStoreSafeDispatcher, market_address: ContractAddress
+) -> Market {
+    let market = get_market(data_store);
+    validate_enabled_market(data_store, market);
+    market
+}
+
+// @dev validate that the specified market exists and is enabled
+// @param dataStore DataStore
+// @param market the market to check
+fn validate_enabled_market(data_store: IDataStoreSafeDispatcher, market: Market) {
+    assert(!market.market_token.is_zero(), 'empty market');
+
+    let is_market_disabled = data_store
+        .get_bool(keys::is_market_disabled_key(market.market_token))
+        .unwrap()
+        .unwrap();
+    assert(!is_market_disabled, 'disabled market');
+}
+
+// TODO: verify the following function and the keys for get_address()
+fn get_market(data_store: IDataStoreSafeDispatcher) -> Market {
+    Market {
+        market_token: data_store.get_address('market_token').unwrap(),
+        index_token: data_store.get_address('index_token').unwrap(),
+        long_token: data_store.get_address('long_token').unwrap(),
+        short_token: data_store.get_address('short_token').unwrap()
+    }
+}
+
+// Get the min pnl factor after ADL
+// Parameters
+// @param dataStore DataStore
+// @param market the market to check
+// @param isLong whether to check the long or short side
+fn get_min_pnl_factor_after_adl(
+    data_store: IDataStoreSafeDispatcher, market: ContractAddress, is_long: bool
+) -> u128 {
+    data_store.get_u128(keys::min_pnl_factor_after_adl_key(market, is_long)).unwrap()
+}
+

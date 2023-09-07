@@ -8,6 +8,10 @@
 use core::traits::Into;
 use starknet::ContractAddress;
 
+use satoru::oracle::oracle_utils::SetPricesParams;
+use satoru::order::{order::SecondaryOrderType, base_order_utils::ExecuteOrderParams};
+
+
 // *************************************************************************
 //                  Interface of the `BaseOrderHandler` contract.
 // *************************************************************************
@@ -32,6 +36,16 @@ trait IBaseOrderHandler<TContractState> {
         swap_handler_address: ContractAddress,
         referral_storage_address: ContractAddress
     );
+
+    // This has been temporarily exposed, need to find a better solution for inheritance.
+    fn get_execute_order_params(
+        ref self: TContractState,
+        key: felt252,
+        oracle_params: SetPricesParams,
+        keeper: ContractAddress,
+        starting_gas: u128,
+        secondary_order_type: SecondaryOrderType
+    ) -> ExecuteOrderParams;
 }
 
 #[starknet::contract]
@@ -171,6 +185,20 @@ mod BaseOrderHandler {
                     IReferralStorageSafeDispatcher { contract_address: referral_storage_address }
                 );
         }
+
+        fn get_execute_order_params(
+            ref self: ContractState,
+            key: felt252,
+            oracle_params: SetPricesParams,
+            keeper: ContractAddress,
+            starting_gas: u128,
+            secondary_order_type: SecondaryOrderType
+        ) -> ExecuteOrderParams {
+            self
+                .get_execute_order_params_(
+                    key, oracle_params, keeper, starting_gas, secondary_order_type
+                )
+        }
     }
 
     // *************************************************************************
@@ -184,7 +212,7 @@ mod BaseOrderHandler {
         /// * `oracle_params` - The set price parameters for oracle.
         /// * `keeper` - The keeper executing the order.
         /// * `starting_gas` - The starting gas.
-        fn get_execute_order_params(
+        fn get_execute_order_params_(
             ref self: ContractState,
             key: felt252,
             oracle_params: SetPricesParams,
