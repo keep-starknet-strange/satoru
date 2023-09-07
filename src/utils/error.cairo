@@ -6,4 +6,5 @@ mod UtilsError {
     const NULL_RECEIVER: felt252 = 'null_receiver';
     const MASK_OUT_OF_BOUNDS: felt252 = 'mask index out of bounds';
     const MASK_INDEX_NOT_UNIQUE: felt252 = 'mask index not unique';
+    const NO_DATA_FOR_MULTICALL: felt252 = 'no data for multicall';
 }

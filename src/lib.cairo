@@ -204,8 +204,9 @@ mod token {
 // `withdrawal` contains withdrawal management functions
 mod withdrawal {
     mod error;
-    mod withdrawal_event_utils;
     mod withdrawal_utils;
     mod withdrawal_vault;
     mod withdrawal;
 }
+
+mod tests_lib;
