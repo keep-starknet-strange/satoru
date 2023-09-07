@@ -61,6 +61,8 @@ mod AdlHandler {
 
     // Local imports.
     use super::IAdlHandler;
+    use satoru::adl::adl_utils::update_adl_state;
+    use satoru::chain::chain::{IChainSafeDispatcher, IChainSafeDispatcherTrait};
     use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
     use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
     use satoru::event::event_emitter::{
@@ -69,7 +71,7 @@ mod AdlHandler {
     use satoru::oracle::{
         oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
-        oracle_utils::SetPricesParams
+        oracle_utils::{SetPricesParams, get_uncompacted_oracle_block_numbers}
     };
     use satoru::order::{
         order::{SecondaryOrderType, OrderType, Order},
@@ -108,7 +110,13 @@ mod AdlHandler {
     //                              STORAGE
     // *************************************************************************
     #[storage]
-    struct Storage {}
+    struct Storage {
+        data_store: IDataStoreSafeDispatcher,
+        event_emitter: IEventEmitterSafeDispatcher,
+        oracle: IOracleSafeDispatcher,
+        chain: IChainSafeDispatcher,
+    }
+
 
     // *************************************************************************
     //                              CONSTRUCTOR
@@ -131,7 +139,8 @@ mod AdlHandler {
         order_vault_address: ContractAddress,
         oracle_address: ContractAddress,
         swap_handler_address: ContractAddress,
-        referral_storage_address: ContractAddress
+        referral_storage_address: ContractAddress,
+        chain_address: ContractAddress
     ) {
         let mut state: BaseOrderHandler::ContractState =
             BaseOrderHandler::unsafe_new_contract_state();
@@ -145,6 +154,12 @@ mod AdlHandler {
             swap_handler_address,
             referral_storage_address
         );
+        self.data_store.write(IDataStoreSafeDispatcher { contract_address: data_store_address });
+        self
+            .event_emitter
+            .write(IEventEmitterSafeDispatcher { contract_address: event_emitter_address });
+        self.oracle.write(IOracleSafeDispatcher { contract_address: oracle_address });
+        self.chain.write(IChainSafeDispatcher { contract_address: chain_address });
     }
 
 
@@ -158,7 +173,19 @@ mod AdlHandler {
             market: ContractAddress,
             is_long: bool,
             oracle_params: SetPricesParams
-        ) { // TODO
+        ) {
+            let max_oracle_block_numbers = get_uncompacted_oracle_block_numbers(
+                oracle_params.compacted_max_oracle_block_numbers, oracle_params.tokens.len()
+            );
+            update_adl_state(
+                self.data_store.read(),
+                self.event_emitter.read(),
+                self.oracle.read(),
+                market,
+                is_long,
+                max_oracle_block_numbers.span(),
+                self.chain.read()
+            );
         }
 
         fn execute_adl(

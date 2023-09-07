@@ -15,7 +15,9 @@ use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSaf
 use satoru::data::keys;
 use satoru::market::error::MarketError;
 use satoru::market::market::Market;
+use satoru::oracle::oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait};
 use satoru::price::price::{Price, PriceTrait};
+use satoru::utils::precision;
 
 /// Struct to store the prices of tokens of a market.
 /// # Params
@@ -49,6 +51,7 @@ struct GetNextFundingAmountPerSizeResult {
     funding_fee_amount_per_size_delta: PositionType,
     claimable_funding_amount_per_size_delta: PositionType,
 }
+
 
 /// Get the long and short open interest for a market based on the collateral token used.
 /// # Arguments
@@ -152,21 +155,6 @@ fn get_open_interest_in_tokens(
     data_store
         .get_u128(keys::open_interest_in_tokens_key(market, collateral_token, is_long))
         .unwrap()
-        / divisor
-}
-
-/// Get the amount of tokens in the pool
-/// # Arguments
-/// * `data_store` - The data store to use.
-/// * `market` - The market to check.
-/// * `token_address` - The token to check.
-/// # Returns
-/// The amount of tokens in the pool.
-fn get_pool_amount(
-    data_store: IDataStoreSafeDispatcher, market: @Market, token_address: ContractAddress
-) -> u128 {
-    let divisor = get_pool_divisor(*market.long_token, *market.short_token);
-    data_store.get_u128(keys::pool_amount_key(*market.market_token, token_address)).unwrap()
         / divisor
 }
 
@@ -485,4 +473,139 @@ fn validate_open_interest(data_store: IDataStoreSafeDispatcher, market: @Market,
 
     // Check that the open interest is not greater than the maximum open interest.
     assert(open_interest <= max_open_interest, MarketError::MAX_OPEN_INTEREST_EXCEEDED);
+}
+
+// Get the market prices for index, long and short tokens.
+// # Arguments
+// * `oracle` - The Oracle dispatcher.
+// * `market` the market to get the prices from.
+// # Returns
+// The primary prices for the market tokens
+fn get_market_prices(oracle: IOracleSafeDispatcher, market: Market) -> MarketPrices {
+    MarketPrices {
+        index_token_price: oracle.get_primary_price(market.index_token).unwrap(),
+        long_token_price: oracle.get_primary_price(market.long_token).unwrap(),
+        short_token_price: oracle.get_primary_price(market.short_token).unwrap()
+    }
+}
+
+// Check if the pending pnl exceeds the allowed amount
+// # Arguments
+// * `data_store` - The data_store dispatcher.
+// * `market` - The market to check.
+// * `prices` - The prices of the market tokens.
+// * `is_long` - Whether to check the long or short side.
+// * `pnl_factor_type` - The pnl factor type to check.
+fn is_pnl_factor_exceeded(
+    data_store: IDataStoreSafeDispatcher,
+    market: Market,
+    prices: @MarketPrices,
+    is_long: bool,
+    pnl_factor_type: felt252
+) -> (bool, u128, u128) {
+    let pnl_to_pool_factor = get_pnl_to_pool_factor(data_store, market, prices, is_long, true);
+    let max_pnl_factor = get_max_pnl_factor(
+        data_store, pnl_factor_type, market.market_token, is_long
+    );
+
+    let is_exceeded = pnl_to_pool_factor > 0 && pnl_to_pool_factor > max_pnl_factor;
+
+    (is_exceeded, pnl_to_pool_factor, max_pnl_factor)
+}
+
+// Get the ratio of pnl to pool value.
+// # Arguments
+// * `data_store` - The data_store dispatcher.
+// * `market` the market values.
+// * `prices` the prices of the market tokens.
+// * `is_long` whether to get the value for the long or short side.
+// * `maximize` whether to maximize the factor.
+// # Returns
+// (pnl of positions) / (long or short pool value)
+fn get_pnl_to_pool_factor(
+    data_store: IDataStoreSafeDispatcher,
+    market: Market,
+    prices: @MarketPrices,
+    is_long: bool,
+    maximize: bool
+) -> u128 {
+    let pool_usd = get_pool_usd_without_pnl(data_store, market, prices, is_long, !maximize);
+
+    if (pool_usd == 0) {
+        return 0;
+    }
+
+    let pnl = get_pnl(data_store, @market, prices.index_token_price, is_long, maximize);
+
+    precision::to_factor(pnl, pool_usd)
+}
+
+// Get the usd value of either the long or short tokens in the pool
+// without accounting for the pnl of open positions
+// Arguments
+// * `data_store` - The data_store dispatcher.
+// * `market` the market values.
+// * `prices` the prices of the market tokens.
+// * `is_long` whether to get the value for the long or short side.
+// * `maximize` whether to maximize the factor.
+fn get_pool_usd_without_pnl(
+    data_store: IDataStoreSafeDispatcher,
+    market: Market,
+    prices: @MarketPrices,
+    is_long: bool,
+    maximize: bool
+) -> u128 {
+    let token = if is_long {
+        market.long_token
+    } else {
+        market.short_token
+    };
+    // note that if it is a single token market, the poolAmount returned will be
+    // the amount of tokens in the pool divided by 2
+    let pool_amount: u128 = get_pool_amount(data_store, market, token);
+    let token_price = if maximize {
+        if is_long {
+            prices.long_token_price.max
+        } else {
+            prices.short_token_price.max
+        }
+    } else {
+        if is_long {
+            prices.short_token_price.min
+        } else {
+            prices.short_token_price.min
+        }
+    };
+
+    pool_amount * *token_price
+}
+
+// Get the amount of tokens in the pool
+// Arguments
+// * `data_store` - The data_store dispatcher.
+// * `market` the market values.
+// * `token` - The address of the token to check.
+// # Returns the amount of tokens in the pool
+fn get_pool_amount(
+    data_store: IDataStoreSafeDispatcher, market: Market, token: ContractAddress
+) -> u128 {
+    // if the longToken and shortToken are the same, return half of the token amount, so that
+    // calculations of pool value, etc would be correct
+    let divisor = get_pool_divisor(market.long_token, market.short_token);
+    data_store.get_u128(keys::pool_amount_key(market.market_token, token)).unwrap() / divisor
+}
+
+// @dev get the max pnl factor for a market
+// @param dataStore DataStore
+// @param pnlFactorType the type of the pnl factor
+// @param market the market to check
+// @param isLong whether to get the value for longs or shorts
+// @return the max pnl factor for a market
+fn get_max_pnl_factor(
+    data_store: IDataStoreSafeDispatcher,
+    pnl_factor_type: felt252,
+    market: ContractAddress,
+    is_long: bool
+) -> u128 {
+    data_store.get_u128(keys::max_pnl_factor_key(pnl_factor_type, market, is_long)).unwrap()
 }

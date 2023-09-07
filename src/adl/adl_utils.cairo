@@ -13,12 +13,17 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
+use result::ResultTrait;
 use starknet::ContractAddress;
 
 // Local imports.
+use satoru::chain::chain::{IChainSafeDispatcher, IChainSafeDispatcherTrait};
 use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::data::keys;
 use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::market::{market::Market, market_utils};
 use satoru::oracle::oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait};
+use satoru::utils::arrays::are_gte;
 
 
 /// CreateAdlOrderParams struct used in createAdlOrder to avoid stack
@@ -73,10 +78,38 @@ fn update_adl_state(
     data_store: IDataStoreSafeDispatcher,
     event_emitter: IEventEmitterSafeDispatcher,
     oracle: IOracleSafeDispatcher,
-    market: ContractAddress,
+    market_address: ContractAddress,
     is_long: bool,
-    max_oracle_block_numbers: Span<u64>
-) { // TODO
+    max_oracle_block_numbers: Span<u128>,
+    chain: IChainSafeDispatcher,
+) {
+    let latest_adl_block = get_latest_adl_block(data_store, market_address, is_long);
+    assert(are_gte(max_oracle_block_numbers, latest_adl_block), 'block numbers smaller than req');
+
+    let market: Market = data_store.get_market(market_address.into()).unwrap().unwrap();
+    let prices: market_utils::MarketPrices = market_utils::get_market_prices(oracle, market);
+    // if the MAX_PNL_FACTOR_FOR_ADL is set to be higher than MAX_PNL_FACTOR_FOR_WITHDRAWALS
+    // it is possible for a pool to be in a state where withdrawals and ADL is not allowed
+    // this is similar to the case where there is a large amount of open positions relative
+    // to the amount of tokens in the pool
+    let (should_enable_adl, pnl_to_pool_factor, max_pnl_factor) =
+        market_utils::is_pnl_factor_exceeded(
+        data_store, market, @prices, is_long, keys::max_pnl_factor()
+    );
+    set_adl_enabled(data_store, market_address, is_long, should_enable_adl);
+    // the latest ADL block is always updated, an ADL keeper could continually
+    // cause the latest ADL block to be updated and prevent ADL orders
+    // from being executed, however, this may be preferrable over a case
+    // where stale prices could be used by ADL keepers to execute orders
+    // as such updating of the ADL block is allowed and it is expected
+    // that ADL keepers will keep this block updated so that latest prices
+    // will be used for ADL
+    set_latest_adl_block(data_store, market_address, is_long, chain.get_block_number().unwrap());
+
+    event_emitter
+        .emit_adl_state_updated(
+            market_address, is_long, pnl_to_pool_factor, max_pnl_factor, should_enable_adl
+        );
 }
 
 /// Construct an ADL order, a decrease order is used to reduce a profitable position.
@@ -112,9 +145,8 @@ fn validate_adl(
 /// Return the latest block at which the ADL flag was updated.
 fn get_latest_adl_block(
     data_store: IDataStoreSafeDispatcher, market: ContractAddress, is_long: bool
-) -> u64 {
-    // TODO
-    0
+) -> u128 {
+    data_store.get_u128(keys::latest_adl_block_key(market, is_long)).unwrap()
 }
 
 /// Set the latest block at which the ADL flag was updated.
@@ -127,9 +159,8 @@ fn get_latest_adl_block(
 /// Return the latest block number value.
 fn set_latest_adl_block(
     data_store: IDataStoreSafeDispatcher, market: ContractAddress, is_long: bool, value: u64
-) -> u64 {
-    // TODO
-    0
+) {
+    data_store.set_u128(keys::latest_adl_block_key(market, is_long), value.into()).unwrap();
 }
 
 /// Get whether ADL is enabled.
@@ -155,9 +186,8 @@ fn get_adl_enabled(
 /// Return whether ADL is enabled.
 fn set_adl_enabled(
     data_store: IDataStoreSafeDispatcher, market: ContractAddress, is_long: bool, value: bool
-) -> bool {
-    // TODO
-    true
+) {
+    data_store.set_bool(keys::is_adl_enabled_key(market, is_long), value).unwrap()
 }
 
 /// Emit ADL state update events.

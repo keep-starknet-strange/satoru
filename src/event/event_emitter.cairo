@@ -12,6 +12,16 @@ use starknet::{ContractAddress, ClassHash};
 // *************************************************************************
 #[starknet::interface]
 trait IEventEmitter<TContractState> {
+    /// Emits the `AdlStateUpdated` event.
+    fn emit_adl_state_updated(
+        ref self: TContractState,
+        market: ContractAddress,
+        is_long: bool,
+        pnl_to_pool_factor: u128,
+        max_pnl_factor: u128,
+        should_enable_adl: bool
+    );
+
     /// Emits the `ClaimableCollateralUpdated` event.
     fn emit_claimable_collateral_updated(
         ref self: TContractState,
@@ -90,12 +100,22 @@ mod EventEmitter {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        AdlStateUpdated: AdlStateUpdated,
         ClaimableCollateralUpdated: ClaimableCollateralUpdated,
         ClaimableFundingUpdated: ClaimableFundingUpdated,
         PositionImpactPoolAmountUpdated: PositionImpactPoolAmountUpdated,
         SwapImpactPoolAmountUpdated: SwapImpactPoolAmountUpdated,
         MarketCreated: MarketCreated,
         MarketTokenClassHashUpdated: MarketTokenClassHashUpdated,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct AdlStateUpdated {
+        market: ContractAddress,
+        is_long: bool,
+        pnl_to_pool_factor: u128,
+        max_pnl_factor: u128,
+        should_enable_adl: bool
     }
 
     #[derive(Drop, starknet::Event)]
@@ -157,6 +177,23 @@ mod EventEmitter {
     // *************************************************************************
     #[external(v0)]
     impl EventEmitterImpl of super::IEventEmitter<ContractState> {
+        /// Emit the `AdlStateUpdated` event.
+        fn emit_adl_state_updated(
+            ref self: ContractState,
+            market: ContractAddress,
+            is_long: bool,
+            pnl_to_pool_factor: u128,
+            max_pnl_factor: u128,
+            should_enable_adl: bool
+        ) {
+            self
+                .emit(
+                    AdlStateUpdated {
+                        market, is_long, pnl_to_pool_factor, max_pnl_factor, should_enable_adl
+                    }
+                );
+        }
+
         /// Emits the `ClaimableCollateralUpdated` event.
         fn emit_claimable_collateral_updated(
             ref self: ContractState,

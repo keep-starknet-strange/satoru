@@ -4,6 +4,7 @@
 // Core lib imports.
 use starknet::ContractAddress;
 use result::ResultTrait;
+use zeroable::Zeroable;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
@@ -11,9 +12,13 @@ use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSaf
 use satoru::bank::bank::{IBankSafeDispatcher, IBankSafeDispatcherTrait};
 use satoru::market::market::{Market};
 use satoru::price::price::{Price};
+use satoru::utils::arrays::get_uncompacted_value;
 use satoru::utils::store_arrays::{
     StoreContractAddressArray, StorePriceArray, StoreU128Array, StoreFelt252Array
 };
+
+const COMPACTED_BLOCK_NUMBER_BIT_LENGTH: usize = 64;
+const COMPACTED_BLOCK_NUMBER_BITMASK: u128 = 64;
 
 
 /// SetPricesParams struct for values required in Oracle.set_prices.
@@ -140,10 +145,22 @@ fn get_uncompacted_price_index(compacted_price_indexes: Array<u128>, index: u128
 /// # Returns
 /// The uncompacted oracle block numbers.
 fn get_uncompacted_oracle_block_numbers(
-    compacted_oracle_block_numbers: Array<u128>, length: u128
+    compacted_oracle_block_numbers: Array<u128>, length: usize
 ) -> Array<u128> {
-    // TODO
-    ArrayTrait::new()
+    let mut block_numbers = array![];
+    let mut index = 0;
+
+    loop {
+        if index == length {
+            break;
+        }
+        let block_number = get_uncompacted_oracle_block_number(
+            @compacted_oracle_block_numbers, length
+        );
+        block_numbers.append(block_number);
+        index += 1;
+    };
+    block_numbers
 }
 
 /// Get the uncompacted oracle block number.
@@ -153,10 +170,17 @@ fn get_uncompacted_oracle_block_numbers(
 /// # Returns
 /// The uncompacted oracle block number.
 fn get_uncompacted_oracle_block_number(
-    compacted_oracle_block_numbers: Array<u128>, index: u128
+    compacted_oracle_block_numbers: @Array<u128>, index: usize
 ) -> u128 {
-    // TODO
-    0
+    let block_number = get_uncompacted_value(
+        compacted_oracle_block_numbers.span(),
+        index,
+        COMPACTED_BLOCK_NUMBER_BIT_LENGTH,
+        COMPACTED_BLOCK_NUMBER_BITMASK,
+        'get_oracle_block_number'
+    );
+    assert(block_number.is_zero(), 'empty compacted block number');
+    block_number
 }
 
 /// Get the uncompacted oracle timestamp.

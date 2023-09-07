@@ -2,6 +2,10 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
+use zeroable::Zeroable;
+
+
+const FLOAT_PRECISION: u128 = 100000000; // 10^8
 
 /// Applies the given factor to the given value and returns the result.
 /// # Arguments
@@ -39,9 +43,10 @@ fn apply_factor_roundup_magnitude(
 /// # Arguments
 /// * `value` - The value muldiv is applied to.
 /// * `numerator` - The numerator that multiplies value.
-/// * `divisor` - The denominator that divides value.
-fn mul_div(value: u128, numerator: u128, denominator: u128) -> u128 { // TODO
-    0
+/// * `denominator` - The denominator that divides value.
+fn mul_div(value: u128, numerator: u128, denominator: u128) -> u128 {
+    assert(!denominator.is_zero(), 'mul_div denominator is 0');
+    value * numerator / denominator
 }
 
 /// Apply multiplication then division to value.
@@ -80,8 +85,12 @@ fn mul_div_inum_roundup(
 /// * `divisor` - The denominator that divides value.
 fn mul_div_roundup(
     value: u128, numerator: u128, denominator: u128, roundup_magnitude: bool
-) -> u128 { // TODO
-    0
+) -> u128 {
+    let mut result = mul_div(value, numerator, denominator);
+    if roundup_magnitude && mul_mod(value, numerator, denominator) > 0 {
+        result += 1;
+    }
+    result
 }
 
 /// Apply exponent factor to float value.
@@ -99,7 +108,15 @@ fn apply_exponent_factor(float_value: u128, exponent_factor: u128) -> u128 { // 
 /// # Returns
 /// The factor between value and divisor.
 fn to_factor_roundup(value: u128, divisor: u128, roundup_magnitude: bool) -> u128 { // TODO
-    0
+    if (value == 0) {
+        return 0;
+    }
+
+    if (roundup_magnitude) {
+        return mul_div_roundup(value, FLOAT_PRECISION, divisor, true);
+    }
+
+    return mul_div(value, FLOAT_PRECISION, divisor);
 }
 
 /// Compute factor from value and divisor.
@@ -108,8 +125,8 @@ fn to_factor_roundup(value: u128, divisor: u128, roundup_magnitude: bool) -> u12
 /// * `divisor` - The divisor to compute the factor.
 /// # Returns
 /// The factor between value and divisor.
-fn to_factor(value: u128, divisor: u128) -> u128 { // TODO
-    0
+fn to_factor(value: u128, divisor: u128) -> u128 {
+    to_factor_roundup(value, divisor, false)
 }
 
 /// Compute factor from integer value and divisor.
@@ -147,4 +164,8 @@ fn wei_to_float(value: u128) -> u128 { // TODO
 /// The float value.
 fn basis_point_to_float(basis_point: u128) -> u128 { // TODO
     0
+}
+
+fn mul_mod(value: u128, numerator: u128, module: u128) -> u128 {
+    (value * numerator) % module
 }
