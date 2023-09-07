@@ -20,7 +20,7 @@ use satoru::market::{
     market_pool_value_info::MarketPoolValueInfo,
 };
 use satoru::price::price::Price;
-use satoru::order::order::Order;
+use satoru::order::order::{Order, DecreasePositionSwapType};
 use satoru::pricing::position_pricing_utils::PositionBorrowingFees;
 use satoru::pricing::position_pricing_utils::PositionReferralFees;
 use satoru::pricing::position_pricing_utils::PositionFundingFees;
@@ -180,6 +180,7 @@ fn get_order(data_store: IDataStoreSafeDispatcher, key: felt252) -> Order {
     // TODO
     Order {
         order_type: OrderType::MarketSwap(()),
+        decrease_position_swap_type: DecreasePositionSwapType::NoSwap(()),
         account: 0.try_into().unwrap(),
         receiver: 0.try_into().unwrap(),
         callback_contract: 0.try_into().unwrap(),

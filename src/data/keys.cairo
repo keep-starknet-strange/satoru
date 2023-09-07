@@ -863,11 +863,11 @@ fn create_order_feature_disabled_key(module: ContractAddress, order_type: OrderT
 /// # Arguments
 /// * `module` - The execute order module.
 /// * `order_type` - The order type.
-fn execute_order_feature_disabled_key(module: ContractAddress, order_type: felt252) -> felt252 {
+fn execute_order_feature_disabled_key(module: ContractAddress, order_type: OrderType) -> felt252 {
     let mut data = array![];
     data.append(execute_order_feature_disabled());
     data.append(module.into());
-    data.append(order_type);
+    order_type.serialize(ref data);
     poseidon_hash_span(data.span())
 }
 
@@ -887,11 +887,11 @@ fn execute_adl_feature_disabled_key(module: ContractAddress, order_type: felt252
 /// # Arguments
 /// * `module` - The update order module.
 /// * `order_type` - The order type.
-fn update_order_feature_disabled_key(module: ContractAddress, order_type: felt252) -> felt252 {
+fn update_order_feature_disabled_key(module: ContractAddress, order_type: OrderType) -> felt252 {
     let mut data = array![];
     data.append(update_order_feature_disabled());
     data.append(module.into());
-    data.append(order_type);
+    order_type.serialize(ref data);
     poseidon_hash_span(data.span())
 }
 
@@ -899,11 +899,11 @@ fn update_order_feature_disabled_key(module: ContractAddress, order_type: felt25
 /// # Arguments
 /// * `module` - The cancel order module.
 /// * `order_type` - The order type.
-fn cancel_order_feature_disabled_key(module: ContractAddress, order_type: felt252) -> felt252 {
+fn cancel_order_feature_disabled_key(module: ContractAddress, order_type: OrderType) -> felt252 {
     let mut data = array![];
     data.append(cancel_order_feature_disabled());
     data.append(module.into());
-    data.append(order_type);
+    order_type.serialize(ref data);
     poseidon_hash_span(data.span())
 }
 

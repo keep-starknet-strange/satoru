@@ -3,6 +3,7 @@
 // *************************************************************************
 // Core lib imports.
 use starknet::ContractAddress;
+use starknet::contract_address::ContractAddressZeroable;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
@@ -10,7 +11,7 @@ use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSaf
 use satoru::oracle::oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait};
 use satoru::swap::swap_handler::{ISwapHandlerSafeDispatcher, ISwapHandlerSafeDispatcherTrait};
 use satoru::order::{
-    order::{Order, SecondaryOrderType, OrderType, DecreasePositionSwapType},
+    order::{Order, OrderTrait, SecondaryOrderType, OrderType, DecreasePositionSwapType},
     order_vault::{IOrderVaultSafeDispatcher, IOrderVaultSafeDispatcherTrait}
 };
 use satoru::market::market::Market;
@@ -129,3 +130,23 @@ impl CreateOrderParamsClone of Clone<CreateOrderParams> {
         }
     }
 }
+
+/// Checks if order is a market order.
+/// # Arguments
+/// * `order_type` - The order type.
+/// # Returns
+/// Whether the order is a market order.
+fn is_market_order(order_type: OrderType) -> bool {
+    order_type == OrderType::MarketSwap
+        || order_type == OrderType::MarketIncrease
+        || order_type == OrderType::MarketDecrease
+}
+
+/// Validates that an order exists.
+/// # Arguments
+/// * `order` - The order to check.
+fn validate_non_empty_order(order: Order) {
+    assert(order.account != ContractAddressZeroable::zero(), 'EmptyOrder');
+    assert(order.size_delta_usd != 0 || order.initial_collateral_delta_amount != 0, 'EmptyOrder');
+}
+

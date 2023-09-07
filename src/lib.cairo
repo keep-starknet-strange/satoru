@@ -162,6 +162,8 @@ mod order {
     mod order_vault;
     mod order;
     mod order_utils;
+    mod order_store_utils;
+    mod order_event_utils;
 }
 
 // `position` contains positions management functions
@@ -202,6 +204,7 @@ mod swap {
 // TODO: Use openzeppelin as dependency when Scarb versions match.
 mod token {
     mod erc20;
+    mod token_utils;
 }
 
 // `withdrawal` contains withdrawal management functions

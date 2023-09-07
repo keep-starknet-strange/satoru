@@ -6,7 +6,6 @@
 
 // Core lib imports.
 
-
 // *************************************************************************
 // Interface of the `RoleStore` contract.
 // *************************************************************************
@@ -77,13 +76,8 @@ mod RoleModule {
     // CONSTRUCTOR
     // *************************************************************************
     #[constructor]
-    fn constructor(
-        ref self: ContractState, 
-        role_store_address: ContractAddress
-    ) {
-        self.role_store.write(
-            IRoleStoreDispatcher{ contract_address: role_store_address }
-        );
+    fn constructor(ref self: ContractState, role_store_address: ContractAddress) {
+        self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
     }
 
     // *************************************************************************
@@ -138,8 +132,6 @@ mod RoleModule {
         fn only_adl_keeper(self: @ContractState) {
             self.validate_role(role::ADL_KEEPER, 'ADL_KEEPER');
         }
-
-
     }
 
     #[generate_trait]
@@ -149,5 +141,4 @@ mod RoleModule {
             assert(has_role, role_name);
         }
     }
-
 }

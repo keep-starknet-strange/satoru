@@ -50,6 +50,8 @@ trait IOrderHandler<TContractState> {
     /// * `trigger_price` - The new trigger price for the order.
     /// * `min_output_amount` - The minimum output amount for decrease orders and swaps.
     /// * `order` - The order to update that will be stored.
+    /// # Returns
+    /// The updated order.
     fn update_order(
         ref self: TContractState,
         key: felt252,
@@ -58,7 +60,7 @@ trait IOrderHandler<TContractState> {
         trigger_price: u128,
         min_output_amount: u128,
         order: Order
-    );
+    ) -> Order;
 
     /// Cancels the given order. The `cancelOrder()` feature must be enabled for the given order
     /// type. The caller must be the owner of the order. The order is cancelled by calling the `cancelOrder()`
@@ -79,18 +81,6 @@ trait IOrderHandler<TContractState> {
     /// * `key` - The key of the order to execute.
     /// * `oracle_params` - The oracle params to simulate prices.
     fn simulate_execute_order(ref self: TContractState, key: felt252, params: SimulatePricesParams);
-
-    /// Executes an order with keeper.
-    /// # Arguments
-    /// * `key` - The key of the order to execute.
-    /// * `oracle_params` - The oracle params to set prices before execution.
-    /// * `keeper` - The keeper executing the order.
-    fn execute_order_keeper(
-        ref self: TContractState,
-        key: felt252,
-        oracle_params: SetPricesParams,
-        keeper: ContractAddress
-    );
 }
 
 #[starknet::contract]
@@ -100,6 +90,7 @@ mod OrderHandler {
     // *************************************************************************
 
     // Core lib imports.
+    use core::starknet::SyscallResultTrait;
     use core::traits::Into;
     use clone::Clone;
     use starknet::ContractAddress;
@@ -108,22 +99,29 @@ mod OrderHandler {
 
     // Local imports.
     use super::IOrderHandler;
-    use satoru::oracle::{
-        oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
-        oracle_utils::{SetPricesParams, SimulatePricesParams}
+    use satoru::oracle::{oracle_modules, oracle_utils::{SetPricesParams, SimulatePricesParams}};
+    use satoru::order::{base_order_utils::CreateOrderParams, order_utils, order, base_order_utils,};
+    use satoru::order::{
+        order::{Order, OrderTrait, OrderType, SecondaryOrderType},
+        order_vault::{IOrderVaultSafeDispatcher, IOrderVaultSafeDispatcherTrait}, order_store_utils,
+        order_event_utils
     };
-    use satoru::order::{order::Order, base_order_utils::CreateOrderParams, order_utils};
     use satoru::market::market::Market;
+    use satoru::exchange::exchange_utils;
     use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
     use satoru::exchange::base_order_handler::BaseOrderHandler::{
         data_store::InternalContractMemberStateTrait as DataStoreStateTrait,
         event_emitter::InternalContractMemberStateTrait as EventEmitterStateTrait,
         order_vault::InternalContractMemberStateTrait as OrderVaultStateTrait,
         referral_storage::InternalContractMemberStateTrait as ReferralStorageStateTrait,
+        oracle::InternalContractMemberStateTrait as OracleStateTrait,
+        InternalTrait as BaseOrderHandleInternalTrait,
     };
     use satoru::feature::feature_utils;
     use satoru::data::keys;
     use satoru::role::role_module::{RoleModule, IRoleModule};
+    use satoru::token::token_utils;
+    use satoru::gas::gas_utils;
     use satoru::utils::global_reentrancy_guard;
 
     // *************************************************************************
@@ -190,11 +188,8 @@ mod OrderHandler {
 
             // Validate feature and create order.
             feature_utils::validate_feature(
-                data_store, 
-                keys::create_order_feature_disabled_key(
-                    get_contract_address(),
-                    params.order_type.clone()
-                )
+                data_store,
+                keys::create_order_feature_disabled_key(get_contract_address(), params.order_type)
             );
             let key = order_utils::create_order(
                 data_store,
@@ -218,50 +213,200 @@ mod OrderHandler {
             trigger_price: u128,
             min_output_amount: u128,
             order: Order
-        ) { // TODO
+        ) -> Order {
+            // Check only controller.
+            let role_module_state = RoleModule::unsafe_new_contract_state();
+            role_module_state.only_controller();
+
+            // Fetch data store.
+            let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
+            let data_store = base_order_handler_state.data_store.read();
+
+            global_reentrancy_guard::non_reentrant_before(data_store);
+
+            // Validate feature.
+            feature_utils::validate_feature(
+                data_store,
+                keys::update_order_feature_disabled_key(get_contract_address(), order.order_type)
+            );
+
+            assert(base_order_utils::is_market_order(order.order_type), 'OrderNotUpdatable');
+
+            let mut order = order.clone();
+            order.size_delta_usd = size_delta_usd;
+            order.trigger_price = trigger_price;
+            order.acceptable_price = acceptable_price;
+            order.min_output_amount = min_output_amount;
+            order.is_frozen = false;
+
+            // Allow topping up of execution fee as frozen orders will have execution fee reduced.
+            let wnt = token_utils::wnt(data_store);
+            let order_vault = base_order_handler_state.order_vault.read();
+            let received_wnt = order_vault.record_transfer_in(wnt).unwrap_syscall();
+            order.execution_fee += received_wnt;
+
+            let estimated_gas_limit = gas_utils::estimate_execute_order_gas_limit(
+                data_store, order.clone()
+            );
+            gas_utils::validate_execution_fee(data_store, estimated_gas_limit, order.execution_fee);
+
+            order.touch();
+
+            base_order_utils::validate_non_empty_order(order.clone());
+
+            order_store_utils::set(data_store, key, order.clone());
+            order_event_utils::emit_order_updated(
+                base_order_handler_state.event_emitter.read(),
+                key,
+                size_delta_usd,
+                acceptable_price,
+                trigger_price,
+                min_output_amount,
+            );
+
+            global_reentrancy_guard::non_reentrant_after(data_store);
+
+            order
         }
 
-        fn cancel_order(ref self: ContractState, key: felt252) { // TODO
+        fn cancel_order(ref self: ContractState, key: felt252) {
+            // Check only controller.
+            let role_module_state = RoleModule::unsafe_new_contract_state();
+            role_module_state.only_controller();
+
+            // Fetch data store.
+            let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
+            let data_store = base_order_handler_state.data_store.read();
+
+            global_reentrancy_guard::non_reentrant_before(data_store);
+
+            let order = order_store_utils::get(data_store, key);
+
+            // Validate feature.
+            feature_utils::validate_feature(
+                data_store,
+                keys::cancel_order_feature_disabled_key(get_contract_address(), order.order_type)
+            );
+
+            if base_order_utils::is_market_order(order.order_type) {
+                exchange_utils::validate_request_cancellation(
+                    data_store, order.updated_at_block, 'Order'
+                )
+            }
+
+            order_utils::cancel_order(
+                data_store,
+                base_order_handler_state.event_emitter.read(),
+                base_order_handler_state.order_vault.read(),
+                key,
+                order.account,
+                // starting_gas,  // DISABLED
+                keys::user_initiated_cancel(),
+            );
+
+            global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
-        fn execute_order(
-            ref self: ContractState, key: felt252, oracle_params: SetPricesParams
-        ) { // TODO
+        fn execute_order(ref self: ContractState, key: felt252, oracle_params: SetPricesParams) {
+            // Check only order keeper.
+            let role_module_state = RoleModule::unsafe_new_contract_state();
+            role_module_state.only_order_keeper();
+
+            // Fetch data store.
+            let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
+            let data_store = base_order_handler_state.data_store.read();
+
+            global_reentrancy_guard::non_reentrant_before(data_store);
+            oracle_modules::with_oracle_prices_before(
+                base_order_handler_state.oracle.read(),
+                data_store,
+                base_order_handler_state.event_emitter.read(),
+                oracle_params.clone()
+            );
+
+            // TODO: Did not implement starting gas and try / catch logic as not available in Cairo
+            self._execute_order(key, oracle_params, get_contract_address());
+
+            oracle_modules::with_oracle_prices_after();
+            global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
         fn simulate_execute_order(
             ref self: ContractState, key: felt252, params: SimulatePricesParams
-        ) { // TODO
-        }
+        ) {
+            // Check only order keeper.
+            let role_module_state = RoleModule::unsafe_new_contract_state();
+            role_module_state.only_order_keeper();
 
-        fn execute_order_keeper(
-            ref self: ContractState,
-            key: felt252,
-            oracle_params: SetPricesParams,
-            keeper: ContractAddress
-        ) { // TODO
+            // Fetch data store.
+            let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
+            let data_store = base_order_handler_state.data_store.read();
+
+            global_reentrancy_guard::non_reentrant_before(data_store);
+            oracle_modules::with_simulated_oracle_prices_before(
+                base_order_handler_state.oracle.read(), params.clone()
+            );
+
+            let oracle_params: SetPricesParams = Default::default();
+            self._execute_order(key, oracle_params, get_contract_address());
+
+            oracle_modules::with_simulated_oracle_prices_after();
+            global_reentrancy_guard::non_reentrant_after(data_store);
         }
     }
 
-    // *************************************************************************
+    // ***********************************************a**************************
     //                          INTERNAL FUNCTIONS
     // *************************************************************************
     #[generate_trait]
     impl InternalImpl of InternalTrait {
+        /// Executes an order.
+        /// # Arguments
+        /// * `key` - The key of the order to execute.
+        /// * `oracle_params` - The oracle params to set prices before execution.
+        /// * `keeper` - The keeper executing the order.
+        fn _execute_order(
+            self: @ContractState,
+            key: felt252,
+            oracle_params: SetPricesParams,
+            keeper: ContractAddress
+        ) {
+            let mut base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
+            let params = base_order_handler_state
+                .get_execute_order_params(
+                    key, oracle_params, keeper, // starting_gas,
+                    SecondaryOrderType::None(()),
+                );
+
+            if params.order.is_frozen || params.order.order_type == OrderType::LimitSwap(()) {
+                self._validate_state_frozen_order_keeper(keeper);
+            }
+
+            // Validate feature.
+            feature_utils::validate_feature(
+                params.contracts.data_store,
+                keys::execute_order_feature_disabled_key(
+                    get_contract_address(), params.order.order_type
+                )
+            );
+
+            order_utils::execute_order(params);
+        }
+
         /// Handles error from order.
         /// # Arguments
         /// * `key` - The key of the deposit to handle error for.
         /// * `starting_gas` - The starting gas of the transaction.
         /// * `reason_bytes` - The reason of the error.
         fn handle_order_error(
-            key: felt252, starting_gas: u128, reason_bytes: Array<felt252>
+            self: @ContractState, key: felt252, starting_gas: u128, reason_bytes: Array<felt252>
         ) { // TODO
         }
 
         /// Validate that the keeper is a frozen order keeper.
         /// # Arguments
         /// * `keeper` - address of the keeper.
-        fn validate_state_frozen_order_keeper(keeper: ContractAddress) { // TODO
+        fn _validate_state_frozen_order_keeper(self: @ContractState, keeper: ContractAddress) {// TODO
         }
     }
 }

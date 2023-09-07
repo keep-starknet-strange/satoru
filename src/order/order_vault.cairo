@@ -21,6 +21,13 @@ trait IOrderVault<TContractState> {
     fn transfer_out(
         ref self: TContractState, token: ContractAddress, receiver: ContractAddress, amount: u128,
     );
+
+    /// Records a token transfer into the contract.
+    /// # Arguments
+    /// * `token` - The token address to transfer.
+    /// # Returns
+    /// * The amount of tokens transferred.
+    fn record_transfer_in(ref self: TContractState, token: ContractAddress) -> u256;
 }
 
 #[starknet::contract]
@@ -58,5 +65,24 @@ mod OrderVault {
     ) {
         let mut state: StrictBank::ContractState = StrictBank::unsafe_new_contract_state();
         IStrictBank::initialize(ref state, data_store_address, role_store_address);
+    }
+
+    // *************************************************************************
+    //                          EXTERNAL FUNCTIONS
+    // *************************************************************************
+    #[external(v0)]
+    impl OrderVaultImpl of super::IOrderVault<ContractState> {
+        fn transfer_out(
+            ref self: ContractState,
+            token: ContractAddress,
+            receiver: ContractAddress,
+            amount: u128,
+        ) {// TODO
+        }
+
+        fn record_transfer_in(ref self: ContractState, token: ContractAddress) -> u256 {
+            // TODO
+            0
+        }
     }
 }

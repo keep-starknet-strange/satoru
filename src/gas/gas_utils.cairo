@@ -59,7 +59,7 @@ fn pay_execution_fee(
 /// # Returns
 /// * The key for the account order list.
 fn validate_execution_fee(
-    data_store: IDataStoreSafeDispatcher, estimated_gas_limit: u128, execution_fee: u128
+    data_store: IDataStoreSafeDispatcher, estimated_gas_limit: u128, execution_fee: u256
 ) { // TODO
 }
 
