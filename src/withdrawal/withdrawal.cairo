@@ -13,7 +13,7 @@ use alexandria_storage::list::List;
 use satoru::utils::arrays::StoreContractAddressSpan;
 
 /// Struct for withdrawals.
-#[derive(Copy, Drop, starknet::Store, Serde)]
+#[derive(Copy, Drop, starknet::Store, Serde, PartialEq)]
 struct Withdrawal {
     /// The unique identifier of the withdrawal.
     key: felt252,
@@ -28,9 +28,9 @@ struct Withdrawal {
     /// The trading market.
     market: ContractAddress,
     /// An array of market addresses to swap through.
-    long_token_swap_path: Span<ContractAddress>,
+    // TODO: use Span32 type long_token_swap_path: Span<ContractAddress>,
     /// An array of market addresses to swap through.
-    short_token_swap_path: Span<ContractAddress>,
+    // TODO: use Span32 type short_token_swap_path: Span<ContractAddress>,
     /// The amount of market tokens that will be withdrawn.
     market_token_amount: u128,
     /// The minimum amount of long tokens that must be withdrawn.
@@ -56,8 +56,8 @@ impl DefaultWithdrawal of Default<Withdrawal> {
             callback_contract: 0.try_into().unwrap(),
             ui_fee_receiver: 0.try_into().unwrap(),
             market: 0.try_into().unwrap(),
-            long_token_swap_path: Default::default().span(),
-            short_token_swap_path: Default::default().span(),
+            // long_token_swap_path: Default::default().span(),
+            // short_token_swap_path: Default::default().span(),
             market_token_amount: 0,
             min_long_token_amount: 0,
             min_short_token_amount: 0,

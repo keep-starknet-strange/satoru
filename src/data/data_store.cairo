@@ -211,7 +211,10 @@ trait IDataStore<TContractState> {
     /// * `account` - The value to set.
     fn remove_withdrawal(ref self: TContractState, key: felt252, account: ContractAddress);
 
+    fn get_withdrawal_keys(self: @TContractState, start: usize, end: usize) -> Array<felt252>;
+
     fn get_account_withdrawal_count(self: @TContractState, account: ContractAddress) -> u32;
+
 
     fn get_account_withdrawal_keys(
         self: @TContractState, account: ContractAddress, start: u32, end: u32
@@ -267,6 +270,7 @@ mod DataStore {
     use nullable::NullableTrait;
     use zeroable::Zeroable;
     use alexandria_storage::list::{ListTrait, List};
+    use debug::PrintTrait;
 
     // Local imports.
     use satoru::role::role;
@@ -290,6 +294,7 @@ mod DataStore {
         market_values: LegacyMap::<felt252, Market>,
         order_values: LegacyMap::<felt252, Order>,
         withdrawals: List<Withdrawal>,
+        account_withdrawals: LegacyMap<ContractAddress, List<felt252>>,
         withdrawal_indexes: LegacyMap::<felt252, usize>,
     }
 
@@ -593,9 +598,12 @@ mod DataStore {
         // *************************************************************************
 
         fn get_withdrawal(self: @ContractState, key: felt252) -> Option<Withdrawal> {
-            let index: usize = self.withdrawal_indexes.read(key);
+            let offsetted_index: usize = self.withdrawal_indexes.read(key);
+            if offsetted_index == 0 {
+                return Option::None;
+            }
             let withdrawals: List<Withdrawal> = self.withdrawals.read();
-            withdrawals.get(index)
+            withdrawals.get(offsetted_index - 1)
         }
 
         fn set_withdrawal(ref self: ContractState, key: felt252, withdrawal: Withdrawal) {
@@ -604,34 +612,52 @@ mod DataStore {
             assert(withdrawal.account != 0.try_into().unwrap(), WithdrawalError::CANT_BE_ZERO);
 
             let mut withdrawals = self.withdrawals.read();
-            // If the index is 0, it means the key has not been registered yet.
-            // In that case, we need to register the key and append the withdrawal to the list.
-            let index: usize = self.withdrawal_indexes.read(key);
-            assert(index <= withdrawals.len(), WithdrawalError::NOT_FOUND);
-            if index == 0 {
-                // Valid indexes start from 1, the key index is the length of the list + 1.
-                self.withdrawal_indexes.write(key, withdrawals.len() + 1);
-                withdrawals.append(withdrawal);
-            }
+            let mut account_withdrawals = self.account_withdrawals.read(withdrawal.account);
 
-            // Replace the previously existing withdrawal value.
+            // Because default values in storage are 0, indexes are offseted by 1.
+            let offsetted_index: usize = self.withdrawal_indexes.read(key);
+            assert(offsetted_index <= withdrawals.len(), WithdrawalError::NOT_FOUND);
+
+            // If the index is 0, it means the key has not been registered yet and
+            // we need to append the withdrawal to the list.
+            if offsetted_index == 0 {
+                // Valid indexes start from 1.
+                self.withdrawal_indexes.write(key, withdrawals.len() + 1);
+                account_withdrawals.append(key);
+                withdrawals.append(withdrawal);
+                return;
+            }
+            let index = offsetted_index - 1;
+
             withdrawals.set(index, withdrawal);
         }
 
         fn remove_withdrawal(ref self: ContractState, key: felt252, account: ContractAddress) {
-            // Check that the caller has permission to set the value.
+            // Check that the caller has permission to remove the withdrawal.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
-            let index: usize = self.withdrawal_indexes.read(key);
+            let offsetted_index: usize = self.withdrawal_indexes.read(key);
             let mut withdrawals = self.withdrawals.read();
-            assert(index <= withdrawals.len(), WithdrawalError::NOT_FOUND);
+            assert(offsetted_index <= withdrawals.len(), WithdrawalError::NOT_FOUND);
 
-            // Replace the previously existing withdrawal value by the last withdrawal in the list.
+            let index = offsetted_index - 1;
+            // Replace the value at `index` by the last withdrawal in the list.
+
+            // Specifically handle case where there is only one withdrawal
+            let last_withdrawal_index = withdrawals.len() - 1;
+            if index == last_withdrawal_index {
+                withdrawals.pop_front();
+                self.withdrawal_indexes.write(key, 0);
+                self._remove_account_withdrawal(key, account);
+                return;
+            }
+
             let mut last_withdrawal_maybe = withdrawals.pop_front();
             match last_withdrawal_maybe {
                 Option::Some(last_withdrawal) => {
                     withdrawals.set(index, last_withdrawal);
-                    self.withdrawal_indexes.write(last_withdrawal.key, index);
+                    self.withdrawal_indexes.write(last_withdrawal.key, offsetted_index);
                     self.withdrawal_indexes.write(key, 0);
+                    self._remove_account_withdrawal(key, account)
                 },
                 Option::None => {
                     // This case should never happen, because index is always <= length
@@ -639,20 +665,47 @@ mod DataStore {
                 }
             }
         }
+        fn get_withdrawal_keys(
+            self: @ContractState, start: usize, mut end: usize
+        ) -> Array<felt252> {
+            let withdrawals = self.withdrawals.read();
+            let mut keys: Array<felt252> = Default::default();
+            assert(start <= end, 'start must be <= end');
+            if start >= withdrawals.len() {
+                return keys;
+            }
+
+            if end > withdrawals.len() {
+                end = withdrawals.len()
+            }
+            let mut i = start;
+            loop {
+                if i == end {
+                    break;
+                }
+                let withdrawal = withdrawals[i];
+                keys.append(withdrawal.key);
+            };
+            keys
+        }
 
         fn get_account_withdrawal_count(self: @ContractState, account: ContractAddress) -> u32 {
-            self.withdrawals.read().len()
+            self.account_withdrawals.read(account).len()
         }
 
         fn get_account_withdrawal_keys(
-            self: @ContractState, account: ContractAddress, start: u32, end: u32
+            self: @ContractState, account: ContractAddress, start: u32, mut end: u32
         ) -> Array<felt252> {
-            let mut accumulator: Array<felt252> = Default::default();
-            let mut withdrawals = self.withdrawals.read();
+            let mut keys: Array<felt252> = Default::default();
+            let mut account_withdrawals = self.account_withdrawals.read(account);
 
             assert(start <= end, 'start must be <= end');
-            if end <= withdrawals.len() {
-                return accumulator;
+            if start >= account_withdrawals.len() {
+                return keys;
+            }
+
+            if end > account_withdrawals.len() {
+                end = account_withdrawals.len()
             }
 
             let mut i = start;
@@ -660,10 +713,70 @@ mod DataStore {
                 if i == end {
                     break;
                 }
-                let withdrawal = withdrawals[i];
-                accumulator.append(withdrawal.key);
+                let key = account_withdrawals[i];
+                keys.append(key);
+                i += 1;
             };
-            accumulator
+            keys
         }
+    }
+
+    #[generate_trait]
+    impl InternalFunctions of InternalFunctionsTrait {
+        fn _remove_account_withdrawal(
+            ref self: ContractState, key: felt252, account: ContractAddress
+        ) {
+            let mut account_withdrawals = self.account_withdrawals.read(account);
+            let mut i = 0;
+            loop {
+                if i == account_withdrawals.len() {
+                    break;
+                }
+                let withdrawal_key = account_withdrawals[i];
+                if withdrawal_key == key {
+                    let mut last_key_maybe = account_withdrawals.pop_front();
+                    match last_key_maybe {
+                        Option::Some(last_key) => {
+                            // If the list is empty, then there's no need to replace an existing key
+                            if account_withdrawals.len() == 0 {
+                                break;
+                            }
+                            account_withdrawals.set(i, last_key);
+                        },
+                        Option::None => {
+                            // This case should never happen, because index is always < length
+                            break;
+                        }
+                    }
+                    break;
+                }
+                i += 1;
+            }
+        }
+    }
+}
+#[cfg(test)]
+mod tests {
+    use starknet::{
+        deploy_syscall, ContractAddress, get_caller_address, get_contract_address,
+        contract_address_const
+    };
+    use super::{DataStore, IDataStoreDispatcher, IDataStoreDispatcherTrait};
+
+    // Deploy the contract and return its dispatcher.
+    fn deploy(controller: ContractAddress) -> IDataStoreDispatcher {
+        // Set up constructor arguments.
+        let mut calldata = ArrayTrait::new();
+        controller.serialize(ref calldata);
+
+        // Declare and deploy
+        let (contract_address, _) = deploy_syscall(
+            DataStore::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false
+        )
+            .unwrap();
+
+        // Return the dispatcher.
+        // The dispatcher allows to interact with the contract based on its interface.
+        IDataStoreDispatcher { contract_address }
     }
 }

@@ -186,7 +186,7 @@ fn pow(x: u128, n: usize) -> u128 {
     }
 }
 
-use starknet::{ContractAddress,StorageBaseAddress, SyscallResult, Store};
+use starknet::{ContractAddress, StorageBaseAddress, SyscallResult, Store};
 
 impl StoreContractAddressSpan of Store<Span<ContractAddress>> {
     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Span<ContractAddress>> {
@@ -216,7 +216,8 @@ impl StoreContractAddressSpan of Store<Span<ContractAddress>> {
                 break;
             }
 
-            let value = Store::<ContractAddress>::read_at_offset(address_domain, base, offset).unwrap();
+            let value = Store::<ContractAddress>::read_at_offset(address_domain, base, offset)
+                .unwrap();
             arr.append(value);
             offset += Store::<ContractAddress>::size();
         };
@@ -226,7 +227,10 @@ impl StoreContractAddressSpan of Store<Span<ContractAddress>> {
     }
 
     fn write_at_offset(
-        address_domain: u32, base: StorageBaseAddress, mut offset: u8, mut value: Span<ContractAddress>
+        address_domain: u32,
+        base: StorageBaseAddress,
+        mut offset: u8,
+        mut value: Span<ContractAddress>
     ) -> SyscallResult<()> {
         // // Store the length of the array in the first storage slot.
         let len: u8 = value.len().try_into().expect('Storage - Span too large');
@@ -237,7 +241,9 @@ impl StoreContractAddressSpan of Store<Span<ContractAddress>> {
         loop {
             match value.pop_front() {
                 Option::Some(element) => {
-                    Store::<ContractAddress>::write_at_offset(address_domain, base, offset, *element);
+                    Store::<ContractAddress>::write_at_offset(
+                        address_domain, base, offset, *element
+                    );
                     offset += Store::<felt252>::size();
                 },
                 Option::None(_) => {

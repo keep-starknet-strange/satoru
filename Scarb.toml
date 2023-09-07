@@ -12,7 +12,7 @@ repository = "https://github.com/keep-starknet-strange/satoru"
 [[target.starknet-contract]]
 sierra = true
 casm = true
-allowed-libfuncs-list.name = "experimental"
+allowed-libfuncs-deny = false
 
 [cairo]
 sierra-replace-ids = true
