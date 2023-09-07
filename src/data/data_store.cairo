@@ -211,11 +211,29 @@ trait IDataStore<TContractState> {
     /// * `account` - The value to set.
     fn remove_withdrawal(ref self: TContractState, key: felt252, account: ContractAddress);
 
+    /// Returns an array of withdrawal keys from the stored List of Withdrawals.
+    ///
+    /// # Arguments
+    ///
+    /// * `start` - The starting index of the withdrawal keys to retrieve.
+    /// * `end` - The ending index of the withdrawal keys to retrieve.
     fn get_withdrawal_keys(self: @TContractState, start: usize, end: usize) -> Array<felt252>;
 
+    /// Returns the number of withdrawals made by a specific account.
+    ///
+    /// # Arguments
+    ///
+    /// * `account` - The account address to retrieve the withdrawal count for.
     fn get_account_withdrawal_count(self: @TContractState, account: ContractAddress) -> u32;
 
 
+    /// Returns an array of withdrawal keys for a specific account, starting from `start` and ending at `end`.
+    ///
+    /// # Arguments
+    ///
+    /// * `account` - The account address to retrieve the withdrawal keys for.
+    /// * `start` - The starting index of the withdrawal keys to retrieve.
+    /// * `end` - The ending index of the withdrawal keys to retrieve.
     fn get_account_withdrawal_keys(
         self: @TContractState, account: ContractAddress, start: u32, end: u32
     ) -> Array<felt252>;
