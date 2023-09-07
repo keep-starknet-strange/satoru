@@ -2,6 +2,7 @@ use result::ResultTrait;
 use traits::TryInto;
 use starknet::{ContractAddress, contract_address_const};
 use starknet::Felt252TryIntoContractAddress;
+use starknet::SyscallResultTrait;
 use snforge_std::{declare, start_prank, ContractClassTrait};
 
 use satoru::role::role::CONTROLLER;
@@ -67,7 +68,7 @@ fn test_reentrancy_values() {
     // *********************************************************************************************
 
     // Gets initial value as like in contract. It will revert if we directly try to unwrap()
-    let initial_value: bool = match data_store.get_bool('REENTRANCY_GUARD_STATUS') {
+    let initial_value: bool = match data_store.get_bool('REENTRANCY_GUARD_STATUS').unwrap_syscall() {
         Option::Some(v) => v,
         Option::None => false,
     };
@@ -77,7 +78,7 @@ fn test_reentrancy_values() {
     non_reentrant_before(data_store); // Sets value to true
 
     // Gets value after non_reentrant_before call
-    let entrant: bool = match data_store.get_bool('REENTRANCY_GUARD_STATUS') {
+    let entrant: bool = match data_store.get_bool('REENTRANCY_GUARD_STATUS').unwrap_syscall() {
         Option::Some(v) => v,
         Option::None => false,
     }; // We don't really need to use match, unwrap() should work but however let's keep the same way.
@@ -86,7 +87,7 @@ fn test_reentrancy_values() {
     non_reentrant_after(data_store); // This should set value false.
 
     // Gets final value
-    let after: bool = match data_store.get_bool('REENTRANCY_GUARD_STATUS') {
+    let after: bool = match data_store.get_bool('REENTRANCY_GUARD_STATUS').unwrap_syscall() {
         Option::Some(v) => v,
         Option::None => false,
     }; // We don't really need to use match, unwrap() should work but however let's keep the same way.
@@ -108,7 +109,7 @@ fn test_reentrancy_revert() {
     non_reentrant_before(data_store); // Sets value to true
 
     // Gets value after non_reentrant_before
-    let entraant: bool = match data_store.get_bool('REENTRANCY_GUARD_STATUS') {
+    let entraant: bool = match data_store.get_bool('REENTRANCY_GUARD_STATUS').unwrap_syscall() {
         Option::Some(v) => v,
         Option::None => false,
     };
