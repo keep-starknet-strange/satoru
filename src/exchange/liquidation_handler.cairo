@@ -40,15 +40,16 @@ mod LiquidationHandler {
     // *************************************************************************
 
     // Core lib imports.
+    use satoru::exchange::base_order_handler::BaseOrderHandler::data_store::InternalContractMemberStateTrait;
     use starknet::ContractAddress;
 
 
     // Local imports.
     use super::ILiquidationHandler;
     use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-    use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+    use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait, DataStore};
     use satoru::event::event_emitter::{
-        IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait
+        IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait, EventEmitter
     };
     use satoru::oracle::{
         oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait},
@@ -63,6 +64,10 @@ mod LiquidationHandler {
     use satoru::swap::swap_handler::{ISwapHandlerSafeDispatcher, ISwapHandlerSafeDispatcherTrait};
     use satoru::market::market::Market;
     use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
+    use satoru::liquidation::liquidation_utils::create_liquidation_order;
+    use satoru::exchange::order_handler;
+    use satoru::feature::feature_utils::validate_feature;
+    use satoru::exchange::order_handler::{IOrderHandler, OrderHandler};
 
     // *************************************************************************
     //                              STORAGE
@@ -120,7 +125,30 @@ mod LiquidationHandler {
             collateral_token: ContractAddress,
             is_long: bool,
             oracle_params: SetPricesParams
-        ) { // TODO
+        ) { 
+            let mut state_base: BaseOrderHandler::ContractState =
+            BaseOrderHandler::unsafe_new_contract_state();
+            let mut key: felt252 = create_liquidation_order(
+                  state_base.data_store.read(),
+                  state_base.event_emitter.read(),
+                  account,
+                  market,
+                  collateral_token,
+                  is_long
+                  );
+            
+            let params: ExecuteOrderParams = BaseOrderHandler::InternalImpl::get_execute_order_params(
+                ref state_base,
+                  key,
+                  oracle_params,
+                  account,
+                  SecondaryOrderType::None
+                  );
+            validate_feature(state_base.data_store.read(), key);
+            let mut state_order: OrderHandler::ContractState =
+            OrderHandler::unsafe_new_contract_state();
+            IOrderHandler::execute_order(ref state_order, key, oracle_params);
+        };
         }
     }
 }

@@ -189,7 +189,7 @@ mod BaseOrderHandler {
             key: felt252,
             oracle_params: SetPricesParams,
             keeper: ContractAddress,
-            starting_gas: u128,
+            //starting_gas: u128,
             secondary_order_type: SecondaryOrderType
         ) -> ExecuteOrderParams {
             let address_zero = 0.try_into().unwrap();
