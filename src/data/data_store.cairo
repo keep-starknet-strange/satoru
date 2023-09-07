@@ -773,28 +773,3 @@ mod DataStore {
         }
     }
 }
-#[cfg(test)]
-mod tests {
-    use starknet::{
-        deploy_syscall, ContractAddress, get_caller_address, get_contract_address,
-        contract_address_const
-    };
-    use super::{DataStore, IDataStoreDispatcher, IDataStoreDispatcherTrait};
-
-    // Deploy the contract and return its dispatcher.
-    fn deploy(controller: ContractAddress) -> IDataStoreDispatcher {
-        // Set up constructor arguments.
-        let mut calldata = ArrayTrait::new();
-        controller.serialize(ref calldata);
-
-        // Declare and deploy
-        let (contract_address, _) = deploy_syscall(
-            DataStore::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false
-        )
-            .unwrap();
-
-        // Return the dispatcher.
-        // The dispatcher allows to interact with the contract based on its interface.
-        IDataStoreDispatcher { contract_address }
-    }
-}
