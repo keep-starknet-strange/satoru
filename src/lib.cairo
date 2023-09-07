@@ -106,6 +106,8 @@ mod role {
     mod role;
     // The contract handling the roles and store them.
     mod role_store;
+    // The contract for role validation functions.
+    mod role_module;
 }
 
 // `price` contains utility functions for calculating prices.
@@ -159,6 +161,7 @@ mod order {
     mod base_order_utils;
     mod order_vault;
     mod order;
+    mod order_utils;
 }
 
 // `position` contains positions management functions

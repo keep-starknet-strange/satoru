@@ -100,7 +100,10 @@ mod OrderHandler {
     // *************************************************************************
 
     // Core lib imports.
+    use core::traits::Into;
+    use clone::Clone;
     use starknet::ContractAddress;
+    use starknet::get_contract_address;
 
 
     // Local imports.
@@ -109,9 +112,19 @@ mod OrderHandler {
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
         oracle_utils::{SetPricesParams, SimulatePricesParams}
     };
-    use satoru::order::{order::Order, base_order_utils::CreateOrderParams};
+    use satoru::order::{order::Order, base_order_utils::CreateOrderParams, order_utils};
     use satoru::market::market::Market;
     use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
+    use satoru::exchange::base_order_handler::BaseOrderHandler::{
+        data_store::InternalContractMemberStateTrait as DataStoreStateTrait,
+        event_emitter::InternalContractMemberStateTrait as EventEmitterStateTrait,
+        order_vault::InternalContractMemberStateTrait as OrderVaultStateTrait,
+        referral_storage::InternalContractMemberStateTrait as ReferralStorageStateTrait,
+    };
+    use satoru::feature::feature_utils;
+    use satoru::data::keys;
+    use satoru::role::role_module::{RoleModule, IRoleModule};
+    use satoru::utils::global_reentrancy_guard;
 
     // *************************************************************************
     //                              STORAGE
@@ -165,8 +178,36 @@ mod OrderHandler {
         fn create_order(
             ref self: ContractState, account: ContractAddress, params: CreateOrderParams
         ) -> felt252 {
-            // TODO
-            0
+            // Check only controller.
+            let role_module_state = RoleModule::unsafe_new_contract_state();
+            role_module_state.only_controller();
+
+            // Fetch data store.
+            let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
+            let data_store = base_order_handler_state.data_store.read();
+
+            global_reentrancy_guard::non_reentrant_before(data_store);
+
+            // Validate feature and create order.
+            feature_utils::validate_feature(
+                data_store, 
+                keys::create_order_feature_disabled_key(
+                    get_contract_address(),
+                    params.order_type.clone()
+                )
+            );
+            let key = order_utils::create_order(
+                data_store,
+                base_order_handler_state.event_emitter.read(),
+                base_order_handler_state.order_vault.read(),
+                base_order_handler_state.referral_storage.read(),
+                account,
+                params
+            );
+
+            global_reentrancy_guard::non_reentrant_after(data_store);
+
+            key
         }
 
         fn update_order(

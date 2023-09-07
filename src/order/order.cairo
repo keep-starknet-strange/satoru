@@ -62,7 +62,7 @@ impl OrderImpl of OrderTrait {
     }
 }
 
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Drop, Copy, starknet::Store, Serde)]
 enum OrderType {
     ///  MarketSwap: swap token A to token B at the current market price.
     /// The order will be cancelled if the minOutputAmount cannot be fulfilled.
@@ -103,7 +103,7 @@ impl SecondaryOrderTypePrintImpl of PrintTrait<SecondaryOrderType> {
 
 /// `DecreasePositionSwapType` is used to indicate whether the decrease order should swap
 /// the pnl token to collateral token or vice versa.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Drop, Copy, starknet::Store, Serde)]
 enum DecreasePositionSwapType {
     NoSwap: (),
     SwapPnlTokenToCollateralToken: (),

@@ -104,3 +104,28 @@ struct CreateOrderParams {
     /// The referral code linked to this order.
     referral_code: felt252
 }
+
+impl CreateOrderParamsClone of Clone<CreateOrderParams> {
+    fn clone(self: @CreateOrderParams) -> CreateOrderParams {
+        CreateOrderParams {
+            receiver: *self.receiver,
+            callback_contract: *self.callback_contract,
+            ui_fee_receiver: *self.ui_fee_receiver,
+            market: *self.market,
+            initial_collateral_token: *self.initial_collateral_token,
+            swap_path: self.swap_path.clone(),
+            size_delta_usd: *self.size_delta_usd,
+            initial_collateral_delta_amount: *self.initial_collateral_delta_amount,
+            trigger_price: *self.trigger_price,
+            acceptable_price: *self.acceptable_price,
+            execution_fee: *self.execution_fee,
+            callback_gas_limit: *self.callback_gas_limit,
+            min_output_amount: *self.min_output_amount,
+            order_type: *self.order_type,
+            decrease_position_swap_type: *self.decrease_position_swap_type,
+            is_long: *self.is_long,
+            should_unwrap_native_token: *self.should_unwrap_native_token,
+            referral_code: *self.referral_code
+        }
+    }
+}
