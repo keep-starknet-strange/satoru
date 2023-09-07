@@ -9,10 +9,14 @@ use debug::PrintTrait;
 // Local imports.
 use satoru::utils::store_arrays::StoreContractAddressArray;
 use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
+use alexandria_storage::list::List;
+use satoru::utils::arrays::StoreContractAddressSpan;
 
 /// Struct for withdrawals.
-#[derive(Drop, Starknet::Store, Serde)]
+#[derive(Copy, Drop, starknet::Store, Serde, PartialEq)]
 struct Withdrawal {
+    /// The unique identifier of the withdrawal.
+    key: felt252,
     /// The account of the order.
     account: ContractAddress,
     /// The receiver for any token transfers.
@@ -24,9 +28,9 @@ struct Withdrawal {
     /// The trading market.
     market: ContractAddress,
     /// An array of market addresses to swap through.
-    long_token_swap_path: Array<ContractAddress>,
+    // TODO: use Span32 type long_token_swap_path: Span<ContractAddress>,
     /// An array of market addresses to swap through.
-    short_token_swap_path: Array<ContractAddress>,
+    // TODO: use Span32 type short_token_swap_path: Span<ContractAddress>,
     /// The amount of market tokens that will be withdrawn.
     market_token_amount: u128,
     /// The minimum amount of long tokens that must be withdrawn.
@@ -41,4 +45,26 @@ struct Withdrawal {
     callback_gas_limit: u128,
     /// whether to unwrap the native token
     should_unwrap_native_token: bool,
+}
+
+impl DefaultWithdrawal of Default<Withdrawal> {
+    fn default() -> Withdrawal {
+        Withdrawal {
+            key: 0,
+            account: 0.try_into().unwrap(),
+            receiver: 0.try_into().unwrap(),
+            callback_contract: 0.try_into().unwrap(),
+            ui_fee_receiver: 0.try_into().unwrap(),
+            market: 0.try_into().unwrap(),
+            // long_token_swap_path: Default::default().span(),
+            // short_token_swap_path: Default::default().span(),
+            market_token_amount: 0,
+            min_long_token_amount: 0,
+            min_short_token_amount: 0,
+            updated_at_block: 0,
+            execution_fee: 0,
+            callback_gas_limit: 0,
+            should_unwrap_native_token: true,
+        }
+    }
 }
