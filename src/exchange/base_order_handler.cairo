@@ -8,6 +8,9 @@
 use core::traits::Into;
 use starknet::ContractAddress;
 
+use satoru::oracle::oracle_utils::SetPricesParams;
+use satoru::order::{order::SecondaryOrderType, base_order_utils::ExecuteOrderParams};
+
 // *************************************************************************
 //                  Interface of the `BaseOrderHandler` contract.
 // *************************************************************************
