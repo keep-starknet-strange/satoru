@@ -75,7 +75,7 @@ fn process_collateral(
         uncapped_base_pnl_usd: 0,
         size_delta_in_tokens: 0,
         price_impact_usd: 0,
-        price_imact_diff_usd: 0,
+        price_impact_diff_usd: 0,
         output: decrease_position_collateral_values_output
     };
     let position_referral_fees = PositionReferralFees {
@@ -168,7 +168,7 @@ fn pay_for_cost(
         uncapped_base_pnl_usd: 0,
         size_delta_in_tokens: 0,
         price_impact_usd: 0,
-        price_imact_diff_usd: 0,
+        price_impact_diff_usd: 0,
         output: decrease_position_collateral_values_output
     };
     let pay_for_cost_result = PayForCostResult {
@@ -208,7 +208,7 @@ fn handle_early_return(
         uncapped_base_pnl_usd: 0,
         size_delta_in_tokens: 0,
         price_impact_usd: 0,
-        price_imact_diff_usd: 0,
+        price_impact_diff_usd: 0,
         output: decrease_position_collateral_values_output
     };
     let position_referral_fees = PositionReferralFees {
