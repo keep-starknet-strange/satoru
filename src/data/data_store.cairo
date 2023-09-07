@@ -187,6 +187,26 @@ trait IDataStore<TContractState> {
     /// * `value` - The value to set.
     fn set_order(ref self: TContractState, key: felt252, order: Order);
 
+    /// Remove a order value for the given key.
+    /// # Arguments
+    /// * `key` - The key to remove the value for.
+    fn remove_order(ref self: TContractState, key: felt252);
+
+    /// Return order index for given key.
+    /// # Arguments
+    /// * `key` - The key to get the index for.
+    fn get_key_index(self: @TContractState, key: felt252) -> Option<u64>;
+
+    /// Return total order count
+    fn get_order_count(self: @TContractState) -> u64;
+
+    /// Return order keys between start - end  indexes
+    /// # Arguments
+    /// * `start` - Start index
+    /// * `end` - Start index
+    fn get_order_keys(self: @TContractState, start: u64, end: u64) -> Array<felt252>;
+
+
     //TODO: Update u128 to i128 when Serde and Store for i128 implementations are released.
     // *************************************************************************
     //                          int128 related functions.
@@ -241,7 +261,7 @@ mod DataStore {
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::market::market::{Market, ValidateMarket};
     use satoru::order::order::Order;
-
+    use satoru::data::error::DataError;
     // *************************************************************************
     //                              STORAGE
     // *************************************************************************
@@ -256,6 +276,8 @@ mod DataStore {
         bool_values: LegacyMap::<felt252, Option<bool>>,
         market_values: LegacyMap::<felt252, Market>,
         order_values: LegacyMap::<felt252, Order>,
+        order_keys: LegacyMap::<u64, felt252>,
+        order_count: u64,
     }
 
     // *************************************************************************
@@ -549,8 +571,82 @@ mod DataStore {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
 
-            // Set the value.
-            self.order_values.write(key, order);
+            let index_result = self.get_key_index(key);
+
+            match index_result {
+                // Update to new order for given key
+                Option::Some(i) => {
+                    self.order_values.write(key, order)
+                },
+                // Add new order for given key and increase the count
+                Option::None(()) => {
+                    let count = self.order_count.read();
+                    self.order_keys.write(count, key);
+                    self.order_count.write(count + 1);
+                    self.order_values.write(key, order);
+                },
+            };
+        }
+
+        fn remove_order(ref self: ContractState, key: felt252) {
+            // Check that the caller has permission to set the value.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+
+            let order = self.order_values.read(key);
+            // We use the zero address to indicate that the order does not exist.
+            assert(!order.account.is_zero(), DataError::ORDER_NOT_FOUND);
+
+            let index_result = self.get_key_index(key);
+            let mut index: u64 = 0;
+            match index_result {
+                Option::Some(i) => index = i,
+                Option::None(()) => assert(false, DataError::ORDER_INDEX_NOT_FOUND),
+            };
+
+            let count = self.order_count.read();
+            let last_key = self.order_keys.read(count - 1);
+
+            // Update removed key index with last key
+            self.order_keys.write(index, last_key);
+            self.order_keys.write(count - 1, 0);
+            self.order_count.write(count - 1);
+        }
+
+        fn get_key_index(self: @ContractState, key: felt252) -> Option<u64> {
+            let mut i = 0_u64;
+            let count = self.order_count.read();
+            // Search for key index
+            let result = loop {
+                if (i >= count) {
+                    break false;
+                }
+                if (self.order_keys.read(i) == key) {
+                    break true;
+                }
+                i = i + 1;
+            };
+            if result {
+                Option::Some(i)
+            } else {
+                Option::None
+            }
+        }
+
+        fn get_order_count(self: @ContractState) -> u64 {
+            self.order_count.read()
+        }
+
+        fn get_order_keys(self: @ContractState, start: u64, end: u64) -> Array<felt252> {
+            let mut keys = ArrayTrait::<felt252>::new();
+            let mut i = start;
+            loop {
+                if (i > end) {
+                    break;
+                }
+                keys.append(self.order_keys.read(i));
+                i = i + 1;
+            };
+            keys
         }
     }
 }

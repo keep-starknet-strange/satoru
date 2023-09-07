@@ -1,4 +1,4 @@
-use starknet::contract_address_const;
+use starknet::{ ContractAddress,  contract_address_const};
 
 use satoru::data::data_store::IDataStoreSafeDispatcherTrait;
 use satoru::role::role_store::IRoleStoreSafeDispatcherTrait;
@@ -196,7 +196,6 @@ fn given_normal_conditions_when_address_functions_then_expected_results() {
     // *********************************************************************************************
     teardown(data_store.contract_address);
 }
-
 #[test]
 fn given_normal_conditions_when_order_functions_then_expected_results() {
     // *********************************************************************************************
@@ -208,34 +207,171 @@ fn given_normal_conditions_when_order_functions_then_expected_results() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    // Define variables for the test.
-    let order_data_store_key = 1;
+    let order_data_store_key = 11111111;
+    let order: Order = create_new_order(
+        contract_address_const::<'account1'>(),
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        contract_address_const::<'token1'>(),
+        is_long: false,
+        should_unwrap_native_token: false,
+        is_frozen: false,
+        order_no: 1
+    );
+    let order_snap = @order;
+
+    // Set order
+    data_store.set_order(order_data_store_key, order);
+
+    // Retrieve the order.
+    // We use `unwrap().unwrap()` because we know that the order exists.
+    // If it panics the test should fail.
+    let mut retrieved_order = data_store.get_order(order_data_store_key).unwrap().unwrap();
+
+    // Check that the retrieved order is the same as the original order.
+    assert_order_eq(order_snap, @retrieved_order);
+
+    // Check order count
+    let order_count = data_store.get_order_count().unwrap();
+    assert(order_count == 1, 'invalid order count1');
+
+    // Check key index for given key
+    let key_index = data_store.get_key_index(order_data_store_key).unwrap();
+    assert(key_index.unwrap() == 0, 'invalid key index');
+
+    // Create new orders
+    let order_data_store_key2 = 222222222;
+    let order2: Order = create_new_order(
+        contract_address_const::<'account2'>(),
+        contract_address_const::<'receiver2'>(),
+        contract_address_const::<'market2'>(),
+        contract_address_const::<'token2'>(),
+        is_long: true,
+        should_unwrap_native_token: false,
+        is_frozen: true,
+        order_no: 2
+    );
+
+    let order_snap2 = @order2;
+
+    let order_data_store_key3 = 3333333333;
+    let order3: Order = create_new_order(
+        contract_address_const::<'account3'>(),
+        contract_address_const::<'receiver3'>(),
+        contract_address_const::<'market3'>(),
+        contract_address_const::<'token3'>(),
+        is_long: false,
+        should_unwrap_native_token: true,
+        is_frozen: true,
+        order_no: 3
+    );
+    let order_snap3 = @order3;
+
+    // Store the new orders to index 1 and 2
+    data_store.set_order(order_data_store_key2, order2);
+    data_store.set_order(order_data_store_key3, order3);
+
+    // Check order count
+    let order_count3 = data_store.get_order_count().unwrap();
+    assert(order_count3 == 3, 'invalid order count3');
+
+    // Retrieve the orders and assert values
+    let mut retrieved_order2 = data_store.get_order(order_data_store_key2).unwrap().unwrap();
+    assert_order_eq(order_snap2, @retrieved_order2);
+    let mut retrieved_order3 = data_store.get_order(order_data_store_key3).unwrap().unwrap();
+    assert_order_eq(order_snap3, @retrieved_order3);
+
+    // Check key indexes for given keys
+    let key_index2 = data_store.get_key_index(order_data_store_key2).unwrap();
+    assert(key_index2.unwrap() == 1, 'invalid key index2');
+    let key_index3 = data_store.get_key_index(order_data_store_key3).unwrap();
+    assert(key_index3.unwrap() == 2, 'invalid key index3');
+
+    // Retrieve the keys for start and end indexes
+    let start_ind = 1;
+    let end_ind = 2;
+    let order_keys = data_store.get_order_keys(start_ind, end_ind).unwrap();
+    assert(*order_keys.at(0) == order_data_store_key2, 'invalid key1');
+    assert(*order_keys.at(1) == order_data_store_key3, 'invalid key2');
+
+    // Create new order
+    let order4: Order = create_new_order(
+        contract_address_const::<'account4'>(),
+        contract_address_const::<'receiver4'>(),
+        contract_address_const::<'market4'>(),
+        contract_address_const::<'token4'>(),
+        is_long: false,
+        should_unwrap_native_token: true,
+        is_frozen: true,
+        order_no: 4
+    );
+    let order_snap4 = @order4;
+
+    // Set order to assigned key and  overwrite previous order
+    data_store.set_order(order_data_store_key2, order4);
+
+    // Retrieve the order and check previous order overwritten
+    let mut retrieved_order4 = data_store.get_order(order_data_store_key2).unwrap().unwrap();
+    assert_order_eq(order_snap4, @retrieved_order4);
+
+    // Remove  order
+    data_store.remove_order(order_data_store_key2);
+
+    // Check order count
+    let order_count4 = data_store.get_order_count().unwrap();
+    assert(order_count4 == 2, 'invalid order count4');
+
+    // Check key index decreased
+    let key_index4 = data_store.get_key_index(order_data_store_key3).unwrap();
+    assert(key_index4.unwrap() == 1, 'invalid key index4');
+
+    // *********************************************************************************************
+    // *                              TEARDOWN                                                     *
+    // *********************************************************************************************
+    teardown(data_store.contract_address);
+}
+
+
+/// Utility function to create new Order  struct
+///
+/// # Arguments
+///
+/// * `account` - The account of the order.
+/// * `receiver` - The receiver for any token transfers.
+/// * `market` - The trading market.
+/// * `initial_collateral_token` - The initial collateral token for increase orders.
+/// * `is_long` - Whether the order is for a long or short.
+/// * `should_unwrap_native_token` - Whether to unwrap native tokens before transferring to the user.
+/// * `is_frozen` - Whether the order is frozen.
+/// * `order_no` - Random number to change values
+fn create_new_order(
+    account: ContractAddress,
+    receiver: ContractAddress,
+    market: ContractAddress,
+    initial_collateral_token: ContractAddress,
+    is_long: bool,
+    should_unwrap_native_token: bool,
+    is_frozen: bool,
+    order_no: u128
+) -> Order {
     let order_type = OrderType::StopLossDecrease;
-    let account = contract_address_const::<'account'>();
-    let receiver = contract_address_const::<'receiver'>();
     let callback_contract = contract_address_const::<'callback_contract'>();
     let ui_fee_receiver = contract_address_const::<'ui_fee_receiver'>();
-    let market = contract_address_const::<'market'>();
-    let initial_collateral_token = contract_address_const::<'initial_collateral_token'>();
     let mut swap_path = array![];
     swap_path.append(contract_address_const::<'swap_path_0'>());
     swap_path.append(contract_address_const::<'swap_path_1'>());
-    let size_delta_usd = 1000;
-    let initial_collateral_delta_amount = 500;
-    let trigger_price = 2000;
-    let acceptable_price = 2500;
-    let execution_fee = 100;
-    let callback_gas_limit = 300000;
-    let min_output_amount = 100;
+    let size_delta_usd = 1000 * order_no;
+    let initial_collateral_delta_amount = 1000 * order_no;
+    let trigger_price = 11111 * order_no;
+    let acceptable_price = 11111 * order_no;
+    let execution_fee = 10 * order_no;
+    let min_output_amount = 10 * order_no;
     let updated_at_block = 1;
-    let is_long = true;
-    let should_unwrap_native_token = false;
-    let is_frozen = false;
 
-    let order_data_store_key = 1;
+    let callback_gas_limit = 300000;
 
     // Create an order.
-    let order = Order {
+    Order {
         order_type,
         account,
         receiver,
@@ -255,22 +391,41 @@ fn given_normal_conditions_when_order_functions_then_expected_results() {
         is_long,
         should_unwrap_native_token,
         is_frozen,
-    };
+    }
+}
 
-    // Store the order.
-    data_store.set_order(order_data_store_key, order).unwrap();
+/// Utility function to assert order structs
+/// This function will panic if any of the following fields do not match between the two orders:
+/// # Arguments
+///
+/// * `order1` - First order struct 
+/// * `order2` - Second order struct.
+fn assert_order_eq(order1: @Order, order2: @Order) {
+    assert(order1.account == order2.account, 'invalid account ');
+    assert(order1.receiver == order2.receiver, 'invalid receiver ');
+    assert(order1.callback_contract == order2.callback_contract, 'invalid callback_contract ');
+    assert(order1.ui_fee_receiver == order2.ui_fee_receiver, 'invalid ui_fee_receiver ');
+    assert(order1.market == order2.market, 'invalid market ');
+    assert(
+        order1.initial_collateral_token == order2.initial_collateral_token,
+        'invalid collateral_token '
+    );
 
-    // Retrieve the order.
-    // We use `unwrap().unwrap()` because we know that the order exists.
-    // If it panics the test should fail.
-    let mut retrieved_order = data_store.get_order(order_data_store_key).unwrap().unwrap();
-
-    // Check that the retrieved order is the same as the original order.
-    // TODO: Add a proper equality check for orders by implementing `PartialEq` for `Order`.
-    assert(retrieved_order.account == account, 'invalid order');
-
-    // *********************************************************************************************
-    // *                              TEARDOWN                                                     *
-    // *********************************************************************************************
-    teardown(data_store.contract_address);
+    assert(order1.size_delta_usd == order2.size_delta_usd, 'invalid size_delta_usd ');
+    assert(
+        order1.initial_collateral_delta_amount == order2.initial_collateral_delta_amount,
+        'invalid col_delta_amount '
+    );
+    assert(order1.trigger_price == order2.trigger_price, 'invalid trigger_price ');
+    assert(order1.acceptable_price == order2.acceptable_price, 'invalid acceptable_price ');
+    assert(order1.execution_fee == order2.execution_fee, 'invalid execution_fee ');
+    assert(order1.callback_gas_limit == order2.callback_gas_limit, 'invalid callback_gas_limit ');
+    assert(order1.min_output_amount == order2.min_output_amount, 'invalid min_output_amount ');
+    assert(order1.updated_at_block == order2.updated_at_block, 'invalid updated_at_block ');
+    assert(order1.is_long == order2.is_long, 'invalid is_long ');
+    assert(
+        order1.should_unwrap_native_token == order2.should_unwrap_native_token,
+        'invalid unwrap_native_token '
+    );
+    assert(order1.is_frozen == order2.is_frozen, 'invalid is_frozen ');
 }
