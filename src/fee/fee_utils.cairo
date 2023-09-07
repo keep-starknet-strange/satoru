@@ -91,18 +91,18 @@ fn claim_fees(
     token: ContractAddress,
     receiver: ContractAddress,
 ) {
-    // AccountUtils.validateReceiver(receiver);
+    validate_receiver(receiver);
 
     let key = claimable_fee_amount_key(market, token);
 
-    // let feeAmount = data_store.get_uint(key);
-    // dataStore.setUint(key, 0);
+    let fee_amount = data_store.get_felt252(key);
+    data_store.set_felt252(key, 0);
 
-    // MarketToken(payable(market)).transferOut(token, receiver, feeAmount);
+    // MarketToken(payable(market)).transferOut(token, receiver, fee_amount);
 
-    // MarketUtils.validateMarketTokenBalance(dataStore, market);
+    // MarketUtils.validateMarketTokenBalance(data_store, market);
 
-    // emitFeesClaimed(eventEmitter, market, receiver, feeAmount);
+    // emitFeesClaimed(eventEmitter, market, receiver, fee_amount);
     0;
 }
 
@@ -122,21 +122,25 @@ fn claim_ui_fees(
     token: ContractAddress,
     receiver: ContractAddress,
 ) -> u128 {
-    // AccountUtils.validateReceiver(receiver);
+    validate_receiver(receiver);
 
-    // let key = Keys.claimableUiFeeAmountKey(market, token, uiFeeReceiver);
+    let key = claimable_ui_fee_amount_for_account_key(market, token, ui_fee_receiver);
 
-    // let feeAmount = dataStore.getUint(key);
-    // dataStore.setUint(key, 0);
+    let fee_amount = data_store.get_felt252(key).expect('claim_ui_fees:fee_amount');
+    data_store.set_felt252(key, 0);
 
-    // let nextPoolValue = dataStore.decrementUint(Keys.claimableUiFeeAmountKey(market, token), feeAmount);
+    let next_pool_value = data_store
+        .decrement_felt252(claimable_ui_fee_amount_key(market, token), fee_amount);
 
-    // MarketToken(payable(market)).transferOut(token, receiver, feeAmount);
+    // MarketToken(payable(market)).transferOut(token, receiver, fee_amount);
 
-    // MarketUtils.validateMarketTokenBalance(dataStore, market);
+    // MarketUtils.validateMarketTokenBalance(data_store, market);
 
-    // emitUiFeesClaimed(eventEmitter, uiFeeReceiver, market, receiver, feeAmount, nextPoolValue);
+    // event_emitter
+    //     .emit_claimable_ui_fee_amount_updated(
+    //         ui_fee_receiver, market, receiver, fee_amount, next_pool_value
+    //     );
 
-    // return feeAmount;
+    // fee_amount
     0
 }
