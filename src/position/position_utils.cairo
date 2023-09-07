@@ -79,7 +79,7 @@ struct DecreasePositionCollateralValues {
     /// The price impact in usd.
     price_impact_usd: u128, // TODO replace with i128 when it derives Store
     /// The price impact difference in USD.
-    price_imact_diff_usd: u128,
+    price_impact_diff_usd: u128,
     /// The output struct.
     output: DecreasePositionCollateralValuesOutput
 }
