@@ -1,4 +1,4 @@
-use starknet::{ ContractAddress,  contract_address_const};
+use starknet::{ContractAddress, contract_address_const};
 
 use satoru::data::data_store::IDataStoreSafeDispatcherTrait;
 use satoru::role::role_store::IRoleStoreSafeDispatcherTrait;
