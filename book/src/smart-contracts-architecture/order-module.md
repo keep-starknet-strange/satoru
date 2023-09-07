@@ -1,6 +1,6 @@
 # Order module
 
-The order module is reponsible for the vault order, functions related for order.
+The order module is reponsible for the vault order, functions related to orders.
 
 It contains the following smart contracts:
 
