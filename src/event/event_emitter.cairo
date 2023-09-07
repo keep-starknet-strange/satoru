@@ -177,6 +177,7 @@ trait IEventEmitter<TContractState> {
         remaining_cost_usd: u128
     );
 
+    /// Emits the `InsufficientFundingFeePayment` event.
     fn emit_insufficient_funding_fee_payment(
         ref self: TContractState,
         market: ContractAddress,
@@ -186,6 +187,7 @@ trait IEventEmitter<TContractState> {
         amount_paid_in_secondary_output_token: u128
     );
 
+    /// Emits the `PositionFeesCollected` event.
     #[inline(always)]
     fn emit_position_fees_collected(
         ref self: TContractState,
@@ -198,6 +200,7 @@ trait IEventEmitter<TContractState> {
         fees: PositionFees
     );
 
+    /// Emits the `PositionFeesInfo` event.
     #[inline(always)]
     fn emit_position_fees_info(
         ref self: TContractState,
