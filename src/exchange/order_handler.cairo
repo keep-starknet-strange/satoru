@@ -122,6 +122,7 @@ mod OrderHandler {
     use satoru::role::role_module::{RoleModule, IRoleModule};
     use satoru::token::token_utils;
     use satoru::gas::gas_utils;
+    use satoru::chain::chain::Chain;
     use satoru::utils::global_reentrancy_guard;
 
     // *************************************************************************
