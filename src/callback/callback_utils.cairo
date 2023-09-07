@@ -101,7 +101,7 @@ fn after_deposit_execution(key: felt252, deposit: Deposit, event_data: EventLogD
     };
     match dispatcher.after_deposit_execution(key, deposit, event_data) {
         Result::Ok => {},
-        Result::Err => emit_event('AfterDepositExecutionError', key),
+        Result::Err => emit_event(selector!("AfterDepositExecutionError"), key),
     }
 }
 
@@ -119,7 +119,7 @@ fn after_deposit_cancellation(key: felt252, deposit: Deposit, event_data: EventL
     };
     match dispatcher.after_deposit_cancellation(key, deposit, event_data) {
         Result::Ok => {},
-        Result::Err => emit_event('AfterDepositCancellationError', key),
+        Result::Err => emit_event(selector!("AfterDepositCancellationError"), key),
     }
 }
 
@@ -137,7 +137,7 @@ fn after_withdrawal_execution(key: felt252, withdrawal: Withdrawal, event_data: 
     };
     match dispatcher.after_withdrawal_execution(key, withdrawal, event_data) {
         Result::Ok => {},
-        Result::Err => emit_event('AfterWithdrawalExecutionError', key),
+        Result::Err => emit_event(selector!("AfterWithdrawalExecutionError"), key),
     }
 }
 
@@ -155,7 +155,7 @@ fn after_withdrawal_cancellation(key: felt252, withdrawal: Withdrawal, event_dat
     };
     match dispatcher.after_withdrawal_cancellation(key, withdrawal, event_data) {
         Result::Ok => {},
-        Result::Err => emit_event('AfterWithdrawalCancellationErr', key),
+        Result::Err => emit_event(selector!("AfterWithdrawalCancellationError"), key),
     }
 }
 
@@ -173,7 +173,7 @@ fn after_order_execution(key: felt252, order: Order, event_data: EventLogData) {
     };
     match dispatcher.after_order_execution(key, order, event_data) {
         Result::Ok => {},
-        Result::Err => emit_event('AfterOrderExecutionError', key),
+        Result::Err => emit_event(selector!("AfterOrderExecutionError"), key),
     }
 }
 
@@ -191,7 +191,7 @@ fn after_order_cancellation(key: felt252, order: Order, event_data: EventLogData
     };
     match dispatcher.after_order_cancellation(key, order, event_data) {
         Result::Ok => {},
-        Result::Err => emit_event('AfterOrderCancellationError', key),
+        Result::Err => emit_event(selector!("AfterOrderCancellationError"), key),
     }
 }
 
@@ -209,7 +209,7 @@ fn after_order_frozen(key: felt252, order: Order, event_data: EventLogData) {
     };
     match dispatcher.after_order_frozen(key, order, event_data) {
         Result::Ok => {},
-        Result::Err => emit_event('AfterOrderFrozenError', key),
+        Result::Err => emit_event(selector!("AfterOrderFrozenError"), key),
     }
 }
 
@@ -222,9 +222,6 @@ fn is_valid_callback_contract(callback_contract: ContractAddress) -> bool {
 
 // TODO: replace this by something cleaner when available, this is only here because
 // it's not possible to emit event without a reference to `self`.
-fn emit_event(event_name: felt252, key: felt252) {
-    let inputs = array![event_name.into()];
-    let u256{low, high } = keccak::keccak_u256s_be_inputs(inputs.span());
-    let keys = array![low.into(), high.into()];
-    emit_event_syscall(keys.span(), array![key].span());
+fn emit_event(event_selector: felt252, key: felt252) {
+    emit_event_syscall(array![event_selector].span(), array![key].span());
 }
