@@ -73,6 +73,7 @@ mod exchange {
 // `feature` is used to validate if a feature is enabled or disabled.
 mod feature {
     mod feature_utils;
+    mod error;
 }
 
 // `fee` is used for fees actions.
