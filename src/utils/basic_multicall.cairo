@@ -1,5 +1,5 @@
 use satoru::utils::error::UtilsError;
-use starknet::{account::Call, call_contract_syscall, SyscallResultTrait};
+use starknet::{account::Call, call_contract_syscall, SyscallResultTrait,get_contract_address};
 
 /// Receives and executes a batch of function calls on this contract.
 /// # Arguments
