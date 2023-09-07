@@ -15,6 +15,7 @@ mod bank {
 // `callback` is a module that allows for better composability with other contracts.
 mod callback {
     mod callback_utils;
+    mod error;
     mod deposit_callback_receiver {
         mod interface;
     }

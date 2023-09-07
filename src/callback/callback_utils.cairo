@@ -29,6 +29,7 @@ use satoru::event::event_utils::EventLogData;
 use satoru::order::order::Order;
 use satoru::deposit::deposit::Deposit;
 use satoru::withdrawal::withdrawal::Withdrawal;
+use satoru::callback::error::CallbackError;
 use satoru::callback::order_callback_receiver::interface::{
     IOrderCallbackReceiverSafeDispatcher, IOrderCallbackReceiverSafeDispatcherTrait
 };
@@ -50,7 +51,7 @@ fn validate_callback_gas_limit(data_store: IDataStoreSafeDispatcher, callback_ga
     if callback_gas_limit > max_callback_gas_limit {
         panic(
             array![
-                'MaxCallbackGasLimitExceeded',
+                CallbackError::MAX_CALLBACK_GAS_LIMIT_EXCEEDED,
                 callback_gas_limit.into(),
                 max_callback_gas_limit.into()
             ]
@@ -83,8 +84,8 @@ fn set_saved_callback_contract(
 /// * `market` - The market to set callback contract for.
 fn get_saved_callback_contract(
     data_store: IDataStoreSafeDispatcher, account: ContractAddress, market: ContractAddress
-) -> ContractAddress {
-    data_store.get_address(keys::saved_callback_contract_key(account, market)).unwrap()
+) -> Result<ContractAddress, Array<felt252>> {
+    data_store.get_address(keys::saved_callback_contract_key(account, market))
 }
 
 /// Called after a deposit execution.
