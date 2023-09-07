@@ -375,7 +375,7 @@ mod OrderHandler {
             let params = base_order_handler_state
                 .get_execute_order_params(
                     key, oracle_params, keeper, // starting_gas,
-                    SecondaryOrderType::None(()),
+                     SecondaryOrderType::None(()),
                 );
 
             if params.order.is_frozen || params.order.order_type == OrderType::LimitSwap(()) {
@@ -406,7 +406,9 @@ mod OrderHandler {
         /// Validate that the keeper is a frozen order keeper.
         /// # Arguments
         /// * `keeper` - address of the keeper.
-        fn _validate_state_frozen_order_keeper(self: @ContractState, keeper: ContractAddress) {// TODO
+        fn _validate_state_frozen_order_keeper(
+            self: @ContractState, keeper: ContractAddress
+        ) { // TODO
         }
     }
 }

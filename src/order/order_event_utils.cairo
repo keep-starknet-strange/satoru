@@ -7,5 +7,5 @@ fn emit_order_updated(
     acceptable_price: u128,
     trigger_price: u128,
     min_output_amount: u128
-) {// TODO
+) { // TODO
 }

@@ -77,7 +77,7 @@ mod OrderVault {
             token: ContractAddress,
             receiver: ContractAddress,
             amount: u128,
-        ) {// TODO
+        ) { // TODO
         }
 
         fn record_transfer_in(ref self: ContractState, token: ContractAddress) -> u256 {

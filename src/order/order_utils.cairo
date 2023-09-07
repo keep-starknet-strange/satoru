@@ -59,5 +59,5 @@ fn cancel_order(
 /// Executes an order.
 /// # Arguments
 /// * `params` - execute order params.
-fn execute_order(params: ExecuteOrderParams) {// TODO
+fn execute_order(params: ExecuteOrderParams) { // TODO
 }
