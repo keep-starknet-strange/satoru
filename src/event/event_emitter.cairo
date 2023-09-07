@@ -254,6 +254,28 @@ trait IEventEmitter<TContractState> {
     fn emit_order_frozen(
         ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
     );
+
+    /// Emits the `AffiliateRewardUpdated` event.
+    fn emit_affiliate_reward_updated(
+        ref self: TContractState,
+        market: ContractAddress,
+        token: ContractAddress,
+        affiliate: ContractAddress,
+        delta: u128,
+        next_value: u128,
+        next_pool_value: u128
+    );
+
+    /// Emits the `AffiliateRewardClaimed` event.
+    fn emit_affiliate_reward_claimed(
+        ref self: TContractState,
+        market: ContractAddress,
+        token: ContractAddress,
+        affiliate: ContractAddress,
+        receiver: ContractAddress,
+        amount: u128,
+        next_pool_value: u128
+    );
 }
 
 #[starknet::contract]
@@ -316,7 +338,9 @@ mod EventEmitter {
         InsolventClose: InsolventClose,
         InsufficientFundingFeePayment: InsufficientFundingFeePayment,
         PositionFeesCollected: PositionFeesCollected,
-        PositionFeesInfo: PositionFeesInfo
+        PositionFeesInfo: PositionFeesInfo,
+        AffiliateRewardUpdated: AffiliateRewardUpdated,
+        AffiliateRewardClaimed: AffiliateRewardClaimed
     }
 
     #[derive(Drop, starknet::Event)]
@@ -674,6 +698,26 @@ mod EventEmitter {
         key: felt252,
         reason: felt252,
         reason_bytes: Array<felt252>
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct AffiliateRewardUpdated {
+        market: ContractAddress,
+        token: ContractAddress,
+        affiliate: ContractAddress,
+        delta: u128,
+        next_value: u128,
+        next_pool_value: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct AffiliateRewardClaimed {
+        market: ContractAddress,
+        token: ContractAddress,
+        affiliate: ContractAddress,
+        receiver: ContractAddress,
+        amount: u128,
+        next_pool_value: u128
     }
 
 
@@ -1254,6 +1298,41 @@ mod EventEmitter {
             ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
         ) {
             self.emit(OrderFrozen { key, reason, reason_bytes });
+        }
+        /// Emits the `AffiliateRewardUpdated` event.
+        fn emit_affiliate_reward_updated(
+            ref self: ContractState,
+            market: ContractAddress,
+            token: ContractAddress,
+            affiliate: ContractAddress,
+            delta: u128,
+            next_value: u128,
+            next_pool_value: u128
+        ) {
+            self
+                .emit(
+                    AffiliateRewardUpdated {
+                        market, token, affiliate, delta, next_value, next_pool_value
+                    }
+                );
+        }
+
+        /// Emits the `AffiliateRewardClaimed` event.
+        fn emit_affiliate_reward_claimed(
+            ref self: ContractState,
+            market: ContractAddress,
+            token: ContractAddress,
+            affiliate: ContractAddress,
+            receiver: ContractAddress,
+            amount: u128,
+            next_pool_value: u128
+        ) {
+            self
+                .emit(
+                    AffiliateRewardClaimed {
+                        market, token, affiliate, receiver, amount, next_pool_value
+                    }
+                );
         }
     }
 }

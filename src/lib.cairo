@@ -183,7 +183,6 @@ mod pricing {
 mod referral {
     mod referral_utils;
     mod referral_tier;
-    mod referral_event_utils;
     mod referral_storage {
         mod interface;
     }
