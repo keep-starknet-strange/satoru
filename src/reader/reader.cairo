@@ -111,22 +111,7 @@ fn get_deposit(data_store: IDataStoreSafeDispatcher, key: felt252) -> Deposit {
 /// Returns a struct representing withdrawal-related information.
 fn get_withdrawl(data_store: IDataStoreSafeDispatcher, key: felt252) -> Withdrawal {
     // TODO
-    Withdrawal {
-        account: 0.try_into().unwrap(),
-        receiver: 0.try_into().unwrap(),
-        callback_contract: 0.try_into().unwrap(),
-        ui_fee_receiver: 0.try_into().unwrap(),
-        market: 0.try_into().unwrap(),
-        long_token_swap_path: ArrayTrait::new(),
-        short_token_swap_path: ArrayTrait::new(),
-        market_token_amount: 0,
-        min_long_token_amount: 0,
-        min_short_token_amount: 0,
-        updated_at_block: 0,
-        execution_fee: 0,
-        callback_gas_limit: 0,
-        should_unwrap_native_token: true,
-    }
+    Default::default()
 }
 
 /// Retrieve position-related data using a provided key value.
