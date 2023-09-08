@@ -398,15 +398,12 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
 
     // Setup pre conditions.
 
-    // Mock the timestamp.
-    start_warp(get_contract_address(), current_timestamp);
-
     // Fill required data store keys.
     data_store.set_u128(keys::claimable_collateral_time_divisor(), 1);
 
     // Actual test case.
     market_utils::increment_claimable_collateral_amount(
-        data_store, event_emitter, market_address, token, account, delta
+        data_store, event_emitter, market_address, token, account, delta, current_timestamp
     );
 
     // Perform assertions.
