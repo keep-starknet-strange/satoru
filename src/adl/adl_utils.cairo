@@ -99,7 +99,7 @@ fn validate_adl(
     data_store: IDataStoreSafeDispatcher,
     market: ContractAddress,
     is_long: bool,
-    max_oracle_block_numbers: Span<u128>
+    max_oracle_block_numbers: Span<u64>
 ) { // TODO
 }
 

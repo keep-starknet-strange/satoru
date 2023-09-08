@@ -30,7 +30,7 @@ fn swap_withdrawn_collateral_to_pnl_token(
         uncapped_base_pnl_usd: 0,
         size_delta_in_tokens: 0,
         price_impact_usd: 0,
-        price_imact_diff_usd: 0,
+        price_impact_diff_usd: 0,
         output: decrease_position_collateral_values_output
     }
 }

@@ -15,6 +15,7 @@ use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSaf
 use satoru::data::keys;
 use satoru::market::error::MarketError;
 use satoru::market::market::Market;
+use satoru::oracle::oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait};
 use satoru::price::price::{Price, PriceTrait};
 
 /// Struct to store the prices of tokens of a market.
@@ -485,6 +486,57 @@ fn validate_open_interest(data_store: IDataStoreSafeDispatcher, market: @Market,
 
     // Check that the open interest is not greater than the maximum open interest.
     assert(open_interest <= max_open_interest, MarketError::MAX_OPEN_INTEREST_EXCEEDED);
+}
+
+// Get the min pnl factor after ADL
+// Parameters
+// * `data_store` - - The data store to use.
+// * `market` - the market to check.
+// * `is_long` whether to check the long or short side.
+fn get_min_pnl_factor_after_adl(
+    data_store: IDataStoreSafeDispatcher, market: ContractAddress, is_long: bool
+) -> u128 {
+    // TODO
+    0
+}
+
+// Get the ratio of pnl to pool value.
+// # Arguments
+// * `data_store` - The data_store dispatcher.
+// * `market` the market values.
+// * `prices` the prices of the market tokens.
+// * `is_long` whether to get the value for the long or short side.
+// * `maximize` whether to maximize the factor.
+// # Returns
+// (pnl of positions) / (long or short pool value)
+fn get_pnl_to_pool_factor(
+    data_store: IDataStoreSafeDispatcher,
+    oracle: IOracleSafeDispatcher,
+    market: ContractAddress,
+    is_long: bool,
+    maximize: bool
+) -> u128 {
+    // TODO
+    0
+}
+
+// Check if the pending pnl exceeds the allowed amount
+// # Arguments
+// * `data_store` - The data_store dispatcher.
+// * `oracle` - The oracle dispatcher.
+// * `market` - The market to check.
+// * `prices` - The prices of the market tokens.
+// * `is_long` - Whether to check the long or short side.
+// * `pnl_factor_type` - The pnl factor type to check.
+fn is_pnl_factor_exceeded(
+    data_store: IDataStoreSafeDispatcher,
+    oracle: IOracleSafeDispatcher,
+    market_address: ContractAddress,
+    is_long: bool,
+    pnl_factor_type: felt252
+) -> (bool, u128, u128) {
+    // TODO
+    (true, 0, 0)
 }
 
 
