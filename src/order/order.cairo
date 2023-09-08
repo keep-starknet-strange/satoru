@@ -3,7 +3,7 @@
 // *************************************************************************
 
 // Core lib imports.
-use starknet::{ContractAddress, contract_address_const, get_block_info};
+use starknet::ContractAddress;
 use debug::PrintTrait;
 
 // Local imports.
