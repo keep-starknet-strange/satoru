@@ -58,6 +58,43 @@ fn test_emit_withdrawal_created() {
     assert(spy.events.len() == 0, 'There should be no events');
 }
 
+#[test]
+fn test_emit_withdrawal_executed() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let key: felt252 = 100;
+
+    // Create the expected data.
+    let mut expected_data: Array<felt252> = array![key];
+
+    // Emit the event.
+    event_emitter.emit_withdrawal_executed(key);
+
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address,
+                    name: 'WithdrawalExecuted',
+                    keys: array![],
+                    data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}
+
 
 /// Utility function to setup the test environment.
 ///
