@@ -5,17 +5,16 @@
 use starknet::ContractAddress;
 use result::ResultTrait;
 
-use debug::PrintTrait;
 use zeroable::Zeroable;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
 use satoru::data::keys;
-use satoru::market::error::MarketError;
-use satoru::market::market::Market;
+use satoru::market::{error::MarketError, market::Market, market_store_utils};
 use satoru::oracle::oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait};
 use satoru::price::price::{Price, PriceTrait};
+use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 
 /// Struct to store the prices of tokens of a market.
 /// # Params
@@ -48,6 +47,15 @@ struct GetNextFundingAmountPerSizeResult {
     funding_factor_per_second: u128,
     funding_fee_amount_per_size_delta: PositionType,
     claimable_funding_amount_per_size_delta: PositionType,
+}
+
+struct GetExpectedMinTokenBalanceCache {
+    pool_amount: u128,
+    swap_impact_pool_amount: u128,
+    claimable_collateral_amount: u128,
+    claimable_fee_amount: u128,
+    claimable_ui_fee_amount: u128,
+    affiliate_reward_amount: u128,
 }
 
 /// Get the long and short open interest for a market based on the collateral token used.
@@ -536,4 +544,158 @@ fn is_pnl_factor_exceeded(
 ) -> (bool, u128, u128) {
     // TODO
     (true, 0, 0)
+}
+
+/// Validate that the specified market exists and is enabled
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - The address of the market
+fn validate_enable_market(data_store: IDataStoreSafeDispatcher, market: Market) {
+    assert(market.market_token.is_non_zero(), 'EmptyMarket');
+    let is_market_disabled = data_store
+        .get_bool(keys::is_market_disabled_key(market.market_token))
+        .expect('validate_enable_market::result')
+        .expect('validate_enable_market::bool');
+    assert(!is_market_disabled, 'DisabledMarket');
+}
+
+/// Get the enabled market, revert if the market does not exist or is not enabled
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - The address of the market
+fn get_enabled_market(data_store: IDataStoreSafeDispatcher, market: ContractAddress) -> Market {
+    let market = market_store_utils::get(data_store, market);
+    validate_enable_market(data_store, market);
+    market
+}
+
+/// Check if the market is valid for an adress
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - The address of the market
+fn validate_market_token_balance(data_store: IDataStoreSafeDispatcher, market: ContractAddress,) {
+    let market = get_enabled_market(data_store, market);
+    validate_market_token_balance_market(data_store, market);
+}
+
+
+/// Check if the market is valid
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - The market
+fn validate_market_token_balance_market(data_store: IDataStoreSafeDispatcher, market: Market,) {
+    validate_market_token_balance_token(data_store, market, market.long_token);
+
+    if (market.long_token == market.short_token) {
+        return;
+    }
+
+    validate_market_token_balance_token(data_store, market, market.short_token);
+}
+
+///  Validate that market is valid for the token 
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - The market to increment claimable fees for.
+/// * `token` - The fee token.
+fn validate_market_token_balance_token(
+    data_store: IDataStoreSafeDispatcher, market: Market, token: ContractAddress
+) {
+    assert(
+        market.market_token.is_non_zero(),
+        MarketError::EMPTY_ADDRESS_IN_MARKET_TOKEN_BALANCE_VALIDATION
+    );
+    assert(token.is_non_zero(), MarketError::EMPTY_ADDRESS_TOKEN_BALANCE_VAL);
+
+    let balance = IERC20Dispatcher { contract_address: token }.balance_of(market.market_token);
+    let balance_u128 = balance.try_into().unwrap();
+    let expected_min_balance = get_expected_min_token_balance(data_store, market, token);
+    assert(balance_u128 >= expected_min_balance, MarketError::INVALID_MARKET_TOKEN_BALANCE);
+
+    // funding fees can be claimed even if the collateral for positions that should pay funding fees
+    // hasn't been reduced yet
+    // due to that, funding fees and collateral is excluded from the expectedMinBalance calculation
+    // and validated separately
+
+    // use 1 for the getCollateralSum divisor since getCollateralSum does not sum over both the
+    // longToken and shortToken
+    let mut collateral_amount = get_collateral_sum(data_store, market.market_token, token, true, 1);
+    collateral_amount += get_collateral_sum(data_store, market.market_token, token, false, 1);
+    assert(
+        balance_u128 >= collateral_amount,
+        MarketError::INVALID_MARKET_TOKEN_BALANCE_FOR_COLLATERAL_AMOUNT
+    );
+    let claimable_funding_fee_amount = data_store
+        .get_u128(keys::claimable_funding_amount_key(market.market_token, token))
+        .expect('claimable_funding_fee_amount');
+
+    // in case of late liquidations, it may be possible for the claimableFundingFeeAmount to exceed the market token balance
+    // but this should be very rare
+    assert(
+        balance >= claimable_funding_fee_amount.into(),
+        MarketError::INVALID_MARKET_TOKEN_BALANCE_FOR_CLAIMABLE_FUNDING
+    );
+}
+
+/// Get the expected min token balance by summing all fees
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - The market to increment claimable fees for.
+/// * `token` - The fee token.
+fn get_expected_min_token_balance(
+    data_store: IDataStoreSafeDispatcher, market: Market, token: ContractAddress
+) -> u128 {
+    // get the pool amount directly as MarketUtils.getPoolAmount will divide the amount by 2
+    // for markets with the same long and short token
+    let pool_amount = data_store
+        .get_u128(keys::pool_amount_key(market.market_token, token))
+        .expect('pool_amount');
+    let swap_impact_pool_amount = get_swap_impact_pool_amount(
+        data_store, market.market_token, token
+    )
+        .into();
+    let claimable_collateral_amount = data_store
+        .get_u128(keys::claimable_collateral_amount_key(market.market_token, token))
+        .expect('claimable_collateral_amount');
+    let claimable_fee_amount = data_store
+        .get_u128(keys::claimable_fee_amount_key(market.market_token, token))
+        .expect('claimable_fee_amount');
+    let claimable_ui_fee_amount = data_store
+        .get_u128(keys::claimable_fee_amount_key(market.market_token, token))
+        .expect('claimable_ui_fee_amount');
+    let affiliate_reward_amount = data_store
+        .get_u128(keys::affiliate_reward_key(market.market_token, token))
+        .expect('affiliate_reward_amount');
+
+    // funding fees are excluded from this summation as claimable funding fees
+    // are incremented without a corresponding decrease of the collateral of
+    // other positions, the collateral of other positions is decreased when
+    // those positions are updated
+    pool_amount
+        + swap_impact_pool_amount
+        + claimable_collateral_amount
+        + claimable_fee_amount
+        + claimable_ui_fee_amount
+        + affiliate_reward_amount
+}
+
+/// Get the total amount of position collateral for a market
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - The market to check
+/// * `collateral_token` - the collateral_token to check
+/// * `is_long` - Whether to get the value for longs or shorts
+/// # Returns
+/// The total amount of position collateral for a market
+fn get_collateral_sum(
+    data_store: IDataStoreSafeDispatcher,
+    market: ContractAddress,
+    collateral_token: ContractAddress,
+    is_long: bool,
+    divisor: u128
+) -> u128 {
+    let collateral_sum = data_store
+        .get_u128(keys::collateral_sum_key(market, collateral_token, is_long))
+        .expect('get_collateral_sum');
+    collateral_sum / divisor
 }
