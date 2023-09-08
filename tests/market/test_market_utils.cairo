@@ -6,10 +6,7 @@
 
 use result::ResultTrait;
 use traits::{TryInto, Into};
-use starknet::{
-    ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
-    ClassHash, get_contract_address
-};
+use starknet::{ContractAddress, Felt252TryIntoContractAddress};
 use debug::PrintTrait;
 use snforge_std::{declare, start_prank, stop_prank, start_warp, ContractClassTrait, ContractClass};
 
