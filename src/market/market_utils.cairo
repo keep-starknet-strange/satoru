@@ -557,7 +557,7 @@ fn validate_enable_market(data_store: IDataStoreSafeDispatcher, market: Market) 
         .get_bool(keys::is_market_disabled_key(market.market_token))
         .expect('validate_enable_market::result')
         .expect('validate_enable_market::bool');
-    assert(is_market_disabled, 'DisabledMarket');
+    assert(!is_market_disabled, 'DisabledMarket');
 }
 
 /// Get the enabled market, revert if the market does not exist or is not enabled
