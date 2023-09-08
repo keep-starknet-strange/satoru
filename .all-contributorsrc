@@ -108,6 +108,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "ametel01",
+      "name": "Alex Metelli",
+      "avatar_url": "https://avatars.githubusercontent.com/u/91626827?v=4",
+      "profile": "https://github.com/ametel01",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
