@@ -203,6 +203,10 @@ trait IDataStore<TContractState> {
 
     /// Return total order count
     fn get_order_count(self: @TContractState) -> u64;
+
+    /// Return total order count for given account
+    /// # Arguments
+    /// * `account` - The order account 
     fn get_account_order_count(self: @TContractState, account: ContractAddress) -> u64;
 
     /// Return order keys between start - end  indexes
@@ -210,6 +214,12 @@ trait IDataStore<TContractState> {
     /// * `start` - Start index
     /// * `end` - Start index
     fn get_order_keys(self: @TContractState, start: u64, end: u64) -> Array<felt252>;
+
+    /// Return order keys between start - end  indexes for given account
+    /// # Arguments
+    /// * `account` - The order account 
+    /// * `start` - Start index
+    /// * `end` - Start index
     fn get_account_order_keys(
         self: @TContractState, account: ContractAddress, start: u64, end: u64
     ) -> Array<felt252>;
@@ -323,7 +333,7 @@ mod DataStore {
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::market::market::{Market, ValidateMarket};
     use satoru::order::order::Order;
-    use satoru::data::error::DataError;   
+    use satoru::data::error::DataError;
     use satoru::withdrawal::{withdrawal::Withdrawal, error::WithdrawalError};
 
     // *************************************************************************
@@ -655,14 +665,15 @@ mod DataStore {
                         // Remove order from previous account
                         let count_old = self.order_account_count.read(account_old);
                         let index_old = self.get_account_key_index(account_old, key).unwrap();
-                        // Move last key to removed index
+                        // Move last key to removed index for old account
                         self
                             .order_account_keys
                             .write(
-                                (account, index_old),
-                                self.order_account_keys.read((account, count_old - 1))
+                                (account_old, index_old),
+                                self.order_account_keys.read((account_old, count_old - 1))
                             );
-                        self.order_account_keys.write((account, count_old - 1), 0);
+                        self.order_account_keys.write((account_old, count_old - 1), 0);
+                        self.order_account_count.write(account_old, count_old - 1);
                         // Add to new account
                         let account_count = self.order_account_count.read(account);
                         self.order_account_keys.write((account, account_count), key);
@@ -773,7 +784,7 @@ mod DataStore {
             let mut i = start;
             let count = self.order_count.read();
             loop {
-                if (i > end || i > count) {
+                if (i > end || i >= count) {
                     break;
                 }
                 keys.append(self.order_keys.read(i));
@@ -786,10 +797,10 @@ mod DataStore {
             self: @ContractState, account: ContractAddress, start: u64, end: u64
         ) -> Array<felt252> {
             let mut keys = ArrayTrait::<felt252>::new();
-            let mut i = start;
             let count = self.order_account_count.read(account);
+            let mut i = start;
             loop {
-                if (i > end || i > count) {
+                if (i > end || i >= count) {
                     break;
                 }
                 keys.append(self.order_account_keys.read((account, i)));

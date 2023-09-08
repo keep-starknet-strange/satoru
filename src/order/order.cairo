@@ -11,7 +11,7 @@ use satoru::utils::store_arrays::StoreContractAddressArray;
 use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
 
 /// Struct for orders.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Drop, starknet::Store, Serde, PartialEq)]
 struct Order {
     order_type: OrderType,
     /// The account of the order.
@@ -88,7 +88,7 @@ impl OrderImpl of OrderTrait {
     }
 }
 
-#[derive(Copy, Drop, starknet::Store, Serde)]
+#[derive(Copy, Drop, starknet::Store, Serde, PartialEq)]
 enum OrderType {
     ///  MarketSwap: swap token A to token B at the current market price.
     /// The order will be cancelled if the minOutputAmount cannot be fulfilled.
