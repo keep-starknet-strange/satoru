@@ -17,6 +17,7 @@ use satoru::price::price::Price;
 use satoru::pricing::position_pricing_utils::PositionFees;
 use satoru::order::order::{Order, SecondaryOrderType};
 
+//TODO: OrderCollatDeltaAmountAutoUpdtd must be renamed back to OrderCollateralDeltaAmountAutoUpdated when string will be allowed as event argument
 
 // *************************************************************************
 //                  Interface of the `EventEmitter` contract.
@@ -237,7 +238,7 @@ trait IEventEmitter<TContractState> {
         ref self: TContractState, key: felt252, size_delta_usd: u128, next_size_delta_usd: u128
     );
 
-    /// Emits the `OrderCollateralDeltaAmountAutoUpdated` event.
+    /// Emits the `OrderCollatDeltaAmountAutoUpdtd` event.
     fn emit_order_collateral_delta_amount_auto_updated(
         ref self: TContractState,
         key: felt252,
@@ -330,7 +331,7 @@ mod EventEmitter {
         OrderExecuted: OrderExecuted,
         OrderUpdated: OrderUpdated,
         OrderSizeDeltaAutoUpdated: OrderSizeDeltaAutoUpdated,
-        OrderCollateralDeltaAmountAutoUpdated: OrderCollateralDeltaAmountAutoUpdated,
+        OrderCollatDeltaAmountAutoUpdtd: OrderCollatDeltaAmountAutoUpdtd,
         OrderCancelled: OrderCancelled,
         OrderFrozen: OrderFrozen,
         PositionIncrease: PositionIncrease,
@@ -680,7 +681,7 @@ mod EventEmitter {
     }
 
     #[derive(Drop, starknet::Event)]
-    struct OrderCollateralDeltaAmountAutoUpdated {
+    struct OrderCollatDeltaAmountAutoUpdtd {
         key: felt252,
         collateral_delta_amount: u128,
         next_collateral_delta_amount: u128
@@ -1081,7 +1082,7 @@ mod EventEmitter {
             self.emit(OrderSizeDeltaAutoUpdated { key, size_delta_usd, next_size_delta_usd });
         }
 
-        /// Emits the `OrderCollateralDeltaAmountAutoUpdated` event.
+        /// Emits the `OrderCollatDeltaAmountAutoUpdtd` event.
         fn emit_order_collateral_delta_amount_auto_updated(
             ref self: ContractState,
             key: felt252,
@@ -1090,7 +1091,7 @@ mod EventEmitter {
         ) {
             self
                 .emit(
-                    OrderCollateralDeltaAmountAutoUpdated {
+                    OrderCollatDeltaAmountAutoUpdtd {
                         key, collateral_delta_amount, next_collateral_delta_amount
                     }
                 );
