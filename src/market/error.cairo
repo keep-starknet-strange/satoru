@@ -11,6 +11,6 @@ mod MarketError {
     const INVALID_MARKET_TOKEN_BALANCE_FOR_COLLATERAL_AMOUNT: felt252 =
         'invalid_mkt_tok_bal_collat_amnt';
     const INVALID_MARKET_TOKEN_BALANCE_FOR_CLAIMABLE_FUNDING: felt252 =
-        'invalid_mkt_tok_bal_collat_amnt';
+        'invalid_mkt_tok_bal_claim_fund';
     const EmptyAddressInMarketTokenBalanceValidation: felt252 = 'EmptyAddressMarketBalanceVal';
 }
