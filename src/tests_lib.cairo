@@ -2,6 +2,7 @@ use starknet::{ContractAddress, Felt252TryIntoContractAddress};
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 
 use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
 use satoru::role::role;
 
@@ -28,6 +29,13 @@ fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
     contract.deploy(@array![]).unwrap()
+}
+
+/// Utility function to deploy a `EventEmitter` contract and return its dispatcher.
+fn deploy_event_emitter() -> IEventEmitterSafeDispatcher {
+    let contract = declare('EventEmitter');
+    let contract_address = contract.deploy(@array![]).unwrap();
+    IEventEmitterSafeDispatcher { contract_address }
 }
 
 /// Utility function to setup the test environment.

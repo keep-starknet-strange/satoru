@@ -15,6 +15,17 @@ mod bank {
 // `callback` is a module that allows for better composability with other contracts.
 mod callback {
     mod callback_utils;
+    mod error;
+    mod mocks;
+    mod deposit_callback_receiver {
+        mod interface;
+    }
+    mod order_callback_receiver {
+        mod interface;
+    }
+    mod withdrawal_callback_receiver {
+        mod interface;
+    }
 }
 
 // `chain` is a module that contains utility function for interacting with the chain and getting information.

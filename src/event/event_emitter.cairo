@@ -276,6 +276,33 @@ trait IEventEmitter<TContractState> {
         amount: u128,
         next_pool_value: u128
     );
+
+    /// Emits the `AfterDepositExecutionError` event.
+    fn emit_after_deposit_execution_error(ref self: TContractState, key: felt252, deposit: Deposit);
+
+    /// Emits the `AfterDepositCancellationError` event.
+    fn emit_after_deposit_cancellation_error(
+        ref self: TContractState, key: felt252, deposit: Deposit
+    );
+
+    /// Emits the `AfterWithdrawalExecutionError` event.
+    fn emit_after_withdrawal_execution_error(
+        ref self: TContractState, key: felt252, withdrawal: Withdrawal
+    );
+
+    /// Emits the `AfterWithdrawalCancellationError` event.
+    fn emit_after_withdrawal_cancellation_error(
+        ref self: TContractState, key: felt252, withdrawal: Withdrawal
+    );
+
+    /// Emits the `AfterOrderExecutionError` event.
+    fn emit_after_order_execution_error(ref self: TContractState, key: felt252, order: Order);
+
+    /// Emits the `AfterOrderCancellationError` event.
+    fn emit_after_order_cancellation_error(ref self: TContractState, key: felt252, order: Order);
+
+    /// Emits the `AfterOrderFrozenError` event.
+    fn emit_after_order_frozen_error(ref self: TContractState, key: felt252, order: Order);
 }
 
 #[starknet::contract]
@@ -340,7 +367,14 @@ mod EventEmitter {
         PositionFeesCollected: PositionFeesCollected,
         PositionFeesInfo: PositionFeesInfo,
         AffiliateRewardUpdated: AffiliateRewardUpdated,
-        AffiliateRewardClaimed: AffiliateRewardClaimed
+        AffiliateRewardClaimed: AffiliateRewardClaimed,
+        AfterDepositExecutionError: AfterDepositExecutionError,
+        AfterDepositCancellationError: AfterDepositCancellationError,
+        AfterWithdrawalExecutionError: AfterWithdrawalExecutionError,
+        AfterWithdrawalCancellationError: AfterWithdrawalCancellationError,
+        AfterOrderExecutionError: AfterOrderExecutionError,
+        AfterOrderCancellationError: AfterOrderCancellationError,
+        AfterOrderFrozenError: AfterOrderFrozenError,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -718,6 +752,48 @@ mod EventEmitter {
         receiver: ContractAddress,
         amount: u128,
         next_pool_value: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct AfterDepositExecutionError {
+        key: felt252,
+        deposit: Deposit,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct AfterDepositCancellationError {
+        key: felt252,
+        deposit: Deposit,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct AfterWithdrawalExecutionError {
+        key: felt252,
+        withdrawal: Withdrawal,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct AfterWithdrawalCancellationError {
+        key: felt252,
+        withdrawal: Withdrawal,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct AfterOrderExecutionError {
+        key: felt252,
+        order: Order,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct AfterOrderCancellationError {
+        key: felt252,
+        order: Order,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct AfterOrderFrozenError {
+        key: felt252,
+        order: Order,
     }
 
 
@@ -1299,6 +1375,7 @@ mod EventEmitter {
         ) {
             self.emit(OrderFrozen { key, reason, reason_bytes });
         }
+
         /// Emits the `AffiliateRewardUpdated` event.
         fn emit_affiliate_reward_updated(
             ref self: ContractState,
@@ -1333,6 +1410,51 @@ mod EventEmitter {
                         market, token, affiliate, receiver, amount, next_pool_value
                     }
                 );
+        }
+
+        /// Emits the `AfterDepositExecutionError` event.
+        fn emit_after_deposit_execution_error(
+            ref self: ContractState, key: felt252, deposit: Deposit
+        ) {
+            self.emit(AfterDepositExecutionError { key, deposit });
+        }
+
+        /// Emits the `AfterDepositCancellationError` event.
+        fn emit_after_deposit_cancellation_error(
+            ref self: ContractState, key: felt252, deposit: Deposit
+        ) {
+            self.emit(AfterDepositCancellationError { key, deposit });
+        }
+
+        /// Emits the `AfterWithdrawalExecutionError` event.
+        fn emit_after_withdrawal_execution_error(
+            ref self: ContractState, key: felt252, withdrawal: Withdrawal
+        ) {
+            self.emit(AfterWithdrawalExecutionError { key, withdrawal });
+        }
+
+        /// Emits the `AfterWithdrawalCancellationError` event.
+        fn emit_after_withdrawal_cancellation_error(
+            ref self: ContractState, key: felt252, withdrawal: Withdrawal
+        ) {
+            self.emit(AfterWithdrawalCancellationError { key, withdrawal });
+        }
+
+        /// Emits the `AfterOrderExecutionError` event.
+        fn emit_after_order_execution_error(ref self: ContractState, key: felt252, order: Order) {
+            self.emit(AfterOrderExecutionError { key, order });
+        }
+
+        /// Emits the `AfterOrderCancellationError` event.
+        fn emit_after_order_cancellation_error(
+            ref self: ContractState, key: felt252, order: Order
+        ) {
+            self.emit(AfterOrderCancellationError { key, order });
+        }
+
+        /// Emits the `AfterOrderFrozenError` event.
+        fn emit_after_order_frozen_error(ref self: ContractState, key: felt252, order: Order) {
+            self.emit(AfterOrderFrozenError { key, order });
         }
     }
 }

@@ -54,6 +54,32 @@ struct Order {
     is_frozen: bool,
 }
 
+impl DefaultOrder of Default<Order> {
+    fn default() -> Order {
+        Order {
+            order_type: OrderType::MarketSwap(()),
+            account: 0.try_into().unwrap(),
+            receiver: 0.try_into().unwrap(),
+            callback_contract: 0.try_into().unwrap(),
+            ui_fee_receiver: 0.try_into().unwrap(),
+            market: 0.try_into().unwrap(),
+            initial_collateral_token: 0.try_into().unwrap(),
+            swap_path: array![],
+            size_delta_usd: 0,
+            initial_collateral_delta_amount: 0,
+            trigger_price: 0,
+            acceptable_price: 0,
+            execution_fee: 0,
+            callback_gas_limit: 0,
+            min_output_amount: 0,
+            updated_at_block: 0,
+            is_long: true,
+            should_unwrap_native_token: true,
+            is_frozen: true,
+        }
+    }
+}
+
 #[generate_trait]
 impl OrderImpl of OrderTrait {
     fn touch(ref self: Order, chain: IChainDispatcher) {
