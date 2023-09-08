@@ -7,6 +7,8 @@ use snforge_std::{
 use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
 use satoru::order::order::{Order, OrderType, SecondaryOrderType};
 
+//TODO: OrderCollatDeltaAmountAutoUpdtd must be renamed back to OrderCollateralDeltaAmountAutoUpdated when string will be allowed as event argument
+
 #[test]
 fn test_emit_order_created() {
     // *********************************************************************************************
@@ -167,6 +169,50 @@ fn test_emit_order_size_delta_auto_updated() {
                 Event {
                     from: contract_address,
                     name: 'OrderSizeDeltaAutoUpdated',
+                    keys: array![],
+                    data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}
+
+#[test]
+fn test_emit_order_collateral_delta_amount_auto_updated() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let key = 100;
+    let collateral_delta_amount: u128 = 200;
+    let next_collateral_delta_amount: u128 = 300;
+
+    // Create the expected data.
+    let expected_data: Array<felt252> = array![
+        key, collateral_delta_amount.into(), next_collateral_delta_amount.into(),
+    ];
+
+    // Emit the event.
+    event_emitter
+        .emit_order_collateral_delta_amount_auto_updated(
+            key, collateral_delta_amount, next_collateral_delta_amount
+        );
+
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address,
+                    name: 'OrderCollatDeltaAmountAutoUpdtd',
                     keys: array![],
                     data: expected_data
                 }
