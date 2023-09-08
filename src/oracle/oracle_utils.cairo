@@ -4,6 +4,7 @@
 // Core lib imports.
 use starknet::ContractAddress;
 use result::ResultTrait;
+use clone::Clone;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
@@ -30,7 +31,7 @@ use satoru::utils::store_arrays::{
 /// * `compacted_max_prices_indexes` - compacted max price indexes.
 /// * `signatures` - signatures of the oracle signers.
 /// * `price_feed_tokens` - tokens to set prices for based on an external price feed value.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Clone, Drop, starknet::Store, Serde)]
 struct SetPricesParams {
     signer_info: u128,
     tokens: Array<ContractAddress>,

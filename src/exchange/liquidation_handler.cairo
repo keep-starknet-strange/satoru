@@ -40,7 +40,8 @@ mod LiquidationHandler {
     // *************************************************************************
 
     // Core lib imports.
-    use satoru::exchange::base_order_handler::BaseOrderHandler::data_store::InternalContractMemberStateTrait;
+    use satoru::exchange::base_order_handler::BaseOrderHandler::{event_emitter::InternalContractMemberStateTrait, data_store::InternalContractMemberStateImpl};//::InternalContractMemberStateTrait;
+    //use satoru::exchange::base_order_handler::BaseOrderHandler::data_store::InternalContractMemberStateTrait;
     use starknet::ContractAddress;
 
 
@@ -48,9 +49,9 @@ mod LiquidationHandler {
     use super::ILiquidationHandler;
     use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
     use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait, DataStore};
-    use satoru::event::event_emitter::{
-        IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait, EventEmitter
-    };
+    //use satoru::event::event_emitter::{
+    //    IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait, EventEmitter
+    //};
     use satoru::oracle::{
         oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
@@ -136,11 +137,11 @@ mod LiquidationHandler {
                   collateral_token,
                   is_long
                   );
-            
+            let mut tmp_oracle_params: SetPricesParams = oracle_params.clone();
             let params: ExecuteOrderParams = BaseOrderHandler::InternalImpl::get_execute_order_params(
                 ref state_base,
                   key,
-                  oracle_params,
+                  tmp_oracle_params,
                   account,
                   SecondaryOrderType::None
                   );
@@ -148,7 +149,6 @@ mod LiquidationHandler {
             let mut state_order: OrderHandler::ContractState =
             OrderHandler::unsafe_new_contract_state();
             IOrderHandler::execute_order(ref state_order, key, oracle_params);
-        };
         }
     }
 }
