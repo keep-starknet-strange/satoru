@@ -8,7 +8,7 @@ use result::ResultTrait;
 use traits::{TryInto, Into};
 use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
-    ClassHash,
+    ClassHash, get_contract_address
 };
 use debug::PrintTrait;
 use snforge_std::{declare, start_prank, stop_prank, start_warp, ContractClassTrait, ContractClass};
@@ -399,7 +399,7 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
     // Setup pre conditions.
 
     // Mock the timestamp.
-    start_warp(data_store_address, current_timestamp);
+    start_warp(get_contract_address(), current_timestamp);
 
     // Fill required data store keys.
     data_store.set_u128(keys::claimable_collateral_time_divisor(), 1);

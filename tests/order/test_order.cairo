@@ -20,11 +20,6 @@ use satoru::order::order::{Order, OrderType, OrderTrait};
 #[test]
 fn given_normal_conditions_when_touch_then_expected_results() {
     // *********************************************************************************************
-    // *                              SETUP                                                        *
-    // *********************************************************************************************
-    let caller_address = setup();
-
-    // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
@@ -70,17 +65,6 @@ fn create_dummy_order() -> Order {
         should_unwrap_native_token: false,
         is_frozen: false,
     }
-}
-
-/// Utility function to setup the test environment.
-fn setup() -> ( // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
-    ContractAddress, // An interface to interact with `Chain` contract.
-) {
-    // Create a fake caller address.
-    let caller_address = contract_address_const::<'caller'>();
-    
-    // Return the test environment.
-    caller_address
 }
 
 /// Utility function to teardown the test environment.
