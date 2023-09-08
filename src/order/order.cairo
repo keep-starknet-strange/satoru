@@ -88,7 +88,7 @@ impl OrderImpl of OrderTrait {
     }
 }
 
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Copy, Drop, starknet::Store, Serde)]
 enum OrderType {
     ///  MarketSwap: swap token A to token B at the current market price.
     /// The order will be cancelled if the minOutputAmount cannot be fulfilled.
@@ -144,6 +144,21 @@ impl DecreasePositionSwapTypePrintImpl of PrintTrait<DecreasePositionSwapType> {
                 .print(),
             DecreasePositionSwapType::SwapCollateralTokenToPnlToken => 'SwapCollateralTokenToPnlToken'
                 .print(),
+        }
+    }
+}
+
+impl OrderTypeInto of Into<OrderType, felt252> {
+    fn into(self: OrderType) -> felt252 {
+        match self {
+            OrderType::MarketSwap => 'MarketSwap',
+            OrderType::LimitSwap => 'LimitSwap',
+            OrderType::MarketIncrease => 'MarketIncrease',
+            OrderType::LimitIncrease => 'LimitIncrease',
+            OrderType::MarketDecrease => 'MarketDecrease',
+            OrderType::LimitDecrease => 'LimitDecrease',
+            OrderType::StopLossDecrease => 'StopLossDecrease',
+            OrderType::Liquidation => 'Liquidation',
         }
     }
 }
