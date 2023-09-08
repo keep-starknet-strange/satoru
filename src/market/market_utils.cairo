@@ -486,3 +486,12 @@ fn validate_open_interest(data_store: IDataStoreSafeDispatcher, market: @Market,
     // Check that the open interest is not greater than the maximum open interest.
     assert(open_interest <= max_open_interest, MarketError::MAX_OPEN_INTEREST_EXCEEDED);
 }
+
+
+fn validate_market_token_balance(data_store: IDataStoreSafeDispatcher, market: ContractAddress,) {
+    // Market.Props
+    // memory
+    // market = getEnabledMarket(dataStore, _market);
+    // validateMarketTokenBalance(dataStore, market);
+    0;
+}

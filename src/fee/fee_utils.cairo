@@ -5,8 +5,10 @@
 use starknet::ContractAddress;
 
 // Local imports.
+use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::market::{market, market_utils::validate_market_token_balance};
 use satoru::data::keys::{
     claimable_fee_amount_key, claimable_ui_fee_amount_key, claimable_ui_fee_amount_for_account_key,
 };
@@ -95,14 +97,18 @@ fn claim_fees(
 
     let key = claimable_fee_amount_key(market, token);
 
-    let fee_amount = data_store.get_felt252(key);
+    let fee_amount = data_store
+        .get_felt252(key)
+        .expect('claim_fees::fee_amount')
+        .try_into()
+        .expect('claim_fees::fee_amount::u128');
     data_store.set_felt252(key, 0);
 
-    // MarketToken(payable(market)).transferOut(token, receiver, fee_amount);
+    IBankDispatcher { contract_address: market }.transfer_out(token, receiver, fee_amount);
 
-    // MarketUtils.validateMarketTokenBalance(data_store, market);
+    validate_market_token_balance(data_store, market);
 
-    // emitFeesClaimed(eventEmitter, market, receiver, fee_amount);
+    event_emitter.emit_fees_claimed(market, receiver, fee_amount);
     0;
 }
 
@@ -130,17 +136,16 @@ fn claim_ui_fees(
     data_store.set_felt252(key, 0);
 
     let next_pool_value = data_store
-        .decrement_felt252(claimable_ui_fee_amount_key(market, token), fee_amount);
+        .decrement_felt252(claimable_ui_fee_amount_key(market, token), fee_amount)
+        .expect('claim_ui_fees::next_pool_value');
 
-    // MarketToken(payable(market)).transferOut(token, receiver, fee_amount);
+    let fee_amount_u128 = fee_amount.try_into().expect('claim_ui_fees::fee_amount::u128');
+    IBankDispatcher { contract_address: market }.transfer_out(token, receiver, fee_amount_u128);
 
-    // MarketUtils.validateMarketTokenBalance(data_store, market);
+    validate_market_token_balance(data_store, market);
 
-    // event_emitter
-    //     .emit_claimable_ui_fee_amount_updated(
-    //         ui_fee_receiver, market, receiver, fee_amount, next_pool_value
-    //     );
+    event_emitter
+        .emit_ui_fees_claimed(ui_fee_receiver, market, receiver, fee_amount_u128, next_pool_value);
 
-    // fee_amount
-    0
+    fee_amount_u128
 }
