@@ -100,23 +100,7 @@ fn get_market_by_salt(data_store: IDataStoreSafeDispatcher, salt: felt252) -> Ma
 /// Returns a struct representing deposit-related information.
 fn get_deposit(data_store: IDataStoreSafeDispatcher, key: felt252) -> Deposit {
     // TODO
-    Deposit {
-        account: 0.try_into().unwrap(),
-        receiver: 0.try_into().unwrap(),
-        callback_contract: 0.try_into().unwrap(),
-        ui_fee_receiver: 0.try_into().unwrap(),
-        market: 0.try_into().unwrap(),
-        initial_long_token: 0.try_into().unwrap(),
-        initial_short_token: 0.try_into().unwrap(),
-        long_token_swap_path: ArrayTrait::new(),
-        short_token_swap_path: ArrayTrait::new(),
-        initial_long_token_amount: 0,
-        initial_short_token_amount: 0,
-        min_market_tokens: 0,
-        updated_at_block: 0,
-        execution_fee: 0,
-        callback_gas_limit: 0,
-    }
+    Default::default()
 }
 
 /// Retrieve withdrawal-related data using a provided key value.

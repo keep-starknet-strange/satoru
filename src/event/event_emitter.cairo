@@ -183,6 +183,9 @@ trait IEventEmitter<TContractState> {
     fn emit_order_frozen(
         ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
     );
+
+    /// Emits the `AfterDepositExecutionError` event.
+    fn emit_after_deposit_execution_error(ref self: TContractState, key: felt252, deposit: Deposit);
 }
 
 #[starknet::contract]
@@ -234,6 +237,13 @@ mod EventEmitter {
         OrderCollateralDeltaAmountAutoUpdated: OrderCollateralDeltaAmountAutoUpdated,
         OrderCancelled: OrderCancelled,
         OrderFrozen: OrderFrozen,
+        AfterDepositExecutionError: AfterDepositExecutionError,
+        // AfterDepositCancellationError: AfterDepositCancellationError,
+        // AfterWithdrawalExecutionError: AfterWithdrawalExecutionError,
+        // AfterWithdrawalCancellationError: AfterWithdrawalCancellationError,
+        // AfterOrderExecutionError: AfterOrderExecutionError,
+        // AfterOrderCancellationError: AfterOrderCancellationError,
+        // AfterOrderFrozenError: AfterOrderFrozenError,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -434,6 +444,12 @@ mod EventEmitter {
         key: felt252,
         reason: felt252,
         reason_bytes: Array<felt252>
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct AfterDepositExecutionError {
+        key: felt252,
+        deposit: Deposit,
     }
 
 
@@ -725,6 +741,12 @@ mod EventEmitter {
             ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
         ) {
             self.emit(OrderFrozen { key, reason, reason_bytes });
+        }
+
+        fn emit_after_deposit_execution_error(
+            ref self: ContractState, key: felt252, deposit: Deposit
+        ) {
+            self.emit(AfterDepositExecutionError { key, deposit });
         }
     }
 }

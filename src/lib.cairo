@@ -16,6 +16,7 @@ mod bank {
 mod callback {
     mod callback_utils;
     mod error;
+    mod mocks;
     mod deposit_callback_receiver {
         mod interface;
     }

@@ -18,7 +18,6 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use core::keccak;
 use starknet::ContractAddress;
 use starknet::syscalls::emit_event_syscall;
 
@@ -30,6 +29,7 @@ use satoru::order::order::Order;
 use satoru::deposit::deposit::Deposit;
 use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::callback::error::CallbackError;
+use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
 use satoru::callback::order_callback_receiver::interface::{
     IOrderCallbackReceiverSafeDispatcher, IOrderCallbackReceiverSafeDispatcherTrait
 };
@@ -93,7 +93,12 @@ fn get_saved_callback_contract(
 /// * `key` - They key of the deposit.
 /// * `deposit` - The deposit that was executed.
 /// * `event_data` - The event log data.
-fn after_deposit_execution(key: felt252, deposit: Deposit, event_data: EventLogData) {
+fn after_deposit_execution(
+    key: felt252,
+    deposit: Deposit,
+    event_data: EventLogData,
+    event_emitter: IEventEmitterSafeDispatcher
+) {
     if !is_valid_callback_contract(deposit.callback_contract) {
         return;
     }
@@ -102,8 +107,11 @@ fn after_deposit_execution(key: felt252, deposit: Deposit, event_data: EventLogD
     };
     match dispatcher.after_deposit_execution(key, deposit, event_data) {
         Result::Ok => {},
-        Result::Err => emit_event(selector!("AfterDepositExecutionError"), key),
-    }
+        Result::Err => {
+            // event_emitter.emit_after_deposit_execution_error(key, deposit);
+            event_emitter.emit_after_deposit_execution_error(key, Default::default());
+        },
+    };
 }
 
 /// Called after a deposit cancellation.
@@ -218,7 +226,7 @@ fn after_order_frozen(key: felt252, order: Order, event_data: EventLogData) {
 /// # Arguments
 /// * `callback_contract` - The callback contract.
 fn is_valid_callback_contract(callback_contract: ContractAddress) -> bool {
-    callback_contract == 0.try_into().unwrap()
+    callback_contract != 0.try_into().unwrap()
 }
 
 // TODO: replace this by something cleaner when available, this is only here because
