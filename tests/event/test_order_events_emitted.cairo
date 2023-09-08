@@ -5,7 +5,7 @@ use snforge_std::{
 };
 
 use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use satoru::order::order::{Order, OrderType};
+use satoru::order::order::{Order, OrderType, SecondaryOrderType};
 
 #[test]
 fn test_emit_order_created() {
@@ -19,7 +19,7 @@ fn test_emit_order_created() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    // Create a dummy data.
+    // Create dummy data.
     let key: felt252 = 100;
     let order: Order = create_dummy_order();
 
@@ -37,6 +37,45 @@ fn test_emit_order_created() {
                 Event {
                     from: contract_address,
                     name: 'OrderCreated',
+                    keys: array![],
+                    data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}
+
+#[test]
+fn test_emit_order_executed() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let key: felt252 = 100;
+    let secondary_order_type: SecondaryOrderType = SecondaryOrderType::None(());
+
+    // Create the expected data.
+    let mut expected_data: Array<felt252> = array![key];
+    secondary_order_type.serialize(ref expected_data);
+
+    // Emit the event.
+    event_emitter.emit_order_executed(key, secondary_order_type);
+
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address,
+                    name: 'OrderExecuted',
                     keys: array![],
                     data: expected_data
                 }
