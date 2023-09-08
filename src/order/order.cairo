@@ -3,12 +3,11 @@
 // *************************************************************************
 
 // Core lib imports.
-use starknet::{ContractAddress, contract_address_const};
+use starknet::{ContractAddress, contract_address_const, get_block_info};
 use debug::PrintTrait;
 
 // Local imports.
 use satoru::utils::store_arrays::StoreContractAddressArray;
-use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
 
 /// Struct for orders.
 #[derive(Drop, starknet::Store, Serde)]
@@ -82,9 +81,9 @@ impl DefaultOrder of Default<Order> {
 
 #[generate_trait]
 impl OrderImpl of OrderTrait {
-    fn touch(ref self: Order, chain: IChainDispatcher) {
+    fn touch(ref self: Order) {
         // TODO: Fix when it's possible to do starknet calls in pure Cairo programs.
-        self.updated_at_block = chain.get_block_number();
+        self.updated_at_block = get_block_info().unbox().block_number;
     }
 }
 

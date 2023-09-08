@@ -10,7 +10,6 @@ use zeroable::Zeroable;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use satoru::chain::chain::{IChainSafeDispatcher, IChainSafeDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
 use satoru::data::keys;
 use satoru::market::error::MarketError;
@@ -202,7 +201,6 @@ fn get_max_open_interest(
 /// Increment the claimable collateral amount.
 /// # Arguments
 /// * `data_store` - The data store to use.
-/// * `chain` - The interface to interact with `Chain` library contract.
 /// * `event_emitter` - The interface to interact with `EventEmitter` contract.
 /// * `market_address` - The market to increment.
 /// * `token` - The claimable token.
@@ -210,7 +208,6 @@ fn get_max_open_interest(
 /// * `delta` - The amount to increment by.
 fn increment_claimable_collateral_amount(
     data_store: IDataStoreSafeDispatcher,
-    chain: IChainSafeDispatcher,
     event_emitter: IEventEmitterSafeDispatcher,
     market_address: ContractAddress,
     token: ContractAddress,
@@ -219,7 +216,7 @@ fn increment_claimable_collateral_amount(
 ) {
     let divisor = data_store.get_u128(keys::claimable_collateral_time_divisor()).unwrap();
     // Get current timestamp.
-    let current_timestamp = chain.get_block_timestamp().unwrap().into();
+    let current_timestamp = get_block_timestamp().into();
     let time_key = current_timestamp / divisor;
 
     // Increment the collateral amount for the account.

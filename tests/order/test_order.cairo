@@ -8,14 +8,13 @@ use result::ResultTrait;
 use traits::{TryInto, Into};
 use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
-    ClassHash,
+    ClassHash, get_contract_address
 };
 use debug::PrintTrait;
 use snforge_std::{declare, ContractClassTrait, start_roll};
 
 
 // Local imports.
-use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
 use satoru::order::order::{Order, OrderType, OrderTrait};
 
 #[test]
@@ -23,7 +22,7 @@ fn given_normal_conditions_when_touch_then_expected_results() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (caller_address, chain) = setup();
+    let caller_address = setup();
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -33,10 +32,10 @@ fn given_normal_conditions_when_touch_then_expected_results() {
     let mut order = create_dummy_order();
 
     // Set current block to 42000.
-    start_roll(chain.contract_address, 42000);
+    start_roll(get_contract_address(), 42000);
 
     // Call the `touch` function.
-    order.touch(chain);
+    order.touch();
 
     assert(order.updated_at_block == 42000, 'bad value');
 
@@ -76,19 +75,12 @@ fn create_dummy_order() -> Order {
 /// Utility function to setup the test environment.
 fn setup() -> ( // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
     ContractAddress, // An interface to interact with `Chain` contract.
-     IChainDispatcher,
 ) {
     // Create a fake caller address.
     let caller_address = contract_address_const::<'caller'>();
-    // Deploy the `Chain` contract.
-
-    let contract = declare('Chain');
-    let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
-    let contract_address_chain = contract.deploy(constructor_arguments).unwrap();
-
-    let chain = IChainDispatcher { contract_address: contract_address_chain };
+    
     // Return the test environment.
-    (caller_address, chain)
+    caller_address
 }
 
 /// Utility function to teardown the test environment.
