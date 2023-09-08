@@ -15,6 +15,17 @@ mod bank {
 // `callback` is a module that allows for better composability with other contracts.
 mod callback {
     mod callback_utils;
+    mod error;
+    mod mocks;
+    mod deposit_callback_receiver {
+        mod interface;
+    }
+    mod order_callback_receiver {
+        mod interface;
+    }
+    mod withdrawal_callback_receiver {
+        mod interface;
+    }
 }
 
 // `chain` is a module that contains utility function for interacting with the chain and getting information.
@@ -158,6 +169,9 @@ mod oracle {
 // `order` contains order management functions.
 mod order {
     mod base_order_utils;
+    mod order_utils;
+    mod decrease_order_utils;
+    mod increase_order_utils;
     mod order_vault;
     mod order;
 }
@@ -184,7 +198,6 @@ mod pricing {
 mod referral {
     mod referral_utils;
     mod referral_tier;
-    mod referral_event_utils;
     mod referral_storage {
         mod interface;
     }
