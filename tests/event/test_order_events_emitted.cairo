@@ -222,6 +222,46 @@ fn test_emit_order_collateral_delta_amount_auto_updated() {
     assert(spy.events.len() == 0, 'There should be no events');
 }
 
+#[test]
+fn test_emit_order_cancelled() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let key = 100;
+    let reason = 'none';
+    let reason_bytes = array!['0x00', '0x01'];
+
+    // Create the expected data.
+    let mut expected_data: Array<felt252> = array![key, reason.into()];
+    reason_bytes.serialize(ref expected_data);
+
+    // Emit the event.
+    event_emitter.emit_order_cancelled(key, reason, reason_bytes);
+
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address,
+                    name: 'OrderCancelled',
+                    keys: array![],
+                    data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}
+
 
 /// Utility function to setup the test environment.
 ///
