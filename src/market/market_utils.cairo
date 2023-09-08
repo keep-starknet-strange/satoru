@@ -2,7 +2,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::{ContractAddress, get_block_timestamp};
+use starknet::ContractAddress;
 use result::ResultTrait;
 
 use debug::PrintTrait;
@@ -10,7 +10,6 @@ use zeroable::Zeroable;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use satoru::chain::chain::{IChainSafeDispatcher, IChainSafeDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
 use satoru::data::keys;
 use satoru::market::error::MarketError;
@@ -202,24 +201,24 @@ fn get_max_open_interest(
 /// Increment the claimable collateral amount.
 /// # Arguments
 /// * `data_store` - The data store to use.
-/// * `chain` - The interface to interact with `Chain` library contract.
 /// * `event_emitter` - The interface to interact with `EventEmitter` contract.
 /// * `market_address` - The market to increment.
 /// * `token` - The claimable token.
 /// * `account` - The account to increment the claimable collateral for.
 /// * `delta` - The amount to increment by.
+/// * `block_timestamp` - The block timestamp.
 fn increment_claimable_collateral_amount(
     data_store: IDataStoreSafeDispatcher,
-    chain: IChainSafeDispatcher,
     event_emitter: IEventEmitterSafeDispatcher,
     market_address: ContractAddress,
     token: ContractAddress,
     account: ContractAddress,
-    delta: u128
+    delta: u128,
+    block_timestamp: u64,
 ) {
     let divisor = data_store.get_u128(keys::claimable_collateral_time_divisor()).unwrap();
     // Get current timestamp.
-    let current_timestamp = chain.get_block_timestamp().unwrap().into();
+    let current_timestamp = block_timestamp.into();
     let time_key = current_timestamp / divisor;
 
     // Increment the collateral amount for the account.
