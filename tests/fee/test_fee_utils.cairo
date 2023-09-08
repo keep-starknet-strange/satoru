@@ -3,12 +3,12 @@ use starknet::{
 };
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 
-use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::data::keys::{
     claim_fee_amount_key, claim_ui_fee_amount_key, claim_ui_fee_amount_for_account_key
 };
-use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
 use satoru::fee::fee_utils::{increment_claimable_fee_amount, increment_claimable_ui_fee_amount};
 
@@ -104,16 +104,16 @@ fn deploy_event_emitter() -> ContractAddress {
 /// # Returns
 ///
 /// * `ContractAddress` - The address of the caller.
-/// * `IRoleStoreSafeDispatcher` - The role store dispatcher.
-/// * `IDataStoreSafeDispatcher` - The data store dispatcher.
-fn setup() -> (ContractAddress, IDataStoreSafeDispatcher, IEventEmitterSafeDispatcher) {
+/// * `IRoleStoreDispatcher` - The role store dispatcher.
+/// * `IDataStoreDispatcher` - The data store dispatcher.
+fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher) {
     let caller_address: ContractAddress = 0x101.try_into().unwrap();
     let role_store_address = deploy_role_store();
-    let role_store = IRoleStoreSafeDispatcher { contract_address: role_store_address };
+    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
     let data_store_address = deploy_data_store(role_store_address);
-    let data_store = IDataStoreSafeDispatcher { contract_address: data_store_address };
+    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
     let event_emitter_address = deploy_event_emitter();
-    let event_emitter = IEventEmitterSafeDispatcher { contract_address: event_emitter_address };
+    let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
     start_prank(role_store_address, caller_address);
     role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
     start_prank(data_store_address, caller_address);

@@ -1,7 +1,7 @@
 use starknet::contract_address_const;
 
-use satoru::data::data_store::IDataStoreSafeDispatcherTrait;
-use satoru::role::role_store::IRoleStoreSafeDispatcherTrait;
+use satoru::data::data_store::IDataStoreDispatcherTrait;
+use satoru::role::role_store::IRoleStoreDispatcherTrait;
 use satoru::order::order::{Order, OrderType, OrderTrait};
 use satoru::tests_lib::{setup, teardown};
 

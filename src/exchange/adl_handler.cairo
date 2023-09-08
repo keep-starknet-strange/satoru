@@ -66,12 +66,12 @@ mod AdlHandler {
     use super::IAdlHandler;
     use satoru::adl::adl_utils;
     use satoru::exchange::base_order_handler::{
-        IBaseOrderHandlerSafeDispatcher, IBaseOrderHandlerSafeDispatcherTrait
+        IBaseOrderHandlerDispatcher, IBaseOrderHandlerDispatcherTrait
     };
-    use satoru::chain::chain::{IChainSafeDispatcher, IChainSafeDispatcherTrait};
-    use satoru::data::{keys, data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait}};
+    use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
+    use satoru::data::{keys, data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}};
     use satoru::event::event_emitter::{
-        IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait
+        IEventEmitterDispatcher, IEventEmitterDispatcherTrait
     };
     use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
     use satoru::exchange::base_order_handler::BaseOrderHandler::{
@@ -84,16 +84,16 @@ mod AdlHandler {
     use satoru::market::{market::Market, market_utils};
 
     use satoru::oracle::{
-        oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait},
+        oracle::{IOracleDispatcher, IOracleDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after}, oracle_utils
     };
     use satoru::order::{
         order::{SecondaryOrderType, OrderType, Order},
-        order_vault::{IOrderVaultSafeDispatcher, IOrderVaultSafeDispatcherTrait},
+        order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
         base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}, order_utils
     };
-    use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-    use satoru::swap::swap_handler::{ISwapHandlerSafeDispatcher, ISwapHandlerSafeDispatcherTrait};
+    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use satoru::utils::store_arrays::StoreU64Array;
 
     /// ExecuteAdlCache struct used in execute_adl.

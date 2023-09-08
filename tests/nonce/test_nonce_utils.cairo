@@ -1,4 +1,4 @@
-use satoru::data::data_store::IDataStoreSafeDispatcherTrait;
+use satoru::data::data_store::IDataStoreDispatcherTrait;
 use satoru::nonce::nonce_utils::{get_current_nonce, increment_nonce, get_next_key};
 use satoru::tests_lib::{setup, teardown};
 

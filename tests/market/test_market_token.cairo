@@ -6,8 +6,8 @@ use starknet::{
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 
 
-use satoru::market::market_token::{IMarketTokenSafeDispatcher, IMarketTokenSafeDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
 use satoru::market::market_utils;
 
@@ -43,8 +43,8 @@ fn given_normal_conditions_when_mint_then_expected_results() {
 fn setup() -> (
     // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
     ContractAddress, // Interface to interact with the `RoleStore` contract.
-    IRoleStoreSafeDispatcher, // Interface to interact with the `MarketToken` contract.
-    IMarketTokenSafeDispatcher,
+    IRoleStoreDispatcher, // Interface to interact with the `MarketToken` contract.
+    IMarketTokenDispatcher,
 ) {
     let caller_address: ContractAddress = 0x101.try_into().unwrap();
 
@@ -52,12 +52,12 @@ fn setup() -> (
     let role_store_address = deploy_role_store();
 
     // Create a role store dispatcher.
-    let role_store = IRoleStoreSafeDispatcher { contract_address: role_store_address };
+    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
 
     // Deploy the contract.
     let market_token_address = deploy_market_token(role_store_address);
     // Create a safe dispatcher to interact with the contract.
-    let market_token = IMarketTokenSafeDispatcher { contract_address: market_token_address };
+    let market_token = IMarketTokenDispatcher { contract_address: market_token_address };
 
     start_prank(role_store.contract_address, caller_address);
 

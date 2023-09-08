@@ -5,8 +5,8 @@
 use starknet::ContractAddress;
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::data::keys::{
     claim_fee_amount_key, claim_ui_fee_amount_key, claim_ui_fee_amount_for_account_key
 };
@@ -21,8 +21,8 @@ use satoru::utils::account_utils::validate_receiver;
 /// * `delta` - The amount to increment.
 /// * `fee_type` - The type of the fee.
 fn increment_claimable_fee_amount(
-    data_store: IDataStoreSafeDispatcher,
-    event_emitter: IEventEmitterSafeDispatcher,
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
     market: ContractAddress,
     token: ContractAddress,
     delta: u128,
@@ -34,7 +34,7 @@ fn increment_claimable_fee_amount(
 
     let key = claim_fee_amount_key(market, token);
 
-    let next_value = data_store.increment_u128(key, delta).unwrap();
+    let next_value = data_store.increment_u128(key, delta);
 
     event_emitter.emit_claimable_fee_amount_updated(market, token, delta, next_value, fee_type);
 }
@@ -49,8 +49,8 @@ fn increment_claimable_fee_amount(
 /// * `delta` - The amount to increment.
 /// * `fee_type` - The type of the fee.
 fn increment_claimable_ui_fee_amount(
-    data_store: IDataStoreSafeDispatcher,
-    event_emitter: IEventEmitterSafeDispatcher,
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
     ui_fee_receiver: ContractAddress,
     market: ContractAddress,
     token: ContractAddress,
@@ -63,11 +63,11 @@ fn increment_claimable_ui_fee_amount(
 
     let next_value = data_store
         .increment_u128(claim_ui_fee_amount_for_account_key(market, token, ui_fee_receiver), delta)
-        .unwrap();
+        ;
 
     let next_pool_value = data_store
         .increment_u128(claim_ui_fee_amount_key(market, token), delta)
-        .unwrap();
+        ;
 
     event_emitter
         .emit_claimable_ui_fee_amount_updated(
@@ -83,8 +83,8 @@ fn increment_claimable_ui_fee_amount(
 /// * `token` - The fee token.
 /// * `receiver` - The receiver of the claimed fees.
 fn claim_fees(
-    data_store: IDataStoreSafeDispatcher,
-    event_emitter: IEventEmitterSafeDispatcher,
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
     market: ContractAddress,
     token: ContractAddress,
     receiver: ContractAddress,
@@ -100,8 +100,8 @@ fn claim_fees(
 /// * `token` - The fee token.
 /// * `receiver` - The receiver of the claimed fees.
 fn claim_ui_fees(
-    data_store: IDataStoreSafeDispatcher,
-    event_emitter: IEventEmitterSafeDispatcher,
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
     ui_fee_receiver: ContractAddress,
     market: ContractAddress,
     token: ContractAddress,

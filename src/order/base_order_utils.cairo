@@ -5,19 +5,19 @@
 use starknet::ContractAddress;
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use satoru::oracle::oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait};
-use satoru::swap::swap_handler::{ISwapHandlerSafeDispatcher, ISwapHandlerSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::order::{
     order::{Order, SecondaryOrderType, OrderType, DecreasePositionSwapType},
-    order_vault::{IOrderVaultSafeDispatcher, IOrderVaultSafeDispatcherTrait}
+    order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}
 };
 use satoru::price::price::Price;
 use satoru::market::market::Market;
 use satoru::utils::store_arrays::{StoreMarketArray, StoreU64Array, StoreContractAddressArray};
 use satoru::referral::referral_storage::interface::{
-    IReferralStorageSafeDispatcher, IReferralStorageSafeDispatcherTrait
+    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
 };
 
 #[derive(Drop, starknet::Store, Serde)]
@@ -46,17 +46,17 @@ struct ExecuteOrderParams {
 #[derive(Drop, starknet::Store, Serde)]
 struct ExecuteOrderParamsContracts {
     /// The dispatcher to interact with the `DataStore` contract
-    data_store: IDataStoreSafeDispatcher,
+    data_store: IDataStoreDispatcher,
     /// The dispatcher to interact with the `EventEmitter` contract
-    event_emitter: IEventEmitterSafeDispatcher,
+    event_emitter: IEventEmitterDispatcher,
     /// The dispatcher to interact with the `OrderVault` contract
-    order_vault: IOrderVaultSafeDispatcher,
+    order_vault: IOrderVaultDispatcher,
     /// The dispatcher to interact with the `Oracle` contract
-    oracle: IOracleSafeDispatcher,
+    oracle: IOracleDispatcher,
     /// The dispatcher to interact with the `SwapHandler` contract
-    swap_handler: ISwapHandlerSafeDispatcher,
+    swap_handler: ISwapHandlerDispatcher,
     /// The dispatcher to interact with the `ReferralStorage` contract
-    referral_storage: IReferralStorageSafeDispatcher
+    referral_storage: IReferralStorageDispatcher
 }
 
 /// CreateOrderParams struct used in create_order.
@@ -202,7 +202,7 @@ fn is_liquidation_order(order_type: OrderType) -> bool {
 /// * `is_long` - Whether the order is for a long or short.
 #[inline(always)]
 fn validate_order_trigger_price(
-    oracle: IOracleSafeDispatcher,
+    oracle: IOracleDispatcher,
     index_token: ContractAddress,
     order_type: OrderType,
     trigger_price: u128,

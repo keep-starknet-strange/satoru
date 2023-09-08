@@ -71,22 +71,22 @@ mod WithdrawalHandler {
 
     // Local imports.
     use super::IWithdrawalHandler;
-    use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-    use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::event::event_emitter::{
-        IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait
+        IEventEmitterDispatcher, IEventEmitterDispatcherTrait
     };
     use satoru::oracle::{
-        oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait},
+        oracle::{IOracleDispatcher, IOracleDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
         oracle_utils::{SetPricesParams, SimulatePricesParams}
     };
     use satoru::order::base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts};
-    use satoru::swap::swap_handler::{ISwapHandlerSafeDispatcher, ISwapHandlerSafeDispatcherTrait};
+    use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use satoru::market::market::Market;
     use satoru::withdrawal::{
         withdrawal_utils::CreateWithdrawalParams,
-        withdrawal_vault::{IWithdrawalVaultSafeDispatcher, IWithdrawalVaultSafeDispatcherTrait}
+        withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait}
     };
 
     // *************************************************************************
@@ -95,15 +95,15 @@ mod WithdrawalHandler {
     #[storage]
     struct Storage {
         /// Interface to interact with the `DataStore` contract.
-        data_store: IDataStoreSafeDispatcher,
+        data_store: IDataStoreDispatcher,
         /// Interface to interact with the `RoleStore` contract.
-        role_store: IRoleStoreSafeDispatcher,
+        role_store: IRoleStoreDispatcher,
         /// Interface to interact with the `EventEmitter` contract.
-        event_emitter: IEventEmitterSafeDispatcher,
+        event_emitter: IEventEmitterDispatcher,
         /// Interface to interact with the `WithdrawalVault` contract.
-        withdrawal_vault: IWithdrawalVaultSafeDispatcher,
+        withdrawal_vault: IWithdrawalVaultDispatcher,
         /// Interface to interact with the `Oracle` contract.
-        oracle: IOracleSafeDispatcher
+        oracle: IOracleDispatcher
     }
 
     // *************************************************************************
@@ -126,15 +126,15 @@ mod WithdrawalHandler {
         withdrawal_vault_address: ContractAddress,
         oracle_address: ContractAddress,
     ) {
-        self.data_store.write(IDataStoreSafeDispatcher { contract_address: data_store_address });
-        self.role_store.write(IRoleStoreSafeDispatcher { contract_address: role_store_address });
+        self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
+        self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
         self
             .event_emitter
-            .write(IEventEmitterSafeDispatcher { contract_address: event_emitter_address });
+            .write(IEventEmitterDispatcher { contract_address: event_emitter_address });
         self
             .withdrawal_vault
-            .write(IWithdrawalVaultSafeDispatcher { contract_address: withdrawal_vault_address });
-        self.oracle.write(IOracleSafeDispatcher { contract_address: oracle_address });
+            .write(IWithdrawalVaultDispatcher { contract_address: withdrawal_vault_address });
+        self.oracle.write(IOracleDispatcher { contract_address: oracle_address });
     }
 
 

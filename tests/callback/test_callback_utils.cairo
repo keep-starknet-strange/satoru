@@ -2,7 +2,7 @@ use debug::PrintTrait;
 use starknet::ContractAddress;
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 
-use satoru::data::data_store::IDataStoreSafeDispatcherTrait;
+use satoru::data::data_store::IDataStoreDispatcherTrait;
 use satoru::data::keys;
 use satoru::deposit::deposit::Deposit;
 use satoru::event::event_utils::EventLogData;
@@ -10,7 +10,7 @@ use satoru::callback::callback_utils::{
     validate_callback_gas_limit, set_saved_callback_contract, get_saved_callback_contract,
     after_deposit_execution
 };
-use satoru::callback::mocks::{ICallbackMockSafeDispatcherTrait, deploy_callback_mock};
+use satoru::callback::mocks::{ICallbackMockDispatcherTrait, deploy_callback_mock};
 use satoru::tests_lib::{setup, teardown, deploy_event_emitter};
 
 #[test]

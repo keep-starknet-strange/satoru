@@ -11,12 +11,12 @@ use debug::PrintTrait;
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::data::keys;
-use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
-use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use satoru::config::config::{IConfigSafeDispatcher, IConfigSafeDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::config::config::{IConfigDispatcher, IConfigDispatcherTrait};
 
 #[test]
 fn given_normal_conditions_when_set_bool_then_works() {
@@ -168,9 +168,9 @@ fn given_normal_conditions_when_set_felt252_then_works() {
 /// * `config` - The config dispatcher.
 fn grant_roles_and_prank(
     caller_address: ContractAddress,
-    role_store: IRoleStoreSafeDispatcher,
-    data_store: IDataStoreSafeDispatcher,
-    config: IConfigSafeDispatcher
+    role_store: IRoleStoreDispatcher,
+    data_store: IDataStoreDispatcher,
+    config: IConfigDispatcher
 ) {
     start_prank(role_store.contract_address, caller_address);
 
@@ -192,7 +192,7 @@ fn grant_roles_and_prank(
 }
 
 /// Utility function to teardown the test environment.
-fn teardown(data_store: IDataStoreSafeDispatcher, config: IConfigSafeDispatcher) {
+fn teardown(data_store: IDataStoreDispatcher, config: IConfigDispatcher) {
     // Stop pranking contracts.
     stop_prank(data_store.contract_address);
     stop_prank(config.contract_address);
@@ -201,10 +201,10 @@ fn teardown(data_store: IDataStoreSafeDispatcher, config: IConfigSafeDispatcher)
 /// Utility function to setup the test environment.
 fn setup() -> (
     ContractAddress,
-    IConfigSafeDispatcher,
-    IRoleStoreSafeDispatcher,
-    IDataStoreSafeDispatcher,
-    IEventEmitterSafeDispatcher
+    IConfigDispatcher,
+    IRoleStoreDispatcher,
+    IDataStoreDispatcher,
+    IEventEmitterDispatcher
 ) {
     // Setup contracts.
     let (caller_address, config, role_store, data_store, event_emitter) = setup_contracts();
@@ -220,29 +220,29 @@ fn setup_contracts() -> (
     // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
     ContractAddress,
     // Interface to interact with the `Config` contract.
-    IConfigSafeDispatcher,
+    IConfigDispatcher,
     // Interface to interact with the `RoleStore` contract.
-    IRoleStoreSafeDispatcher,
+    IRoleStoreDispatcher,
     // Interface to interact with the `DataStore` contract.
-    IDataStoreSafeDispatcher,
+    IDataStoreDispatcher,
     // Interface to interact with the `EventEmitter` contract.
-    IEventEmitterSafeDispatcher,
+    IEventEmitterDispatcher,
 ) {
     // Deploy the role store contract.
     let role_store_address = deploy_role_store();
 
     // Create a role store dispatcher.
-    let role_store = IRoleStoreSafeDispatcher { contract_address: role_store_address };
+    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
 
     // Deploy the contract.
     let data_store_address = deploy_data_store(role_store_address);
     // Create a safe dispatcher to interact with the contract.
-    let data_store = IDataStoreSafeDispatcher { contract_address: data_store_address };
+    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
 
     // Deploy the `EventEmitter` contract.
     let event_emitter_address = deploy_event_emitter();
     // Create a safe dispatcher to interact with the contract.
-    let event_emitter = IEventEmitterSafeDispatcher { contract_address: event_emitter_address };
+    let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
 
     // Deploy the `Config` contract.
     let config_address = deploy_config(
@@ -250,7 +250,7 @@ fn setup_contracts() -> (
     );
 
     // Create a safe dispatcher to interact with the contract.
-    let config = IConfigSafeDispatcher { contract_address: config_address };
+    let config = IConfigDispatcher { contract_address: config_address };
 
     (0x101.try_into().unwrap(), config, role_store, data_store, event_emitter)
 }

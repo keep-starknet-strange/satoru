@@ -14,8 +14,8 @@ use result::ResultTrait;
 use satoru::position::position::Position;
 use satoru::pricing::position_pricing_utils::PositionFees;
 use satoru::reader::reader_pricing_utils::ExecutionPriceResult;
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::market::{
     market::Market, market_utils::PositionType, market_utils::MarketPrices,
     market_utils::CollateralType, market_utils::GetNextFundingAmountPerSizeResult
@@ -26,7 +26,7 @@ use satoru::pricing::position_pricing_utils::PositionReferralFees;
 use satoru::pricing::position_pricing_utils::PositionFundingFees;
 use satoru::pricing::position_pricing_utils::PositionUiFees;
 use satoru::referral::referral_storage::interface::{
-    IReferralStorageSafeDispatcher, IReferralStorageSafeDispatcherTrait
+    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
 };
 
 #[derive(Drop, starknet::Store, Serde)]
@@ -61,7 +61,7 @@ struct BaseFundingValues {
 /// # Returns
 /// Returns an unsigned integer representing the calculated borrowing fees for the specified position within the market.
 fn get_next_borrowing_fees(
-    data_store: IDataStoreSafeDispatcher, position: Position, market: Market, prices: MarketPrices
+    data_store: IDataStoreDispatcher, position: Position, market: Market, prices: MarketPrices
 ) -> u128 {
     // TODO
     0
@@ -75,7 +75,7 @@ fn get_next_borrowing_fees(
 /// # Returns
 /// Struct containing information about the borrowing fees for the specified position.
 fn get_borrowing_fees(
-    data_store: IDataStoreSafeDispatcher, collateral_token_price: Price, borrwing_fee_usd: u128
+    data_store: IDataStoreDispatcher, collateral_token_price: Price, borrwing_fee_usd: u128
 ) -> PositionBorrowingFees {
     // TODO
     PositionBorrowingFees {
@@ -94,7 +94,7 @@ fn get_borrowing_fees(
 /// # Returns
 /// Struct containing base funding values.
 fn get_base_funding_values(
-    data_store: IDataStoreSafeDispatcher, market: Market
+    data_store: IDataStoreDispatcher, market: Market
 ) -> BaseFundingValues {
     // TODO
     let collateral_type = CollateralType { long_token: 0, short_token: 0, };
@@ -132,7 +132,7 @@ fn get_base_funding_values(
 /// # Returns
 /// Struct containing funding-related values.
 fn get_next_funding_amount_per_size(
-    data_store: IDataStoreSafeDispatcher, market: Market, prices: MarketPrices
+    data_store: IDataStoreDispatcher, market: Market, prices: MarketPrices
 ) -> GetNextFundingAmountPerSizeResult {
     // TODO
     let funding_fee_amount_per_size_collateral_type_long = CollateralType {
@@ -178,8 +178,8 @@ fn get_next_funding_amount_per_size(
 /// # Returns
 /// Struct containing detailed information about the position, including execution prices, fees, and funding data.
 fn get_position_info(
-    data_store: IDataStoreSafeDispatcher,
-    referral_storage: IReferralStorageSafeDispatcher,
+    data_store: IDataStoreDispatcher,
+    referral_storage: IReferralStorageDispatcher,
     position_key: felt252,
     prices: MarketPrices,
     size_delta_usd: u128,

@@ -4,9 +4,9 @@ use starknet::{
     contract_address_to_felt252, account::Call, SyscallResultTrait
 };
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::{
-    role, role_store::IRoleStoreSafeDispatcher, role_store::IRoleStoreSafeDispatcherTrait
+    role, role_store::IRoleStoreDispatcher, role_store::IRoleStoreDispatcherTrait
 };
 use satoru::tests_lib::{setup, teardown};
 use debug::PrintTrait;

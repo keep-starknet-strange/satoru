@@ -14,14 +14,14 @@ use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait, Contract
 
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::market::market_factory::{
-    IMarketFactorySafeDispatcher, IMarketFactorySafeDispatcherTrait
+    IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait
 };
-use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::market::market::{Market, UniqueIdMarket};
-use satoru::market::market_token::{IMarketTokenSafeDispatcher, IMarketTokenSafeDispatcherTrait};
+use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
 use satoru::role::role;
 
 #[test]
@@ -67,7 +67,7 @@ fn given_normal_conditions_when_create_market_then_market_is_created() {
     assert(market.short_token == short_token, 'bad_market');
 
     // Check the market token was deployed.
-    let market_token = IMarketTokenSafeDispatcher {
+    let market_token = IMarketTokenDispatcher {
         contract_address: market_token_deployed_address
     };
     // Query the name of the market token.
@@ -143,13 +143,13 @@ fn setup() -> (
     // The `MarketToken` class hash for the factory.
     ContractClass,
     // Interface to interact with the `MarketFactory` contract.
-    IMarketFactorySafeDispatcher,
+    IMarketFactoryDispatcher,
     // Interface to interact with the `RoleStore` contract.
-    IRoleStoreSafeDispatcher,
+    IRoleStoreDispatcher,
     // Interface to interact with the `DataStore` contract.
-    IDataStoreSafeDispatcher,
+    IDataStoreDispatcher,
     // Interface to interact with the `EventEmitter` contract.
-    IEventEmitterSafeDispatcher,
+    IEventEmitterDispatcher,
 ) {
     let (
         caller_address,
@@ -188,9 +188,9 @@ fn setup() -> (
 /// * `market_factory` - The interface to interact with the `MarketFactory` contract.
 fn grant_roles_and_prank(
     caller_address: ContractAddress,
-    role_store: IRoleStoreSafeDispatcher,
-    data_store: IDataStoreSafeDispatcher,
-    market_factory: IMarketFactorySafeDispatcher,
+    role_store: IRoleStoreDispatcher,
+    data_store: IDataStoreDispatcher,
+    market_factory: IMarketFactoryDispatcher,
 ) {
     start_prank(role_store.contract_address, caller_address);
 
@@ -211,7 +211,7 @@ fn grant_roles_and_prank(
 }
 
 /// Utility function to teardown the test environment.
-fn teardown(data_store: IDataStoreSafeDispatcher, market_factory: IMarketFactorySafeDispatcher) {
+fn teardown(data_store: IDataStoreDispatcher, market_factory: IMarketFactoryDispatcher) {
     stop_prank(data_store.contract_address);
     stop_prank(market_factory.contract_address);
 }
@@ -229,24 +229,24 @@ fn setup_contracts() -> (
     // The `MarketToken` class hash for the factory.
     ContractClass,
     // Interface to interact with the `MarketFactory` contract.
-    IMarketFactorySafeDispatcher,
+    IMarketFactoryDispatcher,
     // Interface to interact with the `RoleStore` contract.
-    IRoleStoreSafeDispatcher,
+    IRoleStoreDispatcher,
     // Interface to interact with the `DataStore` contract.
-    IDataStoreSafeDispatcher,
+    IDataStoreDispatcher,
     // Interface to interact with the `EventEmitter` contract.
-    IEventEmitterSafeDispatcher,
+    IEventEmitterDispatcher,
 ) {
     // Deploy the role store contract.
     let role_store_address = deploy_role_store();
 
     // Create a role store dispatcher.
-    let role_store = IRoleStoreSafeDispatcher { contract_address: role_store_address };
+    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
 
     // Deploy the contract.
     let data_store_address = deploy_data_store(role_store_address);
     // Create a safe dispatcher to interact with the contract.
-    let data_store = IDataStoreSafeDispatcher { contract_address: data_store_address };
+    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
 
     // Declare the `MarketToken` contract.
     let market_token_class_hash = declare_market_token();
@@ -254,7 +254,7 @@ fn setup_contracts() -> (
     // Deploy the event emitter contract.
     let event_emitter_address = deploy_event_emitter();
     // Create a safe dispatcher to interact with the contract.
-    let event_emitter = IEventEmitterSafeDispatcher { contract_address: event_emitter_address };
+    let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
 
     // Deploy the market factory.
     let market_factory_address = deploy_market_factory(
@@ -264,7 +264,7 @@ fn setup_contracts() -> (
         market_token_class_hash.clone()
     );
     // Create a safe dispatcher to interact with the contract.
-    let market_factory = IMarketFactorySafeDispatcher { contract_address: market_factory_address };
+    let market_factory = IMarketFactoryDispatcher { contract_address: market_factory_address };
 
     (
         0x101.try_into().unwrap(),

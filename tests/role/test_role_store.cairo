@@ -6,8 +6,8 @@ use snforge_std::{declare, start_prank, ContractClassTrait};
 
 
 use satoru::role::role::ROLE_ADMIN;
-use satoru::role::role_store::IRoleStoreSafeDispatcher;
-use satoru::role::role_store::IRoleStoreSafeDispatcherTrait;
+use satoru::role::role_store::IRoleStoreDispatcher;
+use satoru::role::role_store::IRoleStoreDispatcherTrait;
 
 #[test]
 fn test_grant_role() {
@@ -71,8 +71,8 @@ fn test_revoke_role() {
 }
 
 /// Utility function to setup the test environment.
-fn setup() -> IRoleStoreSafeDispatcher {
-    IRoleStoreSafeDispatcher { contract_address: deploy_role_store() }
+fn setup() -> IRoleStoreDispatcher {
+    IRoleStoreDispatcher { contract_address: deploy_role_store() }
 }
 
 /// Utility function to teardown the test environment.

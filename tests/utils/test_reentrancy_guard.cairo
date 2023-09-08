@@ -1,4 +1,4 @@
-use satoru::data::data_store::IDataStoreSafeDispatcherTrait;
+use satoru::data::data_store::IDataStoreDispatcherTrait;
 use satoru::utils::global_reentrancy_guard::{non_reentrant_before, non_reentrant_after};
 use satoru::tests_lib::{setup, teardown};
 
