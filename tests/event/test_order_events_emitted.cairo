@@ -85,6 +85,56 @@ fn test_emit_order_executed() {
     assert(spy.events.len() == 0, 'There should be no events');
 }
 
+#[test]
+fn test_emit_order_updated() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let key = 100;
+    let size_delta_usd: u128 = 200;
+    let acceptable_price: u128 = 300;
+    let trigger_price: u128 = 400;
+    let min_output_amount: u128 = 500;
+
+    // Create the expected data.
+    let expected_data: Array<felt252> = array![
+        key,
+        size_delta_usd.into(),
+        acceptable_price.into(),
+        trigger_price.into(),
+        min_output_amount.into()
+    ];
+
+    // Emit the event.
+    event_emitter
+        .emit_order_updated(
+            key, size_delta_usd, acceptable_price, trigger_price, min_output_amount
+        );
+
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address,
+                    name: 'OrderUpdated',
+                    keys: array![],
+                    data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}
+
 
 /// Utility function to setup the test environment.
 ///
