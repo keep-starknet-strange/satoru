@@ -26,13 +26,11 @@ fn given_normal_conditions_when_touch_then_expected_results() {
     // Create a dummy order.
     let mut order = create_dummy_order();
 
-    // Set current block to 42000.
-    start_roll(get_contract_address(), 42000);
-
     // Call the `touch` function.
-    order.touch();
+    let block_number = 42000;
+    order.touch(block_number);
 
-    assert(order.updated_at_block == 42000, 'bad value');
+    assert(order.updated_at_block == block_number, 'bad value');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
