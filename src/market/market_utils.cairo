@@ -571,14 +571,21 @@ fn get_enabled_market(data_store: IDataStoreSafeDispatcher, market: ContractAddr
     market
 }
 
-
-/// Check if the pending pnl exceeds the allowed amount
+/// Check if the market is valid for an adress
 /// # Arguments
 /// * `data_store` - The `DataStore` contract dispatcher.
 /// * `market` - The address of the market
 fn validate_market_token_balance(data_store: IDataStoreSafeDispatcher, market: ContractAddress,) {
     let market = get_enabled_market(data_store, market);
+    validate_market_token_balance_market(data_store, market);
+}
 
+
+/// Check if the market is valid
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - The market
+fn validate_market_token_balance_market(data_store: IDataStoreSafeDispatcher, market: Market,) {
     validate_market_token_balance_token(data_store, market, market.long_token);
 
     if (market.long_token == market.short_token) {
@@ -588,7 +595,7 @@ fn validate_market_token_balance(data_store: IDataStoreSafeDispatcher, market: C
     validate_market_token_balance_token(data_store, market, market.short_token);
 }
 
-///  Validate that market is valid for the token balance
+///  Validate that market is valid for the token 
 /// # Arguments
 /// * `data_store` - The `DataStore` contract dispatcher.
 /// * `market` - The market to increment claimable fees for.
@@ -596,13 +603,16 @@ fn validate_market_token_balance(data_store: IDataStoreSafeDispatcher, market: C
 fn validate_market_token_balance_token(
     data_store: IDataStoreSafeDispatcher, market: Market, token: ContractAddress
 ) {
-    assert(market.market_token.is_non_zero(), 'EmptyAddressMarketBalanceVal');
-    assert(token.is_non_zero(), 'EmptyAddressTokenBalanceVal');
+    assert(
+        market.market_token.is_non_zero(),
+        MarketError::EMPTY_ADDRESS_IN_MARKET_TOKEN_BALANCE_VALIDATION
+    );
+    assert(token.is_non_zero(), MarketError::EMPTY_ADDRESS_TOKEN_BALANCE_VAL);
 
     let balance = IERC20Dispatcher { contract_address: token }.balance_of(market.market_token);
     let balance_u128 = balance.try_into().unwrap();
     let expected_min_balance = get_expected_min_token_balance(data_store, market, token);
-    assert(balance_u128 >= expected_min_balance, 'InvalidMarketTokenBalance');
+    assert(balance_u128 >= expected_min_balance, MarketError::INVALID_MARKET_TOKEN_BALANCE);
 
     // funding fees can be claimed even if the collateral for positions that should pay funding fees
     // hasn't been reduced yet
@@ -613,14 +623,20 @@ fn validate_market_token_balance_token(
     // longToken and shortToken
     let mut collateral_amount = get_collateral_sum(data_store, market.market_token, token, true, 1);
     collateral_amount += get_collateral_sum(data_store, market.market_token, token, false, 1);
-    assert(balance_u128 >= collateral_amount, 'DUHG');
+    assert(
+        balance_u128 >= collateral_amount,
+        MarketError::INVALID_MARKET_TOKEN_BALANCE_FOR_COLLATERAL_AMOUNT
+    );
     let claimable_funding_fee_amount = data_store
         .get_felt252(keys::claimable_funding_amount_key(market.market_token, token))
         .expect('claimable_funding_fee_amount');
 
     // in case of late liquidations, it may be possible for the claimableFundingFeeAmount to exceed the market token balance
     // but this should be very rare
-    assert(balance >= claimable_funding_fee_amount.into(), 'InvalidMrktTokenBalCollatAmount');
+    assert(
+        balance >= claimable_funding_fee_amount.into(),
+        MarketError::INVALID_MARKET_TOKEN_BALANCE_FOR_CLAIMABLE_FUNDING
+    );
 }
 
 /// Get the expected min token balance by summing all fees

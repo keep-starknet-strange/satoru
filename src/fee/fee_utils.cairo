@@ -97,9 +97,9 @@ fn claim_fees(
 
     let fee_amount = data_store
         .get_felt252(key)
-        .expect('claim_fees::fee_amount')
+        .expect('claim_fees::get_felt252')
         .try_into()
-        .expect('claim_fees::fee_amount::u128');
+        .expect('claim_fees::fee_amount');
     data_store.set_felt252(key, 0);
 
     IBankDispatcher { contract_address: market }.transfer_out(token, receiver, fee_amount);
