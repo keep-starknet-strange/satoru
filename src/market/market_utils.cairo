@@ -548,9 +548,10 @@ fn is_pnl_factor_exceeded(
 }
 
 
-// @dev validate that the specified market exists and is enabled
-// @param dataStore DataStore
-// @param marketAddress the address of the market
+/// Validate that the specified market exists and is enabled
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - The address of the market
 fn validate_enable_market(data_store: IDataStoreSafeDispatcher, market: Market) {
     assert(market.market_token.is_non_zero(), 'EmptyMarket');
     let is_market_disabled = data_store
@@ -560,9 +561,10 @@ fn validate_enable_market(data_store: IDataStoreSafeDispatcher, market: Market) 
     assert(is_market_disabled, 'DisabledMarket');
 }
 
-// @dev get the enabled market, revert if the market does not exist or is not enabled
-// @param dataStore DataStore
-// @param marketAddress the address of the market
+/// Get the enabled market, revert if the market does not exist or is not enabled
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - The address of the market
 fn get_enabled_market(data_store: IDataStoreSafeDispatcher, market: ContractAddress) -> Market {
     let market = market_store_utils::get(data_store, market);
     validate_enable_market(data_store, market);
@@ -570,9 +572,10 @@ fn get_enabled_market(data_store: IDataStoreSafeDispatcher, market: ContractAddr
 }
 
 
-// Check if the pending pnl exceeds the allowed amount
-// # Arguments
-// * `data_store` - The data_store dispatcher.
+/// Check if the pending pnl exceeds the allowed amount
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - The address of the market
 fn validate_market_token_balance(data_store: IDataStoreSafeDispatcher, market: ContractAddress,) {
     let market = get_enabled_market(data_store, market);
 
@@ -585,6 +588,11 @@ fn validate_market_token_balance(data_store: IDataStoreSafeDispatcher, market: C
     validate_market_token_balance_token(data_store, market, market.short_token);
 }
 
+///  Validate that market is valid for the token balance
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - The market to increment claimable fees for.
+/// * `token` - The fee token.
 fn validate_market_token_balance_token(
     data_store: IDataStoreSafeDispatcher, market: Market, token: ContractAddress
 ) {
@@ -603,7 +611,6 @@ fn validate_market_token_balance_token(
 
     // use 1 for the getCollateralSum divisor since getCollateralSum does not sum over both the
     // longToken and shortToken
-
     let mut collateral_amount = get_collateral_sum(data_store, market.market_token, token, true, 1);
     collateral_amount += get_collateral_sum(data_store, market.market_token, token, false, 1);
     assert(balance_u128 >= collateral_amount, 'DUHG');
@@ -616,11 +623,14 @@ fn validate_market_token_balance_token(
     assert(balance >= claimable_funding_fee_amount.into(), 'InvalidMrktTokenBalCollatAmount');
 }
 
-
+/// Get the expected min token balance by summing all fees
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - The market to increment claimable fees for.
+/// * `token` - The fee token.
 fn get_expected_min_token_balance(
     data_store: IDataStoreSafeDispatcher, market: Market, token: ContractAddress
 ) -> u128 {
-    // GetExpectedMinTokenBalanceCache memory cache;
     // get the pool amount directly as MarketUtils.getPoolAmount will divide the amount by 2
     // for markets with the same long and short token
     let pool_amount = data_store
@@ -647,7 +657,6 @@ fn get_expected_min_token_balance(
     // are incremented without a corresponding decrease of the collateral of
     // other positions, the collateral of other positions is decreased when
     // those positions are updated
-    // return
     (pool_amount
         + swap_impact_pool_amount
         + claimable_collateral_amount
@@ -658,12 +667,14 @@ fn get_expected_min_token_balance(
         .expect('get_expected_min_token_balance')
 }
 
-// @dev get the total amount of position collateral for a market
-// @param data_store IDataStoreSafeDispatcher
-// @param market the market to check
-// @param collateralToken the collateralToken to check
-// @param isLong whether to get the value for longs or shorts
-// @return the total amount of position collateral for a market
+/// Get the total amount of position collateral for a market
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - The market to check
+/// * `collateral_token` - the collateral_token to check
+/// * `is_long` - Whether to get the value for longs or shorts
+/// # Returns
+/// The total amount of position collateral for a market
 fn get_collateral_sum(
     data_store: IDataStoreSafeDispatcher,
     market: ContractAddress,
