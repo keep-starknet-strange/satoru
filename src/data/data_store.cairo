@@ -196,15 +196,22 @@ trait IDataStore<TContractState> {
     /// # Arguments
     /// * `key` - The key to get the index for.
     fn get_key_index(self: @TContractState, key: felt252) -> Option<u64>;
+    fn get_account_key_index(
+        self: @TContractState, account: ContractAddress, key: felt252
+    ) -> Option<u64>;
 
     /// Return total order count
     fn get_order_count(self: @TContractState) -> u64;
+    fn get_account_order_count(self: @TContractState, account: ContractAddress) -> u64;
 
     /// Return order keys between start - end  indexes
     /// # Arguments
     /// * `start` - Start index
     /// * `end` - Start index
     fn get_order_keys(self: @TContractState, start: u64, end: u64) -> Array<felt252>;
+    fn get_account_order_keys(
+        self: @TContractState, account: ContractAddress, start: u64, end: u64
+    ) -> Array<felt252>;
 
 
     //TODO: Update u128 to i128 when Serde and Store for i128 implementations are released.
@@ -252,6 +259,8 @@ mod DataStore {
     // *************************************************************************
 
     // Core lib imports.
+    use core::option::OptionTrait;
+    use satoru::data::data_store::IDataStore;
     use starknet::{get_caller_address, ContractAddress, contract_address_const,};
     use nullable::NullableTrait;
     use zeroable::Zeroable;
@@ -278,6 +287,8 @@ mod DataStore {
         order_values: LegacyMap::<felt252, Order>,
         order_keys: LegacyMap::<u64, felt252>,
         order_count: u64,
+        order_account_keys: LegacyMap::<(ContractAddress, u64), felt252>,
+        order_account_count: LegacyMap::<ContractAddress, u64>,
     }
 
     // *************************************************************************
@@ -572,11 +583,34 @@ mod DataStore {
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
 
             let index_result = self.get_key_index(key);
+            let account = order.account;
 
             match index_result {
                 // Update to new order for given key
                 Option::Some(i) => {
-                    self.order_values.write(key, order)
+                    // If index exist get_order shouldnt return none
+                    let account_old = self.get_order(key).unwrap().account;
+
+                    // If order account is same only change prev order
+                    // If order account is different remove order from prev account and add it to new
+                    if (account_old != account) {
+                        // Remove order from previous account
+                        let count_old = self.order_account_count.read(account_old);
+                        let index_old = self.get_account_key_index(account_old, key).unwrap();
+                        // Move last key to removed index
+                        self
+                            .order_account_keys
+                            .write(
+                                (account, index_old),
+                                self.order_account_keys.read((account, count_old - 1))
+                            );
+                        self.order_account_keys.write((account, count_old - 1), 0);
+                        // Add to new account
+                        let account_count = self.order_account_count.read(account);
+                        self.order_account_keys.write((account, account_count), key);
+                        self.order_account_count.write(account, account_count + 1);
+                    }
+                    self.order_values.write(key, order);
                 },
                 // Add new order for given key and increase the count
                 Option::None(()) => {
@@ -584,6 +618,9 @@ mod DataStore {
                     self.order_keys.write(count, key);
                     self.order_count.write(count + 1);
                     self.order_values.write(key, order);
+                    let account_count = self.order_account_count.read(account);
+                    self.order_account_keys.write((account, account_count), key);
+                    self.order_account_count.write(account, account_count + 1);
                 },
             };
         }
@@ -596,6 +633,7 @@ mod DataStore {
             // We use the zero address to indicate that the order does not exist.
             assert(!order.account.is_zero(), DataError::ORDER_NOT_FOUND);
 
+            let account = order.account;
             let index_result = self.get_key_index(key);
             let mut index: u64 = 0;
             match index_result {
@@ -604,12 +642,22 @@ mod DataStore {
             };
 
             let count = self.order_count.read();
-            let last_key = self.order_keys.read(count - 1);
-
             // Update removed key index with last key
-            self.order_keys.write(index, last_key);
+            self.order_keys.write(index, self.order_keys.read(count - 1));
             self.order_keys.write(count - 1, 0);
             self.order_count.write(count - 1);
+
+            let account_index = self.get_account_key_index(account, key).unwrap();
+            let account_count = self.order_account_count.read(account);
+            // Move last key to removed index
+            self
+                .order_account_keys
+                .write(
+                    (account, account_index),
+                    self.order_account_keys.read((account, account_count - 1))
+                );
+            self.order_account_keys.write((account, account_count - 1), 0);
+            self.order_account_count.write(account, account_count - 1);
         }
 
         fn get_key_index(self: @ContractState, key: felt252) -> Option<u64> {
@@ -617,10 +665,32 @@ mod DataStore {
             let count = self.order_count.read();
             // Search for key index
             let result = loop {
-                if (i >= count) {
+                if (i == count) {
                     break false;
                 }
                 if (self.order_keys.read(i) == key) {
+                    break true;
+                }
+                i = i + 1;
+            };
+            if result {
+                Option::Some(i)
+            } else {
+                Option::None
+            }
+        }
+
+        fn get_account_key_index(
+            self: @ContractState, account: ContractAddress, key: felt252
+        ) -> Option<u64> {
+            let mut i = 0_u64;
+            let count = self.order_account_count.read(account);
+            // Search for key index
+            let result = loop {
+                if (i == count) {
+                    break false;
+                }
+                if (self.order_account_keys.read((account, i)) == key) {
                     break true;
                 }
                 i = i + 1;
@@ -636,14 +706,35 @@ mod DataStore {
             self.order_count.read()
         }
 
+        fn get_account_order_count(self: @ContractState, account: ContractAddress) -> u64 {
+            self.order_account_count.read(account)
+        }
+
         fn get_order_keys(self: @ContractState, start: u64, end: u64) -> Array<felt252> {
             let mut keys = ArrayTrait::<felt252>::new();
             let mut i = start;
+            let count = self.order_count.read();
             loop {
-                if (i > end) {
+                if (i > end || i > count) {
                     break;
                 }
                 keys.append(self.order_keys.read(i));
+                i = i + 1;
+            };
+            keys
+        }
+
+        fn get_account_order_keys(
+            self: @ContractState, account: ContractAddress, start: u64, end: u64
+        ) -> Array<felt252> {
+            let mut keys = ArrayTrait::<felt252>::new();
+            let mut i = start;
+            let count = self.order_account_count.read(account);
+            loop {
+                if (i > end || i > count) {
+                    break;
+                }
+                keys.append(self.order_account_keys.read((account, i)));
                 i = i + 1;
             };
             keys
