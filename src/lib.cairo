@@ -121,10 +121,10 @@ mod utils {
     mod bits;
     mod calc;
     mod enumerable_set;
+    mod precision;
     mod enumerable_values;
     mod error;
     mod global_reentrancy_guard;
-    mod precision;
     mod u128_mask;
     mod hash;
     mod store_arrays;
