@@ -4,7 +4,6 @@ mod MarketError {
     const OPEN_INTEREST_CANNOT_BE_UPDATED_FOR_SWAP_ONLY_MARKET: felt252 =
         'oi_not_updated_swap_only_market';
     const MAX_OPEN_INTEREST_EXCEEDED: felt252 = 'max_open_interest_exceeded';
-
     const EMPTY_ADDRESS_IN_MARKET_TOKEN_BALANCE_VALIDATION: felt252 =
         'empty_addr_market_balance_val';
     const EMPTY_ADDRESS_TOKEN_BALANCE_VAL: felt252 = 'empty_addr_token_balance_val';

@@ -546,7 +546,6 @@ fn is_pnl_factor_exceeded(
     (true, 0, 0)
 }
 
-
 /// Validate that the specified market exists and is enabled
 /// # Arguments
 /// * `data_store` - The `DataStore` contract dispatcher.
