@@ -95,12 +95,8 @@ fn claim_fees(
 
     let key = keys::claimable_fee_amount_key(market, token);
 
-    let fee_amount = data_store
-        .get_felt252(key)
-        .expect('claim_fees::get_felt252')
-        .try_into()
-        .expect('claim_fees::fee_amount');
-    data_store.set_felt252(key, 0);
+    let fee_amount = data_store.get_u128(key).expect('claim_fees::get_u128');
+    data_store.set_u128(key, 0);
 
     IBankDispatcher { contract_address: market }.transfer_out(token, receiver, fee_amount);
 
@@ -129,14 +125,13 @@ fn claim_ui_fees(
     validate_receiver(receiver);
 
     let key = keys::claimable_ui_fee_amount_for_account_key(market, token, ui_fee_receiver);
-    let fee_amount = data_store.get_felt252(key).expect('claim_ui_fees:fee_amount');
-    data_store.set_felt252(key, 0);
+    let fee_amount = data_store.get_u128(key).expect('claim_ui_fees:fee_amount');
+    data_store.set_u128(key, 0);
 
     let next_pool_value = data_store
-        .decrement_felt252(keys::claimable_ui_fee_amount_key(market, token), fee_amount)
+        .decrement_u128(keys::claimable_ui_fee_amount_key(market, token), fee_amount)
         .expect('claim_ui_fees::next_pool_value');
 
-    let fee_amount = fee_amount.try_into().expect('claim_ui_fees::fee_amount::u128');
     IBankDispatcher { contract_address: market }.transfer_out(token, receiver, fee_amount);
 
     validate_market_token_balance(data_store, market);

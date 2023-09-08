@@ -51,12 +51,12 @@ struct GetNextFundingAmountPerSizeResult {
 }
 
 struct GetExpectedMinTokenBalanceCache {
-    pool_amount: felt252,
-    swap_impact_pool_amount: felt252,
-    claimable_collateral_amount: felt252,
-    claimable_fee_amount: felt252,
-    claimable_ui_fee_amount: felt252,
-    affiliate_reward_amount: felt252,
+    pool_amount: u128,
+    swap_impact_pool_amount: u128,
+    claimable_collateral_amount: u128,
+    claimable_fee_amount: u128,
+    claimable_ui_fee_amount: u128,
+    affiliate_reward_amount: u128,
 }
 
 /// Get the long and short open interest for a market based on the collateral token used.
@@ -628,7 +628,7 @@ fn validate_market_token_balance_token(
         MarketError::INVALID_MARKET_TOKEN_BALANCE_FOR_COLLATERAL_AMOUNT
     );
     let claimable_funding_fee_amount = data_store
-        .get_felt252(keys::claimable_funding_amount_key(market.market_token, token))
+        .get_u128(keys::claimable_funding_amount_key(market.market_token, token))
         .expect('claimable_funding_fee_amount');
 
     // in case of late liquidations, it may be possible for the claimableFundingFeeAmount to exceed the market token balance
@@ -650,37 +650,35 @@ fn get_expected_min_token_balance(
     // get the pool amount directly as MarketUtils.getPoolAmount will divide the amount by 2
     // for markets with the same long and short token
     let pool_amount = data_store
-        .get_felt252(keys::pool_amount_key(market.market_token, token))
+        .get_u128(keys::pool_amount_key(market.market_token, token))
         .expect('pool_amount');
     let swap_impact_pool_amount = get_swap_impact_pool_amount(
         data_store, market.market_token, token
     )
         .into();
     let claimable_collateral_amount = data_store
-        .get_felt252(keys::claimable_collateral_amount_key(market.market_token, token))
+        .get_u128(keys::claimable_collateral_amount_key(market.market_token, token))
         .expect('claimable_collateral_amount');
     let claimable_fee_amount = data_store
-        .get_felt252(keys::claimable_fee_amount_key(market.market_token, token))
+        .get_u128(keys::claimable_fee_amount_key(market.market_token, token))
         .expect('claimable_fee_amount');
     let claimable_ui_fee_amount = data_store
-        .get_felt252(keys::claimable_fee_amount_key(market.market_token, token))
+        .get_u128(keys::claimable_fee_amount_key(market.market_token, token))
         .expect('claimable_ui_fee_amount');
     let affiliate_reward_amount = data_store
-        .get_felt252(keys::affiliate_reward_key(market.market_token, token))
+        .get_u128(keys::affiliate_reward_key(market.market_token, token))
         .expect('affiliate_reward_amount');
 
     // funding fees are excluded from this summation as claimable funding fees
     // are incremented without a corresponding decrease of the collateral of
     // other positions, the collateral of other positions is decreased when
     // those positions are updated
-    (pool_amount
+    pool_amount
         + swap_impact_pool_amount
         + claimable_collateral_amount
         + claimable_fee_amount
         + claimable_ui_fee_amount
-        + affiliate_reward_amount)
-        .try_into()
-        .expect('get_expected_min_token_balance')
+        + affiliate_reward_amount
 }
 
 /// Get the total amount of position collateral for a market
@@ -699,9 +697,7 @@ fn get_collateral_sum(
     divisor: u128
 ) -> u128 {
     let collateral_sum = data_store
-        .get_felt252(keys::collateral_sum_key(market, collateral_token, is_long))
-        .expect('get_collateral_sum::felt252')
-        .try_into()
-        .expect('get_collateral_sum::u128');
+        .get_u128(keys::collateral_sum_key(market, collateral_token, is_long))
+        .expect('get_collateral_sum');
     collateral_sum / divisor
 }

@@ -117,7 +117,7 @@ trait IEventEmitter<TContractState> {
         market: ContractAddress,
         receiver: ContractAddress,
         fee_amount: u128,
-        next_pool_value: felt252
+        next_pool_value: u128
     );
 
     /// Emits the `DepositCreated` event.
@@ -464,7 +464,7 @@ mod EventEmitter {
         market: ContractAddress,
         receiver: ContractAddress,
         fee_amount: u128,
-        next_pool_value: felt252,
+        next_pool_value: u128,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -934,7 +934,7 @@ mod EventEmitter {
             market: ContractAddress,
             receiver: ContractAddress,
             fee_amount: u128,
-            next_pool_value: felt252
+            next_pool_value: u128
         ) {
             self
                 .emit(
