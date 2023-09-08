@@ -264,5 +264,5 @@ fn after_order_frozen(
 /// # Arguments
 /// * `callback_contract` - The callback contract.
 fn is_valid_callback_contract(callback_contract: ContractAddress) -> bool {
-    callback_contract != 0.try_into().unwrap()
+    callback_contract.is_non_zero()
 }
