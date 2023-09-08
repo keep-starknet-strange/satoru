@@ -600,7 +600,7 @@ mod DataStore {
             let mut index: u64 = 0;
             match index_result {
                 Option::Some(i) => index = i,
-                Option::None(()) => assert(false, DataError::ORDER_INDEX_NOT_FOUND),
+                Option::None(()) => panic_with_felt252(DataError::ORDER_INDEX_NOT_FOUND),
             };
 
             let count = self.order_count.read();
