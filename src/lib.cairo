@@ -28,11 +28,6 @@ mod callback {
     }
 }
 
-// `chain` is a module that contains utility function for interacting with the chain and getting information.
-mod chain {
-    mod chain;
-}
-
 // `config` is a module that contains the configuration for the system.
 mod config {
     mod config;

@@ -6,10 +6,7 @@
 
 use result::ResultTrait;
 use traits::{TryInto, Into};
-use starknet::{
-    ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
-    ClassHash,
-};
+use starknet::{ContractAddress, contract_address_const};
 use debug::PrintTrait;
 use snforge_std::{declare, start_prank, stop_prank, start_warp, ContractClassTrait, ContractClass};
 
@@ -17,7 +14,6 @@ use snforge_std::{declare, start_prank, stop_prank, start_warp, ContractClassTra
 // Local imports.
 use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-use satoru::chain::chain::{IChainSafeDispatcher, IChainSafeDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
 use satoru::market::market_factory::{
     IMarketFactorySafeDispatcher, IMarketFactorySafeDispatcherTrait
@@ -43,7 +39,6 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -109,7 +104,6 @@ fn given_normal_conditions_when_get_open_interest_in_tokens_then_works() {
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -154,7 +148,6 @@ fn given_normal_conditions_when_get_open_interest_in_tokens_for_market_then_work
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -218,7 +211,6 @@ fn given_normal_conditions_when_get_pool_amount_then_works() {
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -282,7 +274,6 @@ fn given_normal_conditions_when_get_max_pool_amount_then_works() {
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -330,7 +321,6 @@ fn given_normal_conditions_when_get_max_open_interest_then_works() {
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -380,7 +370,6 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -406,15 +395,12 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
 
     // Setup pre conditions.
 
-    // Mock the timestamp.
-    start_warp(chain.contract_address, current_timestamp);
-
     // Fill required data store keys.
     data_store.set_u128(keys::claimable_collateral_time_divisor(), 1);
 
     // Actual test case.
     market_utils::increment_claimable_collateral_amount(
-        data_store, chain, event_emitter, market_address, token, account, delta
+        data_store, event_emitter, market_address, token, account, delta, current_timestamp
     );
 
     // Perform assertions.
@@ -449,7 +435,6 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -526,7 +511,6 @@ fn given_normal_conditions_when_get_pnl_then_works() {
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -598,7 +582,6 @@ fn given_zero_open_interest_when_get_pnl_then_returns_zero_pnl() {
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -670,7 +653,6 @@ fn given_zero_open_interest_in_tokens_when_get_pnl_then_returns_zero_pnl() {
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -742,7 +724,6 @@ fn given_normal_conditions_when_get_position_impact_pool_amount_then_works() {
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -791,7 +772,6 @@ fn given_normal_conditions_when_get_swap_impact_pool_amount_then_works() {
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -841,7 +821,6 @@ fn given_normal_conditions_when_apply_delta_to_position_impact_pool_then_works()
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -889,7 +868,6 @@ fn given_normal_conditions_when_apply_delta_to_swap_impact_pool_then_works() {
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup();
@@ -943,8 +921,6 @@ fn setup() -> (
     IRoleStoreSafeDispatcher,
     // Interface to interact with the `DataStore` contract.
     IDataStoreSafeDispatcher,
-    // Interface to interact with the `Chain` library contract.
-    IChainSafeDispatcher,
     // Interface to interact with the `EventEmitter` contract.
     IEventEmitterSafeDispatcher,
 ) {
@@ -958,7 +934,6 @@ fn setup() -> (
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     ) =
         setup_contracts();
@@ -976,7 +951,6 @@ fn setup() -> (
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     )
 }
@@ -1041,8 +1015,6 @@ fn setup_contracts() -> (
     IRoleStoreSafeDispatcher,
     // Interface to interact with the `DataStore` contract.
     IDataStoreSafeDispatcher,
-    // Interface to interact with the `Chain` library contract.
-    IChainSafeDispatcher,
     // Interface to interact with the `EventEmitter` contract.
     IEventEmitterSafeDispatcher,
 ) {
@@ -1059,11 +1031,6 @@ fn setup_contracts() -> (
 
     // Declare the `MarketToken` contract.
     let market_token_class_hash = declare('MarketToken');
-
-    // Declare the `Chain` library contract.
-    let chain_address = deploy_chain();
-    // Create a safe dispatcher to interact with the contract.
-    let chain = IChainSafeDispatcher { contract_address: chain_address };
 
     // Deploy the `EventEmitter` contract.
     let event_emitter_address = deploy_event_emitter();
@@ -1089,7 +1056,6 @@ fn setup_contracts() -> (
         market_factory,
         role_store,
         data_store,
-        chain,
         event_emitter,
     )
 }
@@ -1124,13 +1090,6 @@ fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
 /// TODO: Find a way to share this code.
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
-    let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
-    contract.deploy(constructor_arguments).unwrap()
-}
-
-/// Utility function to deploy a `Chain` contract and return its address.
-fn deploy_chain() -> ContractAddress {
-    let contract = declare('Chain');
     let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
     contract.deploy(constructor_arguments).unwrap()
 }
