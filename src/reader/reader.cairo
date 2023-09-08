@@ -147,27 +147,7 @@ fn get_position(data_store: IDataStoreSafeDispatcher, key: felt252) -> Position 
 /// Returns a struct representing order-related information.
 fn get_order(data_store: IDataStoreSafeDispatcher, key: felt252) -> Order {
     // TODO
-    Order {
-        order_type: OrderType::MarketSwap(()),
-        account: 0.try_into().unwrap(),
-        receiver: 0.try_into().unwrap(),
-        callback_contract: 0.try_into().unwrap(),
-        ui_fee_receiver: 0.try_into().unwrap(),
-        market: 0.try_into().unwrap(),
-        initial_collateral_token: 0.try_into().unwrap(),
-        swap_path: ArrayTrait::new(),
-        size_delta_usd: 0,
-        initial_collateral_delta_amount: 0,
-        trigger_price: 0,
-        acceptable_price: 0,
-        execution_fee: 0,
-        callback_gas_limit: 0,
-        min_output_amount: 0,
-        updated_at_block: 0,
-        is_long: true,
-        should_unwrap_native_token: true,
-        is_frozen: true,
-    }
+    Default::default()
 }
 
 /// Intended to calculate and return various metrics related to the profit and loss (PNL) of a position within a market.

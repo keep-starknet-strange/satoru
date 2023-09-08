@@ -53,7 +53,7 @@ fn test_callback_utils_saved_callback() {
 }
 
 #[test]
-fn test_callback_utils_callback() {
+fn test_callback_utils_callback_contract() {
     let (_, _, data_store) = setup();
 
     let mut deposit: Deposit = Default::default();

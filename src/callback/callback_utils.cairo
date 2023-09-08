@@ -19,7 +19,6 @@
 // *************************************************************************
 // Core lib imports.
 use starknet::ContractAddress;
-use starknet::syscalls::emit_event_syscall;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
@@ -108,7 +107,7 @@ fn after_deposit_execution(
     match dispatcher.after_deposit_execution(key, deposit, event_data) {
         Result::Ok => {},
         Result::Err => {
-            // event_emitter.emit_after_deposit_execution_error(key, deposit);
+            // TODO: use `deposit` variable instead of default when Copy is implemented for Deposit.
             event_emitter.emit_after_deposit_execution_error(key, Default::default());
         },
     };
@@ -119,7 +118,12 @@ fn after_deposit_execution(
 /// * `key` - They key of the deposit.
 /// * `deposit` - The deposit that was cancelled.
 /// * `event_data` - The event log data.
-fn after_deposit_cancellation(key: felt252, deposit: Deposit, event_data: EventLogData) {
+fn after_deposit_cancellation(
+    key: felt252,
+    deposit: Deposit,
+    event_data: EventLogData,
+    event_emitter: IEventEmitterSafeDispatcher
+) {
     if !is_valid_callback_contract(deposit.callback_contract) {
         return;
     }
@@ -128,7 +132,10 @@ fn after_deposit_cancellation(key: felt252, deposit: Deposit, event_data: EventL
     };
     match dispatcher.after_deposit_cancellation(key, deposit, event_data) {
         Result::Ok => {},
-        Result::Err => emit_event(selector!("AfterDepositCancellationError"), key),
+        Result::Err => {
+            // TODO: use `deposit` variable instead of default when Copy is implemented for Deposit.
+            event_emitter.emit_after_deposit_execution_error(key, Default::default());
+        },
     }
 }
 
@@ -137,7 +144,12 @@ fn after_deposit_cancellation(key: felt252, deposit: Deposit, event_data: EventL
 /// * `key` - They key of the withdrawal.
 /// * `withdrawal` - The withdrawal that was executed.
 /// * `event_data` - The event log data.
-fn after_withdrawal_execution(key: felt252, withdrawal: Withdrawal, event_data: EventLogData) {
+fn after_withdrawal_execution(
+    key: felt252,
+    withdrawal: Withdrawal,
+    event_data: EventLogData,
+    event_emitter: IEventEmitterSafeDispatcher
+) {
     if !is_valid_callback_contract(withdrawal.callback_contract) {
         return;
     }
@@ -146,7 +158,10 @@ fn after_withdrawal_execution(key: felt252, withdrawal: Withdrawal, event_data: 
     };
     match dispatcher.after_withdrawal_execution(key, withdrawal, event_data) {
         Result::Ok => {},
-        Result::Err => emit_event(selector!("AfterWithdrawalExecutionError"), key),
+        Result::Err => {
+            // TODO: use `withdrawal` variable instead of default when Copy is implemented for Withdrawal.
+            event_emitter.emit_after_deposit_execution_error(key, Default::default());
+        },
     }
 }
 
@@ -155,7 +170,12 @@ fn after_withdrawal_execution(key: felt252, withdrawal: Withdrawal, event_data: 
 /// * `key` - They key of the withdrawal.
 /// * `withdrawal` - The withdrawal that was cancelled.
 /// * `event_data` - The event log data.
-fn after_withdrawal_cancellation(key: felt252, withdrawal: Withdrawal, event_data: EventLogData) {
+fn after_withdrawal_cancellation(
+    key: felt252,
+    withdrawal: Withdrawal,
+    event_data: EventLogData,
+    event_emitter: IEventEmitterSafeDispatcher
+) {
     if !is_valid_callback_contract(withdrawal.callback_contract) {
         return;
     }
@@ -164,7 +184,10 @@ fn after_withdrawal_cancellation(key: felt252, withdrawal: Withdrawal, event_dat
     };
     match dispatcher.after_withdrawal_cancellation(key, withdrawal, event_data) {
         Result::Ok => {},
-        Result::Err => emit_event(selector!("AfterWithdrawalCancellationError"), key),
+        Result::Err => {
+            // TODO: use `withdrawal` variable instead of default when Copy is implemented for Withdrawal.
+            event_emitter.emit_after_withdrawal_cancellation_error(key, Default::default());
+        },
     }
 }
 
@@ -173,7 +196,9 @@ fn after_withdrawal_cancellation(key: felt252, withdrawal: Withdrawal, event_dat
 /// * `key` - They key of the order.
 /// * `order` - The order that was executed.
 /// * `event_data` - The event log data.
-fn after_order_execution(key: felt252, order: Order, event_data: EventLogData) {
+fn after_order_execution(
+    key: felt252, order: Order, event_data: EventLogData, event_emitter: IEventEmitterSafeDispatcher
+) {
     if !is_valid_callback_contract(order.callback_contract) {
         return;
     }
@@ -182,7 +207,10 @@ fn after_order_execution(key: felt252, order: Order, event_data: EventLogData) {
     };
     match dispatcher.after_order_execution(key, order, event_data) {
         Result::Ok => {},
-        Result::Err => emit_event(selector!("AfterOrderExecutionError"), key),
+        Result::Err => {
+            // TODO: use `order` variable instead of default when Copy is implemented for Order.
+            event_emitter.emit_after_order_execution_error(key, Default::default());
+        },
     }
 }
 
@@ -191,7 +219,9 @@ fn after_order_execution(key: felt252, order: Order, event_data: EventLogData) {
 /// * `key` - They key of the order.
 /// * `order` - The order that was cancelled.
 /// * `event_data` - The event log data.
-fn after_order_cancellation(key: felt252, order: Order, event_data: EventLogData) {
+fn after_order_cancellation(
+    key: felt252, order: Order, event_data: EventLogData, event_emitter: IEventEmitterSafeDispatcher
+) {
     if !is_valid_callback_contract(order.callback_contract) {
         return;
     }
@@ -200,7 +230,10 @@ fn after_order_cancellation(key: felt252, order: Order, event_data: EventLogData
     };
     match dispatcher.after_order_cancellation(key, order, event_data) {
         Result::Ok => {},
-        Result::Err => emit_event(selector!("AfterOrderCancellationError"), key),
+        Result::Err => {
+            // TODO: use `order` variable instead of default when Copy is implemented for Order.
+            event_emitter.emit_after_order_cancellation_error(key, Default::default());
+        },
     }
 }
 
@@ -209,7 +242,9 @@ fn after_order_cancellation(key: felt252, order: Order, event_data: EventLogData
 /// * `key` - They key of the order.
 /// * `order` - The order that was frozen.
 /// * `event_data` - The event log data.
-fn after_order_frozen(key: felt252, order: Order, event_data: EventLogData) {
+fn after_order_frozen(
+    key: felt252, order: Order, event_data: EventLogData, event_emitter: IEventEmitterSafeDispatcher
+) {
     if !is_valid_callback_contract(order.callback_contract) {
         return;
     }
@@ -218,7 +253,10 @@ fn after_order_frozen(key: felt252, order: Order, event_data: EventLogData) {
     };
     match dispatcher.after_order_frozen(key, order, event_data) {
         Result::Ok => {},
-        Result::Err => emit_event(selector!("AfterOrderFrozenError"), key),
+        Result::Err => {
+            // TODO: use `order` variable instead of default when Copy is implemented for Order.
+            event_emitter.emit_after_order_frozen_error(key, Default::default());
+        },
     }
 }
 
@@ -227,10 +265,4 @@ fn after_order_frozen(key: felt252, order: Order, event_data: EventLogData) {
 /// * `callback_contract` - The callback contract.
 fn is_valid_callback_contract(callback_contract: ContractAddress) -> bool {
     callback_contract != 0.try_into().unwrap()
-}
-
-// TODO: replace this by something cleaner when available, this is only here because
-// it's not possible to emit event without a reference to `self`.
-fn emit_event(event_selector: felt252, key: felt252) {
-    emit_event_syscall(array![event_selector].span(), array![key].span());
 }
