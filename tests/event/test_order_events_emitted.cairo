@@ -135,6 +135,47 @@ fn test_emit_order_updated() {
     assert(spy.events.len() == 0, 'There should be no events');
 }
 
+#[test]
+fn test_emit_order_size_delta_auto_updated() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let key = 100;
+    let size_delta_usd: u128 = 200;
+    let next_size_delta_usd: u128 = 300;
+
+    // Create the expected data.
+    let expected_data: Array<felt252> = array![
+        key, size_delta_usd.into(), next_size_delta_usd.into(),
+    ];
+
+    // Emit the event.
+    event_emitter.emit_order_size_delta_auto_updated(key, size_delta_usd, next_size_delta_usd);
+
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address,
+                    name: 'OrderSizeDeltaAutoUpdated',
+                    keys: array![],
+                    data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}
+
 
 /// Utility function to setup the test environment.
 ///
