@@ -1,74 +1,143 @@
+//Core lib imports
 use satoru::utils::precision;
+use integer::BoundedInt;
+
+const FLOAT_PRECISION: u128 = 1000000000000000000000000000000000; // 10^30
+const FLOAT_PRECISION_SQRT: u128 = 1000000000000000; // 10^15
+
+const WEI_PRECISION: u128 = 1000000000000000000; // 10^18
+const BASIS_POINTS_DIVISOR: u128 = 10000;
+
+const FLOAT_TO_WEI_DIVISOR: u128 = 1000000000000; // 10^12
+
+
 
 #[test]
 fn test_apply_factor_u128() {
-    // Test avec des valeurs positives
-    assert_eq!(apply_factor_u128(10_000, 2_000), 20_000);
-    assert_eq!(apply_factor_u128(100, 3), 300);
-    
-    // Test avec des valeurs nulles
-    assert_eq!(apply_factor_u128(0, 2_000), 0);
-    assert_eq!(apply_factor_u128(100, 0), 0);
-    
-    // Test avec des valeurs négatives
-    assert_eq!(apply_factor_u128(-10_000, 2_000), -20_000);
-    assert_eq!(apply_factor_u128(100, -3), -300);
+    let value: u128 = 10;
+    let factor: u128 = 2;
+    let result = precision::apply_factor_u128(value, factor);
+    assert(result, 20);
 }
 
 #[test]
 fn test_apply_factor_i128() {
-    // Test avec des valeurs positives et négatives
-    assert(apply_factor_i128(10_000, 2_000), 20_000);
-    assert(apply_factor_i128(-10_000, 2_000), -20_000);
-    assert(apply_factor_i128(10_000, -2_000), -20_000);
-    
-    // Test avec des valeurs nulles
-    assert(apply_factor_i128(0, 2_000), 0);
-    assert(apply_factor_i128(100, 0), 0);
+    let value: i128 = 10;
+    let factor: i128 = 2;
+    let result = precision::apply_factor_i128(value, factor);
+    assert(result, 20);
 }
 
 #[test]
 fn test_apply_factor_roundup_magnitude() {
-    // Test avec des valeurs positives
-    assert(apply_factor_roundup_magnitude(10_000, 2_000, true), 20_000);
-    assert(apply_factor_roundup_magnitude(10_000, 2_000, false), 20_000);
-    
-    // Test avec des valeurs nulles
-    assert(apply_factor_roundup_magnitude(0, 2_000, true), 0);
-    assert(apply_factor_roundup_magnitude(100, 0, false), 0);
-    
-    // Test avec des valeurs négatives
-    assert(apply_factor_roundup_magnitude(-10_000, 2_000, true), -20_000);
-    assert(apply_factor_roundup_magnitude(10_000, -2_000, false), -20_000);
+    let value: u128 = 10;
+    let factor: i128 = 2;
+    let roundup_magnitude = true; // Mettez la valeur appropriée
+    let result = precision::apply_factor_roundup_magnitude(value, factor, roundup_magnitude);
+    // Assurez-vous d'ajuster cette assertion en fonction de la valeur attendue.
+    // assert(result, ???);
 }
 
 #[test]
 fn test_mul_div() {
-    // Test case 1: Basic multiplication and division
-    let value1: u128 = 10;
-    let numerator1: u128 = 3;
-    let denominator1: u128 = 2;
-    let result1 = mul_div(value1, numerator1, denominator1);
-    assert(result1, 15);
+    let value: u128 = 10;
+    let numerator: u128 = 2;
+    let denominator: u128 = 3;
+    let result = precision::mul_div(value, numerator, denominator);
+    assert(result, 6);
+}
 
-    // Test case 2: Division by zero should panic
-    let value2: u128 = 5;
-    let numerator2: u128 = 2;
-    let denominator2: u128 = 0;
-    // In this case, the function should panic with "Division by 0"
-    // assert!(std::panic::catch_unwind(|| mul_div(value2, numerator2, denominator2)).is_err());
+#[test]
+fn test_mul_div_ival() {
+    let value: i128 = 10;
+    let numerator: u128 = 2;
+    let denominator: u128 = 3;
+    let result = precision::mul_div_ival(value, numerator, denominator);
+    assert(result, 6);
+}
 
-    // Test case 3: Large values
-    let value3: u128 = u128::MAX;
-    let numerator3: u128 = 2;
-    let denominator3: u128 = 3;
-    let result3 = mul_div(value3, numerator3, denominator3);
-    assert(result3, 170_550_156_503_850_974_095_668_916_586_433);
+#[test]
+fn test_mul_div_inum() {
+    let value: u128 = 10;
+    let numerator: i128 = 2;
+    let denominator: u128 = 3;
+    let result = precision::mul_div_inum(value, numerator, denominator);
+    assert(result, 6);
+}
 
-    // Test case 4: Zero value should always return zero
-    let value4: u128 = 0;
-    let numerator4: u128 = 123;
-    let denominator4: u128 = 456;
-    let result4 = mul_div(value4, numerator4, denominator4);
-    assert(result4, 0);
+    #[test]
+fn test_mul_div_inum_roundup() {
+    let value: u128 = 10;
+    let numerator: i128 = 2;
+    let denominator: u128 = 3;
+    let roundup_magnitude = true; // Mettez la valeur appropriée
+    let result = precision::mul_div_inum_roundup(value, numerator, denominator, roundup_magnitude);
+    // Assurez-vous d'ajuster cette assertion en fonction de la valeur attendue.
+    // assert(result, ???);
+}
+
+#[test]
+fn test_mul_div_roundup() {
+    let value: u128 = 10;
+    let numerator: u128 = 2;
+    let denominator: u128 = 3;
+    let roundup_magnitude = true; // Mettez la valeur appropriée
+    let result = precision::mul_div_roundup(value, numerator, denominator, roundup_magnitude);
+    // Assurez-vous d'ajuster cette assertion en fonction de la valeur attendue.
+    // assert(result, ???);
+}
+
+#[test]
+fn test_apply_exponent_factor() {
+    let float_value: u128 = 1000;
+    let exponent_factor: u128 = 2;
+    let result = precision::apply_exponent_factor(float_value, exponent_factor);
+    assert(result, 1000000);
+}
+
+#[test]
+fn test_to_factor_roundup() {
+    let value: u128 = 10;
+    let divisor: u128 = 2;
+    let roundup_magnitude = true; // Mettez la valeur appropriée
+    let result = precision::to_factor_roundup(value, divisor, roundup_magnitude);
+    // Assurez-vous d'ajuster cette assertion en fonction de la valeur attendue.
+    // assert(result, ???);
+}
+
+#[test]
+fn test_to_factor() {
+    let value: u128 = 10;
+    let divisor: u128 = 2;
+    let result = precision::to_factor(value, divisor);
+    assert(result, 5);
+}
+
+#[test]
+fn test_to_factor_ival() {
+    let value: i128 = 10;
+    let divisor: u128 = 2;
+    let result = precision::to_factor_ival(value, divisor);
+    assert(result, 5);
+}
+
+#[test]
+fn test_float_to_wei() {
+    let value: u128 = 10000;
+    let result = precision::float_to_wei(value);
+    assert(result, 1000);
+}
+
+#[test]
+fn test_wei_to_float() {
+    let value: u128 = 1000;
+    let result = precision::wei_to_float(value);
+    assert(result, 10000);
+}
+
+#[test]
+fn test_basis_point_to_float() {
+    let basis_point: u128 = 10;
+    let result = precision::basis_point_to_float(basis_point);
+    assert(result, 100);
 }
