@@ -354,6 +354,27 @@ decimal multiplier value and uint32 price value.</p>
 <li>USDC: 30 - 6 - 6 =&gt; 18</li>
 <li>DG: 30 - 18 - 11 =&gt; 1.</li>
 </ul>
+<h3 id="oracle-primary-and-secondary-price"><a class="header" href="#oracle-primary-and-secondary-price">Oracle primary and secondary price</a></h3>
+<p>It is possible to update the oracle to support a primary_price and a secondary_price
+which would allow for stop-loss orders to be executed at exactly the trigger_price</p>
+<p>However, this may lead to gaming issues, an example:</p>
+<ul>
+<li>The current price is $2020</li>
+<li>A user has a long position and creates a stop-loss decrease order for &lt; $2010</li>
+<li>If the order has a swap from ETH to USDC and the user is able to cause the order
+to be frozen / unexecutable by manipulating state or otherwise</li>
+<li>Then if price decreases to $2000, and the user is able to manipulate state such that
+the order becomes executable with $2010 being used as the price instead</li>
+<li>Then the user would be able to perform the swap at a higher price than should possible</li>
+</ul>
+<p>Additionally, using the exact order's trigger_price could lead to gaming issues during times
+of volatility due to users setting tight stop-losses to minimize loss while betting on a
+directional price movement, fees and price impact should help a bit with this, but there
+still may be some probability of success</p>
+<p>The order keepers can use the closest oracle price to the trigger_price for execution, which
+should lead to similar order execution prices with reduced gaming risks</p>
+<p>If an order is frozen, the frozen order keepers should use the most recent price for order
+execution instead</p>
 <hr />
 <p>It contains the following files:</p>
 <ul>
@@ -372,6 +393,9 @@ decimal multiplier value and uint32 price value.</p>
 <ul>
 <li>
 <p><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/order/base_order_utils.cairo">base_order_utils.cairo</a>: This library comprises a collection of frequently used order-related functions, designed to facilitate common operations.</p>
+</li>
+<li>
+<p><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/order/decrease_order_utils.cairo">decrease_order_utils.cairo</a>: Library for functions to help with processing a decrease order.</p>
 </li>
 <li>
 <p><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/order/order.cairo">order.cairo</a>: Struct for orders</p>
