@@ -11,7 +11,7 @@ fn test_emit_affiliate_reward_updated() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (contract_address, event_emitter) = setup();
+    let (contract_address, event_emitter) = setup_event_emitter();
     let mut spy = spy_events(SpyOn::One(contract_address));
 
     // *********************************************************************************************
@@ -63,7 +63,7 @@ fn test_emit_affiliate_reward_claimed() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (contract_address, event_emitter) = setup();
+    let (contract_address, event_emitter) = setup_event_emitter();
     let mut spy = spy_events(SpyOn::One(contract_address));
 
     // *********************************************************************************************
@@ -106,18 +106,4 @@ fn test_emit_affiliate_reward_claimed() {
         );
     // Assert there are no more events.
     assert(spy.events.len() == 0, 'There should be no events');
-}
-
-
-/// Utility function to setup the test environment.
-///
-/// # Returns
-///
-/// * `ContractAddress` - The address of the event emitter contract.
-/// * `IEventEmitterDispatcher` - The event emitter store dispatcher.
-fn setup() -> (ContractAddress, IEventEmitterDispatcher) {
-    let contract = declare('EventEmitter');
-    let contract_address = contract.deploy(@array![]).unwrap();
-    let event_emitter = IEventEmitterDispatcher { contract_address };
-    return (contract_address, event_emitter);
 }

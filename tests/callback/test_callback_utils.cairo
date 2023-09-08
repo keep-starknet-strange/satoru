@@ -11,7 +11,7 @@ use satoru::callback::callback_utils::{
     after_deposit_execution
 };
 use satoru::callback::mocks::{ICallbackMockDispatcherTrait, deploy_callback_mock};
-use satoru::tests_lib::{setup, teardown, deploy_event_emitter};
+use satoru::tests_lib::{setup, teardown, setup_event_emitter};
 
 #[test]
 fn test_callback_utils_validate() {
@@ -58,7 +58,7 @@ fn test_callback_utils_callback_contract() {
 
     let mut deposit: Deposit = Default::default();
     let log_data = EventLogData { cant_be_empty: 0 };
-    let event_emitter = deploy_event_emitter();
+    let (_,event_emitter) = setup_event_emitter();
 
     let callback_mock = deploy_callback_mock();
     deposit.callback_contract = callback_mock.contract_address;

@@ -32,10 +32,10 @@ fn deploy_role_store() -> ContractAddress {
 }
 
 /// Utility function to deploy a `EventEmitter` contract and return its dispatcher.
-fn deploy_event_emitter() -> IEventEmitterDispatcher {
+fn deploy_event_emitter() -> ContractAddress {
     let contract = declare('EventEmitter');
-    let contract_address = contract.deploy(@array![]).unwrap();
-    IEventEmitterDispatcher { contract_address }
+   contract.deploy(@array![]).unwrap()
+    
 }
 
 /// Utility function to setup the test environment.
@@ -56,6 +56,19 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
     start_prank(data_store_address, caller_address);
     (caller_address, role_store, data_store)
 }
+
+/// Utility function to setup the test environment.
+///
+/// # Returns
+///
+/// * `ContractAddress` - The address of the event emitter contract.
+/// * `IEventEmitterSafeDispatcher` - The event emitter store dispatcher.
+fn setup_event_emitter() -> (ContractAddress, IEventEmitterDispatcher) {
+    let event_emitter_address = deploy_event_emitter();
+    let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
+    (event_emitter_address, event_emitter)
+}
+
 
 /// Utility function to teardown the test environment.
 ///
