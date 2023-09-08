@@ -15,15 +15,12 @@ fn process_order(params: ExecuteOrderParams) { //TODO
 
 /// Validate the oracle block numbers used for the prices in the oracle.
 /// # Arguments
-/// * `min_oracle_block_numbers` - The oracles block number that should be less than block_number.
-/// * `max_oracle_block_numbers` - The oracles block number that should be higher than block_number.
+/// * `min_oracle_block_numbers` - The min oracle block numbers.
+/// * `max_oracle_block_numbers` - The max oracle block numbers.
 /// * `order_type` - The order type.
 /// * `order_updated_at_block` - The block at which the order was last updated.
 /// * `position_increased_at_block` - The block at which the position was last increased.
 /// * `position_decrease_at_block` - The block at which the position was last decreased.
-
-/// # Returns
-/// Return the latest block at which the ADL flag was updated.
 #[inline(always)]
 fn validate_oracle_block_numbers(
     min_oracle_block_numbers: Array<u128>,
