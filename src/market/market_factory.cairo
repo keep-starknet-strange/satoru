@@ -54,9 +54,7 @@ mod MarketFactory {
     use satoru::role::role;
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::event::event_emitter::{
-        IEventEmitterDispatcher, IEventEmitterDispatcherTrait
-    };
+    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::market::market::{Market, UniqueIdMarket};
 
     // *************************************************************************
@@ -155,8 +153,7 @@ mod MarketFactory {
                     long_token,
                     short_token,
                     market_type,
-                )
-                ;
+                );
 
             // Return the market token address and the market key.
             (market_token_deployed_address, market_key)
@@ -181,8 +178,7 @@ mod MarketFactory {
                 .read()
                 .emit_market_token_class_hash_updated(
                     caller_address, old_market_token_class_hash, market_token_class_hash,
-                )
-                ;
+                );
         }
     }
 

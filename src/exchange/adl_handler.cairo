@@ -70,9 +70,7 @@ mod AdlHandler {
     };
     use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
     use satoru::data::{keys, data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}};
-    use satoru::event::event_emitter::{
-        IEventEmitterDispatcher, IEventEmitterDispatcherTrait
-    };
+    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
     use satoru::exchange::base_order_handler::BaseOrderHandler::{
         data_store::InternalContractMemberStateTrait as DataStoreStateTrait,

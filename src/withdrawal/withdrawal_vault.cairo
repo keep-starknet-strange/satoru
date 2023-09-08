@@ -69,9 +69,7 @@ mod WithdrawalVault {
                 self.strict_bank.read().contract_address.is_zero(),
                 WithdrawalError::ALREADY_INITIALIZED
             );
-            self
-                .strict_bank
-                .write(IStrictBankDispatcher { contract_address: strict_bank_address });
+            self.strict_bank.write(IStrictBankDispatcher { contract_address: strict_bank_address });
         }
     }
 }

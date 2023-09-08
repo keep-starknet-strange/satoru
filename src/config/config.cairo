@@ -55,9 +55,7 @@ mod Config {
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::data::keys;
-    use satoru::event::event_emitter::{
-        IEventEmitterDispatcher, IEventEmitterDispatcherTrait
-    };
+    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::config::error::ConfigError;
 
     // External imports.

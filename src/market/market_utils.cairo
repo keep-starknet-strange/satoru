@@ -150,9 +150,7 @@ fn get_open_interest_in_tokens(
     is_long: bool,
     divisor: u128
 ) -> u128 {
-    data_store
-        .get_u128(keys::open_interest_in_tokens_key(market, collateral_token, is_long))
-        
+    data_store.get_u128(keys::open_interest_in_tokens_key(market, collateral_token, is_long))
         / divisor
 }
 
@@ -167,8 +165,7 @@ fn get_pool_amount(
     data_store: IDataStoreDispatcher, market: @Market, token_address: ContractAddress
 ) -> u128 {
     let divisor = get_pool_divisor(*market.long_token, *market.short_token);
-    data_store.get_u128(keys::pool_amount_key(*market.market_token, token_address))
-        / divisor
+    data_store.get_u128(keys::pool_amount_key(*market.market_token, token_address)) / divisor
 }
 
 /// Get the maximum amount of tokens allowed to be in the pool.
@@ -229,20 +226,17 @@ fn increment_claimable_collateral_amount(
                 market_address, token, time_key, account
             ),
             delta
-        )
-        ;
+        );
 
     // Increment the total collateral amount for the market.
     let next_pool_value = data_store
-        .increment_u128(keys::claimable_collateral_amount_key(market_address, token), delta)
-        ;
+        .increment_u128(keys::claimable_collateral_amount_key(market_address, token), delta);
 
     // Emit event.
     event_emitter
         .emit_claimable_collateral_updated(
             market_address, token, account, time_key, delta, next_value, next_pool_value
-        )
-        ;
+        );
 }
 
 /// Increment the claimable funding amount.
@@ -265,20 +259,17 @@ fn increment_claimable_funding_amount(
     let next_value = data_store
         .increment_u128(
             keys::claimable_funding_amount_by_account_key(market_address, token, account), delta
-        )
-        ;
+        );
 
     // Increment the total funding amount for the market.
     let next_pool_value = data_store
-        .increment_u128(keys::claimable_funding_amount_key(market_address, token), delta)
-        ;
+        .increment_u128(keys::claimable_funding_amount_key(market_address, token), delta);
 
     // Emit event.
     event_emitter
         .emit_claimable_funding_updated(
             market_address, token, account, delta, next_value, next_pool_value
-        )
-        ;
+        );
 }
 
 /// Get the pool divisor.
@@ -382,13 +373,10 @@ fn apply_delta_to_position_impact_pool(
 ) -> u128 {
     // Increment the position impact pool amount.
     let next_value = data_store
-        .increment_u128(keys::position_impact_pool_amount_key(market_address), delta)
-        ;
+        .increment_u128(keys::position_impact_pool_amount_key(market_address), delta);
 
     // Emit event.
-    event_emitter
-        .emit_position_impact_pool_amount_updated(market_address, delta, next_value)
-        ;
+    event_emitter.emit_position_impact_pool_amount_updated(market_address, delta, next_value);
 
     // Return the updated position impact pool amount.
     next_value
@@ -412,13 +400,10 @@ fn apply_delta_to_swap_impact_pool(
 ) -> u128 {
     // Increment the swap impact pool amount.
     let next_value = data_store
-        .increment_u128(keys::swap_impact_pool_amount_key(market_address, token), delta)
-        ;
+        .increment_u128(keys::swap_impact_pool_amount_key(market_address, token), delta);
 
     // Emit event.
-    event_emitter
-        .emit_swap_impact_pool_amount_updated(market_address, token, delta, next_value)
-        ;
+    event_emitter.emit_swap_impact_pool_amount_updated(market_address, token, delta, next_value);
 
     // Return the updated swap impact pool amount.
     next_value
@@ -452,8 +437,9 @@ fn apply_delta_to_open_interest(
     // Increment the open interest by the delta.
     // TODO: create `apply_delta_to_u128` function in `DataStore` contract and pass `delta` as `i128`.
     let next_value = data_store
-        .increment_u128(keys::open_interest_key(*market.market_token, collateral_token, is_long), 0)
-        ;
+        .increment_u128(
+            keys::open_interest_key(*market.market_token, collateral_token, is_long), 0
+        );
 
     // If the open interest for longs is increased then tokens were virtually bought from the pool
     // so the virtual inventory should be decreased.

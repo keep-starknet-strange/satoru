@@ -89,9 +89,7 @@ fn adjust_gas_limit_for_estimate(
 /// # Arguments
 /// * `data_store` - The data storage contract dispatcher.
 /// * `deposit` - The deposit to estimate the gas limit for.
-fn estimate_execute_deposit_gas_limit(
-    data_store: IDataStoreDispatcher, deposit: Deposit
-) -> u128 {
+fn estimate_execute_deposit_gas_limit(data_store: IDataStoreDispatcher, deposit: Deposit) -> u128 {
     // TODO
     0
 }
@@ -142,9 +140,7 @@ fn estimate_execute_decrease_order_gas_limit(
 /// # Arguments
 /// * `data_store` - The data storage contract dispatcher.
 /// * `order` - The order to estimate the gas limit for.
-fn estimate_execute_swap_order_gas_limit(
-    data_store: IDataStoreDispatcher, order: Order
-) -> u128 {
+fn estimate_execute_swap_order_gas_limit(data_store: IDataStoreDispatcher, order: Order) -> u128 {
     // TODO
     0
 }

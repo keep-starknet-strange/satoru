@@ -44,12 +44,9 @@ use satoru::role::role;
 /// Utility function to setup the test environment.
 fn setup() -> (
     // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
-    ContractAddress,
-    // Interface to interact with the `DepositVault` contract.
-    IDepositVaultDispatcher,
-    // Interface to interact with the `RoleStore` contract.
-    IRoleStoreDispatcher,
-    // Interface to interact with the `DataStore` contract.
+    ContractAddress, // Interface to interact with the `DepositVault` contract.
+    IDepositVaultDispatcher, // Interface to interact with the `RoleStore` contract.
+    IRoleStoreDispatcher, // Interface to interact with the `DataStore` contract.
     IDataStoreDispatcher,
 ) {
     // Setup the contracts.
@@ -98,12 +95,9 @@ fn teardown(data_store: IDataStoreDispatcher, deposit_vault: IDepositVaultDispat
 /// Setup required contracts.
 fn setup_contracts() -> (
     // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
-    ContractAddress,
-    // Interface to interact with the `DepositVault` contract.
-    IDepositVaultDispatcher,
-    // Interface to interact with the `RoleStore` contract.
-    IRoleStoreDispatcher,
-    // Interface to interact with the `DataStore` contract.
+    ContractAddress, // Interface to interact with the `DepositVault` contract.
+    IDepositVaultDispatcher, // Interface to interact with the `RoleStore` contract.
+    IRoleStoreDispatcher, // Interface to interact with the `DataStore` contract.
     IDataStoreDispatcher,
 ) {
     let caller_address = 0x101.try_into().unwrap();

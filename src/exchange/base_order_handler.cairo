@@ -54,9 +54,7 @@ mod BaseOrderHandler {
     use super::IBaseOrderHandler;
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::event::event_emitter::{
-        IEventEmitterDispatcher, IEventEmitterDispatcherTrait
-    };
+    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::oracle::{
         oracle::{IOracleDispatcher, IOracleDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
@@ -152,27 +150,19 @@ mod BaseOrderHandler {
                 self.data_store.read().contract_address.is_zero(),
                 ExchangeError::ALREADY_INITIALIZED
             );
-            self
-                .data_store
-                .write(IDataStoreDispatcher { contract_address: data_store_address });
-            self
-                .role_store
-                .write(IRoleStoreDispatcher { contract_address: role_store_address });
+            self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
+            self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
             self
                 .event_emitter
                 .write(IEventEmitterDispatcher { contract_address: event_emitter_address });
-            self
-                .order_vault
-                .write(IOrderVaultDispatcher { contract_address: order_vault_address });
+            self.order_vault.write(IOrderVaultDispatcher { contract_address: order_vault_address });
             self.oracle.write(IOracleDispatcher { contract_address: oracle_address });
             self
                 .swap_handler
                 .write(ISwapHandlerDispatcher { contract_address: swap_handler_address });
             self
                 .referral_storage
-                .write(
-                    IReferralStorageDispatcher { contract_address: referral_storage_address }
-                );
+                .write(IReferralStorageDispatcher { contract_address: referral_storage_address });
         }
     }
 

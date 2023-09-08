@@ -16,9 +16,7 @@ use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait, Contract
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::market::market_factory::{
-    IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait
-};
+use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::market::market::{Market, UniqueIdMarket};
 use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
@@ -67,9 +65,7 @@ fn given_normal_conditions_when_create_market_then_market_is_created() {
     assert(market.short_token == short_token, 'bad_market');
 
     // Check the market token was deployed.
-    let market_token = IMarketTokenDispatcher {
-        contract_address: market_token_deployed_address
-    };
+    let market_token = IMarketTokenDispatcher { contract_address: market_token_deployed_address };
     // Query the name of the market token.
     let market_token_name = market_token.name().unwrap();
     assert(market_token_name == 'Satoru Market', 'bad_market_token_name');

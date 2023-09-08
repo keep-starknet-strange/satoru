@@ -20,9 +20,7 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 /// * `account` - The account of the trader.
 /// * `referral_code` - The referral code.
 fn set_trader_referral_code(
-    referral_storage: IReferralStorageDispatcher,
-    account: ContractAddress,
-    referral_code: felt252
+    referral_storage: IReferralStorageDispatcher, account: ContractAddress, referral_code: felt252
 ) { // TODO
 }
 

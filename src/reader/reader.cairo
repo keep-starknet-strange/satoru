@@ -340,10 +340,7 @@ fn get_markets(data_store: IDataStoreDispatcher, start: u128, end: u128) -> Arra
 /// # Returns
 /// Returns an array of MarketInfo structures representing comprehensive information about multiple markets within the specified range.
 fn get_market_info_list(
-    data_store: IDataStoreDispatcher,
-    market_price_list: Array<MarketPrices>,
-    start: u128,
-    end: u128
+    data_store: IDataStoreDispatcher, market_price_list: Array<MarketPrices>, start: u128, end: u128
 ) -> Array<MarketInfo> {
     // TODO
     ArrayTrait::new()
@@ -640,10 +637,7 @@ fn get_swap_price_impact(
 /// Returns an unsigned integer representing the latest ADL block, a boolean value indicating whether ADL should be enabled for the specified market and position, 
 /// signed integer representing the PnL to pool factor, which is a metric used to assess the position's impact on the and an unsigned integer representing the maximum PnL factor.
 fn get_adl_state(
-    data_store: IDataStoreDispatcher,
-    market: ContractAddress,
-    is_long: bool,
-    prices: MarketPrices
+    data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool, prices: MarketPrices
 ) -> (u128, bool, i128, u128) {
     // TODO
     (0, true, 0, 0)

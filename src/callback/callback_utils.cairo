@@ -93,10 +93,7 @@ fn get_saved_callback_contract(
 /// * `deposit` - The deposit that was executed.
 /// * `event_data` - The event log data.
 fn after_deposit_execution(
-    key: felt252,
-    deposit: Deposit,
-    event_data: EventLogData,
-    event_emitter: IEventEmitterDispatcher
+    key: felt252, deposit: Deposit, event_data: EventLogData, event_emitter: IEventEmitterDispatcher
 ) {
     if !is_valid_callback_contract(deposit.callback_contract) {
         return;
@@ -113,10 +110,7 @@ fn after_deposit_execution(
 /// * `deposit` - The deposit that was cancelled.
 /// * `event_data` - The event log data.
 fn after_deposit_cancellation(
-    key: felt252,
-    deposit: Deposit,
-    event_data: EventLogData,
-    event_emitter: IEventEmitterDispatcher
+    key: felt252, deposit: Deposit, event_data: EventLogData, event_emitter: IEventEmitterDispatcher
 ) {
     if !is_valid_callback_contract(deposit.callback_contract) {
         return;
@@ -124,7 +118,7 @@ fn after_deposit_cancellation(
     let dispatcher = IDepositCallbackReceiverDispatcher {
         contract_address: deposit.callback_contract
     };
-    dispatcher.after_deposit_cancellation(key, deposit, event_data) 
+    dispatcher.after_deposit_cancellation(key, deposit, event_data)
 }
 
 /// Called after a withdrawal execution.
@@ -144,7 +138,7 @@ fn after_withdrawal_execution(
     let dispatcher = IWithdrawalCallbackReceiverDispatcher {
         contract_address: withdrawal.callback_contract
     };
-    dispatcher.after_withdrawal_execution(key, withdrawal, event_data) 
+    dispatcher.after_withdrawal_execution(key, withdrawal, event_data)
 }
 
 /// Called after an withdrawal cancellation.
@@ -164,7 +158,7 @@ fn after_withdrawal_cancellation(
     let dispatcher = IWithdrawalCallbackReceiverDispatcher {
         contract_address: withdrawal.callback_contract
     };
-    dispatcher.after_withdrawal_cancellation(key, withdrawal, event_data) 
+    dispatcher.after_withdrawal_cancellation(key, withdrawal, event_data)
 }
 
 /// Called after an order execution.
@@ -178,10 +172,8 @@ fn after_order_execution(
     if !is_valid_callback_contract(order.callback_contract) {
         return;
     }
-    let dispatcher = IOrderCallbackReceiverDispatcher {
-        contract_address: order.callback_contract
-    };
-    dispatcher.after_order_execution(key, order, event_data) 
+    let dispatcher = IOrderCallbackReceiverDispatcher { contract_address: order.callback_contract };
+    dispatcher.after_order_execution(key, order, event_data)
 }
 
 /// Called after an order cancellation.
@@ -195,10 +187,8 @@ fn after_order_cancellation(
     if !is_valid_callback_contract(order.callback_contract) {
         return;
     }
-    let dispatcher = IOrderCallbackReceiverDispatcher {
-        contract_address: order.callback_contract
-    };
-    dispatcher.after_order_cancellation(key, order, event_data) 
+    let dispatcher = IOrderCallbackReceiverDispatcher { contract_address: order.callback_contract };
+    dispatcher.after_order_cancellation(key, order, event_data)
 }
 
 /// Called after an order cancellation.
@@ -212,10 +202,8 @@ fn after_order_frozen(
     if !is_valid_callback_contract(order.callback_contract) {
         return;
     }
-    let dispatcher = IOrderCallbackReceiverDispatcher {
-        contract_address: order.callback_contract
-    };
-    dispatcher.after_order_frozen(key, order, event_data) 
+    let dispatcher = IOrderCallbackReceiverDispatcher { contract_address: order.callback_contract };
+    dispatcher.after_order_frozen(key, order, event_data)
 }
 
 /// Validates that the given address is a contract.

@@ -189,16 +189,12 @@ mod ExchangeRouter {
 
     // Local imports.
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use satoru::event::event_emitter::{
-        IEventEmitterDispatcher, IEventEmitterDispatcherTrait
-    };
+    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
     use satoru::exchange::{
         deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait},
-        withdrawal_handler::{
-            IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait
-        },
+        withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait},
         order_handler::{IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait},
     };
 
@@ -264,9 +260,7 @@ mod ExchangeRouter {
             .write(IDepositHandlerDispatcher { contract_address: deposit_handler_address });
         self
             .withdrawal_handler
-            .write(
-                IWithdrawalHandlerDispatcher { contract_address: withdrawal_handler_address }
-            );
+            .write(IWithdrawalHandlerDispatcher { contract_address: withdrawal_handler_address });
         self
             .order_handler
             .write(IOrderHandlerDispatcher { contract_address: order_handler_address });

@@ -93,9 +93,7 @@ fn get_borrowing_fees(
 /// * `market` - The market.
 /// # Returns
 /// Struct containing base funding values.
-fn get_base_funding_values(
-    data_store: IDataStoreDispatcher, market: Market
-) -> BaseFundingValues {
+fn get_base_funding_values(data_store: IDataStoreDispatcher, market: Market) -> BaseFundingValues {
     // TODO
     let collateral_type = CollateralType { long_token: 0, short_token: 0, };
 
