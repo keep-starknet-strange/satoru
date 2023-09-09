@@ -23,8 +23,8 @@ fn process_order(params: ExecuteOrderParams) { //TODO
 /// * `position_decrease_at_block` - The block at which the position was last decreased.
 #[inline(always)]
 fn validate_oracle_block_numbers(
-    min_oracle_block_numbers: Array<u128>,
-    max_oracle_block_numbers: Array<u128>,
+    min_oracle_block_numbers: Array<u64>,
+    max_oracle_block_numbers: Array<u64>,
     order_type: Order,
     order_updated_at_block: u128,
     position_increased_at_block: u128,
