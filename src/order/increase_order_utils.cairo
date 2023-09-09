@@ -19,7 +19,7 @@ fn process_order(params: ExecuteOrderParams) { //TODO
 #[inline(always)]
 fn validate_oracle_block_numbers(
     min_oracle_block_numbers: Array<u64>,
-    max_oracle_block_numbers: Array<u64>,   
+    max_oracle_block_numbers: Array<u64>,
     order_type: Order,
     order_updated_at_block: u128
 ) { //TODO
