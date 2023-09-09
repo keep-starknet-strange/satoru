@@ -20,7 +20,7 @@ fn test_nonce_utils() {
     assert(nonce == 1, 'Invalid new nonce');
 
     let key = get_next_key(data_store);
-    assert(key == 0x3f84fbc06ce0aca2f042f92dbe31a1426167c15392bba1e905ec3c3f0c177f7, 'Invalid key');
+    assert(key == 0x282524aa644121524f01a2feb9a663ebc4afaf14924efa9565246d4ed9210b3, 'Invalid key');
 
     let nonce = get_current_nonce(data_store);
     assert(nonce == 2, 'Invalid final nonce');

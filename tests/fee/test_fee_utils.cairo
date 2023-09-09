@@ -23,7 +23,7 @@ fn test_increment_claimable_fee_amount() {
         market, token
     ); // Calculate slot key to get initial value of slot.
 
-    let initial_value = data_store.get_u128(key).unwrap();
+    let initial_value = data_store.get_u128(key);
     assert(initial_value == 0_u128, 'initial value wrong');
 
     // Change value with util function.
@@ -33,7 +33,7 @@ fn test_increment_claimable_fee_amount() {
 
     increment_claimable_fee_amount(data_store, event_emitter, market, token, delta, fee_type);
 
-    let final_value = data_store.get_u128(key).unwrap();
+    let final_value = data_store.get_u128(key);
 
     assert(final_value == delta, 'Final value wrong');
 }
@@ -49,8 +49,8 @@ fn test_increment_claimable_ui_fee_amount() {
     let key = claim_ui_fee_amount_for_account_key(market, token, ui_fee_receiver);
     let pool_key = claim_ui_fee_amount_key(market, token);
 
-    let initial_value = data_store.get_u128(key).unwrap();
-    let initial_pool_value = data_store.get_u128(pool_key).unwrap();
+    let initial_value = data_store.get_u128(key);
+    let initial_pool_value = data_store.get_u128(pool_key);
 
     assert(initial_value == 0, 'Initial value wrong');
     assert(initial_pool_value == 0, 'Initial pool value wrong');
@@ -62,8 +62,8 @@ fn test_increment_claimable_ui_fee_amount() {
         data_store, event_emitter, ui_fee_receiver, market, token, delta, fee_type
     );
 
-    let final_value = data_store.get_u128(key).unwrap();
-    let final_pool_value = data_store.get_u128(pool_key).unwrap();
+    let final_value = data_store.get_u128(key);
+    let final_pool_value = data_store.get_u128(pool_key);
 
     assert(final_value == delta, 'Final value wrong');
     assert(final_pool_value == delta, 'Final pool value wrong');

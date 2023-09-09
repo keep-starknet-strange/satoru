@@ -58,7 +58,7 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
 
     let (market_token_deployed_address, market_id) = market_factory
         .create_market(index_token, long_token, short_token, market_type)
-        .unwrap();
+        ;
 
     // Get the market from the data store.
     // This must not panic, because the market was created in the previous step.
@@ -83,7 +83,7 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
     let market_token = market.market_token();
 
     // Get the name of the market token.
-    let market_token_name = market_token.name().unwrap();
+    let market_token_name = market_token.name();
     assert(market_token_name == 'Satoru Market', 'wrong market token name');
 
     // *********************************************************************************************
@@ -420,12 +420,12 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
     // The value of the claimable collateral amount for the account should now be 50.
     // Read the value from the data store using the hardcoded key and assert it.
     assert(
-        data_store.get_u128(claimable_collatoral_amount_for_account_key).unwrap() == 50,
+        data_store.get_u128(claimable_collatoral_amount_for_account_key) == 50,
         'wrong value'
     );
     // The value of the claimable collateral amount for the market should now be 50.
     // Read the value from the data store using the hardcoded key and assert it.
-    assert(data_store.get_u128(claimable_collateral_amount_key).unwrap() == 50, 'wrong value');
+    assert(data_store.get_u128(claimable_collateral_amount_key) == 50, 'wrong value');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -480,11 +480,11 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
     // The value of the claimable funding amount for the account should now be 50.
     // Read the value from the data store using the hardcoded key and assert it.
     assert(
-        data_store.get_u128(claimable_funding_amount_for_account_key).unwrap() == 50, 'wrong value'
+        data_store.get_u128(claimable_funding_amount_for_account_key) == 50, 'wrong value'
     );
     // The value of the claimable funding amount for the market should now be 50.
     // Read the value from the data store using the hardcoded key and assert it.
-    assert(data_store.get_u128(claimable_funding_amount_key).unwrap() == 50, 'wrong value');
+    assert(data_store.get_u128(claimable_funding_amount_key) == 50, 'wrong value');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *

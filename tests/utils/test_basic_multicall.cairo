@@ -33,7 +33,7 @@ fn test_simple_multicall() {
     let result: Array<Span<felt252>> = multicall(calls);
 
     // check first call result
-    assert(data_store.get_felt252(1).unwrap() == 42, 'Invalid value');
+    assert(data_store.get_felt252(1) == 42, 'Invalid value');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -79,11 +79,11 @@ fn test_multicall() {
     let result: Array<Span<felt252>> = multicall(calls);
 
     // check first call result
-    assert(data_store.get_felt252(1).unwrap() == 42, 'Invalid value after first call');
+    assert(data_store.get_felt252(1) == 42, 'Invalid value after first call');
 
     // check second call result
     assert(
-        role_store.has_role(account_address, role::ROLE_ADMIN).unwrap(),
+        role_store.has_role(account_address, role::ROLE_ADMIN),
         'Invalid role after second call'
     );
 
@@ -117,7 +117,7 @@ fn test_no_data_for_multicall() {
     let result: Array<Span<felt252>> = multicall(calls);
 
     // check first call result
-    assert(data_store.get_felt252(1).unwrap() == 42, 'Invalid value');
+    assert(data_store.get_felt252(1) == 42, 'Invalid value');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
