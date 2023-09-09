@@ -68,7 +68,8 @@ fn test_reentrancy_values() {
     // *********************************************************************************************
 
     // Gets initial value as like in contract. It will revert if we directly try to unwrap()
-    let initial_value: bool = match data_store.get_bool('REENTRANCY_GUARD_STATUS').unwrap_syscall() {
+    let initial_value: bool =
+        match data_store.get_bool('REENTRANCY_GUARD_STATUS').unwrap_syscall() {
         Option::Some(v) => v,
         Option::None => false,
     };

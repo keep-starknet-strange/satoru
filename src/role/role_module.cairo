@@ -52,16 +52,13 @@ mod RoleModule {
     // *************************************************************************
     #[external(v0)]
     impl RoleModule of super::IRoleModule<ContractState> {
-        fn only_self(self: @ContractState) {
-            // TODO
+        fn only_self(self: @ContractState) {// TODO
         }
 
-        fn only_controller(self: @ContractState) {
-            // TODO
+        fn only_controller(self: @ContractState) {// TODO
         }
 
-        fn only_order_keeper(self: @ContractState) {
-            // TODO
+        fn only_order_keeper(self: @ContractState) {// TODO
         }
     }
 }

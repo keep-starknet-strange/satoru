@@ -81,7 +81,12 @@ trait IOrderHandler<TContractState> {
     /// * `key` - The key of the order to execute.
     /// * `oracle_params` - The oracle params to set prices before execution.
     /// * `keeper` - The keeper executing the order.
-    fn execute_order_keeper(ref self: TContractState, key: felt252, oracle_params: SetPricesParams, keeper: ContractAddress);
+    fn execute_order_keeper(
+        ref self: TContractState,
+        key: felt252,
+        oracle_params: SetPricesParams,
+        keeper: ContractAddress
+    );
 
     /// Simulates execution of an order to check for any error.
     /// # Arguments
@@ -105,7 +110,9 @@ mod OrderHandler {
 
     // Local imports.
     use super::IOrderHandler;
-    use satoru::oracle::{oracle_modules, oracle_utils, oracle_utils::{SetPricesParams, SimulatePricesParams}};
+    use satoru::oracle::{
+        oracle_modules, oracle_utils, oracle_utils::{SetPricesParams, SimulatePricesParams}
+    };
     use satoru::order::{base_order_utils::CreateOrderParams, order_utils, order, base_order_utils};
     use satoru::order::{
         order::{Order, OrderTrait, OrderType, SecondaryOrderType},
@@ -263,7 +270,9 @@ mod OrderHandler {
             let estimated_gas_limit = gas_utils::estimate_execute_order_gas_limit(
                 data_store, @updated_order
             );
-            gas_utils::validate_execution_fee(data_store, estimated_gas_limit, updated_order.execution_fee);
+            gas_utils::validate_execution_fee(
+                data_store, estimated_gas_limit, updated_order.execution_fee
+            );
 
             updated_order.touch();
 
@@ -348,7 +357,10 @@ mod OrderHandler {
         }
 
         fn execute_order_keeper(
-            ref self: ContractState, key: felt252, oracle_params: SetPricesParams, keeper: ContractAddress
+            ref self: ContractState,
+            key: felt252,
+            oracle_params: SetPricesParams,
+            keeper: ContractAddress
         ) {
             self._execute_order(key, oracle_params, keeper);
         }
@@ -428,35 +440,30 @@ mod OrderHandler {
             self: @ContractState, key: felt252, starting_gas: u128, reason_bytes: Array<felt252>
         ) {
             let error_selector = error_utils::get_error_selector_from_data(reason_bytes.span());
-            
+
             let mut base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
 
             let order = order_store_utils::get(data_store, key);
             let is_market_order = base_order_utils::is_market_order(order.order_type);
-            
-            if (
-                oracle_utils::is_oracle_error(error_selector) || 
-                order.is_frozen || 
-                (!is_market_order && error_selector == PositionError::EMPTY_POSITION) ||
-                error_selector == OrderError::EMPTY_ORDER || 
-                error_selector == FeatureError::DISABLED_FEATURE ||
-                error_selector == OrderError::INVALID_KEEPER_FOR_FROZEN_ORDER || 
-                error_selector == OrderError::UNSUPPORTED_ORDER_TYPE || 
-                error_selector == OrderError::INVALID_ORDER_PRICES 
-                
-            ) {
+
+            if (oracle_utils::is_oracle_error(error_selector)
+                || order.is_frozen
+                || (!is_market_order && error_selector == PositionError::EMPTY_POSITION)
+                || error_selector == OrderError::EMPTY_ORDER
+                || error_selector == FeatureError::DISABLED_FEATURE
+                || error_selector == OrderError::INVALID_KEEPER_FOR_FROZEN_ORDER
+                || error_selector == OrderError::UNSUPPORTED_ORDER_TYPE
+                || error_selector == OrderError::INVALID_ORDER_PRICES) {
                 assert(false, error_utils::revert_with_custom_error(reason_bytes.span()))
             }
 
             let reason = error_utils::get_revert_message(reason_bytes.span());
 
-            if (
-                is_market_order ||
-                error_selector == MarketError::INVALID_POSITION_MARKET || 
-                error_selector == MarketError::INVALID_COLLATERAL_TOKEN_FOR_MARKET || 
-                error_selector == PositionError::INVALID_POSITION_SIZE_VALUES
-            ) {
+            if (is_market_order
+                || error_selector == MarketError::INVALID_POSITION_MARKET
+                || error_selector == MarketError::INVALID_COLLATERAL_TOKEN_FOR_MARKET
+                || error_selector == PositionError::INVALID_POSITION_SIZE_VALUES) {
                 order_utils::cancel_order(
                     data_store,
                     base_order_handler_state.event_emitter.read(),
@@ -485,13 +492,13 @@ mod OrderHandler {
         /// Validate that the keeper is a frozen order keeper.
         /// # Arguments
         /// * `keeper` - address of the keeper.
-        fn _validate_state_frozen_order_keeper(
-            self: @ContractState, keeper: ContractAddress
-        ) {
+        fn _validate_state_frozen_order_keeper(self: @ContractState, keeper: ContractAddress) {
             let mut base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let role_store = base_order_handler_state.role_store.read();
 
-            assert(role_store.has_role(keeper, role::FROZEN_ORDER_KEEPER), 'InvalidFrozenOrderKeeper');
+            assert(
+                role_store.has_role(keeper, role::FROZEN_ORDER_KEEPER), 'InvalidFrozenOrderKeeper'
+            );
         }
     }
 }
