@@ -139,6 +139,7 @@ mod utils {
     mod u128_mask;
     mod hash;
     mod store_arrays;
+    mod starknet_utils;
 }
 
 // `liquidation` function to help with liquidations.
