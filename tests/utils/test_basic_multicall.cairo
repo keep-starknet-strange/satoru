@@ -83,8 +83,7 @@ fn test_multicall() {
 
     // check second call result
     assert(
-        role_store.has_role(account_address, role::ROLE_ADMIN),
-        'Invalid role after second call'
+        role_store.has_role(account_address, role::ROLE_ADMIN), 'Invalid role after second call'
     );
 
     // *********************************************************************************************

@@ -52,7 +52,6 @@ fn given_normal_conditions_when_create_market_then_market_is_created() {
 
     let (market_token_deployed_address, market_id) = market_factory
         .create_market(index_token, long_token, short_token, market_type);
-        
 
     // Get the market from the data store.
     // This must not panic, because the market was created in the previous step.

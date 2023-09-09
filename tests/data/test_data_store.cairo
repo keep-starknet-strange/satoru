@@ -187,9 +187,7 @@ fn given_normal_conditions_when_address_functions_then_expected_results() {
     // Remove key 1.
     data_store.remove_address(1);
     // Check that the key was deleted.
-    assert(
-        data_store.get_address(1) == contract_address_const::<0>(), 'Key was not removed'
-    );
+    assert(data_store.get_address(1) == contract_address_const::<0>(), 'Key was not removed');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
