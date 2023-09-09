@@ -51,13 +51,13 @@ fn given_normal_conditions_when_create_market_then_market_is_created() {
     let market_type = 'market_type';
 
     let (market_token_deployed_address, market_id) = market_factory
-        .create_market(index_token, long_token, short_token, market_type)
-        .unwrap();
+        .create_market(index_token, long_token, short_token, market_type);
+        
 
     // Get the market from the data store.
     // This must not panic, because the market was created in the previous step.
     // Hence the market must exist in the data store and it's safe to unwrap.
-    let market = data_store.get_market(market_id).unwrap().unwrap();
+    let market = data_store.get_market(market_id).unwrap();
 
     // Check the market is as expected.
     assert(market.index_token == index_token, 'bad_market');
@@ -67,7 +67,7 @@ fn given_normal_conditions_when_create_market_then_market_is_created() {
     // Check the market token was deployed.
     let market_token = IMarketTokenDispatcher { contract_address: market_token_deployed_address };
     // Query the name of the market token.
-    let market_token_name = market_token.name().unwrap();
+    let market_token_name = market_token.name();
     assert(market_token_name == 'Satoru Market', 'bad_market_token_name');
 
     // *********************************************************************************************
@@ -191,11 +191,11 @@ fn grant_roles_and_prank(
     start_prank(role_store.contract_address, caller_address);
 
     // Grant the caller the `CONTROLLER` role.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
+    role_store.grant_role(caller_address, role::CONTROLLER);
 
     // Grant the call the `MARKET_KEEPER` role.
     // This role is required to create a market.
-    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
+    role_store.grant_role(caller_address, role::MARKET_KEEPER);
 
     // Prank the caller address for calls to `DataStore` contract.
     // We need this so that the caller has the CONTROLLER role.

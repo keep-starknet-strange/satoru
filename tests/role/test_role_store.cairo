@@ -26,11 +26,11 @@ fn test_grant_role() {
     let account_address: ContractAddress = contract_address_const::<1>();
 
     // Check that the account address does not have the admin role.
-    assert(!role_store.has_role(account_address, ROLE_ADMIN).unwrap(), 'Invalid role');
+    assert(!role_store.has_role(account_address, ROLE_ADMIN), 'Invalid role');
     // Grant admin role to account address.
     role_store.grant_role(account_address, ROLE_ADMIN);
     // Check that the account address has the admin role.
-    assert(role_store.has_role(account_address, ROLE_ADMIN).unwrap(), 'Invalid role');
+    assert(role_store.has_role(account_address, ROLE_ADMIN), 'Invalid role');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -56,13 +56,13 @@ fn test_revoke_role() {
     let account_address: ContractAddress = contract_address_const::<1>();
 
     // Grant admin role to account address.
-    role_store.grant_role(account_address, ROLE_ADMIN).unwrap();
+    role_store.grant_role(account_address, ROLE_ADMIN);
     // Check that the account address has the admin role.
-    assert(role_store.has_role(account_address, ROLE_ADMIN).unwrap(), 'Invalid role');
+    assert(role_store.has_role(account_address, ROLE_ADMIN), 'Invalid role');
     // Revoke admin role from account address.
-    role_store.revoke_role(account_address, ROLE_ADMIN).unwrap();
+    role_store.revoke_role(account_address, ROLE_ADMIN);
     // Check that the account address does not have the admin role.
-    assert(!role_store.has_role(account_address, ROLE_ADMIN).unwrap(), 'Invalid role');
+    assert(!role_store.has_role(account_address, ROLE_ADMIN), 'Invalid role');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *

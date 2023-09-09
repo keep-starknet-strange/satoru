@@ -13,16 +13,16 @@ fn test_nonce_utils() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    let nonce = get_current_nonce(data_store).unwrap();
+    let nonce = get_current_nonce(data_store);
     assert(nonce == 0, 'Invalid nonce');
 
-    let nonce = increment_nonce(data_store).unwrap();
+    let nonce = increment_nonce(data_store);
     assert(nonce == 1, 'Invalid new nonce');
 
-    let key = get_next_key(data_store).unwrap();
+    let key = get_next_key(data_store);
     assert(key == 0x3f84fbc06ce0aca2f042f92dbe31a1426167c15392bba1e905ec3c3f0c177f7, 'Invalid key');
 
-    let nonce = get_current_nonce(data_store).unwrap();
+    let nonce = get_current_nonce(data_store);
     assert(nonce == 2, 'Invalid final nonce');
 
     // *********************************************************************************************

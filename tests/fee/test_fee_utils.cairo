@@ -115,7 +115,7 @@ fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher) {
     let event_emitter_address = deploy_event_emitter();
     let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
     start_prank(role_store_address, caller_address);
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
+    role_store.grant_role(caller_address, role::CONTROLLER);
     start_prank(data_store_address, caller_address);
     (caller_address, data_store, event_emitter)
 }

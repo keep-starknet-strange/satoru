@@ -75,7 +75,7 @@ fn grant_roles_and_prank(
     start_prank(role_store.contract_address, caller_address);
 
     // Grant the caller the `CONTROLLER` role.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
+    role_store.grant_role(caller_address, role::CONTROLLER);
 
     // Prank the caller address for calls to `DataStore` contract.
     // We need this so that the caller has the CONTROLLER role.

@@ -63,7 +63,7 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
     // Get the market from the data store.
     // This must not panic, because the market was created in the previous step.
     // Hence the market must exist in the data store and it's safe to unwrap.
-    let market = data_store.get_market(market_id).unwrap().unwrap();
+    let market = data_store.get_market(market_id).unwrap();
 
     let collateral_token = contract_address_const::<'collateral_token'>();
     let is_long = true;
@@ -999,11 +999,11 @@ fn grant_roles_and_prank(
     // Grant the caller the `CONTROLLER` role.
     // We use the same account to deploy data_store and role_store, so we can grant the role
     // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
+    role_store.grant_role(caller_address, role::CONTROLLER);
 
     // Grant the call the `MARKET_KEEPER` role.
     // This role is required to create a market.
-    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
+    role_store.grant_role(caller_address, role::MARKET_KEEPER);
 
     // Prank the caller address for calls to data_store contract.
     // We need this so that the caller has the CONTROLLER role.

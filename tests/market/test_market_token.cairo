@@ -22,16 +22,16 @@ fn given_normal_conditions_when_mint_then_expected_results() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
     // Check that the total supply is 0.
-    assert(market_token.total_supply().unwrap() == 0, 'wrong supply');
+    assert(market_token.total_supply() == 0, 'wrong supply');
 
     // Mint 100 tokens to the caller.
-    market_token.mint(caller_address, 100).unwrap();
+    market_token.mint(caller_address, 100);
 
     // Check that the total supply is 100.
-    assert(market_token.total_supply().unwrap() == 100, 'wrong supply');
+    assert(market_token.total_supply() == 100, 'wrong supply');
 
     // Check that the caller has 100 tokens.
-    assert(market_token.balance_of(caller_address).unwrap() == 100, 'wrong balance');
+    assert(market_token.balance_of(caller_address) == 100, 'wrong balance');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -64,7 +64,7 @@ fn setup() -> (
     // Grant the caller the CONTROLLER role.
     // We use the same account to deploy data_store and role_store, so we can grant the role
     // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
+    role_store.grant_role(caller_address, role::CONTROLLER);
 
     // Prank the caller address for calls to data_store contract.
     // We need this so that the caller has the CONTROLLER role.
