@@ -6,8 +6,8 @@ use starknet::SyscallResultTrait;
 use snforge_std::{declare, start_prank, ContractClassTrait};
 
 use satoru::role::role::CONTROLLER;
-use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::utils::global_reentrancy_guard::{non_reentrant_before, non_reentrant_after};
 
 /// Utility function to deploy a data store contract and return its address.
@@ -42,16 +42,16 @@ fn deploy_role_store() -> ContractAddress {
 /// # Returns
 ///
 /// * `ContractAddress` - The address of the caller.
-/// * `IRoleStoreSafeDispatcher` - The role store dispatcher.
+/// * `IRoleStoreDispatcher` - The role store dispatcher.
 /// * `IDataStoreDispatcher` - The data store dispatcher.
-fn setup() -> (ContractAddress, IRoleStoreSafeDispatcher, IDataStoreSafeDispatcher) {
+fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
     let caller_address: ContractAddress = 0x101.try_into().unwrap();
     let role_store_address = deploy_role_store();
-    let role_store = IRoleStoreSafeDispatcher { contract_address: role_store_address };
+    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
     let data_store_address = deploy_data_store(role_store_address);
-    let data_store = IDataStoreSafeDispatcher { contract_address: data_store_address };
+    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
     start_prank(role_store_address, caller_address);
-    role_store.grant_role(caller_address, CONTROLLER).unwrap();
+    role_store.grant_role(caller_address, CONTROLLER);
     start_prank(data_store_address, caller_address);
     (caller_address, role_store, data_store)
 }
@@ -68,8 +68,7 @@ fn test_reentrancy_values() {
     // *********************************************************************************************
 
     // Gets initial value as like in contract. It will revert if we directly try to unwrap()
-    let initial_value: bool =
-        match data_store.get_bool('REENTRANCY_GUARD_STATUS').unwrap_syscall() {
+    let initial_value: bool = match data_store.get_bool('REENTRANCY_GUARD_STATUS') {
         Option::Some(v) => v,
         Option::None => false,
     };
@@ -79,7 +78,7 @@ fn test_reentrancy_values() {
     non_reentrant_before(data_store); // Sets value to true
 
     // Gets value after non_reentrant_before call
-    let entrant: bool = match data_store.get_bool('REENTRANCY_GUARD_STATUS').unwrap_syscall() {
+    let entrant: bool = match data_store.get_bool('REENTRANCY_GUARD_STATUS') {
         Option::Some(v) => v,
         Option::None => false,
     }; // We don't really need to use match, unwrap() should work but however let's keep the same way.
@@ -88,7 +87,7 @@ fn test_reentrancy_values() {
     non_reentrant_after(data_store); // This should set value false.
 
     // Gets final value
-    let after: bool = match data_store.get_bool('REENTRANCY_GUARD_STATUS').unwrap_syscall() {
+    let after: bool = match data_store.get_bool('REENTRANCY_GUARD_STATUS') {
         Option::Some(v) => v,
         Option::None => false,
     }; // We don't really need to use match, unwrap() should work but however let's keep the same way.
@@ -110,7 +109,7 @@ fn test_reentrancy_revert() {
     non_reentrant_before(data_store); // Sets value to true
 
     // Gets value after non_reentrant_before
-    let entraant: bool = match data_store.get_bool('REENTRANCY_GUARD_STATUS').unwrap_syscall() {
+    let entraant: bool = match data_store.get_bool('REENTRANCY_GUARD_STATUS') {
         Option::Some(v) => v,
         Option::None => false,
     };
