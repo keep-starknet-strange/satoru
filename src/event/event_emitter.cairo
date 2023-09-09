@@ -49,7 +49,7 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `PositionImpactPoolAmountUpdated` event.
     fn emit_position_impact_pool_amount_updated(
-        ref self: TContractState, market: ContractAddress, delta: u128, next_value: u128,
+        ref self: TContractState, market: ContractAddress, delta: u128, next_value: u128, 
     );
 
     /// Emits the `SwapImpactPoolAmountUpdated` event.
@@ -498,7 +498,7 @@ mod EventEmitter {
     struct DepositCancelled {
         key: felt252,
         reason: felt252,
-        reasonBytes: Array<felt252>,
+        reason_bytes: Array<felt252>,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -817,7 +817,7 @@ mod EventEmitter {
             self
                 .emit(
                     ClaimableCollateralUpdated {
-                        market, token, account, time_key, delta, next_value, next_pool_value,
+                        market, token, account, time_key, delta, next_value, next_pool_value, 
                     }
                 );
         }
@@ -835,16 +835,16 @@ mod EventEmitter {
             self
                 .emit(
                     ClaimableFundingUpdated {
-                        market, token, account, delta, next_value, next_pool_value,
+                        market, token, account, delta, next_value, next_pool_value, 
                     }
                 );
         }
 
         /// Emits the `PositionImpactPoolAmountUpdated` event.
         fn emit_position_impact_pool_amount_updated(
-            ref self: ContractState, market: ContractAddress, delta: u128, next_value: u128,
+            ref self: ContractState, market: ContractAddress, delta: u128, next_value: u128, 
         ) {
-            self.emit(PositionImpactPoolAmountUpdated { market, delta, next_value, });
+            self.emit(PositionImpactPoolAmountUpdated { market, delta, next_value,  });
         }
 
         /// Emits the `SwapImpactPoolAmountUpdated` event.
@@ -855,7 +855,7 @@ mod EventEmitter {
             delta: u128,
             next_value: u128,
         ) {
-            self.emit(SwapImpactPoolAmountUpdated { market, token, delta, next_value, });
+            self.emit(SwapImpactPoolAmountUpdated { market, token, delta, next_value,  });
         }
 
         /// Emits the `MarketCreated` event.
@@ -871,7 +871,7 @@ mod EventEmitter {
             self
                 .emit(
                     MarketCreated {
-                        creator, market_token, index_token, long_token, short_token, market_type,
+                        creator, market_token, index_token, long_token, short_token, market_type, 
                     }
                 );
         }
@@ -883,7 +883,7 @@ mod EventEmitter {
             previous_value: ClassHash,
             new_value: ClassHash,
         ) {
-            self.emit(MarketTokenClassHashUpdated { updated_by, previous_value, new_value, });
+            self.emit(MarketTokenClassHashUpdated { updated_by, previous_value, new_value,  });
         }
 
         /// Emits the `ClaimableFeeAmountUpdated` event.
@@ -985,9 +985,9 @@ mod EventEmitter {
 
         /// Emits the `DepositCancelled` event.
         fn emit_deposit_cancelled(
-            ref self: ContractState, key: felt252, reason: felt252, reasonBytes: Array<felt252>
+            ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
         ) {
-            self.emit(DepositCancelled { key, reason, reasonBytes });
+            self.emit(DepositCancelled { key, reason, reason_bytes });
         }
 
         /// Emits the `WithdrawalCreated` event.
