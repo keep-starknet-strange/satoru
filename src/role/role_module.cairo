@@ -36,8 +36,9 @@ mod RoleModule {
     use starknet::{ContractAddress, get_caller_address, get_contract_address};
 
     // Local imports.
-    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use satoru::role::{role, error::RoleError};
+    use satoru::role::{
+        role, error::RoleError, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait}
+    };
 
 
     #[storage]

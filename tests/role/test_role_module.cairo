@@ -5,15 +5,15 @@ use starknet::Felt252TryIntoContractAddress;
 use snforge_std::{declare, start_prank, ContractClassTrait};
 
 
-use satoru::role::role::{
-    ROLE_ADMIN, TIMELOCK_ADMIN, TIMELOCK_MULTISIG, CONFIG_KEEPER, CONTROLLER, ROUTER_PLUGIN,
-    MARKET_KEEPER, FEE_KEEPER, ORDER_KEEPER, FROZEN_ORDER_KEEPER, PRICING_KEEPER,
-    LIQUIDATION_KEEPER, ADL_KEEPER
+use satoru::role::{
+    role_module::{IRoleModuleSafeDispatcher, IRoleModuleSafeDispatcherTrait},
+    role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait},
+    role::{
+        ROLE_ADMIN, TIMELOCK_ADMIN, TIMELOCK_MULTISIG, CONFIG_KEEPER, CONTROLLER, ROUTER_PLUGIN,
+        MARKET_KEEPER, FEE_KEEPER, ORDER_KEEPER, FROZEN_ORDER_KEEPER, PRICING_KEEPER,
+        LIQUIDATION_KEEPER, ADL_KEEPER
+    }
 };
-use satoru::role::role_module::IRoleModuleSafeDispatcher;
-use satoru::role::role_module::IRoleModuleSafeDispatcherTrait;
-use satoru::role::role_store::IRoleStoreSafeDispatcher;
-use satoru::role::role_store::IRoleStoreSafeDispatcherTrait;
 
 #[test]
 fn test_role_module_only_self() {
