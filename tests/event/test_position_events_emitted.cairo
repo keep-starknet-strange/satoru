@@ -14,7 +14,7 @@ use satoru::pricing::position_pricing_utils::{
 };
 use satoru::order::order::OrderType;
 use satoru::price::price::Price;
-use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
 #[test]
 fn test_emit_position_increase() {
@@ -454,7 +454,7 @@ fn test_emit_position_fees_info() {
 }
 
 fn create_dummy_position_increase_params(
-    event_emitter: IEventEmitterSafeDispatcher
+    event_emitter: IEventEmitterDispatcher
 ) -> PositionIncreaseParams {
     PositionIncreaseParams {
         event_emitter: event_emitter,

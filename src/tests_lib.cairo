@@ -34,8 +34,7 @@ fn deploy_role_store() -> ContractAddress {
 /// Utility function to deploy a `EventEmitter` contract and return its dispatcher.
 fn deploy_event_emitter() -> ContractAddress {
     let contract = declare('EventEmitter');
-   contract.deploy(@array![]).unwrap()
-    
+    contract.deploy(@array![]).unwrap()
 }
 
 /// Utility function to setup the test environment.
