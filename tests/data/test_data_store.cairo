@@ -3,8 +3,8 @@ use starknet::{
 };
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
 use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
 
@@ -20,31 +20,31 @@ fn given_normal_conditions_when_felt252_functions_then_expected_results() {
     // *********************************************************************************************
 
     // Set key 1 to value 42.
-    data_store.set_felt252(1, 42).unwrap();
-    let value = data_store.get_felt252(1).unwrap();
+    data_store.set_felt252(1, 42);
+    let value = data_store.get_felt252(1);
     // Check that the value read is 42.
     assert(value == 42, 'Invalid value');
 
     // Increment key 1 by 5.
-    let new_value = data_store.increment_felt252(1, 5).unwrap();
+    let new_value = data_store.increment_felt252(1, 5);
     // Check that the new value is 47.
     assert(new_value == 47, 'Invalid value');
-    let value = data_store.get_felt252(1).unwrap();
+    let value = data_store.get_felt252(1);
     // Check that the value read is 47.
     assert(value == 47, 'Invalid value');
 
     // Decrement key 1 by 2.
-    let new_value = data_store.decrement_felt252(1, 2).unwrap();
+    let new_value = data_store.decrement_felt252(1, 2);
     // Check that the new value is 45.
     assert(new_value == 45, 'Invalid value');
-    let value = data_store.get_felt252(1).unwrap();
+    let value = data_store.get_felt252(1);
     // Check that the value read is 45.
     assert(value == 45, 'Invalid value');
 
     // Remove key 1.
-    data_store.remove_felt252(1).unwrap();
+    data_store.remove_felt252(1);
     // Check that the key was removed.
-    assert(data_store.get_felt252(1).unwrap() == Default::default(), 'Key was not deleted');
+    assert(data_store.get_felt252(1) == Default::default(), 'Key was not deleted');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -64,16 +64,16 @@ fn given_normal_conditions_when_bool_functions_then_expected_results() {
     // *********************************************************************************************
 
     // Set key 1 to value true.
-    data_store.set_bool(1, true).unwrap();
+    data_store.set_bool(1, true);
     // Safe to unwrap because we know that the key exists and if it doesn't the test should fail.
-    let value = data_store.get_bool(1).unwrap().unwrap();
+    let value = data_store.get_bool(1).unwrap();
     // Check that the value read is true.
     assert(value == true, 'Invalid value');
 
     // Remove key 1.
-    data_store.remove_bool(1).unwrap();
+    data_store.remove_bool(1);
     // Check that the key was removed.
-    assert(data_store.get_bool(1).unwrap() == Option::None, 'Key was not deleted');
+    assert(data_store.get_bool(1) == Option::None, 'Key was not deleted');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -94,31 +94,31 @@ fn given_normal_conditions_when_u256_functions_then_expected_results() {
     // *********************************************************************************************
 
     // Set key 1 to value 42.
-    data_store.set_u256(1, 42).unwrap();
-    let value = data_store.get_u256(1).unwrap();
+    data_store.set_u256(1, 42);
+    let value = data_store.get_u256(1);
     // Check that the value read is 42.
     assert(value == 42, 'Invalid value');
 
     // Increment key 1 by 5.
-    let new_value = data_store.increment_u256(1, 5).unwrap();
+    let new_value = data_store.increment_u256(1, 5);
     // Check that the new value is 47.
     assert(new_value == 47, 'Invalid value');
-    let value = data_store.get_u256(1).unwrap();
+    let value = data_store.get_u256(1);
     // Check that the value read is 47.
     assert(value == 47, 'Invalid value');
 
     // Decrement key 1 by 2.
-    let new_value = data_store.decrement_u256(1, 2).unwrap();
+    let new_value = data_store.decrement_u256(1, 2);
     // Check that the new value is 45.
     assert(new_value == 45, 'Invalid value');
-    let value = data_store.get_u256(1).unwrap();
+    let value = data_store.get_u256(1);
     // Check that the value read is 45.
     assert(value == 45, 'Invalid value');
 
     // Remove key 1.
-    data_store.remove_u256(1).unwrap();
+    data_store.remove_u256(1);
     // Check that the key was removed.
-    assert(data_store.get_u256(1).unwrap() == Default::default(), 'Key was not removed');
+    assert(data_store.get_u256(1) == Default::default(), 'Key was not removed');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -138,31 +138,31 @@ fn given_normal_conditions_when_i128_functions_then_expected_results() {
     // *********************************************************************************************
 
     // Set key 1 to value 42.
-    data_store.set_i128(1, 42).unwrap();
-    let value = data_store.get_i128(1).unwrap();
+    data_store.set_i128(1, 42);
+    let value = data_store.get_i128(1);
     // Check that the value read is 42.
     assert(value == 42, 'Invalid value');
 
     // Increment key 1 by 5.
-    let new_value = data_store.increment_i128(1, 5).unwrap();
+    let new_value = data_store.increment_i128(1, 5);
     // Check that the new value is 47.
     assert(new_value == 47, 'Invalid value');
-    let value = data_store.get_i128(1).unwrap();
+    let value = data_store.get_i128(1);
     // Check that the value read is 47.
     assert(value == 47, 'Invalid value');
 
     // Decrement key 1 by 2.
-    let new_value = data_store.decrement_i128(1, 2).unwrap();
+    let new_value = data_store.decrement_i128(1, 2);
     // Check that the new value is 45.
     assert(new_value == 45, 'Invalid value');
-    let value = data_store.get_i128(1).unwrap();
+    let value = data_store.get_i128(1);
     // Check that the value read is 45.
     assert(value == 45, 'Invalid value');
 
     // Remove key 1.
-    data_store.remove_i128(1).unwrap();
+    data_store.remove_i128(1);
     // Check that the key was removed.
-    assert(data_store.get_i128(1).unwrap() == Default::default(), 'Key was not deleted');
+    assert(data_store.get_i128(1) == Default::default(), 'Key was not deleted');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -182,16 +182,16 @@ fn given_normal_conditions_when_address_functions_then_expected_results() {
     // *********************************************************************************************
 
     // Set key 1 to value 42.
-    data_store.set_address(1, caller_address).unwrap();
-    let value = data_store.get_address(1).unwrap();
+    data_store.set_address(1, caller_address);
+    let value = data_store.get_address(1);
     // Check that the value read is the caller address.
     assert(value == caller_address, 'Invalid value');
 
     // Remove key 1.
-    data_store.remove_address(1).unwrap();
+    data_store.remove_address(1);
     // Check that the key was deleted.
     assert(
-        data_store.get_address(1).unwrap() == contract_address_const::<0>(), 'Key was not removed'
+        data_store.get_address(1) == contract_address_const::<0>(), 'Key was not removed'
     );
 
     // *********************************************************************************************
@@ -263,12 +263,12 @@ fn given_normal_conditions_when_order_functions_then_expected_results() {
     };
 
     // Store the order.
-    data_store.set_order(order_data_store_key, order).unwrap();
+    data_store.set_order(order_data_store_key, order);
 
     // Retrieve the order.
     // We use `unwrap().unwrap()` because we know that the order exists.
     // If it panics the test should fail.
-    let mut retrieved_order = data_store.get_order(order_data_store_key).unwrap().unwrap();
+    let mut retrieved_order = data_store.get_order(order_data_store_key).unwrap();
 
     // Check that the retrieved order is the same as the original order.
     // TODO: Add a proper equality check for orders by implementing `PartialEq` for `Order`.
@@ -310,16 +310,16 @@ fn deploy_role_store() -> ContractAddress {
 /// # Returns
 ///
 /// * `ContractAddress` - The address of the caller.
-/// * `IRoleStoreSafeDispatcher` - The role store dispatcher.
-/// * `IDataStoreSafeDispatcher` - The data store dispatcher.
-fn setup() -> (ContractAddress, IRoleStoreSafeDispatcher, IDataStoreSafeDispatcher) {
+/// * `IRoleStoreDispatcher` - The role store dispatcher.
+/// * `IDataStoreDispatcher` - The data store dispatcher.
+fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
     let caller_address: ContractAddress = 0x101.try_into().unwrap();
     let role_store_address = deploy_role_store();
-    let role_store = IRoleStoreSafeDispatcher { contract_address: role_store_address };
+    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
     let data_store_address = deploy_data_store(role_store_address);
-    let data_store = IDataStoreSafeDispatcher { contract_address: data_store_address };
+    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
     start_prank(role_store_address, caller_address);
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
+    role_store.grant_role(caller_address, role::CONTROLLER);
     start_prank(data_store_address, caller_address);
     (caller_address, role_store, data_store)
 }
