@@ -53,7 +53,9 @@ fn test_emit_position_increase() {
         dummy_position_increase_params.collateral_token_price.min.into(),
         dummy_position_increase_params.size_delta_usd.into(),
         dummy_position_increase_params.size_delta_in_tokens.into(),
-        dummy_position_increase_params.order_type.into(), //enum orderType with value OrderType::MarketSwap(())
+        dummy_position_increase_params
+            .order_type
+            .into(), //enum orderType with value OrderType::MarketSwap(())
         dummy_position_increase_params.collateral_delta_amount.into(),
         dummy_position_increase_params.price_impact_usd.into(),
         dummy_position_increase_params.price_impact_amount.into(),

@@ -58,7 +58,7 @@ fn test_callback_utils_callback_contract() {
 
     let mut deposit: Deposit = Default::default();
     let log_data = EventLogData { cant_be_empty: 0 };
-    let (_,event_emitter) = setup_event_emitter();
+    let (_, event_emitter) = setup_event_emitter();
 
     let callback_mock = deploy_callback_mock();
     deposit.callback_contract = callback_mock.contract_address;
