@@ -53,16 +53,16 @@ fn test_emit_position_increase() {
         dummy_position_increase_params.collateral_token_price.min.into(),
         dummy_position_increase_params.size_delta_usd.into(),
         dummy_position_increase_params.size_delta_in_tokens.into(),
-        dummy_position_increase_params
-            .order_type
-            .into(), //enum orderType with value OrderType::MarketSwap(())
-        dummy_position_increase_params.collateral_delta_amount.into(),
-        dummy_position_increase_params.price_impact_usd.into(),
-        dummy_position_increase_params.price_impact_amount.into(),
-        dummy_position_increase_params.position.is_long.into(),
-        dummy_position_increase_params.order_key,
-        dummy_position_increase_params.position_key
     ];
+
+    // serialize orderType enum then we have to serialize the other params event
+    dummy_position_increase_params.order_type.serialize(ref expected_data);
+    dummy_position_increase_params.collateral_delta_amount.serialize(ref expected_data);
+    dummy_position_increase_params.price_impact_usd.serialize(ref expected_data);
+    dummy_position_increase_params.price_impact_amount.serialize(ref expected_data);
+    dummy_position_increase_params.position.is_long.serialize(ref expected_data);
+    dummy_position_increase_params.order_key.serialize(ref expected_data);
+    dummy_position_increase_params.position_key.serialize(ref expected_data);
 
     // Emit the event.
     event_emitter.emit_position_increase(dummy_position_increase_params);
@@ -108,6 +108,7 @@ fn test_emit_position_decrease() {
 
     // Create the expected data.
     let mut expected_data: Array<felt252> = array![
+        dummy_position.account.into(),
         dummy_position.market.into(),
         dummy_position.collateral_token.into(),
         dummy_position.size_in_usd.into(),
@@ -128,18 +129,14 @@ fn test_emit_position_decrease() {
         dummy_collateral_values.price_impact_diff_usd.into(),
     ];
 
+    // serialize orderType enum then we have to serialize the other params event
     order_type.serialize(ref expected_data);
-
-    let array = array![
-        dummy_collateral_values.price_impact_usd.into(),
-        dummy_collateral_values.base_pnl_usd.into(),
-        dummy_collateral_values.uncapped_base_pnl_usd.into(),
-        dummy_position.is_long.into(),
-        order_key,
-        position_key
-    ];
-
-    array.serialize(ref expected_data);
+    dummy_collateral_values.price_impact_usd.serialize(ref expected_data);
+    dummy_collateral_values.base_pnl_usd.serialize(ref expected_data);
+    dummy_collateral_values.uncapped_base_pnl_usd.serialize(ref expected_data);
+    dummy_position.is_long.serialize(ref expected_data);
+    order_key.serialize(ref expected_data);
+    position_key.serialize(ref expected_data);
 
     // Emit the event.
     event_emitter
