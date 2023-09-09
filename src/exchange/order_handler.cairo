@@ -497,7 +497,8 @@ mod OrderHandler {
             let role_store = base_order_handler_state.role_store.read();
 
             assert(
-                role_store.has_role(keeper, role::FROZEN_ORDER_KEEPER), 'InvalidFrozenOrderKeeper'
+                role_store.has_role(keeper, role::FROZEN_ORDER_KEEPER),
+                OrderError::INVALID_FROZEN_ORDER_KEEPER
             );
         }
     }
