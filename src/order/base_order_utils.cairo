@@ -13,6 +13,7 @@ use satoru::order::{
     order::{Order, SecondaryOrderType, OrderType, DecreasePositionSwapType},
     order_vault::{IOrderVaultSafeDispatcher, IOrderVaultSafeDispatcherTrait}
 };
+use satoru::price::price::Price;
 use satoru::market::market::Market;
 use satoru::utils::store_arrays::{StoreMarketArray, StoreU64Array, StoreContractAddressArray};
 use satoru::referral::referral_storage::interface::{
@@ -103,4 +104,131 @@ struct CreateOrderParams {
     should_unwrap_native_token: bool,
     /// The referral code linked to this order.
     referral_code: felt252
+}
+
+#[derive(Drop, starknet::Store, Serde)]
+struct GetExecutionPriceCache {
+    price: u128,
+    execution_price: u128,
+    adjusted_price_impact_usd: u128
+}
+
+/// Check if an order_type is a market order.
+/// # Arguments
+/// * `order_type` - The order type.
+/// # Return
+/// Return whether an order_type is a market order
+#[inline(always)]
+fn is_market_order(order_type: OrderType) -> bool {
+    //TODO
+    true
+}
+
+/// Check if an orderType is a limit order.
+/// # Arguments
+/// * `order_type` - The order type.
+/// # Return
+/// Return whether an order_type is a limit order
+#[inline(always)]
+fn is_limit_order(order_type: OrderType) -> bool {
+    //TODO
+    true
+}
+
+/// Check if an orderType is a swap order.
+/// # Arguments
+/// * `order_type` - The order type.
+/// # Return
+/// Return whether an order_type is a swap order
+#[inline(always)]
+fn is_swap_order(order_type: OrderType) -> bool {
+    //TODO
+    true
+}
+
+/// Check if an orderType is a position order.
+/// # Arguments
+/// * `order_type` - The order type.
+/// # Return
+/// Return whether an order_type is a position order
+#[inline(always)]
+fn is_position_order(order_type: OrderType) -> bool {
+    //TODO
+    true
+}
+
+/// Check if an orderType is an increase order.
+/// # Arguments
+/// * `order_type` - The order type.
+/// # Return
+/// Return whether an order_type is an increase order
+#[inline(always)]
+fn is_increase_order(order_type: OrderType) -> bool {
+    //TODO
+    true
+}
+
+/// Check if an orderType is a decrease order.
+/// # Arguments
+/// * `order_type` - The order type.
+/// # Return
+/// Return whether an order_type is a decrease order
+#[inline(always)]
+fn is_decrease_order(order_type: OrderType) -> bool {
+    //TODO
+    true
+}
+
+/// Check if an orderType is a liquidation order.
+/// # Arguments
+/// * `order_type` - The order type.
+/// # Return
+/// Return whether an order_type is a liquidation order
+#[inline(always)]
+fn is_liquidation_order(order_type: OrderType) -> bool {
+    //TODO
+    true
+}
+
+/// Validate the price for increase / decrease orders based on the trigger_price
+/// the acceptablePrice for increase / decrease orders is validated in get_execution_price
+/// it is possible to update the oracle to support a primary_price and a secondary_price
+/// which would allow for stop-loss orders to be executed at exactly the trigger_price.
+/// # Arguments
+/// * `oracle` - Oracle.
+/// * `index_token` - The index token.
+/// * `order_type` - The order type.
+/// * `trigger_price` - the order's trigger_price.
+/// * `is_long` - Whether the order is for a long or short.
+#[inline(always)]
+fn validate_order_trigger_price(
+    oracle: IOracleSafeDispatcher,
+    index_token: ContractAddress,
+    order_type: OrderType,
+    trigger_price: u128,
+    is_long: bool
+) { //TODO
+}
+
+fn get_execution_price_for_increase(
+    size_delta_usd: u128, size_delta_in_tokens: u128, acceptable_price: u128, is_long: bool
+) -> u128 { //TODO
+    0
+}
+
+#[inline(always)]
+fn get_execution_price_for_decrease(
+    index_token_price: Price,
+    position_size_in_usd: u128,
+    position_size_in_tokens: u128,
+    size_delta_usd: u128,
+    price_impact_usd: i128,
+    acceptable_price: u128,
+    is_long: bool
+) -> u128 { //TODO
+    0
+}
+
+#[inline(always)]
+fn validate_non_empty_order(order: Order) { //TODO
 }

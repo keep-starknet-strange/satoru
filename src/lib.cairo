@@ -15,11 +15,17 @@ mod bank {
 // `callback` is a module that allows for better composability with other contracts.
 mod callback {
     mod callback_utils;
-}
-
-// `chain` is a module that contains utility function for interacting with the chain and getting information.
-mod chain {
-    mod chain;
+    mod error;
+    mod mocks;
+    mod deposit_callback_receiver {
+        mod interface;
+    }
+    mod order_callback_receiver {
+        mod interface;
+    }
+    mod withdrawal_callback_receiver {
+        mod interface;
+    }
 }
 
 // `config` is a module that contains the configuration for the system.
@@ -139,12 +145,13 @@ mod liquidation {
 
 // `market` contains market management functions.
 mod market {
-    mod market_utils;
     mod error;
-    mod market_token;
     mod market_factory;
-    mod market;
     mod market_pool_value_info;
+    mod market_store_utils;
+    mod market_token;
+    mod market_utils;
+    mod market;
 }
 
 // `oracle` contains functions related to oracles used by Satoru.
@@ -159,6 +166,9 @@ mod oracle {
 // `order` contains order management functions.
 mod order {
     mod base_order_utils;
+    mod order_utils;
+    mod decrease_order_utils;
+    mod increase_order_utils;
     mod order_vault;
     mod order;
 }
@@ -185,7 +195,6 @@ mod pricing {
 mod referral {
     mod referral_utils;
     mod referral_tier;
-    mod referral_event_utils;
     mod referral_storage {
         mod interface;
     }
