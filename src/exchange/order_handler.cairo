@@ -100,22 +100,27 @@ mod OrderHandler {
     use core::starknet::SyscallResultTrait;
     use core::traits::Into;
     use starknet::ContractAddress;
-    use starknet::get_contract_address;
-
+    use starknet::{get_caller_address, get_contract_address};
+    use array::ArrayTrait;
 
     // Local imports.
     use super::IOrderHandler;
-    use satoru::oracle::{oracle_modules, oracle_utils::{SetPricesParams, SimulatePricesParams}};
-    use satoru::order::{base_order_utils::CreateOrderParams, order_utils, order, base_order_utils,};
+    use satoru::oracle::{oracle_modules, oracle_utils, oracle_utils::{SetPricesParams, SimulatePricesParams}};
+    use satoru::order::{base_order_utils::CreateOrderParams, order_utils, order, base_order_utils};
     use satoru::order::{
         order::{Order, OrderTrait, OrderType, SecondaryOrderType},
         order_vault::{IOrderVaultSafeDispatcher, IOrderVaultSafeDispatcherTrait}, order_store_utils,
         order_event_utils
     };
     use satoru::market::market::Market;
+    use satoru::market::error::MarketError;
+    use satoru::position::error::PositionError;
+    use satoru::feature::error::FeatureError;
+    use satoru::order::error::OrderError;
     use satoru::exchange::exchange_utils;
     use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
     use satoru::exchange::base_order_handler::BaseOrderHandler::{
+        role_store::InternalContractMemberStateTrait as RoleStoreStateTrait,
         data_store::InternalContractMemberStateTrait as DataStoreStateTrait,
         event_emitter::InternalContractMemberStateTrait as EventEmitterStateTrait,
         order_vault::InternalContractMemberStateTrait as OrderVaultStateTrait,
@@ -126,10 +131,12 @@ mod OrderHandler {
     use satoru::feature::feature_utils;
     use satoru::data::keys;
     use satoru::role::role_module::{RoleModule, IRoleModule};
+    use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
     use satoru::token::token_utils;
     use satoru::gas::gas_utils;
     use satoru::chain::chain::Chain;
     use satoru::utils::global_reentrancy_guard;
+    use satoru::utils::error_utils;
 
     // *************************************************************************
     //                              STORAGE
@@ -309,6 +316,7 @@ mod OrderHandler {
                 order.account,
                 // starting_gas,  // DISABLED
                 keys::user_initiated_cancel(),
+                ArrayTrait::<felt252>::new(),
             );
 
             global_reentrancy_guard::non_reentrant_after(data_store);
@@ -414,10 +422,63 @@ mod OrderHandler {
         /// # Arguments
         /// * `key` - The key of the deposit to handle error for.
         /// * `starting_gas` - The starting gas of the transaction.
-        /// * `reason_bytes` - The reason of the error.
+        /// * `reason` - The reason of the error.
         fn handle_order_error(
             self: @ContractState, key: felt252, starting_gas: u128, reason_bytes: Array<felt252>
-        ) { // TODO
+        ) {
+            let error_selector = error_utils::get_error_selector_from_data(reason_bytes.span());
+            
+            let mut base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
+            let data_store = base_order_handler_state.data_store.read();
+
+            let order = order_store_utils::get(data_store, key);
+            let is_market_order = base_order_utils::is_market_order(order.order_type);
+            
+            if (
+                oracle_utils::is_oracle_error(error_selector) || 
+                order.is_frozen || 
+                (!is_market_order && error_selector == PositionError::EMPTY_POSITION) ||
+                error_selector == OrderError::EMPTY_ORDER || 
+                error_selector == FeatureError::DISABLED_FEATURE ||
+                error_selector == OrderError::INVALID_KEEPER_FOR_FROZEN_ORDER || 
+                error_selector == OrderError::UNSUPPORTED_ORDER_TYPE || 
+                error_selector == OrderError::INVALID_ORDER_PRICES 
+                
+            ) {
+                assert(false, error_utils::revert_with_custom_error(reason_bytes.span()))
+            }
+
+            let reason = error_utils::get_revert_message(reason_bytes.span());
+
+            if (
+                is_market_order ||
+                error_selector == MarketError::INVALID_POSITION_MARKET || 
+                error_selector == MarketError::INVALID_COLLATERAL_TOKEN_FOR_MARKET || 
+                error_selector == PositionError::INVALID_POSITION_SIZE_VALUES
+            ) {
+                order_utils::cancel_order(
+                    data_store,
+                    base_order_handler_state.event_emitter.read(),
+                    base_order_handler_state.order_vault.read(),
+                    key,
+                    order.account,
+                    // starting_gas,  // DISABLED
+                    reason,
+                    reason_bytes,
+                );
+                return ();
+            }
+
+            order_utils::freeze_order(
+                data_store,
+                base_order_handler_state.event_emitter.read(),
+                base_order_handler_state.order_vault.read(),
+                key,
+                get_caller_address(),
+                // starting_gas,  // DISABLED
+                reason,
+                reason_bytes
+            );
         }
 
         /// Validate that the keeper is a frozen order keeper.
@@ -425,7 +486,11 @@ mod OrderHandler {
         /// * `keeper` - address of the keeper.
         fn _validate_state_frozen_order_keeper(
             self: @ContractState, keeper: ContractAddress
-        ) { // TODO
+        ) {
+            let mut base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
+            let role_store = base_order_handler_state.role_store.read();
+
+            assert(role_store.has_role(keeper, role::FROZEN_ORDER_KEEPER), 'InvalidKeeperForFrozenOrderKeeper');
         }
     }
 }

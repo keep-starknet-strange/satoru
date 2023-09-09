@@ -130,6 +130,7 @@ mod utils {
     mod u128_mask;
     mod hash;
     mod store_arrays;
+    mod error_utils;
 }
 
 // `liquidation` function to help with liquidations.
@@ -164,6 +165,7 @@ mod order {
     mod order_utils;
     mod order_store_utils;
     mod order_event_utils;
+    mod error;
 }
 
 // `position` contains positions management functions
@@ -175,6 +177,7 @@ mod position {
     mod position_event_utils;
     mod position_utils;
     mod position;
+    mod error;
 }
 
 // `pricing` contains pricing utils

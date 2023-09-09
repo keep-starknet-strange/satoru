@@ -51,6 +51,29 @@ fn cancel_order(
     keeper: ContractAddress,
     // starting_gas: u256,
     reason: felt252,
+    reason_bytes: Array<felt252>,
+) -> felt252 {
+    // TODO
+    0
+}
+
+/// Freezes an order.
+/// # Arguments
+/// * `data_store` - DataStore
+/// * `event_emitter` - EventEmitter
+/// * `order_vault` - OrderVault
+/// * `key` - the order key
+/// * `keeper` - the order keeper
+/// * `reason` - the order cancellation reason
+fn freeze_order(
+    data_store: IDataStoreSafeDispatcher,
+    event_emitter: IEventEmitterSafeDispatcher,
+    order_vault: IOrderVaultSafeDispatcher,
+    key: felt252,
+    keeper: ContractAddress,
+    // starting_gas: u256,
+    reason: felt252,
+    reason_bytes: Array<felt252>,
 ) -> felt252 {
     // TODO
     0
