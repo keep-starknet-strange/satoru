@@ -66,13 +66,7 @@ mod AdlHandler {
     use super::IAdlHandler;
     use satoru::adl::adl_utils;
     use satoru::exchange::base_order_handler::{
-
-        IBaseOrderHandlerSafeDispatcher, IBaseOrderHandlerDispatcherTrait
-    };
-    use satoru::data::{keys, data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}};
-    use satoru::event::event_emitter::{
-        IEventEmitterSafeDispatcher, IEventEmitterDispatcherTrait
-
+        IBaseOrderHandlerDispatcher, IBaseOrderHandlerDispatcherTrait
     };
     use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
     use satoru::data::{keys, data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}};
