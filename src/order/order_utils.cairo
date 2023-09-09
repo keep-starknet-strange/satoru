@@ -6,12 +6,12 @@
 use starknet::ContractAddress;
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::order::base_order_utils::ExecuteOrderParams;
-use satoru::order::order_vault::{IOrderVaultSafeDispatcher, IOrderVaultSafeDispatcherTrait};
+use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
 use satoru::referral::referral_storage::interface::{
-    IReferralStorageSafeDispatcher, IReferralStorageSafeDispatcherTrait
+    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
 };
 use satoru::order::base_order_utils::CreateOrderParams;
 
@@ -24,10 +24,10 @@ use satoru::order::base_order_utils::CreateOrderParams;
 /// * `account` - the order account
 /// * `params` - create order params
 fn create_order(
-    data_store: IDataStoreSafeDispatcher,
-    event_emitter: IEventEmitterSafeDispatcher,
-    order_vault: IOrderVaultSafeDispatcher,
-    referral_storage: IReferralStorageSafeDispatcher,
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    order_vault: IOrderVaultDispatcher,
+    referral_storage: IReferralStorageDispatcher,
     account: ContractAddress,
     params: CreateOrderParams,
 ) -> felt252 {
@@ -44,9 +44,9 @@ fn create_order(
 /// * `keeper` - the order keeper
 /// * `reason` - the order cancellation reason
 fn cancel_order(
-    data_store: IDataStoreSafeDispatcher,
-    event_emitter: IEventEmitterSafeDispatcher,
-    order_vault: IOrderVaultSafeDispatcher,
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    order_vault: IOrderVaultDispatcher,
     key: felt252,
     keeper: ContractAddress,
     // starting_gas: u256,
@@ -66,9 +66,9 @@ fn cancel_order(
 /// * `keeper` - the order keeper
 /// * `reason` - the order cancellation reason
 fn freeze_order(
-    data_store: IDataStoreSafeDispatcher,
-    event_emitter: IEventEmitterSafeDispatcher,
-    order_vault: IOrderVaultSafeDispatcher,
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    order_vault: IOrderVaultDispatcher,
     key: felt252,
     keeper: ContractAddress,
     // starting_gas: u256,

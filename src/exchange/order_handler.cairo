@@ -109,7 +109,7 @@ mod OrderHandler {
     use satoru::order::{base_order_utils::CreateOrderParams, order_utils, order, base_order_utils};
     use satoru::order::{
         order::{Order, OrderTrait, OrderType, SecondaryOrderType},
-        order_vault::{IOrderVaultSafeDispatcher, IOrderVaultSafeDispatcherTrait}, order_store_utils,
+        order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}, order_store_utils,
         order_event_utils
     };
     use satoru::market::market::Market;
@@ -130,8 +130,9 @@ mod OrderHandler {
     };
     use satoru::feature::feature_utils;
     use satoru::data::keys;
+    use satoru::role::role;
     use satoru::role::role_module::{RoleModule, IRoleModule};
-    use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::token::token_utils;
     use satoru::gas::gas_utils;
     use satoru::chain::chain::Chain;
@@ -256,7 +257,7 @@ mod OrderHandler {
             // Allow topping up of execution fee as frozen orders will have execution fee reduced.
             let wnt = token_utils::wnt(data_store);
             let order_vault = base_order_handler_state.order_vault.read();
-            let received_wnt = order_vault.record_transfer_in(wnt).unwrap_syscall();
+            let received_wnt = order_vault.record_transfer_in(wnt);
             updated_order.execution_fee = received_wnt;
 
             let estimated_gas_limit = gas_utils::estimate_execute_order_gas_limit(
@@ -490,7 +491,7 @@ mod OrderHandler {
             let mut base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let role_store = base_order_handler_state.role_store.read();
 
-            assert(role_store.has_role(keeper, role::FROZEN_ORDER_KEEPER), 'InvalidKeeperForFrozenOrderKeeper');
+            assert(role_store.has_role(keeper, role::FROZEN_ORDER_KEEPER), 'InvalidFrozenOrderKeeper');
         }
     }
 }

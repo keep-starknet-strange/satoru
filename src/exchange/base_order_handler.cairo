@@ -49,26 +49,26 @@ mod BaseOrderHandler {
 
     // Local imports.
     use super::IBaseOrderHandler;
-    use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-    use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::event::event_emitter::{
-        IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait
+        IEventEmitterDispatcher, IEventEmitterDispatcherTrait
     };
     use satoru::oracle::{
-        oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait},
+        oracle::{IOracleDispatcher, IOracleDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
         oracle_utils::SetPricesParams
     };
     use satoru::order::{
         order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType},
-        order_vault::{IOrderVaultSafeDispatcher, IOrderVaultSafeDispatcherTrait},
+        order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
         base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}
     };
-    use satoru::swap::swap_handler::{ISwapHandlerSafeDispatcher, ISwapHandlerSafeDispatcherTrait};
+    use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use satoru::exchange::error::ExchangeError;
     use satoru::market::market::Market;
     use satoru::referral::referral_storage::interface::{
-        IReferralStorageSafeDispatcher, IReferralStorageSafeDispatcherTrait
+        IReferralStorageDispatcher, IReferralStorageDispatcherTrait
     };
 
     // *************************************************************************
@@ -77,19 +77,19 @@ mod BaseOrderHandler {
     #[storage]
     struct Storage {
         /// Interface to interact with the `DataStore` contract.
-        data_store: IDataStoreSafeDispatcher,
+        data_store: IDataStoreDispatcher,
         /// Interface to interact with the `RoleStore` contract.
-        role_store: IRoleStoreSafeDispatcher,
+        role_store: IRoleStoreDispatcher,
         /// Interface to interact with the `EventEmitter` contract.
-        event_emitter: IEventEmitterSafeDispatcher,
+        event_emitter: IEventEmitterDispatcher,
         /// Interface to interact with the `OrderVault` contract.
-        order_vault: IOrderVaultSafeDispatcher,
+        order_vault: IOrderVaultDispatcher,
         /// Interface to interact with the `SwapHandler` contract.
-        swap_handler: ISwapHandlerSafeDispatcher,
+        swap_handler: ISwapHandlerDispatcher,
         /// Interface to interact with the `Oracle` contract.
-        oracle: IOracleSafeDispatcher,
+        oracle: IOracleDispatcher,
         /// Interface to interact with the `ReferralStorage` contract.
-        referral_storage: IReferralStorageSafeDispatcher
+        referral_storage: IReferralStorageDispatcher
     }
 
     // *************************************************************************
@@ -151,24 +151,24 @@ mod BaseOrderHandler {
             );
             self
                 .data_store
-                .write(IDataStoreSafeDispatcher { contract_address: data_store_address });
+                .write(IDataStoreDispatcher { contract_address: data_store_address });
             self
                 .role_store
-                .write(IRoleStoreSafeDispatcher { contract_address: role_store_address });
+                .write(IRoleStoreDispatcher { contract_address: role_store_address });
             self
                 .event_emitter
-                .write(IEventEmitterSafeDispatcher { contract_address: event_emitter_address });
+                .write(IEventEmitterDispatcher { contract_address: event_emitter_address });
             self
                 .order_vault
-                .write(IOrderVaultSafeDispatcher { contract_address: order_vault_address });
-            self.oracle.write(IOracleSafeDispatcher { contract_address: oracle_address });
+                .write(IOrderVaultDispatcher { contract_address: order_vault_address });
+            self.oracle.write(IOracleDispatcher { contract_address: oracle_address });
             self
                 .swap_handler
-                .write(ISwapHandlerSafeDispatcher { contract_address: swap_handler_address });
+                .write(ISwapHandlerDispatcher { contract_address: swap_handler_address });
             self
                 .referral_storage
                 .write(
-                    IReferralStorageSafeDispatcher { contract_address: referral_storage_address }
+                    IReferralStorageDispatcher { contract_address: referral_storage_address }
                 );
         }
     }

@@ -7,10 +7,10 @@
 // Core lib imports.
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::oracle::{
-    oracle::IOracleSafeDispatcher, oracle_utils::{SetPricesParams, SimulatePricesParams},
+    oracle::IOracleDispatcher, oracle_utils::{SetPricesParams, SimulatePricesParams},
 };
 
 /// Sets oracle prices, perform any additional tasks required,
@@ -28,9 +28,9 @@ use satoru::oracle::{
 /// * `params` - parameters used to set oracle price
 #[inline(always)]
 fn with_oracle_prices_before(
-    oracle: IOracleSafeDispatcher,
-    data_store: IDataStoreSafeDispatcher,
-    event_emitter: IEventEmitterSafeDispatcher,
+    oracle: IOracleDispatcher,
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
     params: @SetPricesParams
 ) { // TODO
 }
@@ -52,7 +52,7 @@ fn with_oracle_prices_after() { // TODO
 /// * `params` - parameters used to set oracle price
 #[inline(always)]
 fn with_simulated_oracle_prices_before(
-    oracle: IOracleSafeDispatcher, params: SimulatePricesParams
+    oracle: IOracleDispatcher, params: SimulatePricesParams
 ) { // TODO
 }
 
