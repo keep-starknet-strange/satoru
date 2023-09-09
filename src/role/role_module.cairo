@@ -42,15 +42,15 @@ mod RoleModule {
 
     #[storage]
     struct Storage {
-        role_store_address: ContractAddress,
+        role_store: IRoleStoreDispatcher,
     }
 
     // *************************************************************************
     // CONSTRUCTOR
     // *************************************************************************
-    // #[constructor]
+    #[constructor]
     fn constructor(ref self: ContractState, role_store_address: ContractAddress) {
-        self.role_store_address.write(role_store_address);
+        self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
     }
 
     // *************************************************************************
@@ -103,9 +103,8 @@ mod RoleModule {
     impl InternalFunctions of InternalFunctionsTrait {
         fn _validate_role(self: @ContractState, role_key: felt252) {
             let caller = get_caller_address();
-            let native_token = self.role_store_address.read();
-            let role_store = IRoleStoreDispatcher { contract_address: native_token };
-            assert(role_store.has_role(caller, role_key), RoleError::UNAUTHORIZED_ACCESS);
+            let role_store = self.role_store.read();
+            assert(role_store.has_role(caller, role_key) == true, RoleError::UNAUTHORIZED_ACCESS);
         }
     }
 }
