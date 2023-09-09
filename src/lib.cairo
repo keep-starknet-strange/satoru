@@ -28,6 +28,11 @@ mod callback {
     }
 }
 
+// `chain` is a module that contains utility function for interacting with the chain and getting information.
+mod chain {
+    mod chain;
+}
+
 // `config` is a module that contains the configuration for the system.
 mod config {
     mod config;
@@ -146,13 +151,12 @@ mod liquidation {
 
 // `market` contains market management functions.
 mod market {
-    mod error;
-    mod market_factory;
-    mod market_pool_value_info;
-    mod market_store_utils;
-    mod market_token;
     mod market_utils;
+    mod error;
+    mod market_token;
+    mod market_factory;
     mod market;
+    mod market_pool_value_info;
 }
 
 // `oracle` contains functions related to oracles used by Satoru.

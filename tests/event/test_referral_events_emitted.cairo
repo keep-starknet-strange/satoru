@@ -4,7 +4,7 @@ use snforge_std::{
     EventAssertions
 };
 
-use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
 #[test]
 fn test_emit_affiliate_reward_updated() {
@@ -114,10 +114,10 @@ fn test_emit_affiliate_reward_claimed() {
 /// # Returns
 ///
 /// * `ContractAddress` - The address of the event emitter contract.
-/// * `IEventEmitterSafeDispatcher` - The event emitter store dispatcher.
-fn setup() -> (ContractAddress, IEventEmitterSafeDispatcher) {
+/// * `IEventEmitterDispatcher` - The event emitter store dispatcher.
+fn setup() -> (ContractAddress, IEventEmitterDispatcher) {
     let contract = declare('EventEmitter');
     let contract_address = contract.deploy(@array![]).unwrap();
-    let event_emitter = IEventEmitterSafeDispatcher { contract_address };
+    let event_emitter = IEventEmitterDispatcher { contract_address };
     return (contract_address, event_emitter);
 }
