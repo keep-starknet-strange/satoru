@@ -158,19 +158,49 @@ trait IDataStore<TContractState> {
     // *************************************************************************
     //                      Market related functions.
     // *************************************************************************
+    fn get_key_index_market(self: @TContractState, key: ContractAddress) -> Option<u128>;
     /// Get a market value for the given key.
     /// # Arguments
     /// * `key` - The key to get the value for.
     /// # Returns
     /// The value for the given key.
-    fn get_market(self: @TContractState, key: felt252) -> Option<Market>;
+    fn get_market(self: @TContractState, key: ContractAddress) -> Option<Market>;
 
     /// Set a market value for the given key.
     /// # Arguments
     /// * `key` - The key to set the value for.
     /// * `value` - The value to set.
-    fn set_market(ref self: TContractState, key: felt252, market: Market);
-
+    fn set_market(ref self: TContractState, key: ContractAddress, market: Market);
+    /// Get a market value for the given salt.
+    /// # Arguments
+    /// * `salt` - The salt to get the value for.
+    /// # Returns
+    /// The value for the given key.
+    fn get_by_salt_market(
+        self: @TContractState,
+        salt: felt252
+    ) -> Option<Market>;
+        fn remove_market(
+        ref self: TContractState,
+        key: ContractAddress
+    );
+    /// Get a hash given salt.
+    /// # Arguments
+    /// * `salt` - The salt to hash.
+    /// # Returns
+    /// The hash of the salt.
+    fn get_market_salt_hash(
+        self: @TContractState,
+        salt: felt252
+    ) -> felt252;
+    fn get_market_count(self: @TContractState) -> u128;
+    /// Get market between start and end.
+    /// # Arguments
+    /// * `start` - The start index, included.
+    /// * `end` - The end index, not included.
+    /// # Returns
+    /// Array of markets contract addresses.
+    fn get_market_keys(self: @TContractState, start: u128, end: u128) -> Array<ContractAddress>;
 
     // *************************************************************************
     //                      Order related functions.
@@ -283,6 +313,7 @@ mod DataStore {
     // *************************************************************************
 
     // Core lib imports.
+    use core::option::OptionTrait;
     use core::traits::TryInto;
     use starknet::{get_caller_address, ContractAddress, contract_address_const,};
     use nullable::NullableTrait;
@@ -295,6 +326,7 @@ mod DataStore {
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::market::market::{Market, ValidateMarket};
     use satoru::order::order::Order;
+    use satoru::data::error::DataError;
     use satoru::withdrawal::{withdrawal::Withdrawal, error::WithdrawalError};
 
     // *************************************************************************
@@ -309,7 +341,9 @@ mod DataStore {
         i128_values: LegacyMap::<felt252, u128>,
         address_values: LegacyMap::<felt252, ContractAddress>,
         bool_values: LegacyMap::<felt252, Option<bool>>,
-        market_values: LegacyMap::<felt252, Market>,
+        market_values: LegacyMap::<ContractAddress, Market>,
+        market_keys: LegacyMap::<u128, ContractAddress>,
+        market_count: u128,
         order_values: LegacyMap::<felt252, Order>,
         withdrawals: List<Withdrawal>,
         account_withdrawals: LegacyMap<ContractAddress, List<felt252>>,
@@ -566,7 +600,27 @@ mod DataStore {
         //                      Market related functions.
         // *************************************************************************
 
-        fn get_market(self: @ContractState, key: felt252) -> Option<Market> {
+        fn get_key_index_market(self: @ContractState, key: ContractAddress) -> Option<u128> {
+            let mut i = 0;
+            let count = self.market_count.read();
+            // Search for key index
+            let result = loop {
+                if (i == count) {
+                    break false;
+                }
+                if (self.market_keys.read(i) == key) {
+                    break true;
+                }
+                i = i + 1;
+            };
+            if result {
+                Option::Some(i)
+            } else {
+                Option::None
+            }
+        }
+
+        fn get_market(self: @ContractState, key: ContractAddress) -> Option<Market> {
             let market = self.market_values.read(key);
 
             // We use the zero address to indicate that the market does not exist.
@@ -577,15 +631,82 @@ mod DataStore {
             }
         }
 
-        fn set_market(ref self: ContractState, key: felt252, market: Market) {
+        fn set_market(ref self: ContractState, key: ContractAddress, market: Market) {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
 
-            // Assert that the market is valid.
-            market.assert_valid();
+            let index_result = self.get_key_index_market(key);
 
-            // Set the value.
-            self.market_values.write(key, market);
+            match index_result {
+                // Update to new market for given key
+                Option::Some(i) => {
+                    self.market_values.write(key, market);
+                },
+                // Add new market for given key and increase the count
+                Option::None(()) => {
+                    let count = self.market_count.read();
+                    self.market_keys.write(count, key);
+                    self.market_count.write(count + 1);
+                    self.market_values.write(key, market);
+                },
+            };
+        }
+
+        fn get_by_salt_market(
+            self: @ContractState,
+            salt: felt252
+        ) -> Option<Market> {
+            Option::None(())
+        }
+
+        fn remove_market(
+            ref self: ContractState,
+            key: ContractAddress
+        ) {
+            // Check that the caller has permission to set the value.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+
+            let market = self.market_values.read(key);
+            // We use the zero address to indicate that the order does not exist.
+            assert(!market.index_token.is_zero(), DataError::MARKET_NOT_FOUND);
+
+            let index_result = self.get_key_index_market(key);
+            let mut index: u128 = 0;
+            match index_result {
+                Option::Some(i) => index = i,
+                Option::None(()) => panic_with_felt252(DataError::MARKET_INDEX_NOT_FOUND),
+            };
+
+            let count = self.market_count.read();
+            // Update removed key index with last key
+            self.market_keys.write(index, self.market_keys.read(count - 1));
+            self.market_keys.write(count - 1, 0.try_into().unwrap());
+            self.market_count.write(count - 1);
+        }
+
+        fn get_market_salt_hash(
+            self: @ContractState,
+            salt: felt252
+        ) -> felt252 {
+            0
+        }
+
+        fn get_market_count(self: @ContractState) -> u128 {
+            self.market_count.read()
+        }
+
+        fn get_market_keys(self: @ContractState, start: u128, end: u128) -> Array<ContractAddress> {
+            let mut keys = ArrayTrait::<ContractAddress>::new();
+            let mut i = start;
+            let count = self.market_count.read();
+            loop {
+                if (i > end || i >= count) {
+                    break;
+                }
+                keys.append(self.market_keys.read(i));
+                i = i + 1;
+            };
+            keys
         }
 
         // *************************************************************************
