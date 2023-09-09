@@ -104,7 +104,7 @@ mod RoleModule {
         fn _validate_role(self: @ContractState, role_key: felt252) {
             let caller = get_caller_address();
             let role_store = self.role_store.read();
-            assert(role_store.has_role(caller, role_key) == true, RoleError::UNAUTHORIZED_ACCESS);
+            assert(role_store.has_role(caller, role_key), RoleError::UNAUTHORIZED_ACCESS);
         }
     }
 }

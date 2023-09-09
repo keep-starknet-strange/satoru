@@ -106,7 +106,7 @@ mod role {
     mod role;
     // The contract handling the roles and store them.
     mod role_store;
-
+    // The contract handling the role modifiers
     mod role_module;
 }
 
