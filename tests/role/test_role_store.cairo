@@ -78,8 +78,9 @@ fn setup() -> IRoleStoreSafeDispatcher {
 /// Utility function to teardown the test environment.
 fn teardown() {}
 
-// Utility function to deploy a data store contract and return its address.
+// Utility function to deploy a role store contract and return its address.
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
     contract.deploy(@ArrayTrait::new()).unwrap()
 }
+
