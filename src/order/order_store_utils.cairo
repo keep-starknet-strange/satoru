@@ -8,5 +8,6 @@ fn get(data_store: IDataStoreSafeDispatcher, key: felt252) -> Order {
     Default::default()
 }
 
-fn set(data_store: IDataStoreSafeDispatcher, key: felt252, value: Order) { // TODO
+fn set(data_store: IDataStoreSafeDispatcher, key: felt252, value: @Order) { 
+    // TODO
 }

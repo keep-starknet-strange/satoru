@@ -145,8 +145,8 @@ fn is_market_order(order_type: OrderType) -> bool {
 /// Validates that an order exists.
 /// # Arguments
 /// * `order` - The order to check.
-fn validate_non_empty_order(order: Order) {
-    assert(order.account != ContractAddressZeroable::zero(), 'EmptyOrder');
-    assert(order.size_delta_usd != 0 || order.initial_collateral_delta_amount != 0, 'EmptyOrder');
+fn validate_non_empty_order(order: @Order) {
+    assert(*order.account != ContractAddressZeroable::zero(), 'EmptyOrder');
+    assert(*order.size_delta_usd != 0 || *order.initial_collateral_delta_amount != 0, 'EmptyOrder');
 }
 

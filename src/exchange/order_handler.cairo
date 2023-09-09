@@ -92,7 +92,6 @@ mod OrderHandler {
     // Core lib imports.
     use core::starknet::SyscallResultTrait;
     use core::traits::Into;
-    use clone::Clone;
     use starknet::ContractAddress;
     use starknet::get_contract_address;
 
@@ -233,29 +232,29 @@ mod OrderHandler {
 
             assert(base_order_utils::is_market_order(order.order_type), 'OrderNotUpdatable');
 
-            let mut order = order.clone();
-            order.size_delta_usd = size_delta_usd;
-            order.trigger_price = trigger_price;
-            order.acceptable_price = acceptable_price;
-            order.min_output_amount = min_output_amount;
-            order.is_frozen = false;
+            let mut updated_order = order.clone();
+            updated_order.size_delta_usd = size_delta_usd;
+            updated_order.trigger_price = trigger_price;
+            updated_order.acceptable_price = acceptable_price;
+            updated_order.min_output_amount = min_output_amount;
+            updated_order.is_frozen = false;
 
             // Allow topping up of execution fee as frozen orders will have execution fee reduced.
             let wnt = token_utils::wnt(data_store);
             let order_vault = base_order_handler_state.order_vault.read();
             let received_wnt = order_vault.record_transfer_in(wnt).unwrap_syscall();
-            order.execution_fee += received_wnt;
+            updated_order.execution_fee = received_wnt;
 
             let estimated_gas_limit = gas_utils::estimate_execute_order_gas_limit(
-                data_store, order.clone()
+                data_store, @updated_order
             );
-            gas_utils::validate_execution_fee(data_store, estimated_gas_limit, order.execution_fee);
+            gas_utils::validate_execution_fee(data_store, estimated_gas_limit, updated_order.execution_fee);
 
-            order.touch();
+            updated_order.touch();
 
-            base_order_utils::validate_non_empty_order(order.clone());
+            base_order_utils::validate_non_empty_order(@updated_order);
 
-            order_store_utils::set(data_store, key, order.clone());
+            order_store_utils::set(data_store, key, @updated_order);
             order_event_utils::emit_order_updated(
                 base_order_handler_state.event_emitter.read(),
                 key,
@@ -267,7 +266,7 @@ mod OrderHandler {
 
             global_reentrancy_guard::non_reentrant_after(data_store);
 
-            order
+            updated_order
         }
 
         fn cancel_order(ref self: ContractState, key: felt252) {
@@ -322,7 +321,7 @@ mod OrderHandler {
                 base_order_handler_state.oracle.read(),
                 data_store,
                 base_order_handler_state.event_emitter.read(),
-                oracle_params.clone()
+                @oracle_params
             );
 
             // TODO: Did not implement starting gas and try / catch logic as not available in Cairo
@@ -345,7 +344,7 @@ mod OrderHandler {
 
             global_reentrancy_guard::non_reentrant_before(data_store);
             oracle_modules::with_simulated_oracle_prices_before(
-                base_order_handler_state.oracle.read(), params.clone()
+                base_order_handler_state.oracle.read(), params
             );
 
             let oracle_params: SetPricesParams = Default::default();

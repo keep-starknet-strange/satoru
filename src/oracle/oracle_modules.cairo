@@ -31,7 +31,7 @@ fn with_oracle_prices_before(
     oracle: IOracleSafeDispatcher,
     data_store: IDataStoreSafeDispatcher,
     event_emitter: IEventEmitterSafeDispatcher,
-    params: SetPricesParams
+    params: @SetPricesParams
 ) { // TODO
 }
 

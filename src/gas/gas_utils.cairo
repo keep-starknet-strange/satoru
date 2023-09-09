@@ -111,7 +111,7 @@ fn estimate_execute_withdrawal_gas_limit(
 /// # Arguments
 /// * `data_store` - The data storage contract dispatcher.
 /// * `order` - The order to estimate the gas limit for.
-fn estimate_execute_order_gas_limit(data_store: IDataStoreSafeDispatcher, order: Order) -> u128 {
+fn estimate_execute_order_gas_limit(data_store: IDataStoreSafeDispatcher, order: @Order) -> u128 {
     // TODO
     0
 }
