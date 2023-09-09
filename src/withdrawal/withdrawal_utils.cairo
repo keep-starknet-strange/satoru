@@ -8,15 +8,15 @@ use result::ResultTrait;
 // Local imports.
 use satoru::withdrawal::withdrawal::{Withdrawal};
 use satoru::withdrawal::withdrawal_vault::{
-    IWithdrawalVaultSafeDispatcher, IWithdrawalVaultSafeDispatcherTrait
+    IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait
 };
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::swap::swap_utils::SwapParams;
 use satoru::market::{market::Market, market_utils::MarketPrices};
 use satoru::pricing::swap_pricing_utils::SwapFees;
 use satoru::utils::store_arrays::{StoreContractAddressArray, StoreU128Array};
-use satoru::oracle::oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait};
+use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 
 #[derive(Drop, starknet::Store, Serde)]
 struct CreateWithdrawalParams {
@@ -47,13 +47,13 @@ struct CreateWithdrawalParams {
 #[derive(Drop, starknet::Store, Serde)]
 struct ExecuteWithdrawalParams {
     /// The data store where withdrawal data is stored.
-    data_store: IDataStoreSafeDispatcher,
+    data_store: IDataStoreDispatcher,
     /// The event emitter that is used to emit events.
-    event_emitter: IEventEmitterSafeDispatcher,
+    event_emitter: IEventEmitterDispatcher,
     /// The withdrawal vault.
-    withdrawal_vault: IWithdrawalVaultSafeDispatcher,
+    withdrawal_vault: IWithdrawalVaultDispatcher,
     /// The oracle that provides market prices.
-    oracle: IOracleSafeDispatcher,
+    oracle: IOracleDispatcher,
     /// The unique identifier of the withdrawal to execute.
     key: felt252,
     /// The min block numbers for the oracle prices.
@@ -103,9 +103,9 @@ struct SwapCache {
 /// The unique identifier of the created withdrawal.
 #[inline(always)]
 fn create_withdrawal(
-    data_store: IDataStoreSafeDispatcher,
-    event_emitter: IEventEmitterSafeDispatcher,
-    withdrawal_vault: IWithdrawalVaultSafeDispatcher,
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    withdrawal_vault: IWithdrawalVaultDispatcher,
     account: ContractAddress,
     params: CreateWithdrawalParams
 ) -> felt252 {
@@ -132,9 +132,9 @@ fn execute_withdrawal(params: ExecuteWithdrawalParams) { // TODO
 /// * `reason` - The reason for cancelling.
 #[inline(always)]
 fn cancel_withdrawal(
-    data_store: IDataStoreSafeDispatcher,
-    event_emitter: IEventEmitterSafeDispatcher,
-    withdrawal_vault: IWithdrawalVaultSafeDispatcher,
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    withdrawal_vault: IWithdrawalVaultDispatcher,
     key: felt252,
     keeper: ContractAddress,
     starting_gas: u128,

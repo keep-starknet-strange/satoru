@@ -14,8 +14,8 @@ use debug::PrintTrait;
 /// # Returns
 ///
 /// * `ContractAddress` - The address of the caller.
-/// * `IRoleStoreSafeDispatcher` - The role store dispatcher.
-/// * `IDataStoreSafeDispatcher` - The data store dispatcher.
+/// * `IRoleStoreDispatcher` - The role store dispatcher.
+/// * `IDataStoreDispatcher` - The data store dispatcher.
 fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
     let caller_address: ContractAddress = 0x101.try_into().unwrap();
     let role_store_address = deploy_role_store();

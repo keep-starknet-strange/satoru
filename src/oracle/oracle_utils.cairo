@@ -6,9 +6,9 @@ use starknet::ContractAddress;
 use result::ResultTrait;
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use satoru::bank::bank::{IBankSafeDispatcher, IBankSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::market::market::{Market};
 use satoru::price::price::{Price};
 use satoru::utils::store_arrays::{

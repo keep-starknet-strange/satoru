@@ -8,6 +8,7 @@ use debug::PrintTrait;
 
 // Local imports.
 use satoru::utils::store_arrays::StoreContractAddressArray;
+use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
 use alexandria_storage::list::List;
 use satoru::utils::arrays::StoreContractAddressSpan;
 

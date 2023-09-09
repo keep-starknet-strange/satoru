@@ -49,9 +49,7 @@ mod FeeHandler {
     // Local imports.
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::event::event_emitter::{
-        IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait
-    };
+    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use super::IFeeHandler;
     use satoru::fee::error::FeeError;
 
@@ -65,7 +63,7 @@ mod FeeHandler {
         /// Interface to interact with the `RoleStore` contract.
         role_store: IRoleStoreDispatcher,
         /// Interface to interact with the `EventEmitter` contract.
-        event_emitter: IEventEmitterSafeDispatcher,
+        event_emitter: IEventEmitterDispatcher,
     }
 
     // *************************************************************************
@@ -108,7 +106,7 @@ mod FeeHandler {
             self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
             self
                 .event_emitter
-                .write(IEventEmitterSafeDispatcher { contract_address: event_emitter_address });
+                .write(IEventEmitterDispatcher { contract_address: event_emitter_address });
         }
 
         fn claimFees(
