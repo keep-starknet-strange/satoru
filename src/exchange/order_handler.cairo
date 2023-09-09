@@ -76,6 +76,13 @@ trait IOrderHandler<TContractState> {
     /// * `oracle_params` - The oracle params to set prices before execution.
     fn execute_order(ref self: TContractState, key: felt252, oracle_params: SetPricesParams);
 
+    /// Executes an order.
+    /// # Arguments
+    /// * `key` - The key of the order to execute.
+    /// * `oracle_params` - The oracle params to set prices before execution.
+    /// * `keeper` - The keeper executing the order.
+    fn execute_order_keeper(ref self: TContractState, key: felt252, oracle_params: SetPricesParams, keeper: ContractAddress);
+
     /// Simulates execution of an order to check for any error.
     /// # Arguments
     /// * `key` - The key of the order to execute.
@@ -331,6 +338,12 @@ mod OrderHandler {
             global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
+        fn execute_order_keeper(
+            ref self: ContractState, key: felt252, oracle_params: SetPricesParams, keeper: ContractAddress
+        ) {
+            self._execute_order(key, oracle_params, keeper);
+        }
+
         fn simulate_execute_order(
             ref self: ContractState, key: felt252, params: SimulatePricesParams
         ) {
@@ -371,6 +384,10 @@ mod OrderHandler {
             oracle_params: SetPricesParams,
             keeper: ContractAddress
         ) {
+            // Check only self.
+            let role_module_state = RoleModule::unsafe_new_contract_state();
+            role_module_state.only_self();
+
             let mut base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let params = base_order_handler_state
                 .get_execute_order_params(

@@ -5,6 +5,9 @@
 // *************************************************************************
 #[starknet::interface]
 trait IRoleModule<TContractState> {
+    /// Only allows the contract's own address to call the function.
+    fn only_self(self: @TContractState);
+
     /// Only allows addresses with the CONTROLLER role to call the function.
     fn only_controller(self: @TContractState);
 
@@ -49,6 +52,10 @@ mod RoleModule {
     // *************************************************************************
     #[external(v0)]
     impl RoleModule of super::IRoleModule<ContractState> {
+        fn only_self(self: @ContractState) {
+            // TODO
+        }
+
         fn only_controller(self: @ContractState) {
             // TODO
         }
