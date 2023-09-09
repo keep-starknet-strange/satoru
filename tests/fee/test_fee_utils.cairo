@@ -6,7 +6,7 @@ use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::data::keys::{
-    claim_fee_amount_key, claim_ui_fee_amount_key, claim_ui_fee_amount_for_account_key
+    claimable_fee_amount_key, claimable_ui_fee_amount_key, claimable_ui_fee_amount_for_account_key
 };
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
@@ -19,7 +19,7 @@ fn test_increment_claimable_fee_amount() {
     let market: ContractAddress = 0x555.try_into().unwrap();
     let token: ContractAddress = 0x666.try_into().unwrap();
 
-    let key = claim_fee_amount_key(
+    let key = claimable_fee_amount_key(
         market, token
     ); // Calculate slot key to get initial value of slot.
 
@@ -46,8 +46,8 @@ fn test_increment_claimable_ui_fee_amount() {
     let token: ContractAddress = 0x666.try_into().unwrap();
     let ui_fee_receiver: ContractAddress = 0x777.try_into().unwrap();
 
-    let key = claim_ui_fee_amount_for_account_key(market, token, ui_fee_receiver);
-    let pool_key = claim_ui_fee_amount_key(market, token);
+    let key = claimable_ui_fee_amount_for_account_key(market, token, ui_fee_receiver);
+    let pool_key = claimable_ui_fee_amount_key(market, token);
 
     let initial_value = data_store.get_u128(key);
     let initial_pool_value = data_store.get_u128(pool_key);
