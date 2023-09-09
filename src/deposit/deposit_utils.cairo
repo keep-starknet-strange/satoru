@@ -11,9 +11,9 @@ use result::ResultTrait;
 use debug::PrintTrait;
 // Local imports.
 use satoru::utils::store_arrays::StoreContractAddressArray;
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use satoru::deposit::deposit_vault::{IDepositVaultSafeDispatcher, IDepositVaultSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
 
 /// Helps with deposit creation.
 #[derive(Drop, starknet::Store, Serde)]
@@ -54,9 +54,9 @@ struct CreateDepositParams {
 /// * `account` - The depositing account.
 /// * `params` - The parameters used to process the deposit.
 fn create_deposit(
-    data_store: IDataStoreSafeDispatcher,
-    event_emitter: IEventEmitterSafeDispatcher,
-    deposit_vault: IDepositVaultSafeDispatcher,
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    deposit_vault: IDepositVaultDispatcher,
     account: ContractAddress,
     params: CreateDepositParams
 ) -> felt252 {
@@ -74,9 +74,9 @@ fn create_deposit(
 /// * `starting_gas` - Tthe starting gas amount.
 /// * `reason` - The reason the deposit was cancelled.
 fn cancel_deposit(
-    data_store: IDataStoreSafeDispatcher,
-    event_emitter: IEventEmitterSafeDispatcher,
-    deposit_vault: IDepositVaultSafeDispatcher,
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    deposit_vault: IDepositVaultDispatcher,
     key: felt252,
     address: ContractAddress,
     starting_gas: u128,
