@@ -61,7 +61,7 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
 /// # Returns
 ///
 /// * `ContractAddress` - The address of the event emitter contract.
-/// * `IEventEmitterSafeDispatcher` - The event emitter store dispatcher.
+/// * `IEventEmitterDispatcher` - The event emitter store dispatcher.
 fn setup_event_emitter() -> (ContractAddress, IEventEmitterDispatcher) {
     let event_emitter_address = deploy_event_emitter();
     let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
