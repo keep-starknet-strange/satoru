@@ -54,9 +54,7 @@ mod MarketFactory {
     use satoru::role::role;
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::event::event_emitter::{
-        IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait
-    };
+    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::market::market::{Market, UniqueIdMarket};
 
     // *************************************************************************
@@ -69,7 +67,7 @@ mod MarketFactory {
         /// Interface to interact with the `RoleStore` contract.
         role_store: IRoleStoreDispatcher,
         /// Interface to interact with the `EventEmitter` contract.
-        event_emitter: IEventEmitterSafeDispatcher,
+        event_emitter: IEventEmitterDispatcher,
         /// The class hash of the `MarketToken` contract to deploy when creating a new market.
         market_token_class_hash: ClassHash,
     }
@@ -97,7 +95,7 @@ mod MarketFactory {
         self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
         self
             .event_emitter
-            .write(IEventEmitterSafeDispatcher { contract_address: event_emitter_address });
+            .write(IEventEmitterDispatcher { contract_address: event_emitter_address });
         self.market_token_class_hash.write(market_token_class_hash);
     }
 
@@ -155,8 +153,7 @@ mod MarketFactory {
                     long_token,
                     short_token,
                     market_type,
-                )
-                .unwrap();
+                );
 
             // Return the market token address and the market key.
             (market_token_deployed_address, market_key)
@@ -181,8 +178,7 @@ mod MarketFactory {
                 .read()
                 .emit_market_token_class_hash_updated(
                     caller_address, old_market_token_class_hash, market_token_class_hash,
-                )
-                .unwrap();
+                );
         }
     }
 

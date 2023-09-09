@@ -48,8 +48,8 @@ mod CallbackMock {
     }
 }
 
-fn deploy_callback_mock() -> ICallbackMockSafeDispatcher {
+fn deploy_callback_mock() -> ICallbackMockDispatcher {
     let contract = declare('CallbackMock');
     let contract_address = contract.deploy(@array![]).unwrap();
-    ICallbackMockSafeDispatcher { contract_address }
+    ICallbackMockDispatcher { contract_address }
 }

@@ -28,6 +28,11 @@ mod callback {
     }
 }
 
+// `chain` is a module that contains utility function for interacting with the chain and getting information.
+mod chain {
+    mod chain;
+}
+
 // `config` is a module that contains the configuration for the system.
 mod config {
     mod config;
@@ -112,6 +117,8 @@ mod role {
     mod role;
     // The contract handling the roles and store them.
     mod role_store;
+    // The contract handling the role modifiers
+    mod role_module;
 }
 
 // `price` contains utility functions for calculating prices.
@@ -134,6 +141,7 @@ mod utils {
     mod u128_mask;
     mod hash;
     mod store_arrays;
+    mod starknet_utils;
 }
 
 // `liquidation` function to help with liquidations.
