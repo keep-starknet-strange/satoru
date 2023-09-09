@@ -74,7 +74,7 @@ fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('DataStore');
     let mut constructor_calldata = array![];
     constructor_calldata.append(role_store_address.into());
-    contract.deploy(@constructor_calldata)
+    contract.deploy(@constructor_calldata).unwrap()
 }
 
 /// Utility function to deploy a role store contract and return its address.
@@ -85,7 +85,7 @@ fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
     let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
-    contract.deploy(constructor_arguments)
+    contract.deploy(constructor_arguments).unwrap()
 }
 
 /// Utility function to setup the test environment.
