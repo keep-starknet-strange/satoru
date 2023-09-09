@@ -3,11 +3,11 @@ use starknet::ContractAddress;
 
 // Local imports.
 use satoru::order::base_order_utils::{ExecuteOrderParams, CreateOrderParams};
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use satoru::order::order_vault::{IOrderVaultSafeDispatcher, IOrderVaultSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
 use satoru::referral::referral_storage::interface::{
-    IReferralStorageSafeDispatcher, IReferralStorageSafeDispatcherTrait
+    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
 };
 
 /// Creates an order in the order store.
@@ -21,10 +21,10 @@ use satoru::referral::referral_storage::interface::{
 /// # Returns
 /// Return the key of the created order.
 fn create_order(
-    data_store: IDataStoreSafeDispatcher,
-    event_emitter: IEventEmitterSafeDispatcher,
-    order_vault: IOrderVaultSafeDispatcher,
-    referral_store: IReferralStorageSafeDispatcher,
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    order_vault: IOrderVaultDispatcher,
+    referral_store: IReferralStorageDispatcher,
     account: ContractAddress,
     params: CreateOrderParams
 ) -> felt252 {
@@ -58,9 +58,9 @@ fn process_order(params: ExecuteOrderParams) { //TODO
 /// # Returns
 /// Return the key of the created order.
 fn cancel_order(
-    data_store: IDataStoreSafeDispatcher,
-    event_emitter: IEventEmitterSafeDispatcher,
-    order_vault: IOrderVaultSafeDispatcher,
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    order_vault: IOrderVaultDispatcher,
     key: felt252,
     keeper: ContractAddress,
     starting_gas: u128,
@@ -81,9 +81,9 @@ fn cancel_order(
 /// # Returns
 /// Return the key of the created order.
 fn freeze_order(
-    data_store: IDataStoreSafeDispatcher,
-    event_emitter: IEventEmitterSafeDispatcher,
-    order_vault: IOrderVaultSafeDispatcher,
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    order_vault: IOrderVaultDispatcher,
     key: felt252,
     keeper: ContractAddress,
     starting_gas: u128,

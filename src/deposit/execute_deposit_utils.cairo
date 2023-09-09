@@ -10,12 +10,12 @@ use result::ResultTrait;
 
 use debug::PrintTrait;
 // Local imports.
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use satoru::oracle::oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait};
-use satoru::deposit::deposit_vault::{IDepositVaultSafeDispatcher, IDepositVaultSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
 use satoru::referral::referral_storage::interface::{
-    IReferralStorageSafeDispatcher, IReferralStorageSafeDispatcherTrait
+    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
 };
 use satoru::price::price::Price;
 use satoru::market::market::Market;
@@ -24,13 +24,13 @@ use satoru::market::market::Market;
 #[derive(Drop, Serde)]
 struct ExecuteDepositParams {
     /// `data_store` contract dispatcher.
-    data_store: IDataStoreSafeDispatcher,
+    data_store: IDataStoreDispatcher,
     /// `event_emitter` contract dispatcher.
-    event_emitter: IEventEmitterSafeDispatcher,
+    event_emitter: IEventEmitterDispatcher,
     /// `deposit_vault` contract dispatcher.
-    deposit_vault: IDepositVaultSafeDispatcher,
+    deposit_vault: IDepositVaultDispatcher,
     /// `oracle` contract dispatcher.
-    oracle: IOracleSafeDispatcher,
+    oracle: IOracleDispatcher,
     /// `key` the key of the deposit to execute.
     key: felt252,
     /// `min_oracle_block_numbers` the min oracle block numbers.
