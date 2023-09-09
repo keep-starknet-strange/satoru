@@ -8,21 +8,21 @@ use starknet::ContractAddress;
 use result::ResultTrait;
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 use satoru::market::market::Market;
 use satoru::price::price::Price;
 use satoru::position::position::Position;
 use satoru::referral::referral_storage::interface::{
-    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
+    IReferralStorageSafeDispatcher, IReferralStorageSafeDispatcherTrait
 };
 
 /// Struct used in get_position_fees.
 #[derive(Drop, starknet::Store, Serde)]
 struct GetPositionFeesParams {
     /// The `DataStore` contract dispatcher.
-    data_store: IDataStoreDispatcher,
+    data_store: IDataStoreSafeDispatcher,
     /// The `ReferralStorage` contract dispatcher.
-    referral_storage: IReferralStorageDispatcher,
+    referral_storage: IReferralStorageSafeDispatcher,
     /// The position struct.
     position: Position,
     /// The price of the collateral token.
@@ -43,7 +43,7 @@ struct GetPositionFeesParams {
 #[derive(Drop, starknet::Store, Serde)]
 struct GetPriceImpactUsdParams {
     /// The `DataStore` contract dispatcher.
-    data_store: IDataStoreDispatcher,
+    data_store: IDataStoreSafeDispatcher,
     /// The market to check.
     market: Market,
     /// The change in position size in USD.
@@ -290,7 +290,7 @@ fn get_position_fees(params: GetPositionFeesParams,) -> PositionFees {
 /// # Returns
 /// Borrowing fees.
 fn get_borrowing_fees(
-    data_store: IDataStoreDispatcher, collateral_token_price: Price, borrowing_fee_usd: u128,
+    data_store: IDataStoreSafeDispatcher, collateral_token_price: Price, borrowing_fee_usd: u128,
 ) -> PositionBorrowingFees {
     // TODO
     PositionBorrowingFees {
@@ -327,7 +327,7 @@ fn get_funding_fees(funding_fees: PositionFundingFees, position: Position,) -> P
 /// # Returns
 /// Borrowing fees.
 fn get_ui_fees(
-    data_store: IDataStoreDispatcher,
+    data_store: IDataStoreSafeDispatcher,
     collateral_token_price: Price,
     size_delta_usd: u128,
     ui_fee_receiver: ContractAddress
@@ -348,8 +348,8 @@ fn get_ui_fees(
 /// # Returns
 /// Updated position fees.
 fn get_position_fees_after_referral(
-    data_store: IDataStoreDispatcher,
-    referral_storage: IReferralStorageDispatcher,
+    data_store: IDataStoreSafeDispatcher,
+    referral_storage: IReferralStorageSafeDispatcher,
     collateral_token_price: Price,
     for_positive_impact: bool,
     account: ContractAddress,

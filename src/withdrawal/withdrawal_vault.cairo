@@ -29,7 +29,7 @@ mod WithdrawalVault {
     use starknet::{ContractAddress};
 
     // Local imports.
-    use satoru::bank::strict_bank::{IStrictBankDispatcher};
+    use satoru::bank::strict_bank::{IStrictBankSafeDispatcher};
     use super::IWithdrawalVault;
     use satoru::withdrawal::error::WithdrawalError;
 
@@ -39,7 +39,7 @@ mod WithdrawalVault {
     #[storage]
     struct Storage {
         /// Interface to interact with the `DataStore` contract.
-        strict_bank: IStrictBankDispatcher,
+        strict_bank: IStrictBankSafeDispatcher,
     }
 
     // *************************************************************************
@@ -69,7 +69,9 @@ mod WithdrawalVault {
                 self.strict_bank.read().contract_address.is_zero(),
                 WithdrawalError::ALREADY_INITIALIZED
             );
-            self.strict_bank.write(IStrictBankDispatcher { contract_address: strict_bank_address });
+            self
+                .strict_bank
+                .write(IStrictBankSafeDispatcher { contract_address: strict_bank_address });
         }
     }
 }

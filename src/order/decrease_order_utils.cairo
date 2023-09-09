@@ -2,7 +2,7 @@
 use starknet::ContractAddress;
 
 // Local imports.
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use satoru::oracle::oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait};
 use satoru::position::decrease_position_utils::DecreasePositionResult;
 use satoru::order::{base_order_utils::ExecuteOrderParams, order::Order};
 
@@ -34,7 +34,7 @@ fn validate_oracle_block_numbers(
 
 // Note: that min_output_amount is treated as a USD value for this validation
 fn validate_output_amount(
-    oracle: IOracleDispatcher,
+    oracle: IOracleSafeDispatcher,
     output_token: ContractAddress,
     output_amount: u128,
     min_output_amount: u128,
@@ -44,7 +44,7 @@ fn validate_output_amount(
 
 // Note: that min_output_amount is treated as a USD value for this validation
 fn validate_output_amount_secondary(
-    oracle: IOracleDispatcher,
+    oracle: IOracleSafeDispatcher,
     output_token: ContractAddress,
     output_amount: u128,
     min_output_amount: u128,
@@ -56,7 +56,7 @@ fn validate_output_amount_secondary(
 
 #[inline(always)]
 fn handle_swap_error(
-    oracle: IOracleDispatcher,
+    oracle: IOracleSafeDispatcher,
     order: Order,
     result: DecreasePositionResult,
     reason: felt252,

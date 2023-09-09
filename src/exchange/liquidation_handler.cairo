@@ -45,20 +45,22 @@ mod LiquidationHandler {
 
     // Local imports.
     use super::ILiquidationHandler;
-    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+    use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+    use satoru::event::event_emitter::{
+        IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait
+    };
     use satoru::oracle::{
-        oracle::{IOracleDispatcher, IOracleDispatcherTrait},
+        oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
         oracle_utils::SetPricesParams
     };
     use satoru::order::{
         order::{SecondaryOrderType, OrderType, Order},
-        order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
+        order_vault::{IOrderVaultSafeDispatcher, IOrderVaultSafeDispatcherTrait},
         base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}
     };
-    use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+    use satoru::swap::swap_handler::{ISwapHandlerSafeDispatcher, ISwapHandlerSafeDispatcherTrait};
     use satoru::market::market::Market;
     use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
 

@@ -6,7 +6,7 @@ use starknet::ContractAddress;
 
 // Local imports.
 
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
 use satoru::order::order::OrderType;
 use satoru::position::{position_utils::DecreasePositionCollateralValues, position::Position,};
 use satoru::price::price::Price;
@@ -16,7 +16,7 @@ use satoru::pricing::position_pricing_utils::PositionFees;
 #[derive(Drop, starknet::Store, Serde)]
 struct PositionIncreaseParams {
     /// The main event emitter contract.
-    event_emitter: IEventEmitterDispatcher,
+    event_emitter: IEventEmitterSafeDispatcher,
     /// The key linked to the position increase order.
     order_key: felt252,
     /// The key linked to the position.

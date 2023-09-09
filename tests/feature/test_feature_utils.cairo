@@ -1,7 +1,7 @@
 use starknet::ContractAddress;
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 
-use satoru::data::data_store::IDataStoreDispatcherTrait;
+use satoru::data::data_store::IDataStoreSafeDispatcherTrait;
 use satoru::feature::feature_utils::{is_feature_disabled, validate_feature};
 use satoru::tests_lib::{setup, teardown};
 

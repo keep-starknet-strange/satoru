@@ -12,8 +12,8 @@ use satoru::market::market_utils::MarketPrices;
 use satoru::price::price::Price;
 use satoru::pricing::position_pricing_utils::PositionFees;
 use satoru::pricing::swap_pricing_utils::SwapFees;
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
 
 #[derive(Drop, starknet::Store, Serde)]
 struct ExecutionPriceResult {
@@ -51,7 +51,7 @@ struct GetPositionInfoCache {
 /// # Returns
 /// Returns The output amount of tokens after the swap, the amount impacted due to price changes and the swap fees associated with the swap
 fn get_swap_amount_out(
-    data_store: IDataStoreDispatcher,
+    data_store: IDataStoreSafeDispatcher,
     market: Market,
     prices: MarketPrices,
     token_in: ContractAddress,
@@ -85,7 +85,7 @@ fn get_swap_amount_out(
 /// # Returns
 /// Returns the execution price and price impact information
 fn get_execution_price(
-    data_store: IDataStoreDispatcher,
+    data_store: IDataStoreSafeDispatcher,
     market: Market,
     index_token_price: Price,
     position_size_in_usd: u128,
@@ -110,7 +110,7 @@ fn get_execution_price(
 /// # Returns
 /// Returns the price impact in USD before applying the cap and the price impact amount after applying the cap
 fn get_swap_price_impact(
-    data_store: IDataStoreDispatcher,
+    data_store: IDataStoreSafeDispatcher,
     market: Market,
     token_in: ContractAddress,
     token_out: ContractAddress,

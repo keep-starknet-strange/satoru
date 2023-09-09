@@ -6,25 +6,25 @@ use starknet::ContractAddress;
 use result::ResultTrait;
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::bank::bank::{IBankSafeDispatcher, IBankSafeDispatcherTrait};
 use satoru::market::market::Market;
 use satoru::price::price::Price;
 use satoru::utils::store_arrays::StoreMarketArray;
-use satoru::oracle::oracle::IOracleDispatcher;
+use satoru::oracle::oracle::IOracleSafeDispatcher;
 
 /// Parameters to execute a swap.
 #[derive(Drop, starknet::Store, Serde)]
 struct SwapParams {
     /// The contract that provides access to data stored on-chain.
-    data_store: IDataStoreDispatcher,
+    data_store: IDataStoreSafeDispatcher,
     /// The contract that emits events.
-    event_emitter: IEventEmitterDispatcher,
+    event_emitter: IEventEmitterSafeDispatcher,
     /// The contract that provides access to price data from oracles.
-    oracle: IOracleDispatcher,
+    oracle: IOracleSafeDispatcher,
     /// The contract providing the funds for the swap.
-    bank: IBankDispatcher,
+    bank: IBankSafeDispatcher,
     /// An identifying key for the swap.
     key: felt252,
     /// The address of the token that is being swapped.

@@ -7,10 +7,10 @@
 use starknet::ContractAddress;
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::oracle::oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait};
+use satoru::swap::swap_handler::{ISwapHandlerSafeDispatcher, ISwapHandlerSafeDispatcherTrait};
 use satoru::market::market::Market;
 use satoru::market::market_utils::MarketPrices;
 use satoru::price::price::Price;
@@ -18,7 +18,7 @@ use satoru::position::position::Position;
 use satoru::pricing::position_pricing_utils::PositionFees;
 use satoru::order::order::{Order, SecondaryOrderType};
 use satoru::referral::referral_storage::interface::{
-    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
+    IReferralStorageSafeDispatcher, IReferralStorageSafeDispatcherTrait
 };
 use satoru::order::base_order_utils::ExecuteOrderParamsContracts;
 
@@ -180,7 +180,7 @@ struct IsPositionLiquidatableCache {
 /// # Returns
 /// (position_pnl_usd, uncapped_position_pnl_usd, size_delta_in_tokens)
 fn get_position_pnl_usd(
-    data_store: IDataStoreDispatcher,
+    data_store: IDataStoreSafeDispatcher,
     market: Market,
     prices: MarketPrices,
     position: Position,
@@ -230,8 +230,8 @@ fn validate_non_empty_position(position: Position,) { // TODO
 /// since the small amount of collateral remaining only impacts the potential payment of liquidation
 /// keepers.
 fn validate_position(
-    data_store: IDataStoreDispatcher,
-    referral_storage: IReferralStorageDispatcher,
+    data_store: IDataStoreSafeDispatcher,
+    referral_storage: IReferralStorageSafeDispatcher,
     position: Position,
     market: Market,
     prices: MarketPrices,
@@ -250,8 +250,8 @@ fn validate_position(
 /// # Returns
 /// True if liquiditable and reason of liquiditability, false else.
 fn is_position_liquiditable(
-    data_store: IDataStoreDispatcher,
-    referral_storage: IReferralStorageDispatcher,
+    data_store: IDataStoreSafeDispatcher,
+    referral_storage: IReferralStorageSafeDispatcher,
     position: Position,
     market: Market,
     prices: MarketPrices,
@@ -290,7 +290,7 @@ fn is_position_liquiditable(
 /// # Returns
 /// True if position collateral will be sufficient and remaining collateral in usd, false else.
 fn will_position_collateral_be_sufficient(
-    data_store: IDataStoreDispatcher,
+    data_store: IDataStoreSafeDispatcher,
     market: Market,
     prices: MarketPrices,
     collateral_token: ContractAddress,

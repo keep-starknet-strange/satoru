@@ -8,15 +8,15 @@ use starknet::ContractAddress;
 use result::ResultTrait;
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
 use satoru::market::market::Market;
 
 /// Struct used in get_price_impact_usd.
 #[derive(Drop, starknet::Store, Serde)]
 struct GetPriceImpactUsdParams {
     /// The `DataStore` contract dispatcher.
-    dataStore: IDataStoreDispatcher,
+    dataStore: IDataStoreSafeDispatcher,
     /// The market to check.
     market: Market,
     /// The token to check balance for.
@@ -123,7 +123,7 @@ fn get_next_pool_amount_params(
 /// # Returns
 /// New swap fees.
 fn get_swap_fees(
-    data_store: IDataStoreDispatcher,
+    data_store: IDataStoreSafeDispatcher,
     market_token: ContractAddress,
     amount: u128,
     for_positive_impact: bool,
@@ -145,7 +145,7 @@ fn get_swap_fees(
 /// base calculation and the actual price impact may be capped by the available
 /// amount in the swap impact pool.
 fn emit_swap_info(
-    event_emitter: IEventEmitterDispatcher,
+    event_emitter: IEventEmitterSafeDispatcher,
     order_key: felt252,
     market: ContractAddress,
     receiver: ContractAddress,
@@ -163,7 +163,7 @@ fn emit_swap_info(
 
 /// Emit event about collected swap fees.
 fn emit_swap_fees_collected(
-    event_emitter: IEventEmitterDispatcher,
+    event_emitter: IEventEmitterSafeDispatcher,
     market: ContractAddress,
     token: ContractAddress,
     token_price: u128,

@@ -3,12 +3,12 @@ use starknet::{
 };
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
 use satoru::data::keys::{
-    claim_fee_amount_key, claim_ui_fee_amount_key, claim_ui_fee_amount_for_account_key
+    claimable_fee_amount_key, claimable_ui_fee_amount_key, claimable_ui_fee_amount_for_account_key
 };
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
 use satoru::role::role;
 use satoru::fee::fee_utils::{increment_claimable_fee_amount, increment_claimable_ui_fee_amount};
 
@@ -19,11 +19,11 @@ fn test_increment_claimable_fee_amount() {
     let market: ContractAddress = 0x555.try_into().unwrap();
     let token: ContractAddress = 0x666.try_into().unwrap();
 
-    let key = claim_fee_amount_key(
+    let key = claimable_fee_amount_key(
         market, token
     ); // Calculate slot key to get initial value of slot.
 
-    let initial_value = data_store.get_u128(key);
+    let initial_value = data_store.get_u128(key).unwrap();
     assert(initial_value == 0_u128, 'initial value wrong');
 
     // Change value with util function.
@@ -33,7 +33,7 @@ fn test_increment_claimable_fee_amount() {
 
     increment_claimable_fee_amount(data_store, event_emitter, market, token, delta, fee_type);
 
-    let final_value = data_store.get_u128(key);
+    let final_value = data_store.get_u128(key).unwrap();
 
     assert(final_value == delta, 'Final value wrong');
 }
@@ -46,11 +46,11 @@ fn test_increment_claimable_ui_fee_amount() {
     let token: ContractAddress = 0x666.try_into().unwrap();
     let ui_fee_receiver: ContractAddress = 0x777.try_into().unwrap();
 
-    let key = claim_ui_fee_amount_for_account_key(market, token, ui_fee_receiver);
-    let pool_key = claim_ui_fee_amount_key(market, token);
+    let key = claimable_ui_fee_amount_for_account_key(market, token, ui_fee_receiver);
+    let pool_key = claimable_ui_fee_amount_key(market, token);
 
-    let initial_value = data_store.get_u128(key);
-    let initial_pool_value = data_store.get_u128(pool_key);
+    let initial_value = data_store.get_u128(key).unwrap();
+    let initial_pool_value = data_store.get_u128(pool_key).unwrap();
 
     assert(initial_value == 0, 'Initial value wrong');
     assert(initial_pool_value == 0, 'Initial pool value wrong');
@@ -62,8 +62,8 @@ fn test_increment_claimable_ui_fee_amount() {
         data_store, event_emitter, ui_fee_receiver, market, token, delta, fee_type
     );
 
-    let final_value = data_store.get_u128(key);
-    let final_pool_value = data_store.get_u128(pool_key);
+    let final_value = data_store.get_u128(key).unwrap();
+    let final_pool_value = data_store.get_u128(pool_key).unwrap();
 
     assert(final_value == delta, 'Final value wrong');
     assert(final_pool_value == delta, 'Final pool value wrong');
@@ -104,18 +104,18 @@ fn deploy_event_emitter() -> ContractAddress {
 /// # Returns
 ///
 /// * `ContractAddress` - The address of the caller.
-/// * `IRoleStoreDispatcher` - The role store dispatcher.
-/// * `IDataStoreDispatcher` - The data store dispatcher.
-fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher) {
+/// * `IRoleStoreSafeDispatcher` - The role store dispatcher.
+/// * `IDataStoreSafeDispatcher` - The data store dispatcher.
+fn setup() -> (ContractAddress, IDataStoreSafeDispatcher, IEventEmitterSafeDispatcher) {
     let caller_address: ContractAddress = 0x101.try_into().unwrap();
     let role_store_address = deploy_role_store();
-    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
+    let role_store = IRoleStoreSafeDispatcher { contract_address: role_store_address };
     let data_store_address = deploy_data_store(role_store_address);
-    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
+    let data_store = IDataStoreSafeDispatcher { contract_address: data_store_address };
     let event_emitter_address = deploy_event_emitter();
-    let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
+    let event_emitter = IEventEmitterSafeDispatcher { contract_address: event_emitter_address };
     start_prank(role_store_address, caller_address);
-    role_store.grant_role(caller_address, role::CONTROLLER);
+    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
     start_prank(data_store_address, caller_address);
     (caller_address, data_store, event_emitter)
 }

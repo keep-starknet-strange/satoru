@@ -4,8 +4,10 @@ use starknet::{
     contract_address_to_felt252, account::Call, SyscallResultTrait
 };
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::role::{role, role_store::IRoleStoreDispatcher, role_store::IRoleStoreDispatcherTrait};
+use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::role::{
+    role, role_store::IRoleStoreSafeDispatcher, role_store::IRoleStoreSafeDispatcherTrait
+};
 use satoru::tests_lib::{setup, teardown};
 use debug::PrintTrait;
 
@@ -33,7 +35,7 @@ fn test_simple_multicall() {
     let result: Array<Span<felt252>> = multicall(calls);
 
     // check first call result
-    assert(data_store.get_felt252(1) == 42, 'Invalid value');
+    assert(data_store.get_felt252(1).unwrap() == 42, 'Invalid value');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -79,11 +81,12 @@ fn test_multicall() {
     let result: Array<Span<felt252>> = multicall(calls);
 
     // check first call result
-    assert(data_store.get_felt252(1) == 42, 'Invalid value after first call');
+    assert(data_store.get_felt252(1).unwrap() == 42, 'Invalid value after first call');
 
     // check second call result
     assert(
-        role_store.has_role(account_address, role::ROLE_ADMIN), 'Invalid role after second call'
+        role_store.has_role(account_address, role::ROLE_ADMIN).unwrap(),
+        'Invalid role after second call'
     );
 
     // *********************************************************************************************
@@ -116,7 +119,7 @@ fn test_no_data_for_multicall() {
     let result: Array<Span<felt252>> = multicall(calls);
 
     // check first call result
-    assert(data_store.get_felt252(1) == 42, 'Invalid value');
+    assert(data_store.get_felt252(1).unwrap() == 42, 'Invalid value');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
