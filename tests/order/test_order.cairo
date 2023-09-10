@@ -51,7 +51,7 @@ fn create_dummy_order() -> Order {
     swap_path.append(contract_address_const::<'swap_path_0'>());
     swap_path.append(contract_address_const::<'swap_path_1'>());
     Order {
-        key:111,
+        key: 111,
         order_type: OrderType::StopLossDecrease,
         account: contract_address_const::<'account'>(),
         receiver: contract_address_const::<'receiver'>(),
