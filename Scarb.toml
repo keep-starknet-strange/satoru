@@ -19,9 +19,9 @@ sierra-replace-ids = true
 
 [dependencies]
 starknet = ">=2.1.0"
-alexandria_data_structures = { git = "https://github.com/keep-starknet-strange/alexandria.git" }
-alexandria_math = { git = "https://github.com/keep-starknet-strange/alexandria.git" }
-alexandria_storage = { git = "https://github.com/keep-starknet-strange/alexandria.git" }
+alexandria_data_structures = { git = "https://github.com/keep-starknet-strange/alexandria.git", rev = "a3052ff" }
+alexandria_math = { git = "https://github.com/keep-starknet-strange/alexandria.git", rev = "a3052ff" }
+alexandria_storage = { git = "https://github.com/keep-starknet-strange/alexandria.git", rev = "a3052ff" }
 snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.5.0" }
 
 
