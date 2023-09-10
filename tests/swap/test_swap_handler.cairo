@@ -13,6 +13,8 @@ use satoru::market::market::Market;
 use starknet::{get_caller_address, ContractAddress, contract_address_const,};
 use array::ArrayTrait;
 
+//TODO Tests need to be added after implementation of swap_utils
+
 /// Utility function to deploy a `DataStore` contract and return its dispatcher.
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('DataStore');
@@ -181,9 +183,9 @@ fn test_check_swap_called() {
         should_unwrap_native_token: true,
     };
 
-    let swap = swap_handler.swap(swap);
+    let swap_result = swap_handler.swap(swap);
 
-    assert(swap == (0.try_into().unwrap(), 0), 'Error');
+    assert(swap_result == (0.try_into().unwrap(), 0), 'Error');
 
     teardown(role_store.contract_address);
 }

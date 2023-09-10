@@ -8,7 +8,6 @@ use starknet::ContractAddress;
 
 // Local imports.
 use satoru::swap::swap_utils::{SwapParams};
-use debug::PrintTrait;
 
 // *************************************************************************
 //                  Interface of the `SwapHandler` contract.
@@ -29,11 +28,9 @@ mod SwapHandler {
     //                               IMPORTS
     // *************************************************************************
     // Core lib imports    
-    use result::ResultTrait;
     use starknet::ContractAddress;
 
     // Local imports.
-    use satoru::swap::error::SwapError;
     use satoru::swap::swap_utils::SwapParams;
     use satoru::swap::swap_utils;
     use satoru::role::role_module::{RoleModule, IRoleModule};
