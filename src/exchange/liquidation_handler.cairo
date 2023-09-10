@@ -129,25 +129,26 @@ mod LiquidationHandler {
         ) { 
             let mut state_base: BaseOrderHandler::ContractState =
             BaseOrderHandler::unsafe_new_contract_state();
-            let mut key: felt252 = create_liquidation_order(
-                  state_base.data_store.read(),
-                  state_base.event_emitter.read(),
-                  account,
-                  market,
-                  collateral_token,
-                  is_long
-                  );
-            let mut tmp_oracle_params: SetPricesParams = oracle_params.clone();
-            let params: ExecuteOrderParams = BaseOrderHandler::InternalImpl::get_execute_order_params(
-                ref state_base,
-                  key,
-                  tmp_oracle_params,
-                  account,
-                  SecondaryOrderType::None
-                  );
+            let key: felt252 = create_liquidation_order(
+                state_base.data_store.read(),
+                state_base.event_emitter.read(),
+                account,
+                market,
+                collateral_token,
+                is_long
+            );
+            let tmp_oracle_params: SetPricesParams = oracle_params.clone();
+            let params: ExecuteOrderParams = 
+                BaseOrderHandler::InternalImpl::get_execute_order_params(
+                    ref state_base,
+                    key,
+                    tmp_oracle_params,
+                    account,
+                    SecondaryOrderType::None
+                );
             validate_feature(state_base.data_store.read(), key);
             let mut state_order: OrderHandler::ContractState =
-            OrderHandler::unsafe_new_contract_state();
+                OrderHandler::unsafe_new_contract_state();
             IOrderHandler::execute_order(ref state_order, key, oracle_params);
         }
     }
