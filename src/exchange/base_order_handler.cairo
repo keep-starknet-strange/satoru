@@ -8,6 +8,9 @@
 use core::traits::Into;
 use starknet::ContractAddress;
 
+use satoru::oracle::oracle_utils::SetPricesParams;
+use satoru::order::{order::SecondaryOrderType, base_order_utils::ExecuteOrderParams};
+
 // *************************************************************************
 //                  Interface of the `BaseOrderHandler` contract.
 // *************************************************************************
@@ -49,26 +52,24 @@ mod BaseOrderHandler {
 
     // Local imports.
     use super::IBaseOrderHandler;
-    use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-    use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-    use satoru::event::event_emitter::{
-        IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait
-    };
+    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::oracle::{
-        oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait},
+        oracle::{IOracleDispatcher, IOracleDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
         oracle_utils::SetPricesParams
     };
     use satoru::order::{
         order::{SecondaryOrderType, OrderType, Order},
-        order_vault::{IOrderVaultSafeDispatcher, IOrderVaultSafeDispatcherTrait},
+        order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
         base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}
     };
-    use satoru::swap::swap_handler::{ISwapHandlerSafeDispatcher, ISwapHandlerSafeDispatcherTrait};
+    use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use satoru::exchange::error::ExchangeError;
     use satoru::market::market::Market;
     use satoru::referral::referral_storage::interface::{
-        IReferralStorageSafeDispatcher, IReferralStorageSafeDispatcherTrait
+        IReferralStorageDispatcher, IReferralStorageDispatcherTrait
     };
 
     // *************************************************************************
@@ -77,19 +78,19 @@ mod BaseOrderHandler {
     #[storage]
     struct Storage {
         /// Interface to interact with the `DataStore` contract.
-        data_store: IDataStoreSafeDispatcher,
+        data_store: IDataStoreDispatcher,
         /// Interface to interact with the `RoleStore` contract.
-        role_store: IRoleStoreSafeDispatcher,
+        role_store: IRoleStoreDispatcher,
         /// Interface to interact with the `EventEmitter` contract.
-        event_emitter: IEventEmitterSafeDispatcher,
+        event_emitter: IEventEmitterDispatcher,
         /// Interface to interact with the `OrderVault` contract.
-        order_vault: IOrderVaultSafeDispatcher,
+        order_vault: IOrderVaultDispatcher,
         /// Interface to interact with the `SwapHandler` contract.
-        swap_handler: ISwapHandlerSafeDispatcher,
+        swap_handler: ISwapHandlerDispatcher,
         /// Interface to interact with the `Oracle` contract.
-        oracle: IOracleSafeDispatcher,
+        oracle: IOracleDispatcher,
         /// Interface to interact with the `ReferralStorage` contract.
-        referral_storage: IReferralStorageSafeDispatcher
+        referral_storage: IReferralStorageDispatcher
     }
 
     // *************************************************************************
@@ -149,27 +150,19 @@ mod BaseOrderHandler {
                 self.data_store.read().contract_address.is_zero(),
                 ExchangeError::ALREADY_INITIALIZED
             );
-            self
-                .data_store
-                .write(IDataStoreSafeDispatcher { contract_address: data_store_address });
-            self
-                .role_store
-                .write(IRoleStoreSafeDispatcher { contract_address: role_store_address });
+            self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
+            self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
             self
                 .event_emitter
-                .write(IEventEmitterSafeDispatcher { contract_address: event_emitter_address });
-            self
-                .order_vault
-                .write(IOrderVaultSafeDispatcher { contract_address: order_vault_address });
-            self.oracle.write(IOracleSafeDispatcher { contract_address: oracle_address });
+                .write(IEventEmitterDispatcher { contract_address: event_emitter_address });
+            self.order_vault.write(IOrderVaultDispatcher { contract_address: order_vault_address });
+            self.oracle.write(IOracleDispatcher { contract_address: oracle_address });
             self
                 .swap_handler
-                .write(ISwapHandlerSafeDispatcher { contract_address: swap_handler_address });
+                .write(ISwapHandlerDispatcher { contract_address: swap_handler_address });
             self
                 .referral_storage
-                .write(
-                    IReferralStorageSafeDispatcher { contract_address: referral_storage_address }
-                );
+                .write(IReferralStorageDispatcher { contract_address: referral_storage_address });
         }
     }
 
@@ -202,6 +195,7 @@ mod BaseOrderHandler {
                 referral_storage: self.referral_storage.read(),
             };
             let order = Order {
+                key: 0,
                 order_type: OrderType::MarketSwap(()),
                 account: address_zero,
                 receiver: address_zero,
@@ -209,7 +203,7 @@ mod BaseOrderHandler {
                 ui_fee_receiver: address_zero,
                 market: address_zero,
                 initial_collateral_token: address_zero,
-                swap_path: ArrayTrait::new(),
+                // TODO use span swap_path: ArrayTrait::new(),
                 size_delta_usd: 0,
                 initial_collateral_delta_amount: 0,
                 trigger_price: 0,

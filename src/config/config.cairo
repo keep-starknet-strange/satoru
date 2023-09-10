@@ -55,9 +55,7 @@ mod Config {
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::data::keys;
-    use satoru::event::event_emitter::{
-        IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait
-    };
+    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::config::error::ConfigError;
 
     // External imports.
@@ -73,7 +71,7 @@ mod Config {
         /// An interface to interact with the `DataStore` contract.
         data_store: IDataStoreDispatcher,
         /// An interface to interact with the `EventEmitter` contract.
-        event_emitter: IEventEmitterSafeDispatcher,
+        event_emitter: IEventEmitterDispatcher,
         /// The base keys that can be set.
         allowed_based_keys: LegacyMap<felt252, bool>,
     }
@@ -92,7 +90,7 @@ mod Config {
         self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
         self
             .event_emitter
-            .write(IEventEmitterSafeDispatcher { contract_address: event_emitter_address });
+            .write(IEventEmitterDispatcher { contract_address: event_emitter_address });
         // Initialize the allowed base keys.
         self.init_allowed_base_keys();
     }

@@ -40,3 +40,24 @@ struct Deposit {
     callback_gas_limit: u256,
 }
 
+impl DefaultDeposit of Default<Deposit> {
+    fn default() -> Deposit {
+        Deposit {
+            account: 0.try_into().unwrap(),
+            receiver: 0.try_into().unwrap(),
+            callback_contract: 0.try_into().unwrap(),
+            ui_fee_receiver: 0.try_into().unwrap(),
+            market: 0.try_into().unwrap(),
+            initial_long_token: 0.try_into().unwrap(),
+            initial_short_token: 0.try_into().unwrap(),
+            long_token_swap_path: array![],
+            short_token_swap_path: array![],
+            initial_long_token_amount: 0,
+            initial_short_token_amount: 0,
+            min_market_tokens: 0,
+            updated_at_block: 0,
+            execution_fee: 0,
+            callback_gas_limit: 0,
+        }
+    }
+}
