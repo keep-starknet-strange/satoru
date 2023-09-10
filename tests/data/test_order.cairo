@@ -1,27 +1,23 @@
 use starknet::{ContractAddress, contract_address_const};
 
-use satoru::data::data_store::IDataStoreSafeDispatcherTrait;
-use satoru::role::role_store::IRoleStoreSafeDispatcherTrait;
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::role::role;
 use satoru::order::order::{Order, OrderType, OrderTrait};
 use satoru::tests_lib::{setup, teardown};
 
-use snforge_std::PrintTrait;
+use snforge_std::{PrintTrait, declare, start_prank, stop_prank, ContractClassTrait};
 
 #[test]
-fn given_normal_conditions_when_order_functions_then_expected_results() {
-    // *********************************************************************************************
-    // *                              SETUP                                                        *
-    // *********************************************************************************************
+fn test_set_order_new_and_override() {
+    // Setup
     let (caller_address, role_store, data_store) = setup();
 
-    // *********************************************************************************************
-    // *                              TEST LOGIC                                                   *
-    // *********************************************************************************************
-
-    let order_data_store_key = 11111111;
-    let account1 = contract_address_const::<'account1'>();
-    let order: Order = create_new_order(
-        account1,
+    let key: felt252 = 123456789;
+    let account = 'account'.try_into().unwrap();
+    let mut order: Order = create_new_order(
+        key,
+        account,
         contract_address_const::<'receiver1'>(),
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
@@ -30,214 +26,387 @@ fn given_normal_conditions_when_order_functions_then_expected_results() {
         is_frozen: false,
         order_no: 1
     );
-    let order_snap = @order;
 
-    // Set order
-    data_store.set_order(order_data_store_key, order);
+    // Test logic
 
-    // Retrieve the order.
-    // We use `unwrap().unwrap()` because we know that the order exists.
-    // If it panics the test should fail.
-    let mut retrieved_order = data_store.get_order(order_data_store_key).unwrap().unwrap();
+    // Test set_order function with a new key.
+    data_store.set_order(key, order);
 
-    // Check that the retrieved order is the same as the original order.
-    assert_order_eq(order_snap, @retrieved_order);
+    let order_by_key = data_store.get_order(key).unwrap();
+    assert(order_by_key == order, 'Invalid order by key');
 
-    // Check order count
-    let order_count = data_store.get_order_count().unwrap();
-    assert(order_count == 1, 'invalid order count1');
+    let order_count = data_store.get_order_count();
+    assert(order_count == 1, 'Invalid key order count');
 
-    // Check key index for given key
-    let key_index = data_store.get_key_index(order_data_store_key).unwrap();
-    assert(key_index.unwrap() == 0, 'invalid key index');
+    let account_order_count = data_store.get_account_order_count(account);
+    assert(account_order_count == 1, 'Invalid account order count');
 
-    // Check account data index and count
-    let acount_key = data_store.get_account_key_index(account1, order_data_store_key).unwrap();
-    assert(acount_key.unwrap() == 0, 'invalid account key');
+    let account_order_keys = data_store.get_account_order_keys(account, 0, 10);
+    assert(account_order_keys.len() == 1, 'Acc order # should be 1');
 
-    let acount_count = data_store.get_account_order_count(account1).unwrap();
-    assert(acount_count == 1, 'invalid acc1 count');
+    // Update the order using the set_order function and then retrieve it to check the update was successful
+    let receiver = 'receiver'.try_into().unwrap();
+    order.receiver = receiver;
+    data_store.set_order(key, order);
 
-    // Create new orders
-    let order_data_store_key2 = 222222222;
-    let account2 = contract_address_const::<'account2'>();
-    let order2: Order = create_new_order(
-        account2,
-        contract_address_const::<'receiver2'>(),
-        contract_address_const::<'market2'>(),
-        contract_address_const::<'token2'>(),
-        is_long: true,
-        should_unwrap_native_token: false,
-        is_frozen: true,
-        order_no: 2
-    );
+    let order_by_key = data_store.get_order(key).unwrap();
+    assert(order_by_key == order, 'Invalid order by key');
+    assert(order_by_key.receiver == receiver, 'Invalid order value');
 
-    let order_snap2 = @order2;
+    let account_order_count = data_store.get_account_order_count(account);
+    assert(account_order_count == 1, 'Invalid account withdrawl count');
 
-    let order_data_store_key3 = 3333333333;
-    let order3: Order = create_new_order(
-        account1,
-        contract_address_const::<'receiver3'>(),
-        contract_address_const::<'market3'>(),
-        contract_address_const::<'token3'>(),
-        is_long: false,
-        should_unwrap_native_token: true,
-        is_frozen: true,
-        order_no: 3
-    );
-    let order_snap3 = @order3;
+    let order_count = data_store.get_order_count();
+    assert(order_count == 1, 'Invalid key order count');
 
-    // Create new order
-    let order_data_store_key4 = 4444444444;
-    let order4: Order = create_new_order(
-        account1,
-        contract_address_const::<'receiver4'>(),
-        contract_address_const::<'market4'>(),
-        contract_address_const::<'token4'>(),
-        is_long: false,
-        should_unwrap_native_token: true,
-        is_frozen: true,
-        order_no: 4
-    );
-    let order_snap4 = @order4;
+    let account_order_keys = data_store.get_account_order_keys(account, 0, 10);
+    assert(account_order_keys.len() == 1, 'Acc order # should be 1');
 
-    // Store the new orders to index 1 and 2
-    data_store.set_order(order_data_store_key2, order2);
-    data_store.set_order(order_data_store_key3, order3);
-    data_store.set_order(order_data_store_key4, order4);
-
-    // Check order count
-    let order_count3 = data_store.get_order_count().unwrap();
-    assert(order_count3 == 4, 'invalid order count3');
-
-    // Retrieve the orders and assert values
-    let mut retrieved_order2 = data_store.get_order(order_data_store_key2).unwrap().unwrap();
-    assert_order_eq(order_snap2, @retrieved_order2);
-    let mut retrieved_order3 = data_store.get_order(order_data_store_key3).unwrap().unwrap();
-    assert_order_eq(order_snap3, @retrieved_order3);
-    let mut retrieved_order4 = data_store.get_order(order_data_store_key4).unwrap().unwrap();
-    assert_order_eq(order_snap4, @retrieved_order4);
-
-    // Check key indexes for given keys
-    let key_index2 = data_store.get_key_index(order_data_store_key2).unwrap();
-    assert(key_index2.unwrap() == 1, 'invalid key index2');
-    let key_index3 = data_store.get_key_index(order_data_store_key3).unwrap();
-    assert(key_index3.unwrap() == 2, 'invalid key index3');
-    let key_index4 = data_store.get_key_index(order_data_store_key4).unwrap();
-    assert(key_index4.unwrap() == 3, 'invalid key index4');
-
-    // Check account data index and count
-    let acount_key = data_store.get_account_key_index(account1, order_data_store_key4).unwrap();
-    assert(acount_key.unwrap() == 2, 'invalid account key2');
-    let acount_count = data_store.get_account_order_count(account1).unwrap();
-    assert(acount_count == 3, 'invalid acc count2');
-    let acount_count = data_store.get_account_order_count(account2).unwrap();
-    assert(acount_count == 1, 'invalid acc count3');
-
-    // Retrieve the keys for start and end indexes
-    let order_keys = data_store.get_order_keys(1, 2).unwrap();
-    assert(order_keys.len() == 2, 'invalid key len');
-    assert(*order_keys.at(0) == order_data_store_key2, 'invalid key1');
-    assert(*order_keys.at(1) == order_data_store_key3, 'invalid key2');
-
-    let account_keys = data_store.get_account_order_keys(account1, 1, 10).unwrap();
-    assert(account_keys.len() == 2, 'invalid key len2');
-    assert(*account_keys.at(0) == order_data_store_key3, 'invalid acc key3');
-    assert(*account_keys.at(1) == order_data_store_key4, 'invalid acc key4');
-
-    let account_keys2 = data_store.get_account_order_keys(account2, 0, 10).unwrap();
-    assert(account_keys2.len() == 1, 'invalid key len3');
-    assert(*account_keys2.at(0) == order_data_store_key2, 'invalid acc key5');
-
-    let order5: Order = create_new_order(
-        account1,
-        contract_address_const::<'receiver4'>(),
-        contract_address_const::<'market4'>(),
-        contract_address_const::<'token4'>(),
-        is_long: false,
-        should_unwrap_native_token: true,
-        is_frozen: true,
-        order_no: 5
-    );
-    let order_snap5 = @order5;
-
-    // Set order to assigned key and  overwrite previous order
-    data_store.set_order(order_data_store_key3, order5);
-
-    // Retrieve the order and check previous order overwritten
-    let mut retrieved_order5 = data_store.get_order(order_data_store_key3).unwrap().unwrap();
-    assert_order_eq(order_snap5, @retrieved_order5);
-
-    // Order has same account count should stay same
-    let acount_count = data_store.get_account_order_count(account1).unwrap();
-    assert(acount_count == 3, 'invalid acc count2');
-    let acount2_count = data_store.get_account_order_count(account2).unwrap();
-    assert(acount2_count == 1, 'invalid acc count3');
-
-    let order6: Order = create_new_order(
-        account2,
-        contract_address_const::<'receiver4'>(),
-        contract_address_const::<'market4'>(),
-        contract_address_const::<'token4'>(),
-        is_long: false,
-        should_unwrap_native_token: true,
-        is_frozen: true,
-        order_no: 5
-    );
-    let order_snap6 = @order6;
-
-    // Set order to assigned key and  overwrite previous order
-    data_store.set_order(order_data_store_key3, order6);
-
-    // Retrieve the order and check previous order overwritten
-    let mut retrieved_order6 = data_store.get_order(order_data_store_key3).unwrap().unwrap();
-    assert_order_eq(order_snap6, @retrieved_order6);
-
-    // Order has different account count should change
-    let acount_count = data_store.get_account_order_count(account1).unwrap();
-    assert(acount_count == 2, 'invalid acc count4');
-    let acount2_count = data_store.get_account_order_count(account2).unwrap();
-    assert(acount2_count == 2, 'invalid acc count5');
-
-    let account_keys = data_store.get_account_order_keys(account1, 0, 10).unwrap();
-    assert(account_keys.len() == 2, 'invalid key len4');
-    assert(*account_keys.at(0) == order_data_store_key, 'invalid acc key6');
-    assert(*account_keys.at(1) == order_data_store_key4, 'invalid acc key7');
-
-    let account_keys2 = data_store.get_account_order_keys(account2, 0, 10).unwrap();
-    assert(account_keys2.len() == 2, 'invalid key len5');
-    assert(*account_keys2.at(0) == order_data_store_key2, 'invalid acc key8');
-    assert(*account_keys2.at(1) == order_data_store_key3, 'invalid acc key9');
-
-    // Remove  order
-    data_store.remove_order(order_data_store_key);
-
-    // Check order count
-    let order_count4 = data_store.get_order_count().unwrap();
-    assert(order_count4 == 3, 'invalid order count4');
-
-    let acount_count = data_store.get_account_order_count(account1).unwrap();
-    assert(acount_count == 1, 'invalid acc count6');
-
-    let account_keys = data_store.get_account_order_keys(account1, 0, 10).unwrap();
-    assert(account_keys.len() == 1, 'invalid key len6');
-    assert(*account_keys.at(0) == order_data_store_key4, 'invalid acc key10');
-
-    let acount_key = data_store.get_account_key_index(account1, order_data_store_key4).unwrap();
-    assert(acount_key.unwrap() == 0, 'invalid account key3');
-
-    let key_index4 = data_store.get_key_index(order_data_store_key3).unwrap();
-    assert(key_index4.unwrap() == 2, 'invalid key index5');
-
-    // Last key moved to removed index
-    let key_index = data_store.get_key_index(order_data_store_key4).unwrap();
-    assert(key_index.unwrap() == 0, 'invalid key index5');
-    // *********************************************************************************************
-    // *                              TEARDOWN                                                     *
-    // *********************************************************************************************
     teardown(data_store.contract_address);
 }
 
+
+#[test]
+#[should_panic(expected: ('order account cant be 0',))]
+fn test_set_order_should_panic_zero() {
+    // Setup
+    let (caller_address, role_store, data_store) = setup();
+
+    let key: felt252 = 123456789;
+    let account = 0.try_into().unwrap();
+    let mut order: Order = create_new_order(
+        key,
+        account,
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        contract_address_const::<'token1'>(),
+        is_long: false,
+        should_unwrap_native_token: false,
+        is_frozen: false,
+        order_no: 1
+    );
+
+    // Test logic
+
+    // Test set_order function with account 0
+    data_store.set_order(key, order);
+
+    teardown(data_store.contract_address);
+}
+
+#[test]
+#[should_panic(expected: ('unauthorized_access',))]
+fn test_set_order_should_panic_not_controller() {
+    // Setup
+    let (caller_address, role_store, data_store) = setup();
+    role_store.revoke_role(caller_address, role::CONTROLLER);
+
+    let key: felt252 = 123456789;
+    let account = 'account'.try_into().unwrap();
+    let mut order: Order = create_new_order(
+        key,
+        account,
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        contract_address_const::<'token1'>(),
+        is_long: false,
+        should_unwrap_native_token: false,
+        is_frozen: false,
+        order_no: 1
+    );
+
+    // Test logic
+
+    // Test set_order function without permission
+    data_store.set_order(key, order);
+
+    teardown(data_store.contract_address);
+}
+
+
+#[test]
+#[should_panic(expected: ('unauthorized_access',))]
+fn test_get_order_keys() {
+    let (caller_address, role_store, data_store) = setup();
+    role_store.revoke_role(caller_address, role::CONTROLLER);
+    let key: felt252 = 123456789;
+    let account = 'account'.try_into().unwrap();
+    let mut order: Order = create_new_order(
+        key,
+        account,
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        contract_address_const::<'token1'>(),
+        is_long: false,
+        should_unwrap_native_token: false,
+        is_frozen: false,
+        order_no: 1
+    );
+
+    data_store.set_order(key, order);
+
+    // Given
+    data_store.remove_order(key, account);
+
+    // Then
+    let order_by_key = data_store.get_order(key);
+    assert(order_by_key.is_none(), 'order should be removed');
+
+    let order_count = data_store.get_order_count();
+    assert(order_count == 0, 'Invalid key order count');
+    let account_order_count = data_store.get_account_order_count(account);
+    assert(account_order_count == 0, 'Acc order # should be 0');
+    let account_order_keys = data_store.get_account_order_keys(account, 0, 10);
+    assert(account_order_keys.len() == 0, 'Acc withdraw # not empty');
+
+    teardown(data_store.contract_address);
+}
+
+
+#[test]
+fn test_remove_only_order() {
+    // Setup
+    let (caller_address, role_store, data_store) = setup();
+    let key: felt252 = 123456789;
+    let account = 'account'.try_into().unwrap();
+    let mut order: Order = create_new_order(
+        key,
+        account,
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        contract_address_const::<'token1'>(),
+        is_long: false,
+        should_unwrap_native_token: false,
+        is_frozen: false,
+        order_no: 1
+    );
+
+    data_store.set_order(key, order);
+
+    // Given
+    data_store.remove_order(key, account);
+
+    // Then
+    let order_by_key = data_store.get_order(key);
+    assert(order_by_key.is_none(), 'order should be removed');
+
+    let order_count = data_store.get_order_count();
+    assert(order_count == 0, 'Invalid key order count');
+
+    let account_order_count = data_store.get_account_order_count(account);
+    assert(account_order_count == 0, 'Acc order # should be 0');
+
+    let account_order_keys = data_store.get_account_order_keys(account, 0, 10);
+    assert(account_order_keys.len() == 0, 'Acc withdraw # not empty');
+
+    teardown(data_store.contract_address);
+}
+
+
+#[test]
+fn test_remove_1_of_n_order() {
+    // Setup
+    let (caller_address, role_store, data_store) = setup();
+    let key_1: felt252 = 123456789;
+    let account = 'account'.try_into().unwrap();
+    let mut order_1: Order = create_new_order(
+        key_1,
+        account,
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        contract_address_const::<'token1'>(),
+        is_long: false,
+        should_unwrap_native_token: false,
+        is_frozen: false,
+        order_no: 1
+    );
+
+    let key_2: felt252 = 22222222222;
+
+    let mut order_2: Order = create_new_order(
+        key_2,
+        account,
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        contract_address_const::<'token1'>(),
+        is_long: false,
+        should_unwrap_native_token: false,
+        is_frozen: false,
+        order_no: 1
+    );
+
+    data_store.set_order(key_1, order_1);
+    data_store.set_order(key_2, order_2);
+
+    let order_count = data_store.get_order_count();
+    assert(order_count == 2, 'Invalid key order count');
+
+    let account_order_count = data_store.get_account_order_count(account);
+    assert(account_order_count == 2, 'Acc order # should be 2');
+    // Given
+    data_store.remove_order(key_1, account);
+
+    // Then
+    let order_1_by_key = data_store.get_order(key_1);
+    assert(order_1_by_key.is_none(), 'order1 shouldnt be removed');
+
+    let order_2_by_key = data_store.get_order(key_2);
+    assert(order_2_by_key.is_some(), 'order2 shouldnt be removed');
+
+    let order_count = data_store.get_order_count();
+    assert(order_count == 1, 'order # should be 1');
+
+    let account_order_count = data_store.get_account_order_count(account);
+    assert(account_order_count == 1, 'Acc order # should be 1');
+
+    let account_order_keys = data_store.get_account_order_keys(account, 0, 10);
+    assert(account_order_keys.len() == 1, 'Acc withdraw # not 1');
+
+    teardown(data_store.contract_address);
+}
+
+
+#[test]
+#[should_panic(expected: ('unauthorized_access',))]
+fn test_remove_order_should_panic_not_controller() {
+    // Setup
+    let (caller_address, role_store, data_store) = setup();
+    role_store.revoke_role(caller_address, role::CONTROLLER);
+    let key: felt252 = 123456789;
+    let account = 'account'.try_into().unwrap();
+    let mut order: Order = create_new_order(
+        key,
+        account,
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        contract_address_const::<'token1'>(),
+        is_long: false,
+        should_unwrap_native_token: false,
+        is_frozen: false,
+        order_no: 1
+    );
+
+    data_store.set_order(key, order);
+
+    // Given
+    data_store.remove_order(key, account);
+
+    // Then
+    let order_by_key = data_store.get_order(key);
+    assert(order_by_key.is_none(), 'order should be removed');
+    let account_order_count = data_store.get_account_order_count(account);
+    assert(account_order_count == 0, 'Acc order # should be 0');
+    let account_order_keys = data_store.get_account_order_keys(account, 0, 10);
+    assert(account_order_keys.len() == 0, 'Acc withdraw # not empty');
+
+    teardown(data_store.contract_address);
+}
+
+
+#[test]
+fn test_multiple_account_keys() {
+    // Setup
+
+    let (caller_address, role_store, data_store) = setup();
+    let key_1: felt252 = 123456789;
+    let account = 'account'.try_into().unwrap();
+    let mut order_1: Order = create_new_order(
+        key_1,
+        account,
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        contract_address_const::<'token1'>(),
+        is_long: false,
+        should_unwrap_native_token: false,
+        is_frozen: false,
+        order_no: 1
+    );
+
+    let key_2: felt252 = 22222222222;
+    let account_2 = 'account2222'.try_into().unwrap();
+    let mut order_2: Order = create_new_order(
+        key_2,
+        account_2,
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        contract_address_const::<'token1'>(),
+        is_long: false,
+        should_unwrap_native_token: false,
+        is_frozen: false,
+        order_no: 2
+    );
+    let key_3: felt252 = 3333344455667;
+    let mut order_3: Order = create_new_order(
+        key_3,
+        account,
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        contract_address_const::<'token1'>(),
+        is_long: false,
+        should_unwrap_native_token: false,
+        is_frozen: false,
+        order_no: 1
+    );
+    let key_4: felt252 = 444445556777889;
+    let mut order_4: Order = create_new_order(
+        key_4,
+        account,
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        contract_address_const::<'token1'>(),
+        is_long: false,
+        should_unwrap_native_token: false,
+        is_frozen: false,
+        order_no: 1
+    );
+
+    data_store.set_order(key_1, order_1);
+    data_store.set_order(key_2, order_2);
+    data_store.set_order(key_3, order_3);
+    data_store.set_order(key_4, order_4);
+
+    let order_by_key3 = data_store.get_order(key_3).unwrap();
+    assert(order_by_key3 == order_3, 'Invalid order by key3');
+
+    let order_by_key4 = data_store.get_order(key_4).unwrap();
+    assert(order_by_key4 == order_4, 'Invalid order by key4');
+
+    let order_count = data_store.get_order_count();
+    assert(order_count == 4, 'Invalid key order count');
+
+    let account_order_count = data_store.get_account_order_count(account);
+    assert(account_order_count == 3, 'Acc order # should be 3');
+
+    let account_order_count2 = data_store.get_account_order_count(account_2);
+    assert(account_order_count2 == 1, 'Acc2 order # should be 1');
+
+    let order_keys = data_store.get_order_keys(0, 10);
+    assert(order_keys.len() == 4, 'invalid key len');
+    assert(order_keys.at(0) == @key_1, 'invalid key1');
+    assert(order_keys.at(1) == @key_2, 'invalid key2');
+    assert(order_keys.at(2) == @key_3, 'invalid key3');
+    assert(order_keys.at(3) == @key_4, 'invalid key4');
+
+    let order_keys2 = data_store.get_order_keys(1, 3);
+    assert(order_keys2.len() == 2, '2:invalid key len');
+    assert(order_keys2.at(0) == @key_2, '2:invalid key2');
+    assert(order_keys2.at(1) == @key_3, '2:invalid key3');
+
+    let account_keys = data_store.get_account_order_keys(account, 0, 10);
+    assert(account_keys.len() == 3, '3:invalid key len');
+    assert(account_keys.at(0) == @key_1, '3:invalid key1');
+    assert(account_keys.at(1) == @key_3, '3:invalid key3');
+    assert(account_keys.at(2) == @key_4, '3:invalid key4');
+
+    let account_keys2 = data_store.get_account_order_keys(account_2, 0, 10);
+    assert(account_keys2.len() == 1, '4:invalid key len');
+    assert(account_keys2.at(0) == @key_2, '4:invalid key2');
+
+    // Given
+    data_store.remove_order(key_1, account);
+
+    teardown(data_store.contract_address);
+}
 
 /// Utility function to create new Order  struct
 ///
@@ -252,6 +421,7 @@ fn given_normal_conditions_when_order_functions_then_expected_results() {
 /// * `is_frozen` - Whether the order is frozen.
 /// * `order_no` - Random number to change values
 fn create_new_order(
+    key: felt252,
     account: ContractAddress,
     receiver: ContractAddress,
     market: ContractAddress,
@@ -279,6 +449,7 @@ fn create_new_order(
 
     // Create an order.
     Order {
+        key,
         order_type,
         account,
         receiver,
@@ -286,7 +457,7 @@ fn create_new_order(
         ui_fee_receiver,
         market,
         initial_collateral_token,
-        swap_path,
+        //swap_path,
         size_delta_usd,
         initial_collateral_delta_amount,
         trigger_price,
@@ -336,3 +507,4 @@ fn assert_order_eq(order1: @Order, order2: @Order) {
     );
     assert(order1.is_frozen == order2.is_frozen, 'invalid is_frozen ');
 }
+

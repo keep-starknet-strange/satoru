@@ -11,8 +11,10 @@ use satoru::utils::store_arrays::StoreContractAddressArray;
 use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
 
 /// Struct for orders.
-#[derive(Drop, starknet::Store, Serde, PartialEq)]
+#[derive(Copy, Drop, starknet::Store, Serde, PartialEq)]
 struct Order {
+    /// The unique identifier of the order.
+    key: felt252,
     order_type: OrderType,
     /// The account of the order.
     account: ContractAddress,
@@ -27,7 +29,7 @@ struct Order {
     /// The initial collateral token for increase orders.
     initial_collateral_token: ContractAddress,
     /// An array of market addresses to swap through.
-    swap_path: Array<ContractAddress>,
+    // TODO: use Span32 type swap_path: Array<ContractAddress>,
     /// The requested change in position size.
     size_delta_usd: u128,
     /// For increase orders, this is the amount of the initialCollateralToken sent in by the user.
@@ -57,6 +59,7 @@ struct Order {
 impl DefaultOrder of Default<Order> {
     fn default() -> Order {
         Order {
+            key: 0,
             order_type: OrderType::MarketSwap(()),
             account: 0.try_into().unwrap(),
             receiver: 0.try_into().unwrap(),
@@ -64,7 +67,7 @@ impl DefaultOrder of Default<Order> {
             ui_fee_receiver: 0.try_into().unwrap(),
             market: 0.try_into().unwrap(),
             initial_collateral_token: 0.try_into().unwrap(),
-            swap_path: array![],
+            // TODO swap_path: array![],
             size_delta_usd: 0,
             initial_collateral_delta_amount: 0,
             trigger_price: 0,

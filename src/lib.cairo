@@ -50,7 +50,6 @@ mod event {
 mod data {
     mod data_store;
     mod keys;
-    mod error;
 }
 
 // `deposit` handles the depositing of funds into the system.
@@ -177,6 +176,7 @@ mod order {
     mod increase_order_utils;
     mod order_vault;
     mod order;
+    mod error;
 }
 
 // `position` contains positions management functions
