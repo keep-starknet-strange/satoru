@@ -114,7 +114,6 @@ fn test_check_unauthorized_access_role() {
 
 
 #[test]
-#[should_panic(expected: ('unauthorized_access'))]
 fn test_check_swap_called() {
     let (caller_address, data_store, event_emitter, oracle, bank, role_store) = setup();
     let contract = declare('SwapHandler');
