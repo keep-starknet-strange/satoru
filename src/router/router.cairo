@@ -43,13 +43,15 @@ mod Router {
     use core::zeroable::Zeroable;
 
     use debug::PrintTrait;
-    use starknet::ContractAddress;
+    use starknet::{ContractAddress, get_caller_address};
 
 
     // Local imports.
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::role::role::ROUTER_PLUGIN;
     use super::IRouter;
     use satoru::router::error::RouterError;
+    use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 
     // *************************************************************************
     //                              STORAGE
@@ -91,7 +93,14 @@ mod Router {
             account: ContractAddress,
             receiver: ContractAddress,
             amount: u128
-        ) { // TODO
+        ) {
+            // Check that the caller has the `ROUTER_PLUGIN` role.
+            self.role_store.read().assert_only_role(get_caller_address(), ROUTER_PLUGIN);
+
+            // Transfer tokens from account to receiver.
+            // It requires that account's allowance to this contract is at least `amount`.
+            IERC20Dispatcher { contract_address: token }
+                .transfer_from(account, receiver, amount.into());
         }
     }
 }
