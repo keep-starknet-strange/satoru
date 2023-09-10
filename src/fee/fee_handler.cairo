@@ -53,9 +53,7 @@ mod FeeHandler {
         IDataStoreDispatcherTrait
     };
     use satoru::data::keys;
-    use satoru::event::event_emitter::{
-        IEventEmitterDispatcher, IEventEmitterDispatcherTrait
-    };
+    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use super::IFeeHandler;
     use satoru::fee::error::FeeError;
     use satoru::fee::fee_utils;
