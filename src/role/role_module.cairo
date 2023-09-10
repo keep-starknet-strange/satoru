@@ -12,6 +12,7 @@ use starknet::ContractAddress;
 // *************************************************************************
 #[starknet::interface]
 trait IRoleModule<TContractState> {
+    fn initialize(ref self: TContractState, role_store_address: ContractAddress);
     fn onlySelf(self: @TContractState);
     fn onlyTimelockMultisig(self: @TContractState);
     fn onlyTimelockAdmin(self: @TContractState);
@@ -51,7 +52,7 @@ mod RoleModule {
     // *************************************************************************
     #[constructor]
     fn constructor(ref self: ContractState, role_store_address: ContractAddress) {
-        self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
+        self.initialize(role_store_address);
     }
 
     // *************************************************************************
@@ -59,6 +60,10 @@ mod RoleModule {
     // *************************************************************************
     #[external(v0)]
     impl RoleModule of super::IRoleModule<ContractState> {
+        fn initialize(ref self: ContractState, role_store_address: ContractAddress) {
+            self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
+        }
+
         fn onlySelf(self: @ContractState) {
             assert(get_caller_address() == get_contract_address(), RoleError::UNAUTHORIZED_ACCESS);
         }
