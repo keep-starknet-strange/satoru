@@ -1,3 +1,4 @@
+use starknet::ContractAddress;
 use poseidon::poseidon_hash_span;
 
 // Local imports.
@@ -30,7 +31,10 @@ fn increment_nonce(data_store: IDataStoreDispatcher) -> u128 {
 /// Return felt252 hash using the next nonce value
 fn get_next_key(data_store: IDataStoreDispatcher) -> felt252 {
     let nonce = increment_nonce(data_store);
-    let data = array![data_store.contract_address.into(), nonce.into()];
-    let key = poseidon_hash_span(data.span());
-    key
+    compute_key(data_store.contract_address, nonce)
+}
+
+fn compute_key(data_store_address: ContractAddress, nonce: u128) -> felt252 {
+    let data = array![data_store_address.into(), nonce.into()];
+    poseidon_hash_span(data.span())
 }

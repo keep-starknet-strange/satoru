@@ -135,6 +135,24 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "0xTitan",
+      "name": "0xTitan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/104304962?v=4",
+      "profile": "https://github.com/0xTitan",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Bal7hazar",
+      "name": "Bal7hazar @ Carbonable",
+      "avatar_url": "https://avatars.githubusercontent.com/u/97087040?v=4",
+      "profile": "https://github.com/Bal7hazar",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
