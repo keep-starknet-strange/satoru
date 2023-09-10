@@ -18,6 +18,7 @@ use satoru::pricing::position_pricing_utils::PositionFees;
 use satoru::order::order::{Order, SecondaryOrderType};
 
 //TODO: OrderCollatDeltaAmountAutoUpdtd must be renamed back to OrderCollateralDeltaAmountAutoUpdated when string will be allowed as event argument
+//TODO: AfterWithdrawalCancelError must be renamed back to AfterWithdrawalCancellationError when string will be allowed as event argument
 
 // *************************************************************************
 //                  Interface of the `EventEmitter` contract.
@@ -291,7 +292,7 @@ trait IEventEmitter<TContractState> {
         ref self: TContractState, key: felt252, withdrawal: Withdrawal
     );
 
-    /// Emits the `AfterWithdrawalCancellationError` event.
+    /// Emits the `AfterWithdrawalCancelError` event.
     fn emit_after_withdrawal_cancellation_error(
         ref self: TContractState, key: felt252, withdrawal: Withdrawal
     );
@@ -382,7 +383,7 @@ mod EventEmitter {
         AfterDepositExecutionError: AfterDepositExecutionError,
         AfterDepositCancellationError: AfterDepositCancellationError,
         AfterWithdrawalExecutionError: AfterWithdrawalExecutionError,
-        AfterWithdrawalCancellationError: AfterWithdrawalCancellationError,
+        AfterWithdrawalCancelError: AfterWithdrawalCancelError,
         AfterOrderExecutionError: AfterOrderExecutionError,
         AfterOrderCancellationError: AfterOrderCancellationError,
         AfterOrderFrozenError: AfterOrderFrozenError,
@@ -785,7 +786,7 @@ mod EventEmitter {
     }
 
     #[derive(Drop, starknet::Event)]
-    struct AfterWithdrawalCancellationError {
+    struct AfterWithdrawalCancelError {
         key: felt252,
         withdrawal: Withdrawal,
     }
@@ -1458,7 +1459,7 @@ mod EventEmitter {
         fn emit_after_withdrawal_cancellation_error(
             ref self: ContractState, key: felt252, withdrawal: Withdrawal
         ) {
-            self.emit(AfterWithdrawalCancellationError { key, withdrawal });
+            self.emit(AfterWithdrawalCancelError { key, withdrawal });
         }
 
         /// Emits the `AfterOrderExecutionError` event.
