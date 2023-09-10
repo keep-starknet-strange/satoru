@@ -1,4 +1,4 @@
-use satoru::tests_lib::{setup, teardown};
+use satoru::tests_lib::{teardown};
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
@@ -6,7 +6,7 @@ use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use snforge_std::{ declare, ContractClassTrait, start_prank };
 use satoru::swap::swap_utils::SwapParams;
-
+use starknet::ContractAddress;
 
 fn deploy_data_store(data_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('DataStore');
@@ -78,8 +78,8 @@ fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, I
 
 
 #[test]
-#[should_panic(expected: ('unauthorized_access',))]
-fn test_check_controller_role() {
+#[should_panic(expected: ('unauthorized_access'))]
+fn test_check_unauthorized_access_role() {
     let (caller_address, data_store, event_emitter, oracle, bank, role_store) = setup();
     let contract = declare('SwapHandler');
     let contract_address = contract.deploy(@ArrayTrait::new()).unwrap();
@@ -113,17 +113,36 @@ fn test_check_controller_role() {
 }
 
 
-struct SwapParams {
-    data_store: IDataStoreDispatcher,
-    event_emitter: IEventEmitterDispatcher,
-    oracle: IOracleDispatcher,
-    bank: IBankDispatcher,
-    key: felt252,
-    token_in: ContractAddress,
-    amount_in: u128,
-    swap_path_markets: Array<Market>,
-    min_output_amount: u128,
-    receiver: ContractAddress,
-    ui_fee_receiver: ContractAddress,
-    should_unwrap_native_token: bool,
+#[test]
+#[should_panic(expected: ('unauthorized_access'))]
+fn test_check_swap_called() {
+    let (caller_address, data_store, event_emitter, oracle, bank, role_store) = setup();
+    let contract = declare('SwapHandler');
+    let contract_address = contract.deploy(@ArrayTrait::new()).unwrap();
+    let dispatcher = ISwapHandlerDispatcher { contract_address };
+
+    let mut market =  Market {
+        market_token: 1.try_into().unwrap(),
+        index_token: 1.try_into().unwrap(),
+        long_token: 1.try_into().unwrap(),
+        short_token: 1.try_into().unwrap(),
+    };
+
+    let mut swap = SwapParams {
+        data_store: data_store,
+        event_emitter: event_emitter,
+        oracle: oracle,
+        bank: bank,
+        key: 1,
+        token_in: 1.try_into().unwrap(),
+        amount_in: 1,
+        swap_path_markets: ArrayTrait::new(market),
+        min_output_amount: 1,
+        receiver: 1.try_into().unwrap(),
+        ui_fee_receiver: 1.try_into().unwrap(),
+        should_unwrap_native_token: true,
+    };
+
+    dispatcher.swap(contract_address,swap);
+    teardown(data_store.contract_address);
 }
