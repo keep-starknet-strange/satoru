@@ -311,7 +311,7 @@ trait IEventEmitter<TContractState> {
         market: ContractAddress,
         is_long: bool,
         pnl_to_pool_factor: felt252,
-        max_pnl_factor: u128,
+        max_pnl_factor: u256,
         should_enable_adl: bool,
     );
 }
@@ -813,7 +813,7 @@ mod EventEmitter {
         market: ContractAddress,
         is_long: bool,
         pnl_to_pool_factor: felt252,
-        max_pnl_factor: u128,
+        max_pnl_factor: u256,
         should_enable_adl: bool,
     }
 
@@ -1489,7 +1489,7 @@ mod EventEmitter {
             market: ContractAddress,
             is_long: bool,
             pnl_to_pool_factor: felt252,
-            max_pnl_factor: u128,
+            max_pnl_factor: u256,
             should_enable_adl: bool,
         ) {
             self
