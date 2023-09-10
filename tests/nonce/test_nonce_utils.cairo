@@ -1,5 +1,5 @@
 use satoru::data::data_store::IDataStoreDispatcherTrait;
-use satoru::nonce::nonce_utils::{get_current_nonce, increment_nonce, get_next_key};
+use satoru::nonce::nonce_utils::{get_current_nonce, increment_nonce, compute_key};
 use satoru::tests_lib::{setup, teardown};
 
 #[test]
@@ -19,11 +19,11 @@ fn test_nonce_utils() {
     let nonce = increment_nonce(data_store);
     assert(nonce == 1, 'Invalid new nonce');
 
-    let key = get_next_key(data_store);
-    assert(key == 0x282524aa644121524f01a2feb9a663ebc4afaf14924efa9565246d4ed9210b3, 'Invalid key');
-
     let nonce = get_current_nonce(data_store);
-    assert(nonce == 2, 'Invalid final nonce');
+    assert(nonce == 1, 'Invalid final nonce');
+
+    let key = compute_key(42069.try_into().unwrap(), 2);
+    assert(key == 0x24bd38ceb23566640607e8fd6d1ef05cf308413863f984763744a3cfd428b1b, 'Invalid key');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
