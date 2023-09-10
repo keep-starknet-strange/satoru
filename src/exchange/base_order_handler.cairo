@@ -195,6 +195,7 @@ mod BaseOrderHandler {
                 referral_storage: self.referral_storage.read(),
             };
             let order = Order {
+                key: 0,
                 order_type: OrderType::MarketSwap(()),
                 account: address_zero,
                 receiver: address_zero,
@@ -202,7 +203,7 @@ mod BaseOrderHandler {
                 ui_fee_receiver: address_zero,
                 market: address_zero,
                 initial_collateral_token: address_zero,
-                swap_path: ArrayTrait::new(),
+                // TODO use span swap_path: ArrayTrait::new(),
                 size_delta_usd: 0,
                 initial_collateral_delta_amount: 0,
                 trigger_price: 0,
