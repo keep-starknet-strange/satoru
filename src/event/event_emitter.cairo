@@ -135,7 +135,7 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `DepositCancelled` event.
     fn emit_deposit_cancelled(
-        ref self: TContractState, key: felt252, reason: felt252, reasonBytes: Array<felt252>
+        ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
     );
 
     /// Emits the `WithdrawalCreated` event.
@@ -304,6 +304,16 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `AfterOrderFrozenError` event.
     fn emit_after_order_frozen_error(ref self: TContractState, key: felt252, order: Order);
+
+    /// Emits the `AdlStateUpdated` event.
+    fn emit_adl_state_updated(
+        ref self: TContractState,
+        market: ContractAddress,
+        is_long: bool,
+        pnl_to_pool_factor: felt252,
+        max_pnl_factor: u256,
+        should_enable_adl: bool,
+    );
 }
 
 #[starknet::contract]
@@ -376,6 +386,7 @@ mod EventEmitter {
         AfterOrderExecutionError: AfterOrderExecutionError,
         AfterOrderCancellationError: AfterOrderCancellationError,
         AfterOrderFrozenError: AfterOrderFrozenError,
+        AdlStateUpdated: AdlStateUpdated,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -795,6 +806,15 @@ mod EventEmitter {
     struct AfterOrderFrozenError {
         key: felt252,
         order: Order,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct AdlStateUpdated {
+        market: ContractAddress,
+        is_long: bool,
+        pnl_to_pool_factor: felt252,
+        max_pnl_factor: u256,
+        should_enable_adl: bool,
     }
 
 
@@ -1456,6 +1476,29 @@ mod EventEmitter {
         /// Emits the `AfterOrderFrozenError` event.
         fn emit_after_order_frozen_error(ref self: ContractState, key: felt252, order: Order) {
             self.emit(AfterOrderFrozenError { key, order });
+        }
+
+        /// Emits the `AdlStateUpdated` event.
+        /// # Arguments
+        // * `market`- Address of the market for the ADL state update
+        // * `is_long`- Indicates the ADL state update is for the long or short side of the market
+        // * `pnl_to_pool_factor`- The the ratio of PnL to pool value
+        // * `max_pnl_factor`- The max PnL factor
+        // * `should_enable_adl`- Whether ADL was enabled or disabled
+        fn emit_adl_state_updated(
+            ref self: ContractState,
+            market: ContractAddress,
+            is_long: bool,
+            pnl_to_pool_factor: felt252,
+            max_pnl_factor: u256,
+            should_enable_adl: bool,
+        ) {
+            self
+                .emit(
+                    AdlStateUpdated {
+                        market, is_long, pnl_to_pool_factor, max_pnl_factor, should_enable_adl
+                    }
+                );
         }
     }
 }
