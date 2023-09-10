@@ -41,15 +41,19 @@ mod Bank {
 
     // Core lib imports.
     use core::zeroable::Zeroable;
-    use starknet::{get_caller_address, ContractAddress, contract_address_const};
+    use starknet::{
+        get_caller_address, get_contract_address, ContractAddress, contract_address_const
+    };
 
     use debug::PrintTrait;
 
     // Local imports.
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use satoru::role::role;
     use super::IBank;
     use satoru::bank::error::BankError;
+    use satoru::token::token_utils::TokenUtils;
 
     // *************************************************************************
     //                              STORAGE
@@ -104,8 +108,28 @@ mod Bank {
             receiver: ContractAddress,
             amount: u128,
         ) {
-            // FIXME: #29 - https://github.com/keep-starknet-strange/satoru/issues/29
-            'not_implemented'.print();
+            // assert that caller is a controller
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.transfer_out_internal(token, receiver, amount);
+        }
+    }
+
+    #[generate_trait]
+    impl BankHelperImpl of BankHelperTrait {
+        /// Transfer tokens from this contract to a receiver
+        /// # Arguments
+        /// * `token` - token the token to transfer
+        /// * `amount` - amount the amount to transfer
+        /// * `receiver` - receiver the address to transfer to
+        fn transfer_out_internal(
+            ref self: ContractState,
+            token: ContractAddress,
+            receiver: ContractAddress,
+            amount: u128,
+        ) {
+            // check that receiver is not this contract
+            assert(receiver != get_contract_address(), BankError::SELF_TRANSFER_NOT_SUPPORTED);
+            TokenUtils::transfer(self.data_store.read(), token, receiver, amount);
         }
     }
 }

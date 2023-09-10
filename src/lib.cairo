@@ -216,6 +216,7 @@ mod swap {
 // TODO: Use openzeppelin as dependency when Scarb versions match.
 mod token {
     mod erc20;
+    mod token_utils;
 }
 
 // `withdrawal` contains withdrawal management functions
