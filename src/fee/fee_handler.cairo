@@ -48,10 +48,7 @@ mod FeeHandler {
 
     // Local imports.
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use satoru::data::data_store::{
-        IDataStoreDispatcher, IDataStoreDispatcherTrait, IDataStoreDispatcher,
-        IDataStoreDispatcherTrait
-    };
+    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::data::keys;
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use super::IFeeHandler;
