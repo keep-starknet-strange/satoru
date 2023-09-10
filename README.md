@@ -50,13 +50,13 @@ snforge
 
 ## 🚀 Deploy
 
-To deploy contracts of the projects, you first need to set up a smart wallet :
+To deploy contracts of the saturo, you first need to setup a smart wallet :
 
-- Create a signer by following the tutorial : [Signers](https://book.starkli.rs/signers)
+- Create a signer by following this tutorial : [Signers](https://book.starkli.rs/signers)
 
-- Create an account by following the tutorial : [Accounts](https://book.starkli.rs/accounts/) 
+- Create an account by following this tutorial : [Accounts](https://book.starkli.rs/accounts/) 
 
-Once your smart wallet is set up, you can now run deployment files to deploy contracts, for example :
+Once your smart wallet is setup, you can now run deployment files to deploy contracts, for example :
 
 ```bash
 cd scripts
