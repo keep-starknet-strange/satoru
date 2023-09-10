@@ -47,6 +47,24 @@ To test the project, run:
 snforge
 ```
 
+
+## 🚀 Deploy
+
+To deploy contracts of the projects, you first need to set up a smart wallet :
+
+- Create a signer by following the tutorial : [Signers](https://book.starkli.rs/signers)
+
+- Create an account by following the tutorial : [Accounts](https://book.starkli.rs/accounts/) 
+
+Once your smart wallet is set up, you can now run deployment files to deploy contracts, for example :
+
+```bash
+cd scripts
+
+./deploy_contract.sh
+```
+
+
 ## 📚 Resources
 
 Here are some resources to help you get started:
@@ -56,6 +74,7 @@ Here are some resources to help you get started:
 - [Starknet Book](https://book.starknet.io/)
 - [Starknet Foundry Book](https://foundry-rs.github.io/starknet-foundry/)
 - [Starknet By Example](https://starknet-by-example.voyager.online/)
+- [Starkli Book](https://book.starkli.rs/)
 - GMX v2 resources
   - [GMX Synthetics](https://github.com/gmx-io/gmx-synthetics)
   - [Trading on v2](https://docs.gmx.io/docs/trading/v2)
