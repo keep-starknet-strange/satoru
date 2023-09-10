@@ -49,7 +49,7 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `PositionImpactPoolAmountUpdated` event.
     fn emit_position_impact_pool_amount_updated(
-        ref self: TContractState, market: ContractAddress, delta: u128, next_value: u128, 
+        ref self: TContractState, market: ContractAddress, delta: u128, next_value: u128,
     );
 
     /// Emits the `SwapImpactPoolAmountUpdated` event.
@@ -311,7 +311,7 @@ trait IEventEmitter<TContractState> {
         market: ContractAddress,
         is_long: bool,
         pnl_to_pool_factor: felt252,
-        max_pnl_factor: u256,
+        max_pnl_factor: u128,
         should_enable_adl: bool,
     );
 }
@@ -813,7 +813,7 @@ mod EventEmitter {
         market: ContractAddress,
         is_long: bool,
         pnl_to_pool_factor: felt252,
-        max_pnl_factor: u256,
+        max_pnl_factor: u128,
         should_enable_adl: bool,
     }
 
@@ -837,7 +837,7 @@ mod EventEmitter {
             self
                 .emit(
                     ClaimableCollateralUpdated {
-                        market, token, account, time_key, delta, next_value, next_pool_value, 
+                        market, token, account, time_key, delta, next_value, next_pool_value,
                     }
                 );
         }
@@ -855,16 +855,16 @@ mod EventEmitter {
             self
                 .emit(
                     ClaimableFundingUpdated {
-                        market, token, account, delta, next_value, next_pool_value, 
+                        market, token, account, delta, next_value, next_pool_value,
                     }
                 );
         }
 
         /// Emits the `PositionImpactPoolAmountUpdated` event.
         fn emit_position_impact_pool_amount_updated(
-            ref self: ContractState, market: ContractAddress, delta: u128, next_value: u128, 
+            ref self: ContractState, market: ContractAddress, delta: u128, next_value: u128,
         ) {
-            self.emit(PositionImpactPoolAmountUpdated { market, delta, next_value,  });
+            self.emit(PositionImpactPoolAmountUpdated { market, delta, next_value, });
         }
 
         /// Emits the `SwapImpactPoolAmountUpdated` event.
@@ -875,7 +875,7 @@ mod EventEmitter {
             delta: u128,
             next_value: u128,
         ) {
-            self.emit(SwapImpactPoolAmountUpdated { market, token, delta, next_value,  });
+            self.emit(SwapImpactPoolAmountUpdated { market, token, delta, next_value, });
         }
 
         /// Emits the `MarketCreated` event.
@@ -891,7 +891,7 @@ mod EventEmitter {
             self
                 .emit(
                     MarketCreated {
-                        creator, market_token, index_token, long_token, short_token, market_type, 
+                        creator, market_token, index_token, long_token, short_token, market_type,
                     }
                 );
         }
@@ -903,7 +903,7 @@ mod EventEmitter {
             previous_value: ClassHash,
             new_value: ClassHash,
         ) {
-            self.emit(MarketTokenClassHashUpdated { updated_by, previous_value, new_value,  });
+            self.emit(MarketTokenClassHashUpdated { updated_by, previous_value, new_value, });
         }
 
         /// Emits the `ClaimableFeeAmountUpdated` event.
@@ -1477,7 +1477,6 @@ mod EventEmitter {
         fn emit_after_order_frozen_error(ref self: ContractState, key: felt252, order: Order) {
             self.emit(AfterOrderFrozenError { key, order });
         }
-
         /// Emits the `AdlStateUpdated` event.
         /// # Arguments
         // * `market`- Address of the market for the ADL state update
@@ -1490,7 +1489,7 @@ mod EventEmitter {
             market: ContractAddress,
             is_long: bool,
             pnl_to_pool_factor: felt252,
-            max_pnl_factor: u256,
+            max_pnl_factor: u128,
             should_enable_adl: bool,
         ) {
             self
