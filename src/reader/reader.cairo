@@ -13,7 +13,7 @@ use result::ResultTrait;
 
 // Local imports.
 
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::market::{
     market_utils::GetNextFundingAmountPerSizeResult, market::Market, market_utils::MarketPrices,
     market_utils::PositionType, market_utils::CollateralType,
@@ -38,7 +38,7 @@ use satoru::order::order::OrderType;
 use satoru::pricing::swap_pricing_utils::SwapFees;
 use satoru::deposit::deposit::Deposit;
 use satoru::referral::referral_storage::interface::{
-    IReferralStorageSafeDispatcher, IReferralStorageSafeDispatcherTrait
+    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
 };
 
 #[derive(Drop, starknet::Store, Serde)]
@@ -66,7 +66,7 @@ struct MarketInfo {
 /// * `key` - The contract address serving as the identifier for the specific market data.
 /// # Returns
 /// Returns a struct representing market-related information.
-fn get_market(data_store: IDataStoreSafeDispatcher, key: ContractAddress) -> Market {
+fn get_market(data_store: IDataStoreDispatcher, key: ContractAddress) -> Market {
     // TODO
     Market {
         market_token: 0.try_into().unwrap(),
@@ -82,7 +82,7 @@ fn get_market(data_store: IDataStoreSafeDispatcher, key: ContractAddress) -> Mar
 /// * `salt` - Serves as an additional identifier or parameter for retrieving specific market data.
 /// # Returns
 /// Returns a struct representing market-related information.
-fn get_market_by_salt(data_store: IDataStoreSafeDispatcher, salt: felt252) -> Market {
+fn get_market_by_salt(data_store: IDataStoreDispatcher, salt: felt252) -> Market {
     // TODO
     Market {
         market_token: 0.try_into().unwrap(),
@@ -98,25 +98,9 @@ fn get_market_by_salt(data_store: IDataStoreSafeDispatcher, salt: felt252) -> Ma
 /// * `key` - The key of the deposit.
 /// # Returns
 /// Returns a struct representing deposit-related information.
-fn get_deposit(data_store: IDataStoreSafeDispatcher, key: felt252) -> Deposit {
+fn get_deposit(data_store: IDataStoreDispatcher, key: felt252) -> Deposit {
     // TODO
-    Deposit {
-        account: 0.try_into().unwrap(),
-        receiver: 0.try_into().unwrap(),
-        callback_contract: 0.try_into().unwrap(),
-        ui_fee_receiver: 0.try_into().unwrap(),
-        market: 0.try_into().unwrap(),
-        initial_long_token: 0.try_into().unwrap(),
-        initial_short_token: 0.try_into().unwrap(),
-        long_token_swap_path: ArrayTrait::new(),
-        short_token_swap_path: ArrayTrait::new(),
-        initial_long_token_amount: 0,
-        initial_short_token_amount: 0,
-        min_market_tokens: 0,
-        updated_at_block: 0,
-        execution_fee: 0,
-        callback_gas_limit: 0,
-    }
+    Default::default()
 }
 
 /// Retrieve withdrawal-related data using a provided key value.
@@ -125,24 +109,9 @@ fn get_deposit(data_store: IDataStoreSafeDispatcher, key: felt252) -> Deposit {
 /// * `key` - The key of the withdrawal.
 /// # Returns
 /// Returns a struct representing withdrawal-related information.
-fn get_withdrawl(data_store: IDataStoreSafeDispatcher, key: felt252) -> Withdrawal {
+fn get_withdrawl(data_store: IDataStoreDispatcher, key: felt252) -> Withdrawal {
     // TODO
-    Withdrawal {
-        account: 0.try_into().unwrap(),
-        receiver: 0.try_into().unwrap(),
-        callback_contract: 0.try_into().unwrap(),
-        ui_fee_receiver: 0.try_into().unwrap(),
-        market: 0.try_into().unwrap(),
-        long_token_swap_path: ArrayTrait::new(),
-        short_token_swap_path: ArrayTrait::new(),
-        market_token_amount: 0,
-        min_long_token_amount: 0,
-        min_short_token_amount: 0,
-        updated_at_block: 0,
-        execution_fee: 0,
-        callback_gas_limit: 0,
-        should_unwrap_native_token: true,
-    }
+    Default::default()
 }
 
 /// Retrieve position-related data using a provided key value.
@@ -151,7 +120,7 @@ fn get_withdrawl(data_store: IDataStoreSafeDispatcher, key: felt252) -> Withdraw
 /// * `key` - The key of the position.
 /// # Returns
 /// Returns a struct representing position-related information.
-fn get_position(data_store: IDataStoreSafeDispatcher, key: felt252) -> Position {
+fn get_position(data_store: IDataStoreDispatcher, key: felt252) -> Position {
     // TODO
     Position {
         account: 0.try_into().unwrap(),
@@ -176,29 +145,9 @@ fn get_position(data_store: IDataStoreSafeDispatcher, key: felt252) -> Position 
 /// * `key` - The key of the order.
 /// # Returns
 /// Returns a struct representing order-related information.
-fn get_order(data_store: IDataStoreSafeDispatcher, key: felt252) -> Order {
+fn get_order(data_store: IDataStoreDispatcher, key: felt252) -> Order {
     // TODO
-    Order {
-        order_type: OrderType::MarketSwap(()),
-        account: 0.try_into().unwrap(),
-        receiver: 0.try_into().unwrap(),
-        callback_contract: 0.try_into().unwrap(),
-        ui_fee_receiver: 0.try_into().unwrap(),
-        market: 0.try_into().unwrap(),
-        initial_collateral_token: 0.try_into().unwrap(),
-        swap_path: ArrayTrait::new(),
-        size_delta_usd: 0,
-        initial_collateral_delta_amount: 0,
-        trigger_price: 0,
-        acceptable_price: 0,
-        execution_fee: 0,
-        callback_gas_limit: 0,
-        min_output_amount: 0,
-        updated_at_block: 0,
-        is_long: true,
-        should_unwrap_native_token: true,
-        is_frozen: true,
-    }
+    Default::default()
 }
 
 /// Intended to calculate and return various metrics related to the profit and loss (PNL) of a position within a market.
@@ -211,7 +160,7 @@ fn get_order(data_store: IDataStoreSafeDispatcher, key: felt252) -> Order {
 /// # Returns
 /// Returns (positionPnlUsd, uncappedPositionPnlUsd, sizeDeltaInTokens).
 fn get_position_pnl_usd(
-    data_store: IDataStoreSafeDispatcher,
+    data_store: IDataStoreDispatcher,
     market: Market,
     prices: MarketPrices,
     position_key: felt252,
@@ -230,7 +179,7 @@ fn get_position_pnl_usd(
 /// # Returns
 /// Returns an array of Position.
 fn get_account_positions(
-    data_store: IDataStoreSafeDispatcher, account: ContractAddress, start: u128, end: u128
+    data_store: IDataStoreDispatcher, account: ContractAddress, start: u128, end: u128
 ) -> Array<Position> {
     // TODO
     ArrayTrait::new()
@@ -246,8 +195,8 @@ fn get_account_positions(
 /// # Returns
 /// Returns an array of PositionInfo representing position-related information.
 fn get_account_position_info_list(
-    data_store: IDataStoreSafeDispatcher,
-    referral_storage: IReferralStorageSafeDispatcher,
+    data_store: IDataStoreDispatcher,
+    referral_storage: IReferralStorageDispatcher,
     position_keys: Array<felt252>,
     prices: Array<MarketPrices>,
     ui_fee_receiver: ContractAddress
@@ -268,8 +217,8 @@ fn get_account_position_info_list(
 /// # Returns
 /// Returns a struct representing comprehensive information about the specified position.
 fn get_position_info(
-    data_store: IDataStoreSafeDispatcher,
-    referral_storage: IReferralStorageSafeDispatcher,
+    data_store: IDataStoreDispatcher,
+    referral_storage: IReferralStorageDispatcher,
     position_key: felt252,
     prices: MarketPrices,
     size_delta_usd: u128,
@@ -365,7 +314,7 @@ fn get_position_info(
 /// # Returns
 /// Returns an array of Order structs representing the properties of orders associated with the specified account within the specified range.
 fn get_account_orders(
-    data_store: IDataStoreSafeDispatcher, account: ContractAddress, start: u128, end: u128
+    data_store: IDataStoreDispatcher, account: ContractAddress, start: u128, end: u128
 ) -> Array<Order> {
     ArrayTrait::new()
 }
@@ -377,7 +326,7 @@ fn get_account_orders(
 /// * `end` - Representing the ending point in the market key range.
 /// # Returns
 /// Returns an array of Market structs representing the properties of markets within the specified range.
-fn get_markets(data_store: IDataStoreSafeDispatcher, start: u128, end: u128) -> Array<Market> {
+fn get_markets(data_store: IDataStoreDispatcher, start: u128, end: u128) -> Array<Market> {
     // TODO
     ArrayTrait::new()
 }
@@ -391,10 +340,7 @@ fn get_markets(data_store: IDataStoreSafeDispatcher, start: u128, end: u128) -> 
 /// # Returns
 /// Returns an array of MarketInfo structures representing comprehensive information about multiple markets within the specified range.
 fn get_market_info_list(
-    data_store: IDataStoreSafeDispatcher,
-    market_price_list: Array<MarketPrices>,
-    start: u128,
-    end: u128
+    data_store: IDataStoreDispatcher, market_price_list: Array<MarketPrices>, start: u128, end: u128
 ) -> Array<MarketInfo> {
     // TODO
     ArrayTrait::new()
@@ -408,7 +354,7 @@ fn get_market_info_list(
 /// # Returns
 /// Returns MarketInfo struct containing comprehensive information about the specified market.
 fn get_market_info(
-    data_store: IDataStoreSafeDispatcher, prices: MarketPrices, market_key: ContractAddress
+    data_store: IDataStoreDispatcher, prices: MarketPrices, market_key: ContractAddress
 ) -> MarketInfo {
     // TODO
     let funding_fee_amount_per_size_collateral_type_long = CollateralType {
@@ -487,7 +433,7 @@ fn get_market_info(
 /// # Returns
 /// Returns an integer representing the calculated market token price and MarketPoolValueInfo struct containing additional information related to market pool value.
 fn get_market_token_price(
-    data_store: IDataStoreSafeDispatcher,
+    data_store: IDataStoreDispatcher,
     market: Market,
     index_token_price: Price,
     long_token_price: Price,
@@ -521,7 +467,7 @@ fn get_market_token_price(
 /// # Returns
 /// Returns an integer representing the calculated net profit and loss (PnL) for the specified market.
 fn get_net_pnl(
-    data_store: IDataStoreSafeDispatcher, market: Market, index_token_price: Price, maximize: bool
+    data_store: IDataStoreDispatcher, market: Market, index_token_price: Price, maximize: bool
 ) -> u128 {
     // TODO
     0
@@ -536,7 +482,7 @@ fn get_net_pnl(
 /// # Returns
 /// Returns an integer representing the calculated profit and loss (PnL) for the specified market position.
 fn get_pnl(
-    data_store: IDataStoreSafeDispatcher,
+    data_store: IDataStoreDispatcher,
     market: Market,
     index_token_price: Price,
     is_long: bool,
@@ -555,7 +501,7 @@ fn get_pnl(
 /// # Returns
 /// Returns an integer representing the calculated open interest with profit and loss (PnL) for the specified market position.
 fn get_open_interest_with_pnl(
-    data_store: IDataStoreSafeDispatcher,
+    data_store: IDataStoreDispatcher,
     market: Market,
     index_token_price: Price,
     is_long: bool,
@@ -574,7 +520,7 @@ fn get_open_interest_with_pnl(
 /// # Returns
 /// Returns an integer representing the calculated profit and loss (PnL) to pool factor for the specified market position.
 fn get_pnl_to_pool_factor(
-    data_store: IDataStoreSafeDispatcher,
+    data_store: IDataStoreDispatcher,
     market_address: ContractAddress,
     prices: MarketPrices,
     is_long: bool,
@@ -597,7 +543,7 @@ fn get_pnl_to_pool_factor(
 /// a signed integer representing the fees associated with the swap operation and SwapFees struct containing additional information related to swap fees,
 /// which may include factors and values used in fee calculations.
 fn get_swap_amount_out(
-    data_store: IDataStoreSafeDispatcher,
+    data_store: IDataStoreDispatcher,
     market: Market,
     prices: MarketPrices,
     token_in: ContractAddress,
@@ -625,7 +571,7 @@ fn get_swap_amount_out(
 /// * `market` - Market to check.
 /// # Returns
 /// Returns VirtualInventory struct containing information about the virtual inventory for the specified market.
-fn get_virtual_inventory(data_store: IDataStoreSafeDispatcher, market: Market) -> VirtualInventory {
+fn get_virtual_inventory(data_store: IDataStoreDispatcher, market: Market) -> VirtualInventory {
     // TODO
     VirtualInventory {
         virtual_pool_amount_for_long_token: 0,
@@ -646,7 +592,7 @@ fn get_virtual_inventory(data_store: IDataStoreSafeDispatcher, market: Market) -
 /// # Returns
 /// Returns ExecutionPriceResult struct containing detailed information related to the execution price for the specified market position.
 fn get_execution_price(
-    data_store: IDataStoreSafeDispatcher,
+    data_store: IDataStoreDispatcher,
     market_key: ContractAddress,
     index_token_price: Price,
     position_size_in_usd: u128,
@@ -669,7 +615,7 @@ fn get_execution_price(
 /// # Returns
 /// Returns an integer representing the price impact of the swap operation and an integer representing the slippage, which is another way to measure the price impact.
 fn get_swap_price_impact(
-    data_store: IDataStoreSafeDispatcher,
+    data_store: IDataStoreDispatcher,
     market_key: ContractAddress,
     token_in: ContractAddress,
     token_out: ContractAddress,
@@ -691,10 +637,7 @@ fn get_swap_price_impact(
 /// Returns an unsigned integer representing the latest ADL block, a boolean value indicating whether ADL should be enabled for the specified market and position, 
 /// signed integer representing the PnL to pool factor, which is a metric used to assess the position's impact on the and an unsigned integer representing the maximum PnL factor.
 fn get_adl_state(
-    data_store: IDataStoreSafeDispatcher,
-    market: ContractAddress,
-    is_long: bool,
-    prices: MarketPrices
+    data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool, prices: MarketPrices
 ) -> (u128, bool, i128, u128) {
     // TODO
     (0, true, 0, 0)

@@ -9,10 +9,10 @@ use result::ResultTrait;
 
 // Local imports.
 use satoru::referral::referral_storage::interface::{
-    IReferralStorageSafeDispatcher, IReferralStorageSafeDispatcherTrait
+    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
 };
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
 /// Set the referral code for a trader.
 /// # Arguments
@@ -20,9 +20,7 @@ use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSaf
 /// * `account` - The account of the trader.
 /// * `referral_code` - The referral code.
 fn set_trader_referral_code(
-    referral_storage: IReferralStorageSafeDispatcher,
-    account: ContractAddress,
-    referral_code: felt252
+    referral_storage: IReferralStorageDispatcher, account: ContractAddress, referral_code: felt252
 ) { // TODO
 }
 
@@ -35,8 +33,8 @@ fn set_trader_referral_code(
 /// * `affiliate` - The affiliate address.
 /// * `delta` - The amount to increment the reward balance by.
 fn increment_affiliate_reward(
-    data_store: IDataStoreSafeDispatcher,
-    event_emitter: IEventEmitterSafeDispatcher,
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
     market: ContractAddress,
     token: ContractAddress,
     affiliate: ContractAddress,
@@ -51,7 +49,7 @@ fn increment_affiliate_reward(
 /// # Returns
 /// The referral code, the affiliate's address, the total rebate, and the discount share.
 fn get_referral_info(
-    referral_storage: IReferralStorageSafeDispatcher, trader: ContractAddress
+    referral_storage: IReferralStorageDispatcher, trader: ContractAddress
 ) -> (felt252, ContractAddress, u128, u128) {
     // TODO
     let address_zero: ContractAddress = 0.try_into().unwrap();
@@ -69,8 +67,8 @@ fn get_referral_info(
 /// # Returns
 /// The reward amount.
 fn claim_affiliate_rewards(
-    data_store: IDataStoreSafeDispatcher,
-    event_emitter: IEventEmitterSafeDispatcher,
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
     market: ContractAddress,
     token: ContractAddress,
     affiliate: ContractAddress,

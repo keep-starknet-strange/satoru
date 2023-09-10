@@ -5,9 +5,9 @@
 use starknet::ContractAddress;
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use satoru::bank::strict_bank::{IStrictBankSafeDispatcher, IStrictBankSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 use satoru::order::order::Order;
 use satoru::deposit::deposit::Deposit;
 use satoru::withdrawal::withdrawal::Withdrawal;
@@ -17,14 +17,14 @@ use satoru::withdrawal::withdrawal::Withdrawal;
 /// * `data_store` - The data storage dispatcher.
 /// # Returns
 /// The MIN_HANDLE_EXECUTION_ERROR_GAS.
-fn get_min_handle_execution_error_gas(data_store: IDataStoreSafeDispatcher) -> u128 {
+fn get_min_handle_execution_error_gas(data_store: IDataStoreDispatcher) -> u128 {
     // TODO
     0
 }
 
 /// Check that starting gas is higher than min handle execution gas and return starting.
 /// gas minus min_handle_error_gas.
-fn get_execution_gas(data_store: IDataStoreSafeDispatcher, starting_gas: u128) -> u128 {
+fn get_execution_gas(data_store: IDataStoreDispatcher, starting_gas: u128) -> u128 {
     // TODO
     0
 }
@@ -41,9 +41,9 @@ fn get_execution_gas(data_store: IDataStoreSafeDispatcher, starting_gas: u128) -
 /// # Returns
 /// * The key for the account order list.
 fn pay_execution_fee(
-    data_store: IDataStoreSafeDispatcher,
-    event_emitter: IEventEmitterSafeDispatcher,
-    bank: IStrictBankSafeDispatcher,
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    bank: IStrictBankDispatcher,
     execution_fee: u128,
     starting_gas: u128,
     keeper: ContractAddress,
@@ -59,7 +59,7 @@ fn pay_execution_fee(
 /// # Returns
 /// * The key for the account order list.
 fn validate_execution_fee(
-    data_store: IDataStoreSafeDispatcher, estimated_gas_limit: u128, execution_fee: u128
+    data_store: IDataStoreDispatcher, estimated_gas_limit: u128, execution_fee: u128
 ) { // TODO
 }
 
@@ -67,7 +67,7 @@ fn validate_execution_fee(
 /// # Arguments
 /// * `data_store` - The data storage contract dispatcher.
 /// * `gas_used` - The amount of gas used.
-fn adjust_gas_usage(data_store: IDataStoreSafeDispatcher, gas_used: u128) -> u128 {
+fn adjust_gas_usage(data_store: IDataStoreDispatcher, gas_used: u128) -> u128 {
     // TODO
     0
 }
@@ -79,7 +79,7 @@ fn adjust_gas_usage(data_store: IDataStoreSafeDispatcher, gas_used: u128) -> u12
 /// # Returns
 /// The adjusted gas limit
 fn adjust_gas_limit_for_estimate(
-    data_store: IDataStoreSafeDispatcher, estimated_gas_limit: u128
+    data_store: IDataStoreDispatcher, estimated_gas_limit: u128
 ) -> u128 {
     // TODO
     0
@@ -89,9 +89,7 @@ fn adjust_gas_limit_for_estimate(
 /// # Arguments
 /// * `data_store` - The data storage contract dispatcher.
 /// * `deposit` - The deposit to estimate the gas limit for.
-fn estimate_execute_deposit_gas_limit(
-    data_store: IDataStoreSafeDispatcher, deposit: Deposit
-) -> u128 {
+fn estimate_execute_deposit_gas_limit(data_store: IDataStoreDispatcher, deposit: Deposit) -> u128 {
     // TODO
     0
 }
@@ -101,7 +99,7 @@ fn estimate_execute_deposit_gas_limit(
 /// * `data_store` - The data storage contract dispatcher.
 /// * `withdrawal` - The withdrawal to estimate the gas limit for.
 fn estimate_execute_withdrawal_gas_limit(
-    data_store: IDataStoreSafeDispatcher, withdrawal: Withdrawal
+    data_store: IDataStoreDispatcher, withdrawal: Withdrawal
 ) -> u128 {
     //TODO
     0
@@ -111,7 +109,7 @@ fn estimate_execute_withdrawal_gas_limit(
 /// # Arguments
 /// * `data_store` - The data storage contract dispatcher.
 /// * `order` - The order to estimate the gas limit for.
-fn estimate_execute_order_gas_limit(data_store: IDataStoreSafeDispatcher, order: Order) -> u128 {
+fn estimate_execute_order_gas_limit(data_store: IDataStoreDispatcher, order: Order) -> u128 {
     // TODO
     0
 }
@@ -121,7 +119,7 @@ fn estimate_execute_order_gas_limit(data_store: IDataStoreSafeDispatcher, order:
 /// * `data_store` - The data storage contract dispatcher.
 /// * `order` - The order to estimate the gas limit for.
 fn estimate_execute_increase_order_gas_limit(
-    data_store: IDataStoreSafeDispatcher, order: Order
+    data_store: IDataStoreDispatcher, order: Order
 ) -> u128 {
     // TODO
     0
@@ -132,7 +130,7 @@ fn estimate_execute_increase_order_gas_limit(
 /// * `data_store` - The data storage contract dispatcher.
 /// * `order` - The order to estimate the gas limit for.
 fn estimate_execute_decrease_order_gas_limit(
-    data_store: IDataStoreSafeDispatcher, order: Order
+    data_store: IDataStoreDispatcher, order: Order
 ) -> u128 {
     // TODO
     0
@@ -142,9 +140,7 @@ fn estimate_execute_decrease_order_gas_limit(
 /// # Arguments
 /// * `data_store` - The data storage contract dispatcher.
 /// * `order` - The order to estimate the gas limit for.
-fn estimate_execute_swap_order_gas_limit(
-    data_store: IDataStoreSafeDispatcher, order: Order
-) -> u128 {
+fn estimate_execute_swap_order_gas_limit(data_store: IDataStoreDispatcher, order: Order) -> u128 {
     // TODO
     0
 }
@@ -155,7 +151,7 @@ fn estimate_execute_swap_order_gas_limit(
 /// * `keeper` - The keeper address.
 /// * `refund_fee_amount` - The amount of execution fee for the keeper.
 fn emit_keeper_execution_fee(
-    event_emitter: IEventEmitterSafeDispatcher, keeper: ContractAddress, execution_fee_amount: u128
+    event_emitter: IEventEmitterDispatcher, keeper: ContractAddress, execution_fee_amount: u128
 ) { // TODO
 }
 
@@ -165,6 +161,6 @@ fn emit_keeper_execution_fee(
 /// * `receiver` - The receiver of the fee refund.
 /// * `refund_fee_amount` - The amount of fee refunded.
 fn emit_execution_fee_refund(
-    event_emitter: IEventEmitterSafeDispatcher, receiver: ContractAddress, refund_fee_amount: u128
+    event_emitter: IEventEmitterDispatcher, receiver: ContractAddress, refund_fee_amount: u128
 ) { // TODO
 }

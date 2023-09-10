@@ -53,16 +53,16 @@ mod LiquidationHandler {
     //    IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait, EventEmitter
     //};
     use satoru::oracle::{
-        oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait},
+        oracle::{IOracleDispatcher, IOracleDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
         oracle_utils::SetPricesParams
     };
     use satoru::order::{
         order::{SecondaryOrderType, OrderType, Order},
-        order_vault::{IOrderVaultSafeDispatcher, IOrderVaultSafeDispatcherTrait},
+        order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
         base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}
     };
-    use satoru::swap::swap_handler::{ISwapHandlerSafeDispatcher, ISwapHandlerSafeDispatcherTrait};
+    use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use satoru::market::market::Market;
     use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
     use satoru::liquidation::liquidation_utils::create_liquidation_order;
