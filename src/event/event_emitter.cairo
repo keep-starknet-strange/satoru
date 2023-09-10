@@ -315,6 +315,11 @@ trait IEventEmitter<TContractState> {
         max_pnl_factor: u256,
         should_enable_adl: bool,
     );
+
+    /// Emits the `SetBool` event.
+    fn emit_set_bool(
+        ref self: TContractState, key: felt252, data_bytes: Array<felt252>, value: bool
+    );
 }
 
 #[starknet::contract]
@@ -388,6 +393,7 @@ mod EventEmitter {
         AfterOrderCancellationError: AfterOrderCancellationError,
         AfterOrderFrozenError: AfterOrderFrozenError,
         AdlStateUpdated: AdlStateUpdated,
+        SetBool: SetBool,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -816,6 +822,12 @@ mod EventEmitter {
         pnl_to_pool_factor: felt252,
         max_pnl_factor: u256,
         should_enable_adl: bool,
+    }
+    #[derive(Drop, starknet::Event)]
+    struct SetBool {
+        key: felt252,
+        data_bytes: Array<felt252>,
+        value: bool,
     }
 
 
@@ -1499,6 +1511,12 @@ mod EventEmitter {
                         market, is_long, pnl_to_pool_factor, max_pnl_factor, should_enable_adl
                     }
                 );
+        }
+
+        fn emit_set_bool(
+            ref self: ContractState, key: felt252, data_bytes: Array<felt252>, value: bool
+        ) {
+            self.emit(SetBool { key, data_bytes, value });
         }
     }
 }
