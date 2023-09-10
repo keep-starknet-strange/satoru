@@ -173,6 +173,7 @@ mod order {
     mod base_order_utils;
     mod order_utils;
     mod decrease_order_utils;
+    mod error;
     mod increase_order_utils;
     mod order_vault;
     mod order;

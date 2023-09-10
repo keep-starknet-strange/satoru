@@ -57,7 +57,7 @@ struct Order {
 impl DefaultOrder of Default<Order> {
     fn default() -> Order {
         Order {
-            order_type: OrderType::MarketSwap(()),
+            order_type: OrderType::MarketSwap,
             account: 0.try_into().unwrap(),
             receiver: 0.try_into().unwrap(),
             callback_contract: 0.try_into().unwrap(),
@@ -88,34 +88,34 @@ impl OrderImpl of OrderTrait {
     }
 }
 
-#[derive(Copy, Drop, starknet::Store, Serde)]
+#[derive(Copy, Drop, starknet::Store, Serde, PartialEq)]
 enum OrderType {
     ///  MarketSwap: swap token A to token B at the current market price.
     /// The order will be cancelled if the minOutputAmount cannot be fulfilled.
-    MarketSwap: (),
+    MarketSwap,
     ///  LimitSwap: swap token A to token B if the minOutputAmount can be fulfilled.
-    LimitSwap: (),
+    LimitSwap,
     ///  MarketIncrease: increase position at the current market price.
     /// The order will be cancelled if the position cannot be increased at the acceptablePrice.
-    MarketIncrease: (),
+    MarketIncrease,
     /// LimitIncrease: increase position if the triggerPrice is reached and the acceptablePrice can be fulfilled.
-    LimitIncrease: (),
+    LimitIncrease,
     ///  MarketDecrease: decrease position at the current market price.
     /// The order will be cancelled if the position cannot be decreased at the acceptablePrice.
-    MarketDecrease: (),
+    MarketDecrease,
     ///  LimitDecrease: decrease position if the triggerPrice is reached and the acceptablePrice can be fulfilled.
-    LimitDecrease: (),
+    LimitDecrease,
     ///  StopLossDecrease: decrease position if the triggerPrice is reached and the acceptablePrice can be fulfilled.
-    StopLossDecrease: (),
+    StopLossDecrease,
     ///  Liquidation: allows liquidation of positions if the criteria for liquidation are met.
-    Liquidation: (),
+    Liquidation,
 }
 
 /// To help further differentiate orders.
 #[derive(Drop, starknet::Store, Serde)]
 enum SecondaryOrderType {
-    None: (),
-    Adl: (),
+    None,
+    Adl,
 }
 
 impl SecondaryOrderTypePrintImpl of PrintTrait<SecondaryOrderType> {
@@ -131,9 +131,9 @@ impl SecondaryOrderTypePrintImpl of PrintTrait<SecondaryOrderType> {
 /// the pnl token to collateral token or vice versa.
 #[derive(Drop, starknet::Store, Serde)]
 enum DecreasePositionSwapType {
-    NoSwap: (),
-    SwapPnlTokenToCollateralToken: (),
-    SwapCollateralTokenToPnlToken: (),
+    NoSwap,
+    SwapPnlTokenToCollateralToken,
+    SwapCollateralTokenToPnlToken,
 }
 
 impl DecreasePositionSwapTypePrintImpl of PrintTrait<DecreasePositionSwapType> {
