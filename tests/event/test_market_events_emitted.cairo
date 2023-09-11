@@ -526,6 +526,55 @@ fn test_emit_claimable_funding_amount_per_size_updated() {
     assert(spy.events.len() == 0, 'There should be no events');
 }
 
+#[test]
+fn test_emit_claimable_funding_updated() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup_event_emitter();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let market = contract_address_const::<'market'>();
+    let token = contract_address_const::<'token'>();
+    let account = contract_address_const::<'account'>();
+    let delta: u128 = 1;
+    let next_value: u128 = 2;
+    let next_pool_value: u128 = 2;
+
+    // Create the expected data.
+    let mut expected_data: Array<felt252> = array![
+        market.into(),
+        token.into(),
+        account.into(),
+        delta.into(),
+        next_value.into(),
+        next_pool_value.into()
+    ];
+
+    // Emit the event.
+    event_emitter
+        .emit_claimable_funding_updated(market, token, account, delta, next_value, next_pool_value);
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address,
+                    name: 'ClaimableFundingUpdated',
+                    keys: array![],
+                    data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}
+
 fn create_dummy_market_pool_value_info() -> MarketPoolValueInfo {
     MarketPoolValueInfo {
         pool_value: 1,
