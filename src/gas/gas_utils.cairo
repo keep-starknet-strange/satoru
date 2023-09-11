@@ -44,7 +44,7 @@ fn pay_execution_fee(
     data_store: IDataStoreDispatcher,
     event_emitter: IEventEmitterDispatcher,
     bank: IStrictBankDispatcher,
-    execution_fee: u128,
+    execution_fee: u256,
     starting_gas: u128,
     keeper: ContractAddress,
     refund_receiver: ContractAddress
