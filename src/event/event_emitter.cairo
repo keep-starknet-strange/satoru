@@ -320,6 +320,11 @@ trait IEventEmitter<TContractState> {
     fn emit_set_bool(
         ref self: TContractState, key: felt252, data_bytes: Array<felt252>, value: bool
     );
+
+    /// Emits the `SetAddress` event.
+    fn emit_set_address(
+        ref self: TContractState, key: felt252, data_bytes: Array<felt252>, value: ContractAddress
+    );
 }
 
 #[starknet::contract]
@@ -394,6 +399,7 @@ mod EventEmitter {
         AfterOrderFrozenError: AfterOrderFrozenError,
         AdlStateUpdated: AdlStateUpdated,
         SetBool: SetBool,
+        SetAddress: SetAddress,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -823,11 +829,19 @@ mod EventEmitter {
         max_pnl_factor: u256,
         should_enable_adl: bool,
     }
+
     #[derive(Drop, starknet::Event)]
     struct SetBool {
         key: felt252,
         data_bytes: Array<felt252>,
         value: bool,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SetAddress {
+        key: felt252,
+        data_bytes: Array<felt252>,
+        value: ContractAddress,
     }
 
 
@@ -1517,6 +1531,15 @@ mod EventEmitter {
             ref self: ContractState, key: felt252, data_bytes: Array<felt252>, value: bool
         ) {
             self.emit(SetBool { key, data_bytes, value });
+        }
+
+        fn emit_set_address(
+            ref self: ContractState,
+            key: felt252,
+            data_bytes: Array<felt252>,
+            value: ContractAddress
+        ) {
+            self.emit(SetAddress { key, data_bytes, value });
         }
     }
 }
