@@ -131,11 +131,7 @@ mod FeeHandler {
                 }
 
                 fee_utils::claim_fees(
-                    data_store,
-                    self.event_emitter.read(),
-                    *market.at(i),
-                    *tokens.at(i),
-                    receiver
+                    data_store, self.event_emitter.read(), *market.at(i), *tokens.at(i), receiver
                 );
 
                 i += 1;
