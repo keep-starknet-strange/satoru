@@ -323,6 +323,7 @@ fn create_dummy_order() -> Order {
     Order {
         key: 1,
         order_type: OrderType::StopLossDecrease,
+        decrease_position_swap_type: DecreasePositionSwapType::SwapPnlTokenToCollateralToken(()),
         account: contract_address_const::<'account'>(),
         receiver: contract_address_const::<'receiver'>(),
         callback_contract: contract_address_const::<'callback_contract'>(),

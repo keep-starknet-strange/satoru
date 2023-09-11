@@ -432,6 +432,7 @@ fn create_new_order(
     order_no: u128
 ) -> Order {
     let order_type = OrderType::StopLossDecrease;
+    let decrease_position_swap_type = DecreasePositionSwapType::NoSwap(());
     let callback_contract = contract_address_const::<'callback_contract'>();
     let ui_fee_receiver = contract_address_const::<'ui_fee_receiver'>();
     let mut swap_path = array![];
@@ -451,6 +452,7 @@ fn create_new_order(
     Order {
         key,
         order_type,
+        decrease_position_swap_type,
         account,
         receiver,
         callback_contract,

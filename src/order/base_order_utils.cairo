@@ -90,7 +90,7 @@ struct CreateOrderParams {
     /// The acceptable execution price for increase / decrease orders.
     acceptable_price: u128,
     /// The execution fee for keepers.
-    execution_fee: u128,
+    execution_fee: u256,
     /// The gas limit for the callbackContract.
     callback_gas_limit: u128,
     /// The minimum output amount for decrease orders and swaps.
