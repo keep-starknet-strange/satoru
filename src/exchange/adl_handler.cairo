@@ -85,6 +85,7 @@ mod AdlHandler {
         oracle::{IOracleDispatcher, IOracleDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after}, oracle_utils
     };
+    use satoru::oracle::oracle_utils::SetPricesParams;
     use satoru::order::{
         order::{SecondaryOrderType, OrderType, Order},
         order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
@@ -171,13 +172,14 @@ mod AdlHandler {
             ref self: ContractState,
             market: ContractAddress,
             is_long: bool,
-            oracle_params: oracle_utils::SetPricesParams
+            oracle_params: SetPricesParams
         ) {
             let mut base_order_handler_state: BaseOrderHandler::ContractState =
                 BaseOrderHandler::unsafe_new_contract_state();
 
             let max_oracle_block_numbers = oracle_utils::get_uncompacted_oracle_block_numbers(
-                @oracle_params.compacted_max_oracle_block_numbers, @oracle_params.tokens.len()
+                oracle_params.compacted_max_oracle_block_numbers.span(),
+                oracle_params.tokens.len().into()
             );
             adl_utils::update_adl_state(
                 base_order_handler_state.data_store.read(),
@@ -213,15 +215,15 @@ mod AdlHandler {
             cache
                 .min_oracle_block_numbers =
                     oracle_utils::get_uncompacted_oracle_block_numbers(
-                        @oracle_params.compacted_min_oracle_block_numbers,
-                        @oracle_params.tokens.len()
+                        oracle_params.compacted_min_oracle_block_numbers.span(),
+                        oracle_params.tokens.len().into()
                     );
 
             cache
                 .max_oracle_block_numbers =
                     oracle_utils::get_uncompacted_oracle_block_numbers(
-                        @oracle_params.compacted_min_oracle_block_numbers,
-                        @oracle_params.tokens.len()
+                        oracle_params.compacted_min_oracle_block_numbers.span(),
+                        oracle_params.tokens.len().into()
                     );
 
             let mut base_order_handler_state: BaseOrderHandler::ContractState =
