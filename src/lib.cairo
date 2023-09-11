@@ -138,6 +138,7 @@ mod utils {
     mod error;
     mod global_reentrancy_guard;
     mod precision;
+    mod span32;
     mod u128_mask;
     mod hash;
     mod store_arrays;

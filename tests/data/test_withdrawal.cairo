@@ -6,7 +6,8 @@ use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
-use satoru::withdrawal::withdrawal::{Withdrawal};
+use satoru::withdrawal::withdrawal::Withdrawal;
+use satoru::utils::span32::{Span32, Array32Trait};
 use debug::PrintTrait;
 
 /// Utility function to setup the test environment.
@@ -59,14 +60,14 @@ fn test_set_withdrawal_new_and_override() {
     let (caller_address, role_store, data_store) = setup();
     let account = 'account'.try_into().unwrap();
     // TODO make these Span32
-    let long_token_swap_path: Span<ContractAddress> = array![
+    let long_token_swap_path: Span32<ContractAddress> = array![
         1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
     ]
-        .span();
-    let short_token_swap_path: Span<ContractAddress> = array![
+        .span32();
+    let short_token_swap_path: Span32<ContractAddress> = array![
         4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()
     ]
-        .span();
+        .span32();
 
     let key: felt252 = 123456789;
     let mut withdrawal = Withdrawal {
@@ -76,8 +77,8 @@ fn test_set_withdrawal_new_and_override() {
         callback_contract: 1.try_into().unwrap(),
         ui_fee_receiver: 1.try_into().unwrap(),
         market: 1.try_into().unwrap(),
-        // long_token_swap_path,
-        // short_token_swap_path,
+        long_token_swap_path,
+        short_token_swap_path,
         market_token_amount: 1,
         min_long_token_amount: 1,
         min_short_token_amount: 1,
@@ -127,14 +128,14 @@ fn test_set_withdrawal_should_panic_zero() {
     let (caller_address, role_store, data_store) = setup();
     let account = 0.try_into().unwrap();
     // TODO make these Span32
-    let long_token_swap_path: Span<ContractAddress> = array![
+    let long_token_swap_path: Span32<ContractAddress> = array![
         1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
     ]
-        .span();
-    let short_token_swap_path: Span<ContractAddress> = array![
+        .span32();
+    let short_token_swap_path: Span32<ContractAddress> = array![
         4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()
     ]
-        .span();
+        .span32();
 
     let key: felt252 = 123456789;
     let mut withdrawal = Withdrawal {
@@ -144,8 +145,8 @@ fn test_set_withdrawal_should_panic_zero() {
         callback_contract: 1.try_into().unwrap(),
         ui_fee_receiver: 1.try_into().unwrap(),
         market: 1.try_into().unwrap(),
-        // long_token_swap_path,
-        // short_token_swap_path,
+        long_token_swap_path,
+        short_token_swap_path,
         market_token_amount: 1,
         min_long_token_amount: 1,
         min_short_token_amount: 1,
@@ -172,14 +173,14 @@ fn test_set_withdrawal_should_panic_not_controller() {
     role_store.revoke_role(caller_address, role::CONTROLLER);
     let account = 'account'.try_into().unwrap();
     // TODO make these Span32
-    let long_token_swap_path: Span<ContractAddress> = array![
+    let long_token_swap_path: Span32<ContractAddress> = array![
         1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
     ]
-        .span();
-    let short_token_swap_path: Span<ContractAddress> = array![
+        .span32();
+    let short_token_swap_path: Span32<ContractAddress> = array![
         4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()
     ]
-        .span();
+        .span32();
 
     let key: felt252 = 123456789;
     let mut withdrawal = Withdrawal {
@@ -189,8 +190,8 @@ fn test_set_withdrawal_should_panic_not_controller() {
         callback_contract: 1.try_into().unwrap(),
         ui_fee_receiver: 1.try_into().unwrap(),
         market: 1.try_into().unwrap(),
-        // long_token_swap_path,
-        // short_token_swap_path,
+        long_token_swap_path,
+        short_token_swap_path,
         market_token_amount: 1,
         min_long_token_amount: 1,
         min_short_token_amount: 1,
@@ -216,14 +217,14 @@ fn test_get_withdrawal_keys() {
     let account = 'account'.try_into().unwrap();
     role_store.revoke_role(caller_address, role::CONTROLLER);
     // TODO make these Span32
-    let long_token_swap_path: Span<ContractAddress> = array![
+    let long_token_swap_path: Span32<ContractAddress> = array![
         1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
     ]
-        .span();
-    let short_token_swap_path: Span<ContractAddress> = array![
+        .span32();
+    let short_token_swap_path: Span32<ContractAddress> = array![
         4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()
     ]
-        .span();
+        .span32();
 
     let key: felt252 = 123456789;
     let mut withdrawal = Withdrawal {
@@ -233,8 +234,8 @@ fn test_get_withdrawal_keys() {
         callback_contract: 1.try_into().unwrap(),
         ui_fee_receiver: 1.try_into().unwrap(),
         market: 1.try_into().unwrap(),
-        // long_token_swap_path,
-        // short_token_swap_path,
+        long_token_swap_path,
+        short_token_swap_path,
         market_token_amount: 1,
         min_long_token_amount: 1,
         min_short_token_amount: 1,
@@ -265,14 +266,14 @@ fn test_remove_only_withdrawal() {
     let (caller_address, role_store, data_store) = setup();
     let account = 'account'.try_into().unwrap();
     // TODO make these Span32
-    let long_token_swap_path: Span<ContractAddress> = array![
+    let long_token_swap_path: Span32<ContractAddress> = array![
         1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
     ]
-        .span();
-    let short_token_swap_path: Span<ContractAddress> = array![
+        .span32();
+    let short_token_swap_path: Span32<ContractAddress> = array![
         4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()
     ]
-        .span();
+        .span32();
 
     let key: felt252 = 123456789;
     let mut withdrawal = Withdrawal {
@@ -282,8 +283,8 @@ fn test_remove_only_withdrawal() {
         callback_contract: 1.try_into().unwrap(),
         ui_fee_receiver: 1.try_into().unwrap(),
         market: 1.try_into().unwrap(),
-        // long_token_swap_path,
-        // short_token_swap_path,
+        long_token_swap_path,
+        short_token_swap_path,
         market_token_amount: 1,
         min_long_token_amount: 1,
         min_short_token_amount: 1,
@@ -317,14 +318,14 @@ fn test_remove_1_of_n_withdrawal() {
     let (caller_address, role_store, data_store) = setup();
     let account = 'account'.try_into().unwrap();
     // TODO make these Span32
-    let long_token_swap_path: Span<ContractAddress> = array![
+    let long_token_swap_path: Span32<ContractAddress> = array![
         1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
     ]
-        .span();
-    let short_token_swap_path: Span<ContractAddress> = array![
+        .span32();
+    let short_token_swap_path: Span32<ContractAddress> = array![
         4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()
     ]
-        .span();
+        .span32();
 
     let key_1: felt252 = 123456789;
     let mut withdrawal_1 = Withdrawal {
@@ -334,8 +335,8 @@ fn test_remove_1_of_n_withdrawal() {
         callback_contract: 1.try_into().unwrap(),
         ui_fee_receiver: 1.try_into().unwrap(),
         market: 1.try_into().unwrap(),
-        // long_token_swap_path,
-        // short_token_swap_path,
+        long_token_swap_path,
+        short_token_swap_path,
         market_token_amount: 1,
         min_long_token_amount: 1,
         min_short_token_amount: 1,
@@ -353,8 +354,8 @@ fn test_remove_1_of_n_withdrawal() {
         callback_contract: 1.try_into().unwrap(),
         ui_fee_receiver: 1.try_into().unwrap(),
         market: 1.try_into().unwrap(),
-        // long_token_swap_path,
-        // short_token_swap_path,
+        long_token_swap_path,
+        short_token_swap_path,
         market_token_amount: 1,
         min_long_token_amount: 1,
         min_short_token_amount: 1,
@@ -395,14 +396,14 @@ fn test_remove_withdrawal_should_panic_not_controller() {
     let account = 'account'.try_into().unwrap();
     role_store.revoke_role(caller_address, role::CONTROLLER);
     // TODO make these Span32
-    let long_token_swap_path: Span<ContractAddress> = array![
+    let long_token_swap_path: Span32<ContractAddress> = array![
         1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
     ]
-        .span();
-    let short_token_swap_path: Span<ContractAddress> = array![
+        .span32();
+    let short_token_swap_path: Span32<ContractAddress> = array![
         4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()
     ]
-        .span();
+        .span32();
 
     let key: felt252 = 123456789;
     let mut withdrawal = Withdrawal {
@@ -412,8 +413,8 @@ fn test_remove_withdrawal_should_panic_not_controller() {
         callback_contract: 1.try_into().unwrap(),
         ui_fee_receiver: 1.try_into().unwrap(),
         market: 1.try_into().unwrap(),
-        // long_token_swap_path,
-        // short_token_swap_path,
+        long_token_swap_path,
+        short_token_swap_path,
         market_token_amount: 1,
         min_long_token_amount: 1,
         min_short_token_amount: 1,
