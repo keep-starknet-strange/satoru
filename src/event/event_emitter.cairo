@@ -365,6 +365,11 @@ trait IEventEmitter<TContractState> {
     fn emit_signal_set_fee_receiver(
         ref self: TContractState, action_key: felt252, account: ContractAddress
     );
+
+    /// Emits the `SetFeeReceiver` event.
+    fn emit_set_fee_receiver(
+        ref self: TContractState, action_key: felt252, account: ContractAddress
+    );
 }
 
 #[starknet::contract]
@@ -448,6 +453,7 @@ mod EventEmitter {
         SignalRemoveOracleSigner: SignalRemoveOracleSigner,
         RemoveOracleSigner: RemoveOracleSigner,
         SignalSetFeeReceiver: SignalSetFeeReceiver,
+        SetFeeReceiver: SetFeeReceiver,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -939,6 +945,12 @@ mod EventEmitter {
 
     #[derive(Drop, starknet::Event)]
     struct SignalSetFeeReceiver {
+        action_key: felt252,
+        account: ContractAddress
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SetFeeReceiver {
         action_key: felt252,
         account: ContractAddress
     }
@@ -1696,6 +1708,13 @@ mod EventEmitter {
             ref self: ContractState, action_key: felt252, account: ContractAddress
         ) {
             self.emit(SignalSetFeeReceiver { action_key, account });
+        }
+
+        /// Emits the `SetFeeReceiver` event.
+        fn emit_set_fee_receiver(
+            ref self: ContractState, action_key: felt252, account: ContractAddress
+        ) {
+            self.emit(SetFeeReceiver { action_key, account });
         }
     }
 }

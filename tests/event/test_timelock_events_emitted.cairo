@@ -201,3 +201,42 @@ fn test_emit_signal_set_fee_receiver() {
     // Assert there are no more events.
     assert(spy.events.len() == 0, 'There should be no events');
 }
+
+#[test]
+fn test_emit_set_fee_receiver() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup_event_emitter();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let action_key = 'SetFeeReceiver';
+    let value = contract_address_const::<'account'>();
+
+    // Create the expected data.
+    let mut expected_data: Array<felt252> = array![action_key];
+    expected_data.append(value.into());
+
+    // Emit the event.
+    event_emitter.emit_set_fee_receiver(action_key, value);
+
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address,
+                    name: 'SetFeeReceiver',
+                    keys: array![],
+                    data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}
