@@ -10,6 +10,43 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 
 
 #[test]
+fn test_emit_execution_fee_refund() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup_event_emitter();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let receiver = contract_address_const::<'receiver'>();
+    let refund_fee_amount: u256 = 1;
+
+    // Create the expected data.
+    let mut expected_data: Array<felt252> = array![receiver.into()];
+    refund_fee_amount.serialize(ref expected_data);
+    // Emit the event.
+    event_emitter.emit_execution_fee_refund(receiver, refund_fee_amount);
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address,
+                    name: 'ExecutionFeeRefund',
+                    keys: array![],
+                    data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}
+
+#[test]
 fn test_emit_keeper_execution_fee() {
     // *********************************************************************************************
     // *                              SETUP                                                        *

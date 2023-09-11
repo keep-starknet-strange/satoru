@@ -427,6 +427,11 @@ trait IEventEmitter<TContractState> {
     fn emit_keeper_execution_fee(
         ref self: TContractState, keeper: ContractAddress, execution_fee_amount: u256
     );
+
+    /// Emits the `ExecutionFeeRefund` event.
+    fn emit_execution_fee_refund(
+        ref self: TContractState, receiver: ContractAddress, refund_fee_amount: u256
+    );
 }
 
 #[starknet::contract]
@@ -520,6 +525,7 @@ mod EventEmitter {
         SignalPendingAction: SignalPendingAction,
         ClearPendingAction: ClearPendingAction,
         KeeperExecutionFee: KeeperExecutionFee,
+        ExecutionFeeRefund: ExecutionFeeRefund,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1085,6 +1091,12 @@ mod EventEmitter {
     struct KeeperExecutionFee {
         keeper: ContractAddress,
         execution_fee_amount: u256
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct ExecutionFeeRefund {
+        receiver: ContractAddress,
+        refund_fee_amount: u256
     }
 
 
@@ -1954,6 +1966,13 @@ mod EventEmitter {
             ref self: ContractState, keeper: ContractAddress, execution_fee_amount: u256
         ) {
             self.emit(KeeperExecutionFee { keeper, execution_fee_amount });
+        }
+
+        /// Emits the `ExecutionFeeRefund` event.
+        fn emit_execution_fee_refund(
+            ref self: ContractState, receiver: ContractAddress, refund_fee_amount: u256
+        ) {
+            self.emit(ExecutionFeeRefund { receiver, refund_fee_amount });
         }
     }
 }
