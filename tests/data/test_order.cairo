@@ -429,7 +429,7 @@ fn create_new_order(
     is_long: bool,
     should_unwrap_native_token: bool,
     is_frozen: bool,
-    order_no: u128
+    order_no: u256
 ) -> Order {
     let order_type = OrderType::StopLossDecrease;
     let decrease_position_swap_type = DecreasePositionSwapType::NoSwap(());
