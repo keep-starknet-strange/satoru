@@ -559,6 +559,15 @@ trait IEventEmitter<TContractState> {
     fn emit_ui_fee_factor_updated(
         ref self: TContractState, account: ContractAddress, ui_fee_factor: u128
     );
+
+    /// Emits the `OraclePriceUpdate` event.
+    fn emit_oracle_price_update(
+        ref self: TContractState,
+        token: ContractAddress,
+        min_price: u128,
+        max_price: u128,
+        is_price_feed: bool
+    );
 }
 
 #[starknet::contract]
@@ -666,7 +675,8 @@ mod EventEmitter {
         ClaimableFundingPerSizeUpdatd: ClaimableFundingPerSizeUpdatd,
         FundingFeesClaimed: FundingFeesClaimed,
         CollateralClaimed: CollateralClaimed,
-        UiFeeFactorUpdated: UiFeeFactorUpdated
+        UiFeeFactorUpdated: UiFeeFactorUpdated,
+        OraclePriceUpdate: OraclePriceUpdate
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1350,6 +1360,14 @@ mod EventEmitter {
     struct UiFeeFactorUpdated {
         account: ContractAddress,
         ui_fee_factor: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct OraclePriceUpdate {
+        token: ContractAddress,
+        min_price: u128,
+        max_price: u128,
+        is_price_feed: bool
     }
 
 
@@ -2415,6 +2433,17 @@ mod EventEmitter {
             ref self: ContractState, account: ContractAddress, ui_fee_factor: u128
         ) {
             self.emit(UiFeeFactorUpdated { account, ui_fee_factor });
+        }
+
+        /// Emits the `OraclePriceUpdate` event.
+        fn emit_oracle_price_update(
+            ref self: ContractState,
+            token: ContractAddress,
+            min_price: u128,
+            max_price: u128,
+            is_price_feed: bool
+        ) {
+            self.emit(OraclePriceUpdate { token, min_price, max_price, is_price_feed });
         }
     }
 }
