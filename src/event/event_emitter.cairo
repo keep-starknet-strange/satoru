@@ -482,14 +482,24 @@ trait IEventEmitter<TContractState> {
         next_value: u256
     );
 
-     /// Emits the `VirtualPositionInventoryUpdated` event.
-        fn emit_virtual_position_inventory_updated(
-            ref self: TContractState,
-            token: ContractAddress,
-            virtual_token_id: felt252,
-            delta: u256,
-            next_value: u256
-        );
+    /// Emits the `VirtualPositionInventoryUpdated` event.
+    fn emit_virtual_position_inventory_updated(
+        ref self: TContractState,
+        token: ContractAddress,
+        virtual_token_id: felt252,
+        delta: u256,
+        next_value: u256
+    );
+
+    /// Emits the `CollateralSumUpdated` event.
+    fn emit_collateral_sum_updated(
+        ref self: TContractState,
+        market: ContractAddress,
+        collateral_token: ContractAddress,
+        is_long: bool,
+        delta: u256,
+        next_value: u256
+    );
 }
 
 #[starknet::contract]
@@ -590,7 +600,8 @@ mod EventEmitter {
         OpenInterestInTokensUpdated: OpenInterestInTokensUpdated,
         OpenInterestUpdated: OpenInterestUpdated,
         VirtualSwapInventoryUpdated: VirtualSwapInventoryUpdated,
-        VirtualPositionInventoryUpdated:VirtualPositionInventoryUpdated
+        VirtualPositionInventoryUpdated: VirtualPositionInventoryUpdated,
+        CollateralSumUpdated: CollateralSumUpdated,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1211,6 +1222,15 @@ mod EventEmitter {
     struct VirtualPositionInventoryUpdated {
         token: ContractAddress,
         virtual_token_id: felt252,
+        delta: u256,
+        next_value: u256
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct CollateralSumUpdated {
+        market: ContractAddress,
+        collateral_token: ContractAddress,
+        is_long: bool,
         delta: u256,
         next_value: u256
     }
@@ -2174,9 +2194,22 @@ mod EventEmitter {
         ) {
             self
                 .emit(
-                    VirtualPositionInventoryUpdated {
-                        token, virtual_token_id, delta, next_value
-                    }
+                    VirtualPositionInventoryUpdated { token, virtual_token_id, delta, next_value }
+                );
+        }
+
+        /// Emits the `CollateralSumUpdated` event.
+        fn emit_collateral_sum_updated(
+            ref self: ContractState,
+            market: ContractAddress,
+            collateral_token: ContractAddress,
+            is_long: bool,
+            delta: u256,
+            next_value: u256
+        ) {
+            self
+                .emit(
+                    CollateralSumUpdated { market, collateral_token, is_long, delta, next_value }
                 );
         }
     }

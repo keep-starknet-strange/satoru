@@ -319,7 +319,6 @@ fn test_emit_virtual_position_inventory_updated() {
 
     // Create dummy data.
     let token = contract_address_const::<'token'>();
-    let is_long_token: bool = true;
     let virtual_token_id = 'virtual_token_id';
     let delta: u256 = 1;
     let next_value: u256 = 2;
@@ -339,6 +338,50 @@ fn test_emit_virtual_position_inventory_updated() {
                 Event {
                     from: contract_address,
                     name: 'VirtualPositionInventoryUpdated',
+                    keys: array![],
+                    data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}
+
+#[test]
+fn test_emit_collateral_sum_updated() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup_event_emitter();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let market = contract_address_const::<'market'>();
+    let collateral_token = contract_address_const::<'collateral_token'>();
+    let is_long: bool = true;
+    let delta: u256 = 1;
+    let next_value: u256 = 2;
+
+    // Create the expected data.
+    let mut expected_data: Array<felt252> = array![
+        market.into(), collateral_token.into(), is_long.into()
+    ];
+    delta.serialize(ref expected_data);
+    next_value.serialize(ref expected_data);
+
+    // Emit the event.
+    event_emitter.emit_collateral_sum_updated(market, collateral_token, is_long, delta, next_value);
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address,
+                    name: 'CollateralSumUpdated',
                     keys: array![],
                     data: expected_data
                 }
