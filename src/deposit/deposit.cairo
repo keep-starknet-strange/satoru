@@ -35,7 +35,7 @@ struct Deposit {
     /// The minimum acceptable number of liquidity tokens.
     min_market_tokens: u128,
     /// The block that the deposit was last updated at sending funds back to the user in case the deposit gets cancelled.
-    updated_at_block: u128,
+    updated_at_block: u64,
     /// The execution fee for keepers.
     execution_fee: u128,
     /// The gas limit for the callback contract.
