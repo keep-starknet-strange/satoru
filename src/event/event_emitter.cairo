@@ -20,6 +20,7 @@ use satoru::order::order::{Order, SecondaryOrderType};
 
 //TODO: OrderCollatDeltaAmountAutoUpdtd must be renamed back to OrderCollateralDeltaAmountAutoUpdated when string will be allowed as event argument
 //TODO: AfterWithdrawalCancelError must be renamed back to AfterWithdrawalCancellationError when string will be allowed as event argument
+//TODO: CumulativeBorrowingFactorUpdatd must be renamed back to CumulativeBorrowingFactorUpdated when string will be allowed as event argument
 
 // *************************************************************************
 //                  Interface of the `EventEmitter` contract.
@@ -500,6 +501,15 @@ trait IEventEmitter<TContractState> {
         delta: u256,
         next_value: u256
     );
+
+    /// Emits the `CumulativeBorrowingFactorUpdatd` event.
+    fn emit_cumulative_borrowing_factor_updated(
+        ref self: TContractState,
+        market: ContractAddress,
+        is_long: bool,
+        delta: u256,
+        next_value: u256
+    );
 }
 
 #[starknet::contract]
@@ -602,6 +612,7 @@ mod EventEmitter {
         VirtualSwapInventoryUpdated: VirtualSwapInventoryUpdated,
         VirtualPositionInventoryUpdated: VirtualPositionInventoryUpdated,
         CollateralSumUpdated: CollateralSumUpdated,
+        CumulativeBorrowingFactorUpdatd: CumulativeBorrowingFactorUpdatd,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1217,7 +1228,6 @@ mod EventEmitter {
         next_value: u256
     }
 
-
     #[derive(Drop, starknet::Event)]
     struct VirtualPositionInventoryUpdated {
         token: ContractAddress,
@@ -1230,6 +1240,14 @@ mod EventEmitter {
     struct CollateralSumUpdated {
         market: ContractAddress,
         collateral_token: ContractAddress,
+        is_long: bool,
+        delta: u256,
+        next_value: u256
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct CumulativeBorrowingFactorUpdatd {
+        market: ContractAddress,
         is_long: bool,
         delta: u256,
         next_value: u256
@@ -2211,6 +2229,17 @@ mod EventEmitter {
                 .emit(
                     CollateralSumUpdated { market, collateral_token, is_long, delta, next_value }
                 );
+        }
+
+        /// Emits the `CumulativeBorrowingFactorUpdatd` event.
+        fn emit_cumulative_borrowing_factor_updated(
+            ref self: ContractState,
+            market: ContractAddress,
+            is_long: bool,
+            delta: u256,
+            next_value: u256
+        ) {
+            self.emit(CumulativeBorrowingFactorUpdatd { market, is_long, delta, next_value });
         }
     }
 }
