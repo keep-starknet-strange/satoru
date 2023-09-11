@@ -729,6 +729,43 @@ fn test_emit_collateral_claimed() {
     assert(spy.events.len() == 0, 'There should be no events');
 }
 
+#[test]
+fn test_emit_ui_fee_factor_updated() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup_event_emitter();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let account = contract_address_const::<'account'>();
+    let ui_fee_factor: u128 = 1;
+
+    // Create the expected data.
+    let expected_data: Array<felt252> = array![account.into(), ui_fee_factor.into()];
+
+    // Emit the event.
+    event_emitter.emit_ui_fee_factor_updated(account, ui_fee_factor);
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address,
+                    name: 'UiFeeFactorUpdated',
+                    keys: array![],
+                    data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}
+
 fn create_dummy_market_pool_value_info() -> MarketPoolValueInfo {
     MarketPoolValueInfo {
         pool_value: 1,

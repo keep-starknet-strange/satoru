@@ -554,6 +554,11 @@ trait IEventEmitter<TContractState> {
         amount: u128,
         next_pool_value: u128
     );
+
+    /// Emits the `UiFeeFactorUpdated` event.
+    fn emit_ui_fee_factor_updated(
+        ref self: TContractState, account: ContractAddress, ui_fee_factor: u128
+    );
 }
 
 #[starknet::contract]
@@ -660,7 +665,8 @@ mod EventEmitter {
         FundingFeeAmountPerSizeUpdated: FundingFeeAmountPerSizeUpdated,
         ClaimableFundingPerSizeUpdatd: ClaimableFundingPerSizeUpdatd,
         FundingFeesClaimed: FundingFeesClaimed,
-        CollateralClaimed: CollateralClaimed
+        CollateralClaimed: CollateralClaimed,
+        UiFeeFactorUpdated: UiFeeFactorUpdated
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1338,6 +1344,12 @@ mod EventEmitter {
         time_key: u128,
         amount: u128,
         next_pool_value: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct UiFeeFactorUpdated {
+        account: ContractAddress,
+        ui_fee_factor: u128
     }
 
 
@@ -2396,6 +2408,13 @@ mod EventEmitter {
                         market, token, account, receiver, time_key, amount, next_pool_value
                     }
                 );
+        }
+
+        /// Emits the `UiFeeFactorUpdated` event.
+        fn emit_ui_fee_factor_updated(
+            ref self: ContractState, account: ContractAddress, ui_fee_factor: u128
+        ) {
+            self.emit(UiFeeFactorUpdated { account, ui_fee_factor });
         }
     }
 }
