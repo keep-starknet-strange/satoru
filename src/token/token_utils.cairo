@@ -8,6 +8,7 @@ mod TokenUtils {
     use satoru::data::keys;
     use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
     use satoru::utils::account_utils::validate_receiver;
+    use satoru::bank::error::BankError;
 
 
     // Transfers the specified amount of `token` from the caller to `receiver`.
@@ -25,6 +26,10 @@ mod TokenUtils {
         if (amount.is_zero()) {
             return ();
         }
+        validate_receiver(receiver);
+
+        // TODO: implement gas limit
+
         // transfer tokens to receiver and return if it suceeeds
         let amount_u256 = u256_from_felt252(amount.into());
         let success0 = IERC20Dispatcher { contract_address: token }
@@ -41,6 +46,6 @@ mod TokenUtils {
             .transfer(recipient: holding_address, amount: amount_u256);
 
         // throw error if transfer fails
-        assert(success1 == true, 'token_transfer_failed');
+        assert(success1 == true, BankError::TOKEN_TRANSFER_FAILED);
     }
 }

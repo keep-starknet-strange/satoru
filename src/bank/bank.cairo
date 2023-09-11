@@ -50,9 +50,9 @@ mod Bank {
     // Local imports.
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::role::role;
     use super::IBank;
     use satoru::bank::error::BankError;
+    use satoru::role::role_module::{RoleModule, IRoleModule};
     use satoru::token::token_utils::TokenUtils;
 
     // *************************************************************************
@@ -80,6 +80,8 @@ mod Bank {
         data_store_address: ContractAddress,
         role_store_address: ContractAddress,
     ) {
+        let mut role_module: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
+        IRoleModule::initialize(ref role_module, role_store_address);
         self.initialize(data_store_address, role_store_address);
     }
 
@@ -109,7 +111,8 @@ mod Bank {
             amount: u128,
         ) {
             // assert that caller is a controller
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            let mut role_module: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
+            role_module.only_controller();
             self.transfer_out_internal(token, receiver, amount);
         }
     }
