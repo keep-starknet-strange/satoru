@@ -326,8 +326,8 @@ trait IEventEmitter<TContractState> {
         ref self: TContractState, key: felt252, data_bytes: Array<felt252>, value: ContractAddress
     );
 
-    /// Emits the `SetBytes32` event.
-    fn emit_set_bytes32(
+    /// Emits the `SetFelt252` event.
+    fn emit_set_felt252(
         ref self: TContractState, key: felt252, data_bytes: Array<felt252>, value: felt252
     );
 
@@ -425,7 +425,7 @@ mod EventEmitter {
         AdlStateUpdated: AdlStateUpdated,
         SetBool: SetBool,
         SetAddress: SetAddress,
-        SetBytes32: SetBytes32,
+        SetFelt252: SetFelt252,
         SetUint: SetUint,
         SetInt: SetInt,
         SignalAddOracleSigner: SignalAddOracleSigner,
@@ -875,7 +875,7 @@ mod EventEmitter {
     }
 
     #[derive(Drop, starknet::Event)]
-    struct SetBytes32 {
+    struct SetFelt252 {
         key: felt252,
         data_bytes: Array<felt252>,
         value: felt252,
@@ -1607,13 +1607,13 @@ mod EventEmitter {
             self.emit(SetAddress { key, data_bytes, value });
         }
 
-        fn emit_set_bytes32(
+        fn emit_set_felt252(
             ref self: ContractState, key: felt252, data_bytes: Array<felt252>, value: felt252
         ) {
-            self.emit(SetBytes32 { key, data_bytes, value });
+            self.emit(SetFelt252 { key, data_bytes, value });
         }
 
-        /// Emits the `SetBytes32` event.
+        /// Emits the `SetFelt252` event.
         fn emit_set_uint(
             ref self: ContractState, key: felt252, data_bytes: Array<felt252>, value: u256
         ) {

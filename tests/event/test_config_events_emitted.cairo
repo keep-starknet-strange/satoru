@@ -84,7 +84,7 @@ fn test_emit_set_address() {
 }
 
 #[test]
-fn test_emit_set_bytes32() {
+fn test_emit_set_felt252() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -106,13 +106,13 @@ fn test_emit_set_bytes32() {
     expected_data.append(value.into());
 
     // Emit the event.
-    event_emitter.emit_set_bytes32(key, data, value);
+    event_emitter.emit_set_felt252(key, data, value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
                 Event {
-                    from: contract_address, name: 'SetBytes32', keys: array![], data: expected_data
+                    from: contract_address, name: 'SetFelt252', keys: array![], data: expected_data
                 }
             ]
         );
