@@ -449,7 +449,7 @@ trait IEventEmitter<TContractState> {
         market: ContractAddress,
         token: ContractAddress,
         delta: u256,
-        nextValue: u256
+        next_value: u256
     );
 
     /// Emits the `OpenInterestInTokensUpdated` event.
@@ -459,7 +459,7 @@ trait IEventEmitter<TContractState> {
         collateral_token: ContractAddress,
         is_long: bool,
         delta: u256,
-        nextValue: u256
+        next_value: u256
     );
 
     /// Emits the `OpenInterestUpdated` event.
@@ -469,7 +469,17 @@ trait IEventEmitter<TContractState> {
         collateral_token: ContractAddress,
         is_long: bool,
         delta: u256,
-        nextValue: u256
+        next_value: u256
+    );
+
+    /// Emits the `VirtualSwapInventoryUpdated` event.
+    fn emit_virtual_swap_inventory_updated(
+        ref self: TContractState,
+        market: ContractAddress,
+        is_long_token: bool,
+        virtual_market_id: felt252,
+        delta: u256,
+        next_value: u256
     );
 }
 
@@ -570,6 +580,7 @@ mod EventEmitter {
         PoolAmountUpdated: PoolAmountUpdated,
         OpenInterestInTokensUpdated: OpenInterestInTokensUpdated,
         OpenInterestUpdated: OpenInterestUpdated,
+        VirtualSwapInventoryUpdated: VirtualSwapInventoryUpdated,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1155,7 +1166,7 @@ mod EventEmitter {
         market: ContractAddress,
         token: ContractAddress,
         delta: u256,
-        nextValue: u256
+        next_value: u256
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1164,7 +1175,7 @@ mod EventEmitter {
         collateral_token: ContractAddress,
         is_long: bool,
         delta: u256,
-        nextValue: u256
+        next_value: u256
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1173,7 +1184,16 @@ mod EventEmitter {
         collateral_token: ContractAddress,
         is_long: bool,
         delta: u256,
-        nextValue: u256
+        next_value: u256
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct VirtualSwapInventoryUpdated {
+        market: ContractAddress,
+        is_long_token: bool,
+        virtual_market_id: felt252,
+        delta: u256,
+        next_value: u256
     }
 
 
@@ -2074,9 +2094,9 @@ mod EventEmitter {
             market: ContractAddress,
             token: ContractAddress,
             delta: u256,
-            nextValue: u256
+            next_value: u256
         ) {
-            self.emit(PoolAmountUpdated { market, token, delta, nextValue });
+            self.emit(PoolAmountUpdated { market, token, delta, next_value });
         }
 
         /// Emits the `OpenInterestInTokensUpdated` event.
@@ -2086,12 +2106,12 @@ mod EventEmitter {
             collateral_token: ContractAddress,
             is_long: bool,
             delta: u256,
-            nextValue: u256
+            next_value: u256
         ) {
             self
                 .emit(
                     OpenInterestInTokensUpdated {
-                        market, collateral_token, is_long, delta, nextValue
+                        market, collateral_token, is_long, delta, next_value
                     }
                 );
         }
@@ -2103,9 +2123,26 @@ mod EventEmitter {
             collateral_token: ContractAddress,
             is_long: bool,
             delta: u256,
-            nextValue: u256
+            next_value: u256
         ) {
-            self.emit(OpenInterestUpdated { market, collateral_token, is_long, delta, nextValue });
+            self.emit(OpenInterestUpdated { market, collateral_token, is_long, delta, next_value });
+        }
+
+        /// Emits the `VirtualSwapInventoryUpdated` event.
+        fn emit_virtual_swap_inventory_updated(
+            ref self: ContractState,
+            market: ContractAddress,
+            is_long_token: bool,
+            virtual_market_id: felt252,
+            delta: u256,
+            next_value: u256
+        ) {
+            self
+                .emit(
+                    VirtualSwapInventoryUpdated {
+                        market, is_long_token, virtual_market_id, delta, next_value
+                    }
+                );
         }
     }
 }

@@ -64,14 +64,14 @@ fn test_emit_pool_amount_updated() {
     let market = contract_address_const::<'market'>();
     let token = contract_address_const::<'token'>();
     let delta: u256 = 1;
-    let nextValue: u256 = 2;
+    let next_value: u256 = 2;
 
     // Create the expected data.
     let mut expected_data: Array<felt252> = array![market.into(), token.into()];
     delta.serialize(ref expected_data);
-    nextValue.serialize(ref expected_data);
+    next_value.serialize(ref expected_data);
     // Emit the event.
-    event_emitter.emit_pool_amount_updated(market, token, delta, nextValue);
+    event_emitter.emit_pool_amount_updated(market, token, delta, next_value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
@@ -105,15 +105,15 @@ fn test_emit_swap_impact_pool_amount_updated() {
     let market = contract_address_const::<'market'>();
     let token = contract_address_const::<'token'>();
     let delta: u128 = 1;
-    let nextValue: u128 = 2;
+    let next_value: u128 = 2;
 
     // Create the expected data.
     let expected_data: Array<felt252> = array![
-        market.into(), token.into(), delta.into(), nextValue.into()
+        market.into(), token.into(), delta.into(), next_value.into()
     ];
 
     // Emit the event.
-    event_emitter.emit_swap_impact_pool_amount_updated(market, token, delta, nextValue);
+    event_emitter.emit_swap_impact_pool_amount_updated(market, token, delta, next_value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
@@ -145,13 +145,13 @@ fn test_emit_position_impact_pool_amount_updated() {
     // Create dummy data.
     let market = contract_address_const::<'market'>();
     let delta: u128 = 1;
-    let nextValue: u128 = 2;
+    let next_value: u128 = 2;
 
     // Create the expected data.
-    let expected_data: Array<felt252> = array![market.into(), delta.into(), nextValue.into()];
+    let expected_data: Array<felt252> = array![market.into(), delta.into(), next_value.into()];
 
     // Emit the event.
-    event_emitter.emit_position_impact_pool_amount_updated(market, delta, nextValue);
+    event_emitter.emit_position_impact_pool_amount_updated(market, delta, next_value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
@@ -185,18 +185,18 @@ fn test_emit_open_interest_in_tokens_updated() {
     let collateral_token = contract_address_const::<'collateral_token'>();
     let is_long: bool = true;
     let delta: u256 = 1;
-    let nextValue: u256 = 2;
+    let next_value: u256 = 2;
 
     // Create the expected data.
     let mut expected_data: Array<felt252> = array![
         market.into(), collateral_token.into(), is_long.into()
     ];
     delta.serialize(ref expected_data);
-    nextValue.serialize(ref expected_data);
+    next_value.serialize(ref expected_data);
 
     // Emit the event.
     event_emitter
-        .emit_open_interest_in_tokens_updated(market, collateral_token, is_long, delta, nextValue);
+        .emit_open_interest_in_tokens_updated(market, collateral_token, is_long, delta, next_value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
@@ -204,6 +204,53 @@ fn test_emit_open_interest_in_tokens_updated() {
                 Event {
                     from: contract_address,
                     name: 'OpenInterestInTokensUpdated',
+                    keys: array![],
+                    data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}
+
+#[test]
+fn test_emit_virtual_swap_inventory_updated() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup_event_emitter();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let market = contract_address_const::<'market'>();
+    let is_long_token: bool = true;
+    let virtual_market_id = 'virtual_market_id';
+    let delta: u256 = 1;
+    let next_value: u256 = 2;
+
+    // Create the expected data.
+    let mut expected_data: Array<felt252> = array![
+        market.into(), is_long_token.into(), virtual_market_id
+    ];
+    delta.serialize(ref expected_data);
+    next_value.serialize(ref expected_data);
+
+    // Emit the event.
+    event_emitter
+        .emit_virtual_swap_inventory_updated(
+            market, is_long_token, virtual_market_id, delta, next_value
+        );
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address,
+                    name: 'VirtualSwapInventoryUpdated',
                     keys: array![],
                     data: expected_data
                 }
@@ -230,17 +277,17 @@ fn test_emit_open_interest_updated() {
     let collateral_token = contract_address_const::<'collateral_token'>();
     let is_long: bool = true;
     let delta: u256 = 1;
-    let nextValue: u256 = 2;
+    let next_value: u256 = 2;
 
     // Create the expected data.
     let mut expected_data: Array<felt252> = array![
         market.into(), collateral_token.into(), is_long.into()
     ];
     delta.serialize(ref expected_data);
-    nextValue.serialize(ref expected_data);
+    next_value.serialize(ref expected_data);
 
     // Emit the event.
-    event_emitter.emit_open_interest_updated(market, collateral_token, is_long, delta, nextValue);
+    event_emitter.emit_open_interest_updated(market, collateral_token, is_long, delta, next_value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
