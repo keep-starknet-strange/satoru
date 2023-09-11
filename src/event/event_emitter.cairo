@@ -330,6 +330,11 @@ trait IEventEmitter<TContractState> {
     fn emit_set_bytes32(
         ref self: TContractState, key: felt252, data_bytes: Array<felt252>, value: felt252
     );
+
+    /// Emits the `SetUint` event.
+    fn emit_set_uint(
+        ref self: TContractState, key: felt252, data_bytes: Array<felt252>, value: u256
+    );
 }
 
 #[starknet::contract]
@@ -406,6 +411,7 @@ mod EventEmitter {
         SetBool: SetBool,
         SetAddress: SetAddress,
         SetBytes32: SetBytes32,
+        SetUint: SetUint,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -855,6 +861,13 @@ mod EventEmitter {
         key: felt252,
         data_bytes: Array<felt252>,
         value: felt252,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SetUint {
+        key: felt252,
+        data_bytes: Array<felt252>,
+        value: u256,
     }
 
 
@@ -1559,6 +1572,12 @@ mod EventEmitter {
             ref self: ContractState, key: felt252, data_bytes: Array<felt252>, value: felt252
         ) {
             self.emit(SetBytes32 { key, data_bytes, value });
+        }
+
+        fn emit_set_uint(
+            ref self: ContractState, key: felt252, data_bytes: Array<felt252>, value: u256
+        ) {
+            self.emit(SetUint { key, data_bytes, value });
         }
     }
 }

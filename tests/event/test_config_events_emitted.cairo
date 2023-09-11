@@ -119,3 +119,40 @@ fn test_emit_set_bytes32() {
     // Assert there are no more events.
     assert(spy.events.len() == 0, 'There should be no events');
 }
+
+#[test]
+fn test_emit_set_uint() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup_event_emitter();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let key = 'set_address';
+    let data = array!['0x01'];
+    let value: u256 = 10;
+
+    // Create the expected data.
+    let mut expected_data: Array<felt252> = array![key];
+    data.serialize(ref expected_data);
+    value.serialize(ref expected_data);
+
+    // Emit the event.
+    event_emitter.emit_set_uint(key, data, value);
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address, name: 'SetUint', keys: array![], data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}
