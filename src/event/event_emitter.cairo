@@ -390,6 +390,17 @@ trait IEventEmitter<TContractState> {
     fn emit_revoke_role(
         ref self: TContractState, action_key: felt252, account: ContractAddress, role_key: felt252
     );
+
+    /// Emits the `SignalSetPriceFeed` event.
+    fn emit_signal_set_price_feed(
+        ref self: TContractState,
+        action_key: felt252,
+        token: ContractAddress,
+        price_feed: ContractAddress,
+        price_feed_multiplier: u256,
+        price_feed_heartbeat_duration: u256,
+        stable_price: u256
+    );
 }
 
 #[starknet::contract]
@@ -478,6 +489,7 @@ mod EventEmitter {
         GrantRole: GrantRole,
         SignalRevokeRole: SignalRevokeRole,
         RevokeRole: RevokeRole,
+        SignalSetPriceFeed: SignalSetPriceFeed,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1005,6 +1017,16 @@ mod EventEmitter {
         action_key: felt252,
         account: ContractAddress,
         role_key: felt252
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SignalSetPriceFeed {
+        action_key: felt252,
+        token: ContractAddress,
+        price_feed: ContractAddress,
+        price_feed_multiplier: u256,
+        price_feed_heartbeat_duration: u256,
+        stable_price: u256
     }
 
 
@@ -1807,6 +1829,29 @@ mod EventEmitter {
             role_key: felt252
         ) {
             self.emit(RevokeRole { action_key, account, role_key });
+        }
+
+        /// Emits the `SignalSetPriceFeed` event.
+        fn emit_signal_set_price_feed(
+            ref self: ContractState,
+            action_key: felt252,
+            token: ContractAddress,
+            price_feed: ContractAddress,
+            price_feed_multiplier: u256,
+            price_feed_heartbeat_duration: u256,
+            stable_price: u256
+        ) {
+            self
+                .emit(
+                    SignalSetPriceFeed {
+                        action_key,
+                        token,
+                        price_feed,
+                        price_feed_multiplier,
+                        price_feed_heartbeat_duration,
+                        stable_price
+                    }
+                );
         }
     }
 }
