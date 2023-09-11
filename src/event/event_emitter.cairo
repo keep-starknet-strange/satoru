@@ -531,6 +531,17 @@ trait IEventEmitter<TContractState> {
         delta: u256,
         next_value: u256
     );
+
+    /// Emits the `FundingFeesClaimed` event.
+    fn emit_founding_fees_claimed(
+        ref self: TContractState,
+        market: ContractAddress,
+        token: ContractAddress,
+        account: ContractAddress,
+        receiver: ContractAddress,
+        amount: u256,
+        next_pool_value: u256
+    );
 }
 
 #[starknet::contract]
@@ -636,6 +647,7 @@ mod EventEmitter {
         CumulativeBorrowingFactorUpdatd: CumulativeBorrowingFactorUpdatd,
         FundingFeeAmountPerSizeUpdated: FundingFeeAmountPerSizeUpdated,
         ClaimableFundingPerSizeUpdatd: ClaimableFundingPerSizeUpdatd,
+        FundingFeesClaimed: FundingFeesClaimed
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1292,6 +1304,16 @@ mod EventEmitter {
         is_long: bool,
         delta: u256,
         next_value: u256
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct FundingFeesClaimed {
+        market: ContractAddress,
+        token: ContractAddress,
+        account: ContractAddress,
+        receiver: ContractAddress,
+        amount: u256,
+        next_pool_value: u256
     }
 
 
@@ -2314,6 +2336,22 @@ mod EventEmitter {
                     ClaimableFundingPerSizeUpdatd {
                         market, collateral_token, is_long, delta, next_value
                     }
+                );
+        }
+
+        /// Emits the `FundingFeesClaimed` event.
+        fn emit_founding_fees_claimed(
+            ref self: ContractState,
+            market: ContractAddress,
+            token: ContractAddress,
+            account: ContractAddress,
+            receiver: ContractAddress,
+            amount: u256,
+            next_pool_value: u256
+        ) {
+            self
+                .emit(
+                    FundingFeesClaimed { market, token, account, receiver, amount, next_pool_value }
                 );
         }
     }

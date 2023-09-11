@@ -547,7 +547,7 @@ fn test_emit_claimable_funding_updated() {
     let next_pool_value: u128 = 2;
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![
+    let expected_data: Array<felt252> = array![
         market.into(),
         token.into(),
         account.into(),
@@ -566,6 +566,52 @@ fn test_emit_claimable_funding_updated() {
                 Event {
                     from: contract_address,
                     name: 'ClaimableFundingUpdated',
+                    keys: array![],
+                    data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}
+
+#[test]
+fn test_emit_funding_fees_claimed() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup_event_emitter();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let market = contract_address_const::<'market'>();
+    let token = contract_address_const::<'token'>();
+    let account = contract_address_const::<'account'>();
+    let receiver = contract_address_const::<'receiver'>();
+    let amount: u256 = 1;
+    let next_pool_value: u256 = 2;
+
+    // Create the expected data.
+    let mut expected_data: Array<felt252> = array![
+        market.into(), token.into(), account.into(), receiver.into(),
+    ];
+    amount.serialize(ref expected_data);
+    next_pool_value.serialize(ref expected_data);
+
+    // Emit the event.
+    event_emitter
+        .emit_founding_fees_claimed(market, token, account, receiver, amount, next_pool_value);
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address,
+                    name: 'FundingFeesClaimed',
                     keys: array![],
                     data: expected_data
                 }
