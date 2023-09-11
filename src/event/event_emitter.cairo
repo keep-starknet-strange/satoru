@@ -345,6 +345,11 @@ trait IEventEmitter<TContractState> {
     fn emit_signal_add_oracle_signer(
         ref self: TContractState, action_key: felt252, account: ContractAddress
     );
+
+    /// Emits the `SignalAddOracleSigner` event.
+    fn emit_add_oracle_signer(
+        ref self: TContractState, action_key: felt252, account: ContractAddress
+    );
 }
 
 #[starknet::contract]
@@ -424,6 +429,7 @@ mod EventEmitter {
         SetUint: SetUint,
         SetInt: SetInt,
         SignalAddOracleSigner: SignalAddOracleSigner,
+        AddOracleSigner: AddOracleSigner,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -891,6 +897,12 @@ mod EventEmitter {
 
     #[derive(Drop, starknet::Event)]
     struct SignalAddOracleSigner {
+        action_key: felt252,
+        account: ContractAddress
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct AddOracleSigner {
         action_key: felt252,
         account: ContractAddress
     }
@@ -1578,12 +1590,14 @@ mod EventEmitter {
                 );
         }
 
+        /// Emits the `SetBool` event.
         fn emit_set_bool(
             ref self: ContractState, key: felt252, data_bytes: Array<felt252>, value: bool
         ) {
             self.emit(SetBool { key, data_bytes, value });
         }
 
+        /// Emits the `SetAddress` event.
         fn emit_set_address(
             ref self: ContractState,
             key: felt252,
@@ -1599,22 +1613,32 @@ mod EventEmitter {
             self.emit(SetBytes32 { key, data_bytes, value });
         }
 
+        /// Emits the `SetBytes32` event.
         fn emit_set_uint(
             ref self: ContractState, key: felt252, data_bytes: Array<felt252>, value: u256
         ) {
             self.emit(SetUint { key, data_bytes, value });
         }
 
+        /// Emits the `SetInt` event.
         fn emit_set_int(
             ref self: ContractState, key: felt252, data_bytes: Array<felt252>, value: felt252
         ) {
             self.emit(SetInt { key, data_bytes, value });
         }
 
+        /// Emits the `SignalAddOracleSigner` event.
         fn emit_signal_add_oracle_signer(
             ref self: ContractState, action_key: felt252, account: ContractAddress
         ) {
             self.emit(SignalAddOracleSigner { action_key, account });
+        }
+
+        /// Emits the `AddOracleSigner` event.
+        fn emit_add_oracle_signer(
+            ref self: ContractState, action_key: felt252, account: ContractAddress
+        ) {
+            self.emit(AddOracleSigner { action_key, account });
         }
     }
 }
