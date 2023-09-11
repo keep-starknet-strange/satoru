@@ -437,3 +437,57 @@ fn test_emit_signal_set_price_feed() {
     // Assert there are no more events.
     assert(spy.events.len() == 0, 'There should be no events');
 }
+
+
+#[test]
+fn test_emit_set_price_feed() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup_event_emitter();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let action_key = 'SetPriceFeed';
+    let token = contract_address_const::<'token'>();
+    let price_feed = contract_address_const::<'priceFeed'>();
+    let price_feed_multiplier: u256 = 1;
+    let price_feed_heartbeat_duration: u256 = 2;
+    let stable_price: u256 = 3;
+
+    // Create the expected data.
+    let mut expected_data: Array<felt252> = array![action_key, token.into(), price_feed.into()];
+    price_feed_multiplier.serialize(ref expected_data);
+    price_feed_heartbeat_duration.serialize(ref expected_data);
+    stable_price.serialize(ref expected_data);
+
+    // Emit the event.
+    event_emitter
+        .emit_set_price_feed(
+            action_key,
+            token,
+            price_feed,
+            price_feed_multiplier,
+            price_feed_heartbeat_duration,
+            stable_price
+        );
+
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address,
+                    name: 'SetPriceFeed',
+                    keys: array![],
+                    data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}

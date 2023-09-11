@@ -401,6 +401,17 @@ trait IEventEmitter<TContractState> {
         price_feed_heartbeat_duration: u256,
         stable_price: u256
     );
+
+    /// Emits the `SetPriceFeed` event.
+    fn emit_set_price_feed(
+        ref self: TContractState,
+        action_key: felt252,
+        token: ContractAddress,
+        price_feed: ContractAddress,
+        price_feed_multiplier: u256,
+        price_feed_heartbeat_duration: u256,
+        stable_price: u256
+    );
 }
 
 #[starknet::contract]
@@ -490,6 +501,7 @@ mod EventEmitter {
         SignalRevokeRole: SignalRevokeRole,
         RevokeRole: RevokeRole,
         SignalSetPriceFeed: SignalSetPriceFeed,
+        SetPriceFeed: SetPriceFeed,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1021,6 +1033,16 @@ mod EventEmitter {
 
     #[derive(Drop, starknet::Event)]
     struct SignalSetPriceFeed {
+        action_key: felt252,
+        token: ContractAddress,
+        price_feed: ContractAddress,
+        price_feed_multiplier: u256,
+        price_feed_heartbeat_duration: u256,
+        stable_price: u256
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SetPriceFeed {
         action_key: felt252,
         token: ContractAddress,
         price_feed: ContractAddress,
@@ -1844,6 +1866,29 @@ mod EventEmitter {
             self
                 .emit(
                     SignalSetPriceFeed {
+                        action_key,
+                        token,
+                        price_feed,
+                        price_feed_multiplier,
+                        price_feed_heartbeat_duration,
+                        stable_price
+                    }
+                );
+        }
+
+        /// Emits the `SetPriceFeed` event.
+        fn emit_set_price_feed(
+            ref self: ContractState,
+            action_key: felt252,
+            token: ContractAddress,
+            price_feed: ContractAddress,
+            price_feed_multiplier: u256,
+            price_feed_heartbeat_duration: u256,
+            stable_price: u256
+        ) {
+            self
+                .emit(
+                    SetPriceFeed {
                         action_key,
                         token,
                         price_feed,
