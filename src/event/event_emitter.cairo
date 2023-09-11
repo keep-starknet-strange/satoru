@@ -442,6 +442,15 @@ trait IEventEmitter<TContractState> {
         market_pool_value_info: MarketPoolValueInfo,
         market_tokens_supply: u256
     );
+
+    /// Emits the `PoolAmountUpdated` event.
+    fn emit_pool_amount_updated(
+        ref self: TContractState,
+        market: ContractAddress,
+        token: ContractAddress,
+        delta: u256,
+        nextValue: u256
+    );
 }
 
 #[starknet::contract]
@@ -538,6 +547,7 @@ mod EventEmitter {
         KeeperExecutionFee: KeeperExecutionFee,
         ExecutionFeeRefund: ExecutionFeeRefund,
         MarketPoolValueInfoEvent: MarketPoolValueInfoEvent,
+        PoolAmountUpdated: PoolAmountUpdated,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1116,6 +1126,14 @@ mod EventEmitter {
         market: ContractAddress,
         market_pool_value_info: MarketPoolValueInfo,
         market_tokens_supply: u256
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct PoolAmountUpdated {
+        market: ContractAddress,
+        token: ContractAddress,
+        delta: u256,
+        nextValue: u256
     }
 
 
@@ -2008,6 +2026,17 @@ mod EventEmitter {
                         market, market_pool_value_info, market_tokens_supply
                     }
                 );
+        }
+
+        /// Emits the `PoolAmountUpdated` event.
+        fn emit_pool_amount_updated(
+            ref self: ContractState,
+            market: ContractAddress,
+            token: ContractAddress,
+            delta: u256,
+            nextValue: u256
+        ) {
+            self.emit(PoolAmountUpdated { market, token, delta, nextValue });
         }
     }
 }
