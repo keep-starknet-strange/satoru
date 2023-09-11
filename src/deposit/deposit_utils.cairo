@@ -40,7 +40,7 @@ struct CreateDepositParams {
     /// to the user in case the deposit gets cancelled.
     should_unwrap_native_token: bool,
     /// The execution fee for keepers.
-    execution_fee: u128,
+    execution_fee: u256,
     /// The gas limit for the callback_contract.
     callback_gas_limit: u128,
 }
