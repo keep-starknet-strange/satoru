@@ -568,6 +568,9 @@ trait IEventEmitter<TContractState> {
         max_price: u128,
         is_price_feed: bool
     );
+
+    /// Emits the `SignerAdded` event.
+    fn emit_signer_added(ref self: TContractState, account: ContractAddress);
 }
 
 #[starknet::contract]
@@ -676,7 +679,8 @@ mod EventEmitter {
         FundingFeesClaimed: FundingFeesClaimed,
         CollateralClaimed: CollateralClaimed,
         UiFeeFactorUpdated: UiFeeFactorUpdated,
-        OraclePriceUpdate: OraclePriceUpdate
+        OraclePriceUpdate: OraclePriceUpdate,
+        SignerAdded: SignerAdded
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1368,6 +1372,11 @@ mod EventEmitter {
         min_price: u128,
         max_price: u128,
         is_price_feed: bool
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SignerAdded {
+        account: ContractAddress
     }
 
 
@@ -2444,6 +2453,11 @@ mod EventEmitter {
             is_price_feed: bool
         ) {
             self.emit(OraclePriceUpdate { token, min_price, max_price, is_price_feed });
+        }
+
+        /// Emits the `SignerAdded` event.
+        fn emit_signer_added(ref self: ContractState, account: ContractAddress) {
+            self.emit(SignerAdded { account });
         }
     }
 }
