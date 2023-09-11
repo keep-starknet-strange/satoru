@@ -76,7 +76,7 @@ fn setup() -> (
 fn test_initialize_fails_if_already_intialized() {
     let (caller_address, receiver_address, role_store, data_store, bank, erc20) = setup();
     // try initializing after previously initializing in setup
-    bank.initialize(data_store.contract_address, role_store.contract_address);
+    bank.initialize(data_store.contract_address);
     teardown(data_store, bank);
 }
 

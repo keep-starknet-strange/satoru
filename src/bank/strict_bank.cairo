@@ -82,7 +82,7 @@ mod StrictBank {
             role_store_address: ContractAddress,
         ) {
             let mut state: Bank::ContractState = Bank::unsafe_new_contract_state();
-            IBank::initialize(ref state, data_store_address, role_store_address);
+            IBank::initialize(ref state, data_store_address);
         }
 
         fn transfer_out(
