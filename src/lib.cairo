@@ -177,6 +177,7 @@ mod order {
     mod increase_order_utils;
     mod order_vault;
     mod order;
+    mod error;
 }
 
 // `position` contains positions management functions

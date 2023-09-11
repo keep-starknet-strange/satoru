@@ -1,4 +1,7 @@
 mod OrderError {
+    const ORDER_NOT_FOUND: felt252 = 'order_not_found';
+    const ORDER_INDEX_NOT_FOUND: felt252 = 'order_index_not_found';
+    const CANT_BE_ZERO: felt252 = 'order account cant be 0';
     const EMPTY_ORDER: felt252 = 'empty_order';
     const ORDER_NOT_FULFILLABLE_AT_ACCEPTABLE_PRICE: felt252 =
         'order_unfulfillable_at_price'; // TODO: unshorten value
