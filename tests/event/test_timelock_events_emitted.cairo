@@ -23,14 +23,13 @@ fn test_emit_signal_add_oracle_signer() {
 
     // Create dummy data.
     let action_key = 'SignalAddOracleSigner';
-    let value = contract_address_const::<'account'>();
+    let account = contract_address_const::<'account'>();
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![action_key];
-    expected_data.append(value.into());
+    let expected_data: Array<felt252> = array![action_key, account.into()];
 
     // Emit the event.
-    event_emitter.emit_signal_add_oracle_signer(action_key, value);
+    event_emitter.emit_signal_add_oracle_signer(action_key, account);
     // Assert the event was emitted.
     spy
         .assert_emitted(
@@ -61,14 +60,13 @@ fn test_emit_add_oracle_signer() {
 
     // Create dummy data.
     let action_key = 'AddOracleSigner';
-    let value = contract_address_const::<'account'>();
+    let account = contract_address_const::<'account'>();
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![action_key];
-    expected_data.append(value.into());
+    let expected_data: Array<felt252> = array![action_key, account.into()];
 
     // Emit the event.
-    event_emitter.emit_add_oracle_signer(action_key, value);
+    event_emitter.emit_add_oracle_signer(action_key, account);
 
     // Assert the event was emitted.
     spy
@@ -100,14 +98,13 @@ fn test_emit_signal_remove_oracle_signer() {
 
     // Create dummy data.
     let action_key = 'SignalRemoveOracleSigner';
-    let value = contract_address_const::<'account'>();
+    let account = contract_address_const::<'account'>();
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![action_key];
-    expected_data.append(value.into());
+    let expected_data: Array<felt252> = array![action_key, account.into()];
 
     // Emit the event.
-    event_emitter.emit_signal_remove_oracle_signer(action_key, value);
+    event_emitter.emit_signal_remove_oracle_signer(action_key, account);
     // Assert the event was emitted.
     spy
         .assert_emitted(
@@ -138,14 +135,13 @@ fn test_emit_remove_oracle_signer() {
 
     // Create dummy data.
     let action_key = 'RemoveOracleSigner';
-    let value = contract_address_const::<'account'>();
+    let account = contract_address_const::<'account'>();
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![action_key];
-    expected_data.append(value.into());
+    let expected_data: Array<felt252> = array![action_key, account.into()];
 
     // Emit the event.
-    event_emitter.emit_remove_oracle_signer(action_key, value);
+    event_emitter.emit_remove_oracle_signer(action_key, account);
 
     // Assert the event was emitted.
     spy
@@ -177,14 +173,13 @@ fn test_emit_signal_set_fee_receiver() {
 
     // Create dummy data.
     let action_key = 'SignalSetFeeReceiver';
-    let value = contract_address_const::<'account'>();
+    let account = contract_address_const::<'account'>();
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![action_key];
-    expected_data.append(value.into());
+    let expected_data: Array<felt252> = array![action_key, account.into()];
 
     // Emit the event.
-    event_emitter.emit_signal_set_fee_receiver(action_key, value);
+    event_emitter.emit_signal_set_fee_receiver(action_key, account);
 
     // Assert the event was emitted.
     spy
@@ -216,14 +211,13 @@ fn test_emit_set_fee_receiver() {
 
     // Create dummy data.
     let action_key = 'SetFeeReceiver';
-    let value = contract_address_const::<'account'>();
+    let account = contract_address_const::<'account'>();
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![action_key];
-    expected_data.append(value.into());
+    let expected_data: Array<felt252> = array![action_key, account.into()];
 
     // Emit the event.
-    event_emitter.emit_set_fee_receiver(action_key, value);
+    event_emitter.emit_set_fee_receiver(action_key, account);
 
     // Assert the event was emitted.
     spy
@@ -232,6 +226,45 @@ fn test_emit_set_fee_receiver() {
                 Event {
                     from: contract_address,
                     name: 'SetFeeReceiver',
+                    keys: array![],
+                    data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}
+
+#[test]
+fn test_emit_signal_grant_role() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup_event_emitter();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let action_key = 'SignalGrantRole';
+    let account = contract_address_const::<'account'>();
+    let role_key = 'Admin';
+
+    // Create the expected data.
+    let expected_data: Array<felt252> = array![action_key, account.into(), role_key];
+
+    // Emit the event.
+    event_emitter.emit_signal_grant_role(action_key, account, role_key);
+
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address,
+                    name: 'SignalGrantRole',
                     keys: array![],
                     data: expected_data
                 }

@@ -370,6 +370,11 @@ trait IEventEmitter<TContractState> {
     fn emit_set_fee_receiver(
         ref self: TContractState, action_key: felt252, account: ContractAddress
     );
+
+    /// Emits the `SignalGrantRole` event.
+    fn emit_signal_grant_role(
+        ref self: TContractState, action_key: felt252, account: ContractAddress, role_key: felt252
+    );
 }
 
 #[starknet::contract]
@@ -454,6 +459,7 @@ mod EventEmitter {
         RemoveOracleSigner: RemoveOracleSigner,
         SignalSetFeeReceiver: SignalSetFeeReceiver,
         SetFeeReceiver: SetFeeReceiver,
+        SignalGrantRole: SignalGrantRole,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -953,6 +959,13 @@ mod EventEmitter {
     struct SetFeeReceiver {
         action_key: felt252,
         account: ContractAddress
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SignalGrantRole {
+        action_key: felt252,
+        account: ContractAddress,
+        role_key: felt252
     }
 
 
@@ -1715,6 +1728,13 @@ mod EventEmitter {
             ref self: ContractState, action_key: felt252, account: ContractAddress
         ) {
             self.emit(SetFeeReceiver { action_key, account });
+        }
+
+        /// Emits the `SignalGrantRole` event.
+        fn emit_signal_grant_role(
+            ref self: ContractState, action_key: felt252, account: ContractAddress, role_key: felt252
+        ) {
+            self.emit(SignalGrantRole { action_key, account,role_key });
         }
     }
 }
