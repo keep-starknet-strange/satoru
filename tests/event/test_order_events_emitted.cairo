@@ -24,7 +24,7 @@ fn test_emit_order_created() {
 
     // Create dummy data.
     let key: felt252 = 100;
-    let order: Order = create_dummy_order();
+    let order: Order = create_dummy_order(key);
 
     // Create the expected data.
     let mut expected_data: Array<felt252> = array![key];
@@ -316,12 +316,12 @@ fn setup() -> (ContractAddress, IEventEmitterDispatcher) {
 
 
 /// Utility function to create a dummy order.
-fn create_dummy_order() -> Order {
+fn create_dummy_order(key: felt252) -> Order {
     let mut swap_path = array![];
     swap_path.append(contract_address_const::<'swap_path_0'>());
     swap_path.append(contract_address_const::<'swap_path_1'>());
     Order {
-        key: 1,
+        key,
         order_type: OrderType::StopLossDecrease,
         decrease_position_swap_type: DecreasePositionSwapType::SwapPnlTokenToCollateralToken(()),
         account: contract_address_const::<'account'>(),

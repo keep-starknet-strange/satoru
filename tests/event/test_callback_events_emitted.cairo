@@ -177,7 +177,7 @@ fn test_emit_after_order_execution_error() {
 
     // Create dummy data.
     let key = 'order_execution_error';
-    let order_data: Order = create_dummy_order();
+    let order_data: Order = create_dummy_order(key);
 
     // Create the expected data.
     let mut expected_data: Array<felt252> = array![key];
@@ -215,7 +215,7 @@ fn test_emit_after_order_cancellation_error() {
 
     // Create dummy data.
     let key = 'order_cancellation_error';
-    let order_data: Order = create_dummy_order();
+    let order_data: Order = create_dummy_order(key);
 
     // Create the expected data.
     let mut expected_data: Array<felt252> = array![key];
@@ -253,7 +253,7 @@ fn test_emit_after_order_frozen_error() {
 
     // Create dummy data.
     let key = 'order_frozen_error';
-    let order_data: Order = create_dummy_order();
+    let order_data: Order = create_dummy_order(key);
 
     // Create the expected data.
     let mut expected_data: Array<felt252> = array![key];
@@ -306,6 +306,8 @@ fn create_dummy_withdrawal() -> Withdrawal {
         callback_contract: contract_address_const::<'callback_contract'>(),
         ui_fee_receiver: contract_address_const::<'fee_receiver'>(),
         market: contract_address_const::<'market'>(),
+        long_token_swap_path: Default::default(),
+        short_token_swap_path: Default::default(),
         market_token_amount: 10,
         min_long_token_amount: 20,
         min_short_token_amount: 30,
@@ -316,11 +318,12 @@ fn create_dummy_withdrawal() -> Withdrawal {
     }
 }
 
-fn create_dummy_order() -> Order {
+fn create_dummy_order(key: felt252) -> Order {
     let mut swap_path = array![];
     swap_path.append(contract_address_const::<'swap_path_0'>());
     swap_path.append(contract_address_const::<'swap_path_1'>());
     Order {
+        key,
         order_type: OrderType::StopLossDecrease,
         account: contract_address_const::<'account'>(),
         receiver: contract_address_const::<'receiver'>(),
@@ -328,7 +331,7 @@ fn create_dummy_order() -> Order {
         ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
         market: contract_address_const::<'market'>(),
         initial_collateral_token: contract_address_const::<'initial_collateral_token'>(),
-        swap_path,
+        // swap_path,
         size_delta_usd: 1000,
         initial_collateral_delta_amount: 500,
         trigger_price: 2000,
