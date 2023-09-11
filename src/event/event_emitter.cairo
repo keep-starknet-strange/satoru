@@ -451,6 +451,16 @@ trait IEventEmitter<TContractState> {
         delta: u256,
         nextValue: u256
     );
+
+    /// Emits the `OpenInterestInTokensUpdated` event.
+    fn emit_open_interest_in_tokens_updated(
+        ref self: TContractState,
+        market: ContractAddress,
+        collateral_token: ContractAddress,
+        is_long: bool,
+        delta: u256,
+        nextValue: u256
+    );
 }
 
 #[starknet::contract]
@@ -548,6 +558,7 @@ mod EventEmitter {
         ExecutionFeeRefund: ExecutionFeeRefund,
         MarketPoolValueInfoEvent: MarketPoolValueInfoEvent,
         PoolAmountUpdated: PoolAmountUpdated,
+        OpenInterestInTokensUpdated: OpenInterestInTokensUpdated,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1132,6 +1143,15 @@ mod EventEmitter {
     struct PoolAmountUpdated {
         market: ContractAddress,
         token: ContractAddress,
+        delta: u256,
+        nextValue: u256
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct OpenInterestInTokensUpdated {
+        market: ContractAddress,
+        collateral_token: ContractAddress,
+        is_long: bool,
         delta: u256,
         nextValue: u256
     }
@@ -2037,6 +2057,23 @@ mod EventEmitter {
             nextValue: u256
         ) {
             self.emit(PoolAmountUpdated { market, token, delta, nextValue });
+        }
+
+        /// Emits the `OpenInterestInTokensUpdated` event.
+        fn emit_open_interest_in_tokens_updated(
+            ref self: ContractState,
+            market: ContractAddress,
+            collateral_token: ContractAddress,
+            is_long: bool,
+            delta: u256,
+            nextValue: u256
+        ) {
+            self
+                .emit(
+                    OpenInterestInTokensUpdated {
+                        market, collateral_token, is_long, delta, nextValue
+                    }
+                );
         }
     }
 }
