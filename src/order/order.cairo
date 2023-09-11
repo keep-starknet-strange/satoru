@@ -12,8 +12,10 @@ use satoru::utils::store_arrays::StoreContractAddressArray;
 use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
 
 /// Struct for orders.
-#[derive(Drop, Clone, starknet::Store, Serde)]
+#[derive(Copy, Drop, starknet::Store, Serde, PartialEq)]
 struct Order {
+    /// The unique identifier of the order.
+    key: felt252,
     /// The order type.
     order_type: OrderType,
     // Decrease position swap type.
@@ -31,7 +33,7 @@ struct Order {
     /// The initial collateral token for increase orders.
     initial_collateral_token: ContractAddress,
     /// An array of market addresses to swap through.
-    swap_path: Array<ContractAddress>,
+    // TODO: use Span32 type swap_path: Array<ContractAddress>,
     /// The requested change in position size.
     size_delta_usd: u128,
     /// For increase orders, this is the amount of the initialCollateralToken sent in by the user.
@@ -61,15 +63,16 @@ struct Order {
 impl DefaultOrder of Default<Order> {
     fn default() -> Order {
         Order {
-            order_type: OrderType::MarketSwap(()),
+            key: 0,
             decrease_position_swap_type: DecreasePositionSwapType::NoSwap(()),
-            account: contract_address_const::<0x0>(),
-            receiver: contract_address_const::<0x0>(),
-            callback_contract: contract_address_const::<0x0>(),
-            ui_fee_receiver: contract_address_const::<0x0>(),
-            market: contract_address_const::<0x0>(),
-            initial_collateral_token: contract_address_const::<0x0>(),
-            swap_path: ArrayTrait::<ContractAddress>::new(),
+            order_type: OrderType::MarketSwap(()),
+            account: 0.try_into().unwrap(),
+            receiver: 0.try_into().unwrap(),
+            callback_contract: 0.try_into().unwrap(),
+            ui_fee_receiver: 0.try_into().unwrap(),
+            market: 0.try_into().unwrap(),
+            initial_collateral_token: 0.try_into().unwrap(),
+            // TODO swap_path: array![],
             size_delta_usd: 0,
             initial_collateral_delta_amount: 0,
             trigger_price: 0,
@@ -78,9 +81,9 @@ impl DefaultOrder of Default<Order> {
             callback_gas_limit: 0,
             min_output_amount: 0,
             updated_at_block: 0,
-            is_long: false,
-            should_unwrap_native_token: false,
-            is_frozen: false,
+            is_long: true,
+            should_unwrap_native_token: true,
+            is_frozen: true,
         }
     }
 }
@@ -93,7 +96,7 @@ impl OrderImpl of OrderTrait {
     }
 }
 
-#[derive(Drop, Copy, starknet::Store, Serde, PartialEq)]
+#[derive(Copy, Drop, starknet::Store, Serde, PartialEq)]
 enum OrderType {
     ///  MarketSwap: swap token A to token B at the current market price.
     /// The order will be cancelled if the minOutputAmount cannot be fulfilled.
@@ -149,6 +152,21 @@ impl DecreasePositionSwapTypePrintImpl of PrintTrait<DecreasePositionSwapType> {
                 .print(),
             DecreasePositionSwapType::SwapCollateralTokenToPnlToken => 'SwapCollateralTokenToPnlToken'
                 .print(),
+        }
+    }
+}
+
+impl OrderTypeInto of Into<OrderType, felt252> {
+    fn into(self: OrderType) -> felt252 {
+        match self {
+            OrderType::MarketSwap => 'MarketSwap',
+            OrderType::LimitSwap => 'LimitSwap',
+            OrderType::MarketIncrease => 'MarketIncrease',
+            OrderType::LimitIncrease => 'LimitIncrease',
+            OrderType::MarketDecrease => 'MarketDecrease',
+            OrderType::LimitDecrease => 'LimitDecrease',
+            OrderType::StopLossDecrease => 'StopLossDecrease',
+            OrderType::Liquidation => 'Liquidation',
         }
     }
 }

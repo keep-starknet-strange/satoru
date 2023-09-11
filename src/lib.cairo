@@ -15,6 +15,17 @@ mod bank {
 // `callback` is a module that allows for better composability with other contracts.
 mod callback {
     mod callback_utils;
+    mod error;
+    mod mocks;
+    mod deposit_callback_receiver {
+        mod interface;
+    }
+    mod order_callback_receiver {
+        mod interface;
+    }
+    mod withdrawal_callback_receiver {
+        mod interface;
+    }
 }
 
 // `chain` is a module that contains utility function for interacting with the chain and getting information.
@@ -106,7 +117,7 @@ mod role {
     mod role;
     // The contract handling the roles and store them.
     mod role_store;
-    // The contract for role validation functions.
+    // The contract handling the role modifiers
     mod role_module;
 }
 
@@ -127,10 +138,12 @@ mod utils {
     mod error;
     mod global_reentrancy_guard;
     mod precision;
+    mod span32;
     mod u128_mask;
     mod hash;
     mod store_arrays;
     mod error_utils;
+    mod starknet_utils;
 }
 
 // `liquidation` function to help with liquidations.
@@ -160,6 +173,9 @@ mod oracle {
 // `order` contains order management functions.
 mod order {
     mod base_order_utils;
+    mod order_utils;
+    mod decrease_order_utils;
+    mod increase_order_utils;
     mod order_vault;
     mod order;
     mod order_utils;
@@ -191,7 +207,6 @@ mod pricing {
 mod referral {
     mod referral_utils;
     mod referral_tier;
-    mod referral_event_utils;
     mod referral_storage {
         mod interface;
     }
@@ -213,8 +228,9 @@ mod token {
 // `withdrawal` contains withdrawal management functions
 mod withdrawal {
     mod error;
-    mod withdrawal_event_utils;
     mod withdrawal_utils;
     mod withdrawal_vault;
     mod withdrawal;
 }
+
+mod tests_lib;

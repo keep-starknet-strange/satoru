@@ -14,7 +14,7 @@ use starknet::ContractAddress;
 
 // Local imports
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::oracle::{
     oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait},
@@ -60,7 +60,7 @@ trait IOracle<TContractState> {
     /// * `params` - The set price params.
     fn set_prices(
         ref self: TContractState,
-        data_store: IDataStoreSafeDispatcher,
+        data_store: IDataStoreDispatcher,
         event_emitter: IEventEmitterDispatcher,
         params: SetPricesParams,
     );
@@ -117,7 +117,7 @@ trait IOracle<TContractState> {
     /// # Returns
     /// The price feed multiplier.
     fn get_price_feed_multiplier(
-        self: @TContractState, data_store: IDataStoreSafeDispatcher, token: ContractAddress,
+        self: @TContractState, data_store: IDataStoreDispatcher, token: ContractAddress,
     ) -> u128;
 
     /// Validate prices in `params` for oracles.
@@ -125,7 +125,7 @@ trait IOracle<TContractState> {
     /// * `data_store` - The `DataStore` contract dispatcher.
     /// * `params` - The parameters used to set prices in oracle.
     fn validate_prices(
-        self: @TContractState, data_store: IDataStoreSafeDispatcher, params: SetPricesParams,
+        self: @TContractState, data_store: IDataStoreDispatcher, params: SetPricesParams,
     ) -> Array<ValidatedPrice>;
 }
 
@@ -194,7 +194,7 @@ mod Oracle {
 
     // Local imports.
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::price::price::Price;
     use super::{IOracle, ValidatedPrice};
@@ -255,7 +255,7 @@ mod Oracle {
 
         fn set_prices(
             ref self: ContractState,
-            data_store: IDataStoreSafeDispatcher,
+            data_store: IDataStoreDispatcher,
             event_emitter: IEventEmitterDispatcher,
             params: SetPricesParams,
         ) { // TODO
@@ -292,14 +292,14 @@ mod Oracle {
         }
 
         fn get_price_feed_multiplier(
-            self: @ContractState, data_store: IDataStoreSafeDispatcher, token: ContractAddress,
+            self: @ContractState, data_store: IDataStoreDispatcher, token: ContractAddress,
         ) -> u128 {
             // TODO
             0
         }
 
         fn validate_prices(
-            self: @ContractState, data_store: IDataStoreSafeDispatcher, params: SetPricesParams,
+            self: @ContractState, data_store: IDataStoreDispatcher, params: SetPricesParams,
         ) -> Array<ValidatedPrice> {
             // TODO
             ArrayTrait::new()
@@ -331,7 +331,7 @@ mod Oracle {
         /// * `params` - The set price params.
         fn set_primary_prices(
             ref self: ContractState,
-            data_store: IDataStoreSafeDispatcher,
+            data_store: IDataStoreDispatcher,
             event_emitter: IEventEmitterDispatcher,
             params: SetPricesParams,
         ) { // TODO
@@ -342,7 +342,7 @@ mod Oracle {
         /// * `data_store` - The data store.
         /// * `params` - The set price params.
         fn validate_prices(
-            self: @ContractState, data_store: IDataStoreSafeDispatcher, params: SetPricesParams,
+            self: @ContractState, data_store: IDataStoreDispatcher, params: SetPricesParams,
         ) { // TODO
         }
 
@@ -353,7 +353,7 @@ mod Oracle {
         /// # Returns
         /// The signers
         fn get_signers(
-            self: @ContractState, data_store: IDataStoreSafeDispatcher, params: SetPricesParams,
+            self: @ContractState, data_store: IDataStoreDispatcher, params: SetPricesParams,
         ) -> Array<ContractAddress> {
             // TODO
             ArrayTrait::new()
@@ -406,7 +406,7 @@ mod Oracle {
         /// # Returns
         /// The price feed multiplier.
         fn get_price_feed_price(
-            self: @ContractState, data_store: IDataStoreSafeDispatcher, token: ContractAddress,
+            self: @ContractState, data_store: IDataStoreDispatcher, token: ContractAddress,
         ) -> (bool, u128) {
             // TODO
             (true, 0)
@@ -419,7 +419,7 @@ mod Oracle {
         /// * `price_feed_tokens` - The tokens to set the prices using the price feeds for.
         fn set_prices_from_price_feeds(
             ref self: ContractState,
-            data_store: IDataStoreSafeDispatcher,
+            data_store: IDataStoreDispatcher,
             event_emitter: IEventEmitterDispatcher,
             price_feed_tokens: Array<ContractAddress>,
         ) { // TODO

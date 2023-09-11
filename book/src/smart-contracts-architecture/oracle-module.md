@@ -77,6 +77,32 @@ Decimals: 30 - (token decimals) - (number of decimals desired for precision)
 - USDC: 30 - 6 - 6 => 18
 - DG: 30 - 18 - 11 => 1.
 
+
+### Oracle primary and secondary price
+
+It is possible to update the oracle to support a primary_price and a secondary_price
+which would allow for stop-loss orders to be executed at exactly the trigger_price
+
+However, this may lead to gaming issues, an example:
+- The current price is $2020
+- A user has a long position and creates a stop-loss decrease order for < $2010
+- If the order has a swap from ETH to USDC and the user is able to cause the order
+to be frozen / unexecutable by manipulating state or otherwise
+- Then if price decreases to $2000, and the user is able to manipulate state such that
+the order becomes executable with $2010 being used as the price instead
+- Then the user would be able to perform the swap at a higher price than should possible
+
+Additionally, using the exact order's trigger_price could lead to gaming issues during times
+of volatility due to users setting tight stop-losses to minimize loss while betting on a
+directional price movement, fees and price impact should help a bit with this, but there
+still may be some probability of success
+
+The order keepers can use the closest oracle price to the trigger_price for execution, which
+should lead to similar order execution prices with reduced gaming risks
+
+If an order is frozen, the frozen order keepers should use the most recent price for order
+execution instead
+
 ---
 
 It contains the following files:
