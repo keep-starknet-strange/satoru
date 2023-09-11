@@ -294,6 +294,8 @@ mod OrderHandler {
         }
 
         fn cancel_order(ref self: ContractState, key: felt252) {
+            let starting_gas: u128 = 0; // TODO: Get starting gas from Cairo.
+
             // Check only controller.
             let role_module_state = RoleModule::unsafe_new_contract_state();
             role_module_state.only_controller();
@@ -324,7 +326,7 @@ mod OrderHandler {
                 base_order_handler_state.order_vault.read(),
                 key,
                 order.account,
-                // starting_gas,  // DISABLED
+                starting_gas,
                 keys::user_initiated_cancel(),
                 ArrayTrait::<felt252>::new(),
             );
@@ -405,6 +407,8 @@ mod OrderHandler {
             oracle_params: SetPricesParams,
             keeper: ContractAddress
         ) {
+            let starting_gas: u128 = 0; // TODO: Get starting gas from Cairo.
+
             // Check only self.
             let role_module_state = RoleModule::unsafe_new_contract_state();
             role_module_state.only_self();
@@ -412,8 +416,7 @@ mod OrderHandler {
             let mut base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let params = base_order_handler_state
                 .get_execute_order_params(
-                    key, oracle_params, keeper, // starting_gas,
-                     SecondaryOrderType::None(()),
+                    key, oracle_params, keeper, starting_gas, SecondaryOrderType::None(()),
                 );
 
             if params.order.is_frozen || params.order.order_type == OrderType::LimitSwap(()) {
@@ -470,7 +473,7 @@ mod OrderHandler {
                     base_order_handler_state.order_vault.read(),
                     key,
                     order.account,
-                    // starting_gas,  // DISABLED
+                    starting_gas,
                     reason,
                     reason_bytes,
                 );
@@ -483,7 +486,7 @@ mod OrderHandler {
                 base_order_handler_state.order_vault.read(),
                 key,
                 get_caller_address(),
-                // starting_gas,  // DISABLED
+                starting_gas,
                 reason,
                 reason_bytes
             );

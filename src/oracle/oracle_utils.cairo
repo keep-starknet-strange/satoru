@@ -31,7 +31,7 @@ use satoru::utils::store_arrays::{
 /// * `compacted_max_prices_indexes` - compacted max price indexes.
 /// * `signatures` - signatures of the oracle signers.
 /// * `price_feed_tokens` - tokens to set prices for based on an external price feed value.
-#[derive(Drop, Clone, starknet::Store, Serde)]
+#[derive(Drop, Clone, Serde)]
 struct SetPricesParams {
     signer_info: u128,
     tokens: Array<ContractAddress>,
@@ -52,8 +52,8 @@ impl DefaultSetPricesParams of Default<SetPricesParams> {
         SetPricesParams {
             signer_info: 0,
             tokens: ArrayTrait::<ContractAddress>::new(),
-            compacted_min_oracle_block_numbers: ArrayTrait::<u128>::new(),
-            compacted_max_oracle_block_numbers: ArrayTrait::<u128>::new(),
+            compacted_min_oracle_block_numbers: ArrayTrait::<u64>::new(),
+            compacted_max_oracle_block_numbers: ArrayTrait::<u64>::new(),
             compacted_oracle_timestamps: ArrayTrait::<u128>::new(),
             compacted_decimals: ArrayTrait::<u128>::new(),
             compacted_min_prices: ArrayTrait::<u128>::new(),

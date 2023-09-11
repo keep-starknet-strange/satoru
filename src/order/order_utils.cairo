@@ -69,7 +69,7 @@ fn cancel_order(
     keeper: ContractAddress,
     starting_gas: u128,
     reason: felt252,
-    reason_bytes: felt252
+    reason_bytes: Array<felt252>
 ) { //TODO
 }
 

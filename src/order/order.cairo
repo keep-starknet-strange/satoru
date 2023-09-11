@@ -72,7 +72,7 @@ impl DefaultOrder of Default<Order> {
             ui_fee_receiver: 0.try_into().unwrap(),
             market: 0.try_into().unwrap(),
             initial_collateral_token: 0.try_into().unwrap(),
-            // TODO swap_path: array![],
+            // TODO: use Span32 type swap_path: Array<ContractAddress>,
             size_delta_usd: 0,
             initial_collateral_delta_amount: 0,
             trigger_price: 0,
@@ -137,7 +137,7 @@ impl SecondaryOrderTypePrintImpl of PrintTrait<SecondaryOrderType> {
 
 /// `DecreasePositionSwapType` is used to indicate whether the decrease order should swap
 /// the pnl token to collateral token or vice versa.
-#[derive(Drop, Copy, starknet::Store, Serde)]
+#[derive(Drop, Copy, starknet::Store, Serde, PartialEq)]
 enum DecreasePositionSwapType {
     NoSwap: (),
     SwapPnlTokenToCollateralToken: (),
