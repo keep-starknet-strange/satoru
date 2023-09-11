@@ -111,6 +111,10 @@ mod FeeHandler {
                 .write(IEventEmitterDispatcher { contract_address: event_emitter_address });
         }
 
+        /// Claim fees for the specified market.
+        /// # Arguments
+        /// * `markets` - The market to claim fees from.
+        /// * `tokens` - The fee tokens.
         fn claim_fees(
             ref self: ContractState, market: Array<ContractAddress>, tokens: Array<ContractAddress>
         ) {
