@@ -10,6 +10,7 @@ use starknet::{ContractAddress, ClassHash};
 use satoru::deposit::deposit::Deposit;
 use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::position::position::Position;
+use satoru::market::market_pool_value_info::MarketPoolValueInfo;
 use satoru::position::position_event_utils::PositionIncreaseParams;
 use satoru::position::position_utils::DecreasePositionCollateralValues;
 use satoru::order::order::OrderType;
@@ -432,6 +433,15 @@ trait IEventEmitter<TContractState> {
     fn emit_execution_fee_refund(
         ref self: TContractState, receiver: ContractAddress, refund_fee_amount: u256
     );
+
+    /// Emits the `MarketPoolValueInfo` event.
+    #[inline(always)]
+    fn emit_market_pool_value_info(
+        ref self: TContractState,
+        market: ContractAddress,
+        market_pool_value_info: MarketPoolValueInfo,
+        market_tokens_supply: u256
+    );
 }
 
 #[starknet::contract]
@@ -447,6 +457,7 @@ mod EventEmitter {
     use satoru::deposit::deposit::Deposit;
     use satoru::withdrawal::withdrawal::Withdrawal;
     use satoru::position::position::Position;
+    use satoru::market::market_pool_value_info::MarketPoolValueInfo;
     use satoru::position::position_event_utils::PositionIncreaseParams;
     use satoru::position::position_utils::DecreasePositionCollateralValues;
     use satoru::order::order::OrderType;
@@ -526,6 +537,7 @@ mod EventEmitter {
         ClearPendingAction: ClearPendingAction,
         KeeperExecutionFee: KeeperExecutionFee,
         ExecutionFeeRefund: ExecutionFeeRefund,
+        MarketPoolValueInfoEvent: MarketPoolValueInfoEvent,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1097,6 +1109,13 @@ mod EventEmitter {
     struct ExecutionFeeRefund {
         receiver: ContractAddress,
         refund_fee_amount: u256
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct MarketPoolValueInfoEvent {
+        market: ContractAddress,
+        market_pool_value_info: MarketPoolValueInfo,
+        market_tokens_supply: u256
     }
 
 
@@ -1973,6 +1992,22 @@ mod EventEmitter {
             ref self: ContractState, receiver: ContractAddress, refund_fee_amount: u256
         ) {
             self.emit(ExecutionFeeRefund { receiver, refund_fee_amount });
+        }
+
+        /// Emits the `MarketPoolValueInfo` event.
+        #[inline(always)]
+        fn emit_market_pool_value_info(
+            ref self: ContractState,
+            market: ContractAddress,
+            market_pool_value_info: MarketPoolValueInfo,
+            market_tokens_supply: u256
+        ) {
+            self
+                .emit(
+                    MarketPoolValueInfoEvent {
+                        market, market_pool_value_info, market_tokens_supply
+                    }
+                );
         }
     }
 }
