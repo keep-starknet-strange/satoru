@@ -491,3 +491,41 @@ fn test_emit_set_price_feed() {
     // Assert there are no more events.
     assert(spy.events.len() == 0, 'There should be no events');
 }
+
+#[test]
+fn test_emit_signal_pending_action() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup_event_emitter();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let action_key = 'SignalPendingAction';
+    let action_label = 'SignalPendingAction';
+
+    // Create the expected data.
+    let expected_data: Array<felt252> = array![action_key, action_label];
+
+    // Emit the event.
+    event_emitter.emit_signal_pending_action(action_key, action_label);
+
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address,
+                    name: 'SignalPendingAction',
+                    keys: array![],
+                    data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}

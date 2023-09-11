@@ -412,6 +412,11 @@ trait IEventEmitter<TContractState> {
         price_feed_heartbeat_duration: u256,
         stable_price: u256
     );
+
+    /// Emits the `SignalPendingAction` event.
+    fn emit_signal_pending_action(
+        ref self: TContractState, action_key: felt252, action_label: felt252
+    );
 }
 
 #[starknet::contract]
@@ -502,6 +507,7 @@ mod EventEmitter {
         RevokeRole: RevokeRole,
         SignalSetPriceFeed: SignalSetPriceFeed,
         SetPriceFeed: SetPriceFeed,
+        SignalPendingAction: SignalPendingAction,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1049,6 +1055,12 @@ mod EventEmitter {
         price_feed_multiplier: u256,
         price_feed_heartbeat_duration: u256,
         stable_price: u256
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SignalPendingAction {
+        action_key: felt252,
+        action_label: felt252
     }
 
 
@@ -1897,6 +1909,13 @@ mod EventEmitter {
                         stable_price
                     }
                 );
+        }
+
+        /// Emits the `SignalPendingAction` event.
+        fn emit_signal_pending_action(
+            ref self: ContractState, action_key: felt252, action_label: felt252,
+        ) {
+            self.emit(SignalPendingAction { action_key, action_label });
         }
     }
 }
