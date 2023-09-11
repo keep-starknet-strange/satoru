@@ -21,6 +21,7 @@ use satoru::order::order::{Order, SecondaryOrderType};
 //TODO: OrderCollatDeltaAmountAutoUpdtd must be renamed back to OrderCollateralDeltaAmountAutoUpdated when string will be allowed as event argument
 //TODO: AfterWithdrawalCancelError must be renamed back to AfterWithdrawalCancellationError when string will be allowed as event argument
 //TODO: CumulativeBorrowingFactorUpdatd must be renamed back to CumulativeBorrowingFactorUpdated when string will be allowed as event argument
+//TODO: ClaimableFundingPerSizeUpdatd must be renamed back to ClaimableFundingAmountPerSizeUpdated when string will be allowed as event argument
 
 // *************************************************************************
 //                  Interface of the `EventEmitter` contract.
@@ -520,6 +521,16 @@ trait IEventEmitter<TContractState> {
         delta: u256,
         next_value: u256
     );
+
+    /// Emits the `ClaimableFundingPerSizeUpdatd` event.
+    fn emit_claimable_funding_amount_per_size_updated(
+        ref self: TContractState,
+        market: ContractAddress,
+        collateral_token: ContractAddress,
+        is_long: bool,
+        delta: u256,
+        next_value: u256
+    );
 }
 
 #[starknet::contract]
@@ -624,6 +635,7 @@ mod EventEmitter {
         CollateralSumUpdated: CollateralSumUpdated,
         CumulativeBorrowingFactorUpdatd: CumulativeBorrowingFactorUpdatd,
         FundingFeeAmountPerSizeUpdated: FundingFeeAmountPerSizeUpdated,
+        ClaimableFundingPerSizeUpdatd: ClaimableFundingPerSizeUpdatd,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1266,6 +1278,15 @@ mod EventEmitter {
 
     #[derive(Drop, starknet::Event)]
     struct FundingFeeAmountPerSizeUpdated {
+        market: ContractAddress,
+        collateral_token: ContractAddress,
+        is_long: bool,
+        delta: u256,
+        next_value: u256
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct ClaimableFundingPerSizeUpdatd {
         market: ContractAddress,
         collateral_token: ContractAddress,
         is_long: bool,
@@ -2274,6 +2295,23 @@ mod EventEmitter {
             self
                 .emit(
                     FundingFeeAmountPerSizeUpdated {
+                        market, collateral_token, is_long, delta, next_value
+                    }
+                );
+        }
+
+        /// Emits the `ClaimableFundingPerSizeUpdatd` event.
+        fn emit_claimable_funding_amount_per_size_updated(
+            ref self: ContractState,
+            market: ContractAddress,
+            collateral_token: ContractAddress,
+            is_long: bool,
+            delta: u256,
+            next_value: u256
+        ) {
+            self
+                .emit(
+                    ClaimableFundingPerSizeUpdatd {
                         market, collateral_token, is_long, delta, next_value
                     }
                 );
