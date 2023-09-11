@@ -35,7 +35,7 @@ fn test_emit_withdrawal_created() {
         withdrawal.min_long_token_amount.into(),
         withdrawal.min_short_token_amount.into(),
         withdrawal.updated_at_block.into(),
-        withdrawal.execution_fee.into(),
+        withdrawal.execution_fee.try_into().unwrap(),
         withdrawal.callback_gas_limit.into(),
         withdrawal.should_unwrap_native_token.into(),
     ];
