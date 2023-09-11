@@ -542,6 +542,18 @@ trait IEventEmitter<TContractState> {
         amount: u256,
         next_pool_value: u256
     );
+
+    /// Emits the `CollateralClaimed` event.
+    fn emit_collateral_claimed(
+        ref self: TContractState,
+        market: ContractAddress,
+        token: ContractAddress,
+        account: ContractAddress,
+        receiver: ContractAddress,
+        time_key: u128,
+        amount: u128,
+        next_pool_value: u128
+    );
 }
 
 #[starknet::contract]
@@ -647,7 +659,8 @@ mod EventEmitter {
         CumulativeBorrowingFactorUpdatd: CumulativeBorrowingFactorUpdatd,
         FundingFeeAmountPerSizeUpdated: FundingFeeAmountPerSizeUpdated,
         ClaimableFundingPerSizeUpdatd: ClaimableFundingPerSizeUpdatd,
-        FundingFeesClaimed: FundingFeesClaimed
+        FundingFeesClaimed: FundingFeesClaimed,
+        CollateralClaimed: CollateralClaimed
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1314,6 +1327,17 @@ mod EventEmitter {
         receiver: ContractAddress,
         amount: u256,
         next_pool_value: u256
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct CollateralClaimed {
+        market: ContractAddress,
+        token: ContractAddress,
+        account: ContractAddress,
+        receiver: ContractAddress,
+        time_key: u128,
+        amount: u128,
+        next_pool_value: u128
     }
 
 
@@ -2352,6 +2376,25 @@ mod EventEmitter {
             self
                 .emit(
                     FundingFeesClaimed { market, token, account, receiver, amount, next_pool_value }
+                );
+        }
+
+        /// Emits the `CollateralClaimed` event.
+        fn emit_collateral_claimed(
+            ref self: ContractState,
+            market: ContractAddress,
+            token: ContractAddress,
+            account: ContractAddress,
+            receiver: ContractAddress,
+            time_key: u128,
+            amount: u128,
+            next_pool_value: u128
+        ) {
+            self
+                .emit(
+                    CollateralClaimed {
+                        market, token, account, receiver, time_key, amount, next_pool_value
+                    }
                 );
         }
     }

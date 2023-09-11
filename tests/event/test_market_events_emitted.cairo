@@ -675,6 +675,60 @@ fn test_emit_claimable_collateral_updated() {
     assert(spy.events.len() == 0, 'There should be no events');
 }
 
+#[test]
+fn test_emit_collateral_claimed() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup_event_emitter();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let market = contract_address_const::<'market'>();
+    let token = contract_address_const::<'token'>();
+    let account = contract_address_const::<'account'>();
+    let receiver = contract_address_const::<'receiver'>();
+
+    let time_key: u128 = 1;
+    let amount: u128 = 2;
+    let next_pool_value: u128 = 3;
+
+    // Create the expected data.
+    let expected_data: Array<felt252> = array![
+        market.into(),
+        token.into(),
+        account.into(),
+        receiver.into(),
+        time_key.into(),
+        amount.into(),
+        next_pool_value.into()
+    ];
+
+    // Emit the event.
+    event_emitter
+        .emit_collateral_claimed(
+            market, token, account, receiver, time_key, amount, next_pool_value
+        );
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address,
+                    name: 'CollateralClaimed',
+                    keys: array![],
+                    data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}
+
 fn create_dummy_market_pool_value_info() -> MarketPoolValueInfo {
     MarketPoolValueInfo {
         pool_value: 1,
