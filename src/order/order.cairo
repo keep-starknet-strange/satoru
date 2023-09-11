@@ -15,7 +15,9 @@ use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
 struct Order {
     /// The unique identifier of the order.
     key: felt252,
+    /// orderType the order type
     order_type: OrderType,
+    decrease_position_swap_type: DecreasePositionSwapType,
     /// The account of the order.
     account: ContractAddress,
     /// The receiver for any token transfers.
@@ -61,6 +63,7 @@ impl DefaultOrder of Default<Order> {
         Order {
             key: 0,
             order_type: OrderType::MarketSwap(()),
+            decrease_position_swap_type: DecreasePositionSwapType::NoSwap(()),
             account: 0.try_into().unwrap(),
             receiver: 0.try_into().unwrap(),
             callback_contract: 0.try_into().unwrap(),
@@ -132,7 +135,7 @@ impl SecondaryOrderTypePrintImpl of PrintTrait<SecondaryOrderType> {
 
 /// `DecreasePositionSwapType` is used to indicate whether the decrease order should swap
 /// the pnl token to collateral token or vice versa.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Copy, Drop, starknet::Store, Serde, PartialEq)]
 enum DecreasePositionSwapType {
     NoSwap: (),
     SwapPnlTokenToCollateralToken: (),
