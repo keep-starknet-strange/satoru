@@ -766,6 +766,57 @@ fn test_emit_ui_fee_factor_updated() {
     assert(spy.events.len() == 0, 'There should be no events');
 }
 
+#[test]
+fn test_emit_market_created() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup_event_emitter();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let creator = contract_address_const::<'creator'>();
+    let market_token = contract_address_const::<'market_token'>();
+    let index_token = contract_address_const::<'index_token'>();
+    let long_token = contract_address_const::<'long_token'>();
+    let short_token = contract_address_const::<'short_token'>();
+    let market_type = 'type';
+
+    // Create the expected data.
+    let expected_data: Array<felt252> = array![
+        creator.into(),
+        market_token.into(),
+        index_token.into(),
+        long_token.into(),
+        short_token.into(),
+        market_type
+    ];
+
+    // Emit the event.
+    event_emitter
+        .emit_market_created(
+            creator, market_token, index_token, long_token, short_token, market_type
+        );
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address,
+                    name: 'MarketCreated',
+                    keys: array![],
+                    data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}
+
 fn create_dummy_market_pool_value_info() -> MarketPoolValueInfo {
     MarketPoolValueInfo {
         pool_value: 1,
