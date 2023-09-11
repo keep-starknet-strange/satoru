@@ -574,6 +574,9 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `SignerRemoved` event.
     fn emit_signer_removed(ref self: TContractState, account: ContractAddress);
+
+    /// Emits the `SwapReverted` event.
+    fn emit_swap_reverted(ref self: TContractState, reason: felt252, reason_bytes: Array<felt252>);
 }
 
 #[starknet::contract]
@@ -684,7 +687,8 @@ mod EventEmitter {
         UiFeeFactorUpdated: UiFeeFactorUpdated,
         OraclePriceUpdate: OraclePriceUpdate,
         SignerAdded: SignerAdded,
-        SignerRemoved: SignerRemoved
+        SignerRemoved: SignerRemoved,
+        SwapReverted: SwapReverted,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1386,6 +1390,12 @@ mod EventEmitter {
     #[derive(Drop, starknet::Event)]
     struct SignerRemoved {
         account: ContractAddress
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SwapReverted {
+        reason: felt252,
+        reason_bytes: Array<felt252>
     }
 
 
@@ -2472,6 +2482,13 @@ mod EventEmitter {
         /// Emits the `SignerRemoved` event.
         fn emit_signer_removed(ref self: ContractState, account: ContractAddress) {
             self.emit(SignerRemoved { account });
+        }
+
+        /// Emits the `SwapReverted` event.
+        fn emit_swap_reverted(
+            ref self: ContractState, reason: felt252, reason_bytes: Array<felt252>
+        ) {
+            self.emit(SwapReverted { reason, reason_bytes });
         }
     }
 }
