@@ -8,6 +8,7 @@ use starknet::ContractAddress;
 use satoru::market::market::Market;
 use satoru::order::order::Order;
 use satoru::withdrawal::withdrawal::Withdrawal;
+use satoru::deposit::deposit::Deposit;
 
 // *************************************************************************
 //                  Interface of the `DataStore` contract.
@@ -273,6 +274,27 @@ trait IDataStore<TContractState> {
         self: @TContractState, account: ContractAddress, start: u32, end: u32
     ) -> Array<felt252>;
 
+    // *************************************************************************
+    //                      Deposit related functions.
+    // *************************************************************************
+
+    fn get_deposit(self: @TContractState, key: felt252) -> Option<Deposit>;
+
+    fn set_deposit(ref self: TContractState, key: felt252, deposit: Deposit);
+
+    fn remove_deposit(ref self: TContractState, key: felt252, account: ContractAddress);
+
+    fn get_deposit_keys(self: @TContractState, start: usize, end: usize) -> Array<felt252>;
+
+    fn get_deposit_count(self: @TContractState) -> u32;
+
+    fn get_account_deposit_count(self: @TContractState, account: ContractAddress) -> u32;
+
+    fn get_account_deposit_keys(
+        self: @TContractState, account: ContractAddress, start: u32, end: u32
+    ) -> Array<felt252>;
+
+
     //TODO: Update u128 to i128 when Serde and Store for i128 implementations are released.
     // *************************************************************************
     //                          int128 related functions.
@@ -332,6 +354,7 @@ mod DataStore {
     use satoru::market::market::{Market, ValidateMarket};
     use satoru::order::{order::Order, error::OrderError};
     use satoru::withdrawal::{withdrawal::Withdrawal, error::WithdrawalError};
+    use satoru::deposit::{deposit::Deposit, error::DepositError};
 
     // *************************************************************************
     //                              STORAGE
@@ -352,6 +375,9 @@ mod DataStore {
         withdrawals: List<Withdrawal>,
         account_withdrawals: LegacyMap<ContractAddress, List<felt252>>,
         withdrawal_indexes: LegacyMap::<felt252, usize>,
+        deposits: List<Deposit>,
+        account_deposits: LegacyMap<ContractAddress, List<felt252>>,
+        deposit_indexes: LegacyMap::<felt252, usize>,
     }
 
     // *************************************************************************
@@ -882,6 +908,136 @@ mod DataStore {
             };
             keys
         }
+
+        // *************************************************************************
+        //                      Deposit related functions.
+        // *************************************************************************
+
+        fn get_deposit(self: @ContractState, key: felt252) -> Option<Deposit> {
+            let offsetted_index: usize = self.deposit_indexes.read(key);
+            if offsetted_index == 0 {
+                return Option::None;
+            }
+            let deposits: List<Deposit> = self.deposits.read();
+            deposits.get(offsetted_index - 1)
+        }
+
+        fn set_deposit(ref self: ContractState, key: felt252, deposit: Deposit) {
+            // Check that the caller has permission to set the value.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            assert(deposit.account != 0.try_into().unwrap(), DepositError::CANT_BE_ZERO);
+
+            let mut deposits = self.deposits.read();
+            let mut account_deposits = self.account_deposits.read(deposit.account);
+
+            // Because default values in storage are 0, indexes are offseted by 1.
+            let offsetted_index: usize = self.deposit_indexes.read(key);
+            assert(offsetted_index <= deposits.len(), DepositError::DEPOSIT_NOT_FOUND);
+
+            // If the index is 0, it means the key has not been registered yet and
+            // we need to append the deposit to the list.
+            if offsetted_index == 0 {
+                // Valid indexes start from 1.
+                self.deposit_indexes.write(key, deposits.len() + 1);
+                account_deposits.append(key);
+                deposits.append(deposit);
+                return;
+            }
+            let index = offsetted_index - 1;
+            deposits.set(index, deposit);
+        }
+
+        fn remove_deposit(ref self: ContractState, key: felt252, account: ContractAddress) {
+            // Check that the caller has permission to remove the deposit.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            let offsetted_index: usize = self.deposit_indexes.read(key);
+            let mut deposits = self.deposits.read();
+            assert(offsetted_index <= deposits.len(), DepositError::DEPOSIT_NOT_FOUND);
+
+            let index = offsetted_index - 1;
+            // Replace the value at `index` by the last deposit in the list.
+
+            // Specifically handle case where there is only one deposit
+            let last_deposit_index = deposits.len() - 1;
+            if index == last_deposit_index {
+                deposits.pop_front();
+                self.deposit_indexes.write(key, 0);
+                self._remove_account_deposit(key, account);
+                return;
+            }
+
+            let mut last_deposit_maybe = deposits.pop_front();
+            match last_deposit_maybe {
+                Option::Some(last_deposit) => {
+                    deposits.set(index, last_deposit);
+                    self.deposit_indexes.write(last_deposit.key, offsetted_index);
+                    self.deposit_indexes.write(key, 0);
+                    self._remove_account_deposit(key, account)
+                },
+                Option::None => {
+                    // This case should never happen, because index is always <= length
+                    return;
+                }
+            }
+        }
+
+        fn get_deposit_keys(self: @ContractState, start: usize, mut end: usize) -> Array<felt252> {
+            let deposits = self.deposits.read();
+            let mut keys: Array<felt252> = Default::default();
+            assert(start <= end, 'start must be <= end');
+            if start >= deposits.len() {
+                return keys;
+            }
+
+            if end > deposits.len() {
+                end = deposits.len()
+            }
+            let mut i = start;
+            loop {
+                if i == end {
+                    break;
+                }
+                let deposit = deposits[i];
+                keys.append(deposit.key);
+                i = i + 1;
+            };
+            keys
+        }
+
+        fn get_deposit_count(self: @ContractState) -> u32 {
+            self.deposits.read().len
+        }
+
+        fn get_account_deposit_count(self: @ContractState, account: ContractAddress) -> u32 {
+            self.account_deposits.read(account).len()
+        }
+
+        fn get_account_deposit_keys(
+            self: @ContractState, account: ContractAddress, start: u32, mut end: u32
+        ) -> Array<felt252> {
+            let mut keys: Array<felt252> = Default::default();
+            let mut account_deposits = self.account_deposits.read(account);
+
+            assert(start <= end, 'start must be <= end');
+            if start >= account_deposits.len() {
+                return keys;
+            }
+
+            if end > account_deposits.len() {
+                end = account_deposits.len()
+            }
+
+            let mut i = start;
+            loop {
+                if i == end {
+                    break;
+                }
+                let key = account_deposits[i];
+                keys.append(key);
+                i += 1;
+            };
+            keys
+        }
     }
 
     #[generate_trait]
@@ -934,6 +1090,36 @@ mod DataStore {
                                 break;
                             }
                             account_orders.set(i, last_key);
+                        },
+                        Option::None => {
+                            // This case should never happen, because index is always < length
+                            break;
+                        }
+                    }
+                    break;
+                }
+                i += 1;
+            }
+        }
+        fn _remove_account_deposit(
+            ref self: ContractState, key: felt252, account: ContractAddress
+        ) {
+            let mut account_deposits = self.account_deposits.read(account);
+            let mut i = 0;
+            loop {
+                if i == account_deposits.len() {
+                    break;
+                }
+                let deposit_key = account_deposits[i];
+                if deposit_key == key {
+                    let mut last_key_maybe = account_deposits.pop_front();
+                    match last_key_maybe {
+                        Option::Some(last_key) => {
+                            // If the list is empty, then there's no need to replace an existing key
+                            if account_deposits.len() == 0 {
+                                break;
+                            }
+                            account_deposits.set(i, last_key);
                         },
                         Option::None => {
                             // This case should never happen, because index is always < length
