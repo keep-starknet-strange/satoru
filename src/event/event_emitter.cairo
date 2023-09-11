@@ -355,6 +355,11 @@ trait IEventEmitter<TContractState> {
     fn emit_signal_remove_oracle_signer(
         ref self: TContractState, action_key: felt252, account: ContractAddress
     );
+
+    /// Emits the `RemoveOracleSigner` event.
+    fn emit_remove_oracle_signer(
+        ref self: TContractState, action_key: felt252, account: ContractAddress
+    );
 }
 
 #[starknet::contract]
@@ -436,6 +441,7 @@ mod EventEmitter {
         SignalAddOracleSigner: SignalAddOracleSigner,
         AddOracleSigner: AddOracleSigner,
         SignalRemoveOracleSigner: SignalRemoveOracleSigner,
+        RemoveOracleSigner: RemoveOracleSigner,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -915,6 +921,12 @@ mod EventEmitter {
 
     #[derive(Drop, starknet::Event)]
     struct SignalRemoveOracleSigner {
+        action_key: felt252,
+        account: ContractAddress
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct RemoveOracleSigner {
         action_key: felt252,
         account: ContractAddress
     }
@@ -1658,6 +1670,13 @@ mod EventEmitter {
             ref self: ContractState, action_key: felt252, account: ContractAddress
         ) {
             self.emit(SignalRemoveOracleSigner { action_key, account });
+        }
+
+        /// Emits the `RemoveOracleSigner` event.
+        fn emit_remove_oracle_signer(
+            ref self: ContractState, action_key: felt252, account: ContractAddress
+        ) {
+            self.emit(RemoveOracleSigner { action_key, account });
         }
     }
 }
