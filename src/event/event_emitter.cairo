@@ -325,6 +325,11 @@ trait IEventEmitter<TContractState> {
     fn emit_set_address(
         ref self: TContractState, key: felt252, data_bytes: Array<felt252>, value: ContractAddress
     );
+
+    /// Emits the `SetBytes32` event.
+    fn emit_set_bytes32(
+        ref self: TContractState, key: felt252, data_bytes: Array<felt252>, value: felt252
+    );
 }
 
 #[starknet::contract]
@@ -400,6 +405,7 @@ mod EventEmitter {
         AdlStateUpdated: AdlStateUpdated,
         SetBool: SetBool,
         SetAddress: SetAddress,
+        SetBytes32: SetBytes32,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -842,6 +848,13 @@ mod EventEmitter {
         key: felt252,
         data_bytes: Array<felt252>,
         value: ContractAddress,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SetBytes32 {
+        key: felt252,
+        data_bytes: Array<felt252>,
+        value: felt252,
     }
 
 
@@ -1540,6 +1553,12 @@ mod EventEmitter {
             value: ContractAddress
         ) {
             self.emit(SetAddress { key, data_bytes, value });
+        }
+
+        fn emit_set_bytes32(
+            ref self: ContractState, key: felt252, data_bytes: Array<felt252>, value: felt252
+        ) {
+            self.emit(SetBytes32 { key, data_bytes, value });
         }
     }
 }
