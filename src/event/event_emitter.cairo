@@ -340,6 +340,11 @@ trait IEventEmitter<TContractState> {
     fn emit_set_int(
         ref self: TContractState, key: felt252, data_bytes: Array<felt252>, value: felt252
     );
+
+    /// Emits the `SignalAddOracleSigner` event.
+    fn emit_signal_add_oracle_signer(
+        ref self: TContractState, action_key: felt252, account: ContractAddress
+    );
 }
 
 #[starknet::contract]
@@ -418,6 +423,7 @@ mod EventEmitter {
         SetBytes32: SetBytes32,
         SetUint: SetUint,
         SetInt: SetInt,
+        SignalAddOracleSigner: SignalAddOracleSigner,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -881,6 +887,12 @@ mod EventEmitter {
         key: felt252,
         data_bytes: Array<felt252>,
         value: felt252,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SignalAddOracleSigner {
+        action_key: felt252,
+        account: ContractAddress
     }
 
 
@@ -1597,6 +1609,12 @@ mod EventEmitter {
             ref self: ContractState, key: felt252, data_bytes: Array<felt252>, value: felt252
         ) {
             self.emit(SetInt { key, data_bytes, value });
+        }
+
+        fn emit_signal_add_oracle_signer(
+            ref self: ContractState, action_key: felt252, account: ContractAddress
+        ) {
+            self.emit(SignalAddOracleSigner { action_key, account });
         }
     }
 }
