@@ -481,6 +481,15 @@ trait IEventEmitter<TContractState> {
         delta: u256,
         next_value: u256
     );
+
+     /// Emits the `VirtualPositionInventoryUpdated` event.
+        fn emit_virtual_position_inventory_updated(
+            ref self: TContractState,
+            token: ContractAddress,
+            virtual_token_id: felt252,
+            delta: u256,
+            next_value: u256
+        );
 }
 
 #[starknet::contract]
@@ -581,6 +590,7 @@ mod EventEmitter {
         OpenInterestInTokensUpdated: OpenInterestInTokensUpdated,
         OpenInterestUpdated: OpenInterestUpdated,
         VirtualSwapInventoryUpdated: VirtualSwapInventoryUpdated,
+        VirtualPositionInventoryUpdated:VirtualPositionInventoryUpdated
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1192,6 +1202,15 @@ mod EventEmitter {
         market: ContractAddress,
         is_long_token: bool,
         virtual_market_id: felt252,
+        delta: u256,
+        next_value: u256
+    }
+
+
+    #[derive(Drop, starknet::Event)]
+    struct VirtualPositionInventoryUpdated {
+        token: ContractAddress,
+        virtual_token_id: felt252,
         delta: u256,
         next_value: u256
     }
@@ -2141,6 +2160,22 @@ mod EventEmitter {
                 .emit(
                     VirtualSwapInventoryUpdated {
                         market, is_long_token, virtual_market_id, delta, next_value
+                    }
+                );
+        }
+
+        /// Emits the `VirtualPositionInventoryUpdated` event.
+        fn emit_virtual_position_inventory_updated(
+            ref self: ContractState,
+            token: ContractAddress,
+            virtual_token_id: felt252,
+            delta: u256,
+            next_value: u256
+        ) {
+            self
+                .emit(
+                    VirtualPositionInventoryUpdated {
+                        token, virtual_token_id, delta, next_value
                     }
                 );
         }
