@@ -4,17 +4,9 @@ use snforge_std::{
     EventAssertions
 };
 use satoru::tests_lib::{setup_event_emitter};
-use satoru::position::{
-    position_event_utils::PositionIncreaseParams, position::Position,
-    position_utils::DecreasePositionCollateralValues,
-    position_utils::DecreasePositionCollateralValuesOutput
-};
-use satoru::pricing::position_pricing_utils::{
-    PositionFees, PositionUiFees, PositionBorrowingFees, PositionReferralFees, PositionFundingFees
-};
-use satoru::order::order::OrderType;
-use satoru::price::price::Price;
+
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::pricing::swap_pricing_utils::{SwapFees};
 
 #[test]
 fn test_emit_swap_info() {
@@ -43,7 +35,7 @@ fn test_emit_swap_info() {
     let price_impact_amount: u128 = 7;
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![
+    let expected_data: Array<felt252> = array![
         order_key,
         market.into(),
         receiver.into(),
@@ -81,6 +73,56 @@ fn test_emit_swap_info() {
             @array![
                 Event {
                     from: contract_address, name: 'SwapInfo', keys: array![], data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}
+
+#[test]
+fn test_emit_swap_fees_collected() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup_event_emitter();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create a dummy data.
+    let market = contract_address_const::<'market'>();
+    let token = contract_address_const::<'token'>();
+    let token_price: u128 = 1;
+    let action = 'action';
+    let fees: SwapFees = SwapFees {
+        fee_receiver_amount: 1,
+        fee_amount_for_pool: 2,
+        amount_after_fees: 3,
+        ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
+        ui_fee_receiver_factor: 4,
+        ui_fee_amount: 5,
+    };
+    // Create the expected data.
+    let mut expected_data: Array<felt252> = array![
+        market.into(), token.into(), token_price.into(), action
+    ];
+    fees.serialize(ref expected_data);
+
+    // Emit the event.
+    event_emitter.emit_swap_fees_collected(market, token, token_price, action, fees);
+
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address,
+                    name: 'SwapFeesCollected',
+                    keys: array![],
+                    data: expected_data
                 }
             ]
         );

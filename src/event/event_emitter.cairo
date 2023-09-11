@@ -11,6 +11,7 @@ use satoru::deposit::deposit::Deposit;
 use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::position::position::Position;
 use satoru::market::market_pool_value_info::MarketPoolValueInfo;
+use satoru::pricing::swap_pricing_utils::SwapFees;
 use satoru::position::position_event_utils::PositionIncreaseParams;
 use satoru::position::position_utils::DecreasePositionCollateralValues;
 use satoru::order::order::OrderType;
@@ -594,6 +595,17 @@ trait IEventEmitter<TContractState> {
         price_impact_usd: u128,
         price_impact_amount: u128
     );
+
+    /// Emits the `SwapFeesCollected` event.
+    #[inline(always)]
+    fn emit_swap_fees_collected(
+        ref self: TContractState,
+        market: ContractAddress,
+        token: ContractAddress,
+        token_price: u128,
+        action: felt252,
+        fees: SwapFees
+    );
 }
 
 #[starknet::contract]
@@ -610,6 +622,7 @@ mod EventEmitter {
     use satoru::withdrawal::withdrawal::Withdrawal;
     use satoru::position::position::Position;
     use satoru::market::market_pool_value_info::MarketPoolValueInfo;
+    use satoru::pricing::swap_pricing_utils::SwapFees;
     use satoru::position::position_event_utils::PositionIncreaseParams;
     use satoru::position::position_utils::DecreasePositionCollateralValues;
     use satoru::order::order::OrderType;
@@ -707,6 +720,7 @@ mod EventEmitter {
         SignerRemoved: SignerRemoved,
         SwapReverted: SwapReverted,
         SwapInfo: SwapInfo,
+        SwapFeesCollected: SwapFeesCollected,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1430,6 +1444,15 @@ mod EventEmitter {
         amount_out: u128,
         price_impact_usd: u128,
         price_impact_amount: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SwapFeesCollected {
+        market: ContractAddress,
+        token: ContractAddress,
+        token_price: u128,
+        action: felt252,
+        fees: SwapFees
     }
 
 
@@ -2526,6 +2549,7 @@ mod EventEmitter {
         }
 
         /// Emits the `SwapInfo` event.
+
         fn emit_swap_info(
             ref self: ContractState,
             order_key: felt252,
@@ -2558,6 +2582,19 @@ mod EventEmitter {
                         price_impact_amount
                     }
                 );
+        }
+
+        /// Emits the `SwapFeesCollected` event.
+        #[inline(always)]
+        fn emit_swap_fees_collected(
+            ref self: ContractState,
+            market: ContractAddress,
+            token: ContractAddress,
+            token_price: u128,
+            action: felt252,
+            fees: SwapFees
+        ) {
+            self.emit(SwapFeesCollected { market, token, token_price, action, fees });
         }
     }
 }
