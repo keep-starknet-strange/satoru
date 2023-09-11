@@ -385,6 +385,11 @@ trait IEventEmitter<TContractState> {
     fn emit_signal_revoke_role(
         ref self: TContractState, action_key: felt252, account: ContractAddress, role_key: felt252
     );
+
+    /// Emits the `RevokeRole` event.
+    fn emit_revoke_role(
+        ref self: TContractState, action_key: felt252, account: ContractAddress, role_key: felt252
+    );
 }
 
 #[starknet::contract]
@@ -472,6 +477,7 @@ mod EventEmitter {
         SignalGrantRole: SignalGrantRole,
         GrantRole: GrantRole,
         SignalRevokeRole: SignalRevokeRole,
+        RevokeRole: RevokeRole,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -989,6 +995,13 @@ mod EventEmitter {
 
     #[derive(Drop, starknet::Event)]
     struct SignalRevokeRole {
+        action_key: felt252,
+        account: ContractAddress,
+        role_key: felt252
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct RevokeRole {
         action_key: felt252,
         account: ContractAddress,
         role_key: felt252
@@ -1784,6 +1797,16 @@ mod EventEmitter {
             role_key: felt252
         ) {
             self.emit(SignalRevokeRole { action_key, account, role_key });
+        }
+
+        /// Emits the `RevokeRole` event.
+        fn emit_revoke_role(
+            ref self: ContractState,
+            action_key: felt252,
+            account: ContractAddress,
+            role_key: felt252
+        ) {
+            self.emit(RevokeRole { action_key, account, role_key });
         }
     }
 }
