@@ -422,6 +422,11 @@ trait IEventEmitter<TContractState> {
     fn emit_clear_pending_action(
         ref self: TContractState, action_key: felt252, action_label: felt252
     );
+
+    /// Emits the `KeeperExecutionFee` event.
+    fn emit_keeper_execution_fee(
+        ref self: TContractState, keeper: ContractAddress, execution_fee_amount: u256
+    );
 }
 
 #[starknet::contract]
@@ -514,6 +519,7 @@ mod EventEmitter {
         SetPriceFeed: SetPriceFeed,
         SignalPendingAction: SignalPendingAction,
         ClearPendingAction: ClearPendingAction,
+        KeeperExecutionFee: KeeperExecutionFee,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1073,6 +1079,12 @@ mod EventEmitter {
     struct ClearPendingAction {
         action_key: felt252,
         action_label: felt252
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct KeeperExecutionFee {
+        keeper: ContractAddress,
+        execution_fee_amount: u256
     }
 
 
@@ -1935,6 +1947,13 @@ mod EventEmitter {
             ref self: ContractState, action_key: felt252, action_label: felt252,
         ) {
             self.emit(ClearPendingAction { action_key, action_label });
+        }
+
+        /// Emits the `KeeperExecutionFee` event.
+        fn emit_keeper_execution_fee(
+            ref self: ContractState, keeper: ContractAddress, execution_fee_amount: u256
+        ) {
+            self.emit(KeeperExecutionFee { keeper, execution_fee_amount });
         }
     }
 }
