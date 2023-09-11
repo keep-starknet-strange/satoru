@@ -510,6 +510,16 @@ trait IEventEmitter<TContractState> {
         delta: u256,
         next_value: u256
     );
+
+    /// Emits the `FundingFeeAmountPerSizeUpdated` event.
+    fn emit_funding_fee_amount_per_size_updated(
+        ref self: TContractState,
+        market: ContractAddress,
+        collateral_token: ContractAddress,
+        is_long: bool,
+        delta: u256,
+        next_value: u256
+    );
 }
 
 #[starknet::contract]
@@ -613,6 +623,7 @@ mod EventEmitter {
         VirtualPositionInventoryUpdated: VirtualPositionInventoryUpdated,
         CollateralSumUpdated: CollateralSumUpdated,
         CumulativeBorrowingFactorUpdatd: CumulativeBorrowingFactorUpdatd,
+        FundingFeeAmountPerSizeUpdated: FundingFeeAmountPerSizeUpdated,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1248,6 +1259,15 @@ mod EventEmitter {
     #[derive(Drop, starknet::Event)]
     struct CumulativeBorrowingFactorUpdatd {
         market: ContractAddress,
+        is_long: bool,
+        delta: u256,
+        next_value: u256
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct FundingFeeAmountPerSizeUpdated {
+        market: ContractAddress,
+        collateral_token: ContractAddress,
         is_long: bool,
         delta: u256,
         next_value: u256
@@ -2240,6 +2260,23 @@ mod EventEmitter {
             next_value: u256
         ) {
             self.emit(CumulativeBorrowingFactorUpdatd { market, is_long, delta, next_value });
+        }
+
+        /// Emits the `FundingFeeAmountPerSizeUpdated` event.
+        fn emit_funding_fee_amount_per_size_updated(
+            ref self: ContractState,
+            market: ContractAddress,
+            collateral_token: ContractAddress,
+            is_long: bool,
+            delta: u256,
+            next_value: u256
+        ) {
+            self
+                .emit(
+                    FundingFeeAmountPerSizeUpdated {
+                        market, collateral_token, is_long, delta, next_value
+                    }
+                );
         }
     }
 }

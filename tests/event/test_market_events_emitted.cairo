@@ -433,6 +433,54 @@ fn test_emit_cumulative_borrowing_factor_updated() {
     assert(spy.events.len() == 0, 'There should be no events');
 }
 
+#[test]
+fn test_emit_funding_fee_amount_per_size_updated() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup_event_emitter();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let market = contract_address_const::<'market'>();
+    let collateral_token = contract_address_const::<'collateral_token'>();
+
+    let is_long: bool = true;
+    let delta: u256 = 1;
+    let next_value: u256 = 2;
+
+    // Create the expected data.
+    let mut expected_data: Array<felt252> = array![
+        market.into(), collateral_token.into(), is_long.into()
+    ];
+    delta.serialize(ref expected_data);
+    next_value.serialize(ref expected_data);
+
+    // Emit the event.
+    event_emitter
+        .emit_funding_fee_amount_per_size_updated(
+            market, collateral_token, is_long, delta, next_value
+        );
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address,
+                    name: 'FundingFeeAmountPerSizeUpdated',
+                    keys: array![],
+                    data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}
+
 fn create_dummy_market_pool_value_info() -> MarketPoolValueInfo {
     MarketPoolValueInfo {
         pool_value: 1,
