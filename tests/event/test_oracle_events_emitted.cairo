@@ -82,3 +82,39 @@ fn test_emit_signer_added() {
     // Assert there are no more events.
     assert(spy.events.len() == 0, 'There should be no events');
 }
+
+#[test]
+fn test_emit_signer_removed() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup_event_emitter();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let account = contract_address_const::<'account'>();
+
+    // Create the expected data.
+    let expected_data: Array<felt252> = array![account.into()];
+
+    // Emit the event.
+    event_emitter.emit_signer_removed(account);
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address,
+                    name: 'SignerRemoved',
+                    keys: array![],
+                    data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}

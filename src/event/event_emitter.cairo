@@ -571,6 +571,9 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `SignerAdded` event.
     fn emit_signer_added(ref self: TContractState, account: ContractAddress);
+
+    /// Emits the `SignerRemoved` event.
+    fn emit_signer_removed(ref self: TContractState, account: ContractAddress);
 }
 
 #[starknet::contract]
@@ -680,7 +683,8 @@ mod EventEmitter {
         CollateralClaimed: CollateralClaimed,
         UiFeeFactorUpdated: UiFeeFactorUpdated,
         OraclePriceUpdate: OraclePriceUpdate,
-        SignerAdded: SignerAdded
+        SignerAdded: SignerAdded,
+        SignerRemoved: SignerRemoved
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1376,6 +1380,11 @@ mod EventEmitter {
 
     #[derive(Drop, starknet::Event)]
     struct SignerAdded {
+        account: ContractAddress
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SignerRemoved {
         account: ContractAddress
     }
 
@@ -2458,6 +2467,11 @@ mod EventEmitter {
         /// Emits the `SignerAdded` event.
         fn emit_signer_added(ref self: ContractState, account: ContractAddress) {
             self.emit(SignerAdded { account });
+        }
+
+        /// Emits the `SignerRemoved` event.
+        fn emit_signer_removed(ref self: ContractState, account: ContractAddress) {
+            self.emit(SignerRemoved { account });
         }
     }
 }
