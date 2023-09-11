@@ -25,15 +25,17 @@ fn test_emit_adl_state_updated() {
     let market: ContractAddress = contract_address_const::<'market'>();
     let is_long: bool = true;
     let pnl_to_pool_factor: felt252 = 1;
-    let max_pnl_factor: u256 = 10;
+    let max_pnl_factor: u128 = 10;
     let should_enable_adl: bool = false;
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![
-        market.into(), is_long.into(), pnl_to_pool_factor,
+    let expected_data: Array<felt252> = array![
+        market.into(),
+        is_long.into(),
+        pnl_to_pool_factor,
+        max_pnl_factor.into(),
+        should_enable_adl.into()
     ];
-    max_pnl_factor.serialize(ref expected_data);
-    expected_data.append(should_enable_adl.into());
 
     // Emit the event.
     event_emitter

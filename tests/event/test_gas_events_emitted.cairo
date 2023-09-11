@@ -23,11 +23,11 @@ fn test_emit_execution_fee_refund() {
 
     // Create dummy data.
     let receiver = contract_address_const::<'receiver'>();
-    let refund_fee_amount: u256 = 1;
+    let refund_fee_amount: u128 = 1;
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![receiver.into()];
-    refund_fee_amount.serialize(ref expected_data);
+    let expected_data: Array<felt252> = array![receiver.into(), refund_fee_amount.into()];
+
     // Emit the event.
     event_emitter.emit_execution_fee_refund(receiver, refund_fee_amount);
     // Assert the event was emitted.
@@ -60,11 +60,11 @@ fn test_emit_keeper_execution_fee() {
 
     // Create dummy data.
     let keeper = contract_address_const::<'keeper'>();
-    let execution_fee_amount: u256 = 1;
+    let execution_fee_amount: u128 = 1;
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![keeper.into()];
-    execution_fee_amount.serialize(ref expected_data);
+    let expected_data: Array<felt252> = array![keeper.into(), execution_fee_amount.into()];
+
     // Emit the event.
     event_emitter.emit_keeper_execution_fee(keeper, execution_fee_amount);
     // Assert the event was emitted.

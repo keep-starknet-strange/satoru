@@ -401,15 +401,19 @@ fn test_emit_signal_set_price_feed() {
     let action_key = 'SignalSetPriceFeed';
     let token = contract_address_const::<'token'>();
     let price_feed = contract_address_const::<'priceFeed'>();
-    let price_feed_multiplier: u256 = 1;
-    let price_feed_heartbeat_duration: u256 = 2;
-    let stable_price: u256 = 3;
+    let price_feed_multiplier: u128 = 1;
+    let price_feed_heartbeat_duration: u128 = 2;
+    let stable_price: u128 = 3;
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![action_key, token.into(), price_feed.into()];
-    price_feed_multiplier.serialize(ref expected_data);
-    price_feed_heartbeat_duration.serialize(ref expected_data);
-    stable_price.serialize(ref expected_data);
+    let expected_data: Array<felt252> = array![
+        action_key,
+        token.into(),
+        price_feed.into(),
+        price_feed_multiplier.into(),
+        price_feed_heartbeat_duration.into(),
+        stable_price.into()
+    ];
 
     // Emit the event.
     event_emitter
@@ -455,15 +459,19 @@ fn test_emit_set_price_feed() {
     let action_key = 'SetPriceFeed';
     let token = contract_address_const::<'token'>();
     let price_feed = contract_address_const::<'priceFeed'>();
-    let price_feed_multiplier: u256 = 1;
-    let price_feed_heartbeat_duration: u256 = 2;
-    let stable_price: u256 = 3;
+    let price_feed_multiplier: u128 = 1;
+    let price_feed_heartbeat_duration: u128 = 2;
+    let stable_price: u128 = 3;
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![action_key, token.into(), price_feed.into()];
-    price_feed_multiplier.serialize(ref expected_data);
-    price_feed_heartbeat_duration.serialize(ref expected_data);
-    stable_price.serialize(ref expected_data);
+    let mut expected_data: Array<felt252> = array![
+        action_key,
+        token.into(),
+        price_feed.into(),
+        price_feed_multiplier.into(),
+        price_feed_heartbeat_duration.into(),
+        stable_price.into()
+    ];
 
     // Emit the event.
     event_emitter

@@ -24,12 +24,13 @@ fn test_emit_market_pool_value_info() {
     // Create dummy data.
     let market = contract_address_const::<'market'>();
     let market_pool_value_info: MarketPoolValueInfo = create_dummy_market_pool_value_info();
-    let market_tokens_supply: u256 = 1;
+    let market_tokens_supply: u128 = 1;
 
     // Create the expected data.
     let mut expected_data: Array<felt252> = array![market.into()];
     market_pool_value_info.serialize(ref expected_data);
-    market_tokens_supply.serialize(ref expected_data);
+    expected_data.append(market_tokens_supply.into());
+
     // Emit the event.
     event_emitter.emit_market_pool_value_info(market, market_pool_value_info, market_tokens_supply);
     // Assert the event was emitted.
@@ -63,13 +64,14 @@ fn test_emit_pool_amount_updated() {
     // Create dummy data.
     let market = contract_address_const::<'market'>();
     let token = contract_address_const::<'token'>();
-    let delta: u256 = 1;
-    let next_value: u256 = 2;
+    let delta: u128 = 1;
+    let next_value: u128 = 2;
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![market.into(), token.into()];
-    delta.serialize(ref expected_data);
-    next_value.serialize(ref expected_data);
+    let expected_data: Array<felt252> = array![
+        market.into(), token.into(), delta.into(), next_value.into()
+    ];
+
     // Emit the event.
     event_emitter.emit_pool_amount_updated(market, token, delta, next_value);
     // Assert the event was emitted.
@@ -183,15 +185,13 @@ fn test_emit_open_interest_in_tokens_updated() {
     let market = contract_address_const::<'market'>();
     let collateral_token = contract_address_const::<'collateral_token'>();
     let is_long: bool = true;
-    let delta: u256 = 1;
-    let next_value: u256 = 2;
+    let delta: u128 = 1;
+    let next_value: u128 = 2;
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![
-        market.into(), collateral_token.into(), is_long.into()
+    let expected_data: Array<felt252> = array![
+        market.into(), collateral_token.into(), is_long.into(), delta.into(), next_value.into()
     ];
-    delta.serialize(ref expected_data);
-    next_value.serialize(ref expected_data);
 
     // Emit the event.
     event_emitter
@@ -228,15 +228,13 @@ fn test_emit_open_interest_updated() {
     let market = contract_address_const::<'market'>();
     let collateral_token = contract_address_const::<'collateral_token'>();
     let is_long: bool = true;
-    let delta: u256 = 1;
-    let next_value: u256 = 2;
+    let delta: u128 = 1;
+    let next_value: u128 = 2;
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![
-        market.into(), collateral_token.into(), is_long.into()
+    let expected_data: Array<felt252> = array![
+        market.into(), collateral_token.into(), is_long.into(), delta.into(), next_value.into()
     ];
-    delta.serialize(ref expected_data);
-    next_value.serialize(ref expected_data);
 
     // Emit the event.
     event_emitter.emit_open_interest_updated(market, collateral_token, is_long, delta, next_value);
@@ -272,15 +270,13 @@ fn test_emit_virtual_swap_inventory_updated() {
     let market = contract_address_const::<'market'>();
     let is_long_token: bool = true;
     let virtual_market_id = 'virtual_market_id';
-    let delta: u256 = 1;
-    let next_value: u256 = 2;
+    let delta: u128 = 1;
+    let next_value: u128 = 2;
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![
-        market.into(), is_long_token.into(), virtual_market_id
+    let expected_data: Array<felt252> = array![
+        market.into(), is_long_token.into(), virtual_market_id, delta.into(), next_value.into()
     ];
-    delta.serialize(ref expected_data);
-    next_value.serialize(ref expected_data);
 
     // Emit the event.
     event_emitter
@@ -318,13 +314,13 @@ fn test_emit_virtual_position_inventory_updated() {
     // Create dummy data.
     let token = contract_address_const::<'token'>();
     let virtual_token_id = 'virtual_token_id';
-    let delta: u256 = 1;
-    let next_value: u256 = 2;
+    let delta: u128 = 1;
+    let next_value: u128 = 2;
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![token.into(), virtual_token_id];
-    delta.serialize(ref expected_data);
-    next_value.serialize(ref expected_data);
+    let expected_data: Array<felt252> = array![
+        token.into(), virtual_token_id, delta.into(), next_value.into()
+    ];
 
     // Emit the event.
     event_emitter
@@ -361,15 +357,13 @@ fn test_emit_collateral_sum_updated() {
     let market = contract_address_const::<'market'>();
     let collateral_token = contract_address_const::<'collateral_token'>();
     let is_long: bool = true;
-    let delta: u256 = 1;
-    let next_value: u256 = 2;
+    let delta: u128 = 1;
+    let next_value: u128 = 2;
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![
-        market.into(), collateral_token.into(), is_long.into()
+    let expected_data: Array<felt252> = array![
+        market.into(), collateral_token.into(), is_long.into(), delta.into(), next_value.into()
     ];
-    delta.serialize(ref expected_data);
-    next_value.serialize(ref expected_data);
 
     // Emit the event.
     event_emitter.emit_collateral_sum_updated(market, collateral_token, is_long, delta, next_value);
@@ -405,13 +399,13 @@ fn test_emit_cumulative_borrowing_factor_updated() {
     let market = contract_address_const::<'market'>();
 
     let is_long: bool = true;
-    let delta: u256 = 1;
-    let next_value: u256 = 2;
+    let delta: u128 = 1;
+    let next_value: u128 = 2;
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![market.into(), is_long.into()];
-    delta.serialize(ref expected_data);
-    next_value.serialize(ref expected_data);
+    let mut expected_data: Array<felt252> = array![
+        market.into(), is_long.into(), delta.into(), next_value.into()
+    ];
 
     // Emit the event.
     event_emitter.emit_cumulative_borrowing_factor_updated(market, is_long, delta, next_value);
@@ -448,15 +442,13 @@ fn test_emit_funding_fee_amount_per_size_updated() {
     let collateral_token = contract_address_const::<'collateral_token'>();
 
     let is_long: bool = true;
-    let delta: u256 = 1;
-    let next_value: u256 = 2;
+    let delta: u128 = 1;
+    let next_value: u128 = 2;
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![
-        market.into(), collateral_token.into(), is_long.into()
+    let expected_data: Array<felt252> = array![
+        market.into(), collateral_token.into(), is_long.into(), delta.into(), next_value.into()
     ];
-    delta.serialize(ref expected_data);
-    next_value.serialize(ref expected_data);
 
     // Emit the event.
     event_emitter
@@ -495,15 +487,13 @@ fn test_emit_claimable_funding_amount_per_size_updated() {
     let market = contract_address_const::<'market'>();
     let collateral_token = contract_address_const::<'collateral_token'>();
     let is_long: bool = true;
-    let delta: u256 = 1;
-    let next_value: u256 = 2;
+    let delta: u128 = 1;
+    let next_value: u128 = 2;
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![
-        market.into(), collateral_token.into(), is_long.into()
+    let expected_data: Array<felt252> = array![
+        market.into(), collateral_token.into(), is_long.into(), delta.into(), next_value.into()
     ];
-    delta.serialize(ref expected_data);
-    next_value.serialize(ref expected_data);
 
     // Emit the event.
     event_emitter
@@ -592,15 +582,18 @@ fn test_emit_funding_fees_claimed() {
     let token = contract_address_const::<'token'>();
     let account = contract_address_const::<'account'>();
     let receiver = contract_address_const::<'receiver'>();
-    let amount: u256 = 1;
-    let next_pool_value: u256 = 2;
+    let amount: u128 = 1;
+    let next_pool_value: u128 = 2;
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![
-        market.into(), token.into(), account.into(), receiver.into(),
+    let expected_data: Array<felt252> = array![
+        market.into(),
+        token.into(),
+        account.into(),
+        receiver.into(),
+        amount.into(),
+        next_pool_value.into()
     ];
-    amount.serialize(ref expected_data);
-    next_pool_value.serialize(ref expected_data);
 
     // Emit the event.
     event_emitter
