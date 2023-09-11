@@ -577,6 +577,23 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `SwapReverted` event.
     fn emit_swap_reverted(ref self: TContractState, reason: felt252, reason_bytes: Array<felt252>);
+
+    /// Emits the `SwapInfo` event.
+    fn emit_swap_info(
+        ref self: TContractState,
+        order_key: felt252,
+        market: ContractAddress,
+        receiver: ContractAddress,
+        token_in: ContractAddress,
+        token_out: ContractAddress,
+        token_in_price: u128,
+        token_out_price: u128,
+        amount_in: u128,
+        amount_in_after_fees: u128,
+        amount_out: u128,
+        price_impact_usd: u128,
+        price_impact_amount: u128
+    );
 }
 
 #[starknet::contract]
@@ -689,6 +706,7 @@ mod EventEmitter {
         SignerAdded: SignerAdded,
         SignerRemoved: SignerRemoved,
         SwapReverted: SwapReverted,
+        SwapInfo: SwapInfo,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1396,6 +1414,22 @@ mod EventEmitter {
     struct SwapReverted {
         reason: felt252,
         reason_bytes: Array<felt252>
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SwapInfo {
+        order_key: felt252,
+        market: ContractAddress,
+        receiver: ContractAddress,
+        token_in: ContractAddress,
+        token_out: ContractAddress,
+        token_in_price: u128,
+        token_out_price: u128,
+        amount_in: u128,
+        amount_in_after_fees: u128,
+        amount_out: u128,
+        price_impact_usd: u128,
+        price_impact_amount: u128
     }
 
 
@@ -2489,6 +2523,41 @@ mod EventEmitter {
             ref self: ContractState, reason: felt252, reason_bytes: Array<felt252>
         ) {
             self.emit(SwapReverted { reason, reason_bytes });
+        }
+
+        /// Emits the `SwapInfo` event.
+        fn emit_swap_info(
+            ref self: ContractState,
+            order_key: felt252,
+            market: ContractAddress,
+            receiver: ContractAddress,
+            token_in: ContractAddress,
+            token_out: ContractAddress,
+            token_in_price: u128,
+            token_out_price: u128,
+            amount_in: u128,
+            amount_in_after_fees: u128,
+            amount_out: u128,
+            price_impact_usd: u128,
+            price_impact_amount: u128
+        ) {
+            self
+                .emit(
+                    SwapInfo {
+                        order_key,
+                        market,
+                        receiver,
+                        token_in,
+                        token_out,
+                        token_in_price,
+                        token_out_price,
+                        amount_in,
+                        amount_in_after_fees,
+                        amount_out,
+                        price_impact_usd,
+                        price_impact_amount
+                    }
+                );
         }
     }
 }
