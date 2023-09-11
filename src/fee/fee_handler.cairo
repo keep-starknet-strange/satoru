@@ -131,7 +131,7 @@ mod FeeHandler {
                 }
 
                 fee_utils::claim_fees(
-                    IDataStoreDispatcher { contract_address: data_store.contract_address },
+                    data_store,
                     self.event_emitter.read(),
                     *market.at(i),
                     *tokens.at(i),
