@@ -161,7 +161,9 @@ fn test_execute_withdrawal_restricted() {
     withdrawal_handler.execute_withdrawal(withdrawal_key, oracle_params);
 }
 
+// Panics due to the absence of a mocked withdrawal, resulting in Option::None being returned.
 #[test]
+#[should_panic(expected: ('invalid withdrawal key', 'SAMPLE_WITHDRAW'))]
 fn test_execute_withdrawal() {
     let oracle_params = SetPricesParams {
         signer_info: Default::default(),
@@ -179,7 +181,7 @@ fn test_execute_withdrawal() {
     };
 
     let (caller_address, data_store, event_emitter, withdrawal_handler) = setup();
-    let order_keeper: ContractAddress = 0x2233.try_into().unwrap();
+    let order_keeper = contract_address_const::<0x2233>();
     start_prank(withdrawal_handler.contract_address, order_keeper);
 
     let withdrawal_key = 'SAMPLE_WITHDRAW';
@@ -191,7 +193,7 @@ fn test_execute_withdrawal() {
 #[should_panic(expected: ('unauthorized_access',))]
 fn test_simulate_execute_withdrawal_restricted() {
     let (caller_address, data_store, event_emitter, withdrawal_handler) = setup();
-    let caller: ContractAddress = 0x847.try_into().unwrap();
+    let caller: ContractAddress = contract_address_const::<0x847>();
     start_prank(withdrawal_handler.contract_address, caller);
 
     let oracle_params = SimulatePricesParams {
@@ -203,7 +205,9 @@ fn test_simulate_execute_withdrawal_restricted() {
     withdrawal_handler.simulate_execute_withdrawal(withdrawal_key, oracle_params);
 }
 
+// Panics due to the absence of a mocked withdrawal, resulting in Option::None being returned.
 #[test]
+#[should_panic(expected: ('invalid withdrawal key', 'SAMPLE_WITHDRAW'))]
 fn test_simulate_execute_withdrawal() {
     let (caller_address, data_store, event_emitter, withdrawal_handler) = setup();
     let oracle_params = SimulatePricesParams {

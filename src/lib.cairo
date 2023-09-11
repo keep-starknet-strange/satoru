@@ -162,6 +162,7 @@ mod market {
     mod market_factory;
     mod market;
     mod market_pool_value_info;
+    mod market_event_utils;
 }
 
 // `oracle` contains functions related to oracles used by Satoru.
