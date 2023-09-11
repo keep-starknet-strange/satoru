@@ -130,6 +130,44 @@ fn test_emit_swap_impact_pool_amount_updated() {
     assert(spy.events.len() == 0, 'There should be no events');
 }
 
+#[test]
+fn test_emit_position_impact_pool_amount_updated() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup_event_emitter();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let market = contract_address_const::<'market'>();
+    let delta: u128 = 1;
+    let nextValue: u128 = 2;
+
+    // Create the expected data.
+    let expected_data: Array<felt252> = array![market.into(), delta.into(), nextValue.into()];
+
+    // Emit the event.
+    event_emitter.emit_position_impact_pool_amount_updated(market, delta, nextValue);
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address,
+                    name: 'PositionImpactPoolAmountUpdated',
+                    keys: array![],
+                    data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}
+
 fn create_dummy_market_pool_value_info() -> MarketPoolValueInfo {
     MarketPoolValueInfo {
         pool_value: 1,
