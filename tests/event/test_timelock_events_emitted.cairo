@@ -273,3 +273,39 @@ fn test_emit_signal_grant_role() {
     // Assert there are no more events.
     assert(spy.events.len() == 0, 'There should be no events');
 }
+
+#[test]
+fn test_emit_grant_role() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup_event_emitter();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let action_key = 'GrantRole';
+    let account = contract_address_const::<'account'>();
+    let role_key = 'Admin';
+
+    // Create the expected data.
+    let expected_data: Array<felt252> = array![action_key, account.into(), role_key];
+
+    // Emit the event.
+    event_emitter.emit_grant_role(action_key, account, role_key);
+
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address, name: 'GrantRole', keys: array![], data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}
