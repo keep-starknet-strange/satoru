@@ -529,3 +529,41 @@ fn test_emit_signal_pending_action() {
     // Assert there are no more events.
     assert(spy.events.len() == 0, 'There should be no events');
 }
+
+#[test]
+fn test_emit_clear_pending_action() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup_event_emitter();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let action_key = 'ClearPendingAction';
+    let action_label = 'ClearPendingAction';
+
+    // Create the expected data.
+    let expected_data: Array<felt252> = array![action_key, action_label];
+
+    // Emit the event.
+    event_emitter.emit_clear_pending_action(action_key, action_label);
+
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address,
+                    name: 'ClearPendingAction',
+                    keys: array![],
+                    data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}

@@ -417,6 +417,11 @@ trait IEventEmitter<TContractState> {
     fn emit_signal_pending_action(
         ref self: TContractState, action_key: felt252, action_label: felt252
     );
+
+    /// Emits the `ClearPendingAction` event.
+    fn emit_clear_pending_action(
+        ref self: TContractState, action_key: felt252, action_label: felt252
+    );
 }
 
 #[starknet::contract]
@@ -508,6 +513,7 @@ mod EventEmitter {
         SignalSetPriceFeed: SignalSetPriceFeed,
         SetPriceFeed: SetPriceFeed,
         SignalPendingAction: SignalPendingAction,
+        ClearPendingAction: ClearPendingAction,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1059,6 +1065,12 @@ mod EventEmitter {
 
     #[derive(Drop, starknet::Event)]
     struct SignalPendingAction {
+        action_key: felt252,
+        action_label: felt252
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct ClearPendingAction {
         action_key: felt252,
         action_label: felt252
     }
@@ -1916,6 +1928,13 @@ mod EventEmitter {
             ref self: ContractState, action_key: felt252, action_label: felt252,
         ) {
             self.emit(SignalPendingAction { action_key, action_label });
+        }
+
+        /// Emits the `ClearPendingAction` event.
+        fn emit_clear_pending_action(
+            ref self: ContractState, action_key: felt252, action_label: felt252,
+        ) {
+            self.emit(ClearPendingAction { action_key, action_label });
         }
     }
 }
