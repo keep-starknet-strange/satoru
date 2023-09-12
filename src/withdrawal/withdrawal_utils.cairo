@@ -39,7 +39,7 @@ struct CreateWithdrawalParams {
     /// Whether the native token should be unwrapped when executing the withdrawal.
     should_unwrap_native_token: bool,
     /// The execution fee for the withdrawal.
-    execution_fee: u128,
+    execution_fee: u256,
     /// The gas limit for calling the callback contract.
     callback_gas_limit: u128,
 }
