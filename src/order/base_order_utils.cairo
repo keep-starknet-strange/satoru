@@ -493,7 +493,7 @@ fn get_execution_price_for_decrease(
 /// * `order` - The order to check.
 #[inline(always)]
 fn validate_non_empty_order(order: @Order) {
-    assert(*order.account.is_non_zero(), OrderError::EMPTY_ORDER);
+    assert((*order.account).is_non_zero(), OrderError::EMPTY_ORDER);
     assert(
         *order.size_delta_usd != 0 || *order.initial_collateral_delta_amount != 0,
         OrderError::EMPTY_ORDER
