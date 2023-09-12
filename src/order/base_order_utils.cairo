@@ -91,7 +91,7 @@ struct CreateOrderParams {
     /// The acceptable execution price for increase / decrease orders.
     acceptable_price: u128,
     /// The execution fee for keepers.
-    execution_fee: u128,
+    execution_fee: u256,
     /// The gas limit for the callbackContract.
     callback_gas_limit: u128,
     /// The minimum output amount for decrease orders and swaps.
@@ -106,6 +106,31 @@ struct CreateOrderParams {
     should_unwrap_native_token: bool,
     /// The referral code linked to this order.
     referral_code: felt252
+}
+
+impl CreateOrderParamsClone of Clone<CreateOrderParams> {
+    fn clone(self: @CreateOrderParams) -> CreateOrderParams {
+        CreateOrderParams {
+            receiver: *self.receiver,
+            callback_contract: *self.callback_contract,
+            ui_fee_receiver: *self.ui_fee_receiver,
+            market: *self.market,
+            initial_collateral_token: *self.initial_collateral_token,
+            swap_path: self.swap_path.clone(),
+            size_delta_usd: *self.size_delta_usd,
+            initial_collateral_delta_amount: *self.initial_collateral_delta_amount,
+            trigger_price: *self.trigger_price,
+            acceptable_price: *self.acceptable_price,
+            execution_fee: *self.execution_fee,
+            callback_gas_limit: *self.callback_gas_limit,
+            min_output_amount: *self.min_output_amount,
+            order_type: *self.order_type,
+            decrease_position_swap_type: *self.decrease_position_swap_type,
+            is_long: *self.is_long,
+            should_unwrap_native_token: *self.should_unwrap_native_token,
+            referral_code: *self.referral_code
+        }
+    }
 }
 
 #[derive(Drop, starknet::Store, Serde)]
@@ -463,11 +488,14 @@ fn get_execution_price_for_decrease(
     0
 }
 
+/// Validates that an order exists.
+/// # Arguments
+/// * `order` - The order to check.
 #[inline(always)]
-fn validate_non_empty_order(order: Order) {
-    assert(order.account.is_non_zero(), OrderError::EMPTY_ORDER);
+fn validate_non_empty_order(order: @Order) {
+    assert(*order.account.is_non_zero(), OrderError::EMPTY_ORDER);
     assert(
-        order.size_delta_usd != 0 || order.initial_collateral_delta_amount != 0,
+        *order.size_delta_usd != 0 || *order.initial_collateral_delta_amount != 0,
         OrderError::EMPTY_ORDER
     );
 }
