@@ -44,7 +44,7 @@ fn pay_execution_fee(
     data_store: IDataStoreDispatcher,
     event_emitter: IEventEmitterDispatcher,
     bank: IStrictBankDispatcher,
-    execution_fee: u128,
+    execution_fee: u256,
     starting_gas: u128,
     keeper: ContractAddress,
     refund_receiver: ContractAddress
@@ -59,7 +59,7 @@ fn pay_execution_fee(
 /// # Returns
 /// * The key for the account order list.
 fn validate_execution_fee(
-    data_store: IDataStoreDispatcher, estimated_gas_limit: u128, execution_fee: u128
+    data_store: IDataStoreDispatcher, estimated_gas_limit: u128, execution_fee: u256
 ) { // TODO
 }
 
@@ -109,7 +109,7 @@ fn estimate_execute_withdrawal_gas_limit(
 /// # Arguments
 /// * `data_store` - The data storage contract dispatcher.
 /// * `order` - The order to estimate the gas limit for.
-fn estimate_execute_order_gas_limit(data_store: IDataStoreDispatcher, order: Order) -> u128 {
+fn estimate_execute_order_gas_limit(data_store: IDataStoreDispatcher, order: @Order) -> u128 {
     // TODO
     0
 }

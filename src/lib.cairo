@@ -139,9 +139,11 @@ mod utils {
     mod error;
     mod global_reentrancy_guard;
     mod precision;
+    mod span32;
     mod u128_mask;
     mod hash;
     mod store_arrays;
+    mod error_utils;
     mod starknet_utils;
 }
 
@@ -177,6 +179,8 @@ mod order {
     mod increase_order_utils;
     mod order_vault;
     mod order;
+    mod order_store_utils;
+    mod order_event_utils;
     mod error;
 }
 
@@ -189,6 +193,7 @@ mod position {
     mod position_event_utils;
     mod position_utils;
     mod position;
+    mod error;
 }
 
 // `pricing` contains pricing utils
@@ -217,6 +222,7 @@ mod swap {
 // TODO: Use openzeppelin as dependency when Scarb versions match.
 mod token {
     mod erc20;
+    mod token_utils;
 }
 
 // `withdrawal` contains withdrawal management functions
