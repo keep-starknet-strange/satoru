@@ -16,7 +16,7 @@ use satoru::order::order::OrderType;
 use satoru::price::price::Price;
 use satoru::pricing::position_pricing_utils::PositionFees;
 use satoru::order::order::{Order, SecondaryOrderType};
-
+use satoru::event::event_utils::{EventLogData};
 //TODO: OrderCollatDeltaAmountAutoUpdtd must be renamed back to OrderCollateralDeltaAmountAutoUpdated when string will be allowed as event argument
 
 // *************************************************************************
@@ -304,6 +304,14 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `AfterOrderFrozenError` event.
     fn emit_after_order_frozen_error(ref self: TContractState, key: felt252, order: Order);
+
+    /// Emits the `EventLog1` event.
+    fn emit_event_log1(
+        ref self: TContractState,
+        event_name: felt252,
+        event_name_hash: felt252,
+        event_log_data: EventLogData
+    );
 }
 
 #[starknet::contract]
@@ -313,7 +321,7 @@ mod EventEmitter {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{ContractAddress, ClassHash};
+    use starknet::{ContractAddress, ClassHash, get_caller_address};
 
     // Local imports.
     use satoru::deposit::deposit::Deposit;
@@ -325,6 +333,7 @@ mod EventEmitter {
     use satoru::price::price::Price;
     use satoru::pricing::position_pricing_utils::PositionFees;
     use satoru::order::order::{Order, SecondaryOrderType};
+    use satoru::event::event_utils::{EventLogData};
 
     // *************************************************************************
     //                              STORAGE
@@ -376,6 +385,15 @@ mod EventEmitter {
         AfterOrderExecutionError: AfterOrderExecutionError,
         AfterOrderCancellationError: AfterOrderCancellationError,
         AfterOrderFrozenError: AfterOrderFrozenError,
+        EventLog1: EventLog1,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct EventLog1 {
+        msg_sender: ContractAddress,
+        event_name: felt252,
+        event_name_hash: felt252,
+        event_log_data: EventLogData,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1456,6 +1474,16 @@ mod EventEmitter {
         /// Emits the `AfterOrderFrozenError` event.
         fn emit_after_order_frozen_error(ref self: ContractState, key: felt252, order: Order) {
             self.emit(AfterOrderFrozenError { key, order });
+        }
+
+        fn emit_event_log1(
+            ref self: ContractState,
+            event_name: felt252,
+            event_name_hash: felt252,
+            event_log_data: EventLogData
+        ) {
+            let msg_sender = get_caller_address();
+            self.emit(EventLog1 { msg_sender, event_name, event_name_hash, event_log_data });
         }
     }
 }

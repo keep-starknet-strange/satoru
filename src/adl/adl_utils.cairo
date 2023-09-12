@@ -13,12 +13,14 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
+use starknet::{get_caller_address, ContractAddress};
 use integer::BoundedInt;
-
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::event::{
+    event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait},
+    event_utils::{EventLogData, EventUtilsTrait}
+};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::market::market_utils::{
     MarketPrices, get_enabled_market, get_market_prices, is_pnl_factor_exceeded_direct
@@ -133,10 +135,8 @@ fn create_adl_order(params: CreateAdlOrderParams) -> felt252 {
     // Check if the position is valid
     match position_result {
         Option::Some(pos) => {
+            assert(params.size_delta_usd <= pos.size_in_usd, AdlError::INVALID_SIZE_DELTA_FOR_ADL);
             position = pos;
-            assert(
-                params.size_delta_usd <= position.size_in_usd, AdlError::INVALID_SIZE_DELTA_FOR_ADL
-            );
         },
         Option::None => {
             panic_with_felt252(AdlError::POSTION_NOT_VALID);
@@ -291,17 +291,25 @@ fn set_adl_enabled(
 /// * `event_emitter` - The `EventEmitter` contract dispatcher.
 /// * `market` - Address of the market to check.
 /// * `is_long` - Indicates the ADL state update is for the long or short side of the market.
-/// * `pnt_to_pool_factor` - The ratio of PnL to pool value.
+/// * `pnl_to_pool_factor` - The ratio of PnL to pool value.
 /// * `max_pnl_factor` - The max PnL factor.
 /// * `should_enable_adl` - Whether ADL was enabled or disabled.
 fn emit_adl_state_updated(
     event_emitter: IEventEmitterDispatcher,
     market: ContractAddress,
     is_long: bool,
-    pnt_to_pool_factor: i128,
+    pnl_to_pool_factor: i128,
     max_pnl_factor: u128,
     should_enable_adl: bool
 ) {
-    // TODO implement eventData
+    let mut event_data: EventLogData = Default::default();
 
+    event_data.int_items.set_item('pnl_to_pool_factor', pnl_to_pool_factor);
+    event_data.uint_items.set_item('max_pnl_factor', max_pnl_factor);
+    event_data.bool_items.set_item('is_long', is_long);
+    event_data.bool_items.set_item('should_enable_adl', should_enable_adl);
+
+    let event_name: felt252 = 'AdlStateUpdated';
+    let name_hash: felt252 = market.into();
+    event_emitter.emit_event_log1(event_name, name_hash, event_data);
 }
