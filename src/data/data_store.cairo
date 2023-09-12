@@ -7,6 +7,7 @@ use core::traits::Into;
 use starknet::ContractAddress;
 use satoru::market::market::Market;
 use satoru::order::order::Order;
+use satoru::position::position::Position;
 use satoru::withdrawal::withdrawal::Withdrawal;
 
 // *************************************************************************
@@ -244,6 +245,56 @@ trait IDataStore<TContractState> {
 
 
     // *************************************************************************
+    //                      Postion related functions.
+    // *************************************************************************
+    /// Get a position value for the given key.
+    /// # Arguments
+    /// * `key` - The key to get the value for.
+    /// # Returns
+    /// The value for the given key.
+    fn get_position(self: @TContractState, key: felt252) -> Option<Position>;
+
+    /// Set a position value for the given key.
+    /// # Arguments
+    /// * `key` - The key to set the value for.
+    /// * `value` - The value to set.
+    fn set_position(ref self: TContractState, key: felt252, position: Position);
+
+    /// Remove a position value for the given key.
+    /// # Arguments
+    /// * `key` - The key to remove the value for.
+    /// * `account` - The account to remove key for.
+    fn remove_position(ref self: TContractState, key: felt252, account: ContractAddress);
+
+
+    /// Return position keys between start - end  indexes
+    /// # Arguments
+    /// * `start` - Start index
+    /// * `end` - Start index
+    fn get_position_keys(self: @TContractState, start: usize, end: usize) -> Array<felt252>;
+
+    // TODO checkk
+    /// Return total position count
+    fn get_position_count(self: @TContractState) -> u32;
+
+    /// Returns the number of withdrawals made by a specific account.
+    ///
+    /// # Arguments
+    ///
+    /// * `account` - The account address to retrieve the position count for.
+    fn get_account_position_count(self: @TContractState, account: ContractAddress) -> u32;
+
+
+    /// Return position keys between start - end  indexes for given account
+    /// # Arguments
+    /// * `account` - The position account 
+    /// * `start` - Start index
+    /// * `end` - Start index
+    fn get_account_position_keys(
+        self: @TContractState, account: ContractAddress, start: usize, end: usize
+    ) -> Array<felt252>;
+
+    // *************************************************************************
     //                      Withdrawal related functions.
     // *************************************************************************
     /// Get a withdrawal value for the given key.
@@ -353,6 +404,7 @@ mod DataStore {
     use satoru::market::{market::{Market, ValidateMarket}, error::MarketError};
     use satoru::data::error::DataError;
     use satoru::order::{order::Order, error::OrderError};
+    use satoru::position::{position::Position, error::PositionError};
     use satoru::withdrawal::{withdrawal::Withdrawal, error::WithdrawalError};
 
     // *************************************************************************
@@ -376,7 +428,11 @@ mod DataStore {
         orders: List<Order>,
         account_orders: LegacyMap<ContractAddress, List<felt252>>,
         order_indexes: LegacyMap::<felt252, usize>,
-        /// Withdral storage
+        /// Position storage
+        positions: List<Position>,
+        account_positions: LegacyMap<ContractAddress, List<felt252>>,
+        position_indexes: LegacyMap::<felt252, usize>,
+        /// Withdrawal storage
         withdrawals: List<Withdrawal>,
         account_withdrawals: LegacyMap<ContractAddress, List<felt252>>,
         withdrawal_indexes: LegacyMap::<felt252, usize>,
@@ -868,6 +924,138 @@ mod DataStore {
             };
             keys
         }
+
+        // *************************************************************************
+        //                      Position related functions.
+        // *************************************************************************
+
+        fn get_position(self: @ContractState, key: felt252) -> Option<Position> {
+            let offsetted_index: usize = self.position_indexes.read(key);
+            if offsetted_index == 0 {
+                return Option::None;
+            }
+            let positions: List<Position> = self.positions.read();
+            positions.get(offsetted_index - 1)
+        }
+
+        fn set_position(ref self: ContractState, key: felt252, position: Position) {
+            // Check that the caller has permission to set the value.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            assert(position.account != 0.try_into().unwrap(), PositionError::CANT_BE_ZERO);
+
+            let mut positions = self.positions.read();
+            let mut account_positions = self.account_positions.read(position.account);
+
+            // Because default values in storage are 0, indexes are offseted by 1.
+            let offsetted_index: usize = self.position_indexes.read(key);
+            assert(offsetted_index <= positions.len(), PositionError::POSITION_NOT_FOUND);
+
+            // If the index is 0, it means the key has not been registered yet and
+            // we need to append the position to the list.
+            if offsetted_index == 0 {
+                // Valid indexes start from 1.
+                self.position_indexes.write(key, positions.len() + 1);
+                account_positions.append(key);
+                positions.append(position);
+                return;
+            }
+            let index = offsetted_index - 1;
+
+            positions.set(index, position);
+        }
+
+        fn remove_position(ref self: ContractState, key: felt252, account: ContractAddress) {
+            // Check that the caller has permission to remove the position.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            let offsetted_index: usize = self.position_indexes.read(key);
+            let mut positions = self.positions.read();
+            assert(offsetted_index <= positions.len(), PositionError::POSITION_NOT_FOUND);
+
+            let index = offsetted_index - 1;
+            // Replace the value at `index` by the last position in the list.
+
+            // Specifically handle case where there is only one position
+            let last_position_index = positions.len() - 1;
+            if index == last_position_index {
+                positions.pop_front();
+                self.position_indexes.write(key, 0);
+                self._remove_account_position(key, account);
+                return;
+            }
+
+            let mut last_position_maybe = positions.pop_front();
+            match last_position_maybe {
+                Option::Some(last_position) => {
+                    positions.set(index, last_position);
+                    self.position_indexes.write(last_position.key, offsetted_index);
+                    self.position_indexes.write(key, 0);
+                    self._remove_account_position(key, account)
+                },
+                Option::None => {
+                    // This case should never happen, because index is always <= length
+                    return;
+                }
+            }
+        }
+
+        fn get_position_keys(self: @ContractState, start: usize, mut end: usize) -> Array<felt252> {
+            let positions = self.positions.read();
+            let mut keys: Array<felt252> = Default::default();
+            assert(start <= end, 'start must be <= end');
+            if start >= positions.len() {
+                return keys;
+            }
+
+            if end > positions.len() {
+                end = positions.len()
+            }
+            let mut i = start;
+            loop {
+                if i == end {
+                    break;
+                }
+                let position: Position = positions[i];
+                keys.append(position.key);
+                i = i + 1;
+            };
+            keys
+        }
+
+        fn get_position_count(self: @ContractState) -> u32 {
+            self.positions.read().len()
+        }
+
+        fn get_account_position_count(self: @ContractState, account: ContractAddress) -> u32 {
+            self.account_positions.read(account).len()
+        }
+
+        fn get_account_position_keys(
+            self: @ContractState, account: ContractAddress, start: u32, mut end: u32
+        ) -> Array<felt252> {
+            let mut keys: Array<felt252> = Default::default();
+            let mut account_positions = self.account_positions.read(account);
+
+            assert(start <= end, 'start must be <= end');
+            if start >= account_positions.len() {
+                return keys;
+            }
+
+            if end > account_positions.len() {
+                end = account_positions.len()
+            }
+
+            let mut i = start;
+            loop {
+                if i == end {
+                    break;
+                }
+                let key: felt252 = account_positions[i];
+                keys.append(key);
+                i += 1;
+            };
+            keys
+        }
+
         // *************************************************************************
         //                      Withdrawal related functions.
         // *************************************************************************
@@ -1046,6 +1234,37 @@ mod DataStore {
                                 break;
                             }
                             account_orders.set(i, last_key);
+                        },
+                        Option::None => {
+                            // This case should never happen, because index is always < length
+                            break;
+                        }
+                    }
+                    break;
+                }
+                i += 1;
+            }
+        }
+
+        fn _remove_account_position(
+            ref self: ContractState, key: felt252, account: ContractAddress
+        ) {
+            let mut account_positions = self.account_positions.read(account);
+            let mut i = 0;
+            loop {
+                if i == account_positions.len() {
+                    break;
+                }
+                let position_key: felt252 = account_positions[i];
+                if position_key == key {
+                    let mut last_key_maybe = account_positions.pop_front();
+                    match last_key_maybe {
+                        Option::Some(last_key) => {
+                            // If the list is empty, then there's no need to replace an existing key
+                            if account_positions.len() == 0 {
+                                break;
+                            }
+                            account_positions.set(i, last_key);
                         },
                         Option::None => {
                             // This case should never happen, because index is always < length

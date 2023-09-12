@@ -197,6 +197,7 @@ fn get_position_info(
     };
 
     let position = Position {
+        key: 0,
         account: 0.try_into().unwrap(),
         market: 0.try_into().unwrap(),
         collateral_token: 0.try_into().unwrap(),
