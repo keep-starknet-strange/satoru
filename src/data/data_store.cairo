@@ -398,12 +398,15 @@ mod DataStore {
         address_values: LegacyMap::<felt252, ContractAddress>,
         bool_values: LegacyMap::<felt252, Option<bool>>,
         market_values: LegacyMap::<felt252, Market>,
+        /// Order storage
         orders: List<Order>,
         account_orders: LegacyMap<ContractAddress, List<felt252>>,
         order_indexes: LegacyMap::<felt252, usize>,
+        /// Position storage
         positions: List<Position>,
         account_positions: LegacyMap<ContractAddress, List<felt252>>,
         position_indexes: LegacyMap::<felt252, usize>,
+        /// Withdrawal storage
         withdrawals: List<Withdrawal>,
         account_withdrawals: LegacyMap<ContractAddress, List<felt252>>,
         withdrawal_indexes: LegacyMap::<felt252, usize>,
@@ -908,7 +911,7 @@ mod DataStore {
             keys
         }
 
-        fn get_position_count(self: @ContractState,) -> u32 {
+        fn get_position_count(self: @ContractState) -> u32 {
             self.positions.read().len()
         }
 
