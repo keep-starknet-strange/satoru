@@ -4,7 +4,7 @@ use snforge_std::{
     EventAssertions
 };
 
-use satoru::tests_lib::{setup_event_emitter};
+use satoru::tests_lib::setup_event_emitter;
 
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 

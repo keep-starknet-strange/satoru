@@ -5,8 +5,8 @@ use snforge_std::{
 };
 
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
-use satoru::tests_lib::{setup_event_emitter};
+use satoru::order::order::{Order, OrderType, SecondaryOrderType};
+use satoru::tests_lib::setup_event_emitter;
 
 //TODO: OrderCollatDeltaAmountAutoUpdtd must be renamed back to OrderCollateralDeltaAmountAutoUpdated when string will be allowed as event argument
 

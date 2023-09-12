@@ -6,7 +6,7 @@ use snforge_std::{
 
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::withdrawal::withdrawal::Withdrawal;
-use satoru::tests_lib::{setup_event_emitter};
+use satoru::tests_lib::setup_event_emitter;
 
 #[test]
 fn test_emit_withdrawal_created() {

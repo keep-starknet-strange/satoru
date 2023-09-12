@@ -4,11 +4,11 @@ use snforge_std::{
     EventAssertions
 };
 use option::OptionTrait;
-use satoru::tests_lib::{setup_event_emitter};
+use satoru::tests_lib::setup_event_emitter;
 
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::deposit::deposit::{Deposit};
-use satoru::withdrawal::withdrawal::{Withdrawal};
+use satoru::deposit::deposit::Deposit;
+use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::order::order::{Order, OrderType, SecondaryOrderType};
 
 #[test]

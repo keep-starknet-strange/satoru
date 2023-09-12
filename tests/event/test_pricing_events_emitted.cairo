@@ -3,10 +3,10 @@ use snforge_std::{
     declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event,
     EventAssertions
 };
-use satoru::tests_lib::{setup_event_emitter};
+use satoru::tests_lib::setup_event_emitter;
 
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::pricing::swap_pricing_utils::{SwapFees};
+use satoru::pricing::swap_pricing_utils::SwapFees;
 
 #[test]
 fn test_emit_swap_info() {
