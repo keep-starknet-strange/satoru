@@ -1,4 +1,5 @@
 mod MarketError {
+    const MARKET_NOT_FOUND: felt252 = 'market_not_found';
     const DIVISOR_CANNOT_BE_ZERO: felt252 = 'zero_divisor';
     const INVALID_MARKET_PARAMS: felt252 = 'invalid_market_params';
     const OPEN_INTEREST_CANNOT_BE_UPDATED_FOR_SWAP_ONLY_MARKET: felt252 =
