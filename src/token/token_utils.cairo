@@ -2,6 +2,7 @@
 
 mod TokenUtils {
     use starknet::ContractAddress;
+    use starknet::contract_address::ContractAddressZeroable;
     use integer::u256_from_felt252;
 
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -10,6 +11,11 @@ mod TokenUtils {
     use satoru::utils::account_utils::validate_receiver;
     use satoru::bank::error::BankError;
 
+
+    fn wnt(data_store: IDataStoreDispatcher) -> ContractAddress {
+        // TODO
+        ContractAddressZeroable::zero()
+    }
 
     // Transfers the specified amount of `token` from the caller to `receiver`.
     // # Arguments
