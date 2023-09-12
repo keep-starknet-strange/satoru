@@ -12,18 +12,19 @@ use starknet::ContractAddress;
 // *************************************************************************
 #[starknet::interface]
 trait IRoleModule<TContractState> {
-    fn onlySelf(self: @TContractState);
-    fn onlyTimelockMultisig(self: @TContractState);
-    fn onlyTimelockAdmin(self: @TContractState);
-    fn onlyConfigKeeper(self: @TContractState);
-    fn onlyController(self: @TContractState);
-    fn onlyRouterPlugin(self: @TContractState);
-    fn onlyMarketKeeper(self: @TContractState);
-    fn onlyFeeKeeper(self: @TContractState);
-    fn onlyOrderKeeper(self: @TContractState);
-    fn onlyPricingKeeper(self: @TContractState);
-    fn onlyLiquidationKeeper(self: @TContractState);
-    fn onlyAdlKeeper(self: @TContractState);
+    fn initialize(ref self: TContractState, role_store_address: ContractAddress);
+    fn only_self(self: @TContractState);
+    fn only_timelock_multisig(self: @TContractState);
+    fn only_timelock_admin(self: @TContractState);
+    fn only_config_keeper(self: @TContractState);
+    fn only_controller(self: @TContractState);
+    fn only_router_plugin(self: @TContractState);
+    fn only_market_keeper(self: @TContractState);
+    fn only_fee_keeper(self: @TContractState);
+    fn only_order_keeper(self: @TContractState);
+    fn only_pricing_keeper(self: @TContractState);
+    fn only_liquidation_keeper(self: @TContractState);
+    fn only_adl_keeper(self: @TContractState);
 }
 
 #[starknet::contract]
@@ -51,7 +52,7 @@ mod RoleModule {
     // *************************************************************************
     #[constructor]
     fn constructor(ref self: ContractState, role_store_address: ContractAddress) {
-        self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
+        self.initialize(role_store_address);
     }
 
     // *************************************************************************
@@ -59,40 +60,44 @@ mod RoleModule {
     // *************************************************************************
     #[external(v0)]
     impl RoleModule of super::IRoleModule<ContractState> {
-        fn onlySelf(self: @ContractState) {
+        fn initialize(ref self: ContractState, role_store_address: ContractAddress) {
+            self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
+        }
+
+        fn only_self(self: @ContractState) {
             assert(get_caller_address() == get_contract_address(), RoleError::UNAUTHORIZED_ACCESS);
         }
-        fn onlyTimelockMultisig(self: @ContractState) {
+        fn only_timelock_multisig(self: @ContractState) {
             self._validate_role(role::TIMELOCK_MULTISIG);
         }
-        fn onlyTimelockAdmin(self: @ContractState) {
+        fn only_timelock_admin(self: @ContractState) {
             self._validate_role(role::TIMELOCK_ADMIN);
         }
-        fn onlyConfigKeeper(self: @ContractState) {
+        fn only_config_keeper(self: @ContractState) {
             self._validate_role(role::CONFIG_KEEPER);
         }
-        fn onlyController(self: @ContractState) {
+        fn only_controller(self: @ContractState) {
             self._validate_role(role::CONTROLLER);
         }
-        fn onlyRouterPlugin(self: @ContractState) {
+        fn only_router_plugin(self: @ContractState) {
             self._validate_role(role::ROUTER_PLUGIN);
         }
-        fn onlyMarketKeeper(self: @ContractState) {
+        fn only_market_keeper(self: @ContractState) {
             self._validate_role(role::MARKET_KEEPER);
         }
-        fn onlyFeeKeeper(self: @ContractState) {
+        fn only_fee_keeper(self: @ContractState) {
             self._validate_role(role::FEE_KEEPER);
         }
-        fn onlyOrderKeeper(self: @ContractState) {
+        fn only_order_keeper(self: @ContractState) {
             self._validate_role(role::ORDER_KEEPER);
         }
-        fn onlyPricingKeeper(self: @ContractState) {
+        fn only_pricing_keeper(self: @ContractState) {
             self._validate_role(role::PRICING_KEEPER);
         }
-        fn onlyLiquidationKeeper(self: @ContractState) {
+        fn only_liquidation_keeper(self: @ContractState) {
             self._validate_role(role::LIQUIDATION_KEEPER);
         }
-        fn onlyAdlKeeper(self: @ContractState) {
+        fn only_adl_keeper(self: @ContractState) {
             self._validate_role(role::ADL_KEEPER);
         }
     }
@@ -109,4 +114,3 @@ mod RoleModule {
         }
     }
 }
-

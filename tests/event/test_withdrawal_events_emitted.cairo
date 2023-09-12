@@ -6,13 +6,14 @@ use snforge_std::{
 
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::withdrawal::withdrawal::Withdrawal;
+use satoru::tests_lib::{setup_event_emitter};
 
 #[test]
 fn test_emit_withdrawal_created() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (contract_address, event_emitter) = setup();
+    let (contract_address, event_emitter) = setup_event_emitter();
     let mut spy = spy_events(SpyOn::One(contract_address));
 
     // *********************************************************************************************
@@ -34,7 +35,8 @@ fn test_emit_withdrawal_created() {
         withdrawal.min_long_token_amount.into(),
         withdrawal.min_short_token_amount.into(),
         withdrawal.updated_at_block.into(),
-        withdrawal.execution_fee.into(),
+        withdrawal.execution_fee.low.into(),
+        withdrawal.execution_fee.high.into(),
         withdrawal.callback_gas_limit.into(),
         withdrawal.should_unwrap_native_token.into(),
     ];
@@ -63,7 +65,7 @@ fn test_emit_withdrawal_executed() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (contract_address, event_emitter) = setup();
+    let (contract_address, event_emitter) = setup_event_emitter();
     let mut spy = spy_events(SpyOn::One(contract_address));
 
     // *********************************************************************************************
@@ -100,7 +102,7 @@ fn test_emit_withdrawal_cancelled() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (contract_address, event_emitter) = setup();
+    let (contract_address, event_emitter) = setup_event_emitter();
     let mut spy = spy_events(SpyOn::One(contract_address));
 
     // *********************************************************************************************
@@ -135,20 +137,6 @@ fn test_emit_withdrawal_cancelled() {
     assert(spy.events.len() == 0, 'There should be no events');
 }
 
-
-/// Utility function to setup the test environment.
-///
-/// # Returns
-///
-/// * `ContractAddress` - The address of the event emitter contract.
-/// * `IEventEmitterDispatcher` - The event emitter store dispatcher.
-fn setup() -> (ContractAddress, IEventEmitterDispatcher) {
-    let contract = declare('EventEmitter');
-    let contract_address = contract.deploy(@array![]).unwrap();
-    let event_emitter = IEventEmitterDispatcher { contract_address };
-    return (contract_address, event_emitter);
-}
-
 /// Utility function to create a dummy withdrawal.
 fn create_dummy_withdrawal(key: felt252) -> Withdrawal {
     let account = contract_address_const::<'account'>();
@@ -159,6 +147,8 @@ fn create_dummy_withdrawal(key: felt252) -> Withdrawal {
         callback_contract: contract_address_const::<'callback_contract'>(),
         ui_fee_receiver: contract_address_const::<'fee_receiver'>(),
         market: contract_address_const::<'market'>(),
+        long_token_swap_path: Default::default(),
+        short_token_swap_path: Default::default(),
         market_token_amount: 1,
         min_long_token_amount: 1,
         min_short_token_amount: 1,
