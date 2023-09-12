@@ -15,7 +15,7 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 use satoru::swap::swap_utils::SwapParams;
 use satoru::market::{market::Market, market_utils::MarketPrices};
 use satoru::pricing::swap_pricing_utils::SwapFees;
-use satoru::utils::store_arrays::{StoreContractAddressArray, StoreU128Array};
+use satoru::utils::store_arrays::{StoreContractAddressArray, StoreU64Array};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 
 #[derive(Drop, starknet::Store, Serde)]
@@ -57,9 +57,9 @@ struct ExecuteWithdrawalParams {
     /// The unique identifier of the withdrawal to execute.
     key: felt252,
     /// The min block numbers for the oracle prices.
-    min_oracle_block_numbers: Array<u128>,
+    min_oracle_block_numbers: Array<u64>,
     /// The max block numbers for the oracle prices.
-    max_oracle_block_numbers: Array<u128>,
+    max_oracle_block_numbers: Array<u64>,
     /// The keeper that is executing the withdrawal.
     keeper: ContractAddress,
     /// The starting gas limit for the withdrawal execution.
