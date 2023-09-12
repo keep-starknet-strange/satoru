@@ -32,7 +32,7 @@ fn test_emit_set_bool() {
     expected_data.append(value.into());
 
     // Emit the event.
-    event_emitter.emit_set_bool(key, data, value);
+    event_emitter.emit_set_bool(key, data.span(), value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
@@ -69,7 +69,7 @@ fn test_emit_set_address() {
     expected_data.append(value.into());
 
     // Emit the event.
-    event_emitter.emit_set_address(key, data, value);
+    event_emitter.emit_set_address(key, data.span(), value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
@@ -106,7 +106,7 @@ fn test_emit_set_felt252() {
     expected_data.append(value.into());
 
     // Emit the event.
-    event_emitter.emit_set_felt252(key, data, value);
+    event_emitter.emit_set_felt252(key, data.span(), value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
@@ -143,7 +143,7 @@ fn test_emit_set_uint() {
     expected_data.append(value.into());
 
     // Emit the event.
-    event_emitter.emit_set_uint(key, data, value);
+    event_emitter.emit_set_uint(key, data.span(), value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
@@ -181,7 +181,7 @@ fn test_emit_set_int() {
     expected_data.append(value);
 
     // Emit the event.
-    event_emitter.emit_set_int(key, data, value);
+    event_emitter.emit_set_int(key, data.span(), value);
     // Assert the event was emitted.
     spy
         .assert_emitted(

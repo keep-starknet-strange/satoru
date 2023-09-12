@@ -33,7 +33,7 @@ fn test_emit_swap_reverted() {
     reason_bytes.serialize(ref expected_data);
 
     // Emit the event.
-    event_emitter.emit_swap_reverted(reason, reason_bytes);
+    event_emitter.emit_swap_reverted(reason, reason_bytes.span());
 
     // Assert the event was emitted.
     spy

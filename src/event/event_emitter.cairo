@@ -140,7 +140,7 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `DepositCancelled` event.
     fn emit_deposit_cancelled(
-        ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
+        ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>
     );
 
     /// Emits the `WithdrawalCreated` event.
@@ -152,7 +152,7 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `WithdrawalCancelled` event.
     fn emit_withdrawal_cancelled(
-        ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
+        ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>
     );
 
     /// Emits the `PositionIncrease` event.
@@ -253,12 +253,12 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `OrderCancelled` event.
     fn emit_order_cancelled(
-        ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
+        ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>
     );
 
     /// Emits the `OrderFrozen` event.
     fn emit_order_frozen(
-        ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
+        ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>
     );
 
     /// Emits the `AffiliateRewardUpdated` event.
@@ -322,27 +322,27 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `SetBool` event.
     fn emit_set_bool(
-        ref self: TContractState, key: felt252, data_bytes: Array<felt252>, value: bool
+        ref self: TContractState, key: felt252, data_bytes: Span<felt252>, value: bool
     );
 
     /// Emits the `SetAddress` event.
     fn emit_set_address(
-        ref self: TContractState, key: felt252, data_bytes: Array<felt252>, value: ContractAddress
+        ref self: TContractState, key: felt252, data_bytes: Span<felt252>, value: ContractAddress
     );
 
     /// Emits the `SetFelt252` event.
     fn emit_set_felt252(
-        ref self: TContractState, key: felt252, data_bytes: Array<felt252>, value: felt252
+        ref self: TContractState, key: felt252, data_bytes: Span<felt252>, value: felt252
     );
 
     /// Emits the `SetUint` event.
     fn emit_set_uint(
-        ref self: TContractState, key: felt252, data_bytes: Array<felt252>, value: u128
+        ref self: TContractState, key: felt252, data_bytes: Span<felt252>, value: u128
     );
 
     /// Emits the `SetInt` event.
     fn emit_set_int(
-        ref self: TContractState, key: felt252, data_bytes: Array<felt252>, value: felt252
+        ref self: TContractState, key: felt252, data_bytes: Span<felt252>, value: felt252
     );
 
     /// Emits the `SignalAddOracleSigner` event.
@@ -577,7 +577,7 @@ trait IEventEmitter<TContractState> {
     fn emit_signer_removed(ref self: TContractState, account: ContractAddress);
 
     /// Emits the `SwapReverted` event.
-    fn emit_swap_reverted(ref self: TContractState, reason: felt252, reason_bytes: Array<felt252>);
+    fn emit_swap_reverted(ref self: TContractState, reason: felt252, reason_bytes: Span<felt252>);
 
     /// Emits the `SwapInfo` event.
     fn emit_swap_info(
@@ -821,8 +821,8 @@ mod EventEmitter {
         market: ContractAddress,
         initial_long_token: ContractAddress,
         initial_short_token: ContractAddress,
-        long_token_swap_path: Array<ContractAddress>,
-        short_token_swap_path: Array<ContractAddress>,
+        long_token_swap_path: Span<ContractAddress>,
+        short_token_swap_path: Span<ContractAddress>,
         initial_long_token_amount: u128,
         initial_short_token_amount: u128,
         min_market_tokens: u128,
@@ -843,7 +843,7 @@ mod EventEmitter {
     struct DepositCancelled {
         key: felt252,
         reason: felt252,
-        reason_bytes: Array<felt252>,
+        reason_bytes: Span<felt252>,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -871,7 +871,7 @@ mod EventEmitter {
     struct WithdrawalCancelled {
         key: felt252,
         reason: felt252,
-        reason_bytes: Array<felt252>
+        reason_bytes: Span<felt252>
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1070,14 +1070,14 @@ mod EventEmitter {
     struct OrderCancelled {
         key: felt252,
         reason: felt252,
-        reason_bytes: Array<felt252>
+        reason_bytes: Span<felt252>
     }
 
     #[derive(Drop, starknet::Event)]
     struct OrderFrozen {
         key: felt252,
         reason: felt252,
-        reason_bytes: Array<felt252>
+        reason_bytes: Span<felt252>
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1154,35 +1154,35 @@ mod EventEmitter {
     #[derive(Drop, starknet::Event)]
     struct SetBool {
         key: felt252,
-        data_bytes: Array<felt252>,
+        data_bytes: Span<felt252>,
         value: bool,
     }
 
     #[derive(Drop, starknet::Event)]
     struct SetAddress {
         key: felt252,
-        data_bytes: Array<felt252>,
+        data_bytes: Span<felt252>,
         value: ContractAddress,
     }
 
     #[derive(Drop, starknet::Event)]
     struct SetFelt252 {
         key: felt252,
-        data_bytes: Array<felt252>,
+        data_bytes: Span<felt252>,
         value: felt252,
     }
 
     #[derive(Drop, starknet::Event)]
     struct SetUint {
         key: felt252,
-        data_bytes: Array<felt252>,
+        data_bytes: Span<felt252>,
         value: u128,
     }
 
     #[derive(Drop, starknet::Event)]
     struct SetInt {
         key: felt252,
-        data_bytes: Array<felt252>,
+        data_bytes: Span<felt252>,
         value: felt252,
     }
 
@@ -1427,7 +1427,7 @@ mod EventEmitter {
     #[derive(Drop, starknet::Event)]
     struct SwapReverted {
         reason: felt252,
-        reason_bytes: Array<felt252>
+        reason_bytes: Span<felt252>
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1613,8 +1613,8 @@ mod EventEmitter {
                         market: deposit.market,
                         initial_long_token: deposit.initial_long_token,
                         initial_short_token: deposit.initial_short_token,
-                        long_token_swap_path: deposit.long_token_swap_path,
-                        short_token_swap_path: deposit.short_token_swap_path,
+                        long_token_swap_path: deposit.long_token_swap_path.span(),
+                        short_token_swap_path: deposit.short_token_swap_path.span(),
                         initial_long_token_amount: deposit.initial_long_token_amount,
                         initial_short_token_amount: deposit.initial_short_token_amount,
                         min_market_tokens: deposit.min_market_tokens,
@@ -1643,7 +1643,7 @@ mod EventEmitter {
 
         /// Emits the `DepositCancelled` event.
         fn emit_deposit_cancelled(
-            ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
+            ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>
         ) {
             self.emit(DepositCancelled { key, reason, reason_bytes });
         }
@@ -1676,7 +1676,7 @@ mod EventEmitter {
 
         /// Emits the `WithdrawalCancelled` event.
         fn emit_withdrawal_cancelled(
-            ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
+            ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>
         ) {
             self.emit(WithdrawalCancelled { key, reason, reason_bytes });
         }
@@ -2023,14 +2023,14 @@ mod EventEmitter {
 
         /// Emits the `OrderCancelled` event.
         fn emit_order_cancelled(
-            ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
+            ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>
         ) {
             self.emit(OrderCancelled { key, reason, reason_bytes });
         }
 
         /// Emits the `OrderFrozen` event.
         fn emit_order_frozen(
-            ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
+            ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>
         ) {
             self.emit(OrderFrozen { key, reason, reason_bytes });
         }
@@ -2140,37 +2140,34 @@ mod EventEmitter {
 
         /// Emits the `SetBool` event.
         fn emit_set_bool(
-            ref self: ContractState, key: felt252, data_bytes: Array<felt252>, value: bool
+            ref self: ContractState, key: felt252, data_bytes: Span<felt252>, value: bool
         ) {
             self.emit(SetBool { key, data_bytes, value });
         }
 
         /// Emits the `SetAddress` event.
         fn emit_set_address(
-            ref self: ContractState,
-            key: felt252,
-            data_bytes: Array<felt252>,
-            value: ContractAddress
+            ref self: ContractState, key: felt252, data_bytes: Span<felt252>, value: ContractAddress
         ) {
             self.emit(SetAddress { key, data_bytes, value });
         }
 
         fn emit_set_felt252(
-            ref self: ContractState, key: felt252, data_bytes: Array<felt252>, value: felt252
+            ref self: ContractState, key: felt252, data_bytes: Span<felt252>, value: felt252
         ) {
             self.emit(SetFelt252 { key, data_bytes, value });
         }
 
         /// Emits the `SetFelt252` event.
         fn emit_set_uint(
-            ref self: ContractState, key: felt252, data_bytes: Array<felt252>, value: u128
+            ref self: ContractState, key: felt252, data_bytes: Span<felt252>, value: u128
         ) {
             self.emit(SetUint { key, data_bytes, value });
         }
 
         /// Emits the `SetInt` event.
         fn emit_set_int(
-            ref self: ContractState, key: felt252, data_bytes: Array<felt252>, value: felt252
+            ref self: ContractState, key: felt252, data_bytes: Span<felt252>, value: felt252
         ) {
             self.emit(SetInt { key, data_bytes, value });
         }
@@ -2543,7 +2540,7 @@ mod EventEmitter {
 
         /// Emits the `SwapReverted` event.
         fn emit_swap_reverted(
-            ref self: ContractState, reason: felt252, reason_bytes: Array<felt252>
+            ref self: ContractState, reason: felt252, reason_bytes: Span<felt252>
         ) {
             self.emit(SwapReverted { reason, reason_bytes });
         }

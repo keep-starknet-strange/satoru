@@ -119,7 +119,7 @@ fn test_emit_withdrawal_cancelled() {
     reason_bytes.serialize(ref expected_data);
 
     // Emit the event.
-    event_emitter.emit_withdrawal_cancelled(key, reason, reason_bytes);
+    event_emitter.emit_withdrawal_cancelled(key, reason, reason_bytes.span());
 
     // Assert the event was emitted.
     spy
