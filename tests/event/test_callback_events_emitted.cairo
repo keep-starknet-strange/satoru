@@ -9,7 +9,7 @@ use satoru::tests_lib::setup_event_emitter;
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::deposit::deposit::Deposit;
 use satoru::withdrawal::withdrawal::Withdrawal;
-use satoru::order::order::{Order, OrderType, SecondaryOrderType};
+use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
 
 #[test]
 fn test_emit_after_deposit_execution_error() {
@@ -324,6 +324,7 @@ fn create_dummy_order(key: felt252) -> Order {
     swap_path.append(contract_address_const::<'swap_path_1'>());
     Order {
         key,
+        decrease_position_swap_type: DecreasePositionSwapType::SwapPnlTokenToCollateralToken(()),
         order_type: OrderType::StopLossDecrease,
         account: contract_address_const::<'account'>(),
         receiver: contract_address_const::<'receiver'>(),
