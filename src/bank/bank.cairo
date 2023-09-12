@@ -52,7 +52,7 @@ mod Bank {
     use super::IBank;
     use satoru::bank::error::BankError;
     use satoru::role::role_module::{RoleModule, IRoleModule};
-    use satoru::token::token_utils::TokenUtils;
+    use satoru::token::token_utils::transfer;
 
     // *************************************************************************
     //                              STORAGE
@@ -130,7 +130,7 @@ mod Bank {
         ) {
             // check that receiver is not this contract
             assert(receiver != get_contract_address(), BankError::SELF_TRANSFER_NOT_SUPPORTED);
-            TokenUtils::transfer(self.data_store.read(), token, receiver, amount);
+            transfer(self.data_store.read(), token, receiver, amount);
         }
     }
 }
