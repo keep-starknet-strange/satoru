@@ -42,16 +42,13 @@ fn test_set_position_new_and_override() {
     assert(account_position_keys.len() == 1, 'Acc position # should be 1');
 
     // Update the position using the set_position function and then retrieve it to check the update was successful
-    let receiver = 'receiver'.try_into().unwrap();
-    position.receiver = receiver;
     data_store.set_position(key, position);
 
     let position_by_key = data_store.get_position(key).unwrap();
     assert(position_by_key == position, 'Invalid position by key');
-    assert(position_by_key.receiver == receiver, 'Invalid position value');
 
     let account_position_count = data_store.get_account_position_count(account);
-    assert(account_position_count == 1, 'Invalid account withdrawl count');
+    assert(account_position_count == 1, 'Invalid account position count');
 
     let position_count = data_store.get_position_count();
     assert(position_count == 1, 'Invalid key position count');
@@ -145,7 +142,7 @@ fn test_get_position_keys() {
     let account_position_count = data_store.get_account_position_count(account);
     assert(account_position_count == 0, 'Acc position # should be 0');
     let account_position_keys = data_store.get_account_position_keys(account, 0, 10);
-    assert(account_position_keys.len() == 0, 'Acc withdraw # not empty');
+    assert(account_position_keys.len() == 0, 'Acc position # not empty');
 
     teardown(data_store.contract_address);
 }
@@ -182,7 +179,7 @@ fn test_remove_only_position() {
     assert(account_position_count == 0, 'Acc position # should be 0');
 
     let account_position_keys = data_store.get_account_position_keys(account, 0, 10);
-    assert(account_position_keys.len() == 0, 'Acc withdraw # not empty');
+    assert(account_position_keys.len() == 0, 'Acc position # not empty');
 
     teardown(data_store.contract_address);
 }
@@ -195,7 +192,7 @@ fn test_remove_1_of_n_position() {
     let key_1: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut position_1: Position = create_new_position(
-        key,
+        key_1,
         account,
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
@@ -205,7 +202,7 @@ fn test_remove_1_of_n_position() {
 
     let key_2: felt252 = 22222222222;
     let mut position_2: Position = create_new_position(
-        key,
+        key_2,
         account,
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
@@ -238,7 +235,7 @@ fn test_remove_1_of_n_position() {
     assert(account_position_count == 1, 'Acc position # should be 1');
 
     let account_position_keys = data_store.get_account_position_keys(account, 0, 10);
-    assert(account_position_keys.len() == 1, 'Acc withdraw # not 1');
+    assert(account_position_keys.len() == 1, 'Acc position # not 1');
 
     teardown(data_store.contract_address);
 }
@@ -272,7 +269,7 @@ fn test_remove_position_should_panic_not_controller() {
     let account_position_count = data_store.get_account_position_count(account);
     assert(account_position_count == 0, 'Acc position # should be 0');
     let account_position_keys = data_store.get_account_position_keys(account, 0, 10);
-    assert(account_position_keys.len() == 0, 'Acc withdraw # not empty');
+    assert(account_position_keys.len() == 0, 'Acc position # not empty');
 
     teardown(data_store.contract_address);
 }
@@ -286,11 +283,11 @@ fn test_multiple_account_keys() {
     let key_1: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut position_1: Position = create_new_position(
-        key,
+        key_1,
         account,
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
-        is_long: false
+        is_long: false,
         position_no: 1
     );
 
@@ -301,7 +298,7 @@ fn test_multiple_account_keys() {
         account_2,
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
-        is_long: false
+        is_long: false,
         position_no: 2
     );
     let key_3: felt252 = 3333344455667;
@@ -310,7 +307,7 @@ fn test_multiple_account_keys() {
         account,
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
-        is_long: false
+        is_long: false,
         position_no: 1
     );
     let key_4: felt252 = 444445556777889;
@@ -319,7 +316,7 @@ fn test_multiple_account_keys() {
         account,
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
-        is_long: false
+        is_long: false,
         position_no: 1
     );
 
@@ -417,23 +414,23 @@ fn create_new_position(
 /// * `position2` - Second position struct.
 fn assert_position_eq(position1: @Position, position2: @Position) {
     assert(position1.account == position2.account, 'invalid account ');
-    assert(position1.size_in_tokens == position2.size_in_tokens, 'invalid receiver ');
-    assert(position1.collateral_token == position2.collateral_token, 'invalid callback_contract ');
-    assert(position1.size_in_usd == position2.size_in_usd, 'invalid ui_fee_receiver ');
+    assert(position1.size_in_tokens == position2.size_in_tokens, 'invalid size_in_tokens ');
+    assert(position1.collateral_token == position2.collateral_token, 'invalid collateral_token ');
+    assert(position1.size_in_usd == position2.size_in_usd, 'invalid size_in_usd ');
     assert(position1.market == position2.market, 'invalid market ');
     assert(
         position1.collateral_amount == position2.collateral_amount,
-        'invalid collateral_token '
+        'invalid collateral_amount '
     );
 
-    assert(position1.borrowing_factor == position2.borrowing_factor, 'invalid size_delta_usd ');
+    assert(position1.borrowing_factor == position2.borrowing_factor, 'invalid borrowing_factor ');
     assert(
         position1.funding_fee_amount_per_size == position2.funding_fee_amount_per_size,
-        'invalid col_delta_amount '
+        'invalid funding_fee_amount '
     );
-    assert(position1.long_token_claimable_funding_amount_per_size == position2.long_token_claimable_funding_amount_per_size, 'invalid trigger_price ');
-    assert(position1.short_token_claimable_funding_amount_per_size == position2.short_token_claimable_funding_amount_per_size, 'invalid acceptable_price ');
-    assert(position1.increased_at_block == position2.increased_at_block, 'invalid execution_fee ');
-    assert(position1.decreased_at_block == position2.decreased_at_block, 'invalid callback_gas_limit ');
+    assert(position1.long_token_claimable_funding_amount_per_size == position2.long_token_claimable_funding_amount_per_size, 'invalid long_token_claimable ');
+    assert(position1.short_token_claimable_funding_amount_per_size == position2.short_token_claimable_funding_amount_per_size, 'invalid short_token_claimabl ');
+    assert(position1.increased_at_block == position2.increased_at_block, 'invalid increased_at_block ');
+    assert(position1.decreased_at_block == position2.decreased_at_block, 'invalid decreased_at_block ');
     assert(position1.is_long == position2.is_long, 'invalid is_long ');
 }
