@@ -1,13 +1,12 @@
 // ! Library for token functions, helps with transferring of tokens and native token functions
 use starknet::ContractAddress;
 use starknet::contract_address::ContractAddressZeroable;
-use integer::u256_from_felt252;
-
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::data::keys;
 use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
 use satoru::utils::account_utils::validate_receiver;
 use satoru::bank::error::BankError;
+use integer::u256_from_felt252;
 
 
 fn wnt(data_store: IDataStoreDispatcher) -> ContractAddress {
