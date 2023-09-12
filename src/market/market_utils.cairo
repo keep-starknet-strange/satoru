@@ -514,6 +514,14 @@ fn validate_open_interest(data_store: IDataStoreDispatcher, market: @Market, is_
     assert(open_interest <= max_open_interest, MarketError::MAX_OPEN_INTEREST_EXCEEDED);
 }
 
+/// Validata the swap market.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market to validate the open interest for.
+fn validate_swap_market(data_store: IDataStoreDispatcher, market: @Market) { // TODO
+}
+
+
 // Get the min pnl factor after ADL
 // Parameters
 // * `data_store` - - The data store to use.
