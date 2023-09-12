@@ -42,8 +42,7 @@ fn given_normal_conditions_when_transfer_then_expected_results() {
         'unexp. receiver final balance'
     );
     assert(
-        sender_initial_balance
-            - transfer_amount.into() == test_token.balance_of(sender_address),
+        sender_initial_balance - transfer_amount.into() == test_token.balance_of(sender_address),
         'unexp. sender final balance'
     );
 
