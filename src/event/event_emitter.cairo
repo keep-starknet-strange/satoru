@@ -514,7 +514,7 @@ mod EventEmitter {
         min_long_token_amount: u128,
         min_short_token_amount: u128,
         updated_at_block: u128,
-        execution_fee: u128,
+        execution_fee: u256,
         callback_gas_limit: u128,
         should_unwrap_native_token: bool
     }
