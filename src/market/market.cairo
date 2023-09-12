@@ -43,7 +43,7 @@ use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatche
 /// allows us to store the `Market` struct in a contract's storage.
 /// We use `Copy` but this is inneficient.
 /// TODO: Optimize this.
-#[derive(Drop, Copy, starknet::Store, Serde)]
+#[derive(Drop, Copy, starknet::Store, Serde, PartialEq)]
 struct Market {
     /// Address of the market token for the market.
     market_token: ContractAddress,

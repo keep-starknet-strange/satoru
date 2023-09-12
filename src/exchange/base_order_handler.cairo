@@ -61,7 +61,7 @@ mod BaseOrderHandler {
         oracle_utils::SetPricesParams
     };
     use satoru::order::{
-        order::{SecondaryOrderType, OrderType, Order},
+        order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType},
         order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
         base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}
     };
@@ -197,6 +197,7 @@ mod BaseOrderHandler {
             let order = Order {
                 key: 0,
                 order_type: OrderType::MarketSwap(()),
+                decrease_position_swap_type: DecreasePositionSwapType::NoSwap(()),
                 account: address_zero,
                 receiver: address_zero,
                 callback_contract: address_zero,

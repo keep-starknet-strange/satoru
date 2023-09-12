@@ -3,7 +3,7 @@ use starknet::{ContractAddress, contract_address_const};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
-use satoru::order::order::{Order, OrderType, OrderTrait};
+use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
 use satoru::tests_lib::{setup, teardown};
 
 use snforge_std::{PrintTrait, declare, start_prank, stop_prank, ContractClassTrait};
@@ -432,6 +432,7 @@ fn create_new_order(
     order_no: u128
 ) -> Order {
     let order_type = OrderType::StopLossDecrease;
+    let decrease_position_swap_type = DecreasePositionSwapType::NoSwap(());
     let callback_contract = contract_address_const::<'callback_contract'>();
     let ui_fee_receiver = contract_address_const::<'ui_fee_receiver'>();
     let mut swap_path = array![];
@@ -441,7 +442,7 @@ fn create_new_order(
     let initial_collateral_delta_amount = 1000 * order_no;
     let trigger_price = 11111 * order_no;
     let acceptable_price = 11111 * order_no;
-    let execution_fee = 10 * order_no;
+    let execution_fee: u256 = 10 * order_no.into();
     let min_output_amount = 10 * order_no;
     let updated_at_block = 1;
 
@@ -451,6 +452,7 @@ fn create_new_order(
     Order {
         key,
         order_type,
+        decrease_position_swap_type,
         account,
         receiver,
         callback_contract,
