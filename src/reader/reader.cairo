@@ -20,7 +20,7 @@ use satoru::market::{
     market_pool_value_info::MarketPoolValueInfo,
 };
 use satoru::price::price::Price;
-use satoru::order::order::Order;
+use satoru::order::order::{Order, DecreasePositionSwapType};
 use satoru::pricing::position_pricing_utils::PositionBorrowingFees;
 use satoru::pricing::position_pricing_utils::PositionReferralFees;
 use satoru::pricing::position_pricing_utils::PositionFundingFees;

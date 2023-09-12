@@ -715,7 +715,7 @@ mod DataStore {
                 if i == end {
                     break;
                 }
-                let order = orders[i];
+                let order: Order = orders[i];
                 keys.append(order.key);
                 i = i + 1;
             };
@@ -750,7 +750,7 @@ mod DataStore {
                 if i == end {
                     break;
                 }
-                let key = account_orders[i];
+                let key: felt252 = account_orders[i];
                 keys.append(key);
                 i += 1;
             };
@@ -846,7 +846,7 @@ mod DataStore {
                 if i == end {
                     break;
                 }
-                let withdrawal = withdrawals[i];
+                let withdrawal: Withdrawal = withdrawals[i];
                 keys.append(withdrawal.key);
             };
             keys
@@ -876,7 +876,7 @@ mod DataStore {
                 if i == end {
                     break;
                 }
-                let key = account_withdrawals[i];
+                let key: felt252 = account_withdrawals[i];
                 keys.append(key);
                 i += 1;
             };
@@ -895,7 +895,7 @@ mod DataStore {
                 if i == account_withdrawals.len() {
                     break;
                 }
-                let withdrawal_key = account_withdrawals[i];
+                let withdrawal_key: felt252 = account_withdrawals[i];
                 if withdrawal_key == key {
                     let mut last_key_maybe = account_withdrawals.pop_front();
                     match last_key_maybe {
@@ -924,7 +924,7 @@ mod DataStore {
                 if i == account_orders.len() {
                     break;
                 }
-                let order_key = account_orders[i];
+                let order_key: felt252 = account_orders[i];
                 if order_key == key {
                     let mut last_key_maybe = account_orders.pop_front();
                     match last_key_maybe {
