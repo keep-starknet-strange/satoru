@@ -50,6 +50,7 @@ mod event {
 mod data {
     mod data_store;
     mod keys;
+    mod error;
 }
 
 // `deposit` handles the depositing of funds into the system.
