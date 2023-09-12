@@ -3,8 +3,8 @@ use traits::{TryInto, Into};
 use starknet::{ContractAddress, get_caller_address};
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait, ContractClass};
 use satoru::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
-use satoru::token::erc20::interface::{IERC20SafeDispatcher, IERC20SafeDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
 
 
@@ -18,7 +18,7 @@ fn given_normal_conditions_when_transfer_then_expected_results() {
     let receiver_address: ContractAddress = 0x103.try_into().unwrap();
     let (sender_address, caller_address, router, test_token) = setup(mint_amount);
 
-    let sender_initial_balance = test_token.balance_of(sender_address).unwrap();
+    let sender_initial_balance = test_token.balance_of(sender_address);
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -26,7 +26,7 @@ fn given_normal_conditions_when_transfer_then_expected_results() {
 
     // Add allowance to the router contract.
     start_prank(test_token.contract_address, sender_address);
-    test_token.approve(router.contract_address, mint_amount).unwrap();
+    test_token.approve(router.contract_address, mint_amount);
     stop_prank(test_token.contract_address);
 
     // Transfer tokens from the sender address to the receiver address.
@@ -38,12 +38,11 @@ fn given_normal_conditions_when_transfer_then_expected_results() {
 
     // Assert that the tokens have been transfered.
     assert(
-        test_token.balance_of(receiver_address).unwrap() == transfer_amount.into(),
+        test_token.balance_of(receiver_address) == transfer_amount.into(),
         'unexp. receiver final balance'
     );
     assert(
-        sender_initial_balance
-            - transfer_amount.into() == test_token.balance_of(sender_address).unwrap(),
+        sender_initial_balance - transfer_amount.into() == test_token.balance_of(sender_address),
         'unexp. sender final balance'
     );
 
@@ -70,7 +69,7 @@ fn given_bad_caller_when_transfer_then_fail() {
 
     // Add allowance to the router contract.
     start_prank(test_token.contract_address, sender_address);
-    test_token.approve(router.contract_address, mint_amount).unwrap();
+    test_token.approve(router.contract_address, mint_amount);
     stop_prank(test_token.contract_address);
 
     // Prank with a not authorized caller.
@@ -99,7 +98,7 @@ fn setup(
     ContractAddress, // Minter address.
     ContractAddress, // Caller address.
     IRouterDispatcher, // Interface to interact with the `Router` contract.
-    IERC20SafeDispatcher,
+    IERC20Dispatcher,
 ) {
     let caller_address: ContractAddress = 0x101.try_into().unwrap();
     let minter_address: ContractAddress = 0x102.try_into().unwrap();
@@ -107,14 +106,14 @@ fn setup(
     // Deploy the test token.
     let test_token_address = deploy_mock_token(minter_address, mint_amount);
     // Create a test token dispatcher.
-    let test_token = IERC20SafeDispatcher { contract_address: test_token_address };
+    let test_token = IERC20Dispatcher { contract_address: test_token_address };
 
     // Deploy the role store contract.
     let role_store_address = deploy_role_store();
     // Grant the caller the `ROUTER_PLUGIN` role.
-    let role_store = IRoleStoreSafeDispatcher { contract_address: role_store_address };
+    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
     start_prank(role_store_address, caller_address);
-    role_store.grant_role(caller_address, role::ROUTER_PLUGIN).unwrap();
+    role_store.grant_role(caller_address, role::ROUTER_PLUGIN);
     stop_prank(role_store_address);
 
     // Deploy the router contract.
