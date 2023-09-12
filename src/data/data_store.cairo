@@ -1133,7 +1133,9 @@ mod DataStore {
             }
         }
 
-        fn _remove_account_position(ref self: ContractState, key: felt252, account: ContractAddress) {
+        fn _remove_account_position(
+            ref self: ContractState, key: felt252, account: ContractAddress
+        ) {
             let mut account_positions = self.account_positions.read(account);
             let mut i = 0;
             loop {

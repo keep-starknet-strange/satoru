@@ -419,8 +419,7 @@ fn assert_position_eq(position1: @Position, position2: @Position) {
     assert(position1.size_in_usd == position2.size_in_usd, 'invalid size_in_usd ');
     assert(position1.market == position2.market, 'invalid market ');
     assert(
-        position1.collateral_amount == position2.collateral_amount,
-        'invalid collateral_amount '
+        position1.collateral_amount == position2.collateral_amount, 'invalid collateral_amount '
     );
 
     assert(position1.borrowing_factor == position2.borrowing_factor, 'invalid borrowing_factor ');
@@ -428,9 +427,23 @@ fn assert_position_eq(position1: @Position, position2: @Position) {
         position1.funding_fee_amount_per_size == position2.funding_fee_amount_per_size,
         'invalid funding_fee_amount '
     );
-    assert(position1.long_token_claimable_funding_amount_per_size == position2.long_token_claimable_funding_amount_per_size, 'invalid long_token_claimable ');
-    assert(position1.short_token_claimable_funding_amount_per_size == position2.short_token_claimable_funding_amount_per_size, 'invalid short_token_claimabl ');
-    assert(position1.increased_at_block == position2.increased_at_block, 'invalid increased_at_block ');
-    assert(position1.decreased_at_block == position2.decreased_at_block, 'invalid decreased_at_block ');
+    assert(
+        position1
+            .long_token_claimable_funding_amount_per_size == position2
+            .long_token_claimable_funding_amount_per_size,
+        'invalid long_token_claimable '
+    );
+    assert(
+        position1
+            .short_token_claimable_funding_amount_per_size == position2
+            .short_token_claimable_funding_amount_per_size,
+        'invalid short_token_claimabl '
+    );
+    assert(
+        position1.increased_at_block == position2.increased_at_block, 'invalid increased_at_block '
+    );
+    assert(
+        position1.decreased_at_block == position2.decreased_at_block, 'invalid decreased_at_block '
+    );
     assert(position1.is_long == position2.is_long, 'invalid is_long ');
 }
