@@ -235,7 +235,10 @@ mod WithdrawalHandler {
             };
             // withOraclePrices
             oracle_modules::with_oracle_prices_before(
-                self.oracle.read(), self.data_store.read(), self.event_emitter.read(), @oracle_params
+                self.oracle.read(),
+                self.data_store.read(),
+                self.event_emitter.read(),
+                @oracle_params
             );
 
             let starting_gas = starknet_utils::sn_gasleft(array![100]);
