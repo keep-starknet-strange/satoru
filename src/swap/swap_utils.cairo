@@ -2,17 +2,20 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
+use starknet::{ContractAddress, contract_address_const};
 use result::ResultTrait;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-use satoru::market::market::Market;
-use satoru::price::price::Price;
+use satoru::market::{market::{Market}, market_utils::{validate_swap_market, get_opposite_token}};
+
 use satoru::utils::store_arrays::StoreMarketArray;
-use satoru::oracle::oracle::IOracleDispatcher;
+use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use satoru::swap::error::SwapError;
+use satoru::pricing::swap_pricing_utils::{get_price_impact_usd_, GetPriceImpactUsdParams};
+use satoru::price::price::{Price, PriceTrait};
 
 /// Parameters to execute a swap.
 #[derive(Drop, starknet::Store, Serde)]
@@ -64,7 +67,7 @@ impl DefaultSwapParams of Default<SwapParams> {
     }
 }
 
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Drop, Copy, starknet::Store, Serde)]
 struct _SwapParams {
     /// The market in which the swap should be executed.
     market: Market,
@@ -119,6 +122,28 @@ fn swap(params: @SwapParams) -> (ContractAddress, u128) {
 /// The amount that was swapped.
 #[inline(always)]
 fn _swap(params: SwapParams, _params: _SwapParams) -> (ContractAddress, u128) {
-    // TODO
+    if (_params.token_in != _params.market.long_token
+        && _params.token_in != _params.market.short_token) {
+        SwapError::INVALID_TOKEN_IN(_params.token_in, _params.market.long_token);
+    }
+
+    validate_swap_market(params.data_store, @_params.market);
+
+    let token_out = get_opposite_token(@_params.market, _params.token_in);
+    let token_in_price = params.oracle.get_primary_price(_params.token_in);
+    let token_out_price = params.oracle.get_primary_price(token_out);
+    let price_impact_usd = get_price_impact_usd_(
+        GetPriceImpactUsdParams {
+            dataStore: params.data_store,
+            market: _params.market,
+            token_a: _params.token_in,
+            token_b: token_out,
+            price_for_token_a: token_in_price.mid_price(),
+            price_for_token_b: token_out_price.mid_price(),
+            usd_delta_for_token_a: _params.amount_in * token_in_price.mid_price(),
+            usd_delta_for_token_b: _params.amount_in * token_out_price.mid_price(),
+        }
+    );
+
     (0.try_into().unwrap(), 0)
 }
