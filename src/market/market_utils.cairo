@@ -521,6 +521,17 @@ fn validate_open_interest(data_store: IDataStoreDispatcher, market: @Market, is_
 fn validate_swap_market(data_store: IDataStoreDispatcher, market: @Market) { // TODO
 }
 
+// @dev get the opposite token of the market
+// if the input_token is the token_long return the short_token and vice versa
+/// # Arguments
+/// * `market` - The market to validate the open interest for.
+/// * `token` - The input_token.
+/// # Returns
+/// The opposite token.
+fn get_opposite_token(market: @Market, token: ContractAddress) -> ContractAddress {
+    // TODO
+    token
+}
 
 // Get the min pnl factor after ADL
 // Parameters
