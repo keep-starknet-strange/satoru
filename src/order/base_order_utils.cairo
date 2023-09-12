@@ -405,7 +405,10 @@ fn get_execution_price_for_decrease(
         // error: Trait has no implementation in context: core::traits::Div::<core::integer::i128>
         // TODO: uncomment this when i128 division available
         // let adjustment = precision::mul_div_inum(position_size_in_usd, adjusted_price_impact_usd, position_size_in_tokens) / size_delta_usd.try_into().unwrap();
-        let adjustment = 0;
+        let numerator = precision::mul_div_inum(
+            position_size_in_usd, adjusted_price_impact_usd, position_size_in_tokens
+        );
+        let adjustment = div_i128(numerator, u128_to_i128(size_delta_usd));
 
         let _execution_price: i128 = u128_to_i128(price) + adjustment;
 
@@ -493,7 +496,6 @@ fn panic_unfulfillable(execution_price: u128, acceptable_price: u128) {
     );
 }
 
-
 #[inline(always)]
 fn u128_to_i128(value: u128) -> i128 {
     assert(value <= BoundedInt::max(), 'u128_to_i128: value too large');
@@ -506,4 +508,18 @@ fn i128_to_u128(value: i128) -> u128 {
     assert(value >= 0, 'i128_to_u128: value is negative');
     let value: felt252 = value.into();
     value.try_into().unwrap()
+}
+
+// TODO: remove this when i128 division available
+#[inline(always)]
+fn div_i128(numerator: i128, denominator: i128) -> i128 {
+    if numerator < 0 && denominator < 0 {
+        u128_to_i128(i128_to_u128(numerator) / i128_to_u128(denominator))
+    } else if numerator < 0 {
+        -u128_to_i128(i128_to_u128(-numerator) / i128_to_u128(denominator))
+    } else if denominator < 0 {
+        -u128_to_i128(i128_to_u128(numerator) / i128_to_u128(-denominator))
+    } else {
+        u128_to_i128(i128_to_u128(numerator) / i128_to_u128(denominator))
+    }
 }
