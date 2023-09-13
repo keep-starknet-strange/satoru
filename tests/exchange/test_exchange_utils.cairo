@@ -1,5 +1,6 @@
 use starknet::{
-    ContractAddress, get_caller_address, get_contract_address, Felt252TryIntoContractAddress, contract_address_const
+    ContractAddress, get_caller_address, get_contract_address, Felt252TryIntoContractAddress,
+    contract_address_const
 };
 use snforge_std::{declare, start_prank, stop_prank, start_roll, ContractClassTrait};
 
