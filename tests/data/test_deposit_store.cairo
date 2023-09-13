@@ -80,7 +80,7 @@ fn test_set_deposit_new_and_override() {
 
     // Update the deposit using the set_deposit function and then retrieve it to check the update was successful
     let market = 'market'.try_into().unwrap();
-   deposit.market = market;
+    deposit.market = market;
     data_store.set_deposit(key, deposit);
 
     let deposit_by_key = data_store.get_deposit(key).unwrap();
@@ -402,7 +402,6 @@ fn create_new_deposit(
     market: ContractAddress,
     deposit_no: u128,
 ) -> Deposit {
-
     let callback_contract = contract_address_const::<'callback_contract'>();
     let ui_fee_receiver = contract_address_const::<'ui_fee_receiver'>();
 
@@ -416,7 +415,6 @@ fn create_new_deposit(
     let short_token_swap_path = Array32Trait::<ContractAddress>::span32(@ArrayTrait::new());
     short_token_swap_path.append(contract_address_const::<'short_token_swap_path_0'>());
     short_token_swap_path.append(contract_address_const::<'short_token_swap_path_1'>());
-
 
     let initial_long_token_amount = 1000 * deposit_no;
     let initial_short_token_amount = 1000 * deposit_no;
