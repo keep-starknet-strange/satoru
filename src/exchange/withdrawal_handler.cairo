@@ -59,11 +59,8 @@ mod WithdrawalHandler {
     use clone::Clone;
 
     // Local imports.
-    use super::{
-        IWithdrawalHandler, IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait
-    };
-    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use satoru::role::role;
+    use super::IWithdrawalHandler;
+    use satoru::role::{role, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait}};
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::data::keys;
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -244,11 +241,7 @@ mod WithdrawalHandler {
             let starting_gas = starknet_utils::sn_gasleft(array![100]);
             let execution_gas = gas_utils::get_execution_gas(data_store, starting_gas);
 
-            // TODO self dispatcher ile çağır
-            self
-                .execute_withdrawal_keeper(
-                    key, oracle_params_copy, get_caller_address()
-                ); // TODO handle revert, call _handleRevert if reverts
+            self.execute_withdrawal_keeper(key, oracle_params_copy, get_caller_address());
 
             oracle_modules::with_oracle_prices_after();
 
@@ -283,12 +276,9 @@ mod WithdrawalHandler {
                 compacted_max_prices_indexes: Default::default(),
                 signatures: Default::default(),
                 price_feed_tokens: Default::default(),
-            }; // Initiates default values for this struct. Derive Default is not enough for that.
+            }; // Initiates default values for this struct. Derive Default is not working for that size.
 
-            self
-                .execute_withdrawal_keeper(
-                    key, oracle_params, get_caller_address()
-                ); // TODO Should call with dispatcher as like external call
+            self.execute_withdrawal_keeper(key, oracle_params, get_caller_address());
 
             global_reentrancy_guard::non_reentrant_after(data_store); // Finalizes re-entrancy
 

@@ -22,6 +22,7 @@ use satoru::withdrawal::withdrawal_utils::CreateWithdrawalParams;
 use satoru::withdrawal::withdrawal::Withdrawal;
 use traits::Default;
 
+// TODO: Add more tests after withdraw_utils implementation done.
 #[test]
 fn test_create_withdrawal() {
     let (caller_address, data_store, event_emitter, withdrawal_handler) = setup();
