@@ -21,6 +21,7 @@ use satoru::utils::store_arrays::{StoreMarketArray, StoreU64Array, StoreContract
 use satoru::referral::referral_storage::interface::{
     IReferralStorageDispatcher, IReferralStorageDispatcherTrait
 };
+use satoru::utils::span32::Span32;
 
 #[derive(Drop, starknet::Store, Serde)]
 struct ExecuteOrderParams {
@@ -78,8 +79,8 @@ struct CreateOrderParams {
     market: ContractAddress,
     /// The initial collateral token for increase orders.
     initial_collateral_token: ContractAddress,
-    /// An array of market addresses to swap through.
-    swap_path: Array<ContractAddress>,
+    /// An Span32 of market addresses to swap through.
+    swap_path: Span32<ContractAddress>,
     /// The requested change in position size.
     size_delta_usd: u128,
     /// For increase orders, this is the amount of the initialCollateralToken sent in by the user.

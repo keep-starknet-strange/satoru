@@ -18,7 +18,9 @@ use satoru::order::order::OrderType;
 use satoru::price::price::Price;
 use satoru::pricing::position_pricing_utils::PositionFees;
 use satoru::order::order::{Order, SecondaryOrderType};
-use satoru::event::event_utils::{EventLogData};
+use satoru::utils::span32::Span32;
+
+
 //TODO: OrderCollatDeltaAmountAutoUpdtd must be renamed back to OrderCollateralDeltaAmountAutoUpdated when string will be allowed as event argument
 //TODO: AfterWithdrawalCancelError must be renamed back to AfterWithdrawalCancellationError when string will be allowed as event argument
 //TODO: CumulativeBorrowingFactorUpdatd must be renamed back to CumulativeBorrowingFactorUpdated when string will be allowed as event argument
@@ -629,7 +631,7 @@ mod EventEmitter {
     use satoru::price::price::Price;
     use satoru::pricing::position_pricing_utils::PositionFees;
     use satoru::order::order::{Order, SecondaryOrderType};
-    use satoru::event::event_utils::{EventLogData};
+    use satoru::utils::span32::Span32;
 
     // *************************************************************************
     //                              STORAGE
@@ -822,8 +824,8 @@ mod EventEmitter {
         market: ContractAddress,
         initial_long_token: ContractAddress,
         initial_short_token: ContractAddress,
-        long_token_swap_path: Span<ContractAddress>,
-        short_token_swap_path: Span<ContractAddress>,
+        long_token_swap_path: Span32<ContractAddress>,
+        short_token_swap_path: Span32<ContractAddress>,
         initial_long_token_amount: u128,
         initial_short_token_amount: u128,
         min_market_tokens: u128,
@@ -1614,8 +1616,8 @@ mod EventEmitter {
                         market: deposit.market,
                         initial_long_token: deposit.initial_long_token,
                         initial_short_token: deposit.initial_short_token,
-                        long_token_swap_path: deposit.long_token_swap_path.span(),
-                        short_token_swap_path: deposit.short_token_swap_path.span(),
+                        long_token_swap_path: deposit.long_token_swap_path,
+                        short_token_swap_path: deposit.short_token_swap_path,
                         initial_long_token_amount: deposit.initial_long_token_amount,
                         initial_short_token_amount: deposit.initial_short_token_amount,
                         min_market_tokens: deposit.min_market_tokens,

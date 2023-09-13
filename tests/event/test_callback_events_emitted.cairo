@@ -10,6 +10,7 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 use satoru::deposit::deposit::Deposit;
 use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
+use satoru::utils::span32::{Span32, Array32Trait};
 
 #[test]
 fn test_emit_after_deposit_execution_error() {
@@ -287,8 +288,8 @@ fn create_dummy_deposit() -> Deposit {
         market: contract_address_const::<'market'>(),
         initial_long_token: contract_address_const::<'long_token'>(),
         initial_short_token: contract_address_const::<'short_token'>(),
-        long_token_swap_path: array![contract_address_const::<'long_swap'>()],
-        short_token_swap_path: array![contract_address_const::<'short_swap'>()],
+        long_token_swap_path: array![contract_address_const::<'long_swap'>()].span32(),
+        short_token_swap_path: array![contract_address_const::<'short_swap'>()].span32(),
         initial_long_token_amount: 10,
         initial_short_token_amount: 20,
         min_market_tokens: 30,
@@ -319,9 +320,10 @@ fn create_dummy_withdrawal() -> Withdrawal {
 }
 
 fn create_dummy_order(key: felt252) -> Order {
-    let mut swap_path = array![];
-    swap_path.append(contract_address_const::<'swap_path_0'>());
-    swap_path.append(contract_address_const::<'swap_path_1'>());
+    let swap_path: Span32<ContractAddress> = array![
+        contract_address_const::<'swap_path_0'>(), contract_address_const::<'swap_path_1'>()
+    ]
+        .span32();
     Order {
         key,
         decrease_position_swap_type: DecreasePositionSwapType::SwapPnlTokenToCollateralToken(()),
@@ -332,7 +334,7 @@ fn create_dummy_order(key: felt252) -> Order {
         ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
         market: contract_address_const::<'market'>(),
         initial_collateral_token: contract_address_const::<'initial_collateral_token'>(),
-        // swap_path,
+        swap_path,
         size_delta_usd: 1000,
         initial_collateral_delta_amount: 500,
         trigger_price: 2000,

@@ -19,6 +19,7 @@ use satoru::referral::referral_storage::interface::{
 };
 use satoru::price::price::Price;
 use satoru::market::market::Market;
+use satoru::utils::span32::Span32;
 
 /// Struct used in executeDeposit to avoid stack too deep errors
 #[derive(Drop, Serde)]
@@ -97,7 +98,7 @@ fn _execute_deposit(params: ExecuteDepositParams, _params: _ExecuteDepositParams
 #[inline(always)]
 fn swap(
     params: ExecuteDepositParams,
-    swap_path: Array<ContractAddress>,
+    swap_path: Span32<ContractAddress>,
     initial_token: ContractAddress,
     intput_amount: u128,
     market: ContractAddress,
