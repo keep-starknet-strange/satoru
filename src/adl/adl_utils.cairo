@@ -30,7 +30,7 @@ use satoru::position::position::Position;
 use satoru::order::order::{Order, OrderType, DecreasePositionSwapType};
 use satoru::nonce::nonce_utils;
 use satoru::callback::callback_utils::get_saved_callback_contract;
-
+use satoru::utils::span32::{Span32, Array32Trait};
 /// CreateAdlOrderParams struct used in createAdlOrder to avoid stack
 #[derive(Drop, Copy, starknet::Store, Serde)]
 struct CreateAdlOrderParams {
@@ -175,7 +175,7 @@ fn create_adl_order(params: CreateAdlOrderParams) -> felt252 {
         ui_fee_receiver: 0.try_into().unwrap(),
         market: params.market,
         initial_collateral_token: position.collateral_token,
-        //swap_path,
+        swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
         size_delta_usd: params.size_delta_usd,
         initial_collateral_delta_amount: 0,
         trigger_price: 0,
