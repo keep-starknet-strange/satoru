@@ -144,10 +144,8 @@ fn test_set_deposit_should_panic_not_controller() {
 }
 
 #[test]
-#[should_panic(expected: ('unauthorized_access',))]
 fn test_get_deposit_keys() {
     let (caller_address, role_store, data_store) = setup();
-    role_store.revoke_role(caller_address, role::CONTROLLER);
     let key: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
     let mut deposit: Deposit = create_new_deposit(
