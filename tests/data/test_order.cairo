@@ -435,9 +435,10 @@ fn create_new_order(
     let decrease_position_swap_type = DecreasePositionSwapType::NoSwap(());
     let callback_contract = contract_address_const::<'callback_contract'>();
     let ui_fee_receiver = contract_address_const::<'ui_fee_receiver'>();
-    let mut swap_path = array![];
-    swap_path.append(contract_address_const::<'swap_path_0'>());
-    swap_path.append(contract_address_const::<'swap_path_1'>());
+    let swap_path: Span32<ContractAddress> = array![
+        contract_address_const::<'swap_path_0'>(),
+        contract_address_const::<'swap_path_1'>()
+    ].span32();
     let size_delta_usd = 1000 * order_no;
     let initial_collateral_delta_amount = 1000 * order_no;
     let trigger_price = 11111 * order_no;
@@ -459,7 +460,7 @@ fn create_new_order(
         ui_fee_receiver,
         market,
         initial_collateral_token,
-        //swap_path,
+        swap_path,
         size_delta_usd,
         initial_collateral_delta_amount,
         trigger_price,

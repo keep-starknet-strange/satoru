@@ -319,9 +319,10 @@ fn create_dummy_withdrawal() -> Withdrawal {
 }
 
 fn create_dummy_order(key: felt252) -> Order {
-    let mut swap_path = array![];
-    swap_path.append(contract_address_const::<'swap_path_0'>());
-    swap_path.append(contract_address_const::<'swap_path_1'>());
+    let swap_path: Span32<ContractAddress> = array![
+        contract_address_const::<'swap_path_0'>(),
+        contract_address_const::<'swap_path_1'>()
+    ].span32();
     Order {
         key,
         decrease_position_swap_type: DecreasePositionSwapType::SwapPnlTokenToCollateralToken(()),
@@ -332,7 +333,7 @@ fn create_dummy_order(key: felt252) -> Order {
         ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
         market: contract_address_const::<'market'>(),
         initial_collateral_token: contract_address_const::<'initial_collateral_token'>(),
-        // swap_path,
+        swap_path,
         size_delta_usd: 1000,
         initial_collateral_delta_amount: 500,
         trigger_price: 2000,
