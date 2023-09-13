@@ -3,11 +3,10 @@ use snforge_std::{
     declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event,
     EventAssertions
 };
-use satoru::tests_lib::{setup_event_emitter};
+use satoru::tests_lib::setup_event_emitter;
 use satoru::position::{
     position_event_utils::PositionIncreaseParams, position::Position,
-    position_utils::DecreasePositionCollateralValues,
-    position_utils::DecreasePositionCollateralValuesOutput
+    position_utils::{DecreasePositionCollateralValues, DecreasePositionCollateralValuesOutput}
 };
 use satoru::pricing::position_pricing_utils::{
     PositionFees, PositionUiFees, PositionBorrowingFees, PositionReferralFees, PositionFundingFees
@@ -475,6 +474,7 @@ fn create_dummy_position_increase_params(
 
 fn create_dummy_position() -> Position {
     Position {
+        key: 1,
         account: contract_address_const::<'account'>(),
         market: contract_address_const::<'market'>(),
         collateral_token: contract_address_const::<'collateral_token'>(),

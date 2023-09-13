@@ -17,6 +17,7 @@ use satoru::market::{market::Market, market_utils::MarketPrices};
 use satoru::pricing::swap_pricing_utils::SwapFees;
 use satoru::utils::store_arrays::{StoreContractAddressArray, StoreU64Array};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use satoru::utils::span32::Span32;
 
 #[derive(Drop, starknet::Store, Serde)]
 struct CreateWithdrawalParams {
@@ -29,9 +30,9 @@ struct CreateWithdrawalParams {
     /// The market on which the withdrawal will be executed.
     market: ContractAddress,
     /// The swap path for the long token
-    long_token_swap_path: Array<ContractAddress>,
+    long_token_swap_path: Span32<ContractAddress>,
     /// The short token swap path
-    short_token_swap_path: Array<ContractAddress>,
+    short_token_swap_path: Span32<ContractAddress>,
     /// The minimum amount of long tokens that must be withdrawn.
     min_long_token_amount: u128,
     /// The minimum amount of short tokens that must be withdrawn.
@@ -181,7 +182,7 @@ fn swap(
     market: Market,
     token_in: ContractAddress,
     amount_in: u128,
-    swap_path: Array<ContractAddress>,
+    swap_path: Span32<ContractAddress>,
     min_output_amount: u128,
     receiver: ContractAddress,
     ui_fee_receiver: ContractAddress,

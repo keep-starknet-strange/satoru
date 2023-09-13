@@ -7,8 +7,10 @@
 use starknet::ContractAddress;
 
 /// Main struct used to store positions.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Copy, Drop, starknet::Store, Serde, PartialEq)]
 struct Position {
+    /// The unique identifier of the position.
+    key: felt252,
     /// The account linked to the position.
     account: ContractAddress,
     /// The market where is the position.
