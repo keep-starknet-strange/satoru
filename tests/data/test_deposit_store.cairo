@@ -7,7 +7,7 @@ use satoru::deposit::deposit::Deposit;
 use satoru::tests_lib::teardown;
 use satoru::utils::span32::{Span32, Array32Trait};
 
-use snforge_std::{PrintTrait, declare, start_prank, stop_prank, ContractClassTrait};
+use snforge_std::{declare, start_prank, ContractClassTrait};
 
 /// Utility function to deploy a `DataStore` contract and return its dispatcher.
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
