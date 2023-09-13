@@ -3,11 +3,13 @@ use starknet::ContractAddress;
 
 // Satoru imports
 use satoru::utils::store_arrays::StoreContractAddressArray;
-use satoru::utils::span32::{Span32, Array32Trait};
+use satoru::utils::span32::{Span32, Array32Trait, DefaultSpan32};
 
 /// Deposit
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Copy, Drop, starknet::Store, Serde, PartialEq)]
 struct Deposit {
+    /// The unique identifier of the order.
+    key: felt252,
     /// The account depositing liquidity.
     account: ContractAddress,
     /// The address to send the liquidity tokens to.
@@ -44,6 +46,7 @@ struct Deposit {
 impl DefaultDeposit of Default<Deposit> {
     fn default() -> Deposit {
         Deposit {
+            key: 0,
             account: 0.try_into().unwrap(),
             receiver: 0.try_into().unwrap(),
             callback_contract: 0.try_into().unwrap(),
