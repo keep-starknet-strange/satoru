@@ -5,6 +5,7 @@ use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
 use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
 use satoru::tests_lib::{setup, teardown};
+use satoru::utils::span32::{Span32, Array32Trait};
 
 use snforge_std::{PrintTrait, declare, start_prank, stop_prank, ContractClassTrait};
 

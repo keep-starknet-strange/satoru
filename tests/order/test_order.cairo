@@ -17,6 +17,7 @@ use snforge_std::{declare, ContractClassTrait, start_roll};
 // Local imports.
 use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
 use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
+use satoru::utils::span32::{Span32, Array32Trait};
 
 #[test]
 fn given_normal_conditions_when_touch_then_expected_results() {
