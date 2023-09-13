@@ -47,14 +47,13 @@ To test the project, run:
 snforge
 ```
 
-
 ## 🚀 Deploy
 
 To deploy contracts of the saturo, you first need to setup a smart wallet :
 
 - Create a signer by following this tutorial : [Signers](https://book.starkli.rs/signers)
 
-- Create an account by following this tutorial : [Accounts](https://book.starkli.rs/accounts/) 
+- Create an account by following this tutorial : [Accounts](https://book.starkli.rs/accounts/)
 
 Once your smart wallet is setup, you can now run deployment files to deploy contracts, for example :
 
@@ -63,7 +62,6 @@ cd scripts
 
 ./deploy_contract.sh
 ```
-
 
 ## 📚 Resources
 
@@ -116,6 +114,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/0xTitan"><img src="https://avatars.githubusercontent.com/u/104304962?v=4?s=100" width="100px;" alt="0xTitan"/><br /><sub><b>0xTitan</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=0xTitan" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Bal7hazar"><img src="https://avatars.githubusercontent.com/u/97087040?v=4?s=100" width="100px;" alt="Bal7hazar @ Carbonable"/><br /><sub><b>Bal7hazar @ Carbonable</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=Bal7hazar" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/zizou0x"><img src="https://avatars.githubusercontent.com/u/111426680?v=4?s=100" width="100px;" alt="Zizou"/><br /><sub><b>Zizou</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=zizou0x" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Darlington02"><img src="https://avatars.githubusercontent.com/u/75126961?v=4?s=100" width="100px;" alt="Darlington02"/><br /><sub><b>Darlington02</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=Darlington02" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

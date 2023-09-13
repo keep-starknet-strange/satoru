@@ -6,8 +6,8 @@ use snforge_std::{declare, start_prank, ContractClassTrait};
 
 
 use satoru::role::{
-    role_module::{IRoleModuleSafeDispatcher, IRoleModuleSafeDispatcherTrait},
-    role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait},
+    role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait},
+    role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait},
     role::{
         ROLE_ADMIN, TIMELOCK_ADMIN, TIMELOCK_MULTISIG, CONFIG_KEEPER, CONTROLLER, ROUTER_PLUGIN,
         MARKET_KEEPER, FEE_KEEPER, ORDER_KEEPER, FROZEN_ORDER_KEEPER, PRICING_KEEPER,
@@ -30,7 +30,7 @@ fn test_role_module_only_self() {
     start_prank(role_module.contract_address, role_module.contract_address);
 
     // Check that only self is allowed.
-    role_module.only_self().unwrap();
+    role_module.only_self();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -53,7 +53,7 @@ fn test_role_module_not_self() {
     start_prank(role_module.contract_address, caller_address);
 
     // Check that only self is allowed, expect to fail.
-    role_module.only_self().unwrap();
+    role_module.only_self();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -77,9 +77,9 @@ fn test_role_module_only_timelock_multisig() {
     start_prank(role_module.contract_address, caller_address);
 
     // Grant timelock_multisig role to account address.
-    role_store.grant_role(caller_address, TIMELOCK_MULTISIG).unwrap();
+    role_store.grant_role(caller_address, TIMELOCK_MULTISIG);
     // Check that the account address has the timelock_multisig role.
-    role_module.only_timelock_multisig().unwrap();
+    role_module.only_timelock_multisig();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -104,7 +104,7 @@ fn test_role_module_not_timelock_multisig() {
     start_prank(role_module.contract_address, caller_address);
 
     // Check that the account address has the timelock_multisig role, expect to fail.
-    role_module.only_timelock_multisig().unwrap();
+    role_module.only_timelock_multisig();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -127,9 +127,9 @@ fn test_role_module_only_timelock_admin() {
     start_prank(role_module.contract_address, caller_address);
 
     // Grant timelock_admin role to account address.
-    role_store.grant_role(caller_address, TIMELOCK_ADMIN).unwrap();
+    role_store.grant_role(caller_address, TIMELOCK_ADMIN);
     // Check that the account address has the timelock_admin role.
-    role_module.only_timelock_admin().unwrap();
+    role_module.only_timelock_admin();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -153,7 +153,7 @@ fn test_role_module_not_timelock_admin() {
     start_prank(role_module.contract_address, caller_address);
 
     // Check that the account address has the timelock_admin role, expect to fail.
-    role_module.only_timelock_admin().unwrap();
+    role_module.only_timelock_admin();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -177,9 +177,9 @@ fn test_role_module_only_config_keeper() {
     start_prank(role_module.contract_address, caller_address);
 
     // Grant config_keeper role to account address.
-    role_store.grant_role(caller_address, CONFIG_KEEPER).unwrap();
+    role_store.grant_role(caller_address, CONFIG_KEEPER);
     // Check that the account address has the config_keeper role.
-    role_module.only_config_keeper().unwrap();
+    role_module.only_config_keeper();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -204,7 +204,7 @@ fn test_role_module_not_config_keeper() {
     start_prank(role_module.contract_address, caller_address);
 
     // Check that the account address has the config_keeper role, expect to fail.
-    role_module.only_config_keeper().unwrap();
+    role_module.only_config_keeper();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -226,9 +226,9 @@ fn test_role_module_only_controller() {
     start_prank(role_module.contract_address, caller_address);
 
     // Grant controller_role to account address.
-    role_store.grant_role(caller_address, CONTROLLER).unwrap();
+    role_store.grant_role(caller_address, CONTROLLER);
     // Check that the account address has the controller_role.
-    role_module.only_controller().unwrap();
+    role_module.only_controller();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -251,7 +251,7 @@ fn test_role_module_not_controller() {
     start_prank(role_module.contract_address, caller_address);
 
     // Check that the account address has the controller_role, expect to fail.
-    role_module.only_controller().unwrap();
+    role_module.only_controller();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -273,9 +273,9 @@ fn test_role_module_only_router_plugin() {
     start_prank(role_module.contract_address, caller_address);
 
     // Grant router_plugin role to account address.
-    role_store.grant_role(caller_address, ROUTER_PLUGIN).unwrap();
+    role_store.grant_role(caller_address, ROUTER_PLUGIN);
     // Check that the account address has the router_plugin role.
-    role_module.only_router_plugin().unwrap();
+    role_module.only_router_plugin();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -298,7 +298,7 @@ fn test_role_module_not_router_plugin() {
     start_prank(role_module.contract_address, caller_address);
 
     // Check that the account address has the router_plugin role, expect to fail.
-    role_module.only_router_plugin().unwrap();
+    role_module.only_router_plugin();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -320,9 +320,9 @@ fn test_role_module_only_market_keeper() {
     start_prank(role_module.contract_address, caller_address);
 
     // Grant market_keeper role to account address.
-    role_store.grant_role(caller_address, MARKET_KEEPER).unwrap();
+    role_store.grant_role(caller_address, MARKET_KEEPER);
     // Check that the account address has the market_keeper role.
-    role_module.only_market_keeper().unwrap();
+    role_module.only_market_keeper();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -345,7 +345,7 @@ fn test_role_module_not_market_keeper() {
     start_prank(role_module.contract_address, caller_address);
 
     // Check that the account address has the market_keeper role, expect to fail.
-    role_module.only_market_keeper().unwrap();
+    role_module.only_market_keeper();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -367,9 +367,9 @@ fn test_role_module_only_fee_keeper() {
     start_prank(role_module.contract_address, caller_address);
 
     // Grant fee keeper_role to account address.
-    role_store.grant_role(caller_address, FEE_KEEPER).unwrap();
+    role_store.grant_role(caller_address, FEE_KEEPER);
     // Check that the account address has the fee keeper_role.
-    role_module.only_fee_keeper().unwrap();
+    role_module.only_fee_keeper();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -392,7 +392,7 @@ fn test_role_module_not_fee_keeper() {
     start_prank(role_module.contract_address, caller_address);
 
     // Check that the account address has the fee keeper_role, expect to fail.
-    role_module.only_fee_keeper().unwrap();
+    role_module.only_fee_keeper();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -414,9 +414,9 @@ fn test_role_module_only_order_keeper() {
     start_prank(role_module.contract_address, caller_address);
 
     // Grant order_keeper role to account address.
-    role_store.grant_role(caller_address, ORDER_KEEPER).unwrap();
+    role_store.grant_role(caller_address, ORDER_KEEPER);
     // Check that the account address has the order_keeper role.
-    role_module.only_order_keeper().unwrap();
+    role_module.only_order_keeper();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -439,7 +439,7 @@ fn test_role_module_not_order_keeper() {
     start_prank(role_module.contract_address, caller_address);
 
     // Check that the account address has the order_keeper role, expect to fail.
-    role_module.only_order_keeper().unwrap();
+    role_module.only_order_keeper();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -461,9 +461,9 @@ fn test_role_module_only_pricing_keeper() {
     start_prank(role_module.contract_address, caller_address);
 
     // Grant pricing_keeper role to account address.
-    role_store.grant_role(caller_address, PRICING_KEEPER).unwrap();
+    role_store.grant_role(caller_address, PRICING_KEEPER);
     // Check that the account address has the pricing_keeper role.
-    role_module.only_pricing_keeper().unwrap();
+    role_module.only_pricing_keeper();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -486,7 +486,7 @@ fn test_role_module_not_pricing_keeper() {
     start_prank(role_module.contract_address, caller_address);
 
     // Check that the account address has the pricing_keeper role, expect to fail.
-    role_module.only_pricing_keeper().unwrap();
+    role_module.only_pricing_keeper();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -508,9 +508,9 @@ fn test_role_module_only_liquidation_keeper() {
     start_prank(role_module.contract_address, caller_address);
 
     // Grant liquidation_keeper role to account address.
-    role_store.grant_role(caller_address, LIQUIDATION_KEEPER).unwrap();
+    role_store.grant_role(caller_address, LIQUIDATION_KEEPER);
     // Check that the account address has the liquidation_keeper role.
-    role_module.only_liquidation_keeper().unwrap();
+    role_module.only_liquidation_keeper();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -533,7 +533,7 @@ fn test_role_module_not_liquidation_keeper() {
     start_prank(role_module.contract_address, caller_address);
 
     // Check that the account address has the liquidation_keeper role, expect to fail.
-    role_module.only_liquidation_keeper().unwrap();
+    role_module.only_liquidation_keeper();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -556,9 +556,9 @@ fn test_role_module_only_adl_keeper() {
     start_prank(role_module.contract_address, caller_address);
 
     // Grant adl_keeper role to account address.
-    role_store.grant_role(caller_address, ADL_KEEPER).unwrap();
+    role_store.grant_role(caller_address, ADL_KEEPER);
     // Check that the account address has the adl_keeper role.
-    role_module.only_adl_keeper().unwrap();
+    role_module.only_adl_keeper();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -581,7 +581,7 @@ fn test_role_module_not_adl_keeper() {
     start_prank(role_module.contract_address, caller_address);
 
     // Check that the account address has the adl_keeper role, expect to fail.
-    role_module.only_adl_keeper().unwrap();
+    role_module.only_adl_keeper();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -590,11 +590,11 @@ fn test_role_module_not_adl_keeper() {
 
 fn setup() -> (
     // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
-    IRoleStoreSafeDispatcher, // Interface to interact with the `MarketToken` contract.
-    IRoleModuleSafeDispatcher,
+    IRoleStoreDispatcher, // Interface to interact with the `MarketToken` contract.
+    IRoleModuleDispatcher,
 ) {
-    let role_store = IRoleStoreSafeDispatcher { contract_address: deploy_role_store() };
-    let role_module = IRoleModuleSafeDispatcher {
+    let role_store = IRoleStoreDispatcher { contract_address: deploy_role_store() };
+    let role_module = IRoleModuleDispatcher {
         contract_address: deploy_role_module(role_store.contract_address)
     };
 

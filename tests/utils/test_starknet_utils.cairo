@@ -1,6 +1,6 @@
 use traits::Into;
 
-use satoru::data::data_store::IDataStoreSafeDispatcherTrait;
+use satoru::data::data_store::IDataStoreDispatcherTrait;
 use satoru::utils::starknet_utils::{sn_gasleft, sn_gasprice};
 use satoru::tests_lib::{setup, teardown};
 
