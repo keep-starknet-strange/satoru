@@ -405,12 +405,14 @@ fn create_new_deposit(
     let initial_short_token = contract_address_const::<'initial_short_token'>();
 
     let long_token_swap_path: Span32<ContractAddress> = array![
-        contract_address_const::<'long_token_swap_path_0'>(), contract_address_const::<'long_token_swap_path_1'>()
+        contract_address_const::<'long_token_swap_path_0'>(),
+        contract_address_const::<'long_token_swap_path_1'>()
     ]
         .span32();
 
     let short_token_swap_path: Span32<ContractAddress> = array![
-        contract_address_const::<'short_token_swap_path_0'>(), contract_address_const::<'short_token_swap_path_1'>()
+        contract_address_const::<'short_token_swap_path_0'>(),
+        contract_address_const::<'short_token_swap_path_1'>()
     ]
         .span32();
 
