@@ -4,6 +4,7 @@ use starknet::ContractAddress;
 // Satoru imports
 use satoru::utils::store_arrays::StoreContractAddressArray;
 use satoru::utils::span32::{Span32, DefaultSpan32};
+use satoru::utils::span32::{Span32, Array32Trait, DefaultSpan32};
 
 /// Deposit
 #[derive(Copy, Drop, starknet::Store, Serde, PartialEq)]
@@ -54,8 +55,8 @@ impl DefaultDeposit of Default<Deposit> {
             market: 0.try_into().unwrap(),
             initial_long_token: 0.try_into().unwrap(),
             initial_short_token: 0.try_into().unwrap(),
-            long_token_swap_path: Default::default(),
-            short_token_swap_path: Default::default(),
+            long_token_swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
+            short_token_swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
             initial_long_token_amount: 0,
             initial_short_token_amount: 0,
             min_market_tokens: 0,

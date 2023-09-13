@@ -4,11 +4,13 @@ use snforge_std::{
     EventAssertions
 };
 
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::tests_lib::setup_event_emitter;
 
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+
+
 #[test]
-fn test_emit_affiliate_reward_updated() {
+fn test_emit_oracle_price_update() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -19,37 +21,26 @@ fn test_emit_affiliate_reward_updated() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    // Create a dummy data.
-    let market = contract_address_const::<'market'>();
+    // Create dummy data.
     let token = contract_address_const::<'token'>();
-    let affiliate = contract_address_const::<'affiliate'>();
-    let delta: u128 = 100;
-    let next_value: u128 = 200;
-    let next_pool_value: u128 = 300;
+    let min_price: u128 = 1;
+    let max_price: u128 = 2;
+    let is_price_feed: bool = true;
 
     // Create the expected data.
     let expected_data: Array<felt252> = array![
-        market.into(),
-        token.into(),
-        affiliate.into(),
-        delta.into(),
-        next_value.into(),
-        next_pool_value.into()
+        token.into(), min_price.into(), max_price.into(), is_price_feed.into()
     ];
 
     // Emit the event.
-    event_emitter
-        .emit_affiliate_reward_updated(
-            market, token, affiliate, delta, next_value, next_pool_value
-        );
-
+    event_emitter.emit_oracle_price_update(token, min_price, max_price, is_price_feed);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
                 Event {
                     from: contract_address,
-                    name: 'AffiliateRewardUpdated',
+                    name: 'OraclePriceUpdate',
                     keys: array![],
                     data: expected_data
                 }
@@ -60,7 +51,7 @@ fn test_emit_affiliate_reward_updated() {
 }
 
 #[test]
-fn test_emit_affiliate_reward_claimed() {
+fn test_emit_signer_added() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -71,35 +62,54 @@ fn test_emit_affiliate_reward_claimed() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    // Create a dummy data.
-    let market = contract_address_const::<'market'>();
-    let token = contract_address_const::<'token'>();
-    let affiliate = contract_address_const::<'affiliate'>();
-    let receiver = contract_address_const::<'receiver'>();
-    let amount: u128 = 100;
-    let next_pool_value: u128 = 200;
+    // Create dummy data.
+    let account = contract_address_const::<'account'>();
 
     // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        market.into(),
-        token.into(),
-        affiliate.into(),
-        receiver.into(),
-        amount.into(),
-        next_pool_value.into()
-    ];
+    let expected_data: Array<felt252> = array![account.into()];
 
     // Emit the event.
-    event_emitter
-        .emit_affiliate_reward_claimed(market, token, affiliate, receiver, amount, next_pool_value);
+    event_emitter.emit_signer_added(account);
+    // Assert the event was emitted.
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: contract_address, name: 'SignerAdded', keys: array![], data: expected_data
+                }
+            ]
+        );
+    // Assert there are no more events.
+    assert(spy.events.len() == 0, 'There should be no events');
+}
 
+#[test]
+fn test_emit_signer_removed() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (contract_address, event_emitter) = setup_event_emitter();
+    let mut spy = spy_events(SpyOn::One(contract_address));
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create dummy data.
+    let account = contract_address_const::<'account'>();
+
+    // Create the expected data.
+    let expected_data: Array<felt252> = array![account.into()];
+
+    // Emit the event.
+    event_emitter.emit_signer_removed(account);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
                 Event {
                     from: contract_address,
-                    name: 'AffiliateRewardClaimed',
+                    name: 'SignerRemoved',
                     keys: array![],
                     data: expected_data
                 }
