@@ -9,7 +9,6 @@ use satoru::market::market::Market;
 use satoru::order::order::Order;
 use satoru::position::position::Position;
 use satoru::withdrawal::withdrawal::Withdrawal;
-use satoru::position::position::Position;
 
 // *************************************************************************
 //                  Interface of the `DataStore` contract.
@@ -345,17 +344,6 @@ trait IDataStore<TContractState> {
         self: @TContractState, account: ContractAddress, start: u32, end: u32
     ) -> Array<felt252>;
 
-    // *************************************************************************
-    //                      Position related functions.
-    // *************************************************************************
-    /// Get a position value for the given key.
-    /// # Arguments
-    /// * `key` - The key to get the value for.
-    /// # Returns
-    /// The value for the given key.
-    fn get_position(self: @TContractState, key: felt252) -> Option<Position>;
-
-
     //TODO: Update u128 to i128 when Serde and Store for i128 implementations are released.
     // *************************************************************************
     //                          int128 related functions.
@@ -418,7 +406,6 @@ mod DataStore {
     use satoru::order::{order::Order, error::OrderError};
     use satoru::position::{position::Position, error::PositionError};
     use satoru::withdrawal::{withdrawal::Withdrawal, error::WithdrawalError};
-    use satoru::position::{position::Position};
 
     // *************************************************************************
     //                              STORAGE
@@ -1195,14 +1182,7 @@ mod DataStore {
             };
             keys
         }
-        // *************************************************************************
-        //                      Position related functions.
-        // *************************************************************************
-        fn get_position(self: @ContractState, key: felt252) -> Option<Position> {
-            Option::None
-        }
     }
-
 
     #[generate_trait]
     impl InternalFunctions of InternalFunctionsTrait {
