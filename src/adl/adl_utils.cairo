@@ -17,10 +17,7 @@ use starknet::{get_caller_address, ContractAddress};
 use integer::BoundedInt;
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::{
-    event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait},
-    event_utils::{EventLogData, EventUtilsTrait}
-};
+use satoru::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait},};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::market::market_utils::{
     MarketPrices, get_enabled_market, get_market_prices, is_pnl_factor_exceeded_direct
@@ -302,14 +299,8 @@ fn emit_adl_state_updated(
     max_pnl_factor: u128,
     should_enable_adl: bool
 ) {
-    let mut event_data: EventLogData = Default::default();
-
-    event_data.int_items.set_item('pnl_to_pool_factor', pnl_to_pool_factor);
-    event_data.uint_items.set_item('max_pnl_factor', max_pnl_factor);
-    event_data.bool_items.set_item('is_long', is_long);
-    event_data.bool_items.set_item('should_enable_adl', should_enable_adl);
-
-    let event_name: felt252 = 'AdlStateUpdated';
-    let name_hash: felt252 = market.into();
-    event_emitter.emit_event_log1(event_name, name_hash, event_data);
+    event_emitter
+        .emit_adl_state_updated(
+            market, is_long, pnl_to_pool_factor.into(), max_pnl_factor, should_enable_adl,
+        );
 }

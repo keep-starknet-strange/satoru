@@ -150,29 +150,14 @@ fn test_adl_state_event() {
 
     spy.fetch_events();
     assert(spy.events.len() == 1, 'There should be one event');
-    assert(spy.events.at(0).name == @event_name_hash('EventLog1'), 'Wrong event name');
+    assert(spy.events.at(0).name == @event_name_hash('AdlStateUpdated'), 'Wrong event name');
     assert(spy.events.at(0).keys.len() == 0, 'There should be no keys');
-    let event_name: felt252 = 'AdlStateUpdated';
-    let sender: felt252 = caller_address.into();
     let market_felt = market.into();
-    assert(*spy.events.at(0).data.at(0) == sender, 'Invalid data0');
-    assert(*spy.events.at(0).data.at(1) == event_name, 'Invalid data1');
-    assert(*spy.events.at(0).data.at(2) == market_felt, 'Invalid data2');
-    assert(*spy.events.at(0).data.at(3) == 0, 'Invalid data3');
-    assert(*spy.events.at(0).data.at(4) == 0, 'Invalid data4');
-    assert(*spy.events.at(0).data.at(5) == 1, 'Invalid data5');
-    assert(*spy.events.at(0).data.at(6) == 'max_pnl_factor', 'Invalid data6');
-    assert(*spy.events.at(0).data.at(7) == max_pnl_factor.into(), 'Invalid data7');
-    assert(*spy.events.at(0).data.at(8) == 0, 'Invalid data8');
-    assert(*spy.events.at(0).data.at(9) == 1, 'Invalid data9');
-    assert(*spy.events.at(0).data.at(10) == 'pnl_to_pool_factor', 'Invalid data10');
-    assert(*spy.events.at(0).data.at(11) == pnl_to_pool_factor.into(), 'Invalid data11');
-    assert(*spy.events.at(0).data.at(12) == 0, 'Invalid data12');
-    assert(*spy.events.at(0).data.at(13) == 2, 'Invalid data13');
-    assert(*spy.events.at(0).data.at(14) == 'is_long', 'Invalid data14');
-    assert(*spy.events.at(0).data.at(15) == is_long.into(), 'Invalid data15');
-    assert(*spy.events.at(0).data.at(16) == 'should_enable_adl', 'Invalid data16');
-    assert(*spy.events.at(0).data.at(17) == should_enable_adl.into(), 'Invalid data17');
+    assert(*spy.events.at(0).data.at(0) == market_felt, 'Invalid data0');
+    assert(*spy.events.at(0).data.at(1) == is_long.into(), 'Invalid data1');
+    assert(*spy.events.at(0).data.at(2) == pnl_to_pool_factor.into(), 'Invalid data2');
+    assert(*spy.events.at(0).data.at(3) == max_pnl_factor.into(), 'Invalid data3');
+    assert(*spy.events.at(0).data.at(4) == should_enable_adl.into(), 'Invalid data4');
     teardown(data_store.contract_address);
 }
 
