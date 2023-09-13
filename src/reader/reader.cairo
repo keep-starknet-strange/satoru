@@ -123,6 +123,7 @@ fn get_withdrawl(data_store: IDataStoreDispatcher, key: felt252) -> Withdrawal {
 fn get_position(data_store: IDataStoreDispatcher, key: felt252) -> Position {
     // TODO
     Position {
+        key: 0,
         account: 0.try_into().unwrap(),
         market: 0.try_into().unwrap(),
         collateral_token: 0.try_into().unwrap(),
@@ -239,6 +240,7 @@ fn get_position_info(
     };
 
     let position = Position {
+        key: 0,
         account: 0.try_into().unwrap(),
         market: 0.try_into().unwrap(),
         collateral_token: 0.try_into().unwrap(),

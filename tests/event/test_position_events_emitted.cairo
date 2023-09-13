@@ -475,6 +475,7 @@ fn create_dummy_position_increase_params(
 
 fn create_dummy_position() -> Position {
     Position {
+        key: 1,
         account: contract_address_const::<'account'>(),
         market: contract_address_const::<'market'>(),
         collateral_token: contract_address_const::<'collateral_token'>(),
