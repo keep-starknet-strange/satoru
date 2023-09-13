@@ -3,19 +3,20 @@ use snforge_std::{
     declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event,
     EventAssertions
 };
-
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
+use option::OptionTrait;
 use satoru::tests_lib::setup_event_emitter;
 
-//TODO: OrderCollatDeltaAmountAutoUpdtd must be renamed back to OrderCollateralDeltaAmountAutoUpdated when string will be allowed as event argument
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::deposit::deposit::Deposit;
+use satoru::withdrawal::withdrawal::Withdrawal;
+use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
 
 #[test]
-fn test_emit_order_created() {
+fn test_emit_after_deposit_execution_error() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (contract_address, event_emitter) = setup();
+    let (contract_address, event_emitter) = setup_event_emitter();
     let mut spy = spy_events(SpyOn::One(contract_address));
 
     // *********************************************************************************************
@@ -23,23 +24,22 @@ fn test_emit_order_created() {
     // *********************************************************************************************
 
     // Create dummy data.
-    let key: felt252 = 100;
-    let order: Order = create_dummy_order(key);
+    let key = 'deposit_execution_error';
+    let deposit_data: Deposit = create_dummy_deposit();
 
     // Create the expected data.
     let mut expected_data: Array<felt252> = array![key];
-    order.serialize(ref expected_data);
+    deposit_data.serialize(ref expected_data);
 
     // Emit the event.
-    event_emitter.emit_order_created(key, order);
-
+    event_emitter.emit_after_deposit_execution_error(key, deposit_data);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
                 Event {
                     from: contract_address,
-                    name: 'OrderCreated',
+                    name: 'AfterDepositExecutionError',
                     keys: array![],
                     data: expected_data
                 }
@@ -50,11 +50,11 @@ fn test_emit_order_created() {
 }
 
 #[test]
-fn test_emit_order_executed() {
+fn test_emit_after_deposit_cancellation_error() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (contract_address, event_emitter) = setup();
+    let (contract_address, event_emitter) = setup_event_emitter();
     let mut spy = spy_events(SpyOn::One(contract_address));
 
     // *********************************************************************************************
@@ -62,23 +62,22 @@ fn test_emit_order_executed() {
     // *********************************************************************************************
 
     // Create dummy data.
-    let key: felt252 = 100;
-    let secondary_order_type: SecondaryOrderType = SecondaryOrderType::None(());
+    let key = 'deposit_cancellation_error';
+    let deposit_data: Deposit = create_dummy_deposit();
 
     // Create the expected data.
     let mut expected_data: Array<felt252> = array![key];
-    secondary_order_type.serialize(ref expected_data);
+    deposit_data.serialize(ref expected_data);
 
     // Emit the event.
-    event_emitter.emit_order_executed(key, secondary_order_type);
-
+    event_emitter.emit_after_deposit_cancellation_error(key, deposit_data);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
                 Event {
                     from: contract_address,
-                    name: 'OrderExecuted',
+                    name: 'AfterDepositCancellationError',
                     keys: array![],
                     data: expected_data
                 }
@@ -89,11 +88,11 @@ fn test_emit_order_executed() {
 }
 
 #[test]
-fn test_emit_order_updated() {
+fn test_emit_after_withdrawal_execution_error() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (contract_address, event_emitter) = setup();
+    let (contract_address, event_emitter) = setup_event_emitter();
     let mut spy = spy_events(SpyOn::One(contract_address));
 
     // *********************************************************************************************
@@ -101,34 +100,22 @@ fn test_emit_order_updated() {
     // *********************************************************************************************
 
     // Create dummy data.
-    let key = 100;
-    let size_delta_usd: u128 = 200;
-    let acceptable_price: u128 = 300;
-    let trigger_price: u128 = 400;
-    let min_output_amount: u128 = 500;
+    let key = 'withdrawal_execution_error';
+    let withdrawal_data: Withdrawal = create_dummy_withdrawal();
 
     // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        key,
-        size_delta_usd.into(),
-        acceptable_price.into(),
-        trigger_price.into(),
-        min_output_amount.into()
-    ];
+    let mut expected_data: Array<felt252> = array![key];
+    withdrawal_data.serialize(ref expected_data);
 
     // Emit the event.
-    event_emitter
-        .emit_order_updated(
-            key, size_delta_usd, acceptable_price, trigger_price, min_output_amount
-        );
-
+    event_emitter.emit_after_withdrawal_execution_error(key, withdrawal_data);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
                 Event {
                     from: contract_address,
-                    name: 'OrderUpdated',
+                    name: 'AfterWithdrawalExecutionError',
                     keys: array![],
                     data: expected_data
                 }
@@ -139,11 +126,11 @@ fn test_emit_order_updated() {
 }
 
 #[test]
-fn test_emit_order_size_delta_auto_updated() {
+fn test_emit_after_withdrawal_cancellation_error() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (contract_address, event_emitter) = setup();
+    let (contract_address, event_emitter) = setup_event_emitter();
     let mut spy = spy_events(SpyOn::One(contract_address));
 
     // *********************************************************************************************
@@ -151,25 +138,22 @@ fn test_emit_order_size_delta_auto_updated() {
     // *********************************************************************************************
 
     // Create dummy data.
-    let key = 100;
-    let size_delta_usd: u128 = 200;
-    let next_size_delta_usd: u128 = 300;
+    let key = 'withdrawal_cancel_error';
+    let withdrawal_data: Withdrawal = create_dummy_withdrawal();
 
     // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        key, size_delta_usd.into(), next_size_delta_usd.into(),
-    ];
+    let mut expected_data: Array<felt252> = array![key];
+    withdrawal_data.serialize(ref expected_data);
 
     // Emit the event.
-    event_emitter.emit_order_size_delta_auto_updated(key, size_delta_usd, next_size_delta_usd);
-
+    event_emitter.emit_after_withdrawal_cancellation_error(key, withdrawal_data);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
                 Event {
                     from: contract_address,
-                    name: 'OrderSizeDeltaAutoUpdated',
+                    name: 'AfterWithdrawalCancelError',
                     keys: array![],
                     data: expected_data
                 }
@@ -180,11 +164,11 @@ fn test_emit_order_size_delta_auto_updated() {
 }
 
 #[test]
-fn test_emit_order_collateral_delta_amount_auto_updated() {
+fn test_emit_after_order_execution_error() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (contract_address, event_emitter) = setup();
+    let (contract_address, event_emitter) = setup_event_emitter();
     let mut spy = spy_events(SpyOn::One(contract_address));
 
     // *********************************************************************************************
@@ -192,28 +176,22 @@ fn test_emit_order_collateral_delta_amount_auto_updated() {
     // *********************************************************************************************
 
     // Create dummy data.
-    let key = 100;
-    let collateral_delta_amount: u128 = 200;
-    let next_collateral_delta_amount: u128 = 300;
+    let key = 'order_execution_error';
+    let order_data: Order = create_dummy_order(key);
 
     // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        key, collateral_delta_amount.into(), next_collateral_delta_amount.into(),
-    ];
+    let mut expected_data: Array<felt252> = array![key];
+    order_data.serialize(ref expected_data);
 
     // Emit the event.
-    event_emitter
-        .emit_order_collateral_delta_amount_auto_updated(
-            key, collateral_delta_amount, next_collateral_delta_amount
-        );
-
+    event_emitter.emit_after_order_execution_error(key, order_data);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
                 Event {
                     from: contract_address,
-                    name: 'OrderCollatDeltaAmountAutoUpdtd',
+                    name: 'AfterOrderExecutionError',
                     keys: array![],
                     data: expected_data
                 }
@@ -224,11 +202,11 @@ fn test_emit_order_collateral_delta_amount_auto_updated() {
 }
 
 #[test]
-fn test_emit_order_cancelled() {
+fn test_emit_after_order_cancellation_error() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (contract_address, event_emitter) = setup();
+    let (contract_address, event_emitter) = setup_event_emitter();
     let mut spy = spy_events(SpyOn::One(contract_address));
 
     // *********************************************************************************************
@@ -236,24 +214,22 @@ fn test_emit_order_cancelled() {
     // *********************************************************************************************
 
     // Create dummy data.
-    let key = 100;
-    let reason = 'none';
-    let reason_bytes = array!['0x00', '0x01'];
+    let key = 'order_cancellation_error';
+    let order_data: Order = create_dummy_order(key);
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![key, reason.into()];
-    reason_bytes.serialize(ref expected_data);
+    let mut expected_data: Array<felt252> = array![key];
+    order_data.serialize(ref expected_data);
 
     // Emit the event.
-    event_emitter.emit_order_cancelled(key, reason, reason_bytes.span());
-
+    event_emitter.emit_after_order_cancellation_error(key, order_data);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
                 Event {
                     from: contract_address,
-                    name: 'OrderCancelled',
+                    name: 'AfterOrderCancellationError',
                     keys: array![],
                     data: expected_data
                 }
@@ -264,11 +240,11 @@ fn test_emit_order_cancelled() {
 }
 
 #[test]
-fn test_emit_order_frozen() {
+fn test_emit_after_order_frozen_error() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
-    let (contract_address, event_emitter) = setup();
+    let (contract_address, event_emitter) = setup_event_emitter();
     let mut spy = spy_events(SpyOn::One(contract_address));
 
     // *********************************************************************************************
@@ -276,23 +252,24 @@ fn test_emit_order_frozen() {
     // *********************************************************************************************
 
     // Create dummy data.
-    let key = 100;
-    let reason = 'frozen';
-    let reason_bytes = array!['0x00', '0x01'];
+    let key = 'order_frozen_error';
+    let order_data: Order = create_dummy_order(key);
 
     // Create the expected data.
-    let mut expected_data: Array<felt252> = array![key, reason.into()];
-    reason_bytes.serialize(ref expected_data);
+    let mut expected_data: Array<felt252> = array![key];
+    order_data.serialize(ref expected_data);
 
     // Emit the event.
-    event_emitter.emit_order_frozen(key, reason, reason_bytes.span());
-
+    event_emitter.emit_after_order_frozen_error(key, order_data);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
                 Event {
-                    from: contract_address, name: 'OrderFrozen', keys: array![], data: expected_data
+                    from: contract_address,
+                    name: 'AfterOrderFrozenError',
+                    keys: array![],
+                    data: expected_data
                 }
             ]
         );
@@ -301,36 +278,61 @@ fn test_emit_order_frozen() {
 }
 
 
-/// Utility function to setup the test environment.
-///
-/// # Returns
-///
-/// * `ContractAddress` - The address of the event emitter contract.
-/// * `IEventEmitterDispatcher` - The event emitter store dispatcher.
-fn setup() -> (ContractAddress, IEventEmitterDispatcher) {
-    let contract = declare('EventEmitter');
-    let contract_address = contract.deploy(@array![]).unwrap();
-    let event_emitter = IEventEmitterDispatcher { contract_address };
-    return (contract_address, event_emitter);
+fn create_dummy_deposit() -> Deposit {
+    Deposit {
+        account: contract_address_const::<'account'>(),
+        receiver: contract_address_const::<'receiver'>(),
+        callback_contract: contract_address_const::<'callback_contract'>(),
+        ui_fee_receiver: contract_address_const::<'fee_receiver'>(),
+        market: contract_address_const::<'market'>(),
+        initial_long_token: contract_address_const::<'long_token'>(),
+        initial_short_token: contract_address_const::<'short_token'>(),
+        long_token_swap_path: array![contract_address_const::<'long_swap'>()],
+        short_token_swap_path: array![contract_address_const::<'short_swap'>()],
+        initial_long_token_amount: 10,
+        initial_short_token_amount: 20,
+        min_market_tokens: 30,
+        updated_at_block: 40,
+        execution_fee: 50,
+        callback_gas_limit: 60,
+    }
 }
 
+fn create_dummy_withdrawal() -> Withdrawal {
+    Withdrawal {
+        key: 'withdraw',
+        account: contract_address_const::<'account'>(),
+        receiver: contract_address_const::<'receiver'>(),
+        callback_contract: contract_address_const::<'callback_contract'>(),
+        ui_fee_receiver: contract_address_const::<'fee_receiver'>(),
+        market: contract_address_const::<'market'>(),
+        long_token_swap_path: Default::default(),
+        short_token_swap_path: Default::default(),
+        market_token_amount: 10,
+        min_long_token_amount: 20,
+        min_short_token_amount: 30,
+        updated_at_block: 40,
+        execution_fee: 50,
+        callback_gas_limit: 60,
+        should_unwrap_native_token: false,
+    }
+}
 
-/// Utility function to create a dummy order.
 fn create_dummy_order(key: felt252) -> Order {
     let mut swap_path = array![];
     swap_path.append(contract_address_const::<'swap_path_0'>());
     swap_path.append(contract_address_const::<'swap_path_1'>());
     Order {
         key,
-        order_type: OrderType::StopLossDecrease,
         decrease_position_swap_type: DecreasePositionSwapType::SwapPnlTokenToCollateralToken(()),
+        order_type: OrderType::StopLossDecrease,
         account: contract_address_const::<'account'>(),
         receiver: contract_address_const::<'receiver'>(),
         callback_contract: contract_address_const::<'callback_contract'>(),
         ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
         market: contract_address_const::<'market'>(),
         initial_collateral_token: contract_address_const::<'initial_collateral_token'>(),
-        //swap_path,
+        // swap_path,
         size_delta_usd: 1000,
         initial_collateral_delta_amount: 500,
         trigger_price: 2000,
