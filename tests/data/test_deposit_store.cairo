@@ -5,7 +5,7 @@ use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
 use satoru::deposit::deposit::Deposit;
 use satoru::tests_lib::teardown;
-use satoru::utils::span32::{Span32, DefaultSpan32};
+use satoru::utils::span32::{Span32, Array32Trait};
 
 use snforge_std::{PrintTrait, declare, start_prank, stop_prank, ContractClassTrait};
 
@@ -29,11 +29,7 @@ fn deploy_role_store() -> ContractAddress {
 ///
 /// * `ContractAddress` - The address of the caller.
 /// * `IDataStoreDispatcher` - The data store dispatcher.
-/// * `IEventEmitterDispatcher` - The event emitter dispatcher.
-/// * `IOracleDispatcher` - The oracle dispatcher dispatcher.
-/// * `IBankDispatcher` - The bank dispatcher.
 /// * `IRoleStoreDispatcher` - The role store dispatcher.
-/// * `ISwapHandlerDispatcher` - The swap handler dispatcher.
 fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
     let caller_address: ContractAddress = 0x101.try_into().unwrap();
     let role_store_address = deploy_role_store();
@@ -408,13 +404,15 @@ fn create_new_deposit(
     let initial_long_token = contract_address_const::<'initial_long_token'>();
     let initial_short_token = contract_address_const::<'initial_short_token'>();
 
-    //TODO long_token_swap_path, short_token_swap_path
-    let long_token_swap_path = Array32Trait::<ContractAddress>::span32(@ArrayTrait::new());
-    long_token_swap_path.append(contract_address_const::<'long_token_swap_path_0'>());
-    long_token_swap_path.append(contract_address_const::<'long_token_swap_path_1'>());
-    let short_token_swap_path = Array32Trait::<ContractAddress>::span32(@ArrayTrait::new());
-    short_token_swap_path.append(contract_address_const::<'short_token_swap_path_0'>());
-    short_token_swap_path.append(contract_address_const::<'short_token_swap_path_1'>());
+    let long_token_swap_path: Span32<ContractAddress> = array![
+        contract_address_const::<'long_token_swap_path_0'>(), contract_address_const::<'long_token_swap_path_1'>()
+    ]
+        .span32();
+
+    let short_token_swap_path: Span32<ContractAddress> = array![
+        contract_address_const::<'short_token_swap_path_0'>(), contract_address_const::<'short_token_swap_path_1'>()
+    ]
+        .span32();
 
     let initial_long_token_amount = 1000 * deposit_no;
     let initial_short_token_amount = 1000 * deposit_no;

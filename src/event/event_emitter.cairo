@@ -480,12 +480,12 @@ mod EventEmitter {
         initial_short_token: ContractAddress,
         long_token_swap_path: Span32<ContractAddress>,
         short_token_swap_path: Span32<ContractAddress>,
-        initial_long_token_amount: u256,
-        initial_short_token_amount: u256,
-        min_market_tokens: u256,
-        updated_at_block: u256,
-        execution_fee: u256,
-        callback_gas_limit: u256,
+        initial_long_token_amount: u128,
+        initial_short_token_amount: u128,
+        min_market_tokens: u128,
+        updated_at_block: u128,
+        execution_fee: u128,
+        callback_gas_limit: u128,
     }
 
     #[derive(Drop, starknet::Event)]
