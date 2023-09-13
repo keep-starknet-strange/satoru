@@ -6,10 +6,12 @@
 use starknet::{ContractAddress, contract_address_const};
 use starknet::info::get_block_number;
 use debug::PrintTrait;
+use array::ArrayTrait;
 
 // Local imports.
 use satoru::utils::store_arrays::StoreContractAddressArray;
 use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
+use satoru::utils::span32::{Span32, Array32Trait};
 
 /// Struct for orders.
 #[derive(Copy, Drop, starknet::Store, Serde, PartialEq)]
@@ -33,7 +35,7 @@ struct Order {
     /// The initial collateral token for increase orders.
     initial_collateral_token: ContractAddress,
     /// An array of market addresses to swap through.
-    // TODO: use Span32 type swap_path: Array<ContractAddress>,
+    swap_path: Span32<ContractAddress>,
     /// The requested change in position size.
     size_delta_usd: u128,
     /// For increase orders, this is the amount of the initialCollateralToken sent in by the user.
@@ -64,15 +66,15 @@ impl DefaultOrder of Default<Order> {
     fn default() -> Order {
         Order {
             key: 0,
-            decrease_position_swap_type: DecreasePositionSwapType::NoSwap(()),
-            order_type: OrderType::MarketSwap(()),
+            decrease_position_swap_type: DecreasePositionSwapType::NoSwap,
+            order_type: OrderType::MarketSwap,
             account: 0.try_into().unwrap(),
             receiver: 0.try_into().unwrap(),
             callback_contract: 0.try_into().unwrap(),
             ui_fee_receiver: 0.try_into().unwrap(),
             market: 0.try_into().unwrap(),
             initial_collateral_token: 0.try_into().unwrap(),
-            // TODO: use Span32 type swap_path: Array<ContractAddress>,
+            swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
             size_delta_usd: 0,
             initial_collateral_delta_amount: 0,
             trigger_price: 0,
@@ -100,30 +102,30 @@ impl OrderImpl of OrderTrait {
 enum OrderType {
     ///  MarketSwap: swap token A to token B at the current market price.
     /// The order will be cancelled if the minOutputAmount cannot be fulfilled.
-    MarketSwap: (),
+    MarketSwap,
     ///  LimitSwap: swap token A to token B if the minOutputAmount can be fulfilled.
-    LimitSwap: (),
+    LimitSwap,
     ///  MarketIncrease: increase position at the current market price.
     /// The order will be cancelled if the position cannot be increased at the acceptablePrice.
-    MarketIncrease: (),
+    MarketIncrease,
     /// LimitIncrease: increase position if the triggerPrice is reached and the acceptablePrice can be fulfilled.
-    LimitIncrease: (),
+    LimitIncrease,
     ///  MarketDecrease: decrease position at the current market price.
     /// The order will be cancelled if the position cannot be decreased at the acceptablePrice.
-    MarketDecrease: (),
+    MarketDecrease,
     ///  LimitDecrease: decrease position if the triggerPrice is reached and the acceptablePrice can be fulfilled.
-    LimitDecrease: (),
+    LimitDecrease,
     ///  StopLossDecrease: decrease position if the triggerPrice is reached and the acceptablePrice can be fulfilled.
-    StopLossDecrease: (),
+    StopLossDecrease,
     ///  Liquidation: allows liquidation of positions if the criteria for liquidation are met.
-    Liquidation: (),
+    Liquidation,
 }
 
 /// To help further differentiate orders.
 #[derive(Drop, starknet::Store, Serde)]
 enum SecondaryOrderType {
-    None: (),
-    Adl: (),
+    None,
+    Adl,
 }
 
 impl SecondaryOrderTypePrintImpl of PrintTrait<SecondaryOrderType> {
@@ -139,9 +141,9 @@ impl SecondaryOrderTypePrintImpl of PrintTrait<SecondaryOrderType> {
 /// the pnl token to collateral token or vice versa.
 #[derive(Drop, Copy, starknet::Store, Serde, PartialEq)]
 enum DecreasePositionSwapType {
-    NoSwap: (),
-    SwapPnlTokenToCollateralToken: (),
-    SwapCollateralTokenToPnlToken: (),
+    NoSwap,
+    SwapPnlTokenToCollateralToken,
+    SwapCollateralTokenToPnlToken,
 }
 
 impl DecreasePositionSwapTypePrintImpl of PrintTrait<DecreasePositionSwapType> {

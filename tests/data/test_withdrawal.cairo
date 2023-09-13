@@ -172,7 +172,6 @@ fn test_set_withdrawal_should_panic_not_controller() {
     let (caller_address, role_store, data_store) = setup();
     role_store.revoke_role(caller_address, role::CONTROLLER);
     let account = 'account'.try_into().unwrap();
-    // TODO make these Span32
     let long_token_swap_path: Span32<ContractAddress> = array![
         1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
     ]
