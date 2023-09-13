@@ -10,6 +10,8 @@ use starknet::{ContractAddress, ClassHash};
 use satoru::deposit::deposit::Deposit;
 use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::position::position::Position;
+use satoru::market::market_pool_value_info::MarketPoolValueInfo;
+use satoru::pricing::swap_pricing_utils::SwapFees;
 use satoru::position::position_event_utils::PositionIncreaseParams;
 use satoru::position::position_utils::DecreasePositionCollateralValues;
 use satoru::order::order::OrderType;
@@ -18,6 +20,9 @@ use satoru::pricing::position_pricing_utils::PositionFees;
 use satoru::order::order::{Order, SecondaryOrderType};
 use satoru::event::event_utils::{EventLogData};
 //TODO: OrderCollatDeltaAmountAutoUpdtd must be renamed back to OrderCollateralDeltaAmountAutoUpdated when string will be allowed as event argument
+//TODO: AfterWithdrawalCancelError must be renamed back to AfterWithdrawalCancellationError when string will be allowed as event argument
+//TODO: CumulativeBorrowingFactorUpdatd must be renamed back to CumulativeBorrowingFactorUpdated when string will be allowed as event argument
+//TODO: ClaimableFundingPerSizeUpdatd must be renamed back to ClaimableFundingAmountPerSizeUpdated when string will be allowed as event argument
 
 // *************************************************************************
 //                  Interface of the `EventEmitter` contract.
@@ -135,7 +140,7 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `DepositCancelled` event.
     fn emit_deposit_cancelled(
-        ref self: TContractState, key: felt252, reason: felt252, reasonBytes: Array<felt252>
+        ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>
     );
 
     /// Emits the `WithdrawalCreated` event.
@@ -147,7 +152,7 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `WithdrawalCancelled` event.
     fn emit_withdrawal_cancelled(
-        ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
+        ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>
     );
 
     /// Emits the `PositionIncrease` event.
@@ -248,12 +253,12 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `OrderCancelled` event.
     fn emit_order_cancelled(
-        ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
+        ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>
     );
 
     /// Emits the `OrderFrozen` event.
     fn emit_order_frozen(
-        ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
+        ref self: TContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>
     );
 
     /// Emits the `AffiliateRewardUpdated` event.
@@ -291,7 +296,7 @@ trait IEventEmitter<TContractState> {
         ref self: TContractState, key: felt252, withdrawal: Withdrawal
     );
 
-    /// Emits the `AfterWithdrawalCancellationError` event.
+    /// Emits the `AfterWithdrawalCancelError` event.
     fn emit_after_withdrawal_cancellation_error(
         ref self: TContractState, key: felt252, withdrawal: Withdrawal
     );
@@ -305,12 +310,301 @@ trait IEventEmitter<TContractState> {
     /// Emits the `AfterOrderFrozenError` event.
     fn emit_after_order_frozen_error(ref self: TContractState, key: felt252, order: Order);
 
-    /// Emits the `EventLog1` event.
-    fn emit_event_log1(
+    /// Emits the `AdlStateUpdated` event.
+    fn emit_adl_state_updated(
         ref self: TContractState,
-        event_name: felt252,
-        event_name_hash: felt252,
-        event_log_data: EventLogData
+        market: ContractAddress,
+        is_long: bool,
+        pnl_to_pool_factor: felt252,
+        max_pnl_factor: u128,
+        should_enable_adl: bool,
+    );
+
+    /// Emits the `SetBool` event.
+    fn emit_set_bool(
+        ref self: TContractState, key: felt252, data_bytes: Span<felt252>, value: bool
+    );
+
+    /// Emits the `SetAddress` event.
+    fn emit_set_address(
+        ref self: TContractState, key: felt252, data_bytes: Span<felt252>, value: ContractAddress
+    );
+
+    /// Emits the `SetFelt252` event.
+    fn emit_set_felt252(
+        ref self: TContractState, key: felt252, data_bytes: Span<felt252>, value: felt252
+    );
+
+    /// Emits the `SetUint` event.
+    fn emit_set_uint(
+        ref self: TContractState, key: felt252, data_bytes: Span<felt252>, value: u128
+    );
+
+    /// Emits the `SetInt` event.
+    fn emit_set_int(
+        ref self: TContractState, key: felt252, data_bytes: Span<felt252>, value: felt252
+    );
+
+    /// Emits the `SignalAddOracleSigner` event.
+    fn emit_signal_add_oracle_signer(
+        ref self: TContractState, action_key: felt252, account: ContractAddress
+    );
+
+    /// Emits the `SignalAddOracleSigner` event.
+    fn emit_add_oracle_signer(
+        ref self: TContractState, action_key: felt252, account: ContractAddress
+    );
+
+    /// Emits the `SignalRemoveOracleSigner` event.
+    fn emit_signal_remove_oracle_signer(
+        ref self: TContractState, action_key: felt252, account: ContractAddress
+    );
+
+    /// Emits the `RemoveOracleSigner` event.
+    fn emit_remove_oracle_signer(
+        ref self: TContractState, action_key: felt252, account: ContractAddress
+    );
+
+    /// Emits the `SignalSetFeeReceiver` event.
+    fn emit_signal_set_fee_receiver(
+        ref self: TContractState, action_key: felt252, account: ContractAddress
+    );
+
+    /// Emits the `SetFeeReceiver` event.
+    fn emit_set_fee_receiver(
+        ref self: TContractState, action_key: felt252, account: ContractAddress
+    );
+
+    /// Emits the `SignalGrantRole` event.
+    fn emit_signal_grant_role(
+        ref self: TContractState, action_key: felt252, account: ContractAddress, role_key: felt252
+    );
+
+    /// Emits the `GrantRole` event.
+    fn emit_grant_role(
+        ref self: TContractState, action_key: felt252, account: ContractAddress, role_key: felt252
+    );
+
+    /// Emits the `SignalRevokeRole` event.
+    fn emit_signal_revoke_role(
+        ref self: TContractState, action_key: felt252, account: ContractAddress, role_key: felt252
+    );
+
+    /// Emits the `RevokeRole` event.
+    fn emit_revoke_role(
+        ref self: TContractState, action_key: felt252, account: ContractAddress, role_key: felt252
+    );
+
+    /// Emits the `SignalSetPriceFeed` event.
+    fn emit_signal_set_price_feed(
+        ref self: TContractState,
+        action_key: felt252,
+        token: ContractAddress,
+        price_feed: ContractAddress,
+        price_feed_multiplier: u128,
+        price_feed_heartbeat_duration: u128,
+        stable_price: u128
+    );
+
+    /// Emits the `SetPriceFeed` event.
+    fn emit_set_price_feed(
+        ref self: TContractState,
+        action_key: felt252,
+        token: ContractAddress,
+        price_feed: ContractAddress,
+        price_feed_multiplier: u128,
+        price_feed_heartbeat_duration: u128,
+        stable_price: u128
+    );
+
+    /// Emits the `SignalPendingAction` event.
+    fn emit_signal_pending_action(
+        ref self: TContractState, action_key: felt252, action_label: felt252
+    );
+
+    /// Emits the `ClearPendingAction` event.
+    fn emit_clear_pending_action(
+        ref self: TContractState, action_key: felt252, action_label: felt252
+    );
+
+    /// Emits the `KeeperExecutionFee` event.
+    fn emit_keeper_execution_fee(
+        ref self: TContractState, keeper: ContractAddress, execution_fee_amount: u128
+    );
+
+    /// Emits the `ExecutionFeeRefund` event.
+    fn emit_execution_fee_refund(
+        ref self: TContractState, receiver: ContractAddress, refund_fee_amount: u128
+    );
+
+    /// Emits the `MarketPoolValueInfo` event.
+    #[inline(always)]
+    fn emit_market_pool_value_info(
+        ref self: TContractState,
+        market: ContractAddress,
+        market_pool_value_info: MarketPoolValueInfo,
+        market_tokens_supply: u128
+    );
+
+    /// Emits the `PoolAmountUpdated` event.
+    fn emit_pool_amount_updated(
+        ref self: TContractState,
+        market: ContractAddress,
+        token: ContractAddress,
+        delta: u128,
+        next_value: u128
+    );
+
+    /// Emits the `OpenInterestInTokensUpdated` event.
+    fn emit_open_interest_in_tokens_updated(
+        ref self: TContractState,
+        market: ContractAddress,
+        collateral_token: ContractAddress,
+        is_long: bool,
+        delta: u128,
+        next_value: u128
+    );
+
+    /// Emits the `OpenInterestUpdated` event.
+    fn emit_open_interest_updated(
+        ref self: TContractState,
+        market: ContractAddress,
+        collateral_token: ContractAddress,
+        is_long: bool,
+        delta: u128,
+        next_value: u128
+    );
+
+    /// Emits the `VirtualSwapInventoryUpdated` event.
+    fn emit_virtual_swap_inventory_updated(
+        ref self: TContractState,
+        market: ContractAddress,
+        is_long_token: bool,
+        virtual_market_id: felt252,
+        delta: u128,
+        next_value: u128
+    );
+
+    /// Emits the `VirtualPositionInventoryUpdated` event.
+    fn emit_virtual_position_inventory_updated(
+        ref self: TContractState,
+        token: ContractAddress,
+        virtual_token_id: felt252,
+        delta: u128,
+        next_value: u128
+    );
+
+    /// Emits the `CollateralSumUpdated` event.
+    fn emit_collateral_sum_updated(
+        ref self: TContractState,
+        market: ContractAddress,
+        collateral_token: ContractAddress,
+        is_long: bool,
+        delta: u128,
+        next_value: u128
+    );
+
+    /// Emits the `CumulativeBorrowingFactorUpdatd` event.
+    fn emit_cumulative_borrowing_factor_updated(
+        ref self: TContractState,
+        market: ContractAddress,
+        is_long: bool,
+        delta: u128,
+        next_value: u128
+    );
+
+    /// Emits the `FundingFeeAmountPerSizeUpdated` event.
+    fn emit_funding_fee_amount_per_size_updated(
+        ref self: TContractState,
+        market: ContractAddress,
+        collateral_token: ContractAddress,
+        is_long: bool,
+        delta: u128,
+        next_value: u128
+    );
+
+    /// Emits the `ClaimableFundingPerSizeUpdatd` event.
+    fn emit_claimable_funding_amount_per_size_updated(
+        ref self: TContractState,
+        market: ContractAddress,
+        collateral_token: ContractAddress,
+        is_long: bool,
+        delta: u128,
+        next_value: u128
+    );
+
+    /// Emits the `FundingFeesClaimed` event.
+    fn emit_founding_fees_claimed(
+        ref self: TContractState,
+        market: ContractAddress,
+        token: ContractAddress,
+        account: ContractAddress,
+        receiver: ContractAddress,
+        amount: u128,
+        next_pool_value: u128
+    );
+
+    /// Emits the `CollateralClaimed` event.
+    fn emit_collateral_claimed(
+        ref self: TContractState,
+        market: ContractAddress,
+        token: ContractAddress,
+        account: ContractAddress,
+        receiver: ContractAddress,
+        time_key: u128,
+        amount: u128,
+        next_pool_value: u128
+    );
+
+    /// Emits the `UiFeeFactorUpdated` event.
+    fn emit_ui_fee_factor_updated(
+        ref self: TContractState, account: ContractAddress, ui_fee_factor: u128
+    );
+
+    /// Emits the `OraclePriceUpdate` event.
+    fn emit_oracle_price_update(
+        ref self: TContractState,
+        token: ContractAddress,
+        min_price: u128,
+        max_price: u128,
+        is_price_feed: bool
+    );
+
+    /// Emits the `SignerAdded` event.
+    fn emit_signer_added(ref self: TContractState, account: ContractAddress);
+
+    /// Emits the `SignerRemoved` event.
+    fn emit_signer_removed(ref self: TContractState, account: ContractAddress);
+
+    /// Emits the `SwapReverted` event.
+    fn emit_swap_reverted(ref self: TContractState, reason: felt252, reason_bytes: Span<felt252>);
+
+    /// Emits the `SwapInfo` event.
+    fn emit_swap_info(
+        ref self: TContractState,
+        order_key: felt252,
+        market: ContractAddress,
+        receiver: ContractAddress,
+        token_in: ContractAddress,
+        token_out: ContractAddress,
+        token_in_price: u128,
+        token_out_price: u128,
+        amount_in: u128,
+        amount_in_after_fees: u128,
+        amount_out: u128,
+        price_impact_usd: u128,
+        price_impact_amount: u128
+    );
+
+    /// Emits the `SwapFeesCollected` event.
+    #[inline(always)]
+    fn emit_swap_fees_collected(
+        ref self: TContractState,
+        market: ContractAddress,
+        token: ContractAddress,
+        token_price: u128,
+        action: felt252,
+        fees: SwapFees
     );
 }
 
@@ -327,6 +621,8 @@ mod EventEmitter {
     use satoru::deposit::deposit::Deposit;
     use satoru::withdrawal::withdrawal::Withdrawal;
     use satoru::position::position::Position;
+    use satoru::market::market_pool_value_info::MarketPoolValueInfo;
+    use satoru::pricing::swap_pricing_utils::SwapFees;
     use satoru::position::position_event_utils::PositionIncreaseParams;
     use satoru::position::position_utils::DecreasePositionCollateralValues;
     use satoru::order::order::OrderType;
@@ -381,19 +677,51 @@ mod EventEmitter {
         AfterDepositExecutionError: AfterDepositExecutionError,
         AfterDepositCancellationError: AfterDepositCancellationError,
         AfterWithdrawalExecutionError: AfterWithdrawalExecutionError,
-        AfterWithdrawalCancellationError: AfterWithdrawalCancellationError,
+        AfterWithdrawalCancelError: AfterWithdrawalCancelError,
         AfterOrderExecutionError: AfterOrderExecutionError,
         AfterOrderCancellationError: AfterOrderCancellationError,
         AfterOrderFrozenError: AfterOrderFrozenError,
-        EventLog1: EventLog1,
-    }
-
-    #[derive(Drop, starknet::Event)]
-    struct EventLog1 {
-        msg_sender: ContractAddress,
-        event_name: felt252,
-        event_name_hash: felt252,
-        event_log_data: EventLogData,
+        AdlStateUpdated: AdlStateUpdated,
+        SetBool: SetBool,
+        SetAddress: SetAddress,
+        SetFelt252: SetFelt252,
+        SetUint: SetUint,
+        SetInt: SetInt,
+        SignalAddOracleSigner: SignalAddOracleSigner,
+        AddOracleSigner: AddOracleSigner,
+        SignalRemoveOracleSigner: SignalRemoveOracleSigner,
+        RemoveOracleSigner: RemoveOracleSigner,
+        SignalSetFeeReceiver: SignalSetFeeReceiver,
+        SetFeeReceiver: SetFeeReceiver,
+        SignalGrantRole: SignalGrantRole,
+        GrantRole: GrantRole,
+        SignalRevokeRole: SignalRevokeRole,
+        RevokeRole: RevokeRole,
+        SignalSetPriceFeed: SignalSetPriceFeed,
+        SetPriceFeed: SetPriceFeed,
+        SignalPendingAction: SignalPendingAction,
+        ClearPendingAction: ClearPendingAction,
+        KeeperExecutionFee: KeeperExecutionFee,
+        ExecutionFeeRefund: ExecutionFeeRefund,
+        MarketPoolValueInfoEvent: MarketPoolValueInfoEvent,
+        PoolAmountUpdated: PoolAmountUpdated,
+        OpenInterestInTokensUpdated: OpenInterestInTokensUpdated,
+        OpenInterestUpdated: OpenInterestUpdated,
+        VirtualSwapInventoryUpdated: VirtualSwapInventoryUpdated,
+        VirtualPositionInventoryUpdated: VirtualPositionInventoryUpdated,
+        CollateralSumUpdated: CollateralSumUpdated,
+        CumulativeBorrowingFactorUpdatd: CumulativeBorrowingFactorUpdatd,
+        FundingFeeAmountPerSizeUpdated: FundingFeeAmountPerSizeUpdated,
+        ClaimableFundingPerSizeUpdatd: ClaimableFundingPerSizeUpdatd,
+        FundingFeesClaimed: FundingFeesClaimed,
+        CollateralClaimed: CollateralClaimed,
+        UiFeeFactorUpdated: UiFeeFactorUpdated,
+        OraclePriceUpdate: OraclePriceUpdate,
+        SignerAdded: SignerAdded,
+        SignerRemoved: SignerRemoved,
+        SwapReverted: SwapReverted,
+        SwapInfo: SwapInfo,
+        SwapFeesCollected: SwapFeesCollected,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -494,14 +822,14 @@ mod EventEmitter {
         market: ContractAddress,
         initial_long_token: ContractAddress,
         initial_short_token: ContractAddress,
-        long_token_swap_path: Array<ContractAddress>,
-        short_token_swap_path: Array<ContractAddress>,
-        initial_long_token_amount: u256,
-        initial_short_token_amount: u256,
-        min_market_tokens: u256,
-        updated_at_block: u256,
-        execution_fee: u256,
-        callback_gas_limit: u256,
+        long_token_swap_path: Span<ContractAddress>,
+        short_token_swap_path: Span<ContractAddress>,
+        initial_long_token_amount: u128,
+        initial_short_token_amount: u128,
+        min_market_tokens: u128,
+        updated_at_block: u128,
+        execution_fee: u128,
+        callback_gas_limit: u128,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -516,7 +844,7 @@ mod EventEmitter {
     struct DepositCancelled {
         key: felt252,
         reason: felt252,
-        reasonBytes: Array<felt252>,
+        reason_bytes: Span<felt252>,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -544,7 +872,7 @@ mod EventEmitter {
     struct WithdrawalCancelled {
         key: felt252,
         reason: felt252,
-        reason_bytes: Array<felt252>
+        reason_bytes: Span<felt252>
     }
 
     #[derive(Drop, starknet::Event)]
@@ -743,14 +1071,14 @@ mod EventEmitter {
     struct OrderCancelled {
         key: felt252,
         reason: felt252,
-        reason_bytes: Array<felt252>
+        reason_bytes: Span<felt252>
     }
 
     #[derive(Drop, starknet::Event)]
     struct OrderFrozen {
         key: felt252,
         reason: felt252,
-        reason_bytes: Array<felt252>
+        reason_bytes: Span<felt252>
     }
 
     #[derive(Drop, starknet::Event)]
@@ -792,7 +1120,7 @@ mod EventEmitter {
     }
 
     #[derive(Drop, starknet::Event)]
-    struct AfterWithdrawalCancellationError {
+    struct AfterWithdrawalCancelError {
         key: felt252,
         withdrawal: Withdrawal,
     }
@@ -813,6 +1141,319 @@ mod EventEmitter {
     struct AfterOrderFrozenError {
         key: felt252,
         order: Order,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct AdlStateUpdated {
+        market: ContractAddress,
+        is_long: bool,
+        pnl_to_pool_factor: felt252,
+        max_pnl_factor: u128,
+        should_enable_adl: bool,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SetBool {
+        key: felt252,
+        data_bytes: Span<felt252>,
+        value: bool,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SetAddress {
+        key: felt252,
+        data_bytes: Span<felt252>,
+        value: ContractAddress,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SetFelt252 {
+        key: felt252,
+        data_bytes: Span<felt252>,
+        value: felt252,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SetUint {
+        key: felt252,
+        data_bytes: Span<felt252>,
+        value: u128,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SetInt {
+        key: felt252,
+        data_bytes: Span<felt252>,
+        value: felt252,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SignalAddOracleSigner {
+        action_key: felt252,
+        account: ContractAddress
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct AddOracleSigner {
+        action_key: felt252,
+        account: ContractAddress
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SignalRemoveOracleSigner {
+        action_key: felt252,
+        account: ContractAddress
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct RemoveOracleSigner {
+        action_key: felt252,
+        account: ContractAddress
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SignalSetFeeReceiver {
+        action_key: felt252,
+        account: ContractAddress
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SetFeeReceiver {
+        action_key: felt252,
+        account: ContractAddress
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SignalGrantRole {
+        action_key: felt252,
+        account: ContractAddress,
+        role_key: felt252
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct GrantRole {
+        action_key: felt252,
+        account: ContractAddress,
+        role_key: felt252
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SignalRevokeRole {
+        action_key: felt252,
+        account: ContractAddress,
+        role_key: felt252
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct RevokeRole {
+        action_key: felt252,
+        account: ContractAddress,
+        role_key: felt252
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SignalSetPriceFeed {
+        action_key: felt252,
+        token: ContractAddress,
+        price_feed: ContractAddress,
+        price_feed_multiplier: u128,
+        price_feed_heartbeat_duration: u128,
+        stable_price: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SetPriceFeed {
+        action_key: felt252,
+        token: ContractAddress,
+        price_feed: ContractAddress,
+        price_feed_multiplier: u128,
+        price_feed_heartbeat_duration: u128,
+        stable_price: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SignalPendingAction {
+        action_key: felt252,
+        action_label: felt252
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct ClearPendingAction {
+        action_key: felt252,
+        action_label: felt252
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct KeeperExecutionFee {
+        keeper: ContractAddress,
+        execution_fee_amount: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct ExecutionFeeRefund {
+        receiver: ContractAddress,
+        refund_fee_amount: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct MarketPoolValueInfoEvent {
+        market: ContractAddress,
+        market_pool_value_info: MarketPoolValueInfo,
+        market_tokens_supply: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct PoolAmountUpdated {
+        market: ContractAddress,
+        token: ContractAddress,
+        delta: u128,
+        next_value: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct OpenInterestInTokensUpdated {
+        market: ContractAddress,
+        collateral_token: ContractAddress,
+        is_long: bool,
+        delta: u128,
+        next_value: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct OpenInterestUpdated {
+        market: ContractAddress,
+        collateral_token: ContractAddress,
+        is_long: bool,
+        delta: u128,
+        next_value: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct VirtualSwapInventoryUpdated {
+        market: ContractAddress,
+        is_long_token: bool,
+        virtual_market_id: felt252,
+        delta: u128,
+        next_value: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct VirtualPositionInventoryUpdated {
+        token: ContractAddress,
+        virtual_token_id: felt252,
+        delta: u128,
+        next_value: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct CollateralSumUpdated {
+        market: ContractAddress,
+        collateral_token: ContractAddress,
+        is_long: bool,
+        delta: u128,
+        next_value: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct CumulativeBorrowingFactorUpdatd {
+        market: ContractAddress,
+        is_long: bool,
+        delta: u128,
+        next_value: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct FundingFeeAmountPerSizeUpdated {
+        market: ContractAddress,
+        collateral_token: ContractAddress,
+        is_long: bool,
+        delta: u128,
+        next_value: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct ClaimableFundingPerSizeUpdatd {
+        market: ContractAddress,
+        collateral_token: ContractAddress,
+        is_long: bool,
+        delta: u128,
+        next_value: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct FundingFeesClaimed {
+        market: ContractAddress,
+        token: ContractAddress,
+        account: ContractAddress,
+        receiver: ContractAddress,
+        amount: u128,
+        next_pool_value: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct CollateralClaimed {
+        market: ContractAddress,
+        token: ContractAddress,
+        account: ContractAddress,
+        receiver: ContractAddress,
+        time_key: u128,
+        amount: u128,
+        next_pool_value: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct UiFeeFactorUpdated {
+        account: ContractAddress,
+        ui_fee_factor: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct OraclePriceUpdate {
+        token: ContractAddress,
+        min_price: u128,
+        max_price: u128,
+        is_price_feed: bool
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SignerAdded {
+        account: ContractAddress
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SignerRemoved {
+        account: ContractAddress
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SwapReverted {
+        reason: felt252,
+        reason_bytes: Span<felt252>
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SwapInfo {
+        order_key: felt252,
+        market: ContractAddress,
+        receiver: ContractAddress,
+        token_in: ContractAddress,
+        token_out: ContractAddress,
+        token_in_price: u128,
+        token_out_price: u128,
+        amount_in: u128,
+        amount_in_after_fees: u128,
+        amount_out: u128,
+        price_impact_usd: u128,
+        price_impact_amount: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SwapFeesCollected {
+        market: ContractAddress,
+        token: ContractAddress,
+        token_price: u128,
+        action: felt252,
+        fees: SwapFees
     }
 
 
@@ -973,8 +1614,8 @@ mod EventEmitter {
                         market: deposit.market,
                         initial_long_token: deposit.initial_long_token,
                         initial_short_token: deposit.initial_short_token,
-                        long_token_swap_path: deposit.long_token_swap_path,
-                        short_token_swap_path: deposit.short_token_swap_path,
+                        long_token_swap_path: deposit.long_token_swap_path.span(),
+                        short_token_swap_path: deposit.short_token_swap_path.span(),
                         initial_long_token_amount: deposit.initial_long_token_amount,
                         initial_short_token_amount: deposit.initial_short_token_amount,
                         min_market_tokens: deposit.min_market_tokens,
@@ -1003,9 +1644,9 @@ mod EventEmitter {
 
         /// Emits the `DepositCancelled` event.
         fn emit_deposit_cancelled(
-            ref self: ContractState, key: felt252, reason: felt252, reasonBytes: Array<felt252>
+            ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>
         ) {
-            self.emit(DepositCancelled { key, reason, reasonBytes });
+            self.emit(DepositCancelled { key, reason, reason_bytes });
         }
 
         /// Emits the `WithdrawalCreated` event.
@@ -1036,7 +1677,7 @@ mod EventEmitter {
 
         /// Emits the `WithdrawalCancelled` event.
         fn emit_withdrawal_cancelled(
-            ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
+            ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>
         ) {
             self.emit(WithdrawalCancelled { key, reason, reason_bytes });
         }
@@ -1383,14 +2024,14 @@ mod EventEmitter {
 
         /// Emits the `OrderCancelled` event.
         fn emit_order_cancelled(
-            ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
+            ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>
         ) {
             self.emit(OrderCancelled { key, reason, reason_bytes });
         }
 
         /// Emits the `OrderFrozen` event.
         fn emit_order_frozen(
-            ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Array<felt252>
+            ref self: ContractState, key: felt252, reason: felt252, reason_bytes: Span<felt252>
         ) {
             self.emit(OrderFrozen { key, reason, reason_bytes });
         }
@@ -1456,7 +2097,7 @@ mod EventEmitter {
         fn emit_after_withdrawal_cancellation_error(
             ref self: ContractState, key: felt252, withdrawal: Withdrawal
         ) {
-            self.emit(AfterWithdrawalCancellationError { key, withdrawal });
+            self.emit(AfterWithdrawalCancelError { key, withdrawal });
         }
 
         /// Emits the `AfterOrderExecutionError` event.
@@ -1475,15 +2116,483 @@ mod EventEmitter {
         fn emit_after_order_frozen_error(ref self: ContractState, key: felt252, order: Order) {
             self.emit(AfterOrderFrozenError { key, order });
         }
-
-        fn emit_event_log1(
+        /// Emits the `AdlStateUpdated` event.
+        /// # Arguments
+        // * `market`- Address of the market for the ADL state update
+        // * `is_long`- Indicates the ADL state update is for the long or short side of the market
+        // * `pnl_to_pool_factor`- The the ratio of PnL to pool value
+        // * `max_pnl_factor`- The max PnL factor
+        // * `should_enable_adl`- Whether ADL was enabled or disabled
+        fn emit_adl_state_updated(
             ref self: ContractState,
-            event_name: felt252,
-            event_name_hash: felt252,
-            event_log_data: EventLogData
+            market: ContractAddress,
+            is_long: bool,
+            pnl_to_pool_factor: felt252,
+            max_pnl_factor: u128,
+            should_enable_adl: bool,
         ) {
-            let msg_sender = get_caller_address();
-            self.emit(EventLog1 { msg_sender, event_name, event_name_hash, event_log_data });
+            self
+                .emit(
+                    AdlStateUpdated {
+                        market, is_long, pnl_to_pool_factor, max_pnl_factor, should_enable_adl
+                    }
+                );
+        }
+
+        /// Emits the `SetBool` event.
+        fn emit_set_bool(
+            ref self: ContractState, key: felt252, data_bytes: Span<felt252>, value: bool
+        ) {
+            self.emit(SetBool { key, data_bytes, value });
+        }
+
+        /// Emits the `SetAddress` event.
+        fn emit_set_address(
+            ref self: ContractState, key: felt252, data_bytes: Span<felt252>, value: ContractAddress
+        ) {
+            self.emit(SetAddress { key, data_bytes, value });
+        }
+
+        fn emit_set_felt252(
+            ref self: ContractState, key: felt252, data_bytes: Span<felt252>, value: felt252
+        ) {
+            self.emit(SetFelt252 { key, data_bytes, value });
+        }
+
+        /// Emits the `SetFelt252` event.
+        fn emit_set_uint(
+            ref self: ContractState, key: felt252, data_bytes: Span<felt252>, value: u128
+        ) {
+            self.emit(SetUint { key, data_bytes, value });
+        }
+
+        /// Emits the `SetInt` event.
+        fn emit_set_int(
+            ref self: ContractState, key: felt252, data_bytes: Span<felt252>, value: felt252
+        ) {
+            self.emit(SetInt { key, data_bytes, value });
+        }
+
+        /// Emits the `SignalAddOracleSigner` event.
+        fn emit_signal_add_oracle_signer(
+            ref self: ContractState, action_key: felt252, account: ContractAddress
+        ) {
+            self.emit(SignalAddOracleSigner { action_key, account });
+        }
+
+        /// Emits the `AddOracleSigner` event.
+        fn emit_add_oracle_signer(
+            ref self: ContractState, action_key: felt252, account: ContractAddress
+        ) {
+            self.emit(AddOracleSigner { action_key, account });
+        }
+
+        /// Emits the `SignalRemoveOracleSigner` event.
+        fn emit_signal_remove_oracle_signer(
+            ref self: ContractState, action_key: felt252, account: ContractAddress
+        ) {
+            self.emit(SignalRemoveOracleSigner { action_key, account });
+        }
+
+        /// Emits the `RemoveOracleSigner` event.
+        fn emit_remove_oracle_signer(
+            ref self: ContractState, action_key: felt252, account: ContractAddress
+        ) {
+            self.emit(RemoveOracleSigner { action_key, account });
+        }
+
+        /// Emits the `SignalSetFeeReceiver` event.
+        fn emit_signal_set_fee_receiver(
+            ref self: ContractState, action_key: felt252, account: ContractAddress
+        ) {
+            self.emit(SignalSetFeeReceiver { action_key, account });
+        }
+
+        /// Emits the `SetFeeReceiver` event.
+        fn emit_set_fee_receiver(
+            ref self: ContractState, action_key: felt252, account: ContractAddress
+        ) {
+            self.emit(SetFeeReceiver { action_key, account });
+        }
+
+        /// Emits the `SignalGrantRole` event.
+        fn emit_signal_grant_role(
+            ref self: ContractState,
+            action_key: felt252,
+            account: ContractAddress,
+            role_key: felt252
+        ) {
+            self.emit(SignalGrantRole { action_key, account, role_key });
+        }
+
+        /// Emits the `GrantRole` event.
+        fn emit_grant_role(
+            ref self: ContractState,
+            action_key: felt252,
+            account: ContractAddress,
+            role_key: felt252
+        ) {
+            self.emit(GrantRole { action_key, account, role_key });
+        }
+
+        /// Emits the `SignalRevokeRole` event.
+        fn emit_signal_revoke_role(
+            ref self: ContractState,
+            action_key: felt252,
+            account: ContractAddress,
+            role_key: felt252
+        ) {
+            self.emit(SignalRevokeRole { action_key, account, role_key });
+        }
+
+        /// Emits the `RevokeRole` event.
+        fn emit_revoke_role(
+            ref self: ContractState,
+            action_key: felt252,
+            account: ContractAddress,
+            role_key: felt252
+        ) {
+            self.emit(RevokeRole { action_key, account, role_key });
+        }
+
+        /// Emits the `SignalSetPriceFeed` event.
+        fn emit_signal_set_price_feed(
+            ref self: ContractState,
+            action_key: felt252,
+            token: ContractAddress,
+            price_feed: ContractAddress,
+            price_feed_multiplier: u128,
+            price_feed_heartbeat_duration: u128,
+            stable_price: u128
+        ) {
+            self
+                .emit(
+                    SignalSetPriceFeed {
+                        action_key,
+                        token,
+                        price_feed,
+                        price_feed_multiplier,
+                        price_feed_heartbeat_duration,
+                        stable_price
+                    }
+                );
+        }
+
+        /// Emits the `SetPriceFeed` event.
+        fn emit_set_price_feed(
+            ref self: ContractState,
+            action_key: felt252,
+            token: ContractAddress,
+            price_feed: ContractAddress,
+            price_feed_multiplier: u128,
+            price_feed_heartbeat_duration: u128,
+            stable_price: u128
+        ) {
+            self
+                .emit(
+                    SetPriceFeed {
+                        action_key,
+                        token,
+                        price_feed,
+                        price_feed_multiplier,
+                        price_feed_heartbeat_duration,
+                        stable_price
+                    }
+                );
+        }
+
+        /// Emits the `SignalPendingAction` event.
+        fn emit_signal_pending_action(
+            ref self: ContractState, action_key: felt252, action_label: felt252,
+        ) {
+            self.emit(SignalPendingAction { action_key, action_label });
+        }
+
+        /// Emits the `ClearPendingAction` event.
+        fn emit_clear_pending_action(
+            ref self: ContractState, action_key: felt252, action_label: felt252,
+        ) {
+            self.emit(ClearPendingAction { action_key, action_label });
+        }
+
+        /// Emits the `KeeperExecutionFee` event.
+        fn emit_keeper_execution_fee(
+            ref self: ContractState, keeper: ContractAddress, execution_fee_amount: u128
+        ) {
+            self.emit(KeeperExecutionFee { keeper, execution_fee_amount });
+        }
+
+        /// Emits the `ExecutionFeeRefund` event.
+        fn emit_execution_fee_refund(
+            ref self: ContractState, receiver: ContractAddress, refund_fee_amount: u128
+        ) {
+            self.emit(ExecutionFeeRefund { receiver, refund_fee_amount });
+        }
+
+        /// Emits the `MarketPoolValueInfo` event.
+        #[inline(always)]
+        fn emit_market_pool_value_info(
+            ref self: ContractState,
+            market: ContractAddress,
+            market_pool_value_info: MarketPoolValueInfo,
+            market_tokens_supply: u128
+        ) {
+            self
+                .emit(
+                    MarketPoolValueInfoEvent {
+                        market, market_pool_value_info, market_tokens_supply
+                    }
+                );
+        }
+
+        /// Emits the `PoolAmountUpdated` event.
+        fn emit_pool_amount_updated(
+            ref self: ContractState,
+            market: ContractAddress,
+            token: ContractAddress,
+            delta: u128,
+            next_value: u128
+        ) {
+            self.emit(PoolAmountUpdated { market, token, delta, next_value });
+        }
+
+        /// Emits the `OpenInterestInTokensUpdated` event.
+        fn emit_open_interest_in_tokens_updated(
+            ref self: ContractState,
+            market: ContractAddress,
+            collateral_token: ContractAddress,
+            is_long: bool,
+            delta: u128,
+            next_value: u128
+        ) {
+            self
+                .emit(
+                    OpenInterestInTokensUpdated {
+                        market, collateral_token, is_long, delta, next_value
+                    }
+                );
+        }
+
+        /// Emits the `OpenInterestUpdated` event.
+        fn emit_open_interest_updated(
+            ref self: ContractState,
+            market: ContractAddress,
+            collateral_token: ContractAddress,
+            is_long: bool,
+            delta: u128,
+            next_value: u128
+        ) {
+            self.emit(OpenInterestUpdated { market, collateral_token, is_long, delta, next_value });
+        }
+
+        /// Emits the `VirtualSwapInventoryUpdated` event.
+        fn emit_virtual_swap_inventory_updated(
+            ref self: ContractState,
+            market: ContractAddress,
+            is_long_token: bool,
+            virtual_market_id: felt252,
+            delta: u128,
+            next_value: u128
+        ) {
+            self
+                .emit(
+                    VirtualSwapInventoryUpdated {
+                        market, is_long_token, virtual_market_id, delta, next_value
+                    }
+                );
+        }
+
+        /// Emits the `VirtualPositionInventoryUpdated` event.
+        fn emit_virtual_position_inventory_updated(
+            ref self: ContractState,
+            token: ContractAddress,
+            virtual_token_id: felt252,
+            delta: u128,
+            next_value: u128
+        ) {
+            self
+                .emit(
+                    VirtualPositionInventoryUpdated { token, virtual_token_id, delta, next_value }
+                );
+        }
+
+        /// Emits the `CollateralSumUpdated` event.
+        fn emit_collateral_sum_updated(
+            ref self: ContractState,
+            market: ContractAddress,
+            collateral_token: ContractAddress,
+            is_long: bool,
+            delta: u128,
+            next_value: u128
+        ) {
+            self
+                .emit(
+                    CollateralSumUpdated { market, collateral_token, is_long, delta, next_value }
+                );
+        }
+
+        /// Emits the `CumulativeBorrowingFactorUpdatd` event.
+        fn emit_cumulative_borrowing_factor_updated(
+            ref self: ContractState,
+            market: ContractAddress,
+            is_long: bool,
+            delta: u128,
+            next_value: u128
+        ) {
+            self.emit(CumulativeBorrowingFactorUpdatd { market, is_long, delta, next_value });
+        }
+
+        /// Emits the `FundingFeeAmountPerSizeUpdated` event.
+        fn emit_funding_fee_amount_per_size_updated(
+            ref self: ContractState,
+            market: ContractAddress,
+            collateral_token: ContractAddress,
+            is_long: bool,
+            delta: u128,
+            next_value: u128
+        ) {
+            self
+                .emit(
+                    FundingFeeAmountPerSizeUpdated {
+                        market, collateral_token, is_long, delta, next_value
+                    }
+                );
+        }
+
+        /// Emits the `ClaimableFundingPerSizeUpdatd` event.
+        fn emit_claimable_funding_amount_per_size_updated(
+            ref self: ContractState,
+            market: ContractAddress,
+            collateral_token: ContractAddress,
+            is_long: bool,
+            delta: u128,
+            next_value: u128
+        ) {
+            self
+                .emit(
+                    ClaimableFundingPerSizeUpdatd {
+                        market, collateral_token, is_long, delta, next_value
+                    }
+                );
+        }
+
+        /// Emits the `FundingFeesClaimed` event.
+        fn emit_founding_fees_claimed(
+            ref self: ContractState,
+            market: ContractAddress,
+            token: ContractAddress,
+            account: ContractAddress,
+            receiver: ContractAddress,
+            amount: u128,
+            next_pool_value: u128
+        ) {
+            self
+                .emit(
+                    FundingFeesClaimed { market, token, account, receiver, amount, next_pool_value }
+                );
+        }
+
+        /// Emits the `CollateralClaimed` event.
+        fn emit_collateral_claimed(
+            ref self: ContractState,
+            market: ContractAddress,
+            token: ContractAddress,
+            account: ContractAddress,
+            receiver: ContractAddress,
+            time_key: u128,
+            amount: u128,
+            next_pool_value: u128
+        ) {
+            self
+                .emit(
+                    CollateralClaimed {
+                        market, token, account, receiver, time_key, amount, next_pool_value
+                    }
+                );
+        }
+
+        /// Emits the `UiFeeFactorUpdated` event.
+        fn emit_ui_fee_factor_updated(
+            ref self: ContractState, account: ContractAddress, ui_fee_factor: u128
+        ) {
+            self.emit(UiFeeFactorUpdated { account, ui_fee_factor });
+        }
+
+        /// Emits the `OraclePriceUpdate` event.
+        fn emit_oracle_price_update(
+            ref self: ContractState,
+            token: ContractAddress,
+            min_price: u128,
+            max_price: u128,
+            is_price_feed: bool
+        ) {
+            self.emit(OraclePriceUpdate { token, min_price, max_price, is_price_feed });
+        }
+
+        /// Emits the `SignerAdded` event.
+        fn emit_signer_added(ref self: ContractState, account: ContractAddress) {
+            self.emit(SignerAdded { account });
+        }
+
+        /// Emits the `SignerRemoved` event.
+        fn emit_signer_removed(ref self: ContractState, account: ContractAddress) {
+            self.emit(SignerRemoved { account });
+        }
+
+        /// Emits the `SwapReverted` event.
+        fn emit_swap_reverted(
+            ref self: ContractState, reason: felt252, reason_bytes: Span<felt252>
+        ) {
+            self.emit(SwapReverted { reason, reason_bytes });
+        }
+
+        /// Emits the `SwapInfo` event.
+
+        fn emit_swap_info(
+            ref self: ContractState,
+            order_key: felt252,
+            market: ContractAddress,
+            receiver: ContractAddress,
+            token_in: ContractAddress,
+            token_out: ContractAddress,
+            token_in_price: u128,
+            token_out_price: u128,
+            amount_in: u128,
+            amount_in_after_fees: u128,
+            amount_out: u128,
+            price_impact_usd: u128,
+            price_impact_amount: u128
+        ) {
+            self
+                .emit(
+                    SwapInfo {
+                        order_key,
+                        market,
+                        receiver,
+                        token_in,
+                        token_out,
+                        token_in_price,
+                        token_out_price,
+                        amount_in,
+                        amount_in_after_fees,
+                        amount_out,
+                        price_impact_usd,
+                        price_impact_amount
+                    }
+                );
+        }
+
+        /// Emits the `SwapFeesCollected` event.
+        #[inline(always)]
+        fn emit_swap_fees_collected(
+            ref self: ContractState,
+            market: ContractAddress,
+            token: ContractAddress,
+            token_price: u128,
+            action: felt252,
+            fees: SwapFees
+        ) {
+            self.emit(SwapFeesCollected { market, token, token_price, action, fees });
         }
     }
 }

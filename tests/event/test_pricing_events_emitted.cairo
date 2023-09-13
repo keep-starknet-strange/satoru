@@ -3,12 +3,13 @@ use snforge_std::{
     declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event,
     EventAssertions
 };
-
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::tests_lib::setup_event_emitter;
 
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::pricing::swap_pricing_utils::SwapFees;
+
 #[test]
-fn test_emit_affiliate_reward_updated() {
+fn test_emit_swap_info() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -20,27 +21,50 @@ fn test_emit_affiliate_reward_updated() {
     // *********************************************************************************************
 
     // Create a dummy data.
+    let order_key = 'swap';
     let market = contract_address_const::<'market'>();
-    let token = contract_address_const::<'token'>();
-    let affiliate = contract_address_const::<'affiliate'>();
-    let delta: u128 = 100;
-    let next_value: u128 = 200;
-    let next_pool_value: u128 = 300;
+    let receiver = contract_address_const::<'receiver'>();
+    let token_in = contract_address_const::<'token_in'>();
+    let token_out = contract_address_const::<'token_out'>();
+    let token_in_price: u128 = 1;
+    let token_out_price: u128 = 2;
+    let amount_in: u128 = 3;
+    let amount_in_after_fees: u128 = 4;
+    let amount_out: u128 = 5;
+    let price_impact_usd: u128 = 6;
+    let price_impact_amount: u128 = 7;
 
     // Create the expected data.
     let expected_data: Array<felt252> = array![
+        order_key,
         market.into(),
-        token.into(),
-        affiliate.into(),
-        delta.into(),
-        next_value.into(),
-        next_pool_value.into()
+        receiver.into(),
+        token_in.into(),
+        token_out.into(),
+        token_in_price.into(),
+        token_out_price.into(),
+        amount_in.into(),
+        amount_in_after_fees.into(),
+        amount_out.into(),
+        price_impact_usd.into(),
+        price_impact_amount.into()
     ];
 
     // Emit the event.
     event_emitter
-        .emit_affiliate_reward_updated(
-            market, token, affiliate, delta, next_value, next_pool_value
+        .emit_swap_info(
+            order_key,
+            market,
+            receiver,
+            token_in,
+            token_out,
+            token_in_price,
+            token_out_price,
+            amount_in,
+            amount_in_after_fees,
+            amount_out,
+            price_impact_usd,
+            price_impact_amount
         );
 
     // Assert the event was emitted.
@@ -48,10 +72,7 @@ fn test_emit_affiliate_reward_updated() {
         .assert_emitted(
             @array![
                 Event {
-                    from: contract_address,
-                    name: 'AffiliateRewardUpdated',
-                    keys: array![],
-                    data: expected_data
+                    from: contract_address, name: 'SwapInfo', keys: array![], data: expected_data
                 }
             ]
         );
@@ -60,7 +81,7 @@ fn test_emit_affiliate_reward_updated() {
 }
 
 #[test]
-fn test_emit_affiliate_reward_claimed() {
+fn test_emit_swap_fees_collected() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -74,24 +95,24 @@ fn test_emit_affiliate_reward_claimed() {
     // Create a dummy data.
     let market = contract_address_const::<'market'>();
     let token = contract_address_const::<'token'>();
-    let affiliate = contract_address_const::<'affiliate'>();
-    let receiver = contract_address_const::<'receiver'>();
-    let amount: u128 = 100;
-    let next_pool_value: u128 = 200;
-
+    let token_price: u128 = 1;
+    let action = 'action';
+    let fees: SwapFees = SwapFees {
+        fee_receiver_amount: 1,
+        fee_amount_for_pool: 2,
+        amount_after_fees: 3,
+        ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
+        ui_fee_receiver_factor: 4,
+        ui_fee_amount: 5,
+    };
     // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        market.into(),
-        token.into(),
-        affiliate.into(),
-        receiver.into(),
-        amount.into(),
-        next_pool_value.into()
+    let mut expected_data: Array<felt252> = array![
+        market.into(), token.into(), token_price.into(), action
     ];
+    fees.serialize(ref expected_data);
 
     // Emit the event.
-    event_emitter
-        .emit_affiliate_reward_claimed(market, token, affiliate, receiver, amount, next_pool_value);
+    event_emitter.emit_swap_fees_collected(market, token, token_price, action, fees);
 
     // Assert the event was emitted.
     spy
@@ -99,7 +120,7 @@ fn test_emit_affiliate_reward_claimed() {
             @array![
                 Event {
                     from: contract_address,
-                    name: 'AffiliateRewardClaimed',
+                    name: 'SwapFeesCollected',
                     keys: array![],
                     data: expected_data
                 }
