@@ -288,14 +288,8 @@ fn create_dummy_deposit() -> Deposit {
         market: contract_address_const::<'market'>(),
         initial_long_token: contract_address_const::<'long_token'>(),
         initial_short_token: contract_address_const::<'short_token'>(),
-        long_token_swap_path: Span32<ContractAddress> = array![
-            contract_address_const::<'long_swap'>()
-        ]
-            .span32(),
-        short_token_swap_path: Span32<ContractAddress> = array![
-            contract_address_const::<'short_swap'>()
-        ]
-            .span32(),
+        long_token_swap_path: array![contract_address_const::<'long_swap'>()].span32(),
+        short_token_swap_path: array![contract_address_const::<'short_swap'>()].span32(),
         initial_long_token_amount: 10,
         initial_short_token_amount: 20,
         min_market_tokens: 30,
