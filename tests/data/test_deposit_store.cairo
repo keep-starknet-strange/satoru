@@ -4,7 +4,7 @@ use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
 use satoru::deposit::deposit::Deposit;
-use satoru::tests_lib::{setup, teardown};
+use satoru::tests_lib::teardown;
 use satoru::utils::span32::{Span32, DefaultSpan32};
 
 use snforge_std::{PrintTrait, declare, start_prank, stop_prank, ContractClassTrait};
@@ -34,8 +34,7 @@ fn deploy_role_store() -> ContractAddress {
 /// * `IBankDispatcher` - The bank dispatcher.
 /// * `IRoleStoreDispatcher` - The role store dispatcher.
 /// * `ISwapHandlerDispatcher` - The swap handler dispatcher.
-fn setup() -> (
-    ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
+fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
     let caller_address: ContractAddress = 0x101.try_into().unwrap();
     let role_store_address = deploy_role_store();
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
@@ -80,6 +79,8 @@ fn test_set_deposit_new_and_override() {
     assert(account_deposit_keys.len() == 1, 'Acc deposit # should be 1');
 
     // Update the deposit using the set_deposit function and then retrieve it to check the update was successful
+    let market = 'market'.try_into().unwrap();
+   deposit.market = market;
     data_store.set_deposit(key, deposit);
 
     let deposit_by_key = data_store.get_deposit(key).unwrap();
@@ -146,9 +147,252 @@ fn test_set_deposit_should_panic_not_controller() {
     teardown(data_store.contract_address);
 }
 
+#[test]
+#[should_panic(expected: ('unauthorized_access',))]
+fn test_get_deposit_keys() {
+    let (caller_address, role_store, data_store) = setup();
+    role_store.revoke_role(caller_address, role::CONTROLLER);
+    let key: felt252 = 123456789;
+    let account = 'account'.try_into().unwrap();
+    let mut deposit: Deposit = create_new_deposit(
+        key,
+        account,
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        deposit_no: 1
+    );
+
+    data_store.set_deposit(key, deposit);
+
+    // Given
+    data_store.remove_deposit(key, account);
+
+    // Then
+    let deposit_by_key = data_store.get_deposit(key);
+    assert(deposit_by_key.is_none(), 'deposit should be removed');
+
+    let deposit_count = data_store.get_deposit_count();
+    assert(deposit_count == 0, 'Invalid key deposit count');
+    let account_deposit_count = data_store.get_account_deposit_count(account);
+    assert(account_deposit_count == 0, 'Acc deposit # should be 0');
+    let account_deposit_keys = data_store.get_account_deposit_keys(account, 0, 10);
+    assert(account_deposit_keys.len() == 0, 'Acc withdraw # not empty');
+
+    teardown(data_store.contract_address);
+}
 
 
+#[test]
+fn test_remove_only_deposit() {
+    // Setup
+    let (caller_address, role_store, data_store) = setup();
+    let key: felt252 = 123456789;
+    let account = 'account'.try_into().unwrap();
+    let mut deposit: Deposit = create_new_deposit(
+        key,
+        account,
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        deposit_no: 1
+    );
 
+    data_store.set_deposit(key, deposit);
+
+    // Given
+    data_store.remove_deposit(key, account);
+
+    // Then
+    let deposit_by_key = data_store.get_deposit(key);
+    assert(deposit_by_key.is_none(), 'deposit should be removed');
+
+    let deposit_count = data_store.get_deposit_count();
+    assert(deposit_count == 0, 'Invalid key deposit count');
+
+    let account_deposit_count = data_store.get_account_deposit_count(account);
+    assert(account_deposit_count == 0, 'Acc deposit # should be 0');
+
+    let account_deposit_keys = data_store.get_account_deposit_keys(account, 0, 10);
+    assert(account_deposit_keys.len() == 0, 'Acc withdraw # not empty');
+
+    teardown(data_store.contract_address);
+}
+
+
+#[test]
+fn test_remove_1_of_n_deposit() {
+    // Setup
+    let (caller_address, role_store, data_store) = setup();
+    let key_1: felt252 = 123456789;
+    let account = 'account'.try_into().unwrap();
+    let mut deposit_1: Deposit = create_new_deposit(
+        key_1,
+        account,
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        deposit_no: 1
+    );
+
+    let key_2: felt252 = 22222222222;
+
+    let mut deposit_2: Deposit = create_new_deposit(
+        key_2,
+        account,
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        deposit_no: 1
+    );
+
+    data_store.set_deposit(key_1, deposit_1);
+    data_store.set_deposit(key_2, deposit_2);
+
+    let deposit_count = data_store.get_deposit_count();
+    assert(deposit_count == 2, 'Invalid key deposit count');
+
+    let account_deposit_count = data_store.get_account_deposit_count(account);
+    assert(account_deposit_count == 2, 'Acc deposit # should be 2');
+    // Given
+    data_store.remove_deposit(key_1, account);
+
+    // Then
+    let deposit_1_by_key = data_store.get_deposit(key_1);
+    assert(deposit_1_by_key.is_none(), 'deposit1 shouldnt be removed');
+
+    let deposit_2_by_key = data_store.get_deposit(key_2);
+    assert(deposit_2_by_key.is_some(), 'deposit2 shouldnt be removed');
+
+    let deposit_count = data_store.get_deposit_count();
+    assert(deposit_count == 1, 'deposit # should be 1');
+
+    let account_deposit_count = data_store.get_account_deposit_count(account);
+    assert(account_deposit_count == 1, 'Acc deposit # should be 1');
+
+    let account_deposit_keys = data_store.get_account_deposit_keys(account, 0, 10);
+    assert(account_deposit_keys.len() == 1, 'Acc withdraw # not 1');
+
+    teardown(data_store.contract_address);
+}
+
+
+#[test]
+#[should_panic(expected: ('unauthorized_access',))]
+fn test_remove_deposit_should_panic_not_controller() {
+    // Setup
+    let (caller_address, role_store, data_store) = setup();
+    role_store.revoke_role(caller_address, role::CONTROLLER);
+    let key: felt252 = 123456789;
+    let account = 'account'.try_into().unwrap();
+    let mut deposit: Deposit = create_new_deposit(
+        key,
+        account,
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        deposit_no: 1
+    );
+
+    data_store.set_deposit(key, deposit);
+
+    // Given
+    data_store.remove_deposit(key, account);
+
+    // Then
+    let deposit_by_key = data_store.get_deposit(key);
+    assert(deposit_by_key.is_none(), 'deposit should be removed');
+    let account_deposit_count = data_store.get_account_deposit_count(account);
+    assert(account_deposit_count == 0, 'Acc deposit # should be 0');
+    let account_deposit_keys = data_store.get_account_deposit_keys(account, 0, 10);
+    assert(account_deposit_keys.len() == 0, 'Acc withdraw # not empty');
+
+    teardown(data_store.contract_address);
+}
+
+#[test]
+fn test_multiple_account_keys() {
+    // Setup
+
+    let (caller_address, role_store, data_store) = setup();
+    let key_1: felt252 = 123456789;
+    let account = 'account'.try_into().unwrap();
+    let mut deposit_1: Deposit = create_new_deposit(
+        key_1,
+        account,
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        deposit_no: 1
+    );
+
+    let key_2: felt252 = 22222222222;
+    let account_2 = 'account2222'.try_into().unwrap();
+    let mut deposit_2: Deposit = create_new_deposit(
+        key_2,
+        account_2,
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        deposit_no: 2
+    );
+    let key_3: felt252 = 3333344455667;
+    let mut deposit_3: Deposit = create_new_deposit(
+        key_3,
+        account,
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        deposit_no: 3
+    );
+    let key_4: felt252 = 444445556777889;
+    let mut deposit_4: Deposit = create_new_deposit(
+        key_4,
+        account,
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        deposit_no: 4
+    );
+
+    data_store.set_deposit(key_1, deposit_1);
+    data_store.set_deposit(key_2, deposit_2);
+    data_store.set_deposit(key_3, deposit_3);
+    data_store.set_deposit(key_4, deposit_4);
+
+    let deposit_by_key3 = data_store.get_deposit(key_3).unwrap();
+    assert(deposit_by_key3 == deposit_3, 'Invalid deposit by key3');
+
+    let deposit_by_key4 = data_store.get_deposit(key_4).unwrap();
+    assert(deposit_by_key4 == deposit_4, 'Invalid deposit by key4');
+
+    let deposit_count = data_store.get_deposit_count();
+    assert(deposit_count == 4, 'Invalid key deposit count');
+
+    let account_deposit_count = data_store.get_account_deposit_count(account);
+    assert(account_deposit_count == 3, 'Acc deposit # should be 3');
+
+    let account_deposit_count2 = data_store.get_account_deposit_count(account_2);
+    assert(account_deposit_count2 == 1, 'Acc2 deposit # should be 1');
+
+    let deposit_keys = data_store.get_deposit_keys(0, 10);
+    assert(deposit_keys.len() == 4, 'invalid key len');
+    assert(deposit_keys.at(0) == @key_1, 'invalid key1');
+    assert(deposit_keys.at(1) == @key_2, 'invalid key2');
+    assert(deposit_keys.at(2) == @key_3, 'invalid key3');
+    assert(deposit_keys.at(3) == @key_4, 'invalid key4');
+
+    let deposit_keys2 = data_store.get_deposit_keys(1, 3);
+    assert(deposit_keys2.len() == 2, '2:invalid key len');
+    assert(deposit_keys2.at(0) == @key_2, '2:invalid key2');
+    assert(deposit_keys2.at(1) == @key_3, '2:invalid key3');
+
+    let account_keys = data_store.get_account_deposit_keys(account, 0, 10);
+    assert(account_keys.len() == 3, '3:invalid key len');
+    assert(account_keys.at(0) == @key_1, '3:invalid key1');
+    assert(account_keys.at(1) == @key_3, '3:invalid key3');
+    assert(account_keys.at(2) == @key_4, '3:invalid key4');
+
+    let account_keys2 = data_store.get_account_deposit_keys(account_2, 0, 10);
+    assert(account_keys2.len() == 1, '4:invalid key len');
+    assert(account_keys2.at(0) == @key_2, '4:invalid key2');
+
+    // Given
+    data_store.remove_deposit(key_1, account);
+
+    teardown(data_store.contract_address);
+}
 
 /// Utility function to create new Deposit struct
 fn create_new_deposit(
@@ -166,10 +410,10 @@ fn create_new_deposit(
     let initial_short_token = contract_address_const::<'initial_short_token'>();
 
     //TODO long_token_swap_path, short_token_swap_path
-    let long_token_swap_path = Array32Trait::<T>::span32(@ArrayTrait::new());
+    let long_token_swap_path = Array32Trait::<ContractAddress>::span32(@ArrayTrait::new());
     long_token_swap_path.append(contract_address_const::<'long_token_swap_path_0'>());
     long_token_swap_path.append(contract_address_const::<'long_token_swap_path_1'>());
-    let short_token_swap_path = Array32Trait::<T>::span32(@ArrayTrait::new());
+    let short_token_swap_path = Array32Trait::<ContractAddress>::span32(@ArrayTrait::new());
     short_token_swap_path.append(contract_address_const::<'short_token_swap_path_0'>());
     short_token_swap_path.append(contract_address_const::<'short_token_swap_path_1'>());
 
