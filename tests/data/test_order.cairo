@@ -437,9 +437,9 @@ fn create_new_order(
     let callback_contract = contract_address_const::<'callback_contract'>();
     let ui_fee_receiver = contract_address_const::<'ui_fee_receiver'>();
     let swap_path: Span32<ContractAddress> = array![
-        contract_address_const::<'swap_path_0'>(),
-        contract_address_const::<'swap_path_1'>()
-    ].span32();
+        contract_address_const::<'swap_path_0'>(), contract_address_const::<'swap_path_1'>()
+    ]
+        .span32();
     let size_delta_usd = 1000 * order_no;
     let initial_collateral_delta_amount = 1000 * order_no;
     let trigger_price = 11111 * order_no;

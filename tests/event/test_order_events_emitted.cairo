@@ -319,9 +319,9 @@ fn setup() -> (ContractAddress, IEventEmitterDispatcher) {
 /// Utility function to create a dummy order.
 fn create_dummy_order(key: felt252) -> Order {
     let swap_path: Span32<ContractAddress> = array![
-        contract_address_const::<'swap_path_0'>(),
-        contract_address_const::<'swap_path_1'>()
-    ].span32();
+        contract_address_const::<'swap_path_0'>(), contract_address_const::<'swap_path_1'>()
+    ]
+        .span32();
     Order {
         key,
         order_type: OrderType::StopLossDecrease,

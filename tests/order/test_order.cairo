@@ -50,9 +50,9 @@ fn given_normal_conditions_when_touch_then_expected_results() {
 
 fn create_dummy_order() -> Order {
     let swap_path: Span32<ContractAddress> = array![
-        contract_address_const::<'swap_path_0'>(),
-        contract_address_const::<'swap_path_1'>()
-    ].span32();
+        contract_address_const::<'swap_path_0'>(), contract_address_const::<'swap_path_1'>()
+    ]
+        .span32();
     Order {
         key: 111,
         order_type: OrderType::StopLossDecrease,
