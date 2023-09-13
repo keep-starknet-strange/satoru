@@ -3,7 +3,6 @@ use starknet::ContractAddress;
 
 // Satoru imports
 use satoru::utils::store_arrays::StoreContractAddressArray;
-use satoru::utils::span32::{Span32, DefaultSpan32};
 use satoru::utils::span32::{Span32, Array32Trait, DefaultSpan32};
 
 /// Deposit
