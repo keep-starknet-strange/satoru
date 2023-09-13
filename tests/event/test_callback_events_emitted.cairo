@@ -10,6 +10,7 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 use satoru::deposit::deposit::Deposit;
 use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
+use satoru::utils::span32::{Span32, Array32Trait};
 
 #[test]
 fn test_emit_after_deposit_execution_error() {
@@ -287,8 +288,14 @@ fn create_dummy_deposit() -> Deposit {
         market: contract_address_const::<'market'>(),
         initial_long_token: contract_address_const::<'long_token'>(),
         initial_short_token: contract_address_const::<'short_token'>(),
-        long_token_swap_path: array![contract_address_const::<'long_swap'>()],
-        short_token_swap_path: array![contract_address_const::<'short_swap'>()],
+        long_token_swap_path: Span32<ContractAddress> = array![
+            contract_address_const::<'long_swap'>()
+        ]
+            .span32(),
+        short_token_swap_path: Span32<ContractAddress> = array![
+            contract_address_const::<'short_swap'>()
+        ]
+            .span32(),
         initial_long_token_amount: 10,
         initial_short_token_amount: 20,
         min_market_tokens: 30,

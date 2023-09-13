@@ -30,9 +30,9 @@ struct CreateWithdrawalParams {
     /// The market on which the withdrawal will be executed.
     market: ContractAddress,
     /// The swap path for the long token
-    long_token_swap_path: Array<ContractAddress>,
+    long_token_swap_path: Span32<ContractAddress>,
     /// The short token swap path
-    short_token_swap_path: Array<ContractAddress>,
+    short_token_swap_path: Span32<ContractAddress>,
     /// The minimum amount of long tokens that must be withdrawn.
     min_long_token_amount: u128,
     /// The minimum amount of short tokens that must be withdrawn.
