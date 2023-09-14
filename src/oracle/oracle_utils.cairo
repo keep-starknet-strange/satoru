@@ -142,7 +142,7 @@ fn get_uncompacted_price_index(compacted_price_indexes: Span<u128>, index: u128)
 /// # Returns
 /// The uncompacted oracle block numbers.
 fn get_uncompacted_oracle_block_numbers(
-    compacted_oracle_block_numbers: Span<u64>, length: u128
+    compacted_oracle_block_numbers: Span<u64>, length: usize
 ) -> Array<u64> {
     // TODO
     ArrayTrait::new()
@@ -155,7 +155,7 @@ fn get_uncompacted_oracle_block_numbers(
 /// # Returns
 /// The uncompacted oracle block number.
 fn get_uncompacted_oracle_block_number(
-    compacted_oracle_block_numbers: Span<u64>, index: u128
+    compacted_oracle_block_numbers: Span<u64>, index: usize
 ) -> u64 {
     // TODO
     0

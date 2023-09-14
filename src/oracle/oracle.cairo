@@ -481,11 +481,11 @@ mod Oracle {
                 .max_ref_price_deviation_factor = data_store
                 .get_u128(keys::max_oracle_ref_price_deviation_factor());
 
-            let mut i = signers.len();
+            let mut i = 0;
             loop {
                 let mut report_info: ReportInfo = Default::default();
                 let mut inner_cache: SetPricesInnerCache = Default::default();
-                if i.is_zero() {
+                if i == params.tokens.len() {
                     break;
                 }
 
@@ -557,22 +557,6 @@ mod Oracle {
                     .token_oracle_type = data_store
                     .get_felt252(keys::oracle_type_key(report_info.token));
 
-                inner_cache
-                    .min_prices
-                    .append(
-                        oracle_utils::get_uncompacted_price(
-                            params.compacted_min_prices.span(), inner_cache.price_index
-                        )
-                    );
-
-                inner_cache
-                    .max_prices
-                    .append(
-                        oracle_utils::get_uncompacted_price(
-                            params.compacted_max_prices.span(), inner_cache.price_index
-                        )
-                    );
-
                 let mut j = signers.len();
                 let signers_len = signers.len();
                 let compacted_min_prices_span = params.compacted_min_prices.span();
@@ -616,7 +600,7 @@ mod Oracle {
                         break;
                     }
 
-                    inner_cache.signature_index = (signers_len * signers_span.len() + j).into();
+                    inner_cache.signature_index = (i * signers_span.len() + j).into();
 
                     inner_cache
                         .min_price_index =
@@ -636,13 +620,13 @@ mod Oracle {
                         );
                     }
 
-                    if inner_cache.min_price_index >= signatures_span.len().into() {
+                    if inner_cache.min_price_index >= inner_cache.min_prices.len().into() {
                         OracleError::ARRAY_OUT_OF_BOUNDS_U128(
                             inner_cache.min_prices.span(), inner_cache.min_price_index, 'min_prices'
                         );
                     }
 
-                    if inner_cache.max_price_index >= signatures_span.len().into() {
+                    if inner_cache.max_price_index >= inner_cache.max_prices.len().into() {
                         OracleError::ARRAY_OUT_OF_BOUNDS_U128(
                             inner_cache.max_prices.span(), inner_cache.max_price_index, 'max_prices'
                         );
@@ -734,7 +718,7 @@ mod Oracle {
 
                 cache.validated_prices.append(validated_price);
 
-                i -= 1;
+                i += 1;
             };
             cache.validated_prices
         }
@@ -764,9 +748,9 @@ mod Oracle {
 
             let mut signers_index_mask = Mask { bits: 0 };
 
-            let mut len = signers_len;
+            let mut len = 0;
             loop {
-                if len.is_zero() {
+                if len == signers_len {
                     break;
                 }
 
@@ -786,7 +770,7 @@ mod Oracle {
                     OracleError::EMPTY_SIGNER(signer_index);
                 }
 
-                len -= 1;
+                len += 1;
             };
             // }
 
