@@ -59,6 +59,7 @@ mod deposit {
     mod deposit;
     mod deposit_utils;
     mod deposit_vault;
+    mod error;
     mod execute_deposit_utils;
 }
 
