@@ -35,7 +35,8 @@ fn test_emit_withdrawal_created() {
         withdrawal.min_long_token_amount.into(),
         withdrawal.min_short_token_amount.into(),
         withdrawal.updated_at_block.into(),
-        withdrawal.execution_fee.into(),
+        withdrawal.execution_fee.low.into(),
+        withdrawal.execution_fee.high.into(),
         withdrawal.callback_gas_limit.into(),
         withdrawal.should_unwrap_native_token.into(),
     ];
@@ -146,6 +147,8 @@ fn create_dummy_withdrawal(key: felt252) -> Withdrawal {
         callback_contract: contract_address_const::<'callback_contract'>(),
         ui_fee_receiver: contract_address_const::<'fee_receiver'>(),
         market: contract_address_const::<'market'>(),
+        long_token_swap_path: Default::default(),
+        short_token_swap_path: Default::default(),
         market_token_amount: 1,
         min_long_token_amount: 1,
         min_short_token_amount: 1,

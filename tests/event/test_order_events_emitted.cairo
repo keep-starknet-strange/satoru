@@ -5,7 +5,7 @@ use snforge_std::{
 };
 
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::order::order::{Order, OrderType, SecondaryOrderType};
+use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
 use satoru::tests_lib::{setup_event_emitter};
 
 //TODO: OrderCollatDeltaAmountAutoUpdtd must be renamed back to OrderCollateralDeltaAmountAutoUpdated when string will be allowed as event argument
@@ -321,14 +321,16 @@ fn create_dummy_order() -> Order {
     swap_path.append(contract_address_const::<'swap_path_0'>());
     swap_path.append(contract_address_const::<'swap_path_1'>());
     Order {
+        key: 1,
         order_type: OrderType::StopLossDecrease,
+        decrease_position_swap_type: DecreasePositionSwapType::SwapPnlTokenToCollateralToken(()),
         account: contract_address_const::<'account'>(),
         receiver: contract_address_const::<'receiver'>(),
         callback_contract: contract_address_const::<'callback_contract'>(),
         ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
         market: contract_address_const::<'market'>(),
         initial_collateral_token: contract_address_const::<'initial_collateral_token'>(),
-        swap_path,
+        //swap_path,
         size_delta_usd: 1000,
         initial_collateral_delta_amount: 500,
         trigger_price: 2000,

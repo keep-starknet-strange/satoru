@@ -188,6 +188,41 @@ trait IDataStore<TContractState> {
     /// * `value` - The value to set.
     fn set_order(ref self: TContractState, key: felt252, order: Order);
 
+    /// Remove a order value for the given key.
+    /// # Arguments
+    /// * `key` - The key to remove the value for.
+    /// * `account` - The account to remove key for.
+    fn remove_order(ref self: TContractState, key: felt252, account: ContractAddress);
+
+
+    /// Return order keys between start - end  indexes
+    /// # Arguments
+    /// * `start` - Start index
+    /// * `end` - Start index
+    fn get_order_keys(self: @TContractState, start: usize, end: usize) -> Array<felt252>;
+
+    // TODO checkk
+    /// Return total order count
+    fn get_order_count(self: @TContractState) -> u32;
+
+    /// Returns the number of withdrawals made by a specific account.
+    ///
+    /// # Arguments
+    ///
+    /// * `account` - The account address to retrieve the order count for.
+    fn get_account_order_count(self: @TContractState, account: ContractAddress) -> u32;
+
+
+    /// Return order keys between start - end  indexes for given account
+    /// # Arguments
+    /// * `account` - The order account 
+    /// * `start` - Start index
+    /// * `end` - Start index
+    fn get_account_order_keys(
+        self: @TContractState, account: ContractAddress, start: usize, end: usize
+    ) -> Array<felt252>;
+
+
     // *************************************************************************
     //                      Withdrawal related functions.
     // *************************************************************************
@@ -283,6 +318,7 @@ mod DataStore {
     // *************************************************************************
 
     // Core lib imports.
+    use core::option::OptionTrait;
     use core::traits::TryInto;
     use starknet::{get_caller_address, ContractAddress, contract_address_const,};
     use nullable::NullableTrait;
@@ -294,7 +330,7 @@ mod DataStore {
     use satoru::role::role;
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::market::market::{Market, ValidateMarket};
-    use satoru::order::order::Order;
+    use satoru::order::{order::Order, error::OrderError};
     use satoru::withdrawal::{withdrawal::Withdrawal, error::WithdrawalError};
 
     // *************************************************************************
@@ -310,7 +346,9 @@ mod DataStore {
         address_values: LegacyMap::<felt252, ContractAddress>,
         bool_values: LegacyMap::<felt252, Option<bool>>,
         market_values: LegacyMap::<felt252, Market>,
-        order_values: LegacyMap::<felt252, Order>,
+        orders: List<Order>,
+        account_orders: LegacyMap<ContractAddress, List<felt252>>,
+        order_indexes: LegacyMap::<felt252, usize>,
         withdrawals: List<Withdrawal>,
         account_withdrawals: LegacyMap<ContractAddress, List<felt252>>,
         withdrawal_indexes: LegacyMap::<felt252, usize>,
@@ -593,24 +631,131 @@ mod DataStore {
         // *************************************************************************
 
         fn get_order(self: @ContractState, key: felt252) -> Option<Order> {
-            let order = self.order_values.read(key);
-
-            // We use the zero address to indicate that the order does not exist.
-            if order.account.is_zero() {
-                Option::None
-            } else {
-                Option::Some(order)
+            let offsetted_index: usize = self.order_indexes.read(key);
+            if offsetted_index == 0 {
+                return Option::None;
             }
+            let orders: List<Order> = self.orders.read();
+            orders.get(offsetted_index - 1)
         }
 
         fn set_order(ref self: ContractState, key: felt252, order: Order) {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            assert(order.account != 0.try_into().unwrap(), OrderError::CANT_BE_ZERO);
 
-            // Set the value.
-            self.order_values.write(key, order);
+            let mut orders = self.orders.read();
+            let mut account_orders = self.account_orders.read(order.account);
+
+            // Because default values in storage are 0, indexes are offseted by 1.
+            let offsetted_index: usize = self.order_indexes.read(key);
+            assert(offsetted_index <= orders.len(), OrderError::ORDER_NOT_FOUND);
+
+            // If the index is 0, it means the key has not been registered yet and
+            // we need to append the order to the list.
+            if offsetted_index == 0 {
+                // Valid indexes start from 1.
+                self.order_indexes.write(key, orders.len() + 1);
+                account_orders.append(key);
+                orders.append(order);
+                return;
+            }
+            let index = offsetted_index - 1;
+
+            orders.set(index, order);
         }
 
+        fn remove_order(ref self: ContractState, key: felt252, account: ContractAddress) {
+            // Check that the caller has permission to remove the order.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            let offsetted_index: usize = self.order_indexes.read(key);
+            let mut orders = self.orders.read();
+            assert(offsetted_index <= orders.len(), OrderError::ORDER_NOT_FOUND);
+
+            let index = offsetted_index - 1;
+            // Replace the value at `index` by the last order in the list.
+
+            // Specifically handle case where there is only one order
+            let last_order_index = orders.len() - 1;
+            if index == last_order_index {
+                orders.pop_front();
+                self.order_indexes.write(key, 0);
+                self._remove_account_order(key, account);
+                return;
+            }
+
+            let mut last_order_maybe = orders.pop_front();
+            match last_order_maybe {
+                Option::Some(last_order) => {
+                    orders.set(index, last_order);
+                    self.order_indexes.write(last_order.key, offsetted_index);
+                    self.order_indexes.write(key, 0);
+                    self._remove_account_order(key, account)
+                },
+                Option::None => {
+                    // This case should never happen, because index is always <= length
+                    return;
+                }
+            }
+        }
+
+        fn get_order_keys(self: @ContractState, start: usize, mut end: usize) -> Array<felt252> {
+            let orders = self.orders.read();
+            let mut keys: Array<felt252> = Default::default();
+            assert(start <= end, 'start must be <= end');
+            if start >= orders.len() {
+                return keys;
+            }
+
+            if end > orders.len() {
+                end = orders.len()
+            }
+            let mut i = start;
+            loop {
+                if i == end {
+                    break;
+                }
+                let order: Order = orders[i];
+                keys.append(order.key);
+                i = i + 1;
+            };
+            keys
+        }
+
+        fn get_order_count(self: @ContractState,) -> u32 {
+            self.orders.read().len()
+        }
+
+        fn get_account_order_count(self: @ContractState, account: ContractAddress) -> u32 {
+            self.account_orders.read(account).len()
+        }
+
+        fn get_account_order_keys(
+            self: @ContractState, account: ContractAddress, start: u32, mut end: u32
+        ) -> Array<felt252> {
+            let mut keys: Array<felt252> = Default::default();
+            let mut account_orders = self.account_orders.read(account);
+
+            assert(start <= end, 'start must be <= end');
+            if start >= account_orders.len() {
+                return keys;
+            }
+
+            if end > account_orders.len() {
+                end = account_orders.len()
+            }
+
+            let mut i = start;
+            loop {
+                if i == end {
+                    break;
+                }
+                let key: felt252 = account_orders[i];
+                keys.append(key);
+                i += 1;
+            };
+            keys
+        }
         // *************************************************************************
         //                      Withdrawal related functions.
         // *************************************************************************
@@ -701,7 +846,7 @@ mod DataStore {
                 if i == end {
                     break;
                 }
-                let withdrawal = withdrawals[i];
+                let withdrawal: Withdrawal = withdrawals[i];
                 keys.append(withdrawal.key);
             };
             keys
@@ -731,7 +876,7 @@ mod DataStore {
                 if i == end {
                     break;
                 }
-                let key = account_withdrawals[i];
+                let key: felt252 = account_withdrawals[i];
                 keys.append(key);
                 i += 1;
             };
@@ -750,7 +895,7 @@ mod DataStore {
                 if i == account_withdrawals.len() {
                     break;
                 }
-                let withdrawal_key = account_withdrawals[i];
+                let withdrawal_key: felt252 = account_withdrawals[i];
                 if withdrawal_key == key {
                     let mut last_key_maybe = account_withdrawals.pop_front();
                     match last_key_maybe {
@@ -760,6 +905,35 @@ mod DataStore {
                                 break;
                             }
                             account_withdrawals.set(i, last_key);
+                        },
+                        Option::None => {
+                            // This case should never happen, because index is always < length
+                            break;
+                        }
+                    }
+                    break;
+                }
+                i += 1;
+            }
+        }
+
+        fn _remove_account_order(ref self: ContractState, key: felt252, account: ContractAddress) {
+            let mut account_orders = self.account_orders.read(account);
+            let mut i = 0;
+            loop {
+                if i == account_orders.len() {
+                    break;
+                }
+                let order_key: felt252 = account_orders[i];
+                if order_key == key {
+                    let mut last_key_maybe = account_orders.pop_front();
+                    match last_key_maybe {
+                        Option::Some(last_key) => {
+                            // If the list is empty, then there's no need to replace an existing key
+                            if account_orders.len() == 0 {
+                                break;
+                            }
+                            account_orders.set(i, last_key);
                         },
                         Option::None => {
                             // This case should never happen, because index is always < length

@@ -10,7 +10,7 @@
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::oracle::{
-    oracle::{IOracleDispatcher}, oracle_utils::{SetPricesParams, SimulatePricesParams},
+    oracle::IOracleDispatcher, oracle_utils::{SetPricesParams, SimulatePricesParams},
 };
 
 /// Sets oracle prices, perform any additional tasks required,
@@ -31,7 +31,7 @@ fn with_oracle_prices_before(
     oracle: IOracleDispatcher,
     data_store: IDataStoreDispatcher,
     event_emitter: IEventEmitterDispatcher,
-    params: SetPricesParams
+    params: @SetPricesParams
 ) { // TODO
 }
 

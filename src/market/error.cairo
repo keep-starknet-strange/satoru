@@ -4,4 +4,6 @@ mod MarketError {
     const OPEN_INTEREST_CANNOT_BE_UPDATED_FOR_SWAP_ONLY_MARKET: felt252 =
         'oi_not_updated_swap_only_market';
     const MAX_OPEN_INTEREST_EXCEEDED: felt252 = 'max_open_interest_exceeded';
+    const INVALID_POSITION_MARKET: felt252 = 'invalid_position_market';
+    const INVALID_COLLATERAL_TOKEN_FOR_MARKET: felt252 = 'invalid_coll_token_for_market';
 }

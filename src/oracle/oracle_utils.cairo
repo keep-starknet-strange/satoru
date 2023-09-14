@@ -4,7 +4,7 @@
 // Core lib imports.
 use starknet::ContractAddress;
 use result::ResultTrait;
-use clone::Clone;
+use traits::Default;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -31,7 +31,7 @@ use satoru::utils::store_arrays::{
 /// * `compacted_max_prices_indexes` - compacted max price indexes.
 /// * `signatures` - signatures of the oracle signers.
 /// * `price_feed_tokens` - tokens to set prices for based on an external price feed value.
-#[derive(Clone, Drop, Serde)]
+#[derive(Drop, Clone, Serde)]
 struct SetPricesParams {
     signer_info: u128,
     tokens: Array<ContractAddress>,
@@ -47,7 +47,27 @@ struct SetPricesParams {
     price_feed_tokens: Array<ContractAddress>,
 }
 
-#[derive(Drop, starknet::Store, Serde)]
+impl DefaultSetPricesParams of Default<SetPricesParams> {
+    fn default() -> SetPricesParams {
+        SetPricesParams {
+            signer_info: 0,
+            tokens: ArrayTrait::<ContractAddress>::new(),
+            compacted_min_oracle_block_numbers: ArrayTrait::<u64>::new(),
+            compacted_max_oracle_block_numbers: ArrayTrait::<u64>::new(),
+            compacted_oracle_timestamps: ArrayTrait::<u128>::new(),
+            compacted_decimals: ArrayTrait::<u128>::new(),
+            compacted_min_prices: ArrayTrait::<u128>::new(),
+            compacted_min_prices_indexes: ArrayTrait::<u128>::new(),
+            compacted_max_prices: ArrayTrait::<u128>::new(),
+            compacted_max_prices_indexes: ArrayTrait::<u128>::new(),
+            signatures: ArrayTrait::<felt252>::new(),
+            price_feed_tokens: ArrayTrait::<ContractAddress>::new(),
+        }
+    }
+}
+
+
+#[derive(Drop, Clone, starknet::Store, Serde)]
 struct SimulatePricesParams {
     primary_tokens: Array<ContractAddress>,
     primary_prices: Array<Price>,
