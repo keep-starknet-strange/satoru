@@ -4,35 +4,52 @@
 // Core lib imports.
 use starknet::ContractAddress;
 use result::ResultTrait;
+use array::ArrayTrait;
 
 // Local imports.
 use satoru::position::position_utils::{
     DecreasePositionCollateralValues, UpdatePositionParams, DecreasePositionCollateralValuesOutput
 };
+use satoru::order::order::DecreasePositionSwapType;
+use satoru::position::error::PositionError;
+use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
+use satoru::swap::swap_utils::{SwapParams};
 
 /// Swap the withdrawn collateral from collateral_token to pnl_token if needed.
 #[inline(always)]
 fn swap_withdrawn_collateral_to_pnl_token(
-    params: UpdatePositionParams, values: DecreasePositionCollateralValues
+    params: UpdatePositionParams, mut values: DecreasePositionCollateralValues
 ) -> DecreasePositionCollateralValues {
-    // TODO
-    let address_zero: ContractAddress = 0.try_into().unwrap();
-    let decrease_position_collateral_values_output = DecreasePositionCollateralValuesOutput {
-        output_token: address_zero,
-        output_amount: 0,
-        secondary_output_token: address_zero,
-        secondary_output_amount: 0,
-    };
-    DecreasePositionCollateralValues {
-        execution_price: 0,
-        remaining_collateral_amount: 0,
-        base_pnl_usd: 0,
-        uncapped_base_pnl_usd: 0,
-        size_delta_in_tokens: 0,
-        price_impact_usd: 0,
-        price_impact_diff_usd: 0,
-        output: decrease_position_collateral_values_output
+    let mut swap_path_markets = ArrayTrait::new();
+    if (values.output.output_amount > 0 && params.order.decrease_position_swap_type == DecreasePositionSwapType::SwapCollateralTokenToPnlToken) {
+        swap_path_markets.append(params.market);
     }
+    let (token_out, swap_output_amount) = params.contracts.swap_handler.swap(
+        SwapParams {
+            data_store: params.contracts.data_store,
+            event_emitter: params.contracts.event_emitter,
+            oracle: params.contracts.oracle,
+            bank: IBankDispatcher { contract_address : params.market.market_token },
+            key: params.order_key,
+            token_in: params.position.collateral_token,
+            amount_in: values.output.output_amount,
+            swap_path_markets: swap_path_markets,
+            min_output_amount: 0,
+            receiver: params.market.market_token,
+            ui_fee_receiver: params.order.ui_fee_receiver,
+            should_unwrap_native_token: false
+        }
+    );
+
+    if (token_out != values.output.secondary_output_token) {
+        panic(array![PositionError::INVALID_OUTPUT_TOKEN]);
+    }
+    values.output.output_token = token_out;
+    values.output.output_amount = values.output.secondary_output_amount + swap_output_amount;
+    values.output.secondary_output_amount = 0;
+
+    values
 }
 
 /// Swap the realized profit from the pnlToken to the collateralToken if needed.
@@ -45,6 +62,27 @@ fn swap_withdrawn_collateral_to_pnl_token(
 fn swap_profit_to_collateral_token(
     params: UpdatePositionParams, pnl_token: ContractAddress, profit_amount: u128
 ) -> (bool, u128) {
-    // TODO
-    (false, 0)
+    let mut swap_path_markets = ArrayTrait::new();
+    if (profit_amount > 0 && params.order.decrease_position_swap_type == DecreasePositionSwapType::SwapPnlTokenToCollateralToken) {
+        swap_path_markets.append(params.market);
+    }
+    let (token_out, swap_output_amount) = params.contracts.swap_handler.swap(
+        SwapParams {
+            data_store: params.contracts.data_store,
+            event_emitter: params.contracts.event_emitter,
+            oracle: params.contracts.oracle,
+            bank: IBankDispatcher { contract_address : params.market.market_token },
+            key: params.order_key,
+            token_in: pnl_token,
+            amount_in: profit_amount,
+            swap_path_markets: swap_path_markets,
+            min_output_amount: 0,
+            receiver: params.market.market_token,
+            ui_fee_receiver: params.order.ui_fee_receiver,
+            should_unwrap_native_token: false
+        }
+    );
+
+    (true, swap_output_amount)
+    //TODO voir l'histoire des catch
 }

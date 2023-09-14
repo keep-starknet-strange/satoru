@@ -23,7 +23,7 @@ use satoru::referral::referral_storage::interface::{
 use satoru::order::base_order_utils::ExecuteOrderParamsContracts;
 
 /// Struct used in increasePosition and decreasePosition.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Drop, Copy, starknet::Store, Serde)]
 struct UpdatePositionParams {
     /// BaseOrderUtils.ExecuteOrderParamsContracts
     contracts: ExecuteOrderParamsContracts,
