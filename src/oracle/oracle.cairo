@@ -86,7 +86,7 @@ trait IOracle<TContractState> {
     /// The tokens of tokens_with_prices for the specified indexes.
     fn get_tokens_with_prices(
         self: @TContractState, start: u32, end: u32
-    ) -> Option<Array<ContractAddress>>;
+    ) -> Array<ContractAddress>;
 
     /// Get the primary price of a token.
     /// # Arguments
@@ -220,7 +220,6 @@ mod Oracle {
 
     use super::{IOracle, SetPricesCache, SetPricesInnerCache, ValidatedPrice};
 
-
     // *************************************************************************
     //                              CONSTANTS
     // *************************************************************************
@@ -321,40 +320,57 @@ mod Oracle {
         fn clear_all_prices(ref self: ContractState) {
             let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
             IRoleModule::only_controller(@state);
-            let mut length = self.tokens_with_prices.read().len();
+            let mut len = 0;
             loop {
-                if length.is_zero() {
+                if len == self.tokens_with_prices.read().len() {
                     break;
                 }
-                let token = self.tokens_with_prices.read().get(0).unwrap();
+                let token = self.tokens_with_prices.read().get(len).unwrap();
                 self.remove_primary_price(token);
-                length -= 1;
+                len += 1;
             }
         }
 
 
         fn get_tokens_with_prices_count(self: @ContractState) -> u32 {
-            self.tokens_with_prices.read().len()
+            let token_with_prices = self.tokens_with_prices.read();
+            let tokens_with_prices_len = token_with_prices.len();
+            let mut count = 0;
+            let mut i = 0;
+            loop {
+                if i == tokens_with_prices_len {
+                    break;
+                }
+                if !token_with_prices.get(i).unwrap().is_zero() {
+                    count += 1;
+                }
+                i += 1;
+            };
+            count
         }
 
         fn get_tokens_with_prices(
-            self: @ContractState, start: u32, end: u32
-        ) -> Option<Array<ContractAddress>> {
+            self: @ContractState, start: u32, mut end: u32
+        ) -> Array<ContractAddress> {
+            let mut arr: Array<ContractAddress> = array![];
             let tokens_with_prices = self.tokens_with_prices.read();
             let tokens_with_prices_len = tokens_with_prices.len();
-            if tokens_with_prices.len().is_zero() || end - start + 1 > tokens_with_prices_len {
-                return Option::None;
+            if end > tokens_with_prices_len {
+                end = tokens_with_prices_len;
+            }
+            if tokens_with_prices.len().is_zero() {
+                return arr;
             }
             let mut arr: Array<ContractAddress> = array![];
             let mut index = start;
             loop {
-                if index > end {
+                if index >= end {
                     break;
                 }
                 arr.append(tokens_with_prices[index]);
                 index += 1;
             };
-            Option::Some(arr)
+            arr
         }
 
         fn get_primary_price(self: @ContractState, token: ContractAddress) -> Price {
@@ -424,34 +440,31 @@ mod Oracle {
         ) {
             let validated_prices = self.validate_prices(data_store, params);
 
-            let mut length = validated_prices.len();
+            let mut len = 0;
             loop {
-                if length == 0 {
+                if len == validated_prices.len() {
                     break;
                 }
-                match validated_prices.get(length - 1) {
-                    Option::Some(i) => {
-                        let validated_price = *i.unbox();
-                        self
-                            .emit_oracle_price_updated(
-                                event_emitter,
-                                validated_price.token,
-                                validated_price.min,
-                                validated_price.max,
-                                false
-                            );
-                        self
-                            .set_primary_price_(
-                                validated_price.token,
-                                Price { min: validated_price.min, max: validated_price.max }
-                            );
-                    },
-                    Option::None(_) => {
-                        OracleError::DUPLICATED_TOKEN_PRICE();
-                    }
+
+                let validated_price = *validated_prices.at(len);
+                if !validated_price.min.is_zero() || !validated_price.max.is_zero() {
+                    OracleError::DUPLICATED_TOKEN_PRICE();
                 }
-                length -= 1;
-            }
+                self
+                    .emit_oracle_price_updated(
+                        event_emitter,
+                        validated_price.token,
+                        validated_price.min,
+                        validated_price.max,
+                        false
+                    );
+                self
+                    .set_primary_price_(
+                        validated_price.token,
+                        Price { min: validated_price.min, max: validated_price.max }
+                    );
+            };
+            len += 1;
         }
 
         /// Validate prices in params.
@@ -557,12 +570,12 @@ mod Oracle {
                     .token_oracle_type = data_store
                     .get_felt252(keys::oracle_type_key(report_info.token));
 
-                let mut j = signers.len();
+                let mut j = 0;
                 let signers_len = signers.len();
                 let compacted_min_prices_span = params.compacted_min_prices.span();
                 let compacted_max_prices_span = params.compacted_max_prices.span();
                 loop {
-                    if j.is_zero() {
+                    if j == signers_len {
                         break;
                     }
                     inner_cache.price_index = (i * signers_len + j).into();
@@ -582,7 +595,7 @@ mod Oracle {
                                 compacted_max_prices_span, inner_cache.price_index
                             )
                         );
-                    j -= 1;
+                    j += 1;
                 };
 
                 // Important: Arrays are built first, then sorted, due to inability to modify elements at arbitrary indices. Exercise caution in testing.
@@ -594,9 +607,10 @@ mod Oracle {
                 let inner_cache_save = @inner_cache;
                 let signatures_span = params.signatures.span();
                 let signers_span = signers.span();
-                let mut j = signers.len();
+                let signers_len = signers_span.len();
+                let mut j = 0;
                 loop {
-                    if j.is_zero() {
+                    if j == signers_len {
                         break;
                     }
 
@@ -669,7 +683,7 @@ mod Oracle {
                         signers_span.at(j)
                     );
 
-                    j -= 1;
+                    j += 1;
                 };
 
                 let median_min_price = arrays::get_median(inner_cache_save.min_prices.span())
@@ -764,7 +778,8 @@ mod Oracle {
 
                 signers_index_mask.validate_unique_and_set_index(signer_index);
 
-                signers.append(self.oracle_store.read().get_signer(signer_index));
+                signers
+                    .append(self.oracle_store.read().get_signer(signer_index.try_into().unwrap()));
 
                 if (*signers.at(len.try_into().unwrap())).is_zero() {
                     OracleError::EMPTY_SIGNER(signer_index);
@@ -816,10 +831,26 @@ mod Oracle {
         /// * `token` - The token to set the price for.
         /// * `price` - The price value to set to.
         fn set_primary_price_(ref self: ContractState, token: ContractAddress, price: Price) {
-            self.primary_prices.write(token, price);
+            match self.get_token_with_price_index(token) {
+                Option::Some(i) => (),
+                Option::None(_) => {
+                    self.primary_prices.write(token, price);
 
-            let mut tokens_with_prices = self.tokens_with_prices.read();
-            tokens_with_prices.append(token);
+                    let mut tokens_with_prices = self.tokens_with_prices.read();
+                    let index_of_zero = self.get_token_with_price_index(Zeroable::zero());
+                    // If an entry with zero address is found the entry is set to the new token,
+                    // otherwise the new token is appended to the list. This is to avoid the list 
+                    // to grow indefinitely.
+                    match index_of_zero {
+                        Option::Some(i) => {
+                            tokens_with_prices.set(i, token);
+                        },
+                        Option::None => {
+                            tokens_with_prices.append(token);
+                        }
+                    }
+                }
+            }
         }
 
         /// Remove the primary price.
@@ -828,9 +859,14 @@ mod Oracle {
         fn remove_primary_price(ref self: ContractState, token: ContractAddress) {
             self.primary_prices.write(token, Zeroable::zero());
 
-            let token_index = self.get_token_with_price_index(token).unwrap();
-            let mut tokens_with_prices = self.tokens_with_prices.read();
-            tokens_with_prices.set(token_index, Zeroable::zero());
+            let token_index = self.get_token_with_price_index(token);
+            match token_index {
+                Option::Some(i) => {
+                    let mut tokens_with_prices = self.tokens_with_prices.read();
+                    tokens_with_prices.set(i, Zeroable::zero());
+                },
+                Option::None => (),
+            }
         }
 
         /// Get the price feed prices.
@@ -886,14 +922,14 @@ mod Oracle {
             price_feed_tokens: @Array<ContractAddress>,
         ) {
             let self_copy = @self;
-            let mut len = price_feed_tokens.len();
+            let mut len = 0;
 
             loop {
-                if len.is_zero() {
+                if len == price_feed_tokens.len() {
                     break;
                 }
 
-                let token = *price_feed_tokens.at(len - 1);
+                let token = *price_feed_tokens.at(len);
 
                 let stored_price = self.primary_prices.read(token);
                 if !stored_price.is_zero() {
@@ -934,7 +970,7 @@ mod Oracle {
                     .emit_oracle_price_updated(
                         event_emitter, token, price_props.min, price_props.max, true
                     );
-                len -= 1;
+                len += 1;
             };
         }
 
@@ -966,17 +1002,22 @@ mod Oracle {
             self: @ContractState, token: ContractAddress
         ) -> Option<usize> {
             let mut tokens_with_prices = self.tokens_with_prices.read();
-            let mut len = tokens_with_prices.len();
             let mut index = Option::None;
+            let mut len = 0;
             loop {
-                if len.is_zero() {
+                if len == tokens_with_prices.len() {
                     break;
                 }
-                let token_with_price = tokens_with_prices.pop_front().unwrap();
-                if token_with_price == token {
-                    index = Option::Some(len);
+                let token_with_price = tokens_with_prices.get(len);
+                match token_with_price {
+                    Option::Some(t) => {
+                        if token_with_price.unwrap() == token {
+                            index = Option::Some(len);
+                        }
+                    },
+                    Option::None => (),
                 }
-                len -= 1;
+                len += 1;
             };
             index
         }

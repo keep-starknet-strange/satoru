@@ -110,7 +110,7 @@ fn is_block_number_within_range(
 /// The price at the specified index.
 fn get_uncompacted_price(compacted_prices: Span<u128>, index: u128) -> u128 {
     // TODO
-    0
+    10
 }
 
 /// Get the uncompacted decimal at the specified index.
