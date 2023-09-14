@@ -18,8 +18,7 @@ use satoru::order::order::OrderType;
 use satoru::price::price::Price;
 use satoru::pricing::position_pricing_utils::PositionFees;
 use satoru::order::order::{Order, SecondaryOrderType};
-use satoru::utils::span32::Span32;
-
+use satoru::utils::span32::{Span32, DefaultSpan32};
 
 //TODO: OrderCollatDeltaAmountAutoUpdtd must be renamed back to OrderCollateralDeltaAmountAutoUpdated when string will be allowed as event argument
 //TODO: AfterWithdrawalCancelError must be renamed back to AfterWithdrawalCancellationError when string will be allowed as event argument
@@ -631,7 +630,7 @@ mod EventEmitter {
     use satoru::price::price::Price;
     use satoru::pricing::position_pricing_utils::PositionFees;
     use satoru::order::order::{Order, SecondaryOrderType};
-    use satoru::utils::span32::Span32;
+    use satoru::utils::span32::{Span32, DefaultSpan32};
 
     // *************************************************************************
     //                              STORAGE

@@ -26,7 +26,7 @@ fn test_emit_after_deposit_execution_error() {
 
     // Create dummy data.
     let key = 'deposit_execution_error';
-    let deposit_data: Deposit = create_dummy_deposit();
+    let deposit_data: Deposit = create_dummy_deposit(key);
 
     // Create the expected data.
     let mut expected_data: Array<felt252> = array![key];
@@ -64,7 +64,7 @@ fn test_emit_after_deposit_cancellation_error() {
 
     // Create dummy data.
     let key = 'deposit_cancellation_error';
-    let deposit_data: Deposit = create_dummy_deposit();
+    let deposit_data: Deposit = create_dummy_deposit(key);
 
     // Create the expected data.
     let mut expected_data: Array<felt252> = array![key];
@@ -279,8 +279,9 @@ fn test_emit_after_order_frozen_error() {
 }
 
 
-fn create_dummy_deposit() -> Deposit {
+fn create_dummy_deposit(key: felt252) -> Deposit {
     Deposit {
+        key,
         account: contract_address_const::<'account'>(),
         receiver: contract_address_const::<'receiver'>(),
         callback_contract: contract_address_const::<'callback_contract'>(),
