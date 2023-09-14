@@ -4,10 +4,12 @@
 // Core lib imports.
 use alexandria_math::karatsuba::multiply;
 use alexandria_math::{ pow, BitShift };
-use integer::{ u128_wide_mul, u256_safe_div_rem, u128_try_as_non_zero, i128_to_felt252, u128_to_felt252 };
+use integer::{ u128_wide_mul, u256_safe_div_rem, u128_try_as_non_zero, i128_to_felt252, u128_to_felt252, u128_overflowing_mul, u256_wide_mul, u512_safe_div_rem_by_u256, BoundedU256, u256_try_as_non_zero };
 use integer::BoundedU128;
 use core::traits::TryInto;
 use core::option::Option;
+use debug::PrintTrait;
+use satoru::utils::calc::{ roundup_division, roundup_magnitude_division };
 
 const FLOAT_PRECISION: u128 = 1_000_000_000_000_000_000_000_000_000_000_000; // 10^30
 const FLOAT_PRECISION_SQRT: u128 = 1_000_000_000_000_000; // 10^15
@@ -55,25 +57,19 @@ fn apply_factor_roundup_magnitude(
 /// * `numerator` - The numerator that multiplies value.
 /// * `divisor` - The denominator that divides value.
 fn mul_div(value: u128, numerator: u128, denominator: u128) -> u128 {
-    let (high, low) = u128_wide_mul(value, numerator);
-
-    // Convertir high en u256
-    let u256_high: u256 = high.into();
-    let u256_low: u256 = low.into();
-
-    // Utiliser BitShift::shl pour effectuer le décalage de bits
-    let u256_product = BitShift::shl(u256_high, 128) + u256_low;
-
-    // Convertir denominator en u256
-    let u256_denominator: u256 = denominator.into();
-
-    // Utiliser u256_safe_div_rem avec u256_product et u256_denominator
-    let (q, r) = u256_safe_div_rem(u256_product, u256_denominator.try_into().expect("Division by 0"));
-
-    // Convertir q en u128
-    let q_u128: u128 = q.try_into().unwrap();
-
-    q_u128
+    let value = u256 { low: value, high: 0};
+    let numerator = u256 { low: numerator, high: 0};
+    let denominator = u256 { low: denominator, high: 0};
+    let product = u256_wide_mul(value, numerator);
+    let (q, r) = u512_safe_div_rem_by_u256(
+        product, 
+        u256_try_as_non_zero(denominator).expect('MulDivByZero')
+    );
+    assert(q.limb1 == 0 && q.limb2 == 0 && q.limb3 == 0, 'MulDivOverflow');
+    q.limb0
+    // let (prod, _) = u128_overflowing_mul(value, numerator);
+    // let res = roundup_division(prod, denominator);
+    // return res;
 }
 
 /// Apply multiplication then division to value.
@@ -153,27 +149,40 @@ fn mul_div_inum_roundup(
 fn mul_div_roundup(
     value: u128, numerator: u128, denominator: u128, roundup_magnitude: bool
 ) -> u128 { // TODO
-    let (high, low) = u128_wide_mul(value, numerator);
-
-    // Convertir high en u256
-    let u256_high: u256 = high.into();
-    let u256_low: u256 = low.into();
-
-    // Utiliser BitShift::shl pour effectuer le décalage de bits
-    let u256_product = BitShift::shl(u256_high, 128) + u256_low;
-
-    // Convertir denominator en u256
-    let u256_denominator: u256 = denominator.into();
-    let (q, r) = u256_safe_div_rem(
-        u256_product,
-        u256_denominator.try_into().expect("Division by 0")
+    let value = u256 { low: value, high: 0};
+    let numerator = u256 { low: numerator, high: 0};
+    let denominator = u256 { low: denominator, high: 0};
+    let product = u256_wide_mul(value, numerator);
+    let (q, r) = u512_safe_div_rem_by_u256(
+        product, 
+        u256_try_as_non_zero(denominator).expect('MulDivByZero')
     );
-    let q_u128: u128 = q.try_into().unwrap();
     if roundup_magnitude && r > 0 {
-        q_u128 + 1
+        let result = u256 { low: q.limb0, high: q.limb1 };
+        assert(result != BoundedU256::max() && q.limb1==0 && q.limb2 == 0 && q.limb3 == 0, 'MulDivOverflow');
+        q.limb0 + 1
     } else {
-        q_u128
+        assert(q.limb2 == 0 && q.limb3 == 0, 'MulDivOverflow');
+        q.limb0
     }
+    // let (prod, _) = u128_overflowing_mul(value, numerator);
+    // if roundup_magnitude {
+    //     let felt252_prod: felt252 = u128_to_felt252(prod);
+    //     let i128_prod: i128 = match felt252_prod.try_into() {
+    //         Option::Some(n) => n,
+    //         Option::None => 0
+    //     };
+    //     let res = roundup_magnitude_division(i128_prod, denominator);
+    //     let felt252_res: felt252 = i128_to_felt252(res);
+    //     let u128_res: u128 = match felt252_res.try_into() {
+    //         Option::Some(n) => n,
+    //         Option::None => 0
+    //     };
+    //     return u128_res;
+    // } else {
+    //     let res = roundup_division(prod, denominator);
+    //     return res;
+    // }
 }
 
 /// Apply exponent factor to float value.
