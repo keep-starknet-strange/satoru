@@ -264,7 +264,7 @@ mod AdlHandler {
                 cache.key,
                 oracle_params,
                 get_caller_address(),
-                //cache.starting_gas,
+                cache.starting_gas,
                 SecondaryOrderType::Adl(())
             );
 

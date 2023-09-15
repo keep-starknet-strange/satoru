@@ -6,16 +6,18 @@ use debug::PrintTrait;
 use satoru::referral::referral_storage;
 use traits::Default;
 use satoru::oracle::oracle_utils::SetPricesParams;
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait, IDataStore};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
+use satoru::role::role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait};
 
 #[test]
 fn test_exec_liquidation_true(){
     let collateral_token: ContractAddress = 0x123.try_into().unwrap();
-    let (caller_address, liquidation_handler_address, liquidation_handler_dispatcher) = _setup();
-    let liquidation_keeper: ContractAddress = 0x2233.try_into().unwrap();
-    start_prank(liquidation_handler_address, caller_address);
+    let (data_store, liquidation_keeper, liquidation_handler_address, liquidation_handler_dispatcher) = _setup();
+    start_prank(liquidation_handler_address, liquidation_keeper);
+    //start_prank(role_module.contract_address, liquidation_keeper);
+    assert(data_store.get_account_position_count(contract_address_const::<'account'>()) == 0, 'is not at 0');
     liquidation_handler_dispatcher.execute_liquidation(
         account: contract_address_const::<'account'>(),
         market: contract_address_const::<'market'>(),
@@ -79,7 +81,13 @@ fn deploy_oracle_store(role_store_address: ContractAddress, event_emitter_addres
     contract.deploy(@array![role_store_address.into(), event_emitter_address.into()]).unwrap()
 }
 
-fn _setup() -> (ContractAddress, ContractAddress, ILiquidationHandlerDispatcher) {
+fn deploy_role_module(role_store_address: ContractAddress) -> IRoleModuleDispatcher {
+    let contract = declare('RoleModule');
+    let role_module_address = contract.deploy(@array![role_store_address.into()]).unwrap();
+    IRoleModuleDispatcher { contract_address: role_module_address }
+}
+
+fn _setup() -> (IDataStoreDispatcher, ContractAddress, ContractAddress, ILiquidationHandlerDispatcher) {
     let caller_address: ContractAddress = 0x101.try_into().unwrap();
     let liquidation_keeper: ContractAddress = 0x2233.try_into().unwrap();
     let role_store_address = deploy_role_store();
@@ -94,8 +102,13 @@ fn _setup() -> (ContractAddress, ContractAddress, ILiquidationHandlerDispatcher)
     //let referral_storage_address = deploy_referral_storage();
     let liquidation_handler_address = deploy_liquidation_handler(role_store_address, data_store_address, event_emitter_address, order_vault_address, swap_handler_address, oracle_address);
     let liquidation_handler_dispatcher = ILiquidationHandlerDispatcher{ contract_address: liquidation_handler_address};
+    let role_module = deploy_role_module(role_store_address);
     start_prank(role_store_address, caller_address);
-    role_store.grant_role(caller_address, role::ROLE_ADMIN);
+    role_store.grant_role(caller_address, role::CONTROLLER);
+    role_store.grant_role(liquidation_keeper, role::LIQUIDATION_KEEPER);
+    role_store.grant_role(liquidation_keeper, role::ORDER_KEEPER);
+    role_store.grant_role(liquidation_handler_address, role::FROZEN_ORDER_KEEPER);
+    role_store.grant_role(liquidation_handler_address, role::CONTROLLER);
     start_prank(data_store_address, caller_address);
-    (caller_address, liquidation_handler_address, liquidation_handler_dispatcher)
+    (data_store, liquidation_keeper, liquidation_handler_address, liquidation_handler_dispatcher)
 }

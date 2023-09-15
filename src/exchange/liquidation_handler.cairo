@@ -128,6 +128,7 @@ mod LiquidationHandler {
             is_long: bool,
             oracle_params: SetPricesParams
         ) {
+            let starting_gas: u128 = 0;
             let mut state_base: BaseOrderHandler::ContractState =
             BaseOrderHandler::unsafe_new_contract_state();
             let key: felt252 = create_liquidation_order(
@@ -145,6 +146,7 @@ mod LiquidationHandler {
                     key,
                     tmp_oracle_params,
                     account,
+                    starting_gas,
                     SecondaryOrderType::None
                 );
             validate_feature(state_base.data_store.read(), key);

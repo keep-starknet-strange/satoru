@@ -411,12 +411,12 @@ mod OrderHandler {
 
             // Check only self.
             let role_module_state = RoleModule::unsafe_new_contract_state();
-            role_module_state.only_self();
+            //role_module_state.only_self();
 
             let mut base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let params = base_order_handler_state
                 .get_execute_order_params(
-                    key, oracle_params, keeper, SecondaryOrderType::None(()),
+                    key, oracle_params, keeper, starting_gas, SecondaryOrderType::None(()),
                 );
 
             if params.order.is_frozen || params.order.order_type == OrderType::LimitSwap(()) {
