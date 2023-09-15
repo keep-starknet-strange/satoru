@@ -38,3 +38,24 @@ struct Position {
     /// Whether the position is a long or short.
     is_long: bool,
 }
+
+impl DefaultPosition of Default<Position> {
+    fn default() -> Position {
+        Position {
+            key: 0,
+            account: 0.try_into().unwrap(),
+            market: 0.try_into().unwrap(),
+            collateral_token: 0.try_into().unwrap(),
+            size_in_usd: 0,
+            size_in_tokens: 0,
+            collateral_amount: 0,
+            borrowing_factor: 0,
+            funding_fee_amount_per_size: 0,
+            long_token_claimable_funding_amount_per_size: 0,
+            short_token_claimable_funding_amount_per_size: 0,
+            increased_at_block: 0,
+            decreased_at_block: 0,
+            is_long: false,
+        }
+    }
+}

@@ -9,7 +9,14 @@
 /// * `index` - The index to get the element at.
 /// # Returns
 /// Element at index if found, else 0.
-fn get(arr: Span<felt252>, index: usize) -> felt252 {
+fn get_felt252(arr: Span<felt252>, index: usize) -> felt252 {
+    match arr.get(index) {
+        Option::Some(value) => *value.unbox(),
+        Option::None => 0,
+    }
+}
+
+fn get_u128(arr: @Array<u128>, index: usize) -> u128 {
     match arr.get(index) {
         Option::Some(value) => *value.unbox(),
         Option::None => 0,
@@ -48,6 +55,27 @@ fn are_gt(mut arr: Span<u128>, value: u128) -> bool {
         match arr.pop_front() {
             Option::Some(item) => {
                 if *item <= value {
+                    break false;
+                }
+            },
+            Option::None => {
+                break true;
+            },
+        };
+    }
+}
+
+/// For u64 typed array determines whether all of the elements in the given array are greater than or equal to the specified value.
+/// # Arguments
+/// * `arr` - the array to check the elements of.
+/// * `value` - The value to compare the elements to.
+/// # Returns
+/// true if all of the elements in the array are greater than or equal to the specified value, false otherwise.
+fn u64_are_gte(mut arr: Span<u64>, value: u64) -> bool {
+    loop {
+        match arr.pop_front() {
+            Option::Some(item) => {
+                if *item < value {
                     break false;
                 }
             },

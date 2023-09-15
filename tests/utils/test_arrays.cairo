@@ -3,10 +3,10 @@ use satoru::utils::arrays;
 #[test]
 fn test_arrays_get() {
     let arr = array![4, 5, 6];
-    assert(arrays::get(arr.span(), 0) == 4, 'fail');
-    assert(arrays::get(arr.span(), 2) == 6, 'fail');
-    assert(arrays::get(arr.span(), 3) == 0, 'fail');
-    assert(arrays::get(arr.span(), 9999999) == 0, 'fail');
+    assert(arrays::get_felt252(arr.span(), 0) == 4, 'fail');
+    assert(arrays::get_felt252(arr.span(), 2) == 6, 'fail');
+    assert(arrays::get_felt252(arr.span(), 3) == 0, 'fail');
+    assert(arrays::get_felt252(arr.span(), 9999999) == 0, 'fail');
 }
 
 #[test]

@@ -607,6 +607,14 @@ trait IEventEmitter<TContractState> {
         action: felt252,
         fees: SwapFees
     );
+
+    fn emit_oracle_price_updated(
+        ref self: TContractState,
+        token: ContractAddress,
+        min_price: u128,
+        max_price: u128,
+        is_price_feed: bool
+    );
 }
 
 #[starknet::contract]
@@ -616,7 +624,7 @@ mod EventEmitter {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{ContractAddress, ClassHash};
+    use starknet::{ContractAddress, ClassHash, get_caller_address};
 
     // Local imports.
     use satoru::deposit::deposit::Deposit;
@@ -2594,6 +2602,16 @@ mod EventEmitter {
             fees: SwapFees
         ) {
             self.emit(SwapFeesCollected { market, token, token_price, action, fees });
+        }
+
+        fn emit_oracle_price_updated(
+            ref self: ContractState,
+            token: ContractAddress,
+            min_price: u128,
+            max_price: u128,
+            is_price_feed: bool
+        ) {
+            self.emit(OraclePriceUpdate { token, min_price, max_price, is_price_feed });
         }
     }
 }

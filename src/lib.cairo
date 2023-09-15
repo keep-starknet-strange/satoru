@@ -3,6 +3,7 @@
 // `adl` is a module to help with auto-deleveraging.
 mod adl {
     mod adl_utils;
+    mod error;
 }
 
 // `bank` is a module handling storing and transferring of tokens.
@@ -170,6 +171,7 @@ mod oracle {
     mod oracle_store;
     mod oracle_utils;
     mod oracle;
+    mod price_feed;
 }
 
 // `order` contains order management functions.
