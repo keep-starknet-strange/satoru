@@ -8,10 +8,15 @@ use core::traits::TryInto;
 // Local imports.
 use satoru::position::position::Position;
 use satoru::market::market::Market;
-use satoru::market::market_utils::{MarketPrices, get_opposite_token, get_cached_token_price, get_swap_impact_amount_with_cap, validate_swap_market};
+use satoru::market::market_utils::{
+    MarketPrices, get_opposite_token, get_cached_token_price, get_swap_impact_amount_with_cap,
+    validate_swap_market
+};
 use satoru::price::price::{Price, PriceTrait};
 use satoru::pricing::position_pricing_utils::{PositionFees};
-use satoru::pricing::swap_pricing_utils::{SwapFees, get_swap_fees, get_price_impact_usd, GetPriceImpactUsdParams};
+use satoru::pricing::swap_pricing_utils::{
+    SwapFees, get_swap_fees, get_price_impact_usd, GetPriceImpactUsdParams
+};
 use satoru::swap::swap_utils::SwapCache;
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -70,8 +75,7 @@ fn get_swap_amount_out(
         price_impact_amount: 0,
     };
 
-    if (token_in != market.long_token
-        && token_in != market.short_token) { //Implement the error
+    if (token_in != market.long_token && token_in != market.short_token) { //Implement the error
     }
 
     validate_swap_market(data_store, @market);
@@ -80,20 +84,19 @@ fn get_swap_amount_out(
     cache.token_in_price = get_cached_token_price(token_in, market, prices);
     cache.token_out_price = get_cached_token_price(cache.token_out, market, prices);
 
-    let param : GetPriceImpactUsdParams = GetPriceImpactUsdParams {
-            dataStore : data_store,
-            market : market,
-            token_a : token_in,
-            token_b : cache.token_out,
-            price_for_token_a : cache.token_in_price.mid_price(),
-            price_for_token_b : cache.token_out_price.mid_price(),
-            usd_delta_for_token_a : (amount_in * cache.token_in_price.mid_price()), //to int256?
-            usd_delta_for_token_b : (amount_in * cache.token_in_price.mid_price()) //todo : add `-` when i128 will implement Store
-        };
+    let param: GetPriceImpactUsdParams = GetPriceImpactUsdParams {
+        dataStore: data_store,
+        market: market,
+        token_a: token_in,
+        token_b: cache.token_out,
+        price_for_token_a: cache.token_in_price.mid_price(),
+        price_for_token_b: cache.token_out_price.mid_price(),
+        usd_delta_for_token_a: (amount_in * cache.token_in_price.mid_price()), //to int256?
+        usd_delta_for_token_b: (amount_in
+            * cache.token_in_price.mid_price()) //todo : add `-` when i128 will implement Store
+    };
 
     let price_impact_usd: u128 = get_price_impact_usd(param); //todo : check u128 to i128
-        
-    
 
     let fees: SwapFees = get_swap_fees(
         data_store, market.market_token, amount_in, price_impact_usd > 0, ui_fee_receiver
@@ -132,11 +135,7 @@ fn get_swap_amount_out(
 
         impact_amount =
             get_swap_impact_amount_with_cap(
-                data_store,
-                market.market_token,
-                token_in,
-                cache.token_in_price,
-                price_impact_usd
+                data_store, market.market_token, token_in, cache.token_in_price, price_impact_usd
             );
 
         //cache.amount_in = fees.amount_after_fees - (-impact_amount).into(); //TODO : when i128 will implement Store;

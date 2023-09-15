@@ -88,15 +88,15 @@ fn get_cached_token_price(token: ContractAddress, market: Market, prices: Market
 }
 
 fn get_swap_impact_amount_with_cap(
-        dataStore : IDataStoreDispatcher,
-        market : ContractAddress,
-        token : ContractAddress,
-        tokenPrice : Price,
-        priceImpactUsd : u128 //TODO : check u128
-    ) -> u128 { //Todo : check u128
-        //TODO
-        return 0;
-    }
+    dataStore: IDataStoreDispatcher,
+    market: ContractAddress,
+    token: ContractAddress,
+    tokenPrice: Price,
+    priceImpactUsd: u128 //TODO : check u128
+) -> u128 { //Todo : check u128
+    //TODO
+    return 0;
+}
 
 /// Get the long and short open interest for a market based on the collateral token used.
 /// # Arguments
