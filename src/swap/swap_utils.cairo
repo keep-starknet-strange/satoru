@@ -5,14 +5,14 @@
 use starknet::{ContractAddress, contract_address_const};
 use result::ResultTrait;
 use core::traits::{Into, TryInto};
+use core::integer::I128Neg;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-use core::integer::I128Neg;
 use satoru::market::{
-    market::{Market},
+    market::Market,
     market_utils::{
         MarketPrices, validate_swap_market, get_opposite_token, apply_swap_impact_with_cap,
         apply_delta_to_pool_amount, validate_max_pnl, validate_pool_amount, validata_reserve
@@ -131,7 +131,7 @@ fn swap(params: @SwapParams) -> (ContractAddress, u128) {
 /// * `params` - The parameters for the swap.
 /// * `_params` - The parameters for the swap on this specific market.
 /// # Returns
-/// The amount that was swapped.
+/// The token and amount that was swapped.
 #[inline(always)]
 fn _swap(params: SwapParams, _params: _SwapParams) -> (ContractAddress, u128) {
     if (_params.token_in != _params.market.long_token
@@ -160,12 +160,12 @@ fn _swap(params: SwapParams, _params: _SwapParams) -> (ContractAddress, u128) {
         usd_delta_for_token_felt252.try_into().unwrap(),
         -usd_delta_for_token_felt252.try_into().unwrap(),
     );
-    let price_impact_is_positif = price_impact_usd > 0;
+
     let fees = get_swap_fees(
         params.data_store,
         _params.market.market_token,
         _params.amount_in,
-        price_impact_is_positif,
+        price_impact_usd > 0,
         params.ui_fee_receiver
     );
 
@@ -188,7 +188,7 @@ fn _swap(params: SwapParams, _params: _SwapParams) -> (ContractAddress, u128) {
         keys::swap_fee_type(),
     );
     let mut price_impact_amount: i128 = 0;
-    if (price_impact_is_positif) {
+    if (price_impact_usd > 0) {
         // when there is a positive price impact factor, additional tokens from the swap impact pool
         // are withdrawn for the user
         // for example, if 50,000 USDC is swapped out and there is a positive price impact
@@ -297,5 +297,29 @@ fn _swap(params: SwapParams, _params: _SwapParams) -> (ContractAddress, u128) {
         pnl_factor_type_for_shorts
     );
 
+    let price_impact_usd_felt252: felt252 = price_impact_usd.into();
+    let price_impact_amount_felt252: felt252 = price_impact_amount.into();
+    params
+        .event_emitter
+        .emit_swap_info(
+            params.key,
+            _params.market.market_token,
+            _params.receiver,
+            _params.token_in,
+            cache.token_out,
+            cache.token_in_price.min,
+            cache.token_out_price.max,
+            _params.amount_in,
+            cache.amount_in,
+            cache.amount_out,
+            price_impact_usd_felt252.try_into().unwrap(), //TODO: should accept i128
+            price_impact_amount_felt252.try_into().unwrap() //TODO: should accept i128
+        );
+
+    params
+        .event_emitter
+        .emit_swap_fees_collected(
+            _params.market.market_token, _params.token_in, cache.token_in_price.min, 'swap', fees
+        );
     (cache.token_out, cache.amount_out)
 }
