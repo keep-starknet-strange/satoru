@@ -498,6 +498,66 @@ fn validate_swap_path(
 fn validate_enabled_market(data_store: IDataStoreDispatcher, market: ContractAddress) { //TODO
 }
 
+/// @dev update the swap impact pool amount, if it is a positive impact amount
+/// cap the impact amount to the amount available in the swap impact pool
+/// # Arguments
+/// *`data_store` DataStore
+/// *`event_emitter` EventEmitter
+/// *`market` the market to apply to
+/// *`token` the token to apply to
+/// *`token_price` the price of the token
+/// *`price_impact_usd` the USD price impact
+/// # Returns
+/// The impact amount as integer
+fn apply_swap_impact_with_cap(
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    market: ContractAddress,
+    token: ContractAddress,
+    token_price: Price,
+    price_impact_usd: i128
+) -> i128 {
+    // TODO: implement
+    return 0;
+}
+
+/// @dev validate that the pool amount is within the max allowed amount
+/// # Arguments
+/// *`data_store` DataStore
+/// *`market` the market to check
+/// *`token` the token to check
+fn validate_pool_amount(
+    data_store: IDataStoreDispatcher, market: @Market, token: ContractAddress
+) { // TODO
+}
+
+/// @dev validate that the amount of tokens required to be reserved
+/// is below the configured threshold
+/// # Arguments
+/// * `data_store` DataStore
+/// * `market` the market values
+/// * `prices` the prices of the market tokens
+/// * `is_long` whether to check the long or short side
+fn validata_reserve(
+    data_store: IDataStoreDispatcher, market: @Market, prices: @MarketPrices, is_long: bool
+) { // TODO
+}
+
+// @dev validate that the pending pnl is below the allowed amount
+/// * `data_store` DataStore
+/// * `market` the market to check
+/// * `prices` the prices of the market tokens
+/// * `pnl_factor_type_for_longs` the pnl factor type to check
+/// * `pnl_factor_type_for_shorts` the pnl factor type to check
+fn validate_max_pnl(
+    data_store: IDataStoreDispatcher,
+    market: @Market,
+    prices: @MarketPrices,
+    pnl_factor_type_for_longs: felt252,
+    pnl_factor_type_for_shorts: felt252
+) { // TODO
+}
+
 /// Validata the open interest.
 /// # Arguments
 /// * `data_store` - The data store to use.
