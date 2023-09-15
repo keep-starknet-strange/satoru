@@ -71,6 +71,7 @@ mod BaseOrderHandler {
     use satoru::referral::referral_storage::interface::{
         IReferralStorageDispatcher, IReferralStorageDispatcherTrait
     };
+    use satoru::utils::span32::Array32Trait;
 
     // *************************************************************************
     //                              STORAGE
@@ -204,7 +205,7 @@ mod BaseOrderHandler {
                 ui_fee_receiver: address_zero,
                 market: address_zero,
                 initial_collateral_token: address_zero,
-                // TODO use span swap_path: ArrayTrait::new(),
+                swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
                 size_delta_usd: 0,
                 initial_collateral_delta_amount: 0,
                 trigger_price: 0,

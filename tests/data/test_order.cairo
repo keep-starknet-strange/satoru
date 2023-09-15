@@ -5,6 +5,7 @@ use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
 use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
 use satoru::tests_lib::{setup, teardown};
+use satoru::utils::span32::{Span32, Array32Trait};
 
 use snforge_std::{PrintTrait, declare, start_prank, stop_prank, ContractClassTrait};
 
@@ -435,9 +436,10 @@ fn create_new_order(
     let decrease_position_swap_type = DecreasePositionSwapType::NoSwap(());
     let callback_contract = contract_address_const::<'callback_contract'>();
     let ui_fee_receiver = contract_address_const::<'ui_fee_receiver'>();
-    let mut swap_path = array![];
-    swap_path.append(contract_address_const::<'swap_path_0'>());
-    swap_path.append(contract_address_const::<'swap_path_1'>());
+    let swap_path: Span32<ContractAddress> = array![
+        contract_address_const::<'swap_path_0'>(), contract_address_const::<'swap_path_1'>()
+    ]
+        .span32();
     let size_delta_usd = 1000 * order_no;
     let initial_collateral_delta_amount = 1000 * order_no;
     let trigger_price = 11111 * order_no;
@@ -459,7 +461,7 @@ fn create_new_order(
         ui_fee_receiver,
         market,
         initial_collateral_token,
-        //swap_path,
+        swap_path,
         size_delta_usd,
         initial_collateral_delta_amount,
         trigger_price,
@@ -473,40 +475,3 @@ fn create_new_order(
         is_frozen,
     }
 }
-
-/// Utility function to assert order structs
-/// This function will panic if any of the following fields do not match between the two orders:
-/// # Arguments
-///
-/// * `order1` - First order struct 
-/// * `order2` - Second order struct.
-fn assert_order_eq(order1: @Order, order2: @Order) {
-    assert(order1.account == order2.account, 'invalid account ');
-    assert(order1.receiver == order2.receiver, 'invalid receiver ');
-    assert(order1.callback_contract == order2.callback_contract, 'invalid callback_contract ');
-    assert(order1.ui_fee_receiver == order2.ui_fee_receiver, 'invalid ui_fee_receiver ');
-    assert(order1.market == order2.market, 'invalid market ');
-    assert(
-        order1.initial_collateral_token == order2.initial_collateral_token,
-        'invalid collateral_token '
-    );
-
-    assert(order1.size_delta_usd == order2.size_delta_usd, 'invalid size_delta_usd ');
-    assert(
-        order1.initial_collateral_delta_amount == order2.initial_collateral_delta_amount,
-        'invalid col_delta_amount '
-    );
-    assert(order1.trigger_price == order2.trigger_price, 'invalid trigger_price ');
-    assert(order1.acceptable_price == order2.acceptable_price, 'invalid acceptable_price ');
-    assert(order1.execution_fee == order2.execution_fee, 'invalid execution_fee ');
-    assert(order1.callback_gas_limit == order2.callback_gas_limit, 'invalid callback_gas_limit ');
-    assert(order1.min_output_amount == order2.min_output_amount, 'invalid min_output_amount ');
-    assert(order1.updated_at_block == order2.updated_at_block, 'invalid updated_at_block ');
-    assert(order1.is_long == order2.is_long, 'invalid is_long ');
-    assert(
-        order1.should_unwrap_native_token == order2.should_unwrap_native_token,
-        'invalid unwrap_native_token '
-    );
-    assert(order1.is_frozen == order2.is_frozen, 'invalid is_frozen ');
-}
-

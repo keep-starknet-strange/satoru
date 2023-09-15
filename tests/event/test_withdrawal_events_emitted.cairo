@@ -6,7 +6,7 @@ use snforge_std::{
 
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::withdrawal::withdrawal::Withdrawal;
-use satoru::tests_lib::{setup_event_emitter};
+use satoru::tests_lib::setup_event_emitter;
 
 #[test]
 fn test_emit_withdrawal_created() {
@@ -119,7 +119,7 @@ fn test_emit_withdrawal_cancelled() {
     reason_bytes.serialize(ref expected_data);
 
     // Emit the event.
-    event_emitter.emit_withdrawal_cancelled(key, reason, reason_bytes);
+    event_emitter.emit_withdrawal_cancelled(key, reason, reason_bytes.span());
 
     // Assert the event was emitted.
     spy

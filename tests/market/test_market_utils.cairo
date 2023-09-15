@@ -56,13 +56,13 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
     let short_token = contract_address_const::<'short_token'>();
     let market_type = 'market_type';
 
-    let (market_token_deployed_address, market_id) = market_factory
+    let market_token_deployed_address = market_factory
         .create_market(index_token, long_token, short_token, market_type);
 
     // Get the market from the data store.
     // This must not panic, because the market was created in the previous step.
     // Hence the market must exist in the data store and it's safe to unwrap.
-    let market = data_store.get_market(market_id).unwrap();
+    let market = data_store.get_market(market_token_deployed_address).unwrap();
 
     let collateral_token = contract_address_const::<'collateral_token'>();
     let is_long = true;

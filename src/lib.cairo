@@ -3,6 +3,7 @@
 // `adl` is a module to help with auto-deleveraging.
 mod adl {
     mod adl_utils;
+    mod error;
 }
 
 // `bank` is a module handling storing and transferring of tokens.
@@ -50,6 +51,7 @@ mod event {
 mod data {
     mod data_store;
     mod keys;
+    mod error;
 }
 
 // `deposit` handles the depositing of funds into the system.
@@ -57,6 +59,7 @@ mod deposit {
     mod deposit;
     mod deposit_utils;
     mod deposit_vault;
+    mod error;
     mod execute_deposit_utils;
 }
 

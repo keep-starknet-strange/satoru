@@ -14,6 +14,7 @@ use satoru::utils::store_arrays::StoreContractAddressArray;
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
+use satoru::utils::span32::Span32;
 
 /// Helps with deposit creation.
 #[derive(Drop, starknet::Store, Serde)]
@@ -31,9 +32,9 @@ struct CreateDepositParams {
     /// The initial short token address.
     initial_short_token: ContractAddress,
     /// The swap path into markets for the long token.
-    long_token_swap_path: Array<ContractAddress>,
+    long_token_swap_path: Span32<ContractAddress>,
     /// The swap path into markets for the short token.
-    short_token_swap_path: Array<ContractAddress>,
+    short_token_swap_path: Span32<ContractAddress>,
     /// The minimum acceptable number of liquidity tokens.
     min_market_tokens: u128,
     /// Whether to unwrap the native token when sending funds back

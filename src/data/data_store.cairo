@@ -7,7 +7,9 @@ use core::traits::Into;
 use starknet::ContractAddress;
 use satoru::market::market::Market;
 use satoru::order::order::Order;
+use satoru::position::position::Position;
 use satoru::withdrawal::withdrawal::Withdrawal;
+use satoru::deposit::deposit::Deposit;
 
 // *************************************************************************
 //                  Interface of the `DataStore` contract.
@@ -163,14 +165,34 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to get the value for.
     /// # Returns
     /// The value for the given key.
-    fn get_market(self: @TContractState, key: felt252) -> Option<Market>;
+    fn get_market(self: @TContractState, key: ContractAddress) -> Option<Market>;
 
     /// Set a market value for the given key.
     /// # Arguments
     /// * `key` - The key to set the value for.
     /// * `value` - The value to set.
-    fn set_market(ref self: TContractState, key: felt252, market: Market);
-
+    fn set_market(ref self: TContractState, key: ContractAddress, salt: felt252, market: Market);
+    /// Get a market value for the given salt.
+    /// # Arguments
+    /// * `salt` - The salt to get the value for.
+    /// # Returns
+    /// The value for the given key.
+    fn get_by_salt_market(self: @TContractState, salt: felt252) -> Option<Market>;
+    fn remove_market(ref self: TContractState, key: ContractAddress);
+    /// Get a hash given salt.
+    /// # Arguments
+    /// * `salt` - The salt to hash.
+    /// # Returns
+    /// The hash of the salt.
+    fn get_market_salt_hash(self: @TContractState, salt: felt252) -> felt252;
+    fn get_market_count(self: @TContractState) -> u32;
+    /// Get market between start and end.
+    /// # Arguments
+    /// * `start` - The start index, included.
+    /// * `end` - The end index, not included.
+    /// # Returns
+    /// Array of markets contract addresses.
+    fn get_market_keys(self: @TContractState, start: usize, end: usize) -> Array<ContractAddress>;
 
     // *************************************************************************
     //                      Order related functions.
@@ -224,6 +246,56 @@ trait IDataStore<TContractState> {
 
 
     // *************************************************************************
+    //                      Postion related functions.
+    // *************************************************************************
+    /// Get a position value for the given key.
+    /// # Arguments
+    /// * `key` - The key to get the value for.
+    /// # Returns
+    /// The value for the given key.
+    fn get_position(self: @TContractState, key: felt252) -> Option<Position>;
+
+    /// Set a position value for the given key.
+    /// # Arguments
+    /// * `key` - The key to set the value for.
+    /// * `value` - The value to set.
+    fn set_position(ref self: TContractState, key: felt252, position: Position);
+
+    /// Remove a position value for the given key.
+    /// # Arguments
+    /// * `key` - The key to remove the value for.
+    /// * `account` - The account to remove key for.
+    fn remove_position(ref self: TContractState, key: felt252, account: ContractAddress);
+
+
+    /// Return position keys between start - end  indexes
+    /// # Arguments
+    /// * `start` - Start index
+    /// * `end` - Start index
+    fn get_position_keys(self: @TContractState, start: usize, end: usize) -> Array<felt252>;
+
+    // TODO checkk
+    /// Return total position count
+    fn get_position_count(self: @TContractState) -> u32;
+
+    /// Returns the number of position made by a specific account.
+    ///
+    /// # Arguments
+    ///
+    /// * `account` - The account address to retrieve the position count for.
+    fn get_account_position_count(self: @TContractState, account: ContractAddress) -> u32;
+
+
+    /// Return position keys between start - end  indexes for given account
+    /// # Arguments
+    /// * `account` - The position account 
+    /// * `start` - Start index
+    /// * `end` - Start index
+    fn get_account_position_keys(
+        self: @TContractState, account: ContractAddress, start: usize, end: usize
+    ) -> Array<felt252>;
+
+    // *************************************************************************
     //                      Withdrawal related functions.
     // *************************************************************************
     /// Get a withdrawal value for the given key.
@@ -272,6 +344,52 @@ trait IDataStore<TContractState> {
     fn get_account_withdrawal_keys(
         self: @TContractState, account: ContractAddress, start: u32, end: u32
     ) -> Array<felt252>;
+
+    // *************************************************************************
+    //                      Deposit related functions.
+    // *************************************************************************
+
+    /// Get a deposit value for the given key.
+    /// # Arguments
+    /// * `key` - The key to get the value for.
+    /// # Returns
+    /// The value for the given key.
+    fn get_deposit(self: @TContractState, key: felt252) -> Option<Deposit>;
+
+    /// Set a deposit value for the given key.
+    /// # Arguments
+    /// * `key` - The key to set the value for.
+    /// * `value` - The value to set.
+    fn set_deposit(ref self: TContractState, key: felt252, deposit: Deposit);
+
+    /// Remove a deposit value for the given key.
+    /// # Arguments
+    /// * `key` - The key to remove the value for.
+    /// * `account` - The account to remove key for.
+    fn remove_deposit(ref self: TContractState, key: felt252, account: ContractAddress);
+
+    /// Return deposit keys between start - end  indexes
+    /// # Arguments
+    /// * `start` - Start index
+    /// * `end` - Start index
+    fn get_deposit_keys(self: @TContractState, start: usize, end: usize) -> Array<felt252>;
+
+    fn get_deposit_count(self: @TContractState) -> u32;
+
+    /// Returns the number of deposit made by a specific account.
+    /// # Arguments
+    /// * `account` - The account address to retrieve the position count for.
+    fn get_account_deposit_count(self: @TContractState, account: ContractAddress) -> u32;
+
+    /// Return deposit keys between start - end  indexes for given account
+    /// # Arguments
+    /// * `account` - The deposit account 
+    /// * `start` - Start index
+    /// * `end` - Start index
+    fn get_account_deposit_keys(
+        self: @TContractState, account: ContractAddress, start: u32, end: u32
+    ) -> Array<felt252>;
+
 
     //TODO: Update u128 to i128 when Serde and Store for i128 implementations are released.
     // *************************************************************************
@@ -325,13 +443,17 @@ mod DataStore {
     use zeroable::Zeroable;
     use alexandria_storage::list::{ListTrait, List};
     use debug::PrintTrait;
+    use poseidon::poseidon_hash_span;
 
     // Local imports.
     use satoru::role::role;
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use satoru::market::market::{Market, ValidateMarket};
+    use satoru::market::{market::{Market, ValidateMarket}, error::MarketError};
+    use satoru::data::error::DataError;
     use satoru::order::{order::Order, error::OrderError};
+    use satoru::position::{position::Position, error::PositionError};
     use satoru::withdrawal::{withdrawal::Withdrawal, error::WithdrawalError};
+    use satoru::deposit::{deposit::Deposit, error::DepositError};
 
     // *************************************************************************
     //                              STORAGE
@@ -345,14 +467,30 @@ mod DataStore {
         i128_values: LegacyMap::<felt252, u128>,
         address_values: LegacyMap::<felt252, ContractAddress>,
         bool_values: LegacyMap::<felt252, Option<bool>>,
-        market_values: LegacyMap::<felt252, Market>,
+        /// Market storage
+        market_values: LegacyMap::<ContractAddress, Market>,
+        markets: List<Market>,
+        market_indexes: LegacyMap::<ContractAddress, usize>,
+        /// Order storage
+        order_values: LegacyMap::<felt252, Order>,
         orders: List<Order>,
         account_orders: LegacyMap<ContractAddress, List<felt252>>,
         order_indexes: LegacyMap::<felt252, usize>,
+        /// Position storage
+        positions: List<Position>,
+        account_positions: LegacyMap<ContractAddress, List<felt252>>,
+        position_indexes: LegacyMap::<felt252, usize>,
+        /// Withdrawal storage
         withdrawals: List<Withdrawal>,
         account_withdrawals: LegacyMap<ContractAddress, List<felt252>>,
         withdrawal_indexes: LegacyMap::<felt252, usize>,
+        /// Deposit storage
+        deposits: List<Deposit>,
+        account_deposits: LegacyMap<ContractAddress, List<felt252>>,
+        deposit_indexes: LegacyMap::<felt252, usize>,
     }
+
+    const MARKET: felt252 = 'MARKET_SALT';
 
     // *************************************************************************
     //                              CONSTRUCTOR
@@ -604,26 +742,108 @@ mod DataStore {
         //                      Market related functions.
         // *************************************************************************
 
-        fn get_market(self: @ContractState, key: felt252) -> Option<Market> {
-            let market = self.market_values.read(key);
+        fn get_market(self: @ContractState, key: ContractAddress) -> Option<Market> {
+            let offsetted_index: usize = self.market_indexes.read(key);
+            if offsetted_index == 0 {
+                return Option::None;
+            }
+            let orders: List<Market> = self.markets.read();
+            orders.get(offsetted_index - 1)
+        }
 
-            // We use the zero address to indicate that the market does not exist.
-            if market.index_token.is_zero() {
-                Option::None
-            } else {
-                Option::Some(market)
+        fn set_market(
+            ref self: ContractState, key: ContractAddress, salt: felt252, market: Market
+        ) {
+            // Check that the caller has permission to set the value.
+            self.role_store.read().assert_only_role(get_caller_address(), role::MARKET_KEEPER);
+
+            let mut markets = self.markets.read();
+
+            // Because default values in storage are 0, indexes are offseted by 1.
+            let offsetted_index: usize = self.market_indexes.read(key);
+            assert(offsetted_index <= markets.len(), MarketError::MARKET_NOT_FOUND);
+
+            // If the index is 0, it means the key has not been registered yet and
+            // we need to append the order to the list.
+            if offsetted_index == 0 {
+                // Valid indexes start from 1.
+                self.market_indexes.write(key, markets.len() + 1);
+                markets.append(market);
+                return;
+            }
+            let index = offsetted_index - 1;
+            self.set_address(self.get_market_salt_hash(salt), key);
+            markets.set(index, market);
+        }
+
+        fn remove_market(ref self: ContractState, key: ContractAddress) {
+            // Check that the caller has permission to remove the market.
+            self.role_store.read().assert_only_role(get_caller_address(), role::MARKET_KEEPER);
+            let offsetted_index: usize = self.market_indexes.read(key);
+            let mut markets = self.markets.read();
+            assert(offsetted_index <= markets.len(), MarketError::MARKET_NOT_FOUND);
+
+            let index = offsetted_index - 1;
+            // Replace the value at `index` by the last market in the list.
+
+            // Specifically handle case where there is only one market
+            let last_market_index = markets.len() - 1;
+            if index == last_market_index {
+                markets.pop_front();
+                self.market_indexes.write(key, 0);
+                return;
+            }
+
+            let mut last_market_maybe = markets.pop_front();
+            match last_market_maybe {
+                Option::Some(last_market) => {
+                    markets.set(index, last_market);
+                    self.market_indexes.write(last_market.market_token.into(), offsetted_index);
+                    self.market_indexes.write(key, 0);
+                },
+                Option::None => {
+                    // This case should never happen, because index is always <= length
+                    return;
+                }
             }
         }
 
-        fn set_market(ref self: ContractState, key: felt252, market: Market) {
-            // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+        fn get_market_keys(
+            self: @ContractState, start: usize, mut end: usize
+        ) -> Array<ContractAddress> {
+            let markets = self.markets.read();
+            let mut keys: Array<ContractAddress> = Default::default();
+            assert(start <= end, 'start must be <= end');
+            if start >= markets.len() {
+                return keys;
+            }
 
-            // Assert that the market is valid.
-            market.assert_valid();
+            if end > markets.len() {
+                end = markets.len()
+            }
+            let mut i = start;
+            loop {
+                if i == end {
+                    break;
+                }
+                let market: Market = markets[i];
+                keys.append(market.market_token);
+                i = i + 1;
+            };
+            keys
+        }
 
-            // Set the value.
-            self.market_values.write(key, market);
+        fn get_market_count(self: @ContractState,) -> u32 {
+            self.markets.read().len()
+        }
+
+        fn get_by_salt_market(self: @ContractState, salt: felt252) -> Option<Market> {
+            let key = self.get_address(self.get_market_salt_hash(salt));
+            self.get_market(key)
+        }
+
+        fn get_market_salt_hash(self: @ContractState, salt: felt252) -> felt252 {
+            poseidon_hash_span(array![MARKET, salt].span())
         }
 
         // *************************************************************************
@@ -756,6 +976,138 @@ mod DataStore {
             };
             keys
         }
+
+        // *************************************************************************
+        //                      Position related functions.
+        // *************************************************************************
+
+        fn get_position(self: @ContractState, key: felt252) -> Option<Position> {
+            let offsetted_index: usize = self.position_indexes.read(key);
+            if offsetted_index == 0 {
+                return Option::None;
+            }
+            let positions: List<Position> = self.positions.read();
+            positions.get(offsetted_index - 1)
+        }
+
+        fn set_position(ref self: ContractState, key: felt252, position: Position) {
+            // Check that the caller has permission to set the value.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            assert(position.account != 0.try_into().unwrap(), PositionError::CANT_BE_ZERO);
+
+            let mut positions = self.positions.read();
+            let mut account_positions = self.account_positions.read(position.account);
+
+            // Because default values in storage are 0, indexes are offseted by 1.
+            let offsetted_index: usize = self.position_indexes.read(key);
+            assert(offsetted_index <= positions.len(), PositionError::POSITION_NOT_FOUND);
+
+            // If the index is 0, it means the key has not been registered yet and
+            // we need to append the position to the list.
+            if offsetted_index == 0 {
+                // Valid indexes start from 1.
+                self.position_indexes.write(key, positions.len() + 1);
+                account_positions.append(key);
+                positions.append(position);
+                return;
+            }
+            let index = offsetted_index - 1;
+
+            positions.set(index, position);
+        }
+
+        fn remove_position(ref self: ContractState, key: felt252, account: ContractAddress) {
+            // Check that the caller has permission to remove the position.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            let offsetted_index: usize = self.position_indexes.read(key);
+            let mut positions = self.positions.read();
+            assert(offsetted_index <= positions.len(), PositionError::POSITION_NOT_FOUND);
+
+            let index = offsetted_index - 1;
+            // Replace the value at `index` by the last position in the list.
+
+            // Specifically handle case where there is only one position
+            let last_position_index = positions.len() - 1;
+            if index == last_position_index {
+                positions.pop_front();
+                self.position_indexes.write(key, 0);
+                self._remove_account_position(key, account);
+                return;
+            }
+
+            let mut last_position_maybe = positions.pop_front();
+            match last_position_maybe {
+                Option::Some(last_position) => {
+                    positions.set(index, last_position);
+                    self.position_indexes.write(last_position.key, offsetted_index);
+                    self.position_indexes.write(key, 0);
+                    self._remove_account_position(key, account)
+                },
+                Option::None => {
+                    // This case should never happen, because index is always <= length
+                    return;
+                }
+            }
+        }
+
+        fn get_position_keys(self: @ContractState, start: usize, mut end: usize) -> Array<felt252> {
+            let positions = self.positions.read();
+            let mut keys: Array<felt252> = Default::default();
+            assert(start <= end, 'start must be <= end');
+            if start >= positions.len() {
+                return keys;
+            }
+
+            if end > positions.len() {
+                end = positions.len()
+            }
+            let mut i = start;
+            loop {
+                if i == end {
+                    break;
+                }
+                let position: Position = positions[i];
+                keys.append(position.key);
+                i = i + 1;
+            };
+            keys
+        }
+
+        fn get_position_count(self: @ContractState) -> u32 {
+            self.positions.read().len()
+        }
+
+        fn get_account_position_count(self: @ContractState, account: ContractAddress) -> u32 {
+            self.account_positions.read(account).len()
+        }
+
+        fn get_account_position_keys(
+            self: @ContractState, account: ContractAddress, start: u32, mut end: u32
+        ) -> Array<felt252> {
+            let mut keys: Array<felt252> = Default::default();
+            let mut account_positions = self.account_positions.read(account);
+
+            assert(start <= end, 'start must be <= end');
+            if start >= account_positions.len() {
+                return keys;
+            }
+
+            if end > account_positions.len() {
+                end = account_positions.len()
+            }
+
+            let mut i = start;
+            loop {
+                if i == end {
+                    break;
+                }
+                let key: felt252 = account_positions[i];
+                keys.append(key);
+                i += 1;
+            };
+            keys
+        }
+
         // *************************************************************************
         //                      Withdrawal related functions.
         // *************************************************************************
@@ -882,6 +1234,136 @@ mod DataStore {
             };
             keys
         }
+
+        // *************************************************************************
+        //                      Deposit related functions.
+        // *************************************************************************
+
+        fn get_deposit(self: @ContractState, key: felt252) -> Option<Deposit> {
+            let offsetted_index: usize = self.deposit_indexes.read(key);
+            if offsetted_index == 0 {
+                return Option::None;
+            }
+            let deposits: List<Deposit> = self.deposits.read();
+            deposits.get(offsetted_index - 1)
+        }
+
+        fn set_deposit(ref self: ContractState, key: felt252, deposit: Deposit) {
+            // Check that the caller has permission to set the value.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            assert(deposit.account != 0.try_into().unwrap(), DepositError::CANT_BE_ZERO);
+
+            let mut deposits = self.deposits.read();
+            let mut account_deposits = self.account_deposits.read(deposit.account);
+
+            // Because default values in storage are 0, indexes are offseted by 1.
+            let offsetted_index: usize = self.deposit_indexes.read(key);
+            assert(offsetted_index <= deposits.len(), DepositError::DEPOSIT_NOT_FOUND);
+
+            // If the index is 0, it means the key has not been registered yet and
+            // we need to append the deposit to the list.
+            if offsetted_index == 0 {
+                // Valid indexes start from 1.
+                self.deposit_indexes.write(key, deposits.len() + 1);
+                account_deposits.append(key);
+                deposits.append(deposit);
+                return;
+            }
+            let index = offsetted_index - 1;
+            deposits.set(index, deposit);
+        }
+
+        fn remove_deposit(ref self: ContractState, key: felt252, account: ContractAddress) {
+            // Check that the caller has permission to remove the deposit.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            let offsetted_index: usize = self.deposit_indexes.read(key);
+            let mut deposits = self.deposits.read();
+            assert(offsetted_index <= deposits.len(), DepositError::DEPOSIT_NOT_FOUND);
+
+            let index = offsetted_index - 1;
+            // Replace the value at `index` by the last deposit in the list.
+
+            // Specifically handle case where there is only one deposit
+            let last_deposit_index = deposits.len() - 1;
+            if index == last_deposit_index {
+                deposits.pop_front();
+                self.deposit_indexes.write(key, 0);
+                self._remove_account_deposit(key, account);
+                return;
+            }
+
+            let mut last_deposit_maybe = deposits.pop_front();
+            match last_deposit_maybe {
+                Option::Some(last_deposit) => {
+                    deposits.set(index, last_deposit);
+                    self.deposit_indexes.write(last_deposit.key, offsetted_index);
+                    self.deposit_indexes.write(key, 0);
+                    self._remove_account_deposit(key, account)
+                },
+                Option::None => {
+                    // This case should never happen, because index is always <= length
+                    return;
+                }
+            }
+        }
+
+        fn get_deposit_keys(self: @ContractState, start: usize, mut end: usize) -> Array<felt252> {
+            let deposits = self.deposits.read();
+            let mut keys: Array<felt252> = Default::default();
+            assert(start <= end, 'start must be <= end');
+            if start >= deposits.len() {
+                return keys;
+            }
+
+            if end > deposits.len() {
+                end = deposits.len()
+            }
+            let mut i = start;
+            loop {
+                if i == end {
+                    break;
+                }
+                let deposit = deposits[i];
+                keys.append(deposit.key);
+                i = i + 1;
+            };
+            keys
+        }
+
+        fn get_deposit_count(self: @ContractState) -> u32 {
+            self.deposits.read().len
+        }
+
+        fn get_account_deposit_count(self: @ContractState, account: ContractAddress) -> u32 {
+            self.account_deposits.read(account).len()
+        }
+
+        fn get_account_deposit_keys(
+            self: @ContractState, account: ContractAddress, start: u32, mut end: u32
+        ) -> Array<felt252> {
+            let mut keys: Array<felt252> = Default::default();
+            let mut account_deposits = self.account_deposits.read(account);
+
+            assert(start <= end, 'start must be <= end');
+            if start >= account_deposits.len() {
+                return keys;
+            }
+
+            if end > account_deposits.len() {
+                end = account_deposits.len()
+            }
+
+            let mut i = start;
+            loop {
+                if i == end {
+                    break;
+                }
+                let key = account_deposits[i];
+                keys.append(key);
+                i += 1;
+            };
+            keys
+        }
     }
 
     #[generate_trait]
@@ -934,6 +1416,68 @@ mod DataStore {
                                 break;
                             }
                             account_orders.set(i, last_key);
+                        },
+                        Option::None => {
+                            // This case should never happen, because index is always < length
+                            break;
+                        }
+                    }
+                    break;
+                }
+                i += 1;
+            }
+        }
+
+        fn _remove_account_deposit(
+            ref self: ContractState, key: felt252, account: ContractAddress
+        ) {
+            let mut account_deposits = self.account_deposits.read(account);
+            let mut i = 0;
+            loop {
+                if i == account_deposits.len() {
+                    break;
+                }
+                let deposit_key = account_deposits[i];
+                if deposit_key == key {
+                    let mut last_key_maybe = account_deposits.pop_front();
+                    match last_key_maybe {
+                        Option::Some(last_key) => {
+                            // If the list is empty, then there's no need to replace an existing key
+                            if account_deposits.len() == 0 {
+                                break;
+                            }
+                            account_deposits.set(i, last_key);
+                        },
+                        Option::None => {
+                            // This case should never happen, because index is always < length
+                            break;
+                        }
+                    }
+                    break;
+                }
+                i += 1;
+            }
+        }
+
+        fn _remove_account_position(
+            ref self: ContractState, key: felt252, account: ContractAddress
+        ) {
+            let mut account_positions = self.account_positions.read(account);
+            let mut i = 0;
+            loop {
+                if i == account_positions.len() {
+                    break;
+                }
+                let position_key: felt252 = account_positions[i];
+                if position_key == key {
+                    let mut last_key_maybe = account_positions.pop_front();
+                    match last_key_maybe {
+                        Option::Some(last_key) => {
+                            // If the list is empty, then there's no need to replace an existing key
+                            if account_positions.len() == 0 {
+                                break;
+                            }
+                            account_positions.set(i, last_key);
                         },
                         Option::None => {
                             // This case should never happen, because index is always < length
