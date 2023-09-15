@@ -41,7 +41,7 @@ fn apply_factor_roundup_magnitude(
 /// * `numerator` - The numerator that multiplies value.
 /// * `divisor` - The denominator that divides value.
 fn mul_div(value: u128, numerator: u128, denominator: u128) -> u128 { // TODO
-    0
+    (value * numerator) / denominator
 }
 
 /// Apply multiplication then division to value.

@@ -24,7 +24,7 @@ use satoru::price::price::{Price, PriceTrait};
 /// * `tokens` - Price of the market's long token.
 /// * `compacted_oracle_block_numbers` - Price of the market's short token.
 /// Struct to store the prices of tokens of a market
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Copy, Drop, starknet::Store, Serde)]
 struct MarketPrices {
     index_token_price: Price,
     long_token_price: Price,
@@ -523,4 +523,152 @@ fn is_pnl_factor_exceeded(
 ) -> (bool, u128, u128) {
     // TODO
     (true, 0, 0)
+}
+
+
+/// Get the capped pending pnl for a market
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market to get the pending PNL for.
+/// * `is_long` - Whether to get the long or short pending PNL.
+/// * `pnl` - The uncapped pnl of the market.
+/// * `pool_usd` - The USD value of the pool.
+/// * `pnl_factor_type` - The pnl factor type to use.
+/// # Returns
+/// The net pending pnl for a market
+fn get_capped_pnl(
+    data_store: IDataStoreDispatcher,
+    market: ContractAddress,
+    is_long: bool,
+    pnl: u128,
+    pool_usd: u128,
+    pnl_factor_type: felt252
+) -> u128 {
+    // TODOs
+    0
+}
+
+
+/// Validata that the specified market exists and is enabled
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market to validate.
+fn validate_enabled_market(data_store: IDataStoreDispatcher, market: Market) {
+    assert(!market.market_token.is_zero(), MarketError::EMPTY_MARKET);
+    let is_market_disabled = data_store.get_bool(keys::is_market_disabled_key(market.market_token));
+
+    match is_market_disabled {
+        Option::Some(result) => {
+            assert(!result, MarketError::DISABLED_MARKET);
+        },
+        Option::None => {
+            panic_with_felt252(MarketError::DISABLED_MARKET);
+        }
+    };
+}
+
+/// Validata if the given token is a collateral token of the market
+/// # Arguments
+/// * `market` - The market to validate.
+/// * `token` - The token to check
+fn validate_market_collateral_token(market: Market, token: ContractAddress) { // TODO
+}
+
+/// Get the token price from the stored MarketPrices
+/// # Arguments
+/// * `token` - The token to get the price for
+/// * `market` - The market values
+/// * `is_long` - Whether to get the long or short pending PNL.
+/// * `pnl` - The uncapped pnl of the market.
+/// * `pool_usd` - The USD value of the pool.
+/// * `pnl_factor_type` - The pnl factor type to use.
+/// # Returns
+/// The token price
+fn get_cached_token_price(token: ContractAddress, market: Market, prices: @MarketPrices,) -> Price {
+    // TODOs
+    Price { max: 0, min: 0 }
+}
+
+/// Get the max position impact factor for liquidations
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market.
+fn get_max_position_impact_factor_for_liquidations(
+    data_store: IDataStoreDispatcher, market: ContractAddress
+) -> u128 {
+    // TODOs
+    0
+}
+
+/// Get the min collateral factor
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market.
+fn get_min_collateral_factor(data_store: IDataStoreDispatcher, market: ContractAddress) -> u128 {
+    // TODOs
+    0
+}
+
+
+/// Get the min collateral factor for open interest
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market.
+/// * `open_interest_delta` - The change in open interest.
+/// * `is_long` - Whether it is for the long or short side
+fn get_min_collateral_factor_for_open_interest(
+    data_store: IDataStoreDispatcher, market: Market, open_interest_delta: u128, is_long: bool
+) -> u128 {
+    // TODOs
+    0
+}
+
+
+/// Update the funding state
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `event_emitter` - The event emitter.
+/// * `market` - The market.
+/// * `prices` - The market prices.
+fn update_funding_state(
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    market: Market,
+    prices: MarketPrices
+) { // TODO
+}
+
+/// Update the cumulative borrowing factor for a market
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `event_emitter` - The event emitter.
+/// * `market` - The market.
+/// * `prices` - The market prices.
+/// * `is_long` - Whether to update the long or short side.
+fn update_cumulative_borrowing_factor(
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    market: Market,
+    prices: MarketPrices,
+    is_long: bool
+) { // TODO
+}
+
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market.
+/// * `is_long` - Whether to update the long or short side.
+/// * `prev_position_size_in_usd` - The previous position size in USD.
+/// * `prev_position_borrowing_factor` - The previous position borrowing factor.
+/// * `next_position_size_in_usd` - The next position size in USD.
+/// * `next_position_borrowing_factor` - The next position borrowing factor.
+fn update_total_borrowing(
+    data_store: IDataStoreDispatcher,
+    market: ContractAddress,
+    is_long: bool,
+    prev_position_size_in_usd: u128,
+    prev_position_borrowing_factor: u128,
+    next_position_size_in_usd: u128,
+    next_position_borrowing_factor: u128
+) { // TODO
 }
