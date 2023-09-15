@@ -16,6 +16,8 @@ use satoru::price::price::{Price};
 use satoru::utils::store_arrays::{
     StoreContractAddressArray, StorePriceArray, StoreU128Array, StoreFelt252Array
 };
+use satoru::utils::arrays::{are_lte};
+use satoru::oracle::error::{OracleError};
 
 
 /// SetPricesParams struct for values required in Oracle.set_prices.
@@ -85,7 +87,13 @@ struct ReportInfo {
 /// * `block_number` - The block number to compare to.
 fn validate_block_number_within_range(
     min_oracle_block_numbers: Array<u128>, max_oracle_block_numbers: Array<u128>, block_number: u128
-) { // TODO
+) {
+    assert(
+        is_block_number_within_range(
+            min_oracle_block_numbers, max_oracle_block_numbers, block_number
+        ),
+        OracleError::ORACLE_BLOCK_NUMBER_NOT_WITHIN_RANGE
+    )
 }
 
 /// Validates wether a block number is in range.
@@ -98,8 +106,15 @@ fn validate_block_number_within_range(
 fn is_block_number_within_range(
     min_oracle_block_numbers: Array<u128>, max_oracle_block_numbers: Array<u128>, block_number: u128
 ) -> bool {
-    // TODO
-    true
+    if (!are_lte(min_oracle_block_numbers.span(), block_number)) {
+        return false;
+    }
+
+    if (!are_lte(max_oracle_block_numbers.span(), block_number)) {
+        return false;
+    }
+
+    return true;
 }
 
 /// Get the uncompacted price at the specified index.

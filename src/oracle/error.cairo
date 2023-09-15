@@ -119,5 +119,9 @@ mod OracleError {
     fn EMPTY_PRICE_FEED(data_1: ContractAddress) {
         panic(array!['empty price feed', data_1.into()])
     }
+
+    fn ORACLE_BLOCK_NUMBER_NOT_WITHIN_RANGE() {
+        panic(array!['block_number_not_within_range'])
+    }
 }
 
