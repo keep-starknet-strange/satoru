@@ -45,7 +45,7 @@ struct PoolParams {
 }
 
 /// Struct to contain swap fee values.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Drop, Clone, starknet::Store, Serde)]
 struct SwapFees {
     /// The fee amount for the fee receiver.
     fee_receiver_amount: u128,
@@ -60,11 +60,15 @@ struct SwapFees {
     /// The ui fee amount.
     ui_fee_amount: u128,
 }
+fn get_price_impact_usd(params : GetPriceImpactUsdParams) -> u128 { //TODO : change to i128
+    //TODO 
+    0
+}
 
 /// Called by get_price_impact_usd().
 /// # Returns
 /// The price impact in USD.
-fn get_price_impact_usd_(params: GetPriceImpactUsdParams) -> i128 {
+fn get_price_impact_usd_(params: GetPriceImpactUsdParams) -> i128 { 
     // TODO
     0
 }

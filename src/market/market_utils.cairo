@@ -24,7 +24,7 @@ use satoru::price::price::{Price, PriceTrait};
 /// * `tokens` - Price of the market's long token.
 /// * `compacted_oracle_block_numbers` - Price of the market's short token.
 /// Struct to store the prices of tokens of a market
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Drop, Copy, starknet::Store, Serde)]
 struct MarketPrices {
     index_token_price: Price,
     long_token_price: Price,
@@ -50,6 +50,53 @@ struct GetNextFundingAmountPerSizeResult {
     funding_fee_amount_per_size_delta: PositionType,
     claimable_funding_amount_per_size_delta: PositionType,
 }
+
+// @dev get the opposite token of the market
+// if the inputToken is the longToken return the shortToken and vice versa
+// @param inputToken the input token
+// @param market the market values
+// @return the opposite token
+fn get_opposite_token(input_token: ContractAddress, market: Market) -> ContractAddress {
+    if (input_token == market.long_token) {
+        market.short_token
+    } else if (input_token == market.short_token) {
+        market.long_token
+    } else {
+        assert(false, "false");
+        market.long_token //todo : remove
+    }
+//TODO revert Errors.UnableToGetOppositeToken(inputToken, market.marketToken);
+}
+
+// @dev get the token price from the stored MarketPrices
+// @param token the token to get the price for
+// @param the market values
+// @param the market token prices
+// @return the token price from the stored MarketPrices
+fn get_cached_token_price(token: ContractAddress, market: Market, prices: MarketPrices) -> Price {
+    if (token == market.long_token) {
+        prices.long_token_price
+    } else if (token == market.short_token) {
+        prices.short_token_price
+    } else if (token == market.index_token) {
+        prices.index_token_price
+    } else {
+        assert(false, "false");
+        prices.index_token_price //todo : remove 
+    }
+//TODO revert Errors.UnableToGetCachedTokenPrice(token, market.marketToken);
+}
+
+fn get_swap_impact_amount_with_cap(
+        dataStore : IDataStoreDispatcher,
+        market : ContractAddress,
+        token : ContractAddress,
+        tokenPrice : Price,
+        priceImpactUsd : u128 //TODO : check u128
+    ) -> u128 { //Todo : check u128
+        //TODO
+        return 0;
+    }
 
 /// Get the long and short open interest for a market based on the collateral token used.
 /// # Arguments
@@ -472,6 +519,11 @@ fn validate_open_interest(data_store: IDataStoreDispatcher, market: @Market, is_
 
     // Check that the open interest is not greater than the maximum open interest.
     assert(open_interest <= max_open_interest, MarketError::MAX_OPEN_INTEREST_EXCEEDED);
+}
+
+fn validate_swap_market(data_store: IDataStoreDispatcher, market: @Market) -> bool {
+    //TODO
+    true
 }
 
 // Get the min pnl factor after ADL

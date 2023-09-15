@@ -8,10 +8,11 @@ use core::traits::TryInto;
 // Local imports.
 use satoru::position::position::Position;
 use satoru::market::market::Market;
-use satoru::market::market_utils::MarketPrices;
-use satoru::price::price::Price;
-use satoru::pricing::position_pricing_utils::PositionFees;
-use satoru::pricing::swap_pricing_utils::SwapFees;
+use satoru::market::market_utils::{MarketPrices, get_opposite_token, get_cached_token_price, get_swap_impact_amount_with_cap, validate_swap_market};
+use satoru::price::price::{Price, PriceTrait};
+use satoru::pricing::position_pricing_utils::{PositionFees};
+use satoru::pricing::swap_pricing_utils::{SwapFees, get_swap_fees, get_price_impact_usd, GetPriceImpactUsdParams};
+use satoru::swap::swap_utils::SwapCache;
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
@@ -57,20 +58,92 @@ fn get_swap_amount_out(
     token_in: ContractAddress,
     amount_in: u128,
     ui_fee_receiver: ContractAddress
-) -> (u128, i128, SwapFees) {
-    // TODO
-    (
-        0,
-        0,
-        SwapFees {
-            fee_receiver_amount: 0,
-            fee_amount_for_pool: 0,
-            amount_after_fees: 0,
-            ui_fee_receiver: 0.try_into().unwrap(),
-            ui_fee_receiver_factor: 0,
-            ui_fee_amount: 0,
-        }
-    )
+) -> (u128, u128, SwapFees) { //Todo : change to (u128, i128, SwapFees)
+    let mut cache: SwapCache = SwapCache {
+        token_out: 0.try_into().unwrap(),
+        token_in_price: Price { min: 0, max: 0 },
+        token_out_price: Price { min: 0, max: 0 },
+        amount_in: 0,
+        amount_out: 0,
+        pool_amount_out: 0,
+        price_impact_usd: 0,
+        price_impact_amount: 0,
+    };
+
+    if (token_in != market.long_token
+        && token_in != market.short_token) { //Implement the error
+    }
+
+    validate_swap_market(data_store, @market);
+
+    cache.token_out = get_opposite_token(token_in, market);
+    cache.token_in_price = get_cached_token_price(token_in, market, prices);
+    cache.token_out_price = get_cached_token_price(cache.token_out, market, prices);
+
+    let param : GetPriceImpactUsdParams = GetPriceImpactUsdParams {
+            dataStore : data_store,
+            market : market,
+            token_a : token_in,
+            token_b : cache.token_out,
+            price_for_token_a : cache.token_in_price.mid_price(),
+            price_for_token_b : cache.token_out_price.mid_price(),
+            usd_delta_for_token_a : (amount_in * cache.token_in_price.mid_price()), //to int256?
+            usd_delta_for_token_b : (amount_in * cache.token_in_price.mid_price()) //todo : add `-` when i128 will implement Store
+        };
+
+    let price_impact_usd: u128 = get_price_impact_usd(param); //todo : check u128 to i128
+        
+    
+
+    let fees: SwapFees = get_swap_fees(
+        data_store, market.market_token, amount_in, price_impact_usd > 0, ui_fee_receiver
+    );
+
+    let mut impact_amount: u128 = 0; //todo : change to i128
+
+    if (price_impact_usd > 0) {
+        // when there is a positive price impact factor, additional tokens from the swap impact pool
+        // are withdrawn for the user
+        // for example, if 50,000 USDC is swapped out and there is a positive price impact
+        // an additional 100 USDC may be sent to the user
+        // the swap impact pool is decreased by the used amount
+
+        cache.amount_in = fees.clone().amount_after_fees;
+        //round amount_out down
+        cache.amount_out = cache.amount_in * cache.token_in_price.min / cache.token_out_price.max;
+        cache.pool_amount_out = cache.amount_out;
+
+        impact_amount =
+            get_swap_impact_amount_with_cap(
+                data_store,
+                market.market_token,
+                cache.token_out,
+                cache.token_out_price,
+                price_impact_usd
+            );
+
+        cache.amount_out += impact_amount; //todo : u256?
+    } else {
+        // when there is a negative price impact factor,
+        // less of the input amount is sent to the pool
+        // for example, if 10 ETH is swapped in and there is a negative price impact
+        // only 9.995 ETH may be swapped in
+        // the remaining 0.005 ETH will be stored in the swap impact pool
+
+        impact_amount =
+            get_swap_impact_amount_with_cap(
+                data_store,
+                market.market_token,
+                token_in,
+                cache.token_in_price,
+                price_impact_usd
+            );
+
+        //cache.amount_in = fees.amount_after_fees - (-impact_amount).into(); //TODO : when i128 will implement Store;
+        cache.amount_out = cache.amount_in * cache.token_in_price.min / cache.token_out_price.max;
+        cache.pool_amount_out = cache.amount_out;
+    }
+    (cache.amount_out, impact_amount, fees)
 }
 
 /// Calculates the execution price for a position update operation.
