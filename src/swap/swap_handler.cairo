@@ -63,7 +63,7 @@ mod SwapHandler {
             let mut role_module: RoleModule::ContractState =
                 RoleModule::unsafe_new_contract_state();
             role_module.only_controller();
-            swap_utils::swap(params)
+            swap_utils::swap(@params)
         }
     }
 }

@@ -55,6 +55,17 @@ struct Market {
     short_token: ContractAddress,
 }
 
+impl DefaultMarket of Default<Market> {
+    fn default() -> Market {
+        Market {
+            market_token: Zeroable::zero(),
+            index_token: Zeroable::zero(),
+            long_token: Zeroable::zero(),
+            short_token: Zeroable::zero()
+        }
+    }
+}
+
 // *************************************************************************
 //                      Market traits.
 // *************************************************************************

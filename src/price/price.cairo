@@ -1,7 +1,7 @@
 use zeroable::Zeroable;
 
 /// Price
-#[derive(Copy, starknet::Store, Drop, Serde)]
+#[derive(Copy, Default, starknet::Store, Drop, Serde)]
 struct Price {
     /// The minimum price.
     min: u128,
