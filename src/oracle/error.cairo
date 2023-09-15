@@ -35,7 +35,7 @@ mod OracleError {
         panic(array!['block number not sorted', data_1.into(), data_2.into()])
     }
 
-    fn ARRAY_OUT_OF_BOUNDS_FELT252(mut data_1: Span<felt252>, data_2: u128, msg: felt252) {
+    fn ARRAY_OUT_OF_BOUNDS_FELT252(mut data_1: Span<felt252>, data_2: usize, msg: felt252) {
         let mut data: Array<felt252> = array!['array out of bounds felt252'];
         let mut length = data_1.len();
         loop {
@@ -120,8 +120,16 @@ mod OracleError {
         panic(array!['empty price feed', data_1.into()])
     }
 
-    fn ORACLE_BLOCK_NUMBER_NOT_WITHIN_RANGE() {
+    fn BLOCK_NUMBER_NOT_WITHIN_RANGE() {
         panic(array!['block_number_not_within_range'])
+    }
+
+    fn EMPTY_COMPACTED_PRICE(data_1: usize) {
+        panic(array!['empty_compacted_price', data_1.into()])
+    }
+
+    fn EMPTY_COMPACTED_TIMESTAMP(data_1: usize) {
+        panic(array!['empty_compacted_timestamp', data_1.into()])
     }
 }
 

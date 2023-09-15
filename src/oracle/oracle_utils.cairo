@@ -16,7 +16,8 @@ use satoru::price::price::{Price};
 use satoru::utils::store_arrays::{
     StoreContractAddressArray, StorePriceArray, StoreU128Array, StoreFelt252Array
 };
-use satoru::utils::arrays::{are_lte};
+use satoru::utils::arrays::{are_lte, get_uncompacted_value};
+use satoru::utils::bits::{BITMASK_8, BITMASK_16, BITMASK_32, BITMASK_64};
 use satoru::oracle::error::{OracleError};
 
 
@@ -80,6 +81,36 @@ struct ReportInfo {
     max_price: u128,
 }
 
+// compacted prices have a length of 32 bits
+const COMPACTED_PRICE_BIT_LENGTH: usize = 32;
+fn COMPACTED_PRICE_BITMASK() -> u128 {
+    BITMASK_32
+}
+
+// compacted precisions have a length of 8 bits
+const COMPACTED_PRECISION_BIT_LENGTH: usize = 8;
+fn COMPACTED_PRECISION_BITMASK() -> u128 {
+    BITMASK_8
+}
+
+// compacted block numbers have a length of 64 bits
+const COMPACTED_BLOCK_NUMBER_BIT_LENGTH: usize = 64;
+fn COMPACTED_BLOCK_NUMBER_BITMASK() -> u128 {
+    BITMASK_64
+}
+
+// compacted timestamps have a length of 64 bits
+const COMPACTED_TIMESTAMP_BIT_LENGTH: usize = 64;
+fn COMPACTED_TIMESTAMP_BITMASK() -> u128 {
+    BITMASK_64
+}
+
+// compacted price indexes have a length of 8 bits
+const COMPACTED_PRICE_INDEX_BIT_LENGTH: usize = 8;
+fn COMPACTED_PRICE_INDEX_BITMASK() -> u128 {
+    BITMASK_8
+}
+
 /// Validates wether a block number is in range.
 /// # Arguments
 /// * `min_oracle_block_numbers` - The oracles block number that should be less than block_number.
@@ -88,12 +119,11 @@ struct ReportInfo {
 fn validate_block_number_within_range(
     min_oracle_block_numbers: Array<u128>, max_oracle_block_numbers: Array<u128>, block_number: u128
 ) {
-    assert(
-        is_block_number_within_range(
-            min_oracle_block_numbers, max_oracle_block_numbers, block_number
-        ),
-        OracleError::ORACLE_BLOCK_NUMBER_NOT_WITHIN_RANGE
-    )
+    if (!is_block_number_within_range(
+        min_oracle_block_numbers, max_oracle_block_numbers, block_number
+    )) {
+        OracleError::BLOCK_NUMBER_NOT_WITHIN_RANGE()
+    }
 }
 
 /// Validates wether a block number is in range.
@@ -114,7 +144,7 @@ fn is_block_number_within_range(
         return false;
     }
 
-    return true;
+    true
 }
 
 /// Get the uncompacted price at the specified index.
@@ -123,9 +153,20 @@ fn is_block_number_within_range(
 /// * `index` - The index to get the decimal at.
 /// # Returns
 /// The price at the specified index.
-fn get_uncompacted_price(compacted_prices: Span<u128>, index: u128) -> u128 {
-    // TODO
-    10
+fn get_uncompacted_price(compacted_prices: Span<u128>, index: usize) -> u128 {
+    let price = get_uncompacted_value(
+        compacted_prices,
+        index,
+        COMPACTED_PRICE_BIT_LENGTH,
+        COMPACTED_PRICE_BITMASK(),
+        "get_uncompacted_price"
+    );
+
+    if (price == 0) {
+        OracleError::EMPTY_COMPACTED_PRICE(index)
+    }
+
+    price
 }
 
 /// Get the uncompacted decimal at the specified index.
@@ -134,9 +175,16 @@ fn get_uncompacted_price(compacted_prices: Span<u128>, index: u128) -> u128 {
 /// * `index` - The index to get the decimal at.
 /// # Returns
 /// The decimal at the specified index.
-fn get_uncompacted_decimal(compacted_decimals: Span<u128>, index: u128) -> u128 {
-    // TODO
-    0
+fn get_uncompacted_decimal(compacted_decimals: Span<u128>, index: usize) -> u128 {
+    let decimal = get_uncompacted_value(
+        compacted_decimals,
+        index,
+        COMPACTED_PRECISION_BIT_LENGTH,
+        COMPACTED_PRECISION_BITMASK(),
+        "get_uncompacted_decimal"
+    );
+
+    decimal
 }
 
 /// Get the uncompacted price index at the specified index.
@@ -145,9 +193,16 @@ fn get_uncompacted_decimal(compacted_decimals: Span<u128>, index: u128) -> u128 
 /// * `index` - The index to get the price index at.
 /// # Returns
 /// The uncompacted price index at the specified index.
-fn get_uncompacted_price_index(compacted_price_indexes: Span<u128>, index: u128) -> u128 {
-    // TODO
-    0
+fn get_uncompacted_price_index(compacted_price_indexes: Span<u128>, index: usize) -> u128 {
+    let price_index = get_uncompacted_value(
+        compacted_price_indexes,
+        index,
+        COMPACTED_PRICE_INDEX_BIT_LENGTH,
+        COMPACTED_PRICE_INDEX_BITMASK(),
+        "get_uncompacted_price_index"
+    );
+
+    price_index
 }
 
 /// Get the uncompacted oracle block numbers.
@@ -159,8 +214,21 @@ fn get_uncompacted_price_index(compacted_price_indexes: Span<u128>, index: u128)
 fn get_uncompacted_oracle_block_numbers(
     compacted_oracle_block_numbers: Span<u64>, length: usize
 ) -> Array<u64> {
-    // TODO
-    ArrayTrait::new()
+    let mut block_numbers = ArrayTrait::new();
+
+    let mut i = 0;
+    loop {
+        if (i == length) {
+            break;
+        }
+
+        block_numbers
+            .append(get_uncompacted_oracle_block_number(compacted_oracle_block_numbers, i));
+
+        i += 1;
+    };
+
+    block_numbers
 }
 
 /// Get the uncompacted oracle block number.
@@ -172,8 +240,15 @@ fn get_uncompacted_oracle_block_numbers(
 fn get_uncompacted_oracle_block_number(
     compacted_oracle_block_numbers: Span<u64>, index: usize
 ) -> u64 {
-    // TODO
-    0
+    let block_number = get_uncompacted_value(
+        compacted_oracle_block_numbers,
+        index,
+        COMPACTED_BLOCK_NUMBER_BIT_LENGTH,
+        COMPACTED_BLOCK_NUMBER_BITMASK(),
+        "get_uncompacted_oracle_block_number"
+    );
+
+    block_number
 }
 
 /// Get the uncompacted oracle timestamp.
@@ -183,8 +258,19 @@ fn get_uncompacted_oracle_block_number(
 /// # Returns
 /// The uncompacted oracle timestamp.
 fn get_uncompacted_oracle_timestamp(compacted_oracle_timestamps: Span<u64>, index: usize) -> u64 {
-    // TODO
-    0
+    let timestamp = get_uncompacted_value(
+        compacted_oracle_timestamps,
+        index,
+        COMPACTED_TIMESTAMP_BIT_LENGTH,
+        COMPACTED_TIMESTAMP_BITMASK(),
+        "get_uncompacted_oracle_timestamp"
+    );
+
+    if (timestamp == 0) {
+        OracleError::EMPTY_COMPACTED_TIMESTAMP(index);
+    }
+
+    timestamp
 }
 
 /// Validate the signer of a price.

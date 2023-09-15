@@ -260,7 +260,7 @@ impl StoreContractAddressSpan of Store<Span<ContractAddress>> {
         mut offset: u8,
         mut value: Span<ContractAddress>
     ) -> SyscallResult<()> {
-        // // Store the length of the array in the first storage slot.
+        // Store the length of the array in the first storage slot.
         let len: u8 = value.len().try_into().expect('Storage - Span too large');
         Store::<u8>::write_at_offset(address_domain, base, offset, len);
         offset += 1;
