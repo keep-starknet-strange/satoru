@@ -67,6 +67,7 @@ mod LiquidationHandler {
     use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
     use satoru::liquidation::liquidation_utils::create_liquidation_order;
     use satoru::exchange::order_handler;
+    use debug::PrintTrait;
     use satoru::feature::feature_utils::validate_feature;
     use satoru::exchange::order_handler::{IOrderHandler, OrderHandler};
 
@@ -126,7 +127,7 @@ mod LiquidationHandler {
             collateral_token: ContractAddress,
             is_long: bool,
             oracle_params: SetPricesParams
-        ) { 
+        ) {
             let mut state_base: BaseOrderHandler::ContractState =
             BaseOrderHandler::unsafe_new_contract_state();
             let key: felt252 = create_liquidation_order(
