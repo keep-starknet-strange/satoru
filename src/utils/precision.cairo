@@ -3,6 +3,7 @@
 // *************************************************************************
 // Core lib imports.
 
+const FLOAT_PRECISION: u128 = 1000000000000000000000000000000;
 /// Applies the given factor to the given value and returns the result.
 /// # Arguments
 /// * `value` - The value to apply the factor to.

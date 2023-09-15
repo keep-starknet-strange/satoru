@@ -11,6 +11,7 @@ use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::market::market::{Market};
+use satoru::oracle::oracle::{SetPricesCache, SetPricesInnerCache};
 use satoru::price::price::{Price};
 use satoru::utils::store_arrays::{
     StoreContractAddressArray, StorePriceArray, StoreU128Array, StoreFelt252Array
@@ -31,13 +32,13 @@ use satoru::utils::store_arrays::{
 /// * `compacted_max_prices_indexes` - compacted max price indexes.
 /// * `signatures` - signatures of the oracle signers.
 /// * `price_feed_tokens` - tokens to set prices for based on an external price feed value.
-#[derive(Drop, Clone, Serde)]
+#[derive(Default, Drop, Clone, Serde)]
 struct SetPricesParams {
     signer_info: u128,
     tokens: Array<ContractAddress>,
     compacted_min_oracle_block_numbers: Array<u64>,
     compacted_max_oracle_block_numbers: Array<u64>,
-    compacted_oracle_timestamps: Array<u128>,
+    compacted_oracle_timestamps: Array<u64>,
     compacted_decimals: Array<u128>,
     compacted_min_prices: Array<u128>,
     compacted_min_prices_indexes: Array<u128>,
@@ -46,26 +47,6 @@ struct SetPricesParams {
     signatures: Array<felt252>,
     price_feed_tokens: Array<ContractAddress>,
 }
-
-impl DefaultSetPricesParams of Default<SetPricesParams> {
-    fn default() -> SetPricesParams {
-        SetPricesParams {
-            signer_info: 0,
-            tokens: ArrayTrait::<ContractAddress>::new(),
-            compacted_min_oracle_block_numbers: ArrayTrait::<u64>::new(),
-            compacted_max_oracle_block_numbers: ArrayTrait::<u64>::new(),
-            compacted_oracle_timestamps: ArrayTrait::<u128>::new(),
-            compacted_decimals: ArrayTrait::<u128>::new(),
-            compacted_min_prices: ArrayTrait::<u128>::new(),
-            compacted_min_prices_indexes: ArrayTrait::<u128>::new(),
-            compacted_max_prices: ArrayTrait::<u128>::new(),
-            compacted_max_prices_indexes: ArrayTrait::<u128>::new(),
-            signatures: ArrayTrait::<felt252>::new(),
-            price_feed_tokens: ArrayTrait::<ContractAddress>::new(),
-        }
-    }
-}
-
 
 #[derive(Drop, Clone, starknet::Store, Serde)]
 struct SimulatePricesParams {
@@ -84,11 +65,11 @@ struct SimulatePricesParams {
 /// * `precision` - The precision used for the signed message hash.
 /// * `min_price` - The min price used for the signed message hash.
 /// * `max_price` - The max price used for the signed message hash.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Copy, Drop, starknet::Store, Serde)]
 struct ReportInfo {
-    min_oracle_block_number: u128,
-    max_oracle_block_number: u128,
-    oracle_timestamp: u128,
+    min_oracle_block_number: u64,
+    max_oracle_block_number: u64,
+    oracle_timestamp: u64,
     block_hash: felt252,
     token: ContractAddress,
     token_oracle_type: felt252,
@@ -127,9 +108,9 @@ fn is_block_number_within_range(
 /// * `index` - The index to get the decimal at.
 /// # Returns
 /// The price at the specified index.
-fn get_uncompacted_price(compacted_prices: Array<u128>, index: u128) -> u128 {
+fn get_uncompacted_price(compacted_prices: Span<u128>, index: u128) -> u128 {
     // TODO
-    0
+    10
 }
 
 /// Get the uncompacted decimal at the specified index.
@@ -138,7 +119,7 @@ fn get_uncompacted_price(compacted_prices: Array<u128>, index: u128) -> u128 {
 /// * `index` - The index to get the decimal at.
 /// # Returns
 /// The decimal at the specified index.
-fn get_uncompacted_decimal(compacted_decimals: Array<u128>, index: u128) -> u128 {
+fn get_uncompacted_decimal(compacted_decimals: Span<u128>, index: u128) -> u128 {
     // TODO
     0
 }
@@ -149,7 +130,7 @@ fn get_uncompacted_decimal(compacted_decimals: Array<u128>, index: u128) -> u128
 /// * `index` - The index to get the price index at.
 /// # Returns
 /// The uncompacted price index at the specified index.
-fn get_uncompacted_price_index(compacted_price_indexes: Array<u128>, index: u128) -> u128 {
+fn get_uncompacted_price_index(compacted_price_indexes: Span<u128>, index: u128) -> u128 {
     // TODO
     0
 }
@@ -161,7 +142,7 @@ fn get_uncompacted_price_index(compacted_price_indexes: Array<u128>, index: u128
 /// # Returns
 /// The uncompacted oracle block numbers.
 fn get_uncompacted_oracle_block_numbers(
-    compacted_oracle_block_numbers: @Array<u64>, length: @usize
+    compacted_oracle_block_numbers: Span<u64>, length: usize
 ) -> Array<u64> {
     // TODO
     ArrayTrait::new()
@@ -174,7 +155,7 @@ fn get_uncompacted_oracle_block_numbers(
 /// # Returns
 /// The uncompacted oracle block number.
 fn get_uncompacted_oracle_block_number(
-    compacted_oracle_block_numbers: Array<u64>, index: usize
+    compacted_oracle_block_numbers: Span<u64>, index: usize
 ) -> u64 {
     // TODO
     0
@@ -186,7 +167,7 @@ fn get_uncompacted_oracle_block_number(
 /// * `index` - The index to get the uncompacted oracle timestamp at.
 /// # Returns
 /// The uncompacted oracle timestamp.
-fn get_uncompacted_oracle_timestamp(compacted_oracle_timestamps: Array<u128>, index: u128) -> u128 {
+fn get_uncompacted_oracle_timestamp(compacted_oracle_timestamps: Span<u64>, index: usize) -> u64 {
     // TODO
     0
 }
@@ -207,7 +188,7 @@ fn get_uncompacted_oracle_timestamp(compacted_oracle_timestamps: Array<u128>, in
 /// * `signature` - The signer's signature.
 /// * `expected_signer` - The address of the expected signer.
 fn validate_signer(
-    salt: felt252, info: ReportInfo, signature: Array<felt252>, expected_signer: ContractAddress
+    salt: felt252, info: ReportInfo, signature: felt252, expected_signer: @ContractAddress
 ) { // TODO
 }
 
@@ -249,3 +230,20 @@ fn is_oracle_block_number_error(error_selector: felt252) -> bool {
     // TODO
     true
 }
+
+impl DefaultReportInfo of Default<ReportInfo> {
+    fn default() -> ReportInfo {
+        ReportInfo {
+            min_oracle_block_number: 0,
+            max_oracle_block_number: 0,
+            oracle_timestamp: 0,
+            block_hash: 0,
+            token: Zeroable::zero(),
+            token_oracle_type: 0,
+            precision: 0,
+            min_price: 0,
+            max_price: 0,
+        }
+    }
+}
+
