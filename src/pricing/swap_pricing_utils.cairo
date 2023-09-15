@@ -77,7 +77,23 @@ impl DefaultSwapFees of Default<SwapFees> {
 /// Called by get_price_impact_usd().
 /// # Returns
 /// The price impact in USD.
-fn get_price_impact_usd_(params: GetPriceImpactUsdParams) -> i128 {
+/// TODO: replace input params by GetPriceImpactUsdParams when i128 will be supported
+fn get_price_impact_usd(
+    /// The `DataStore` contract dispatcher.
+    dataStore: IDataStoreDispatcher,
+    /// The market to check.
+    market: Market,
+    /// The token to check balance for.
+    token_a: ContractAddress,
+    /// The token to check balance for.
+    token_b: ContractAddress,
+    price_for_token_a: u128,
+    price_for_token_b: u128,
+    // The USD change in amount of token_a.
+    usd_delta_for_token_a: i128,
+    // The USD change in amount of token_b.
+    usd_delta_for_token_b: i128,
+) -> i128 {
     // TODO
     0
 }
