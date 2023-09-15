@@ -616,7 +616,7 @@ mod EventEmitter {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{ContractAddress, ClassHash};
+    use starknet::{ContractAddress, ClassHash, get_caller_address};
 
     // Local imports.
     use satoru::deposit::deposit::Deposit;

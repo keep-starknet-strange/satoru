@@ -525,6 +525,54 @@ fn is_pnl_factor_exceeded(
     (true, 0, 0)
 }
 
+// Check if the pending pnl exceeds the allowed amount
+// # Arguments
+// * `data_store` - The data_store dispatcher.
+// * `market` - The market to check.
+// * `prices` - The prices of the market tokens.
+// * `is_long` - Whether to check the long or short side.
+// * `pnl_factor_type` - The pnl factor type to check.
+fn is_pnl_factor_exceeded_direct(
+    data_store: IDataStoreDispatcher,
+    market: Market,
+    prices: MarketPrices,
+    is_long: bool,
+    pnl_factor_type: felt252
+) -> (bool, i128, u128) {
+    // TODO
+    (true, 0, 0)
+}
+
+
+// Get the enabled market, revert if the market does not exist or is not enabled
+// # Arguments
+// * `data_store` - The data_store dispatcher.
+// * `market` - The market address.
+fn get_enabled_market(
+    data_store: IDataStoreDispatcher, market_address: ContractAddress,
+) -> Market {
+    // TODO
+    Market {
+        market_token: 0.try_into().unwrap(),
+        index_token: 0.try_into().unwrap(),
+        long_token: 0.try_into().unwrap(),
+        short_token: 0.try_into().unwrap(),
+    }
+}
+
+// Get the enabled market, revert if the market does not exist or is not enabled
+// # Arguments
+// * `oracle` - The oracle distpatcher.
+// * `market` - The market values.
+fn get_market_prices(oracle: IOracleDispatcher, market: Market,) -> MarketPrices {
+    // TODO
+    MarketPrices {
+        index_token_price: Price { min: 100, max: 0 },
+        long_token_price: Price { min: 100, max: 0 },
+        short_token_price: Price { min: 100, max: 0 },
+    }
+}
+
 
 /// Get the capped pending pnl for a market
 /// # Arguments

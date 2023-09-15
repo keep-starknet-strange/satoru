@@ -3,6 +3,7 @@
 // `adl` is a module to help with auto-deleveraging.
 mod adl {
     mod adl_utils;
+    mod error;
 }
 
 // `bank` is a module handling storing and transferring of tokens.
