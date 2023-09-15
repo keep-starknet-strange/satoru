@@ -10,7 +10,10 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 use satoru::order::order::Order;
 use satoru::deposit::deposit::Deposit;
-use satoru::withdrawal::withdrawal::Withdrawal;
+use satoru::withdrawal::{
+    withdrawal::Withdrawal,
+    withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait}
+};
 
 /// Get the minimal gas to handle execution.
 /// # Arguments
@@ -43,7 +46,7 @@ fn get_execution_gas(data_store: IDataStoreDispatcher, starting_gas: u128) -> u1
 fn pay_execution_fee(
     data_store: IDataStoreDispatcher,
     event_emitter: IEventEmitterDispatcher,
-    bank: IStrictBankDispatcher,
+    bank: IWithdrawalVaultDispatcher,
     execution_fee: u256,
     starting_gas: u128,
     keeper: ContractAddress,

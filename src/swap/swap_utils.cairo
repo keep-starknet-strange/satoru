@@ -44,6 +44,26 @@ struct SwapParams {
     should_unwrap_native_token: bool,
 }
 
+impl DefaultSwapParams of Default<SwapParams> {
+    fn default() -> SwapParams {
+        let contract_address = Zeroable::zero();
+        SwapParams {
+            data_store: IDataStoreDispatcher { contract_address },
+            event_emitter: IEventEmitterDispatcher { contract_address },
+            oracle: IOracleDispatcher { contract_address },
+            bank: IBankDispatcher { contract_address },
+            key: 0,
+            token_in: contract_address,
+            amount_in: 0,
+            swap_path_markets: array![],
+            min_output_amount: 0,
+            receiver: contract_address,
+            ui_fee_receiver: contract_address,
+            should_unwrap_native_token: false,
+        }
+    }
+}
+
 #[derive(Drop, starknet::Store, Serde)]
 struct _SwapParams {
     /// The market in which the swap should be executed.
@@ -87,7 +107,7 @@ struct SwapCache {
 /// A tuple containing the address of the token that was received as
 /// part of the swap and the amount of the received token.
 #[inline(always)]
-fn swap(params: SwapParams) -> (ContractAddress, u128) {
+fn swap(params: @SwapParams) -> (ContractAddress, u128) {
     // TODO
     (0.try_into().unwrap(), 0)
 }

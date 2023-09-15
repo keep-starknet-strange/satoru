@@ -16,6 +16,15 @@ trait IWithdrawalVault<TContractState> {
     /// # Arguments
     /// * `strict_bank_address` - The address of the strict bank contract.
     fn initialize(ref self: TContractState, strict_bank_address: ContractAddress,);
+    fn record_transfer_in(ref self: TContractState, token: ContractAddress) -> u128;
+    fn transfer_out(
+        ref self: TContractState,
+        token: ContractAddress,
+        receiver: ContractAddress,
+        amount: u128,
+        should_unwrap_native_token: bool
+    );
+    fn sync_token_balance(ref self: TContractState, token: ContractAddress) -> u128;
 }
 
 #[starknet::contract]
@@ -70,6 +79,22 @@ mod WithdrawalVault {
                 WithdrawalError::ALREADY_INITIALIZED
             );
             self.strict_bank.write(IStrictBankDispatcher { contract_address: strict_bank_address });
+        }
+
+        fn record_transfer_in(ref self: ContractState, token: ContractAddress) -> u128 {
+            0
+        }
+
+        fn transfer_out(
+            ref self: ContractState,
+            token: ContractAddress,
+            receiver: ContractAddress,
+            amount: u128,
+            should_unwrap_native_token: bool
+        ) {}
+
+        fn sync_token_balance(ref self: ContractState, token: ContractAddress) -> u128 {
+            0
         }
     }
 }
