@@ -1,5 +1,5 @@
 /// Struct to store MarketPoolValue infos.
-#[derive(Drop, Copy, starknet::Store, Serde)]
+#[derive(Default, Drop, Copy, starknet::Store, Serde)]
 struct MarketPoolValueInfo {
     /// The pool value.
     pool_value: u128, // TODO replace with i128 when it derives Store
@@ -24,3 +24,4 @@ struct MarketPoolValueInfo {
     /// The amount of tokens in the impact pool.
     impact_pool_amount: u128,
 }
+

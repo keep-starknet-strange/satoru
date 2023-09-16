@@ -183,7 +183,7 @@ mod WithdrawalHandler {
             );
 
             exchange_utils::validate_request_cancellation(
-                data_store, withdrawal.updated_at_block.try_into().unwrap(), 'Withdrawal'
+                data_store, starknet::get_block_timestamp(), 'Withdrawal'
             );
 
             withdrawal_utils::cancel_withdrawal(
@@ -332,10 +332,10 @@ mod WithdrawalHandler {
             );
 
             let min_oracle_block_numbers = oracle_utils::get_uncompacted_oracle_block_numbers(
-                @oracle_params.compacted_min_oracle_block_numbers, @oracle_params.tokens.len()
+                oracle_params.compacted_min_oracle_block_numbers.span(), oracle_params.tokens.len()
             );
             let max_oracle_block_numbers = oracle_utils::get_uncompacted_oracle_block_numbers(
-                @oracle_params.compacted_max_oracle_block_numbers, @oracle_params.tokens.len()
+                oracle_params.compacted_max_oracle_block_numbers.span(), oracle_params.tokens.len()
             );
 
             let params: withdrawal_utils::ExecuteWithdrawalParams =

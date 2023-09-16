@@ -1,7 +1,6 @@
 use satoru::utils::u128_mask::validate_unique_and_set_index;
 use integer::BoundedInt;
 
-
 #[test]
 fn test_valid_index_bit_not_set() {
     let mut mask = 0b0000_0000;

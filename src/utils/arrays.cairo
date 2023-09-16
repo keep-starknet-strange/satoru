@@ -9,7 +9,14 @@
 /// * `index` - The index to get the element at.
 /// # Returns
 /// Element at index if found, else 0.
-fn get(arr: Span<felt252>, index: usize) -> felt252 {
+fn get_felt252(arr: Span<felt252>, index: usize) -> felt252 {
+    match arr.get(index) {
+        Option::Some(value) => *value.unbox(),
+        Option::None => 0,
+    }
+}
+
+fn get_u128(arr: @Array<u128>, index: usize) -> u128 {
     match arr.get(index) {
         Option::Some(value) => *value.unbox(),
         Option::None => 0,
