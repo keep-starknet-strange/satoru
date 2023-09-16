@@ -16,7 +16,7 @@ use satoru::role::{
 };
 
 #[test]
-fn test_role_module_only_self() {
+fn given_normal_conditions_when_only_self_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -39,7 +39,7 @@ fn test_role_module_only_self() {
 
 #[test]
 #[should_panic]
-fn test_role_module_not_self() {
+fn given_not_self_when_only_self_then_fails() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -61,7 +61,7 @@ fn test_role_module_not_self() {
 }
 
 #[test]
-fn test_role_module_only_timelock_multisig() {
+fn given_not_self_when_only_timelock_multisig_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -88,7 +88,7 @@ fn test_role_module_only_timelock_multisig() {
 
 #[test]
 #[should_panic]
-fn test_role_module_not_timelock_multisig() {
+fn given_not_timelock_multisig_when_only_timelock_multisig_then_fails() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -112,7 +112,7 @@ fn test_role_module_not_timelock_multisig() {
 }
 
 #[test]
-fn test_role_module_only_timelock_admin() {
+fn given_normal_conditions_when_only_timelock_admin_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -138,7 +138,7 @@ fn test_role_module_only_timelock_admin() {
 
 #[test]
 #[should_panic]
-fn test_role_module_not_timelock_admin() {
+fn given_not_timelock_admin_when_only_timelock_admin_then_fails() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -161,7 +161,7 @@ fn test_role_module_not_timelock_admin() {
 }
 
 #[test]
-fn test_role_module_only_config_keeper() {
+fn given_normal_conditions_when_only_config_keeper_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -188,7 +188,7 @@ fn test_role_module_only_config_keeper() {
 
 #[test]
 #[should_panic]
-fn test_role_module_not_config_keeper() {
+fn given_not_config_keeper_when_only_config_keeper_then_fails() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -212,7 +212,7 @@ fn test_role_module_not_config_keeper() {
 }
 
 #[test]
-fn test_role_module_only_controller() {
+fn given_normal_conditions_when_only_controller_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -237,7 +237,7 @@ fn test_role_module_only_controller() {
 
 #[test]
 #[should_panic]
-fn test_role_module_not_controller() {
+fn given_not_controller_when_only_controller_then_fails() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -259,7 +259,7 @@ fn test_role_module_not_controller() {
 }
 
 #[test]
-fn test_role_module_only_router_plugin() {
+fn given_normal_conditions_when_only_router_plugin_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -284,7 +284,7 @@ fn test_role_module_only_router_plugin() {
 
 #[test]
 #[should_panic]
-fn test_role_module_not_router_plugin() {
+fn given_not_router_plugin_when_only_router_plugin_then_fails() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -306,7 +306,7 @@ fn test_role_module_not_router_plugin() {
 }
 
 #[test]
-fn test_role_module_only_market_keeper() {
+fn given_normal_conditions_when_only_market_keeper_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -331,7 +331,7 @@ fn test_role_module_only_market_keeper() {
 
 #[test]
 #[should_panic]
-fn test_role_module_not_market_keeper() {
+fn given_not_market_keeper_when_only_market_keeper_then_fails() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -353,7 +353,7 @@ fn test_role_module_not_market_keeper() {
 }
 
 #[test]
-fn test_role_module_only_fee_keeper() {
+fn given_normal_conditions_when_only_fee_keeper_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -378,7 +378,7 @@ fn test_role_module_only_fee_keeper() {
 
 #[test]
 #[should_panic]
-fn test_role_module_not_fee_keeper() {
+fn given_not_fee_keeper_when_only_fee_keeper_then_fails() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -400,7 +400,7 @@ fn test_role_module_not_fee_keeper() {
 }
 
 #[test]
-fn test_role_module_only_order_keeper() {
+fn given_normal_conditions_when_only_order_keeper_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -425,7 +425,7 @@ fn test_role_module_only_order_keeper() {
 
 #[test]
 #[should_panic]
-fn test_role_module_not_order_keeper() {
+fn given_not_order_keeper_when_only_order_keeper_then_fails() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -447,7 +447,7 @@ fn test_role_module_not_order_keeper() {
 }
 
 #[test]
-fn test_role_module_only_pricing_keeper() {
+fn given_normal_conditions_when_only_pricing_keeper_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -472,7 +472,7 @@ fn test_role_module_only_pricing_keeper() {
 
 #[test]
 #[should_panic]
-fn test_role_module_not_pricing_keeper() {
+fn given_not_pricing_keeper_when_only_pricing_keeper_then_fails() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -494,7 +494,7 @@ fn test_role_module_not_pricing_keeper() {
 }
 
 #[test]
-fn test_role_module_only_liquidation_keeper() {
+fn given_normal_conditions_when_only_liquidation_keeper_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -519,7 +519,7 @@ fn test_role_module_only_liquidation_keeper() {
 
 #[test]
 #[should_panic]
-fn test_role_module_not_liquidation_keeper() {
+fn given_not_liquidation_keeper_when_only_liquidation_keeper_then_fails() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -542,7 +542,7 @@ fn test_role_module_not_liquidation_keeper() {
 
 
 #[test]
-fn test_role_module_only_adl_keeper() {
+fn given_normal_conditions_when_only_adl_keeper_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -567,7 +567,7 @@ fn test_role_module_only_adl_keeper() {
 
 #[test]
 #[should_panic]
-fn test_role_module_not_adl_keeper() {
+fn given_not_adl_keeper_when_only_adl_keeper_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************

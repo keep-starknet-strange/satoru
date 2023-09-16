@@ -121,7 +121,7 @@ fn setup() -> (
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
-fn test_check_unauthorized_access_role() {
+fn given_caller_not_controller_when_swap_then_fails() {
     let (caller_address, data_store, event_emitter, oracle, bank, role_store, swap_handler) =
         setup();
 
@@ -156,7 +156,7 @@ fn test_check_unauthorized_access_role() {
 
 
 #[test]
-fn test_check_swap_called() {
+fn given_normal_conditions_when_swap_then_works() {
     //Change that when swap_handler has been implemented
     let (caller_address, data_store, event_emitter, oracle, bank, role_store, swap_handler) =
         setup();

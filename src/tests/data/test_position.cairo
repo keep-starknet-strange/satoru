@@ -9,7 +9,7 @@ use satoru::tests_lib::{setup, teardown};
 use snforge_std::{PrintTrait, declare, start_prank, stop_prank, ContractClassTrait};
 
 #[test]
-fn test_set_position_new_and_override() {
+fn given_normal_conditions_when_set_position_new_and_override_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
 
@@ -64,7 +64,7 @@ fn test_set_position_new_and_override() {
 
 #[test]
 #[should_panic(expected: ('position account cant be 0',))]
-fn test_set_position_should_panic_zero() {
+fn given_position_account_0_when_set_position_then_fails() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
 
@@ -89,7 +89,7 @@ fn test_set_position_should_panic_zero() {
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
-fn test_set_position_should_panic_not_controller() {
+fn given_caller_not_controller_when_set_position_then_fails() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     role_store.revoke_role(caller_address, role::CONTROLLER);
@@ -116,7 +116,7 @@ fn test_set_position_should_panic_not_controller() {
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
-fn test_get_position_keys() {
+fn given_normal_conditions_when_get_position_keys_then_works() {
     let (caller_address, role_store, data_store) = setup();
     role_store.revoke_role(caller_address, role::CONTROLLER);
     let key: felt252 = 123456789;
@@ -151,7 +151,7 @@ fn test_get_position_keys() {
 
 
 #[test]
-fn test_remove_only_position() {
+fn given_normal_conditions_when_remove_only_position_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     let key: felt252 = 123456789;
@@ -188,7 +188,7 @@ fn test_remove_only_position() {
 
 
 #[test]
-fn test_remove_1_of_n_position() {
+fn given_normal_conditions_when_remove_1_of_n_position_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     let key_1: felt252 = 123456789;
@@ -245,7 +245,7 @@ fn test_remove_1_of_n_position() {
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
-fn test_remove_position_should_panic_not_controller() {
+fn given_caller_not_controller_when_remove_1_of_n_position_then_fails() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     role_store.revoke_role(caller_address, role::CONTROLLER);
@@ -278,9 +278,8 @@ fn test_remove_position_should_panic_not_controller() {
 
 
 #[test]
-fn test_multiple_account_keys() {
+fn given_caller_not_controller_when_multiple_account_keys_then_fails() {
     // Setup
-
     let (caller_address, role_store, data_store) = setup();
     let key_1: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();

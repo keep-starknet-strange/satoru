@@ -9,7 +9,7 @@ use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::tests_lib::setup_event_emitter;
 
 #[test]
-fn test_emit_withdrawal_created() {
+fn given_normal_conditions_when_emit_withdrawal_created_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -61,7 +61,7 @@ fn test_emit_withdrawal_created() {
 }
 
 #[test]
-fn test_emit_withdrawal_executed() {
+fn given_normal_conditions_when_emit_withdrawal_executed_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -98,7 +98,7 @@ fn test_emit_withdrawal_executed() {
 }
 
 #[test]
-fn test_emit_withdrawal_cancelled() {
+fn given_normal_conditions_when_emit_withdrawal_cancelled_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************

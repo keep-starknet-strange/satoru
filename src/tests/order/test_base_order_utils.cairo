@@ -16,13 +16,13 @@ use satoru::order::base_order_utils::{
 };
 
 #[test]
-fn test_base_order_utils_is_position_order() {
+fn given_normal_conditions_when_is_position_order_then_works() {
     assert(!is_position_order(OrderType::MarketSwap), 'Should not be position');
     assert(is_position_order(OrderType::MarketIncrease), 'Should be position');
 }
 
 #[test]
-fn test_base_order_utils_validate_order_trigger_price() {
+fn given_normal_conditions_when_validate_order_trigger_price_then_works() {
     // TODO when oracle
     // let oracle_address: ContractAddress = 'oracle'.try_into().unwrap();
     // start_mock_call(oracle_address, 'get_primary_price', Price { min: 9, max: 11 });
@@ -39,7 +39,7 @@ fn test_base_order_utils_validate_order_trigger_price() {
 }
 
 #[test]
-fn test_base_order_utils_get_execution_price_for_increase() {
+fn given_normal_conditions_when_get_execution_price_for_increase_then_works() {
     let price = get_execution_price_for_increase(
         size_delta_usd: 200, size_delta_in_tokens: 20, acceptable_price: 10, is_long: true,
     );
@@ -47,7 +47,7 @@ fn test_base_order_utils_get_execution_price_for_increase() {
 }
 
 #[test]
-fn test_base_order_utils_get_execution_price_for_decrease() {
+fn given_normal_conditions_when_get_execution_price_for_decrease_then_works() {
     let price = get_execution_price_for_decrease(
         index_token_price: Price { min: 9, max: 11 },
         position_size_in_usd: 1000,
@@ -61,7 +61,7 @@ fn test_base_order_utils_get_execution_price_for_decrease() {
 }
 
 #[test]
-fn test_base_order_utils_validate_non_empty_order() {
+fn given_normal_conditions_when_validate_non_empty_order_then_works() {
     let mut order: Order = Default::default();
     order.account = 32.try_into().unwrap();
     order.size_delta_usd = 1;
@@ -71,7 +71,7 @@ fn test_base_order_utils_validate_non_empty_order() {
 
 #[test]
 #[should_panic(expected: ('empty_order',))]
-fn test_base_order_utils_validate_non_empty_order_fail() {
+fn given_empty_order_when_validate_non_empty_order_then_fails() {
     let order: Order = Default::default();
     validate_non_empty_order(@order);
 }
