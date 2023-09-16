@@ -333,7 +333,12 @@ mod withdrawal {
     mod withdrawal;
 }
 
-// TODO Remove this once implemented by Starkware
+// TODO Remove all below once natif
+use starknet::{
+    storage_access::{Store, StorageBaseAddress},
+    {SyscallResult, syscalls::{storage_read_syscall, storage_write_syscall}}
+};
+
 impl I128Div of Div<i128> {
     fn div(lhs: i128, rhs: i128) -> i128 {
         assert(rhs != 0, 'Division by 0');
@@ -372,11 +377,6 @@ fn abs(signed_integer: i128) -> u128 {
     let response: felt252 = response.into();
     response.try_into().expect('u128 Overflow')
 }
-
-use starknet::{
-    storage_access::{Store, StorageBaseAddress},
-    {SyscallResult, syscalls::{storage_read_syscall, storage_write_syscall}}
-};
 
 impl StoreI128 of Store<i128> {
     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<i128> {
