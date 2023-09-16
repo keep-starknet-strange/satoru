@@ -628,7 +628,7 @@ mod Oracle {
                                 compacted_max_span, inner_cache.signature_index
                             );
 
-                    if inner_cache.signature_index >= signatures_span.len().into() {
+                    if inner_cache.signature_index >= signatures_span.len() {
                         OracleError::ARRAY_OUT_OF_BOUNDS_FELT252(
                             signatures_span, inner_cache.signature_index, 'signatures'
                         );

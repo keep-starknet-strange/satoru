@@ -198,7 +198,7 @@ mod AdlHandler {
             collateral_token: ContractAddress,
             is_long: bool,
             size_delta_usd: u128,
-            oracle_params: oracle_utils::SetPricesParams
+            oracle_params: SetPricesParams
         ) {
             let mut cache = ExecuteAdlCache {
                 starting_gas: 0,

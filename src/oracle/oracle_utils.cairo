@@ -5,6 +5,8 @@
 use starknet::ContractAddress;
 use result::ResultTrait;
 use traits::Default;
+use hash::LegacyHash;
+use ecdsa::recover_public_key;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -122,7 +124,9 @@ fn validate_block_number_within_range(
     if (!is_block_number_within_range(
         min_oracle_block_numbers, max_oracle_block_numbers, block_number
     )) {
-        OracleError::BLOCK_NUMBER_NOT_WITHIN_RANGE()
+        OracleError::BLOCK_NUMBER_NOT_WITHIN_RANGE(
+            min_oracle_block_numbers, max_oracle_block_numbers, block_number
+        )
     }
 }
 
@@ -289,8 +293,41 @@ fn get_uncompacted_oracle_timestamp(compacted_oracle_timestamps: Span<u64>, inde
 /// * `signature` - The signer's signature.
 /// * `expected_signer` - The address of the expected signer.
 fn validate_signer(
-    salt: felt252, info: ReportInfo, signature: felt252, expected_signer: @ContractAddress
-) { // TODO
+    salt: felt252, info: ReportInfo, signature: Span<felt252>, expected_signer: @ContractAddress
+) {
+    let signature_r = *signature[0];
+    let signature_s = *signature[1];
+
+    let mut digest = TupleSize10LegacyHash::hash(
+        0,
+        (
+            salt,
+            info.min_oracle_block_number,
+            info.max_oracle_block_number,
+            info.oracle_timestamp,
+            info.block_hash,
+            info.token,
+            info.token_oracle_type,
+            info.precision,
+            info.min_price,
+            info.max_price
+        )
+    );
+
+    // We now need to hash message_hash with the size of the array: (change_owner selector, chainid, contract address, old_owner)
+    // https://github.com/starkware-libs/cairo-lang/blob/b614d1867c64f3fb2cf4a4879348cfcf87c3a5a7/src/starkware/cairo/common/hash_state.py#L6
+    digest = LegacyHash::<felt252>::hash(digest, 10);
+
+    // TODO: What should we have as y_parity (?)
+    let recovered_public_key = recover_public_key(digest, signature_r, signature_s, true).unwrap();
+
+    // Get expected public key
+    let account_dispatcher = IAccountDispatcher { contract_address: expected_signer };
+    let expected_public_key = account_dispatcher.get_owner();
+
+    if (recovered_public_key != expected_public_key) {
+        OracleError::INVALID_SIGNATURE(recovered_public_key, expected_public_key);
+    }
 }
 
 /// Revert with OracleBlockNumberNotWithinRange error.
@@ -298,8 +335,11 @@ fn validate_signer(
 /// * `max_oracle_block_number` - The max block number used for the signed message hash.
 /// * `block` - The current block number.
 fn revert_oracle_block_number_not_within_range(
-    min_oracle_block_numbers: Array<u128>, max_oracle_block_numbers: Array<u128>, block_number: u64
-) { // TODO
+    min_oracle_block_numbers: Span<u64>, max_oracle_block_numbers: Span<u64>, block_number: u64
+) {
+    OracleError::BLOCK_NUMBER_NOT_WITHIN_RANGE(
+        min_oracle_block_numbers, max_oracle_block_numbers, block_number
+    )
 }
 
 /// Check wether `error` is an OracleError.
@@ -308,8 +348,15 @@ fn revert_oracle_block_number_not_within_range(
 /// # Returns
 /// Wether it's the right error.
 fn is_oracle_error(error_selector: felt252) -> bool {
-    // TODO
-    true
+    if (is_oracle_block_number_error(error_selector)) {
+        return true;
+    }
+
+    if (is_empty_price_error(error_selector)) {
+        return true;
+    }
+
+    return false;
 }
 
 /// Check wether `error` is an EmptyPriceError.
@@ -317,9 +364,13 @@ fn is_oracle_error(error_selector: felt252) -> bool {
 /// * `error` - The error to check.
 /// # Returns
 /// Wether it's the right error.
+const EMPTY_PRIMARY_PRICE_SELECTOR: felt252 = selector!("EMPTY_PRIMARY_PRICE");
 fn is_empty_price_error(error_selector: felt252) -> bool {
-    // TODO
-    true
+    if (error_selector == EMPTY_PRIMARY_PRICE_SELECTOR) {
+        return true;
+    }
+
+    return false;
 }
 
 /// Check wether `error` is an OracleBlockNumberError.
@@ -327,9 +378,19 @@ fn is_empty_price_error(error_selector: felt252) -> bool {
 /// * `error` - The error to check.
 /// # Returns
 /// Wether it's the right error.
+const BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED_SELECTOR: felt252 =
+    selector!("BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED");
+const BLOCK_NUMBER_NOT_WITHIN_RANGE_SELECTOR: felt252 = selector!("BLOCK_NUMBER_NOT_WITHIN_RANGE");
 fn is_oracle_block_number_error(error_selector: felt252) -> bool {
-    // TODO
-    true
+    if (error_selector == BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED_SELECTOR) {
+        return true;
+    }
+
+    if (error_selector == BLOCK_NUMBER_NOT_WITHIN_RANGE_SELECTOR) {
+        return true;
+    }
+
+    return false;
 }
 
 impl DefaultReportInfo of Default<ReportInfo> {
