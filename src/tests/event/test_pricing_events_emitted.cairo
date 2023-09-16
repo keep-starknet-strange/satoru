@@ -9,7 +9,7 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 use satoru::pricing::swap_pricing_utils::SwapFees;
 
 #[test]
-fn test_emit_swap_info() {
+fn given_normal_conditions_when_emit_swap_info_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -81,7 +81,7 @@ fn test_emit_swap_info() {
 }
 
 #[test]
-fn test_emit_swap_fees_collected() {
+fn given_normal_conditions_when_emit_swap_fees_collected_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
