@@ -515,8 +515,8 @@ fn apply_swap_impact_with_cap(
     market: ContractAddress,
     token: ContractAddress,
     token_price: Price,
-    price_impact_usd: i128
-) -> i128 {
+    price_impact_usd: u128 // TODO: This is supposed to be i128 when it will be supported.
+) -> u128 { // TODO: This is supposed to be i128 when it will be supported.
     // TODO: implement
     return 0;
 }
@@ -550,8 +550,8 @@ fn validata_reserve(
 /// * `pnl_factor_type_for_longs` the pnl factor type to check
 /// * `pnl_factor_type_for_shorts` the pnl factor type to check
 fn validate_max_pnl(
-    data_store: @IDataStoreDispatcher,
-    market: @Market,
+    data_store: IDataStoreDispatcher,
+    market: Market,
     prices: @MarketPrices,
     pnl_factor_type_for_longs: felt252,
     pnl_factor_type_for_shorts: felt252

@@ -16,8 +16,8 @@ mod SwapError {
         data.append(expected_token.into());
         panic(data)
     }
-
-    fn SWAP_PRICE_IMPACT_EXCEEDS_AMOUNT_IN(amount_after_fees: u128, negative_impact_amount: i128) {
+    // TODO: negative_impact_amount should be a i128
+    fn SWAP_PRICE_IMPACT_EXCEEDS_AMOUNT_IN(amount_after_fees: u128, negative_impact_amount: u128) {
         let mut data = array!['price impact exceeds amount'];
         data.append(amount_after_fees.into());
         data.append(negative_impact_amount.into());

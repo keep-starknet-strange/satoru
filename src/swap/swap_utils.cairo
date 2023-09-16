@@ -99,11 +99,10 @@ struct SwapCache {
     amount_out: u128,
     /// The total amount of the token that is being received by all users in the swap pool.
     pool_amount_out: u128,
-/// The price impact of the swap in USD.
-/// TODO: to uncomment when i128 will be supported
-// price_impact_usd: i128,
-/// The price impact of the swap in tokens.
-// price_impact_amount: i128,
+    /// The price impact of the swap in USD.
+    price_impact_usd: u128, // TODO: should refact in i128 when supported
+    /// The price impact of the swap in tokens.
+    price_impact_amount: u128, // TODO: should refact in i128 when supported
 }
 
 /// Swaps a given amount of a given token for another token based on a
@@ -210,14 +209,17 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
         .into();
 
     let price_impact_usd = swap_pricing_utils::get_price_impact_usd(
-        *params.data_store,
-        *_params.market,
-        *_params.token_in,
-        cache.token_out,
-        cache.token_in_price.mid_price(),
-        cache.token_out_price.mid_price(),
-        usd_delta_for_token_felt252.try_into().unwrap(),
-        -usd_delta_for_token_felt252.try_into().unwrap(),
+        swap_pricing_utils::GetPriceImpactUsdParams {
+            dataStore: *params.data_store,
+            market: *_params.market,
+            token_a: *_params.token_in,
+            token_b: cache.token_out,
+            price_for_token_a: cache.token_in_price.mid_price(),
+            price_for_token_b: cache.token_out_price.mid_price(),
+            usd_delta_for_token_a: (*_params.amount_in * cache.token_out_price.mid_price()),
+            // TODO: should be -(*_params.amount_in * cache.token_out_price.mid_price()) when i128 supported
+            usd_delta_for_token_b: (*_params.amount_in * cache.token_out_price.mid_price())
+        }
     );
 
     let fees = swap_pricing_utils::get_swap_fees(
@@ -246,7 +248,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
         fees.ui_fee_amount,
         keys::swap_fee_type(),
     );
-    let mut price_impact_amount: i128 = 0;
+    let mut price_impact_amount: u128 = 0;
     if (price_impact_usd > 0) {
         // when there is a positive price impact factor, additional tokens from the swap impact pool
         // are withdrawn for the user
@@ -267,8 +269,8 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
                 cache.token_out_price,
                 price_impact_usd
             );
-        let price_impact_amount_felt252: felt252 = price_impact_amount.into();
-        cache.amount_out += price_impact_amount_felt252.try_into().unwrap();
+
+        cache.amount_out += price_impact_amount;
     } else {
         // when there is a negative price impact factor,
         // less of the input amount is sent to the pool
@@ -284,13 +286,14 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
                 cache.token_in_price,
                 price_impact_usd
             );
-        let price_impact_amount_felt252: felt252 = (-price_impact_amount).into();
-        if (fees.amount_after_fees <= price_impact_amount_felt252.try_into().unwrap()) {
+
+        // TODO should be -price_impact_amount when i128 supported
+        if (fees.amount_after_fees <= price_impact_amount) {
             SwapError::SWAP_PRICE_IMPACT_EXCEEDS_AMOUNT_IN(
                 fees.amount_after_fees, price_impact_amount
             );
         }
-        cache.amount_in = fees.amount_after_fees - price_impact_amount_felt252.try_into().unwrap();
+        cache.amount_in = fees.amount_after_fees - price_impact_amount;
         cache.amount_out = cache.amount_in * cache.token_in_price.min / cache.token_out_price.max;
         cache.pool_amount_out = cache.amount_out;
     }
@@ -304,21 +307,20 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
     let mut delta_felt252: felt252 = (cache.amount_in + fees.fee_amount_for_pool).into();
     market_utils::apply_delta_to_pool_amount(
         *params.data_store,
-        params.event_emitter,
-        _params.market,
+        *params.event_emitter,
+        *_params.market,
         *_params.token_in,
         delta_felt252.try_into().unwrap(),
     );
 
     // the poolAmountOut excludes the positive price impact amount
     // as that is deducted from the swap impact pool instead
-    delta_felt252 = cache.pool_amount_out.into();
     market_utils::apply_delta_to_pool_amount(
         *params.data_store,
-        params.event_emitter,
-        _params.market,
+        *params.event_emitter,
+        *_params.market,
         cache.token_out,
-        -delta_felt252.try_into().unwrap(),
+        cache.pool_amount_out // TODO: should be -price_impact_amount when i128 supported
     );
 
     let prices = market_utils::MarketPrices {
@@ -349,15 +351,13 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
     };
 
     market_utils::validate_max_pnl(
-        params.data_store,
-        _params.market,
+        *params.data_store,
+        *_params.market,
         @prices,
         pnl_factor_type_for_longs,
         pnl_factor_type_for_shorts
     );
 
-    let price_impact_usd_felt252: felt252 = price_impact_usd.into();
-    let price_impact_amount_felt252: felt252 = price_impact_amount.into();
     (*params.event_emitter)
         .emit_swap_info(
             *params.key,
@@ -370,8 +370,8 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
             *_params.amount_in,
             cache.amount_in,
             cache.amount_out,
-            price_impact_usd_felt252.try_into().unwrap(), //TODO: should accept i128
-            price_impact_amount_felt252.try_into().unwrap() //TODO: should accept i128
+            price_impact_usd, //TODO: should accept i128
+            price_impact_amount //TODO: should accept i128
         );
 
     (*params.event_emitter)
