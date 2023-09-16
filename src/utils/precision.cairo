@@ -19,6 +19,7 @@ const BASIS_POINTS_DIVISOR: u128 = 10000;
 
 const FLOAT_TO_WEI_DIVISOR: u128 = 1_000_000_000_000; // 10^12
 
+const FLOAT_PRECISION: u128 = 1000000000000000000000000000000;
 /// Applies the given factor to the given value and returns the result.
 /// # Arguments
 /// * `value` - The value to apply the factor to.
