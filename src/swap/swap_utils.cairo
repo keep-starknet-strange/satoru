@@ -122,21 +122,19 @@ fn swap(params: @SwapParams) -> (ContractAddress, u128) {
             SwapError::INSUFFICIENT_OUTPUT_AMOUNT(*params.amount_in, *params.min_output_amount);
         }
         if (params.bank.contract_address != params.receiver) {
-            IBankDispatcher { contract_address: *params.token_in }
-                .transfer_out(*params.token_in, *params.receiver, *params.amount_in);
+            (*params.bank).transfer_out(*params.token_in, *params.receiver, *params.amount_in);
         }
         return (*params.token_in, *params.amount_in);
     }
     let first_path: Market = *params.swap_path_markets[0];
     if (params.bank.contract_address != @first_path.market_token) {
-        IBankDispatcher { contract_address: *params.token_in }
-            .transfer_out(*params.token_in, first_path.market_token, *params.amount_in);
+        (*params.bank).transfer_out(*params.token_in, first_path.market_token, *params.amount_in);
     }
     let mut token_out = *params.token_in;
     let mut output_amount = *params.amount_in;
     let mut i = 0;
     loop {
-        if (i < array_length) {
+        if (i >= array_length) {
             break;
         }
         let market: Market = *params.swap_path_markets[i];
@@ -172,7 +170,7 @@ fn swap(params: @SwapParams) -> (ContractAddress, u128) {
     };
     i = 0;
     loop {
-        if (i < array_length) {
+        if (i >= array_length) {
             break;
         }
         let market: Market = *params.swap_path_markets[i];
@@ -324,7 +322,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
     );
 
     let prices = market_utils::MarketPrices {
-        index_token_price: (*params.oracle).get_primary_price(*_params.market.short_token),
+        index_token_price: (*params.oracle).get_primary_price(*_params.market.index_token),
         long_token_price: if (_params.token_in == _params.market.long_token) {
             cache.token_in_price
         } else {
@@ -354,8 +352,16 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
         *params.data_store,
         *_params.market,
         @prices,
-        pnl_factor_type_for_longs,
-        pnl_factor_type_for_shorts
+        if (*_params.token_in == *_params.market.long_token) {
+            keys::max_pnl_factor_for_deposits()
+        } else {
+            keys::max_pnl_factor_for_withdrawals()
+        },
+        if (cache.token_out == *_params.market.short_token) {
+            keys::max_pnl_factor_for_withdrawals()
+        } else {
+            keys::max_pnl_factor_for_deposits()
+        }
     );
 
     (*params.event_emitter)
