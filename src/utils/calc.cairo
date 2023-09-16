@@ -47,7 +47,7 @@ fn roundup_magnitude_division(a: i128, b: u128) -> i128 {
     }
 }
 
-/// Adds two numbers together and return an u256 value, treating the second number as a signed integer,
+/// Adds two numbers together and return an u128 value, treating the second number as a signed integer,
 /// # Arguments
 /// * `a` - first number.
 /// * `b` - second number.
@@ -160,6 +160,15 @@ fn to_signed(a: u128, is_positive: bool) -> i128 {
         let a_felt: felt252 = a.into();
         -a_felt.try_into().expect('i128 Overflow')
     }
+}
+
+/// Converts the given signed integer to an unsigned integer, panics otherwise
+/// # Return
+/// The unsigned integer.
+fn to_unsigned(value: i128) -> u128 {
+    assert(value >= 0, 'to_unsigned: value is negative');
+    let value: felt252 = value.into();
+    value.try_into().unwrap()
 }
 
 // TODO use BoundedInt::max() && BoundedInt::mint() when possible

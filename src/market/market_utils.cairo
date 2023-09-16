@@ -696,3 +696,22 @@ fn market_token_amount_to_usd(
 ) -> u128 { // TODO
     0
 }
+
+// @dev get the virtual inventory for swaps
+// @param data_store DataStore
+// @param market the market to check
+// @return returns (has virtual inventory, virtual long token inventory, virtual short token inventory)
+fn get_virtual_inventory_for_swaps(
+    data_store: IDataStoreDispatcher, market: ContractAddress
+) -> (bool, u128, u128) {
+    let virtual_market_id = data_store.get_felt252(keys::virtual_market_id_key(market));
+    if virtual_market_id.is_zero() {
+        return (false, 0, 0);
+    }
+
+    return (
+        true,
+        data_store.get_u128(keys::virtual_inventory_for_swaps_key(virtual_market_id, true)),
+        data_store.get_u128(keys::virtual_inventory_for_swaps_key(virtual_market_id, false))
+    );
+}

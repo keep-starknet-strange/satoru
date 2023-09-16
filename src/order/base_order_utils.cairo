@@ -22,6 +22,7 @@ use satoru::referral::referral_storage::interface::{
     IReferralStorageDispatcher, IReferralStorageDispatcherTrait
 };
 use satoru::utils::span32::Span32;
+use satoru::utils::calc;
 
 #[derive(Drop, starknet::Store, Serde)]
 struct ExecuteOrderParams {
@@ -418,7 +419,7 @@ fn get_execution_price_for_decrease(
         };
 
         if adjusted_price_impact_usd < 0
-            && i128_to_u128(-adjusted_price_impact_usd) > size_delta_usd {
+            && calc::to_unsigned(-adjusted_price_impact_usd) > size_delta_usd {
             panic(
                 array![
                     OrderError::PRICE_IMPACT_LARGER_THAN_ORDER_SIZE,
@@ -434,9 +435,9 @@ fn get_execution_price_for_decrease(
         let numerator = precision::mul_div_inum(
             position_size_in_usd, adjusted_price_impact_usd, position_size_in_tokens
         );
-        let adjustment = div_i128(numerator, u128_to_i128(size_delta_usd));
+        let adjustment = div_i128(numerator, calc::to_signed(size_delta_usd, true));
 
-        let _execution_price: i128 = u128_to_i128(price) + adjustment;
+        let _execution_price: i128 = calc::to_signed(price, true) + adjustment;
 
         if _execution_price < 0 {
             panic(
@@ -451,7 +452,7 @@ fn get_execution_price_for_decrease(
             );
         }
 
-        execution_price = i128_to_u128(_execution_price);
+        execution_price = calc::to_unsigned(_execution_price);
     }
 
     // decrease order:
@@ -525,30 +526,16 @@ fn panic_unfulfillable(execution_price: u128, acceptable_price: u128) {
     );
 }
 
-#[inline(always)]
-fn u128_to_i128(value: u128) -> i128 {
-    assert(value <= BoundedInt::max(), 'u128_to_i128: value too large');
-    let value: felt252 = value.into();
-    value.try_into().unwrap()
-}
-
-#[inline(always)]
-fn i128_to_u128(value: i128) -> u128 {
-    assert(value >= 0, 'i128_to_u128: value is negative');
-    let value: felt252 = value.into();
-    value.try_into().unwrap()
-}
-
 // TODO: remove this when i128 division available
 #[inline(always)]
 fn div_i128(numerator: i128, denominator: i128) -> i128 {
     if numerator < 0 && denominator < 0 {
-        u128_to_i128(i128_to_u128(numerator) / i128_to_u128(denominator))
+        calc::to_signed(calc::to_unsigned(numerator) / calc::to_unsigned(denominator), true)
     } else if numerator < 0 {
-        -u128_to_i128(i128_to_u128(-numerator) / i128_to_u128(denominator))
+        -calc::to_signed(calc::to_unsigned(-numerator) / calc::to_unsigned(denominator), false)
     } else if denominator < 0 {
-        -u128_to_i128(i128_to_u128(numerator) / i128_to_u128(-denominator))
+        -calc::to_signed(calc::to_unsigned(numerator) / calc::to_unsigned(-denominator), false)
     } else {
-        u128_to_i128(i128_to_u128(numerator) / i128_to_u128(denominator))
+        calc::to_signed(calc::to_unsigned(numerator) / calc::to_unsigned(denominator), true)
     }
 }
