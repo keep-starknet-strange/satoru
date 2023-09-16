@@ -10,7 +10,7 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 
 
 #[test]
-fn test_emit_execution_fee_refund() {
+fn given_normal_conditions_when_emit_execution_fee_refund_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -47,7 +47,7 @@ fn test_emit_execution_fee_refund() {
 }
 
 #[test]
-fn test_emit_keeper_execution_fee() {
+fn given_normal_conditions_when_emit_keeper_execution_fee_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************

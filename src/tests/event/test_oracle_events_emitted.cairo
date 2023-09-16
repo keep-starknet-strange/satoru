@@ -10,7 +10,7 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 
 
 #[test]
-fn test_emit_oracle_price_update() {
+fn given_normal_conditions_when_emit_oracle_price_update_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -51,7 +51,7 @@ fn test_emit_oracle_price_update() {
 }
 
 #[test]
-fn test_emit_signer_added() {
+fn given_normal_conditions_when_emit_signer_added_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -84,7 +84,7 @@ fn test_emit_signer_added() {
 }
 
 #[test]
-fn test_emit_signer_removed() {
+fn given_normal_conditions_when_emit_signer_removed_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
