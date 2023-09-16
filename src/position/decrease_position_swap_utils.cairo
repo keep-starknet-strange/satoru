@@ -7,11 +7,14 @@ use result::ResultTrait;
 use array::ArrayTrait;
 
 // Local imports.
-use satoru::position::position_utils::{
-    DecreasePositionCollateralValues, UpdatePositionParams, DecreasePositionCollateralValuesOutput
+use satoru::position::{
+    error::PositionError,
+    position_utils::{
+        DecreasePositionCollateralValues, UpdatePositionParams,
+        DecreasePositionCollateralValuesOutput
+    }
 };
 use satoru::order::order::DecreasePositionSwapType;
-use satoru::position::error::PositionError;
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::swap::swap_utils::{SwapParams};
@@ -27,34 +30,33 @@ fn swap_withdrawn_collateral_to_pnl_token(
             .order
             .decrease_position_swap_type == DecreasePositionSwapType::SwapCollateralTokenToPnlToken) {
         swap_path_markets.append(params.market);
-    }
-    let (token_out, swap_output_amount) = params
-        .contracts
-        .swap_handler
-        .swap(
-            SwapParams {
-                data_store: params.contracts.data_store,
-                event_emitter: params.contracts.event_emitter,
-                oracle: params.contracts.oracle,
-                bank: IBankDispatcher { contract_address: params.market.market_token },
-                key: params.order_key,
-                token_in: params.position.collateral_token,
-                amount_in: values.output.output_amount,
-                swap_path_markets: swap_path_markets,
-                min_output_amount: 0,
-                receiver: params.market.market_token,
-                ui_fee_receiver: params.order.ui_fee_receiver,
-                should_unwrap_native_token: false
-            }
-        );
+        let (token_out, swap_output_amount) = params
+            .contracts
+            .swap_handler
+            .swap(
+                SwapParams {
+                    data_store: params.contracts.data_store,
+                    event_emitter: params.contracts.event_emitter,
+                    oracle: params.contracts.oracle,
+                    bank: IBankDispatcher { contract_address: params.market.market_token },
+                    key: params.order_key,
+                    token_in: params.position.collateral_token,
+                    amount_in: values.output.output_amount,
+                    swap_path_markets: swap_path_markets,
+                    min_output_amount: 0,
+                    receiver: params.market.market_token,
+                    ui_fee_receiver: params.order.ui_fee_receiver,
+                    should_unwrap_native_token: false
+                }
+            );
 
-    if (token_out != values.output.secondary_output_token) {
-        panic(array![PositionError::INVALID_OUTPUT_TOKEN]);
+        if (token_out != values.output.secondary_output_token) {
+            panic(array![PositionError::INVALID_OUTPUT_TOKEN]);
+        }
+        values.output.output_token = token_out;
+        values.output.output_amount = values.output.secondary_output_amount + swap_output_amount;
+        values.output.secondary_output_amount = 0;
     }
-    values.output.output_token = token_out;
-    values.output.output_amount = values.output.secondary_output_amount + swap_output_amount;
-    values.output.secondary_output_amount = 0;
-
     values
 }
 
@@ -74,26 +76,26 @@ fn swap_profit_to_collateral_token(
             .order
             .decrease_position_swap_type == DecreasePositionSwapType::SwapPnlTokenToCollateralToken) {
         swap_path_markets.append(params.market);
+        let (token_out, swap_output_amount) = params
+            .contracts
+            .swap_handler
+            .swap(
+                SwapParams {
+                    data_store: params.contracts.data_store,
+                    event_emitter: params.contracts.event_emitter,
+                    oracle: params.contracts.oracle,
+                    bank: IBankDispatcher { contract_address: params.market.market_token },
+                    key: params.order_key,
+                    token_in: pnl_token,
+                    amount_in: profit_amount,
+                    swap_path_markets: swap_path_markets,
+                    min_output_amount: 0,
+                    receiver: params.market.market_token,
+                    ui_fee_receiver: params.order.ui_fee_receiver,
+                    should_unwrap_native_token: false
+                }
+            );
+        return (true, swap_output_amount);
     }
-    let (token_out, swap_output_amount) = params
-        .contracts
-        .swap_handler
-        .swap(
-            SwapParams {
-                data_store: params.contracts.data_store,
-                event_emitter: params.contracts.event_emitter,
-                oracle: params.contracts.oracle,
-                bank: IBankDispatcher { contract_address: params.market.market_token },
-                key: params.order_key,
-                token_in: pnl_token,
-                amount_in: profit_amount,
-                swap_path_markets: swap_path_markets,
-                min_output_amount: 0,
-                receiver: params.market.market_token,
-                ui_fee_receiver: params.order.ui_fee_receiver,
-                should_unwrap_native_token: false
-            }
-        );
-
-    (true, swap_output_amount)
+    (false, 0)
 }

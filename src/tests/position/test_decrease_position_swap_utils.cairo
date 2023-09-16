@@ -4,15 +4,16 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::role::{role, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait}};
 use satoru::swap::swap_utils::SwapParams;
 use core::traits::Into;
-use satoru::role::role;
 use satoru::market::market::Market;
-use satoru::position::position::Position;
-use satoru::position::decrease_position_swap_utils;
-use satoru::position::position_utils::{
-    UpdatePositionParams, DecreasePositionCollateralValues, DecreasePositionCollateralValuesOutput
+use satoru::position::{
+    position::Position, decrease_position_swap_utils,
+    position_utils::{
+        UpdatePositionParams, DecreasePositionCollateralValues,
+        DecreasePositionCollateralValuesOutput
+    }
 };
 use satoru::order::{
     order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType},
@@ -25,7 +26,7 @@ use satoru::referral::referral_storage::interface::{
 use satoru::utils::span32::{Span32, Array32Trait};
 
 use snforge_std::{declare, ContractClassTrait, start_prank};
-use starknet::{get_caller_address, ContractAddress, contract_address_const,};
+use starknet::{get_caller_address, ContractAddress, contract_address_const};
 use array::ArrayTrait;
 
 //TODO Tests need to be added after implementation of decrease_position_swap_utils
