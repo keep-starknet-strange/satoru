@@ -1,6 +1,8 @@
 // IMPORTS
 use satoru::utils::precision;
-use satoru::utils::precision::{ FLOAT_PRECISION, FLOAT_PRECISION_SQRT, WEI_PRECISION, BASIS_POINTS_DIVISOR, FLOAT_TO_WEI_DIVISOR };
+use satoru::utils::precision::{
+    FLOAT_PRECISION, FLOAT_PRECISION_SQRT, WEI_PRECISION, BASIS_POINTS_DIVISOR, FLOAT_TO_WEI_DIVISOR
+};
 
 #[test]
 fn test_apply_factor_u128() {
