@@ -13,7 +13,7 @@ use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
 
 #[test]
-fn test_fee_handler_normal() {
+fn given_normal_conditions_when_fee_handler_then_works() {
     let (caller_address, data_store, event_emitter, fee_handler) = setup();
 
     let markets: Array<ContractAddress> = array![
@@ -28,7 +28,7 @@ fn test_fee_handler_normal() {
 
 #[test]
 #[should_panic(expected: ('invalid_claim_fees_input',))]
-fn test_fee_handler_wrong_inputs() {
+fn given_wrong_inputs_when_fee_handler_then_fails() {
     let (caller_address, data_store, event_emitter, fee_handler) = setup();
 
     let markets: Array<ContractAddress> = array![

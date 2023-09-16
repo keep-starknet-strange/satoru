@@ -10,7 +10,7 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 
 
 #[test]
-fn test_emit_set_bool() {
+fn given_normal_conditions_when_emit_set_bool_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -47,7 +47,7 @@ fn test_emit_set_bool() {
 }
 
 #[test]
-fn test_emit_set_address() {
+fn given_normal_conditions_when_emit_set_address_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -84,7 +84,7 @@ fn test_emit_set_address() {
 }
 
 #[test]
-fn test_emit_set_felt252() {
+fn given_normal_conditions_when_emit_set_felt252_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -121,7 +121,7 @@ fn test_emit_set_felt252() {
 }
 
 #[test]
-fn test_emit_set_uint() {
+fn given_normal_conditions_when_emit_set_uint_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -159,7 +159,7 @@ fn test_emit_set_uint() {
 
 // TODO: update type when int will be supported.
 #[test]
-fn test_emit_set_int() {
+fn given_normal_conditions_when_emit_set_int_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************

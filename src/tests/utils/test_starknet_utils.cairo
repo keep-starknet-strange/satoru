@@ -5,7 +5,7 @@ use satoru::utils::starknet_utils::{sn_gasleft, sn_gasprice};
 use satoru::tests_lib::{setup, teardown};
 
 #[test]
-fn test_gasleft() {
+fn given_normal_conditions_when_sn_gasleft_then_works() {
     // No value provided, so returns 0
     let default_value = sn_gasleft(array![]);
     assert(default_value == 0_u128, 'default value wrong');
@@ -17,7 +17,7 @@ fn test_gasleft() {
 }
 
 #[test]
-fn test_gasprice() {
+fn given_normal_conditions_when_gasprice_then_works() {
     // No value provided, so returns 0
     let default_value = sn_gasprice(array![]);
     assert(default_value == 0_u128, 'default value wrong');
