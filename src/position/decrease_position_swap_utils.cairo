@@ -22,25 +22,31 @@ fn swap_withdrawn_collateral_to_pnl_token(
     params: UpdatePositionParams, mut values: DecreasePositionCollateralValues
 ) -> DecreasePositionCollateralValues {
     let mut swap_path_markets = ArrayTrait::new();
-    if (values.output.output_amount > 0 && params.order.decrease_position_swap_type == DecreasePositionSwapType::SwapCollateralTokenToPnlToken) {
+    if (values.output.output_amount > 0
+        && params
+            .order
+            .decrease_position_swap_type == DecreasePositionSwapType::SwapCollateralTokenToPnlToken) {
         swap_path_markets.append(params.market);
     }
-    let (token_out, swap_output_amount) = params.contracts.swap_handler.swap(
-        SwapParams {
-            data_store: params.contracts.data_store,
-            event_emitter: params.contracts.event_emitter,
-            oracle: params.contracts.oracle,
-            bank: IBankDispatcher { contract_address : params.market.market_token },
-            key: params.order_key,
-            token_in: params.position.collateral_token,
-            amount_in: values.output.output_amount,
-            swap_path_markets: swap_path_markets,
-            min_output_amount: 0,
-            receiver: params.market.market_token,
-            ui_fee_receiver: params.order.ui_fee_receiver,
-            should_unwrap_native_token: false
-        }
-    );
+    let (token_out, swap_output_amount) = params
+        .contracts
+        .swap_handler
+        .swap(
+            SwapParams {
+                data_store: params.contracts.data_store,
+                event_emitter: params.contracts.event_emitter,
+                oracle: params.contracts.oracle,
+                bank: IBankDispatcher { contract_address: params.market.market_token },
+                key: params.order_key,
+                token_in: params.position.collateral_token,
+                amount_in: values.output.output_amount,
+                swap_path_markets: swap_path_markets,
+                min_output_amount: 0,
+                receiver: params.market.market_token,
+                ui_fee_receiver: params.order.ui_fee_receiver,
+                should_unwrap_native_token: false
+            }
+        );
 
     if (token_out != values.output.secondary_output_token) {
         panic(array![PositionError::INVALID_OUTPUT_TOKEN]);
@@ -63,26 +69,31 @@ fn swap_profit_to_collateral_token(
     params: UpdatePositionParams, pnl_token: ContractAddress, profit_amount: u128
 ) -> (bool, u128) {
     let mut swap_path_markets = ArrayTrait::new();
-    if (profit_amount > 0 && params.order.decrease_position_swap_type == DecreasePositionSwapType::SwapPnlTokenToCollateralToken) {
+    if (profit_amount > 0
+        && params
+            .order
+            .decrease_position_swap_type == DecreasePositionSwapType::SwapPnlTokenToCollateralToken) {
         swap_path_markets.append(params.market);
     }
-    let (token_out, swap_output_amount) = params.contracts.swap_handler.swap(
-        SwapParams {
-            data_store: params.contracts.data_store,
-            event_emitter: params.contracts.event_emitter,
-            oracle: params.contracts.oracle,
-            bank: IBankDispatcher { contract_address : params.market.market_token },
-            key: params.order_key,
-            token_in: pnl_token,
-            amount_in: profit_amount,
-            swap_path_markets: swap_path_markets,
-            min_output_amount: 0,
-            receiver: params.market.market_token,
-            ui_fee_receiver: params.order.ui_fee_receiver,
-            should_unwrap_native_token: false
-        }
-    );
+    let (token_out, swap_output_amount) = params
+        .contracts
+        .swap_handler
+        .swap(
+            SwapParams {
+                data_store: params.contracts.data_store,
+                event_emitter: params.contracts.event_emitter,
+                oracle: params.contracts.oracle,
+                bank: IBankDispatcher { contract_address: params.market.market_token },
+                key: params.order_key,
+                token_in: pnl_token,
+                amount_in: profit_amount,
+                swap_path_markets: swap_path_markets,
+                min_output_amount: 0,
+                receiver: params.market.market_token,
+                ui_fee_receiver: params.order.ui_fee_receiver,
+                should_unwrap_native_token: false
+            }
+        );
 
     (true, swap_output_amount)
-    //TODO voir l'histoire des catch
 }
