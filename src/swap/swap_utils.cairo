@@ -19,7 +19,7 @@ use satoru::market::{
     }
 };
 use satoru::fee::fee_utils::{increment_claimable_fee_amount, increment_claimable_ui_fee_amount};
-use satoru::utils::{store_arrays::StoreMarketArray, traits::ContractAddressDefault};
+use satoru::utils::{store_arrays::StoreMarketSpan, traits::ContractAddressDefault};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::swap::error::SwapError;
 use satoru::data::keys;
@@ -29,7 +29,7 @@ use satoru::pricing::swap_pricing_utils::{
 use satoru::price::price::{Price, PriceTrait, PriceDefault};
 
 /// Parameters to execute a swap.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Drop, Copy, starknet::Store, Serde)]
 struct SwapParams {
     /// The contract that provides access to data stored on-chain.
     data_store: IDataStoreDispatcher,
@@ -46,7 +46,7 @@ struct SwapParams {
     /// The amount of the token that is being swapped.
     amount_in: u128,
     /// An array of market properties, specifying the markets in which the swap should be executed.
-    swap_path_markets: Array<Market>,
+    swap_path_markets: Span<Market>,
     /// The minimum amount of tokens that should be received as part of the swap.
     min_output_amount: u128,
     /// The minimum amount of tokens that should be received as part of the swap.
@@ -174,7 +174,7 @@ fn swap(params: SwapParams) -> (ContractAddress, u128) {
                 false
             }
         };
-        let (_token_out_res, _output_amount_res) = _swap(params, _params);
+        let (_token_out_res, _output_amount_res) = _swap(@params, @_params);
         token_out = _token_out_res;
         output_amount = _output_amount_res;
         i += 1;
@@ -200,28 +200,27 @@ fn swap(params: SwapParams) -> (ContractAddress, u128) {
 /// * `_params` - The parameters for the swap on this specific market.
 /// # Returns
 /// The token and amount that was swapped.
-#[inline(always)]
-fn _swap(params: SwapParams, _params: _SwapParams) -> (ContractAddress, u128) {
+fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) {
     if (_params.token_in != _params.market.long_token
         && _params.token_in != _params.market.short_token) {
-        SwapError::INVALID_TOKEN_IN(_params.token_in, _params.market.long_token);
+        SwapError::INVALID_TOKEN_IN(*_params.token_in, *_params.market.long_token);
     }
     let mut cache: SwapCache = Default::default();
 
-    validate_swap_market(params.data_store, @_params.market);
+    validate_swap_market(params.data_store, _params.market);
 
-    cache.token_out = get_opposite_token(@_params.market, _params.token_in);
-    cache.token_in_price = params.oracle.get_primary_price(_params.token_in);
-    cache.token_out_price = params.oracle.get_primary_price(cache.token_out);
+    cache.token_out = get_opposite_token(_params.market, *_params.token_in);
+    cache.token_in_price = (*params.oracle).get_primary_price(*_params.token_in);
+    cache.token_out_price = (*params.oracle).get_primary_price(cache.token_out);
 
-    let usd_delta_for_token_felt252: felt252 = (_params.amount_in
+    let usd_delta_for_token_felt252: felt252 = (*_params.amount_in
         * cache.token_out_price.mid_price())
         .into();
 
     let price_impact_usd = get_price_impact_usd(
-        params.data_store,
-        _params.market,
-        _params.token_in,
+        *params.data_store,
+        *_params.market,
+        *_params.token_in,
         cache.token_out,
         cache.token_in_price.mid_price(),
         cache.token_out_price.mid_price(),
@@ -230,28 +229,28 @@ fn _swap(params: SwapParams, _params: _SwapParams) -> (ContractAddress, u128) {
     );
 
     let fees = get_swap_fees(
-        params.data_store,
-        _params.market.market_token,
-        _params.amount_in,
+        *params.data_store,
+        *_params.market.market_token,
+        *_params.amount_in,
         price_impact_usd > 0,
-        params.ui_fee_receiver
+        *params.ui_fee_receiver
     );
 
     increment_claimable_fee_amount(
-        params.data_store,
-        params.event_emitter,
-        _params.market.market_token,
-        _params.token_in,
+        *params.data_store,
+        *params.event_emitter,
+        *_params.market.market_token,
+        *_params.token_in,
         fees.fee_receiver_amount,
         keys::swap_fee_type(),
     );
 
     increment_claimable_ui_fee_amount(
-        params.data_store,
-        params.event_emitter,
-        params.ui_fee_receiver,
-        _params.market.market_token,
-        _params.token_in,
+        *params.data_store,
+        *params.event_emitter,
+        *params.ui_fee_receiver,
+        *_params.market.market_token,
+        *_params.token_in,
         fees.ui_fee_amount,
         keys::swap_fee_type(),
     );
@@ -269,9 +268,9 @@ fn _swap(params: SwapParams, _params: _SwapParams) -> (ContractAddress, u128) {
 
         price_impact_amount =
             apply_swap_impact_with_cap(
-                params.data_store,
-                params.event_emitter,
-                _params.market.market_token,
+                *params.data_store,
+                *params.event_emitter,
+                *_params.market.market_token,
                 cache.token_out,
                 cache.token_out_price,
                 price_impact_usd
@@ -286,10 +285,10 @@ fn _swap(params: SwapParams, _params: _SwapParams) -> (ContractAddress, u128) {
         // the remaining 0.005 ETH will be stored in the swap impact pool
         price_impact_amount =
             apply_swap_impact_with_cap(
-                params.data_store,
-                params.event_emitter,
-                _params.market.market_token,
-                _params.token_in,
+                *params.data_store,
+                *params.event_emitter,
+                *_params.market.market_token,
+                *_params.token_in,
                 cache.token_in_price,
                 price_impact_usd
             );
@@ -306,16 +305,16 @@ fn _swap(params: SwapParams, _params: _SwapParams) -> (ContractAddress, u128) {
 
     // the amountOut value includes the positive price impact amount
     if (_params.receiver != _params.market.market_token) {
-        IBankDispatcher { contract_address: _params.market.market_token }
-            .transfer_out(cache.token_out, _params.receiver, cache.amount_out);
+        IBankDispatcher { contract_address: *_params.market.market_token }
+            .transfer_out(cache.token_out, *_params.receiver, cache.amount_out);
     }
 
     let mut delta_felt252: felt252 = (cache.amount_in + fees.fee_amount_for_pool).into();
     apply_delta_to_pool_amount(
         params.data_store,
         params.event_emitter,
-        @_params.market,
-        _params.token_in,
+        _params.market,
+        *_params.token_in,
         delta_felt252.try_into().unwrap(),
     );
 
@@ -325,13 +324,13 @@ fn _swap(params: SwapParams, _params: _SwapParams) -> (ContractAddress, u128) {
     apply_delta_to_pool_amount(
         params.data_store,
         params.event_emitter,
-        @_params.market,
+        _params.market,
         cache.token_out,
         -delta_felt252.try_into().unwrap(),
     );
 
     let prices = MarketPrices {
-        index_token_price: params.oracle.get_primary_price(_params.market.short_token),
+        index_token_price: (*params.oracle).get_primary_price(*_params.market.short_token),
         long_token_price: if (_params.token_in == _params.market.long_token) {
             cache.token_in_price
         } else {
@@ -344,12 +343,12 @@ fn _swap(params: SwapParams, _params: _SwapParams) -> (ContractAddress, u128) {
         },
     };
 
-    validate_pool_amount(params.data_store, @_params.market, _params.token_in);
+    validate_pool_amount(params.data_store, _params.market, *_params.token_in);
     validata_reserve(
-        params.data_store, @_params.market, @prices, cache.token_out == _params.market.long_token
+        params.data_store, _params.market, @prices, cache.token_out == *_params.market.long_token
     );
     let (pnl_factor_type_for_longs, pnl_factor_type_for_shorts) = if (cache
-        .token_out == _params
+        .token_out == *_params
         .market
         .long_token) {
         (keys::max_pnl_factor_for_deposits(), keys::max_pnl_factor_for_withdrawals())
@@ -359,7 +358,7 @@ fn _swap(params: SwapParams, _params: _SwapParams) -> (ContractAddress, u128) {
 
     validate_max_pnl(
         params.data_store,
-        @_params.market,
+        _params.market,
         @prices,
         pnl_factor_type_for_longs,
         pnl_factor_type_for_shorts
@@ -367,27 +366,25 @@ fn _swap(params: SwapParams, _params: _SwapParams) -> (ContractAddress, u128) {
 
     let price_impact_usd_felt252: felt252 = price_impact_usd.into();
     let price_impact_amount_felt252: felt252 = price_impact_amount.into();
-    params
-        .event_emitter
+    (*params.event_emitter)
         .emit_swap_info(
-            params.key,
-            _params.market.market_token,
-            _params.receiver,
-            _params.token_in,
+            *params.key,
+            *_params.market.market_token,
+            *_params.receiver,
+            *_params.token_in,
             cache.token_out,
             cache.token_in_price.min,
             cache.token_out_price.max,
-            _params.amount_in,
+            *_params.amount_in,
             cache.amount_in,
             cache.amount_out,
             price_impact_usd_felt252.try_into().unwrap(), //TODO: should accept i128
             price_impact_amount_felt252.try_into().unwrap() //TODO: should accept i128
         );
 
-    params
-        .event_emitter
+    (*params.event_emitter)
         .emit_swap_fees_collected(
-            _params.market.market_token, _params.token_in, cache.token_in_price.min, 'swap', fees
+            *_params.market.market_token, *_params.token_in, cache.token_in_price.min, 'swap', fees
         );
     (cache.token_out, cache.amount_out)
 }
