@@ -122,9 +122,78 @@ struct SwapCache {
 /// A tuple containing the address of the token that was received as
 /// part of the swap and the amount of the received token.
 #[inline(always)]
-fn swap(params: @SwapParams) -> (ContractAddress, u128) {
-    // TODO
-    (0.try_into().unwrap(), 0)
+fn swap(params: SwapParams) -> (ContractAddress, u128) {
+    if (params.amount_in == 0) {
+        return (params.token_in, params.amount_in);
+    }
+    if (params.swap_path_markets.len() == 0) {
+        if (params.amount_in < params.min_output_amount) {
+            SwapError::INSUFFICIENT_OUTPUT_AMOUNT(params.amount_in, params.min_output_amount);
+        }
+        if (params.bank.contract_address != params.receiver) {
+            IBankDispatcher { contract_address: params.token_in }
+                .transfer_out(params.token_in, params.receiver, params.amount_in);
+        }
+        return (params.token_in, params.amount_in);
+    }
+    let first_path: Market = *params.swap_path_markets[0];
+    if (params.bank.contract_address != first_path.market_token) {
+        IBankDispatcher { contract_address: params.token_in }
+            .transfer_out(params.token_in, first_path.market_token, params.amount_in);
+    }
+    let mut token_out = params.token_in;
+    let mut output_amount = params.amount_in;
+    let mut i = 0;
+    loop {
+        if (i < params.swap_path_markets.len()) {
+            break;
+        }
+        let market: Market = *params.swap_path_markets[i];
+        let flag_exists = params
+            .data_store
+            .get_bool(keys::swap_path_market_flag_key(market.market_token))
+            .unwrap();
+        if (flag_exists) {
+            SwapError::DUPLICATED_MARKET_IN_SWAP_PATH(market.market_token);
+        }
+        params.data_store.set_bool(keys::swap_path_market_flag_key(market.market_token), true);
+        let next_index = i + 1;
+        let path: Market = *params.swap_path_markets[next_index];
+        let receiver = if (next_index < params.swap_path_markets.len()) {
+            path.market_token
+        } else {
+            params.receiver
+        };
+        let _params = _SwapParams {
+            market: market,
+            token_in: token_out,
+            amount_in: output_amount,
+            receiver: receiver,
+            should_unwrap_native_token: if (i == params.swap_path_markets.len() - 1) {
+                params.should_unwrap_native_token
+            } else {
+                false
+            }
+        };
+        let (_token_out_res, _output_amount_res) = _swap(params, _params);
+        token_out = _token_out_res;
+        output_amount = _output_amount_res;
+        i += 1;
+    };
+    i = 0;
+    loop {
+        if (i < params.swap_path_markets.len()) {
+            break;
+        }
+        let market: Market = *params.swap_path_markets[i];
+        params.data_store.set_bool(keys::swap_path_market_flag_key(market.market_token), false);
+        i += 1;
+    };
+    if (output_amount < params.min_output_amount) {
+        SwapError::INSUFFICIENT_OUTPUT_AMOUNT(output_amount, params.min_output_amount);
+    }
+
+    (token_out, output_amount)
 }
 
 /// Perform a swap on a single market.
