@@ -491,12 +491,6 @@ fn validate_swap_path(
 ) { //TODO
 }
 
-/// Validates that the specified market exists and is enabled.
-/// # Arguments
-/// * `data_store` - DataStore
-/// * `market_address` - The address of the market
-fn validate_enabled_market(data_store: IDataStoreDispatcher, market: ContractAddress) { //TODO
-}
 
 /// Validata the open interest.
 /// # Arguments
@@ -674,21 +668,6 @@ fn get_pool_value_info(
     Default::default()
 }
 
-/// Gets the total supply of the marketToken.
-/// # Arguments
-/// * `market_token` - The market token whose total supply is to be retrieved.
-/// # Returns
-/// The total supply of the given marketToken.
-fn get_market_token_supply(market_token: IMarketTokenDispatcher) -> u128 {
-    // TODO
-    MarketPrices {
-        index_token_price: Price { min: 100, max: 0 },
-        long_token_price: Price { min: 100, max: 0 },
-        short_token_price: Price { min: 100, max: 0 },
-    }
-}
-
-
 /// Get the capped pending pnl for a market
 /// # Arguments
 /// * `data_store` - The data store to use.
@@ -729,6 +708,17 @@ fn validate_enabled_market(data_store: IDataStoreDispatcher, market: Market) {
         }
     };
 }
+
+
+/// Validata that the specified market exists and is enabled
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market to validate.
+fn validate_enabled_market_address(
+    data_store: IDataStoreDispatcher, market: ContractAddress
+) { // TODO
+}
+
 
 /// Validata if the given token is a collateral token of the market
 /// # Arguments
@@ -834,4 +824,28 @@ fn update_total_borrowing(
     next_position_size_in_usd: u128,
     next_position_borrowing_factor: u128
 ) { // TODO
+}
+
+
+/// Gets the total supply of the marketToken.
+/// # Arguments
+/// * `market_token` - The market token whose total supply is to be retrieved.
+/// # Returns
+/// The total supply of the given marketToken.
+fn get_market_token_supply(market_token: IMarketTokenDispatcher) -> u128 {
+    // TODO
+    market_token.total_supply()
+}
+
+/// Converts a number of market tokens to its USD value.
+/// # Arguments
+/// * `market_token_amount` - The input number of market tokens.
+/// * `pool_value` - The value of the pool.
+/// * `supply` - The supply of market tokens.
+/// # Returns
+/// The USD value of the market tokens.
+fn market_token_amount_to_usd(
+    market_token_amount: u128, pool_value: u128, supply: u128
+) -> u128 { // TODO
+    0
 }

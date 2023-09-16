@@ -145,7 +145,7 @@ fn create_withdrawal(
 
     params.execution_fee = wnt_amount.into();
 
-    market_utils::validate_enabled_market(data_store, params.market);
+    market_utils::validate_enabled_market_address(data_store, params.market);
 
     market_utils::validate_swap_path(data_store, params.long_token_swap_path);
 
