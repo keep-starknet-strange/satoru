@@ -149,6 +149,27 @@ fn are_lte(mut arr: Span<u128>, value: u128) -> bool {
     }
 }
 
+/// Determines whether all of the elements in the given array are less than or equal to the specified value.
+/// # Arguments
+/// * `arr` - the array to check the elements of.
+/// * `value` - The value to compare the elements to.
+/// # Returns
+/// true if all of the elements in the array are less than or equal to the specified value, false otherwise.
+fn are_lte_u64(mut arr: Span<u64>, value: u64) -> bool {
+    loop {
+        match arr.pop_front() {
+            Option::Some(item) => {
+                if *item > value {
+                    break false;
+                }
+            },
+            Option::None => {
+                break true;
+            },
+        };
+    }
+}
+
 /// Gets the median value of the elements in the given array. For arrays with an odd number of elements,
 /// returns the element at the middle index. For arrays with an even number of elements, returns the average
 /// of the two middle elements.
