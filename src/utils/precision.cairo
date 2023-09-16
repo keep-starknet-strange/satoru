@@ -11,7 +11,7 @@ use core::option::Option;
 use debug::PrintTrait;
 use satoru::utils::calc::{ roundup_division, roundup_magnitude_division };
 
-const FLOAT_PRECISION: u128 = 1_000_000_000_000_000_000_000_000_000_000_000; // 10^30
+const FLOAT_PRECISION: u128 = 1_000_000_000_000_000_000_000_000_000_000; // 10^30
 const FLOAT_PRECISION_SQRT: u128 = 1_000_000_000_000_000; // 10^15
 
 const WEI_PRECISION: u128 = 1_000_000_000_000_000_000; // 10^18
@@ -67,9 +67,6 @@ fn mul_div(value: u128, numerator: u128, denominator: u128) -> u128 {
     );
     assert(q.limb1 == 0 && q.limb2 == 0 && q.limb3 == 0, 'MulDivOverflow');
     q.limb0
-    // let (prod, _) = u128_overflowing_mul(value, numerator);
-    // let res = roundup_division(prod, denominator);
-    // return res;
 }
 
 /// Apply multiplication then division to value.
@@ -162,7 +159,7 @@ fn mul_div_roundup(
         assert(result != BoundedU256::max() && q.limb1==0 && q.limb2 == 0 && q.limb3 == 0, 'MulDivOverflow');
         q.limb0 + 1
     } else {
-        assert(q.limb2 == 0 && q.limb3 == 0, 'MulDivOverflow');
+        assert(q.limb1 == 0 && q.limb2 == 0 && q.limb3 == 0, 'MulDivOverflow');
         q.limb0
     }
     // let (prod, _) = u128_overflowing_mul(value, numerator);
@@ -288,6 +285,6 @@ fn wei_to_float(value: u128) -> u128 { // TODO
 /// * `value` - The value to convert
 /// # Returns
 /// The float value.
-fn basis_point_to_float(basis_point: u128) -> u128 { // TODO
+fn basis_points_to_float(basis_point: u128) -> u128 { // TODO
     return basis_point * FLOAT_PRECISION / BASIS_POINTS_DIVISOR;
 }
