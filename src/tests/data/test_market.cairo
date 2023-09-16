@@ -57,7 +57,7 @@ fn deploy_role_store() -> ContractAddress {
 }
 
 #[test]
-fn test_set_market_new_and_override() {
+fn given_normal_conditions_when_set_market_new_and_override_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     let address_zero: ContractAddress = 0.try_into().unwrap();
@@ -90,7 +90,7 @@ fn test_set_market_new_and_override() {
     teardown(data_store.contract_address);
 }
 
-fn test_set_market_and_get_by_salt() {
+fn given_normal_conditions_when_set_market_and_get_by_salt_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     let address_zero: ContractAddress = 0.try_into().unwrap();
@@ -118,7 +118,7 @@ fn test_set_market_and_get_by_salt() {
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
-fn test_set_market_should_panic_not_market_keeper() {
+fn given_not_market_keeper_when_set_market_then_fails() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     role_store.revoke_role(caller_address, role::MARKET_KEEPER);
@@ -141,7 +141,7 @@ fn test_set_market_should_panic_not_market_keeper() {
 }
 
 #[test]
-fn test_get_market_keys() {
+fn given_normal_conditions_when_get_market_keys_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     let address_zero: ContractAddress = 0.try_into().unwrap();
@@ -174,7 +174,7 @@ fn test_get_market_keys() {
 }
 
 #[test]
-fn test_remove_only_market() {
+fn given_normal_conditions_when_remove_only_one_market_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     let address_zero: ContractAddress = 0.try_into().unwrap();
@@ -200,7 +200,7 @@ fn test_remove_only_market() {
 }
 
 #[test]
-fn test_remove_1_of_n_market() {
+fn given_normal_conditions_when_remove_1_of_n_market_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     let address_zero: ContractAddress = 0.try_into().unwrap();
@@ -241,7 +241,7 @@ fn test_remove_1_of_n_market() {
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
-fn test_remove_market_should_panic_not_market_keeper() {
+fn given_caller_not_market_keeper_when_remove_market_then_fails() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     role_store.revoke_role(caller_address, role::MARKET_KEEPER);

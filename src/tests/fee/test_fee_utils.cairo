@@ -13,7 +13,7 @@ use satoru::role::role;
 use satoru::fee::fee_utils::{increment_claimable_fee_amount, increment_claimable_ui_fee_amount};
 
 #[test]
-fn test_increment_claimable_fee_amount() {
+fn given_normal_conditions_when_increment_claimable_fee_amount_then_works() {
     let (caller_address, data_store, event_emitter) = setup();
 
     let market: ContractAddress = 0x555.try_into().unwrap();
@@ -39,7 +39,7 @@ fn test_increment_claimable_fee_amount() {
 }
 
 #[test]
-fn test_increment_claimable_ui_fee_amount() {
+fn given_normal_conditions_when_increment_claimable_ui_fee_amount_then_works() {
     let (caller_address, data_store, event_emitter) = setup();
 
     let market: ContractAddress = 0x555.try_into().unwrap();

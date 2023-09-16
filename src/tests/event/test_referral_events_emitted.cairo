@@ -8,7 +8,7 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 use satoru::tests_lib::setup_event_emitter;
 
 #[test]
-fn test_emit_affiliate_reward_updated() {
+fn given_normal_conditions_when_emit_affiliate_reward_updated_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -60,7 +60,7 @@ fn test_emit_affiliate_reward_updated() {
 }
 
 #[test]
-fn test_emit_affiliate_reward_claimed() {
+fn given_normal_conditions_when_emit_affiliate_reward_claimed_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
