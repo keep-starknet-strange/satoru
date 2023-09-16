@@ -183,7 +183,7 @@ mod WithdrawalHandler {
             );
 
             exchange_utils::validate_request_cancellation(
-                data_store, withdrawal.updated_at_block.try_into().unwrap(), 'Withdrawal'
+                data_store, starknet::get_block_timestamp(), 'Withdrawal'
             );
 
             withdrawal_utils::cancel_withdrawal(

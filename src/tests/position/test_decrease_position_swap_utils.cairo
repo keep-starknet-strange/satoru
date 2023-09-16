@@ -11,12 +11,14 @@ use satoru::role::role;
 use satoru::market::market::Market;
 use satoru::position::position::Position;
 use satoru::position::decrease_position_swap_utils;
-use satoru::position::position_utils::{UpdatePositionParams, DecreasePositionCollateralValues, DecreasePositionCollateralValuesOutput};
- use satoru::order::{
-        order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType},
-        order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
-        base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}, order_utils
-    };
+use satoru::position::position_utils::{
+    UpdatePositionParams, DecreasePositionCollateralValues, DecreasePositionCollateralValuesOutput
+};
+use satoru::order::{
+    order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType},
+    order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
+    base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}, order_utils
+};
 use satoru::referral::referral_storage::interface::{
     IReferralStorageDispatcher, IReferralStorageDispatcherTrait
 };
@@ -27,7 +29,6 @@ use starknet::{get_caller_address, ContractAddress, contract_address_const,};
 use array::ArrayTrait;
 
 //TODO Tests need to be added after implementation of decrease_position_swap_utils
-
 
 /// Utility function to deploy a `SwapHandler` contract and return its dispatcher.
 fn deploy_swap_handler_address(role_store_address: ContractAddress) -> ContractAddress {
@@ -50,11 +51,7 @@ fn deploy_role_store() -> ContractAddress {
 /// * `ContractAddress` - The address of the caller.
 /// * `IRoleStoreDispatcher` - The role store dispatcher.
 /// * `ISwapHandlerDispatcher` - The swap handler dispatcher.
-fn setup() -> (
-    ContractAddress,
-    IRoleStoreDispatcher,
-    ISwapHandlerDispatcher
-) {
+fn setup() -> (ContractAddress, IRoleStoreDispatcher, ISwapHandlerDispatcher) {
     let caller_address: ContractAddress = 0x101.try_into().unwrap();
 
     let role_store_address = deploy_role_store();
@@ -81,7 +78,9 @@ fn given_unauthorized_access_role_when_swap_to_pnl_token_then_fails() {
     // Revoke the caller the `CONTROLLER` role.
     role_store.revoke_role(caller_address, role::CONTROLLER);
 
-    let params = create_new_update_position_params(DecreasePositionSwapType::SwapCollateralTokenToPnlToken, swap_handler);
+    let params = create_new_update_position_params(
+        DecreasePositionSwapType::SwapCollateralTokenToPnlToken, swap_handler
+    );
 
     let output = DecreasePositionCollateralValuesOutput {
         output_token: contract_address_const::<'output_token'>(),
@@ -98,10 +97,11 @@ fn given_unauthorized_access_role_when_swap_to_pnl_token_then_fails() {
 
 #[test]
 fn given_normal_conditions_when_swap_to_pnl_token_then_works() {
-
     let (caller_address, role_store, swap_handler) = setup();
 
-    let params = create_new_update_position_params(DecreasePositionSwapType::SwapCollateralTokenToPnlToken, swap_handler);
+    let params = create_new_update_position_params(
+        DecreasePositionSwapType::SwapCollateralTokenToPnlToken, swap_handler
+    );
 
     let output = DecreasePositionCollateralValuesOutput {
         output_token: contract_address_const::<'output_token'>(),
@@ -112,7 +112,10 @@ fn given_normal_conditions_when_swap_to_pnl_token_then_works() {
 
     let values = create_new_decrease_position_collateral_values(output);
 
-    let decrease_position_values = decrease_position_swap_utils::swap_withdrawn_collateral_to_pnl_token(params, values);
+    let decrease_position_values =
+        decrease_position_swap_utils::swap_withdrawn_collateral_to_pnl_token(
+        params, values
+    );
 
     assert(decrease_position_values.output.output_token == (0.try_into().unwrap()), 'Error');
 
@@ -122,10 +125,8 @@ fn given_normal_conditions_when_swap_to_pnl_token_then_works() {
 
 /// Utility function to create new UpdatePositionParams struct
 fn create_new_update_position_params(
-    decrease_position_swap_type: DecreasePositionSwapType,
-    swap_handler: ISwapHandlerDispatcher
+    decrease_position_swap_type: DecreasePositionSwapType, swap_handler: ISwapHandlerDispatcher
 ) -> UpdatePositionParams {
-
     let data_store = contract_address_const::<'data_store'>();
     let event_emitter = contract_address_const::<'event_emitter'>();
     let order_vault = contract_address_const::<'order_vault'>();
@@ -133,12 +134,12 @@ fn create_new_update_position_params(
     let referral_storage = contract_address_const::<'referral_storage'>();
 
     let contracts = ExecuteOrderParamsContracts {
-        data_store: IDataStoreDispatcher { contract_address : data_store },
-        event_emitter: IEventEmitterDispatcher { contract_address : event_emitter },
-        order_vault: IOrderVaultDispatcher { contract_address : order_vault },
-        oracle: IOracleDispatcher { contract_address : oracle },
+        data_store: IDataStoreDispatcher { contract_address: data_store },
+        event_emitter: IEventEmitterDispatcher { contract_address: event_emitter },
+        order_vault: IOrderVaultDispatcher { contract_address: order_vault },
+        oracle: IOracleDispatcher { contract_address: oracle },
         swap_handler,
-        referral_storage: IReferralStorageDispatcher { contract_address : referral_storage }
+        referral_storage: IReferralStorageDispatcher { contract_address: referral_storage }
     };
 
     let market = Market {
@@ -209,7 +210,6 @@ fn create_new_update_position_params(
 fn create_new_decrease_position_collateral_values(
     output: DecreasePositionCollateralValuesOutput,
 ) -> DecreasePositionCollateralValues {
- 
     let value = DecreasePositionCollateralValues {
         execution_price: 10,
         remaining_collateral_amount: 1000,

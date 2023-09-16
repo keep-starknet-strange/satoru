@@ -84,7 +84,7 @@ struct ReportInfo {
 /// * `max_oracle_block_numbers` - The oracles block number that should be higher than block_number.
 /// * `block_number` - The block number to compare to.
 fn validate_block_number_within_range(
-    min_oracle_block_numbers: Array<u128>, max_oracle_block_numbers: Array<u128>, block_number: u128
+    min_oracle_block_numbers: Span<u64>, max_oracle_block_numbers: Span<u64>, block_number: u64
 ) { // TODO
 }
 
