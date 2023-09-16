@@ -12,7 +12,7 @@ use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::market::market::Market;
 use satoru::price::price::Price;
 use satoru::position::position::Position;
-use satoru::referral::referral_storage::interface::{
+use satoru::mock::referral_storage::{
     IReferralStorageDispatcher, IReferralStorageDispatcherTrait
 };
 

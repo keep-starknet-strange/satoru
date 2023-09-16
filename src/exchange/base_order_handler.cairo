@@ -68,7 +68,7 @@ mod BaseOrderHandler {
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use satoru::exchange::error::ExchangeError;
     use satoru::market::market::Market;
-    use satoru::referral::referral_storage::interface::{
+    use satoru::mock::referral_storage::{
         IReferralStorageDispatcher, IReferralStorageDispatcherTrait
     };
     use satoru::utils::span32::Array32Trait;

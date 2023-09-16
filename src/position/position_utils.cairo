@@ -17,7 +17,7 @@ use satoru::price::price::Price;
 use satoru::position::position::Position;
 use satoru::pricing::position_pricing_utils::PositionFees;
 use satoru::order::order::{Order, SecondaryOrderType};
-use satoru::referral::referral_storage::interface::{
+use satoru::mock::referral_storage::{
     IReferralStorageDispatcher, IReferralStorageDispatcherTrait
 };
 use satoru::order::base_order_utils::ExecuteOrderParamsContracts;

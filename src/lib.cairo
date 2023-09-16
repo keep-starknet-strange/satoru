@@ -165,6 +165,12 @@ mod market {
     mod market_event_utils;
 }
 
+mod mock {
+    mod error;
+    mod governable;
+    mod referral_storage;
+}
+
 // `oracle` contains functions related to oracles used by Satoru.
 mod oracle {
     mod error;
@@ -209,11 +215,8 @@ mod pricing {
 
 // `referral` contains referral logic.
 mod referral {
-    mod referral_utils;
+    // mod referral_utils;
     mod referral_tier;
-    mod referral_storage {
-        mod interface;
-    }
 }
 
 mod swap {

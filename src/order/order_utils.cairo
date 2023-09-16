@@ -10,7 +10,7 @@ use satoru::order::base_order_utils::{ExecuteOrderParams, CreateOrderParams};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
-use satoru::referral::referral_storage::interface::{
+use satoru::mock::referral_storage::{
     IReferralStorageDispatcher, IReferralStorageDispatcherTrait
 };
 

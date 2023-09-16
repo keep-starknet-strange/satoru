@@ -25,7 +25,7 @@ use satoru::pricing::position_pricing_utils::PositionBorrowingFees;
 use satoru::pricing::position_pricing_utils::PositionReferralFees;
 use satoru::pricing::position_pricing_utils::PositionFundingFees;
 use satoru::pricing::position_pricing_utils::PositionUiFees;
-use satoru::referral::referral_storage::interface::{
+use satoru::mock::referral_storage::{
     IReferralStorageDispatcher, IReferralStorageDispatcherTrait
 };
 
