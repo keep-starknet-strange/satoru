@@ -10,7 +10,7 @@ use satoru::role::role_store::IRoleStoreDispatcher;
 use satoru::role::role_store::IRoleStoreDispatcherTrait;
 
 #[test]
-fn test_grant_role() {
+fn given_normal_conditions_when_grant_role_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -39,7 +39,7 @@ fn test_grant_role() {
 }
 
 #[test]
-fn test_revoke_role() {
+fn given_normal_conditions_when_revoke_role_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************

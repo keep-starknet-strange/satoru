@@ -13,7 +13,7 @@ use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositio
 use satoru::utils::span32::{Span32, Array32Trait};
 
 #[test]
-fn test_emit_after_deposit_execution_error() {
+fn given_normal_conditions_when_emit_after_deposit_execution_error_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -51,7 +51,7 @@ fn test_emit_after_deposit_execution_error() {
 }
 
 #[test]
-fn test_emit_after_deposit_cancellation_error() {
+fn given_normal_conditions_when_emit_after_deposit_cancellation_error_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -89,7 +89,7 @@ fn test_emit_after_deposit_cancellation_error() {
 }
 
 #[test]
-fn test_emit_after_withdrawal_execution_error() {
+fn given_normal_conditions_when_emit_after_withdrawal_execution_error_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -127,7 +127,7 @@ fn test_emit_after_withdrawal_execution_error() {
 }
 
 #[test]
-fn test_emit_after_withdrawal_cancellation_error() {
+fn given_normal_conditions_when_emit_after_withdrawal_cancellation_error_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -165,7 +165,7 @@ fn test_emit_after_withdrawal_cancellation_error() {
 }
 
 #[test]
-fn test_emit_after_order_execution_error() {
+fn given_normal_conditions_when_emit_after_order_execution_error_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -203,7 +203,7 @@ fn test_emit_after_order_execution_error() {
 }
 
 #[test]
-fn test_emit_after_order_cancellation_error() {
+fn given_normal_conditions_when_emit_after_order_cancellation_error_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -241,7 +241,7 @@ fn test_emit_after_order_cancellation_error() {
 }
 
 #[test]
-fn test_emit_after_order_frozen_error() {
+fn given_normal_conditions_when_emit_after_order_frozen_error_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************

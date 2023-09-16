@@ -17,7 +17,7 @@ use satoru::adl::adl_utils;
 
 
 #[test]
-fn test_set_latest_adl_block() {
+fn given_normal_conditions_when_set_latest_adl_block_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     let market = 'market'.try_into().unwrap();
@@ -52,7 +52,7 @@ fn test_set_latest_adl_block() {
 
 
 #[test]
-fn test_set_enabled() {
+fn given_normal_conditions_when_set_adl_enabled_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     let market = 'market'.try_into().unwrap();
@@ -75,7 +75,7 @@ fn test_set_enabled() {
 
 #[test]
 #[should_panic(expected: ('adl_not_enabled',))]
-fn test_validate_not_enabled() {
+fn given_not_enabled_condition_when_validate_adl_then_fails() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     let market = 'market'.try_into().unwrap();
@@ -89,7 +89,7 @@ fn test_validate_not_enabled() {
 
 #[test]
 #[should_panic(expected: ('block_no_smaller_than_required',))]
-fn test_validate_block_numbers_are_small() {
+fn given_small_block_number_when_validate_adl_then_fails() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     let market = 'market'.try_into().unwrap();
@@ -109,7 +109,7 @@ fn test_validate_block_numbers_are_small() {
 }
 
 #[test]
-fn test_validate() {
+fn given_normal_conditions_when_validate_adl_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     let market = 'market'.try_into().unwrap();
@@ -129,7 +129,7 @@ fn test_validate() {
 }
 
 #[test]
-fn test_adl_state_event() {
+fn given_normal_conditions_when_emit_adl_state_updated_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     let (event_emitter_address, event_emitter) = setup_event_emitter();
@@ -164,7 +164,7 @@ fn test_adl_state_event() {
 
 #[test]
 #[should_panic(expected: ('block_no_smaller_than_required',))]
-fn test_update_adl_state_fail() {
+fn given_small_block_number_when_update_adl_state_then_fails() {
     // Setup
     let (caller_address, role_store, data_store, event_emitter, oracle) = setup_oracle_and_store();
     let market = 'market'.try_into().unwrap();
@@ -183,7 +183,7 @@ fn test_update_adl_state_fail() {
 
 #[test]
 #[should_panic(expected: ('position_not_valid',))]
-fn test_create_adl_position_panic() {
+fn given_non_valid_position_when_create_adl_order_then_fails() {
     // Setup
 
     let (caller_address, role_store, data_store, event_emitter, oracle) = setup_oracle_and_store();
@@ -205,7 +205,7 @@ fn test_create_adl_position_panic() {
 
 
 #[test]
-fn test_create_adl_order() { // Setup
+fn given_normal_conditions_when_create_adl_order_then_works() { // Setup
     //let (caller_address, role_store, data_store, event_emitter, oracle) = setup_oracle_and_store();
     // TODO 
     // For testing "position_utils::get_position_key",  ".data_store.get_position" should be implmented
@@ -214,7 +214,8 @@ fn test_create_adl_order() { // Setup
 
 
 #[test]
-fn test_update_adl_state() { // Setup
+fn given_normal_conditions_when_update_adl_state_then_works() {
+    // Setup
     //let (caller_address, role_store, data_store, event_emitter, oracle) = setup_oracle_and_store();
     // TODO 
     // For testing "get_enabled_market",  "get_market_prices" and "is_pnl_factor_exceeded_direct" should be implmented

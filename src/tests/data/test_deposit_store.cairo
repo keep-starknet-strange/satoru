@@ -43,7 +43,7 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
 }
 
 #[test]
-fn test_set_deposit_new_and_override() {
+fn given_normal_conditions_when_set_and_override_new_deposit_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
 
@@ -96,7 +96,7 @@ fn test_set_deposit_new_and_override() {
 
 #[test]
 #[should_panic(expected: ('deposit account cant be 0',))]
-fn test_set_deposit_should_panic_zero() {
+fn given_deposit_account_0_when_set_deposit_then_fails() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
 
@@ -120,7 +120,7 @@ fn test_set_deposit_should_panic_zero() {
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
-fn test_set_deposit_should_panic_not_controller() {
+fn given_caller_not_controller_when_set_deposit_then_fails() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     role_store.revoke_role(caller_address, role::CONTROLLER);
@@ -144,7 +144,7 @@ fn test_set_deposit_should_panic_not_controller() {
 }
 
 #[test]
-fn test_get_deposit_keys() {
+fn given_normal_conditions_when_get_deposit_keys_then_works() {
     let (caller_address, role_store, data_store) = setup();
     let key: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
@@ -177,7 +177,7 @@ fn test_get_deposit_keys() {
 
 
 #[test]
-fn test_remove_only_deposit() {
+fn given_normal_conditions_when_remove_one_deposit_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     let key: felt252 = 123456789;
@@ -213,7 +213,7 @@ fn test_remove_only_deposit() {
 
 
 #[test]
-fn test_remove_1_of_n_deposit() {
+fn given_normal_conditions_when_remove_1_of_n_deposit_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     let key_1: felt252 = 123456789;
@@ -269,7 +269,7 @@ fn test_remove_1_of_n_deposit() {
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
-fn test_remove_deposit_should_panic_not_controller() {
+fn given_caller_not_controller_when_remove_deposit_then_fails() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     role_store.revoke_role(caller_address, role::CONTROLLER);
@@ -300,9 +300,8 @@ fn test_remove_deposit_should_panic_not_controller() {
 }
 
 #[test]
-fn test_multiple_account_keys() {
+fn given_normal_conditions_when_multiple_get_account_deposit_keys_then_works() {
     // Setup
-
     let (caller_address, role_store, data_store) = setup();
     let key_1: felt252 = 123456789;
     let account = 'account'.try_into().unwrap();
