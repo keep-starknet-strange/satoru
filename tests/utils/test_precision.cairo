@@ -1,9 +1,7 @@
 // IMPORTS
 use satoru::utils::precision;
 use satoru::utils::precision::{ FLOAT_PRECISION, FLOAT_PRECISION_SQRT, WEI_PRECISION, BASIS_POINTS_DIVISOR, FLOAT_TO_WEI_DIVISOR };
-use integer::BoundedInt;
-use debug::PrintTrait;
-use integer::{i128_to_felt252};
+
 #[test]
 fn test_apply_factor_u128() {
     let value: u128 = 10;

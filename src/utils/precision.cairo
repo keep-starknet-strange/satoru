@@ -2,13 +2,10 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use alexandria_math::karatsuba::multiply;
-use alexandria_math::{ pow, BitShift };
-use integer::{ u128_wide_mul, u256_safe_div_rem, u128_try_as_non_zero, i128_to_felt252, u128_to_felt252, u128_overflowing_mul, u256_wide_mul, u512_safe_div_rem_by_u256, BoundedU256, u256_try_as_non_zero };
-use integer::BoundedU128;
+use alexandria_math::pow;
+use integer::{i128_to_felt252, u128_to_felt252, u256_wide_mul, u512_safe_div_rem_by_u256, BoundedU256, u256_try_as_non_zero };
 use core::traits::TryInto;
 use core::option::Option;
-use debug::PrintTrait;
 use satoru::utils::calc::{ roundup_division, roundup_magnitude_division };
 
 const FLOAT_PRECISION: u128 = 1_000_000_000_000_000_000_000_000_000_000; // 10^30
