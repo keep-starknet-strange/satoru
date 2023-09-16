@@ -18,13 +18,14 @@ use satoru::order::order::DecreasePositionSwapType;
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::swap::swap_utils::{SwapParams};
+use satoru::market::market::Market;
 
 /// Swap the withdrawn collateral from collateral_token to pnl_token if needed.
 #[inline(always)]
 fn swap_withdrawn_collateral_to_pnl_token(
     params: UpdatePositionParams, mut values: DecreasePositionCollateralValues
 ) -> DecreasePositionCollateralValues {
-    let mut swap_path_markets = ArrayTrait::new();
+    let mut swap_path_markets = ArrayTrait::<Market>::new();
     if (values.output.output_amount > 0
         && params
             .order
@@ -70,7 +71,7 @@ fn swap_withdrawn_collateral_to_pnl_token(
 fn swap_profit_to_collateral_token(
     params: UpdatePositionParams, pnl_token: ContractAddress, profit_amount: u128
 ) -> (bool, u128) {
-    let mut swap_path_markets = ArrayTrait::new();
+    let mut swap_path_markets = ArrayTrait::<Market>::new();
     if (profit_amount > 0
         && params
             .order
