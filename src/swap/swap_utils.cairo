@@ -11,21 +11,13 @@ use core::integer::I128Neg;
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-use satoru::market::{
-    market::Market,
-    market_utils::{
-        MarketPrices, validate_swap_market, get_opposite_token, apply_swap_impact_with_cap,
-        apply_delta_to_pool_amount, validate_max_pnl, validate_pool_amount, validata_reserve
-    }
-};
-use satoru::fee::fee_utils::{increment_claimable_fee_amount, increment_claimable_ui_fee_amount};
+use satoru::market::{market::Market, market_utils};
+use satoru::fee::fee_utils;
 use satoru::utils::{store_arrays::StoreMarketSpan, traits::ContractAddressDefault};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::swap::error::SwapError;
 use satoru::data::keys;
-use satoru::pricing::swap_pricing_utils::{
-    get_price_impact_usd, get_swap_fees, GetPriceImpactUsdParams
-};
+use satoru::pricing::swap_pricing_utils;
 use satoru::price::price::{Price, PriceTrait, PriceDefault};
 
 /// Parameters to execute a swap.
@@ -207,9 +199,9 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
     }
     let mut cache: SwapCache = Default::default();
 
-    validate_swap_market(params.data_store, _params.market);
+    market_utils::validate_swap_market(params.data_store, _params.market);
 
-    cache.token_out = get_opposite_token(_params.market, *_params.token_in);
+    cache.token_out = market_utils::get_opposite_token(_params.market, *_params.token_in);
     cache.token_in_price = (*params.oracle).get_primary_price(*_params.token_in);
     cache.token_out_price = (*params.oracle).get_primary_price(cache.token_out);
 
@@ -217,7 +209,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
         * cache.token_out_price.mid_price())
         .into();
 
-    let price_impact_usd = get_price_impact_usd(
+    let price_impact_usd = swap_pricing_utils::get_price_impact_usd(
         *params.data_store,
         *_params.market,
         *_params.token_in,
@@ -228,7 +220,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
         -usd_delta_for_token_felt252.try_into().unwrap(),
     );
 
-    let fees = get_swap_fees(
+    let fees = swap_pricing_utils::get_swap_fees(
         *params.data_store,
         *_params.market.market_token,
         *_params.amount_in,
@@ -236,7 +228,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
         *params.ui_fee_receiver
     );
 
-    increment_claimable_fee_amount(
+    fee_utils::increment_claimable_fee_amount(
         *params.data_store,
         *params.event_emitter,
         *_params.market.market_token,
@@ -245,7 +237,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
         keys::swap_fee_type(),
     );
 
-    increment_claimable_ui_fee_amount(
+    fee_utils::increment_claimable_ui_fee_amount(
         *params.data_store,
         *params.event_emitter,
         *params.ui_fee_receiver,
@@ -267,7 +259,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
         cache.pool_amount_out = cache.amount_out;
 
         price_impact_amount =
-            apply_swap_impact_with_cap(
+            market_utils::apply_swap_impact_with_cap(
                 *params.data_store,
                 *params.event_emitter,
                 *_params.market.market_token,
@@ -284,7 +276,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
         // only 9.995 ETH may be swapped in
         // the remaining 0.005 ETH will be stored in the swap impact pool
         price_impact_amount =
-            apply_swap_impact_with_cap(
+            market_utils::apply_swap_impact_with_cap(
                 *params.data_store,
                 *params.event_emitter,
                 *_params.market.market_token,
@@ -310,8 +302,8 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
     }
 
     let mut delta_felt252: felt252 = (cache.amount_in + fees.fee_amount_for_pool).into();
-    apply_delta_to_pool_amount(
-        params.data_store,
+    market_utils::apply_delta_to_pool_amount(
+        *params.data_store,
         params.event_emitter,
         _params.market,
         *_params.token_in,
@@ -321,15 +313,15 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
     // the poolAmountOut excludes the positive price impact amount
     // as that is deducted from the swap impact pool instead
     delta_felt252 = cache.pool_amount_out.into();
-    apply_delta_to_pool_amount(
-        params.data_store,
+    market_utils::apply_delta_to_pool_amount(
+        *params.data_store,
         params.event_emitter,
         _params.market,
         cache.token_out,
         -delta_felt252.try_into().unwrap(),
     );
 
-    let prices = MarketPrices {
+    let prices = market_utils::MarketPrices {
         index_token_price: (*params.oracle).get_primary_price(*_params.market.short_token),
         long_token_price: if (_params.token_in == _params.market.long_token) {
             cache.token_in_price
@@ -343,8 +335,8 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
         },
     };
 
-    validate_pool_amount(params.data_store, _params.market, *_params.token_in);
-    validata_reserve(
+    market_utils::validate_pool_amount(params.data_store, _params.market, *_params.token_in);
+    market_utils::validata_reserve(
         params.data_store, _params.market, @prices, cache.token_out == *_params.market.long_token
     );
     let (pnl_factor_type_for_longs, pnl_factor_type_for_shorts) = if (cache
@@ -356,7 +348,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
         (keys::max_pnl_factor_for_withdrawals(), keys::max_pnl_factor_for_deposits())
     };
 
-    validate_max_pnl(
+    market_utils::validate_max_pnl(
         params.data_store,
         _params.market,
         @prices,
