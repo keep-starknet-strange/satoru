@@ -16,7 +16,7 @@ use satoru::price::price::{Price};
 use satoru::utils::store_arrays::{
     StoreContractAddressArray, StorePriceArray, StoreU128Array, StoreFelt252Array
 };
-use satoru::utils::arrays::{are_lte, get_uncompacted_value, get_uncompacted_value_u64};
+use satoru::utils::arrays::{are_lte_u64, get_uncompacted_value, get_uncompacted_value_u64};
 use satoru::utils::bits::{BITMASK_8, BITMASK_16, BITMASK_32, BITMASK_64};
 use satoru::oracle::error::{OracleError};
 
@@ -117,7 +117,7 @@ fn COMPACTED_PRICE_INDEX_BITMASK() -> u128 {
 /// * `max_oracle_block_numbers` - The oracles block number that should be higher than block_number.
 /// * `block_number` - The block number to compare to.
 fn validate_block_number_within_range(
-    min_oracle_block_numbers: Array<u128>, max_oracle_block_numbers: Array<u128>, block_number: u128
+    min_oracle_block_numbers: Span<u64>, max_oracle_block_numbers: Span<u64>, block_number: u64
 ) {
     if (!is_block_number_within_range(
         min_oracle_block_numbers, max_oracle_block_numbers, block_number
@@ -134,13 +134,13 @@ fn validate_block_number_within_range(
 /// # Returns
 /// True if block_number is in range, false else.
 fn is_block_number_within_range(
-    min_oracle_block_numbers: Array<u128>, max_oracle_block_numbers: Array<u128>, block_number: u128
+    min_oracle_block_numbers: Span<u64>, max_oracle_block_numbers: Span<u64>, block_number: u64
 ) -> bool {
-    if (!are_lte(min_oracle_block_numbers.span(), block_number)) {
+    if (!are_lte_u64(min_oracle_block_numbers, block_number)) {
         return false;
     }
 
-    if (!are_lte(max_oracle_block_numbers.span(), block_number)) {
+    if (!are_lte_u64(max_oracle_block_numbers, block_number)) {
         return false;
     }
 
