@@ -121,7 +121,6 @@ struct SwapCache {
 /// # Returns
 /// A tuple containing the address of the token that was received as
 /// part of the swap and the amount of the received token.
-#[inline(always)]
 fn swap(params: SwapParams) -> (ContractAddress, u128) {
     if (params.amount_in == 0) {
         return (params.token_in, params.amount_in);
