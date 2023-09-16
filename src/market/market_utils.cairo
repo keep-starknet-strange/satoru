@@ -543,21 +543,6 @@ fn validata_reserve(
 ) { // TODO
 }
 
-// @dev validate that the pending pnl is below the allowed amount
-/// * `data_store` DataStore
-/// * `market` the market to check
-/// * `prices` the prices of the market tokens
-/// * `pnl_factor_type_for_longs` the pnl factor type to check
-/// * `pnl_factor_type_for_shorts` the pnl factor type to check
-fn validate_max_pnl(
-    data_store: IDataStoreDispatcher,
-    market: Market,
-    prices: @MarketPrices,
-    pnl_factor_type_for_longs: felt252,
-    pnl_factor_type_for_shorts: felt252
-) { // TODO
-}
-
 /// Validata the open interest.
 /// # Arguments
 /// * `data_store` - The data store to use.
