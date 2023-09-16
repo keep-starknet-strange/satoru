@@ -527,7 +527,7 @@ fn apply_swap_impact_with_cap(
 /// *`market` the market to check
 /// *`token` the token to check
 fn validate_pool_amount(
-    data_store: IDataStoreDispatcher, market: @Market, token: ContractAddress
+    data_store: @IDataStoreDispatcher, market: @Market, token: ContractAddress
 ) { // TODO
 }
 
@@ -539,7 +539,7 @@ fn validate_pool_amount(
 /// * `prices` the prices of the market tokens
 /// * `is_long` whether to check the long or short side
 fn validata_reserve(
-    data_store: IDataStoreDispatcher, market: @Market, prices: @MarketPrices, is_long: bool
+    data_store: @IDataStoreDispatcher, market: @Market, prices: @MarketPrices, is_long: bool
 ) { // TODO
 }
 
@@ -550,7 +550,7 @@ fn validata_reserve(
 /// * `pnl_factor_type_for_longs` the pnl factor type to check
 /// * `pnl_factor_type_for_shorts` the pnl factor type to check
 fn validate_max_pnl(
-    data_store: IDataStoreDispatcher,
+    data_store: @IDataStoreDispatcher,
     market: @Market,
     prices: @MarketPrices,
     pnl_factor_type_for_longs: felt252,
@@ -578,7 +578,7 @@ fn validate_open_interest(data_store: IDataStoreDispatcher, market: @Market, is_
 /// # Arguments
 /// * `data_store` - The data store to use.
 /// * `market` - The market to validate the open interest for.
-fn validate_swap_market(data_store: IDataStoreDispatcher, market: @Market) { // TODO
+fn validate_swap_market(data_store: @IDataStoreDispatcher, market: @Market) { // TODO
 }
 
 // @dev get the opposite token of the market
