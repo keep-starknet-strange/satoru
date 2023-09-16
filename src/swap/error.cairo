@@ -23,4 +23,10 @@ mod SwapError {
         data.append(negative_impact_amount.into());
         panic(data)
     }
+
+    fn DUPLICATED_MARKET_IN_SWAP_PATH(market: ContractAddress) {
+        let mut data = array!['duplicated market path'];
+        data.append(market.into());
+        panic(data)
+    }
 }
