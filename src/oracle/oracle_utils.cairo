@@ -16,7 +16,7 @@ use satoru::price::price::{Price};
 use satoru::utils::store_arrays::{
     StoreContractAddressArray, StorePriceArray, StoreU128Array, StoreFelt252Array
 };
-use satoru::utils::arrays::{are_lte, get_uncompacted_value};
+use satoru::utils::arrays::{are_lte, get_uncompacted_value, get_uncompacted_value_u64};
 use satoru::utils::bits::{BITMASK_8, BITMASK_16, BITMASK_32, BITMASK_64};
 use satoru::oracle::error::{OracleError};
 
@@ -95,13 +95,13 @@ fn COMPACTED_PRECISION_BITMASK() -> u128 {
 
 // compacted block numbers have a length of 64 bits
 const COMPACTED_BLOCK_NUMBER_BIT_LENGTH: usize = 64;
-fn COMPACTED_BLOCK_NUMBER_BITMASK() -> u128 {
+fn COMPACTED_BLOCK_NUMBER_BITMASK() -> u64 {
     BITMASK_64
 }
 
 // compacted timestamps have a length of 64 bits
 const COMPACTED_TIMESTAMP_BIT_LENGTH: usize = 64;
-fn COMPACTED_TIMESTAMP_BITMASK() -> u128 {
+fn COMPACTED_TIMESTAMP_BITMASK() -> u64 {
     BITMASK_64
 }
 
@@ -240,7 +240,7 @@ fn get_uncompacted_oracle_block_numbers(
 fn get_uncompacted_oracle_block_number(
     compacted_oracle_block_numbers: Span<u64>, index: usize
 ) -> u64 {
-    let block_number = get_uncompacted_value(
+    let block_number = get_uncompacted_value_u64(
         compacted_oracle_block_numbers,
         index,
         COMPACTED_BLOCK_NUMBER_BIT_LENGTH,
@@ -258,7 +258,7 @@ fn get_uncompacted_oracle_block_number(
 /// # Returns
 /// The uncompacted oracle timestamp.
 fn get_uncompacted_oracle_timestamp(compacted_oracle_timestamps: Span<u64>, index: usize) -> u64 {
-    let timestamp = get_uncompacted_value(
+    let timestamp = get_uncompacted_value_u64(
         compacted_oracle_timestamps,
         index,
         COMPACTED_TIMESTAMP_BIT_LENGTH,

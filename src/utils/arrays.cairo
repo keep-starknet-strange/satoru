@@ -197,6 +197,37 @@ fn get_uncompacted_value(
     value
 }
 
+/// Gets the uncompacted value at the specified index in the given array of compacted values.
+/// # Arguments
+/// * `compacted_values` - the array of compacted values to get the uncompacted value from.
+/// * `index` - the index of the uncompacted value in the array.
+/// * `compacted_value_bit_length` - the length of each compacted value, in bits.
+/// * `bit_mask` - the bitmask to use to extract the uncompacted value from the compacted value.
+/// * `label` - the array of compacted values to get the uncompacted value from.
+/// # Returns
+/// The uncompacted value at the specified index in the array of compacted values.
+fn get_uncompacted_value_u64(
+    compacted_values: Span<u64>,
+    index: usize,
+    compacted_value_bit_length: usize,
+    bit_mask: u64,
+    label: felt252
+) -> u64 {
+    let compacted_values_per_slot = 64 / compacted_value_bit_length;
+
+    let slot_index = index / compacted_values_per_slot;
+    if slot_index >= compacted_values.len() {
+        panic(array!['CompactedArrayOutOfBounds', index.into(), slot_index.into(), label]);
+    }
+
+    let slot_bits = *compacted_values.at(slot_index);
+    let offset = (index - slot_index * compacted_values_per_slot) * compacted_value_bit_length;
+
+    let value = (slot_bits / pow_u64(2, offset)) & bit_mask;
+
+    value
+}
+
 /// Raise a number to a power, computes x^n.
 /// * `x` - The number to raise.
 /// * `n` - The exponent.
@@ -211,6 +242,23 @@ fn pow(x: u128, n: usize) -> u128 {
         x * pow(x * x, n / 2)
     } else {
         pow(x * x, n / 2)
+    }
+}
+
+/// Raise a number to a power, computes x^n.
+/// * `x` - The number to raise.
+/// * `n` - The exponent.
+/// # Returns
+/// * `u64` - The result of x raised to the power of n.
+fn pow_u64(x: u64, n: usize) -> u64 {
+    if n == 0 {
+        1
+    } else if n == 1 {
+        x
+    } else if (n & 1) == 1 {
+        x * pow_u64(x * x, n / 2)
+    } else {
+        pow_u64(x * x, n / 2)
     }
 }
 
