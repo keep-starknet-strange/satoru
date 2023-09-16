@@ -297,6 +297,9 @@ mod tests {
         mod test_base_order_utils;
         mod test_order;
     }
+    mod position {
+        mod test_decrease_position_swap_utils;
+    }
     mod price {
         mod test_price;
     }
