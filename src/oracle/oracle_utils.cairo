@@ -4,11 +4,12 @@
 // Core lib imports.
 use starknet::ContractAddress;
 use result::ResultTrait;
+use traits::Default;
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use satoru::bank::bank::{IBankSafeDispatcher, IBankSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::market::market::{Market};
 use satoru::price::price::{Price};
 use satoru::utils::store_arrays::{
@@ -30,12 +31,12 @@ use satoru::utils::store_arrays::{
 /// * `compacted_max_prices_indexes` - compacted max price indexes.
 /// * `signatures` - signatures of the oracle signers.
 /// * `price_feed_tokens` - tokens to set prices for based on an external price feed value.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Drop, Clone, Serde)]
 struct SetPricesParams {
     signer_info: u128,
     tokens: Array<ContractAddress>,
-    compacted_min_oracle_block_numbers: Array<u128>,
-    compacted_max_oracle_block_numbers: Array<u128>,
+    compacted_min_oracle_block_numbers: Array<u64>,
+    compacted_max_oracle_block_numbers: Array<u64>,
     compacted_oracle_timestamps: Array<u128>,
     compacted_decimals: Array<u128>,
     compacted_min_prices: Array<u128>,
@@ -46,7 +47,27 @@ struct SetPricesParams {
     price_feed_tokens: Array<ContractAddress>,
 }
 
-#[derive(Drop, starknet::Store, Serde)]
+impl DefaultSetPricesParams of Default<SetPricesParams> {
+    fn default() -> SetPricesParams {
+        SetPricesParams {
+            signer_info: 0,
+            tokens: ArrayTrait::<ContractAddress>::new(),
+            compacted_min_oracle_block_numbers: ArrayTrait::<u64>::new(),
+            compacted_max_oracle_block_numbers: ArrayTrait::<u64>::new(),
+            compacted_oracle_timestamps: ArrayTrait::<u128>::new(),
+            compacted_decimals: ArrayTrait::<u128>::new(),
+            compacted_min_prices: ArrayTrait::<u128>::new(),
+            compacted_min_prices_indexes: ArrayTrait::<u128>::new(),
+            compacted_max_prices: ArrayTrait::<u128>::new(),
+            compacted_max_prices_indexes: ArrayTrait::<u128>::new(),
+            signatures: ArrayTrait::<felt252>::new(),
+            price_feed_tokens: ArrayTrait::<ContractAddress>::new(),
+        }
+    }
+}
+
+
+#[derive(Drop, Clone, starknet::Store, Serde)]
 struct SimulatePricesParams {
     primary_tokens: Array<ContractAddress>,
     primary_prices: Array<Price>,
@@ -140,8 +161,8 @@ fn get_uncompacted_price_index(compacted_price_indexes: Array<u128>, index: u128
 /// # Returns
 /// The uncompacted oracle block numbers.
 fn get_uncompacted_oracle_block_numbers(
-    compacted_oracle_block_numbers: Array<u128>, length: u128
-) -> Array<u128> {
+    compacted_oracle_block_numbers: @Array<u64>, length: @usize
+) -> Array<u64> {
     // TODO
     ArrayTrait::new()
 }
@@ -153,8 +174,8 @@ fn get_uncompacted_oracle_block_numbers(
 /// # Returns
 /// The uncompacted oracle block number.
 fn get_uncompacted_oracle_block_number(
-    compacted_oracle_block_numbers: Array<u128>, index: u128
-) -> u128 {
+    compacted_oracle_block_numbers: Array<u64>, index: usize
+) -> u64 {
     // TODO
     0
 }

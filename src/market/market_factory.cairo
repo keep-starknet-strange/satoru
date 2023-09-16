@@ -25,7 +25,7 @@ trait IMarketFactory<TContractState> {
         long_token: ContractAddress,
         short_token: ContractAddress,
         market_type: felt252,
-    ) -> (ContractAddress, felt252);
+    ) -> ContractAddress;
 
     /// Update the class hash of the `MarketToken` contract to deploy when creating a new market.
     /// # Arguments
@@ -54,9 +54,7 @@ mod MarketFactory {
     use satoru::role::role;
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::event::event_emitter::{
-        IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait
-    };
+    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::market::market::{Market, UniqueIdMarket};
 
     // *************************************************************************
@@ -69,7 +67,7 @@ mod MarketFactory {
         /// Interface to interact with the `RoleStore` contract.
         role_store: IRoleStoreDispatcher,
         /// Interface to interact with the `EventEmitter` contract.
-        event_emitter: IEventEmitterSafeDispatcher,
+        event_emitter: IEventEmitterDispatcher,
         /// The class hash of the `MarketToken` contract to deploy when creating a new market.
         market_token_class_hash: ClassHash,
     }
@@ -97,7 +95,7 @@ mod MarketFactory {
         self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
         self
             .event_emitter
-            .write(IEventEmitterSafeDispatcher { contract_address: event_emitter_address });
+            .write(IEventEmitterDispatcher { contract_address: event_emitter_address });
         self.market_token_class_hash.write(market_token_class_hash);
     }
 
@@ -113,7 +111,7 @@ mod MarketFactory {
             long_token: ContractAddress,
             short_token: ContractAddress,
             market_type: felt252,
-        ) -> (ContractAddress, felt252) {
+        ) -> ContractAddress {
             // Get the caller address.
             let caller_address = get_caller_address();
             // Check that the caller has the `MARKET_KEEPER` role.
@@ -139,10 +137,8 @@ mod MarketFactory {
             let market = Market {
                 market_token: market_token_deployed_address, index_token, long_token, short_token,
             };
-            // Compute the key of the market.
-            let market_key = market.unique_id(market_type);
             // Add the market to the data store.
-            self.data_store.read().set_market(market_key, market);
+            self.data_store.read().set_market(market_token_deployed_address, salt, market);
 
             // Emit the event.
             self
@@ -155,11 +151,10 @@ mod MarketFactory {
                     long_token,
                     short_token,
                     market_type,
-                )
-                .unwrap();
+                );
 
             // Return the market token address and the market key.
-            (market_token_deployed_address, market_key)
+            market_token_deployed_address
         }
 
         fn update_market_token_class_hash(
@@ -181,8 +176,7 @@ mod MarketFactory {
                 .read()
                 .emit_market_token_class_hash_updated(
                     caller_address, old_market_token_class_hash, market_token_class_hash,
-                )
-                .unwrap();
+                );
         }
     }
 

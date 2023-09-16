@@ -15,3 +15,5 @@ It contains the following Cairo library files:
 - [increase_order_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/order/increase_order_utils.cairo): Library for functions to help with processing a increasing order.
 
 - [order.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/order/order.cairo): Struct for orders
+
+- [order_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/order/order.cairo): Library for order functions.

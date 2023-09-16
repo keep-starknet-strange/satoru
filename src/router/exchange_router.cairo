@@ -13,18 +13,18 @@ use core::zeroable::Zeroable;
 use debug::PrintTrait;
 
 // Local imports.
-use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use satoru::router::router::{IRouterSafeDispatcher, IRouterSafeDispatcherTrait};
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
 use satoru::deposit::deposit_utils::CreateDepositParams;
 use satoru::withdrawal::withdrawal_utils::CreateWithdrawalParams;
 use satoru::order::base_order_utils::CreateOrderParams;
 use satoru::oracle::oracle_utils::SimulatePricesParams;
 use satoru::exchange::{
-    deposit_handler::{IDepositHandlerSafeDispatcher, IDepositHandlerSafeDispatcherTrait},
-    withdrawal_handler::{IWithdrawalHandlerSafeDispatcher, IWithdrawalHandlerSafeDispatcherTrait},
-    order_handler::{IOrderHandlerSafeDispatcher, IOrderHandlerSafeDispatcherTrait},
+    deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait},
+    withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait},
+    order_handler::{IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait},
 };
 
 // *************************************************************************
@@ -188,18 +188,14 @@ mod ExchangeRouter {
     use debug::PrintTrait;
 
     // Local imports.
-    use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-    use satoru::event::event_emitter::{
-        IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait
-    };
-    use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-    use satoru::router::router::{IRouterSafeDispatcher, IRouterSafeDispatcherTrait};
+    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use satoru::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
     use satoru::exchange::{
-        deposit_handler::{IDepositHandlerSafeDispatcher, IDepositHandlerSafeDispatcherTrait},
-        withdrawal_handler::{
-            IWithdrawalHandlerSafeDispatcher, IWithdrawalHandlerSafeDispatcherTrait
-        },
-        order_handler::{IOrderHandlerSafeDispatcher, IOrderHandlerSafeDispatcherTrait},
+        deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait},
+        withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait},
+        order_handler::{IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait},
     };
 
     use super::IExchangeRouter;
@@ -214,19 +210,19 @@ mod ExchangeRouter {
     #[storage]
     struct Storage {
         /// Interface to interact with the `Router` contract.
-        router: IRouterSafeDispatcher,
+        router: IRouterDispatcher,
         /// Interface to interact with the `DataStore` contract.
-        data_store: IDataStoreSafeDispatcher,
+        data_store: IDataStoreDispatcher,
         /// Interface to interact with the `RoleStore` contract.
-        role_store: IRoleStoreSafeDispatcher,
+        role_store: IRoleStoreDispatcher,
         /// Interface to interact with the `EventEmitter` contract.
-        event_emitter: IEventEmitterSafeDispatcher,
+        event_emitter: IEventEmitterDispatcher,
         /// Interface to interact with the `DepositHandler` contract.
-        deposit_handler: IDepositHandlerSafeDispatcher,
+        deposit_handler: IDepositHandlerDispatcher,
         /// Interface to interact with the `WithdrawalHandler` contract.
-        withdrawal_handler: IWithdrawalHandlerSafeDispatcher,
+        withdrawal_handler: IWithdrawalHandlerDispatcher,
         /// Interface to interact with the `OrderHandler` contract.
-        order_handler: IOrderHandlerSafeDispatcher
+        order_handler: IOrderHandlerDispatcher
     }
 
     // *************************************************************************
@@ -253,23 +249,21 @@ mod ExchangeRouter {
         withdrawal_handler_address: ContractAddress,
         order_handler_address: ContractAddress
     ) {
-        self.router.write(IRouterSafeDispatcher { contract_address: router_address });
-        self.data_store.write(IDataStoreSafeDispatcher { contract_address: data_store_address });
-        self.role_store.write(IRoleStoreSafeDispatcher { contract_address: role_store_address });
+        self.router.write(IRouterDispatcher { contract_address: router_address });
+        self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
+        self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
         self
             .event_emitter
-            .write(IEventEmitterSafeDispatcher { contract_address: event_emitter_address });
+            .write(IEventEmitterDispatcher { contract_address: event_emitter_address });
         self
             .deposit_handler
-            .write(IDepositHandlerSafeDispatcher { contract_address: deposit_handler_address });
+            .write(IDepositHandlerDispatcher { contract_address: deposit_handler_address });
         self
             .withdrawal_handler
-            .write(
-                IWithdrawalHandlerSafeDispatcher { contract_address: withdrawal_handler_address }
-            );
+            .write(IWithdrawalHandlerDispatcher { contract_address: withdrawal_handler_address });
         self
             .order_handler
-            .write(IOrderHandlerSafeDispatcher { contract_address: order_handler_address });
+            .write(IOrderHandlerDispatcher { contract_address: order_handler_address });
     }
 
     // *************************************************************************

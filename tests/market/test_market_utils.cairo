@@ -15,15 +15,13 @@ use snforge_std::{declare, start_prank, stop_prank, start_warp, ContractClassTra
 
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-use satoru::chain::chain::{IChainSafeDispatcher, IChainSafeDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use satoru::market::market_factory::{
-    IMarketFactorySafeDispatcher, IMarketFactorySafeDispatcherTrait
-};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 use satoru::market::market::{Market, UniqueIdMarket, IntoMarketToken};
-use satoru::market::market_token::{IMarketTokenSafeDispatcher, IMarketTokenSafeDispatcherTrait};
+use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
 use satoru::market::market_utils;
 use satoru::data::keys;
 use satoru::role::role;
@@ -58,14 +56,13 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
     let short_token = contract_address_const::<'short_token'>();
     let market_type = 'market_type';
 
-    let (market_token_deployed_address, market_id) = market_factory
-        .create_market(index_token, long_token, short_token, market_type)
-        .unwrap();
+    let market_token_deployed_address = market_factory
+        .create_market(index_token, long_token, short_token, market_type);
 
     // Get the market from the data store.
     // This must not panic, because the market was created in the previous step.
     // Hence the market must exist in the data store and it's safe to unwrap.
-    let market = data_store.get_market(market_id).unwrap().unwrap();
+    let market = data_store.get_market(market_token_deployed_address).unwrap();
 
     let collateral_token = contract_address_const::<'collateral_token'>();
     let is_long = true;
@@ -85,7 +82,7 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
     let market_token = market.market_token();
 
     // Get the name of the market token.
-    let market_token_name = market_token.name().unwrap();
+    let market_token_name = market_token.name();
     assert(market_token_name == 'Satoru Market', 'wrong market token name');
 
     // *********************************************************************************************
@@ -421,13 +418,10 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
 
     // The value of the claimable collateral amount for the account should now be 50.
     // Read the value from the data store using the hardcoded key and assert it.
-    assert(
-        data_store.get_u128(claimable_collatoral_amount_for_account_key).unwrap() == 50,
-        'wrong value'
-    );
+    assert(data_store.get_u128(claimable_collatoral_amount_for_account_key) == 50, 'wrong value');
     // The value of the claimable collateral amount for the market should now be 50.
     // Read the value from the data store using the hardcoded key and assert it.
-    assert(data_store.get_u128(claimable_collateral_amount_key).unwrap() == 50, 'wrong value');
+    assert(data_store.get_u128(claimable_collateral_amount_key) == 50, 'wrong value');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -481,12 +475,10 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
 
     // The value of the claimable funding amount for the account should now be 50.
     // Read the value from the data store using the hardcoded key and assert it.
-    assert(
-        data_store.get_u128(claimable_funding_amount_for_account_key).unwrap() == 50, 'wrong value'
-    );
+    assert(data_store.get_u128(claimable_funding_amount_for_account_key) == 50, 'wrong value');
     // The value of the claimable funding amount for the market should now be 50.
     // Read the value from the data store using the hardcoded key and assert it.
-    assert(data_store.get_u128(claimable_funding_amount_key).unwrap() == 50, 'wrong value');
+    assert(data_store.get_u128(claimable_funding_amount_key) == 50, 'wrong value');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -938,15 +930,15 @@ fn setup() -> (
     // The `MarketToken` class hash for the factory.
     ContractClass,
     // Interface to interact with the `MarketFactory` contract.
-    IMarketFactorySafeDispatcher,
+    IMarketFactoryDispatcher,
     // Interface to interact with the `RoleStore` contract.
-    IRoleStoreSafeDispatcher,
+    IRoleStoreDispatcher,
     // Interface to interact with the `DataStore` contract.
-    IDataStoreSafeDispatcher,
+    IDataStoreDispatcher,
     // Interface to interact with the `Chain` library contract.
-    IChainSafeDispatcher,
+    IChainDispatcher,
     // Interface to interact with the `EventEmitter` contract.
-    IEventEmitterSafeDispatcher,
+    IEventEmitterDispatcher,
 ) {
     // Setup required contracts.
     let (
@@ -992,20 +984,20 @@ fn setup() -> (
 /// * `market_factory` - The interface to interact with the `MarketFactory` contract.
 fn grant_roles_and_prank(
     caller_address: ContractAddress,
-    role_store: IRoleStoreSafeDispatcher,
-    data_store: IDataStoreSafeDispatcher,
-    market_factory: IMarketFactorySafeDispatcher,
+    role_store: IRoleStoreDispatcher,
+    data_store: IDataStoreDispatcher,
+    market_factory: IMarketFactoryDispatcher,
 ) {
     start_prank(role_store.contract_address, caller_address);
 
     // Grant the caller the `CONTROLLER` role.
     // We use the same account to deploy data_store and role_store, so we can grant the role
     // because the caller is the owner of role_store contract.
-    role_store.grant_role(caller_address, role::CONTROLLER).unwrap();
+    role_store.grant_role(caller_address, role::CONTROLLER);
 
     // Grant the call the `MARKET_KEEPER` role.
     // This role is required to create a market.
-    role_store.grant_role(caller_address, role::MARKET_KEEPER).unwrap();
+    role_store.grant_role(caller_address, role::MARKET_KEEPER);
 
     // Prank the caller address for calls to data_store contract.
     // We need this so that the caller has the CONTROLLER role.
@@ -1017,7 +1009,7 @@ fn grant_roles_and_prank(
 }
 
 /// Utility function to teardown the test environment.
-fn teardown(data_store: IDataStoreSafeDispatcher, market_factory: IMarketFactorySafeDispatcher) {
+fn teardown(data_store: IDataStoreDispatcher, market_factory: IMarketFactoryDispatcher) {
     // Stop pranking the caller address.
     stop_prank(data_store.contract_address);
     stop_prank(market_factory.contract_address);
@@ -1036,26 +1028,26 @@ fn setup_contracts() -> (
     // The `MarketToken` class hash for the factory.
     ContractClass,
     // Interface to interact with the `MarketFactory` contract.
-    IMarketFactorySafeDispatcher,
+    IMarketFactoryDispatcher,
     // Interface to interact with the `RoleStore` contract.
-    IRoleStoreSafeDispatcher,
+    IRoleStoreDispatcher,
     // Interface to interact with the `DataStore` contract.
-    IDataStoreSafeDispatcher,
+    IDataStoreDispatcher,
     // Interface to interact with the `Chain` library contract.
-    IChainSafeDispatcher,
+    IChainDispatcher,
     // Interface to interact with the `EventEmitter` contract.
-    IEventEmitterSafeDispatcher,
+    IEventEmitterDispatcher,
 ) {
     // Deploy the role store contract.
     let role_store_address = deploy_role_store();
 
     // Create a role store dispatcher.
-    let role_store = IRoleStoreSafeDispatcher { contract_address: role_store_address };
+    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
 
     // Deploy the contract.
     let data_store_address = deploy_data_store(role_store_address);
     // Create a safe dispatcher to interact with the contract.
-    let data_store = IDataStoreSafeDispatcher { contract_address: data_store_address };
+    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
 
     // Declare the `MarketToken` contract.
     let market_token_class_hash = declare('MarketToken');
@@ -1063,12 +1055,12 @@ fn setup_contracts() -> (
     // Declare the `Chain` library contract.
     let chain_address = deploy_chain();
     // Create a safe dispatcher to interact with the contract.
-    let chain = IChainSafeDispatcher { contract_address: chain_address };
+    let chain = IChainDispatcher { contract_address: chain_address };
 
     // Deploy the `EventEmitter` contract.
     let event_emitter_address = deploy_event_emitter();
     // Create a safe dispatcher to interact with the contract.
-    let event_emitter = IEventEmitterSafeDispatcher { contract_address: event_emitter_address };
+    let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
 
     // Deploy the market factory.
     let market_factory_address = deploy_market_factory(
@@ -1078,7 +1070,7 @@ fn setup_contracts() -> (
         market_token_class_hash.clone()
     );
     // Create a safe dispatcher to interact with the contract.
-    let market_factory = IMarketFactorySafeDispatcher { contract_address: market_factory_address };
+    let market_factory = IMarketFactoryDispatcher { contract_address: market_factory_address };
 
     (
         0x101.try_into().unwrap(),

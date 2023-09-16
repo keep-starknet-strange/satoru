@@ -16,18 +16,18 @@
 use starknet::ContractAddress;
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
-use satoru::oracle::oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 
 
 /// CreateAdlOrderParams struct used in createAdlOrder to avoid stack
 #[derive(Drop, Copy, starknet::Store, Serde)]
 struct CreateAdlOrderParams {
     /// `DataStore` contract dispatcher.
-    data_store: IDataStoreSafeDispatcher,
+    data_store: IDataStoreDispatcher,
     /// `EventEmitter` contract dispatcher.
-    event_emitter: IEventEmitterSafeDispatcher,
+    event_emitter: IEventEmitterDispatcher,
     /// The account to reduce the position.
     account: ContractAddress,
     /// The position's market.
@@ -70,9 +70,9 @@ struct CreateAdlOrderParams {
 /// # Returns
 /// Return felt252 hash using the next nonce value
 fn update_adl_state(
-    data_store: IDataStoreSafeDispatcher,
-    event_emitter: IEventEmitterSafeDispatcher,
-    oracle: IOracleSafeDispatcher,
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    oracle: IOracleDispatcher,
     market: ContractAddress,
     is_long: bool,
     max_oracle_block_numbers: Span<u64>
@@ -96,10 +96,10 @@ fn create_adl_order(params: CreateAdlOrderParams) -> felt252 {
 /// * `is_long` - Indicates whether to check the long or short side of the market.
 /// * `max_oracle_block_numbers` - The oracle block numbers for the prices stored in the oracle.
 fn validate_adl(
-    data_store: IDataStoreSafeDispatcher,
+    data_store: IDataStoreDispatcher,
     market: ContractAddress,
     is_long: bool,
-    max_oracle_block_numbers: Span<u128>
+    max_oracle_block_numbers: Span<u64>
 ) { // TODO
 }
 
@@ -111,7 +111,7 @@ fn validate_adl(
 /// # Returns
 /// Return the latest block at which the ADL flag was updated.
 fn get_latest_adl_block(
-    data_store: IDataStoreSafeDispatcher, market: ContractAddress, is_long: bool
+    data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
 ) -> u64 {
     // TODO
     0
@@ -126,7 +126,7 @@ fn get_latest_adl_block(
 /// # Returns
 /// Return the latest block number value.
 fn set_latest_adl_block(
-    data_store: IDataStoreSafeDispatcher, market: ContractAddress, is_long: bool, value: u64
+    data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool, value: u64
 ) -> u64 {
     // TODO
     0
@@ -140,7 +140,7 @@ fn set_latest_adl_block(
 /// # Returns
 /// Return whether ADL is enabled.
 fn get_adl_enabled(
-    data_store: IDataStoreSafeDispatcher, market: ContractAddress, is_long: bool
+    data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
 ) -> bool { // TODO
     true
 }
@@ -154,7 +154,7 @@ fn get_adl_enabled(
 /// # Returns
 /// Return whether ADL is enabled.
 fn set_adl_enabled(
-    data_store: IDataStoreSafeDispatcher, market: ContractAddress, is_long: bool, value: bool
+    data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool, value: bool
 ) -> bool {
     // TODO
     true
@@ -169,7 +169,7 @@ fn set_adl_enabled(
 /// * `max_pnl_factor` - The max PnL factor.
 /// * `should_enable_adl` - Whether ADL was enabled or disabled.
 fn emit_adl_state_updated(
-    event_emitter: IEventEmitterSafeDispatcher,
+    event_emitter: IEventEmitterDispatcher,
     market: ContractAddress,
     is_long: bool,
     pnt_to_pool_factor: i128,

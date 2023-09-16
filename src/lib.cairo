@@ -15,6 +15,17 @@ mod bank {
 // `callback` is a module that allows for better composability with other contracts.
 mod callback {
     mod callback_utils;
+    mod error;
+    mod mocks;
+    mod deposit_callback_receiver {
+        mod interface;
+    }
+    mod order_callback_receiver {
+        mod interface;
+    }
+    mod withdrawal_callback_receiver {
+        mod interface;
+    }
 }
 
 // `chain` is a module that contains utility function for interacting with the chain and getting information.
@@ -39,6 +50,7 @@ mod event {
 mod data {
     mod data_store;
     mod keys;
+    mod error;
 }
 
 // `deposit` handles the depositing of funds into the system.
@@ -106,6 +118,8 @@ mod role {
     mod role;
     // The contract handling the roles and store them.
     mod role_store;
+    // The contract handling the role modifiers
+    mod role_module;
 }
 
 // `price` contains utility functions for calculating prices.
@@ -121,13 +135,16 @@ mod utils {
     mod bits;
     mod calc;
     mod enumerable_set;
-    mod precision;
     mod enumerable_values;
     mod error;
     mod global_reentrancy_guard;
+    mod precision;
+    mod span32;
     mod u128_mask;
     mod hash;
     mod store_arrays;
+    mod error_utils;
+    mod starknet_utils;
 }
 
 // `liquidation` function to help with liquidations.
@@ -157,10 +174,14 @@ mod oracle {
 // `order` contains order management functions.
 mod order {
     mod base_order_utils;
+    mod order_utils;
     mod decrease_order_utils;
     mod increase_order_utils;
     mod order_vault;
     mod order;
+    mod order_store_utils;
+    mod order_event_utils;
+    mod error;
 }
 
 // `position` contains positions management functions
@@ -172,6 +193,7 @@ mod position {
     mod position_event_utils;
     mod position_utils;
     mod position;
+    mod error;
 }
 
 // `pricing` contains pricing utils
@@ -200,6 +222,7 @@ mod swap {
 // TODO: Use openzeppelin as dependency when Scarb versions match.
 mod token {
     mod erc20;
+    mod token_utils;
 }
 
 // `withdrawal` contains withdrawal management functions

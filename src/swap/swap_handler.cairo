@@ -28,12 +28,12 @@ mod SwapHandler {
     //                               IMPORTS
     // *************************************************************************
     // Core lib imports    
-    use result::ResultTrait;
     use starknet::ContractAddress;
 
     // Local imports.
-    use satoru::swap::error::SwapError;
     use satoru::swap::swap_utils::SwapParams;
+    use satoru::swap::swap_utils;
+    use satoru::role::role_module::{RoleModule, IRoleModule};
 
     // *************************************************************************
     //                              STORAGE
@@ -47,7 +47,10 @@ mod SwapHandler {
 
     /// Constructor of the contract.
     #[constructor]
-    fn constructor(ref self: ContractState) {}
+    fn constructor(ref self: ContractState, role_store_address: ContractAddress) {
+        let mut role_module: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
+        IRoleModule::initialize(ref role_module, role_store_address)
+    }
 
 
     // *************************************************************************
@@ -56,7 +59,11 @@ mod SwapHandler {
     #[external(v0)]
     impl SwapHandler of super::ISwapHandler<ContractState> {
         fn swap(ref self: ContractState, params: SwapParams) -> (ContractAddress, u128) {
-            (0.try_into().unwrap(), 0)
+            //TODO nonReentrant when openzeppelin is available
+            let mut role_module: RoleModule::ContractState =
+                RoleModule::unsafe_new_contract_state();
+            role_module.only_controller();
+            swap_utils::swap(params)
         }
     }
 }

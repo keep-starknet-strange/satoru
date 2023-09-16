@@ -16,7 +16,8 @@ use snforge_std::{declare, ContractClassTrait, start_roll};
 
 // Local imports.
 use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
-use satoru::order::order::{Order, OrderType, OrderTrait};
+use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
+use satoru::utils::span32::{Span32, Array32Trait};
 
 #[test]
 fn given_normal_conditions_when_touch_then_expected_results() {
@@ -36,7 +37,8 @@ fn given_normal_conditions_when_touch_then_expected_results() {
     start_roll(chain.contract_address, 42000);
 
     // Call the `touch` function.
-    order.touch(chain);
+    // order.touch(chain);
+    order.touch();
 
     assert(order.updated_at_block == 42000, 'bad value');
 
@@ -47,11 +49,14 @@ fn given_normal_conditions_when_touch_then_expected_results() {
 }
 
 fn create_dummy_order() -> Order {
-    let mut swap_path = array![];
-    swap_path.append(contract_address_const::<'swap_path_0'>());
-    swap_path.append(contract_address_const::<'swap_path_1'>());
+    let swap_path: Span32<ContractAddress> = array![
+        contract_address_const::<'swap_path_0'>(), contract_address_const::<'swap_path_1'>()
+    ]
+        .span32();
     Order {
+        key: 111,
         order_type: OrderType::StopLossDecrease,
+        decrease_position_swap_type: DecreasePositionSwapType::SwapPnlTokenToCollateralToken(()),
         account: contract_address_const::<'account'>(),
         receiver: contract_address_const::<'receiver'>(),
         callback_contract: contract_address_const::<'callback_contract'>(),
