@@ -61,7 +61,7 @@ fn mul_div(value: u128, numerator: u128, denominator: u128) -> u128 {
     let numerator = u256 { low: numerator, high: 0};
     let denominator = u256 { low: denominator, high: 0};
     let product = u256_wide_mul(value, numerator);
-    let (q, r) = u512_safe_div_rem_by_u256(
+    let (q, _) = u512_safe_div_rem_by_u256(
         product, 
         u256_try_as_non_zero(denominator).expect('MulDivByZero')
     );
@@ -90,16 +90,10 @@ fn mul_div_inum(value: u128, numerator: i128, denominator: u128) -> i128 { // TO
             numerator
         };
     let felt252_numerator: felt252 = i128_to_felt252(numerator_abs);
-    let u128_numerator = match felt252_numerator.try_into() {
-        Option::Some(n) => n,
-        Option::None => 0
-    };
+    let u128_numerator = felt252_numerator.try_into().unwrap();
     let result: u128 = mul_div(value, u128_numerator, denominator);
     let felt252_result: felt252 = u128_to_felt252(result);
-    let i128_result: i128 = match felt252_result.try_into() {
-        Option::Some(n) => n,
-        Option::None => 0
-    };
+    let i128_result: i128 = felt252_result.try_into().unwrap();
     if numerator > 0 {
         return i128_result;
     } else {
@@ -121,16 +115,10 @@ fn mul_div_inum_roundup(
             numerator
         };
     let felt252_numerator: felt252 = i128_to_felt252(numerator_abs);
-    let u128_numerator = match felt252_numerator.try_into() {
-        Option::Some(n) => n,
-        Option::None => 0
-    };
+    let u128_numerator = felt252_numerator.try_into().unwrap();
     let result: u128 = mul_div_roundup(value, u128_numerator, denominator, roundup_magnitude);
     let felt252_result: felt252 = u128_to_felt252(result);
-    let i128_result: i128 = match felt252_result.try_into() {
-        Option::Some(n) => n,
-        Option::None => 0
-    };
+    let i128_result: i128 = felt252_result.try_into().unwrap();
     if numerator > 0 {
         return i128_result;
     } else {
@@ -162,24 +150,6 @@ fn mul_div_roundup(
         assert(q.limb1 == 0 && q.limb2 == 0 && q.limb3 == 0, 'MulDivOverflow');
         q.limb0
     }
-    // let (prod, _) = u128_overflowing_mul(value, numerator);
-    // if roundup_magnitude {
-    //     let felt252_prod: felt252 = u128_to_felt252(prod);
-    //     let i128_prod: i128 = match felt252_prod.try_into() {
-    //         Option::Some(n) => n,
-    //         Option::None => 0
-    //     };
-    //     let res = roundup_magnitude_division(i128_prod, denominator);
-    //     let felt252_res: felt252 = i128_to_felt252(res);
-    //     let u128_res: u128 = match felt252_res.try_into() {
-    //         Option::Some(n) => n,
-    //         Option::None => 0
-    //     };
-    //     return u128_res;
-    // } else {
-    //     let res = roundup_division(prod, denominator);
-    //     return res;
-    // }
 }
 
 /// Apply exponent factor to float value.
