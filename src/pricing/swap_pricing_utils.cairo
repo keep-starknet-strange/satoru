@@ -79,7 +79,27 @@ impl DefaultSwapFees of Default<SwapFees> {
 /// The price impact in USD.
 fn get_price_impact_usd_(params: GetPriceImpactUsdParams) -> i128 {
     // TODO
-    0
+    let open_interest_params: OpenInterestParams = get_next_open_interest(params);
+    let price_impact_usd = _get_price_impact_usd(params.data_store, params.market.market_token, open_interest_params);
+
+    if (price_impact_usd >= 0) {
+        return price_impact_usd;
+    }
+
+    let (has_virtual_inventory, virtual_inventory) = market_utils.get_virtual_inventory_for_positions(params.data_store, params.market.index_token);
+    
+    if (!has_virtual_inventory) {
+        return price_impact_usd;
+    }
+
+    let open_interest_params_for_virtual_inventory: OpenInterestParams = get_next_open_interest_for_virtual_inventory(params, virtual_inventory);
+    let price_impact_usd_for_virtual_inventory = _getPriceImpactUsd(params.data_store, params.market.market_token, open_interest_params_for_virtual_inventory);
+
+    if (price_impact_usd_for_virtual_inventory < price_impact_usd) {
+        return price_impact_usd_for_virtual_inventory;
+    }
+    
+    price_impact_usd
 }
 
 /// Get the price impact in USD
