@@ -1,4 +1,3 @@
-
 use starknet::ContractAddress;
 
 impl ContractAddressDefault of Default<ContractAddress> {
