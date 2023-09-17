@@ -161,20 +161,13 @@ fn apply_exponent_factor(float_value: u128, exponent_factor: u128) -> u128 { // 
     if float_value < FLOAT_PRECISION {
         return 0;
     }
-
     if exponent_factor == FLOAT_PRECISION {
         return float_value;
     }
-
     let wei_value = float_to_wei(float_value);
     let exponent_wei = float_to_wei(exponent_factor);
-
-    // Effectuer une puissance sur les valeurs converties en wei
     let wei_result = pow(wei_value, exponent_wei);
-
-    // Convertir le résultat en valeur flottante
-    let float_result = wei_to_float(wei_result);
-
+    let float_result = wei_to_float(wei_result) / 1000;
     float_result
 }
 
@@ -218,20 +211,14 @@ fn to_factor_ival(value: i128, divisor: u128) -> i128 { // TODO
         value
     };
     let felt252_value: felt252 = i128_to_felt252(value_abs);
-    let u128_value = match felt252_value.try_into() {
-        Option::Some(n) => n,
-        Option::None => 0
-    };
+    let u128_value = felt252_value.try_into().unwrap();
     let result: u128 = to_factor(u128_value, divisor);
     let felt252_result: felt252 = u128_to_felt252(result);
-    let i128_result: i128 = match felt252_result.try_into() {
-        Option::Some(n) => n,
-        Option::None => 0
-    };
+    let i128_result: i128 = felt252_result.try_into().unwrap();
     if value > 0 {
-        return i128_result;
+        i128_result
     } else {
-        return -i128_result;
+        -i128_result
     }
 }
 

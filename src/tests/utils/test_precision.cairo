@@ -88,7 +88,7 @@ fn test_apply_exponent_factor() {
     let float_value: u128 = 1_000_000_000_000_000_000_000_000_000_000_000; //10^33
     let exponent_factor: u128 = 1_000_000_000_000; //10^12
     let result = precision::apply_exponent_factor(float_value, exponent_factor);
-    assert(result == 1_000_000_000_000_000_000_000_000_000_000_000, 'should be 10^33');
+    assert(result == 1_000_000_000_000_000_000_000_000_000_000_000, 'should be 10^30');
 }
 
 #[test]
