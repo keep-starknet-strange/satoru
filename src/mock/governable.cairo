@@ -12,7 +12,7 @@ use starknet::ContractAddress;
 // *************************************************************************
 #[starknet::interface]
 trait IGovernable<TContractState> {
-    fn initialize(ref self: TContractState);       
+    fn initialize(ref self: TContractState, event_emitter_address: ContractAddress);       
     fn only_gov(self: @TContractState);
     fn transfer_ownership(ref self: TContractState, new_gov: ContractAddress);
     fn accept_ownership(ref self: TContractState);
@@ -30,10 +30,7 @@ mod Governable {
     use result::ResultTrait;
 
     // Local imports.
-    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-    use satoru::oracle::error::OracleError;
-    use satoru::referral::referral_tier::ReferralTier;
     use satoru::mock::error::MockError;
 
     // *************************************************************************
@@ -51,24 +48,21 @@ mod Governable {
     // *************************************************************************
     /// Constructor of the contract.
     /// # Arguments
-    /// * `data_store_address` - The address of the data store contract.
-    /// * `role_store_address` - The address of the role store contract.
+    /// * `event_emitter_address` - The address of the event emitter contract.
     #[constructor]
-    fn constructor(ref self: ContractState) {
-        self.initialize();
+    fn constructor(ref self: ContractState, event_emitter_address: ContractAddress) {
+        self.initialize(event_emitter_address);
     }
-
-    // let gov: ContractAddress = get_caller_address()
-    // let pending_gov: ContractAddress = get_caller_address();
 
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
     #[external(v0)]
     impl Governable of super::IGovernable<ContractState> {
-        fn initialize(ref self: ContractState) {
+        fn initialize(ref self: ContractState, event_emitter_address: ContractAddress) {
+            self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
             self._set_gov(get_caller_address())
-        }
+        }   
         
         fn only_gov(self: @ContractState){
             if (get_caller_address() != self.gov.read()){
@@ -90,11 +84,14 @@ mod Governable {
     }
 
     #[generate_trait]
-    impl InternalFunctions of InternalFunctionsTrait {
+    impl InternalImpl of InternalTrait {
+        /// Updates the gov value to the input _gov value.
+        /// # Arguments
+        /// * `_gov` - The value to update to.
         fn _set_gov(ref self: ContractState, _gov: ContractAddress) {
             let prev_gov: ContractAddress = self.gov.read();
             self.gov.write(_gov);
-            event_emitter.emit_set_gov(prev_gov, _gov);
+            self.event_emitter.read().emit_set_gov(prev_gov, _gov);
         }
     }
 }

@@ -47,7 +47,7 @@ fn increment_affiliate_reward(
     if (delta == 0){
         return;
     }
-    let next_value: u128 = data_store.increment_u128(keys::affiliate_reward_for_account_key(market, token, affiliate), detla);
+    let next_value: u128 = data_store.increment_u128(keys::affiliate_reward_for_account_key(market, token, affiliate), delta);
     let next_pool_value: u128 = data_store.increment_u128(keys::affiliate_reward_key(market, token), delta);
 
     event_emitter.emit_affiliate_reward_updated(market, token, affiliate, delta, next_value, next_pool_value);
