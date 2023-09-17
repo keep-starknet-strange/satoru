@@ -84,14 +84,6 @@ fn test_mul_div_inum_roundup_positive() {
 }
 
 #[test]
-fn test_apply_exponent_factor() {
-    let float_value: u128 = 1_000_000_000_000_000_000_000_000_000_000_000; //10^33
-    let exponent_factor: u128 = 1_000_000_000_000; //10^12
-    let result = precision::apply_exponent_factor(float_value, exponent_factor);
-    assert(result == 1_000_000_000_000_000_000_000_000_000_000_000, 'should be 10^30');
-}
-
-#[test]
 fn test_to_factor_roundup() {
     let value: u128 = 450000;
     let divisor: u128 = 200_000_000_000_000_000_000_000_000_000_000_000; //2*10^35

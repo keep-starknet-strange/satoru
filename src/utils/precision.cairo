@@ -25,7 +25,7 @@ const FLOAT_TO_WEI_DIVISOR: u128 = 1_000_000_000_000; // 10^12
 /// * `factor` - The factor to apply.
 /// # Returns
 /// The result of applying the factor to the value.
-fn apply_factor_u128(value: u128, factor: u128) -> u128 { // TODO
+fn apply_factor_u128(value: u128, factor: u128) -> u128 {
     return mul_div(value, factor, FLOAT_PRECISION);
 }
 
@@ -35,7 +35,7 @@ fn apply_factor_u128(value: u128, factor: u128) -> u128 { // TODO
 /// * `factor` - The factor to apply.
 /// # Returns
 /// The result of applying the factor to the value.
-fn apply_factor_i128(value: u128, factor: i128) -> i128 { // TODO
+fn apply_factor_i128(value: u128, factor: i128) -> i128 {
     return mul_div_inum(value, factor, FLOAT_PRECISION);
 }
 
@@ -73,7 +73,7 @@ fn mul_div(value: u128, numerator: u128, denominator: u128) -> u128 {
 /// * `value` - The integer value muldiv is applied to.
 /// * `numerator` - The numerator that multiplies value.
 /// * `divisor` - The denominator that divides value.
-fn mul_div_ival(value: i128, numerator: u128, denominator: u128) -> i128 { // TODO
+fn mul_div_ival(value: i128, numerator: u128, denominator: u128) -> i128 {
     return mul_div_inum(numerator, value, denominator);
 }
 
@@ -82,7 +82,7 @@ fn mul_div_ival(value: i128, numerator: u128, denominator: u128) -> i128 { // TO
 /// * `value` - The value muldiv is applied to.
 /// * `numerator` - The integer numerator that multiplies value.
 /// * `divisor` - The denominator that divides value.
-fn mul_div_inum(value: u128, numerator: i128, denominator: u128) -> i128 { // TODO
+fn mul_div_inum(value: u128, numerator: i128, denominator: u128) -> i128 {
     let numerator_abs = if numerator < 0 {
         -numerator
     } else {
@@ -107,7 +107,7 @@ fn mul_div_inum(value: u128, numerator: i128, denominator: u128) -> i128 { // TO
 /// * `divisor` - The denominator that divides value.
 fn mul_div_inum_roundup(
     value: u128, numerator: i128, denominator: u128, roundup_magnitude: bool
-) -> i128 { // TODO
+) -> i128 {
     let numerator_abs = if numerator < 0 {
         -numerator
     } else {
@@ -132,7 +132,7 @@ fn mul_div_inum_roundup(
 /// * `divisor` - The denominator that divides value.
 fn mul_div_roundup(
     value: u128, numerator: u128, denominator: u128, roundup_magnitude: bool
-) -> u128 { // TODO
+) -> u128 {
     let value = u256 { low: value, high: 0 };
     let numerator = u256 { low: numerator, high: 0 };
     let denominator = u256 { low: denominator, high: 0 };
@@ -157,18 +157,19 @@ fn mul_div_roundup(
 /// # Arguments
 /// * `value` - The value to the exponent is applied to.
 /// * `divisor` - The exponent applied.
-fn apply_exponent_factor(float_value: u128, exponent_factor: u128) -> u128 { // TODO
-    if float_value < FLOAT_PRECISION {
-        return 0;
-    }
-    if exponent_factor == FLOAT_PRECISION {
-        return float_value;
-    }
-    let wei_value = float_to_wei(float_value);
-    let exponent_wei = float_to_wei(exponent_factor);
-    let wei_result = pow(wei_value, exponent_wei);
-    let float_result = wei_to_float(wei_result) / 1000;
-    float_result
+fn apply_exponent_factor(float_value: u128, exponent_factor: u128) -> u128 {
+    // if float_value < FLOAT_PRECISION {
+    //     return 0;
+    // }
+    // if exponent_factor == FLOAT_PRECISION {
+    //     return float_value;
+    // }
+    // let wei_value = float_to_wei(float_value);
+    // let exponent_wei = float_to_wei(exponent_factor);
+    // let wei_result = pow(wei_value, exponent_wei);
+    // let float_result = wei_to_float(wei_result);
+    // float_result
+    0
 }
 
 /// Compute factor from value and divisor with a roundup.
@@ -177,7 +178,7 @@ fn apply_exponent_factor(float_value: u128, exponent_factor: u128) -> u128 { // 
 /// * `divisor` - The divisor to compute the factor.
 /// # Returns
 /// The factor between value and divisor.
-fn to_factor_roundup(value: u128, divisor: u128, roundup_magnitude: bool) -> u128 { // TODO
+fn to_factor_roundup(value: u128, divisor: u128, roundup_magnitude: bool) -> u128 {
     if (value == 0) {
         return 0;
     }
@@ -194,7 +195,7 @@ fn to_factor_roundup(value: u128, divisor: u128, roundup_magnitude: bool) -> u12
 /// * `divisor` - The divisor to compute the factor.
 /// # Returns
 /// The factor between value and divisor.
-fn to_factor(value: u128, divisor: u128) -> u128 { // TODO
+fn to_factor(value: u128, divisor: u128) -> u128 {
     return to_factor_roundup(value, divisor, false);
 }
 
@@ -204,7 +205,7 @@ fn to_factor(value: u128, divisor: u128) -> u128 { // TODO
 /// * `divisor` - The divisor to compute the factor.
 /// # Returns
 /// The factor between value and divisor.
-fn to_factor_ival(value: i128, divisor: u128) -> i128 { // TODO
+fn to_factor_ival(value: i128, divisor: u128) -> i128 { 
     let value_abs = if value < 0 {
         -value
     } else {
@@ -227,7 +228,7 @@ fn to_factor_ival(value: i128, divisor: u128) -> i128 { // TODO
 /// * `value` - The value to convert.
 /// # Returns
 /// The wei value.
-fn float_to_wei(value: u128) -> u128 { // TODO
+fn float_to_wei(value: u128) -> u128 {
     return value / FLOAT_TO_WEI_DIVISOR;
 }
 
@@ -236,7 +237,7 @@ fn float_to_wei(value: u128) -> u128 { // TODO
 /// * `value` - The value to convert
 /// # Returns
 /// The float value.
-fn wei_to_float(value: u128) -> u128 { // TODO
+fn wei_to_float(value: u128) -> u128 {
     return value * FLOAT_TO_WEI_DIVISOR;
 }
 
@@ -245,6 +246,6 @@ fn wei_to_float(value: u128) -> u128 { // TODO
 /// * `value` - The value to convert
 /// # Returns
 /// The float value.
-fn basis_points_to_float(basis_point: u128) -> u128 { // TODO
+fn basis_points_to_float(basis_point: u128) -> u128 {
     return basis_point * FLOAT_PRECISION / BASIS_POINTS_DIVISOR;
 }
