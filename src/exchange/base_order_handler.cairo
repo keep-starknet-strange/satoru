@@ -210,7 +210,18 @@ mod BaseOrderHandler {
                 oracle_params.compacted_max_oracle_block_numbers.span(), oracle_params.tokens.len()
             );
 
-            let market = market_utils::get_enabled_market(data_store, order.market);
+            let address_zero = 0.try_into().unwrap();
+
+            let mut market = Market {
+                market_token: address_zero,
+                index_token: address_zero,
+                long_token: address_zero,
+                short_token: address_zero,
+            };
+
+            if (order.market != address_zero) {
+                market = market_utils::get_enabled_market(data_store, order.market);
+            }
 
             ExecuteOrderParams {
                 contracts: execute_order_params_contract,

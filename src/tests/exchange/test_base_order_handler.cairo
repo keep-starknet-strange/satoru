@@ -22,22 +22,7 @@ use satoru::withdrawal::withdrawal_utils::CreateWithdrawalParams;
 use satoru::withdrawal::withdrawal::Withdrawal;
 use traits::Default;
 
-// Panics due to the absence of a mocked withdrawal, resulting in Option::None being returned.
-// #[test]
-// #[should_panic(expected: ('invalid withdrawal key', 'SAMPLE_WITHDRAW'))]
-// fn given_invalid_withdrawal_key_when_simulate_execute_withdrawal_then_fails() {
-//     let (caller_address, data_store, event_emitter, withdrawal_handler) = setup();
-//     let oracle_params = SimulatePricesParams {
-//         primary_tokens: Default::default(), primary_prices: Default::default(),
-//     };
-
-//     start_prank(withdrawal_handler.contract_address, caller_address);
-
-//     let withdrawal_key = 'SAMPLE_WITHDRAW';
-
-//     withdrawal_handler.simulate_execute_withdrawal(withdrawal_key, oracle_params);
-// }
-
+// TODO test when all functions called within get_execute_order_params are implemented
 
 fn deploy_base_order_handler(
     data_store_address: ContractAddress,
