@@ -12,18 +12,18 @@ fn max_i128_as_u128() -> u128 {
 
 #[test]
 #[should_panic(expected: ('i128_add Overflow',))]
-fn max_i128_test() {
+fn given_overflow_when_max_i128_then_fails() {
     max_i128() + 1;
 }
 
 #[test]
 #[should_panic(expected: ('i128_sub Underflow',))]
-fn min_i128_test() {
+fn given_underflow_when_max_i128_then_fails() {
     min_i128() - 1;
 }
 
 #[test]
-fn roundup_division_test() {
+fn given_normal_conditions_when_roundup_division_then_works() {
     assert(roundup_division(12, 3) == 4, '12/3 should be 4');
     assert(roundup_division(13, 3) == 5, '13/3 should be 4');
     assert(roundup_division(13, 5) == 3, '13/5 should be 3');
@@ -36,12 +36,12 @@ fn roundup_division_test() {
 
 #[test]
 #[should_panic(expected: ('u128 is 0',))]
-fn roundup_division_zero_test() {
+fn given_division_by_0_when_roundup_division_then_fails() {
     roundup_division(4, 0);
 }
 
 #[test]
-fn roundup_magnitude_division_test() {
+fn given_normal_conditions_when_roundup_magnitude_division_then_works() {
     assert(roundup_magnitude_division(12, 3) == 4, '12/3 should be 4');
     assert(roundup_magnitude_division(-12, 3) == -4, '-12/3 should be -4');
     assert(roundup_magnitude_division(13, 3) == 5, '13/3 should be 4');
@@ -63,19 +63,19 @@ fn roundup_magnitude_division_test() {
 
 #[test]
 #[should_panic(expected: ('i128_sub Overflow',))]
-fn roundup_magnitude_min_test() {
+fn given_overflow_when_roundup_magnitude_division_then_works() {
     // Because here min is 1 bigger than max, there is an overflow
     roundup_magnitude_division(min_i128(), 1);
 }
 
 #[test]
 #[should_panic(expected: ('u128 is 0',))]
-fn roundup_magnitude_zero_test() {
+fn given_division_by_0_when_roundup_magnitude_division_then_fails() {
     roundup_magnitude_division(4, 0);
 }
 
 #[test]
-fn sum_return_uint_128_test() {
+fn given_normal_conditions_when_sum_return_uint_128_then_works() {
     assert(sum_return_uint_128(12, 3) == 15, 'Should be 15');
     assert(sum_return_uint_128(12, -3) == 9, 'Should be 9');
     assert(sum_return_uint_128(0, 3) == 3, 'Should be 3');
@@ -95,25 +95,25 @@ fn sum_return_uint_128_test() {
 
 #[test]
 #[should_panic(expected: ('i128_sub Overflow',))]
-fn sum_return_uint_128_overflow_min_test() {
+fn given_i128_sub_overflow_when_sum_return_uint_128_then_fails() {
     // Because here min is 1 bigger than max, there is an overflow
     sum_return_uint_128(BoundedInt::max(), min_i128());
 }
 
 #[test]
 #[should_panic(expected: ('u128_add Overflow',))]
-fn sum_return_uint_128_overflow_add_test() {
+fn given_add_overflow_when_sum_return_uint_128_then_fails() {
     sum_return_uint_128(BoundedInt::max(), 1);
 }
 
 #[test]
 #[should_panic(expected: ('u128_sub Overflow',))]
-fn sum_return_uint_128_overflow_sub_test() {
+fn given_u128_sub_overflow_when_sum_return_uint_128_then_fails() {
     sum_return_uint_128(0, -1);
 }
 
 #[test]
-fn sum_return_int_128_test() {
+fn given_normal_conditions_when_sum_return_int_128_then_works() {
     assert(sum_return_int_128(12, 3) == 15, 'Should be 15');
     assert(sum_return_int_128(12, -3) == 9, 'Should be 9');
     assert(sum_return_int_128(0, 3) == 3, 'Should be 3');
@@ -131,18 +131,18 @@ fn sum_return_int_128_test() {
 
 #[test]
 #[should_panic(expected: ('i128 Overflow',))]
-fn sum_return_int_128_overflow_i128_test() {
+fn given_i128_overflow_when_sum_return_int_128_then_fails() {
     sum_return_int_128(max_i128_as_u128() + 1, 3);
 }
 
 #[test]
 #[should_panic(expected: ('i128_add Overflow',))]
-fn sum_return_int_128_overflow_when_adding_test() {
+fn given_i128_add_overflow_when_sum_return_int_128_then_fails() {
     sum_return_int_128(max_i128_as_u128() - 1, 2);
 }
 
 #[test]
-fn diff_test() {
+fn given_normal_conditions_when_diff_then_works() {
     assert(diff(12, 3) == 9, 'Should be 9');
     assert(diff(3, 11) == 8, 'Should be 8');
     assert(diff(0, 5) == 5, 'Should be 5');
@@ -156,7 +156,7 @@ fn diff_test() {
 }
 
 #[test]
-fn bounded_add_test() {
+fn given_normal_conditions_when_bounded_add_then_works() {
     // This tests the first if 
     assert(bounded_add(0, 3) == 3, 'Should be 3');
     assert(bounded_add(4, 0) == 4, 'Should be 4');
@@ -181,7 +181,7 @@ fn bounded_add_test() {
 }
 
 #[test]
-fn bounded_sub_test() {
+fn given_normal_conditions_when_bounded_sub_then_works() {
     // This tests the first if 
     assert(bounded_sub(0, 3) == -3, 'Should be -3');
     assert(bounded_sub(3, 0) == 3, 'Should be 3');
@@ -207,7 +207,7 @@ fn bounded_sub_test() {
 }
 
 #[test]
-fn to_signed_test() {
+fn given_normal_conditions_when_to_signed_then_works() {
     assert(to_signed(12, true) == 12, 'Should be 12');
     assert(to_signed(12, false) == -12, 'Should be -12');
 
@@ -219,13 +219,13 @@ fn to_signed_test() {
 
 #[test]
 #[should_panic(expected: ('i128 Overflow',))]
-fn to_signed_overflow_pos_test() {
+fn given_i128_overflow_when_to_signed_then_fails() {
     to_signed(BoundedInt::max(), true);
 }
 
 
 #[test]
 #[should_panic(expected: ('i128 Overflow',))]
-fn to_signed_overflow_neg_test() {
+fn given_i128_overflow_neg_when_to_signed_then_fails() {
     to_signed(BoundedInt::max(), false);
 }

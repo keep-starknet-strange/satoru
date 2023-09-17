@@ -10,7 +10,7 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 
 
 #[test]
-fn test_emit_signal_add_oracle_signer() {
+fn given_normal_conditions_when_emit_signal_add_oracle_signer_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -47,7 +47,7 @@ fn test_emit_signal_add_oracle_signer() {
 }
 
 #[test]
-fn test_emit_add_oracle_signer() {
+fn given_normal_conditions_when_emit_add_oracle_signer_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -85,7 +85,7 @@ fn test_emit_add_oracle_signer() {
 }
 
 #[test]
-fn test_emit_signal_remove_oracle_signer() {
+fn given_normal_conditions_when_emit_signal_remove_oracle_signer_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -122,7 +122,7 @@ fn test_emit_signal_remove_oracle_signer() {
 }
 
 #[test]
-fn test_emit_remove_oracle_signer() {
+fn given_normal_conditions_when_emit_remove_oracle_signer_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -160,7 +160,7 @@ fn test_emit_remove_oracle_signer() {
 }
 
 #[test]
-fn test_emit_signal_set_fee_receiver() {
+fn given_normal_conditions_when_emit_signal_set_fee_receiver_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -198,7 +198,7 @@ fn test_emit_signal_set_fee_receiver() {
 }
 
 #[test]
-fn test_emit_set_fee_receiver() {
+fn given_normal_conditions_when_emit_set_fee_receiver_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -236,7 +236,7 @@ fn test_emit_set_fee_receiver() {
 }
 
 #[test]
-fn test_emit_signal_grant_role() {
+fn given_normal_conditions_when_emit_signal_grant_role_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -275,7 +275,7 @@ fn test_emit_signal_grant_role() {
 }
 
 #[test]
-fn test_emit_grant_role() {
+fn given_normal_conditions_when_emit_grant_role_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -311,7 +311,7 @@ fn test_emit_grant_role() {
 }
 
 #[test]
-fn test_emit_signal_revoke_role() {
+fn given_normal_conditions_when_emit_signal_revoke_role_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -350,7 +350,7 @@ fn test_emit_signal_revoke_role() {
 }
 
 #[test]
-fn test_emit_revoke_role() {
+fn given_normal_conditions_when_emit_revoke_role_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -386,7 +386,7 @@ fn test_emit_revoke_role() {
 }
 
 #[test]
-fn test_emit_signal_set_price_feed() {
+fn given_normal_conditions_when_emit_signal_set_price_feed_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -444,7 +444,7 @@ fn test_emit_signal_set_price_feed() {
 
 
 #[test]
-fn test_emit_set_price_feed() {
+fn given_normal_conditions_when_emit_set_price_feed_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -501,7 +501,7 @@ fn test_emit_set_price_feed() {
 }
 
 #[test]
-fn test_emit_signal_pending_action() {
+fn given_normal_conditions_when_emit_signal_pending_action_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -539,7 +539,7 @@ fn test_emit_signal_pending_action() {
 }
 
 #[test]
-fn test_emit_clear_pending_action() {
+fn given_normal_conditions_when_emit_clear_pending_action_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************

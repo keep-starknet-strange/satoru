@@ -6,7 +6,7 @@ use satoru::feature::feature_utils::{is_feature_disabled, validate_feature};
 use satoru::tests_lib::{setup, teardown};
 
 #[test]
-fn test_nonexist_feature() {
+fn given_normal_conditions_when_nonexist_feature_then_works() {
     let (_, _, data_store) = setup();
 
     // Returns false because feature does not exist so cannot be disabled.
@@ -15,7 +15,7 @@ fn test_nonexist_feature() {
 }
 
 #[test]
-fn test_exist_disable_feature() {
+fn given_normal_conditions_when_exist_disable_feature_then_works() {
     let (_, _, data_store) = setup();
 
     data_store.set_bool('EXIST_FEATURE', true);
@@ -26,7 +26,7 @@ fn test_exist_disable_feature() {
 }
 
 #[test]
-fn test_nonexist_feature_validate() {
+fn given_normal_conditions_when_nonexist_feature_validate_then_works() {
     let (_, _, data_store) = setup();
 
     // Should not revert because feature does not exist
@@ -35,7 +35,7 @@ fn test_nonexist_feature_validate() {
 
 #[test]
 #[should_panic(expected: ('FeatureUtils: disabled feature',))]
-fn test_exist_feature_validate() {
+fn given_exist_feature_when_validate_feature_then_fails() {
     let (_, _, data_store) = setup();
 
     data_store.set_bool('EXIST_FEATURE', true);
@@ -44,7 +44,7 @@ fn test_exist_feature_validate() {
 }
 
 #[test]
-fn test_exist_enabled_feature_validate() {
+fn given_exist_enabled_feature_when_validate_feature_then_works() {
     let (_, _, data_store) = setup();
 
     data_store.set_bool('EXIST_FEATURE', false);

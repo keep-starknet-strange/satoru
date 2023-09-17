@@ -21,7 +21,7 @@ use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorag
 use satoru::order::base_order_utils::ExecuteOrderParamsContracts;
 
 /// Struct used in increasePosition and decreasePosition.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Drop, Copy, starknet::Store, Serde)]
 struct UpdatePositionParams {
     /// BaseOrderUtils.ExecuteOrderParamsContracts
     contracts: ExecuteOrderParamsContracts,

@@ -73,7 +73,7 @@ fn setup() -> (
 // *********************************************************************************************
 #[test]
 #[should_panic(expected: ('already_initialized',))]
-fn test_initialize_fails_if_already_intialized() {
+fn given_already_intialized_when_initialize_then_fails() {
     let (caller_address, receiver_address, role_store, data_store, bank, erc20) = setup();
     // try initializing after previously initializing in setup
     bank.initialize(data_store.contract_address, role_store.contract_address);
@@ -81,7 +81,7 @@ fn test_initialize_fails_if_already_intialized() {
 }
 
 #[test]
-fn test_transfer_out() {
+fn given_normal_conditions_when_transfer_out_then_works() {
     let (caller_address, receiver_address, role_store, data_store, bank, erc20) = setup();
     // call the transfer_out function
     bank.transfer_out(erc20.contract_address, receiver_address, 100_u128);
@@ -97,7 +97,7 @@ fn test_transfer_out() {
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
-fn test_transfer_out_fails_if_caller_has_no_controller_role() {
+fn given_caller_has_no_controller_role_when_transfer_out_then_fails() {
     let (caller_address, receiver_address, role_store, data_store, bank, erc20) = setup();
     // stop prank as caller_address and start prank as receiver_address who has no controller role
     stop_prank(bank.contract_address);
@@ -110,7 +110,7 @@ fn test_transfer_out_fails_if_caller_has_no_controller_role() {
 
 #[test]
 #[should_panic(expected: ('self_transfer_not_supported',))]
-fn test_transfer_out_fails_if_receiver_is_contract() {
+fn given_receiver_is_contract_when_transfer_out_then_fails() {
     let (caller_address, receiver_address, role_store, data_store, bank, erc20) = setup();
     // call the transfer_out function with receiver as bank contract address
     bank.transfer_out(erc20.contract_address, bank.contract_address, 100_u128);
