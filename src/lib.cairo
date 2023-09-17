@@ -147,6 +147,7 @@ mod utils {
     mod store_arrays;
     mod error_utils;
     mod starknet_utils;
+    mod traits;
 }
 
 // `liquidation` function to help with liquidations.
