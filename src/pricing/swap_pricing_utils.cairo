@@ -77,7 +77,8 @@ impl DefaultSwapFees of Default<SwapFees> {
 /// Called by get_price_impact_usd().
 /// # Returns
 /// The price impact in USD.
-fn get_price_impact_usd_(params: GetPriceImpactUsdParams) -> i128 {
+/// TODO: update return to i128 when it will implement 
+fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> u128 {
     // TODO
     0
 }

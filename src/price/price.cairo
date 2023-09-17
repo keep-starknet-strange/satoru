@@ -37,6 +37,7 @@ trait PriceTrait {
     fn pick_price_for_pnl(self: @Price, is_long: bool, maximize: bool) -> u128;
 }
 
+
 impl PriceImpl of PriceTrait {
     fn mid_price(self: @Price) -> u128 {
         (*self.min + *self.max) / 2
