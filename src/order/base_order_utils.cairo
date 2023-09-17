@@ -46,7 +46,7 @@ struct ExecuteOrderParams {
     secondary_order_type: SecondaryOrderType
 }
 
-#[derive(Copy, Drop, starknet::Store, Serde)]
+#[derive(Drop, Copy, starknet::Store, Serde)]
 struct ExecuteOrderParamsContracts {
     /// The dispatcher to interact with the `DataStore` contract
     data_store: IDataStoreDispatcher,

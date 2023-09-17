@@ -29,7 +29,7 @@ use satoru::utils::calc::{roundup_division};
 use satoru::referral::referral_utils;
 
 /// Struct used in increasePosition and decreasePosition.
-#[derive(Copy, Drop, starknet::Store, Serde)]
+#[derive(Drop, Copy, starknet::Store, Serde)]
 struct UpdatePositionParams {
     /// BaseOrderUtils.ExecuteOrderParamsContracts
     contracts: ExecuteOrderParamsContracts,
