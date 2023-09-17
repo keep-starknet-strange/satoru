@@ -10,7 +10,7 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 use satoru::market::market_pool_value_info::MarketPoolValueInfo;
 
 #[test]
-fn test_emit_market_pool_value_info() {
+fn given_normal_conditions_when_emit_market_pool_value_info_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -50,7 +50,7 @@ fn test_emit_market_pool_value_info() {
 }
 
 #[test]
-fn test_emit_pool_amount_updated() {
+fn given_normal_conditions_when_emit_pool_amount_updated_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -91,7 +91,7 @@ fn test_emit_pool_amount_updated() {
 }
 
 #[test]
-fn test_emit_swap_impact_pool_amount_updated() {
+fn given_normal_conditions_when_emit_swap_impact_pool_amount_updated_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -132,7 +132,7 @@ fn test_emit_swap_impact_pool_amount_updated() {
 }
 
 #[test]
-fn test_emit_position_impact_pool_amount_updated() {
+fn given_normal_conditions_when_emit_position_impact_pool_amount_updated_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -170,7 +170,7 @@ fn test_emit_position_impact_pool_amount_updated() {
 }
 
 #[test]
-fn test_emit_open_interest_in_tokens_updated() {
+fn given_normal_conditions_when_emit_open_interest_in_tokens_updated_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -213,7 +213,7 @@ fn test_emit_open_interest_in_tokens_updated() {
 }
 
 #[test]
-fn test_emit_open_interest_updated() {
+fn given_normal_conditions_when_emit_open_interest_updated_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -255,7 +255,7 @@ fn test_emit_open_interest_updated() {
 }
 
 #[test]
-fn test_emit_virtual_swap_inventory_updated() {
+fn given_normal_conditions_when_emit_virtual_swap_inventory_updated_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -300,7 +300,7 @@ fn test_emit_virtual_swap_inventory_updated() {
 }
 
 #[test]
-fn test_emit_virtual_position_inventory_updated() {
+fn given_normal_conditions_when_emit_virtual_position_inventory_updated_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -342,7 +342,7 @@ fn test_emit_virtual_position_inventory_updated() {
 }
 
 #[test]
-fn test_emit_collateral_sum_updated() {
+fn given_normal_conditions_when_emit_collateral_sum_updated_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -384,7 +384,7 @@ fn test_emit_collateral_sum_updated() {
 }
 
 #[test]
-fn test_emit_cumulative_borrowing_factor_updated() {
+fn given_normal_conditions_when_emit_cumulative_borrowing_factor_updated_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -426,7 +426,7 @@ fn test_emit_cumulative_borrowing_factor_updated() {
 }
 
 #[test]
-fn test_emit_funding_fee_amount_per_size_updated() {
+fn given_normal_conditions_when_emit_funding_fee_amount_per_size_updated_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -472,7 +472,7 @@ fn test_emit_funding_fee_amount_per_size_updated() {
 }
 
 #[test]
-fn test_emit_claimable_funding_amount_per_size_updated() {
+fn given_normal_conditions_when_emit_claimable_funding_amount_per_size_updated_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -517,7 +517,7 @@ fn test_emit_claimable_funding_amount_per_size_updated() {
 }
 
 #[test]
-fn test_emit_claimable_funding_updated() {
+fn given_normal_conditions_when_emit_claimable_funding_updated_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -566,7 +566,7 @@ fn test_emit_claimable_funding_updated() {
 }
 
 #[test]
-fn test_emit_funding_fees_claimed() {
+fn given_normal_conditions_when_emit_funding_fees_claimed_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -615,7 +615,7 @@ fn test_emit_funding_fees_claimed() {
 }
 
 #[test]
-fn test_emit_claimable_collateral_updated() {
+fn given_normal_conditions_when_emit_claimable_collateral_updated_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -669,7 +669,7 @@ fn test_emit_claimable_collateral_updated() {
 }
 
 #[test]
-fn test_emit_collateral_claimed() {
+fn given_normal_conditions_when_emit_collateral_claimed_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -723,7 +723,7 @@ fn test_emit_collateral_claimed() {
 }
 
 #[test]
-fn test_emit_ui_fee_factor_updated() {
+fn given_normal_conditions_when_emit_ui_fee_factor_updated_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -760,7 +760,7 @@ fn test_emit_ui_fee_factor_updated() {
 }
 
 #[test]
-fn test_emit_market_created() {
+fn given_normal_conditions_when_emit_market_created_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************

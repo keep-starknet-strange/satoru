@@ -13,7 +13,7 @@ use satoru::role::role;
 // Panics due to the mocked IPriceFeed not returning data, triggering an error.
 #[test]
 #[should_panic()]
-fn test_set_prices() {
+fn given_normal_conditions_when_set_prices_then_works() {
     let (controller, data_store, event_emitter, oracle) = setup();
     let params = mock_set_prices_params();
 
@@ -22,7 +22,7 @@ fn test_set_prices() {
 }
 
 #[test]
-fn test_set_primary_price() {
+fn given_normal_conditions_when_set_primary_price_then_works() {
     let (controller, data_store, event_emitter, oracle) = setup();
 
     let token = contract_address_const::<111>();
@@ -38,7 +38,7 @@ fn test_set_primary_price() {
 }
 
 #[test]
-fn test_clear_all_prices() {
+fn given_normal_conditions_when_clear_all_prices_then_works() {
     let (controller, data_store, event_emitter, oracle) = setup();
 
     let token1 = contract_address_const::<111>();
@@ -56,7 +56,7 @@ fn test_clear_all_prices() {
 }
 
 #[test]
-fn test_tokens_with_prices_count() {
+fn given_normal_conditions_when_tokens_with_prices_count_then_works() {
     let (controller, data_store, event_emitter, oracle) = setup();
     let token1 = contract_address_const::<111>();
     let price1 = Price { min: 10, max: 11 };
@@ -76,7 +76,7 @@ fn test_tokens_with_prices_count() {
 }
 
 #[test]
-fn test_get_tokens_with_prices() {
+fn given_normal_conditions_when_get_tokens_with_prices_then_works() {
     let (controller, data_store, event_emitter, oracle) = setup();
 
     let prices = oracle.get_tokens_with_prices(0, 5);
@@ -115,7 +115,7 @@ fn test_get_tokens_with_prices() {
 }
 
 #[test]
-fn test_get_primary_price() {
+fn given_normal_conditions_when_get_primary_price_then_works() {
     let (controller, data_store, event_emitter, oracle) = setup();
 
     let token1 = contract_address_const::<111>();
@@ -136,7 +136,7 @@ fn test_get_primary_price() {
 
 #[test]
 #[should_panic()]
-fn test_price_feed_multiplier() {
+fn given_normal_conditions_when_price_feed_multiplier_then_works() {
     let (controller, data_store, event_emitter, oracle) = setup();
 
     let token = contract_address_const::<111>();
@@ -145,7 +145,7 @@ fn test_price_feed_multiplier() {
 }
 
 #[test]
-fn test_validate_prices() {
+fn given_normal_conditions_when_validate_prices_then_works() {
     let (controller, data_store, event_emitter, oracle) = setup();
     let params: SetPricesParams = mock_set_prices_params();
     let token1 = contract_address_const::<111>();

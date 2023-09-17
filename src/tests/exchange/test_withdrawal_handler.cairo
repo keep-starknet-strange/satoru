@@ -24,7 +24,7 @@ use traits::Default;
 
 // TODO: Add more tests after withdraw_utils implementation done.
 #[test]
-fn test_create_withdrawal() {
+fn given_normal_conditions_when_create_withdrawal_then_works() {
     let (caller_address, data_store, event_emitter, withdrawal_handler) = setup();
 
     let account: ContractAddress = 0x123.try_into().unwrap();
@@ -53,7 +53,7 @@ fn test_create_withdrawal() {
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
-fn test_create_withdrawal_restricted_access() {
+fn given_caller_not_controller_when_create_withdrawal_then_fails() {
     // Should revert, call from anyone else then controller.
     let (caller_address, data_store, event_emitter, withdrawal_handler) = setup();
     let caller: ContractAddress = 0x847.try_into().unwrap();
@@ -77,7 +77,7 @@ fn test_create_withdrawal_restricted_access() {
 }
 
 #[test]
-fn test_cancel_withdrawal() {
+fn given_normal_conditions_when_cancel_withdrawal_then_works() {
     let withdrawal = Withdrawal {
         key: Default::default(),
         account: 0x785.try_into().unwrap(),
@@ -108,7 +108,7 @@ fn test_cancel_withdrawal() {
 
 #[test]
 #[should_panic(expected: ('Option::unwrap failed.',))]
-fn test_cancel_withdrawal_unexist_key() {
+fn given_unexisting_key_when_cancel_withdrawal_then_fails() {
     let withdrawal = Withdrawal {
         key: Default::default(),
         account: 0x785.try_into().unwrap(),
@@ -138,7 +138,7 @@ fn test_cancel_withdrawal_unexist_key() {
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
-fn test_execute_withdrawal_restricted() {
+fn given_caller_not_controller_when_execute_withdrawal_then_fails() {
     let oracle_params = SetPricesParams {
         signer_info: Default::default(),
         tokens: Default::default(),
@@ -164,7 +164,7 @@ fn test_execute_withdrawal_restricted() {
 // Panics due to the absence of a mocked withdrawal, resulting in Option::None being returned.
 #[test]
 #[should_panic(expected: ('invalid withdrawal key', 'SAMPLE_WITHDRAW'))]
-fn test_execute_withdrawal() {
+fn given_invalid_withdrawal_key_when_execute_withdrawal_then_fails() {
     let oracle_params = SetPricesParams {
         signer_info: Default::default(),
         tokens: Default::default(),
@@ -191,7 +191,7 @@ fn test_execute_withdrawal() {
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
-fn test_simulate_execute_withdrawal_restricted() {
+fn given_caller_not_controller_when_simulate_execute_withdrawal_then_fails() {
     let (caller_address, data_store, event_emitter, withdrawal_handler) = setup();
     let caller: ContractAddress = contract_address_const::<0x847>();
     start_prank(withdrawal_handler.contract_address, caller);
@@ -208,7 +208,7 @@ fn test_simulate_execute_withdrawal_restricted() {
 // Panics due to the absence of a mocked withdrawal, resulting in Option::None being returned.
 #[test]
 #[should_panic(expected: ('invalid withdrawal key', 'SAMPLE_WITHDRAW'))]
-fn test_simulate_execute_withdrawal() {
+fn given_invalid_withdrawal_key_when_simulate_execute_withdrawal_then_fails() {
     let (caller_address, data_store, event_emitter, withdrawal_handler) = setup();
     let oracle_params = SimulatePricesParams {
         primary_tokens: Default::default(), primary_prices: Default::default(),

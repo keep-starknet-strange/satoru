@@ -10,7 +10,7 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 use satoru::tests_lib::setup_event_emitter;
 
 #[test]
-fn test_emit_adl_state_updated() {
+fn given_normal_conditions_when_emit_adl_state_updated_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************

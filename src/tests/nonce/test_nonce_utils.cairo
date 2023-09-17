@@ -3,7 +3,7 @@ use satoru::nonce::nonce_utils::{get_current_nonce, increment_nonce, compute_key
 use satoru::tests_lib::{setup, teardown};
 
 #[test]
-fn test_nonce_utils() {
+fn given_normal_conditions_when_nonce_utils_functions_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************

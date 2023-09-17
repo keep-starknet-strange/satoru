@@ -147,6 +147,7 @@ mod utils {
     mod store_arrays;
     mod error_utils;
     mod starknet_utils;
+    mod traits;
 }
 
 // `liquidation` function to help with liquidations.
@@ -296,6 +297,9 @@ mod tests {
     mod order {
         mod test_base_order_utils;
         mod test_order;
+    }
+    mod position {
+        mod test_decrease_position_swap_utils;
     }
     mod price {
         mod test_price;

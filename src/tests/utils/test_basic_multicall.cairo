@@ -11,7 +11,7 @@ use debug::PrintTrait;
 
 
 #[test]
-fn test_simple_multicall() {
+fn given_normal_conditions_when_simple_multicall_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -43,7 +43,7 @@ fn test_simple_multicall() {
 
 
 #[test]
-fn test_multicall() {
+fn given_normal_conditions_when_multicall_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -94,7 +94,7 @@ fn test_multicall() {
 
 #[test]
 #[should_panic(expected: ('no data for multicall',))]
-fn test_no_data_for_multicall() {
+fn given_no_data_when_multicall_then_fails() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
