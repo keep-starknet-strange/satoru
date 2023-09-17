@@ -216,7 +216,7 @@ mod pricing {
 
 // `referral` contains referral logic.
 mod referral {
-    // mod referral_utils;
+    mod referral_utils;
     mod referral_tier;
 }
 

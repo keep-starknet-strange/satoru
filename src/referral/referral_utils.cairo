@@ -11,7 +11,12 @@ use result::ResultTrait;
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::utils::precision;
+use satoru::market::market_utils;
 use satoru::data::keys;
+use satoru::referral::referral_tier::ReferralTier;
+
+
 /// Set the referral code for a trader.
 /// # Arguments
 /// * `referral_storage` - The referral storage instance to use.
@@ -67,14 +72,17 @@ fn get_referral_info(
 ) -> (felt252, ContractAddress, u128, u128) {
     // TODO
     let code: felt252 = referral_storage.trader_referral_codes(trader);
-    let affiliate: ContractAddress = ContractAddressZeroable::zero();
-    let total_rebate: u128 = 0;
-    let discount_share: u128 = 0;
+    let mut affiliate: ContractAddress = 0.try_into().unwrap();
+    let mut total_rebate: u128 = 0;
+    let mut discount_share: u128 = 0;
     if (code != 0) {
         affiliate = referral_storage.code_owners(code);
-        referral_tier_level = referral_storage.referrer_tiers(affiliate);
-        (total_rebate, discount_share) = referral_storage.tiers(referral_tier_level);
-        custom_discount_share = referral_storage.referrer_discount_shares(affiliate);
+        let referral_tier_level: u128 = referral_storage.referrer_tiers(affiliate);
+        let referral_tier: ReferralTier = referral_storage.tiers(referral_tier_level);
+        total_rebate = referral_tier.total_rebate;
+        discount_share = referral_tier.discount_share;
+        // (total_rebate, discount_share) = referral_storage.tiers(referral_tier_level);
+        let custom_discount_share: u128 = referral_storage.referrer_discount_shares(affiliate);
         if (custom_discount_share != 0) {
             discount_share = custom_discount_share;
         }
@@ -114,7 +122,7 @@ fn claim_affiliate_reward(
     let next_pool_value: u128 = data_store
         .decrement_u128(keys::affiliate_reward_key(market, token), reward_amount);
 
-    market_utils::validate_market_token_balance(data_store, market);
+    market_utils::validate_market_token_balance_with_address(data_store, market);
 
     event_emitter
         .emit_affiliate_reward_claimed(

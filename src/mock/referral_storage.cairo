@@ -64,7 +64,7 @@ trait IReferralStorage<TContractState> {
     /// * `account` - The address of the affiliate.
     /// # Returns
     /// The trader discount share.
-    fn referrer_discount_share(self: @TContractState, account: ContractAddress) -> u128;
+    fn referrer_discount_shares(self: @TContractState, account: ContractAddress) -> u128;
 
     /// Get the tier level of an affiliate.
     /// # Arguments
@@ -137,7 +137,7 @@ mod ReferralStorage {
     // *************************************************************************
     #[storage]
     struct Storage {
-        referrer_discount_share: LegacyMap<ContractAddress, u128>,
+        referrer_discount_shares: LegacyMap<ContractAddress, u128>,
         referrer_tiers: LegacyMap<ContractAddress, u128>,
         tiers: LegacyMap<u128, ReferralTier>,
         is_handler: LegacyMap<ContractAddress, bool>,
@@ -174,8 +174,8 @@ mod ReferralStorage {
             self.trader_referral_codes.read(account)
         }
 
-        fn referrer_discount_share(self: @ContractState, account: ContractAddress) -> u128 {
-            self.referrer_discount_share.read(account)
+        fn referrer_discount_shares(self: @ContractState, account: ContractAddress) -> u128 {
+            self.referrer_discount_shares.read(account)
         }
 
         fn referrer_tiers(self: @ContractState, account: ContractAddress) -> u128 {
@@ -222,7 +222,7 @@ mod ReferralStorage {
         fn set_referrer_discount_share(ref self: ContractState, discount_share: u128) {
             assert(discount_share <= BASIS_POINTS, MockError::INVALID_DISCOUNT_SHARE);
 
-            self.referrer_discount_share.write(get_caller_address(), discount_share);
+            self.referrer_discount_shares.write(get_caller_address(), discount_share);
             self
                 .event_emitter
                 .read()
