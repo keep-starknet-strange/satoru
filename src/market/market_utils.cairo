@@ -696,3 +696,15 @@ fn market_token_amount_to_usd(
 ) -> u128 { // TODO
     0
 }
+
+/// Get the virtual inventory for positions
+/// # Arguments
+/// * `dataStore` - DataStore
+/// * `token` - the token to check
+/// TODO internal function
+fn get_virtual_inventory_for_positions(
+    dataStore: IDataStoreDispatcher,
+    token: ContractAddress
+) -> (bool, i128) { /// TODO
+    (true, 0)
+}
