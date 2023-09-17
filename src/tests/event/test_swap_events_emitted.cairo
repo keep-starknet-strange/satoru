@@ -12,7 +12,7 @@ use satoru::pricing::position_pricing_utils::{
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
 #[test]
-fn test_emit_swap_reverted() {
+fn given_normal_conditions_when_emit_swap_reverted_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************

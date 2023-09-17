@@ -3,7 +3,7 @@ use satoru::utils::global_reentrancy_guard::{non_reentrant_before, non_reentrant
 use satoru::tests_lib::{setup, teardown};
 
 #[test]
-fn test_reentrancy_values() {
+fn given_normal_conditions_when_non_reentrancy_before_and_after_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -34,7 +34,7 @@ fn test_reentrancy_values() {
 
 #[test]
 #[should_panic(expected: ('ReentrancyGuard: reentrant call',))]
-fn test_reentrancy_revert() {
+fn given_reentrant_call_when_reentrancy_before_and_after_then_fails() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************

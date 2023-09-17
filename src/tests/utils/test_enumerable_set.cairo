@@ -1,7 +1,7 @@
 use satoru::utils::enumerable_set::{Set, SetTrait};
 
 #[test]
-fn test_enumerable_set_starts_empty() {
+fn given_starts_empty_when_enumerable_set_functions_then_works() {
     let mut set = SetTrait::<felt252>::new();
     assert(!set.contains(2) && !set.contains(3) && !set.contains(7), 'New set: Not empty');
     assert(set.length == 0, 'New set: Length not 0');
@@ -11,7 +11,7 @@ fn test_enumerable_set_starts_empty() {
 }
 
 #[test]
-fn test_enumerable_set_adds_value() {
+fn given_set_adds_value_when_enumerable_set_functions_then_works() {
     let mut set = SetTrait::<felt252>::new();
     let is_new = set.add(2);
     assert(is_new, 'Set add one: Not new');
@@ -19,7 +19,7 @@ fn test_enumerable_set_adds_value() {
 }
 
 #[test]
-fn test_enumerable_set_adds_several_values() {
+fn given_set_adds_several_values_when_enumerable_set_functions_then_works() {
     let mut set = SetTrait::<felt252>::new();
     set.add(2);
     set.add(3);
@@ -28,7 +28,7 @@ fn test_enumerable_set_adds_several_values() {
 }
 
 #[test]
-fn test_enumerable_set_adding_existing_values_returns_false() {
+fn given_set_adding_existing_values_returns_false_when_enumerable_set_functions_then_works() {
     let mut set = SetTrait::<felt252>::new();
     set.add(2);
     let is_new = set.add(2);
@@ -41,14 +41,14 @@ fn test_enumerable_set_adding_existing_values_returns_false() {
 }
 
 #[test]
-fn test_enumerable_set_fetch_non_existent() {
+fn given_fetch_non_existent_when_enumerable_set_functions_then_works() {
     let mut set = SetTrait::<felt252>::new();
     let value: felt252 = set.at(2);
     assert(value == 0, 'Set fetch null: Not 0');
 }
 
 #[test]
-fn test_enumerable_set_removes_value() {
+fn given_set_removes_value_when_enumerable_set_functions_then_works() {
     let mut set = SetTrait::<felt252>::new();
     set.add(2);
 
@@ -60,7 +60,7 @@ fn test_enumerable_set_removes_value() {
 }
 
 #[test]
-fn test_enumerable_set_adds_and_removes_multiple() {
+fn given_normal_conditions_when_set_adds_and_removes_multiple_then_works() {
     let mut set = SetTrait::<felt252>::new();
 
     set.add(2);
