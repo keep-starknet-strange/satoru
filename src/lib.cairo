@@ -320,6 +320,7 @@ mod tests {
         mod test_basic_multicall;
         mod test_calc;
         mod test_enumerable_set;
+        mod test_precision;
         mod test_reentrancy_guard;
         mod test_starknet_utils;
         mod test_u128_mask;
