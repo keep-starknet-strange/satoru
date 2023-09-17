@@ -6,6 +6,7 @@ use integer::BoundedInt;
 use starknet::ContractAddress;
 
 // Local imports.
+use satoru::I128Div;
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
@@ -47,7 +48,7 @@ struct ExecuteOrderParams {
     secondary_order_type: SecondaryOrderType
 }
 
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Drop, Copy, starknet::Store, Serde)]
 struct ExecuteOrderParamsContracts {
     /// The dispatcher to interact with the `DataStore` contract
     data_store: IDataStoreDispatcher,
@@ -435,7 +436,7 @@ fn get_execution_price_for_decrease(
         let numerator = precision::mul_div_inum(
             position_size_in_usd, adjusted_price_impact_usd, position_size_in_tokens
         );
-        let adjustment = div_i128(numerator, calc::to_signed(size_delta_usd, true));
+        let adjustment = numerator / calc::to_signed(size_delta_usd, true);
 
         let _execution_price: i128 = calc::to_signed(price, true) + adjustment;
 
@@ -526,16 +527,16 @@ fn panic_unfulfillable(execution_price: u128, acceptable_price: u128) {
     );
 }
 
-// TODO: remove this when i128 division available
 #[inline(always)]
-fn div_i128(numerator: i128, denominator: i128) -> i128 {
-    if numerator < 0 && denominator < 0 {
-        calc::to_signed(calc::to_unsigned(numerator) / calc::to_unsigned(denominator), true)
-    } else if numerator < 0 {
-        -calc::to_signed(calc::to_unsigned(-numerator) / calc::to_unsigned(denominator), false)
-    } else if denominator < 0 {
-        -calc::to_signed(calc::to_unsigned(numerator) / calc::to_unsigned(-denominator), false)
-    } else {
-        calc::to_signed(calc::to_unsigned(numerator) / calc::to_unsigned(denominator), true)
-    }
+fn u128_to_i128(value: u128) -> i128 {
+    assert(value <= BoundedInt::max(), 'u128_to_i128: value too large');
+    let value: felt252 = value.into();
+    value.try_into().unwrap()
+}
+
+#[inline(always)]
+fn i128_to_u128(value: i128) -> u128 {
+    assert(value >= 0, 'i128_to_u128: value is negative');
+    let value: felt252 = value.into();
+    value.try_into().unwrap()
 }
