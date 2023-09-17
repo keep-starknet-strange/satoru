@@ -301,9 +301,7 @@ fn will_position_collateral_be_sufficient(
     (true, 0)
 }
 
-fn update_funding_and_borrowing_state(
-    params: UpdatePositionParams, prices: MarketPrices,
-) { // TODO
+fn update_funding_and_borrowing_state(params: UpdatePositionParams, prices: MarketPrices,) { // TODO
 }
 
 fn update_total_borrowing(
