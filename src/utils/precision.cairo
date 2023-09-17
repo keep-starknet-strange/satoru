@@ -45,9 +45,7 @@ fn apply_factor_i128(value: u128, factor: i128) -> i128 {
 /// * `factor` - The factor to apply.
 /// # Returns
 /// The result of applying the factor to the value.
-fn apply_factor_roundup_magnitude(
-    value: u128, factor: i128, roundup_magnitude: bool
-) -> i128 { // TODO
+fn apply_factor_roundup_magnitude(value: u128, factor: i128, roundup_magnitude: bool) -> i128 {
     return mul_div_inum_roundup(value, factor, FLOAT_PRECISION, roundup_magnitude);
 }
 
@@ -157,7 +155,7 @@ fn mul_div_roundup(
 /// # Arguments
 /// * `value` - The value to the exponent is applied to.
 /// * `divisor` - The exponent applied.
-fn apply_exponent_factor(float_value: u128, exponent_factor: u128) -> u128 {
+fn apply_exponent_factor(float_value: u128, exponent_factor: u128) -> u128 { // TODO
     // if float_value < FLOAT_PRECISION {
     //     return 0;
     // }
@@ -205,7 +203,7 @@ fn to_factor(value: u128, divisor: u128) -> u128 {
 /// * `divisor` - The divisor to compute the factor.
 /// # Returns
 /// The factor between value and divisor.
-fn to_factor_ival(value: i128, divisor: u128) -> i128 { 
+fn to_factor_ival(value: i128, divisor: u128) -> i128 {
     let value_abs = if value < 0 {
         -value
     } else {
