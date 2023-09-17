@@ -20,9 +20,7 @@ use satoru::order::{
     order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
     base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}, order_utils
 };
-use satoru::referral::referral_storage::interface::{
-    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
-};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::utils::span32::{Span32, Array32Trait};
 
 use snforge_std::{declare, ContractClassTrait, start_prank};
