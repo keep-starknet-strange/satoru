@@ -115,6 +115,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Bal7hazar"><img src="https://avatars.githubusercontent.com/u/97087040?v=4?s=100" width="100px;" alt="Bal7hazar @ Carbonable"/><br /><sub><b>Bal7hazar @ Carbonable</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=Bal7hazar" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/zizou0x"><img src="https://avatars.githubusercontent.com/u/111426680?v=4?s=100" width="100px;" alt="Zizou"/><br /><sub><b>Zizou</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=zizou0x" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Darlington02"><img src="https://avatars.githubusercontent.com/u/75126961?v=4?s=100" width="100px;" alt="Darlington02"/><br /><sub><b>Darlington02</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=Darlington02" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/betacodd"><img src="https://avatars.githubusercontent.com/u/97968794?v=4?s=100" width="100px;" alt="betacod"/><br /><sub><b>betacod</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=betacodd" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
