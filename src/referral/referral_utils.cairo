@@ -8,9 +8,7 @@ use starknet::ContractAddress;
 use result::ResultTrait;
 
 // Local imports.
-use satoru::mock::referral_storage::{
-    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
-};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::data::keys;
@@ -21,8 +19,8 @@ use satoru::data::keys;
 /// * `referral_code` - The referral code.
 fn set_trader_referral_code(
     referral_storage: IReferralStorageDispatcher, account: ContractAddress, referral_code: felt252
-){
-    if (referral_code == 0){
+) {
+    if (referral_code == 0) {
         return;
     }
     referral_storage.set_trader_referral_code(account, referral_code);
@@ -44,13 +42,18 @@ fn increment_affiliate_reward(
     affiliate: ContractAddress,
     delta: u128
 ) {
-    if (delta == 0){
+    if (delta == 0) {
         return;
     }
-    let next_value: u128 = data_store.increment_u128(keys::affiliate_reward_for_account_key(market, token, affiliate), delta);
-    let next_pool_value: u128 = data_store.increment_u128(keys::affiliate_reward_key(market, token), delta);
+    let next_value: u128 = data_store
+        .increment_u128(keys::affiliate_reward_for_account_key(market, token, affiliate), delta);
+    let next_pool_value: u128 = data_store
+        .increment_u128(keys::affiliate_reward_key(market, token), delta);
 
-    event_emitter.emit_affiliate_reward_updated(market, token, affiliate, delta, next_value, next_pool_value);
+    event_emitter
+        .emit_affiliate_reward_updated(
+            market, token, affiliate, delta, next_value, next_pool_value
+        );
 }
 
 /// Gets the referral information for the specified trader.
@@ -67,17 +70,22 @@ fn get_referral_info(
     let affiliate: ContractAddress = ContractAddressZeroable::zero();
     let total_rebate: u128 = 0;
     let discount_share: u128 = 0;
-    if (code != 0){
+    if (code != 0) {
         affiliate = referral_storage.code_owners(code);
         referral_tier_level = referral_storage.referrer_tiers(affiliate);
         (total_rebate, discount_share) = referral_storage.tiers(referral_tier_level);
         custom_discount_share = referral_storage.referrer_discount_shares(affiliate);
-        if (custom_discount_share != 0){
+        if (custom_discount_share != 0) {
             discount_share = custom_discount_share;
         }
     }
 
-    return (code, affiliate,precision::basis_points_to_float(total_rebate),precision::basis_points_to_float(discount_share));
+    return (
+        code,
+        affiliate,
+        precision::basis_points_to_float(total_rebate),
+        precision::basis_points_to_float(discount_share)
+    );
 }
 
 /// Gets the referral information for the specified trader.
@@ -103,12 +111,15 @@ fn claim_affiliate_reward(
     let reward_amount: u128 = data_store.get_u128(key);
     data_store.set_u128(key, 0);
 
-    let next_pool_value: u128 = data_store.decrement_u128(keys::affiliate_reward_key(market, token), reward_amount);
+    let next_pool_value: u128 = data_store
+        .decrement_u128(keys::affiliate_reward_key(market, token), reward_amount);
 
     market_utils::validate_market_token_balance(data_store, market);
 
-    event_emitter.emit_affiliate_reward_claimed(market, token, account, receiver, reward_amount, next_pool_value);
+    event_emitter
+        .emit_affiliate_reward_claimed(
+            market, token, account, receiver, reward_amount, next_pool_value
+        );
 
     return reward_amount;
-
 }

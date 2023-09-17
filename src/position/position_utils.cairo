@@ -17,9 +17,7 @@ use satoru::price::price::Price;
 use satoru::position::position::Position;
 use satoru::pricing::position_pricing_utils::PositionFees;
 use satoru::order::order::{Order, SecondaryOrderType};
-use satoru::mock::referral_storage::{
-    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
-};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::order::base_order_utils::ExecuteOrderParamsContracts;
 
 /// Struct used in increasePosition and decreasePosition.
@@ -303,7 +301,9 @@ fn will_position_collateral_be_sufficient(
     (true, 0)
 }
 
-fn update_funding_and_borrowing_state(params: UpdatePositionParams, prices: MarketPrices,) { // TODO
+fn update_funding_and_borrowing_state(
+    params: UpdatePositionParams, prices: MarketPrices,
+) { // TODO
 }
 
 fn update_total_borrowing(

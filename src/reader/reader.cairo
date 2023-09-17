@@ -37,9 +37,7 @@ use satoru::position::position::Position;
 use satoru::order::order::OrderType;
 use satoru::pricing::swap_pricing_utils::SwapFees;
 use satoru::deposit::deposit::Deposit;
-use satoru::mock::referral_storage::{
-    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
-};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 
 #[derive(Drop, starknet::Store, Serde)]
 struct VirtualInventory {

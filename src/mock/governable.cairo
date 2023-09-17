@@ -12,7 +12,7 @@ use starknet::ContractAddress;
 // *************************************************************************
 #[starknet::interface]
 trait IGovernable<TContractState> {
-    fn initialize(ref self: TContractState, event_emitter_address: ContractAddress);       
+    fn initialize(ref self: TContractState, event_emitter_address: ContractAddress);
     fn only_gov(self: @TContractState);
     fn transfer_ownership(ref self: TContractState, new_gov: ContractAddress);
     fn accept_ownership(ref self: TContractState);
@@ -60,12 +60,14 @@ mod Governable {
     #[external(v0)]
     impl Governable of super::IGovernable<ContractState> {
         fn initialize(ref self: ContractState, event_emitter_address: ContractAddress) {
-            self.event_emitter.write(IEventEmitterDispatcher { contract_address: event_emitter_address });
+            self
+                .event_emitter
+                .write(IEventEmitterDispatcher { contract_address: event_emitter_address });
             self._set_gov(get_caller_address())
-        }   
-        
-        fn only_gov(self: @ContractState){
-            if (get_caller_address() != self.gov.read()){
+        }
+
+        fn only_gov(self: @ContractState) {
+            if (get_caller_address() != self.gov.read()) {
                 panic(array![MockError::UNAUTHORIZED_GOV])
             }
         }
@@ -76,7 +78,7 @@ mod Governable {
         }
 
         fn accept_ownership(ref self: ContractState) {
-            if (get_caller_address() != self.pending_gov.read()){
+            if (get_caller_address() != self.pending_gov.read()) {
                 panic(array![MockError::UNAUTHORIZED_PENDING_GOV])
             }
             self._set_gov(get_caller_address());

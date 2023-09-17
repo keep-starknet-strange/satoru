@@ -12,9 +12,7 @@ use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::market::market::Market;
 use satoru::price::price::Price;
 use satoru::position::position::Position;
-use satoru::mock::referral_storage::{
-    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
-};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 
 /// Struct used in get_position_fees.
 #[derive(Drop, starknet::Store, Serde)]
