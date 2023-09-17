@@ -39,8 +39,9 @@ use satoru::order::{
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::order::base_order_utils::ExecuteOrderParamsContracts;
+
 #[test]
-fn test_get_position_key() {
+fn given_normal_conditions_when_get_position_key_then_works() {
     // 
     // Setup  
     //   
@@ -62,7 +63,7 @@ fn test_get_position_key() {
 
 #[test]
 #[should_panic(expected: ('empty_position',))]
-fn test_validate_non_empty_fail() {
+fn given_empty_position_when_validate_non_empty_position_then_fails() {
     // 
     // Setup  
     //   
@@ -73,7 +74,7 @@ fn test_validate_non_empty_fail() {
 }
 
 #[test]
-fn test_validate_non_empty() {
+fn given_normal_conditions_when_validate_non_empty_position_then_works() {
     // 
     // Setup  
     //   
@@ -93,7 +94,7 @@ fn test_validate_non_empty() {
 
 #[test]
 #[should_panic(expected: ('invalid_position_size_values',))]
-fn test_invalid_pos_size() {
+fn given_invalid_position_size_when_validate_position_then_fails() {
     // 
     // Setup  
     //   
@@ -118,7 +119,7 @@ fn test_invalid_pos_size() {
 
 #[test]
 #[should_panic(expected: ('empty_market',))]
-fn test_validate_pos_empty_market() {
+fn given_empty_market_when_validate_position_then_fails() {
     // 
     // Setup  
     //   
@@ -150,7 +151,7 @@ fn test_validate_pos_empty_market() {
 
 #[test]
 #[should_panic(expected: ('minumum position size',))]
-fn test_validate_position_min_pos() {
+fn given_minumum_position_size_when_validate_position_then_fails() {
     // 
     // Setup  
     //   
@@ -201,7 +202,7 @@ fn test_validate_position_min_pos() {
 }
 
 #[test]
-fn test_increment_claimable_funding_amount() {
+fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() {
     // 
     // Setup  
     //   

@@ -304,7 +304,7 @@ mod tests {
     mod price {
         mod test_price;
     }
-    
+
     mod role {
         mod test_role_module;
         mod test_role_store;
