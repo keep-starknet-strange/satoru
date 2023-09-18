@@ -259,13 +259,19 @@ fn _get_price_impact_usd(
 /// # Returns
 /// New open interest.
 fn get_next_open_interest(params: GetPriceImpactUsdParams) -> OpenInterestParams {
-    // TODO
-    OpenInterestParams {
-        long_open_interest: 0,
-        short_open_interest: 0,
-        next_long_open_interest: 0,
-        next_short_open_interest: 0,
-    }
+    let long_open_interest = market_utils::get_open_interest_for_market_is_long(
+            params.data_store,
+            @params.market,
+            true
+    );
+
+    let short_open_interest = market_utils::get_open_interest_for_market_is_long(
+            params.data_store,
+            @params.market,
+            false
+        );
+
+    return get_next_open_interest_params(params, long_open_interest, short_open_interest);
 }
 
 /// Compute new open interest for virtual inventory.
@@ -277,13 +283,22 @@ fn get_next_open_interest(params: GetPriceImpactUsdParams) -> OpenInterestParams
 fn get_next_open_interest_for_virtual_inventory(
     params: GetPriceImpactUsdParams, virtual_inventory: i128,
 ) -> OpenInterestParams {
-    // TODO
-    OpenInterestParams {
-        long_open_interest: 0,
-        short_open_interest: 0,
-        next_long_open_interest: 0,
-        next_short_open_interest: 0,
+    let long_open_interest = 0;
+    let short_open_interest = 0;
+
+    if (virtual_inventory > 0) {
+        short_open_interest = i128_to_u128(virtual_inventory);
+    } else {
+        long_open_interest = i128_to_u128(virtual_inventory) * (-1);
     }
+
+    if (params.usd_delta < 0) {
+        let offset = i128_to_u128(params.usdDelta) * (-1);
+        long_open_interest += offset;
+        short_open_interest += offset;
+    }
+
+    return get_next_open_interest_params(params, long_open_interest, short_open_interest);
 }
 
 /// Compute new open interest.
