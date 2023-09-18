@@ -12,6 +12,8 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 use satoru::oracle::{
     oracle::IOracleDispatcher, oracle_utils::{SetPricesParams, SimulatePricesParams},
 };
+use satoru::price::price::Price;
+
 
 /// Sets oracle prices, perform any additional tasks required,
 /// and clear the oracle prices after.
@@ -32,7 +34,10 @@ fn with_oracle_prices_before(
     data_store: IDataStoreDispatcher,
     event_emitter: IEventEmitterDispatcher,
     params: @SetPricesParams
-) { // TODO
+) { 
+    oracle.set_prices(data_store, event_emitter, params); 
+    //Performs additional tasks
+    oracle.clearAllPrices();
 }
 
 #[inline(always)]
@@ -53,7 +58,22 @@ fn with_oracle_prices_after() { // TODO
 #[inline(always)]
 fn with_simulated_oracle_prices_before(
     oracle: IOracleDispatcher, params: SimulatePricesParams
-) { // TODO
+) { 
+    if (params.primary_tokens.len() != params.primary_prices.len()){ 
+        OracleError::INVALID_PRIMARY_PRICES_FOR_SIMULATION(params.primary_tokens.len(),params.primary_prices.len());
+    }
+    let cur_idx = 0;
+    loop {
+        if (cur_idx == params.primary_tokens.len()){ 
+            break();
+        }
+        let token: ContractAddress = params.(*primary_tokens).at(cur_idx);
+        let price: Price  = params.(*primary_prices).at(cur_idx);
+        oracle.set_primary_price(token, price);
+
+    };
+
+    OracleError::END_OF_ORACLE_SIMULATION();
 }
 
 #[inline(always)]
