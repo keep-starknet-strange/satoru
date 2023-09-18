@@ -145,11 +145,7 @@ struct PositionBorrowingFees {
 }
 
 /// Struct used to store position funding fees.
-<<<<<<< HEAD
 #[derive(Default, Copy, Drop, starknet::Store, Serde)]
-=======
-#[derive(Default, Drop, Copy, starknet::Store, Serde)]
->>>>>>> cc5b254 (refact: add Copy derive on struct)
 struct PositionFundingFees {
     /// The amount of funding fees in tokens.
     funding_fee_amount: u128,
