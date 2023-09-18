@@ -78,7 +78,7 @@ impl DefaultContractAddress of Default<ContractAddress> {
     }
 }
 /// Struct to store position fees data.
-#[derive(Default, Drop, starknet::Store, Serde)]
+#[derive(Default, Drop, Copy, starknet::Store, Serde)]
 struct PositionFees {
     /// The referral fees.
     referral: PositionReferralFees,
@@ -111,7 +111,7 @@ struct PositionFees {
 }
 
 /// Struct used to store referral parameters useful for fees computation.
-#[derive(Default, Drop, starknet::Store, Serde)]
+#[derive(Default, Drop, Copy, starknet::Store, Serde)]
 struct PositionReferralFees {
     /// The referral code used.
     referral_code: felt252,
@@ -132,7 +132,7 @@ struct PositionReferralFees {
 }
 
 /// Struct used to store position borrowing fees.
-#[derive(Default, Drop, starknet::Store, Serde)]
+#[derive(Default, Drop, Copy, starknet::Store, Serde)]
 struct PositionBorrowingFees {
     /// The borrowing fees amount in USD.
     borrowing_fee_usd: u128,
@@ -145,7 +145,11 @@ struct PositionBorrowingFees {
 }
 
 /// Struct used to store position funding fees.
+<<<<<<< HEAD
 #[derive(Default, Copy, Drop, starknet::Store, Serde)]
+=======
+#[derive(Default, Drop, Copy, starknet::Store, Serde)]
+>>>>>>> cc5b254 (refact: add Copy derive on struct)
 struct PositionFundingFees {
     /// The amount of funding fees in tokens.
     funding_fee_amount: u128,
@@ -162,7 +166,7 @@ struct PositionFundingFees {
 }
 
 /// Struct used to store position ui fees
-#[derive(Default, Drop, starknet::Store, Serde)]
+#[derive(Default, Drop, Copy, starknet::Store, Serde)]
 struct PositionUiFees {
     /// The ui fee receiver address
     ui_fee_receiver: ContractAddress,
