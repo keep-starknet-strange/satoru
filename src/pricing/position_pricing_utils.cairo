@@ -167,25 +167,35 @@ struct PositionUiFees {
 /// Get the price impact in USD for a position increase / decrease.
 fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i128 {
     let open_interest_params: OpenInterestParams = get_next_open_interest(params);
-    let price_impact_usd = _get_price_impact_usd(params.data_store, params.market.market_token, open_interest_params);
+    let price_impact_usd = _get_price_impact_usd(
+        params.data_store, params.market.market_token, open_interest_params
+    );
 
     if (price_impact_usd >= 0) {
         return price_impact_usd;
     }
 
-    let (has_virtual_inventory, virtual_inventory) = market_utils::get_virtual_inventory_for_positions(params.data_store, params.market.index_token);
-    
+    let (has_virtual_inventory, virtual_inventory) =
+        market_utils::get_virtual_inventory_for_positions(
+        params.data_store, params.market.index_token
+    );
+
     if (!has_virtual_inventory) {
         return price_impact_usd;
     }
 
-    let open_interest_params_for_virtual_inventory: OpenInterestParams = get_next_open_interest_for_virtual_inventory(params, virtual_inventory);
-    let price_impact_usd_for_virtual_inventory = _get_price_impact_usd(params.data_store, params.market.market_token, open_interest_params_for_virtual_inventory);
+    let open_interest_params_for_virtual_inventory: OpenInterestParams =
+        get_next_open_interest_for_virtual_inventory(
+        params, virtual_inventory
+    );
+    let price_impact_usd_for_virtual_inventory = _get_price_impact_usd(
+        params.data_store, params.market.market_token, open_interest_params_for_virtual_inventory
+    );
 
     if (price_impact_usd_for_virtual_inventory < price_impact_usd) {
         return price_impact_usd_for_virtual_inventory;
     }
-    
+
     price_impact_usd
 }
 
@@ -195,37 +205,52 @@ fn _get_price_impact_usd(
     market: ContractAddress,
     open_interest_params: OpenInterestParams,
 ) -> i128 {
-    let initial_diff_usd = calc::diff(open_interest_params.long_open_interest, open_interest_params.short_open_interest);
-    let next_diff_usd = calc::diff(open_interest_params.next_long_open_interest, open_interest_params.next_short_open_interest);
-    
-    let is_same_side_rebalance_first = open_interest_params.long_open_interest <= open_interest_params.short_open_interest; 
-    let is_same_side_rebalance_second = open_interest_params.short_open_interest <= open_interest_params.next_long_open_interest;
-    let is_same_side_rebalance_third = open_interest_params.next_long_open_interest <= open_interest_params.next_short_open_interest;
-    let is_same_side_rebalance = is_same_side_rebalance_first && is_same_side_rebalance_second && is_same_side_rebalance_third;
+    let initial_diff_usd = calc::diff(
+        open_interest_params.long_open_interest, open_interest_params.short_open_interest
+    );
+    let next_diff_usd = calc::diff(
+        open_interest_params.next_long_open_interest, open_interest_params.next_short_open_interest
+    );
 
-    let impact_exponent_factor = data_store.get_u128(keys::position_impact_exponent_factor_key(market));
+    let is_same_side_rebalance_first = open_interest_params
+        .long_open_interest <= open_interest_params
+        .short_open_interest;
+    let is_same_side_rebalance_second = open_interest_params
+        .short_open_interest <= open_interest_params
+        .next_long_open_interest;
+    let is_same_side_rebalance_third = open_interest_params
+        .next_long_open_interest <= open_interest_params
+        .next_short_open_interest;
+    let is_same_side_rebalance = is_same_side_rebalance_first
+        && is_same_side_rebalance_second
+        && is_same_side_rebalance_third;
 
-        if (is_same_side_rebalance) {
-            let has_positive_impact = next_diff_usd < initial_diff_usd;
-            let impact_factor = market_utils::get_adjusted_position_impact_factor(data_store, market, has_positive_impact);
+    let impact_exponent_factor = data_store
+        .get_u128(keys::position_impact_exponent_factor_key(market));
 
-            return pricing_utils::get_price_impact_usd_for_same_side_rebalance(
-                initial_diff_usd,
-                next_diff_usd,
-                impact_factor,
-                impact_exponent_factor
-            );
-        } else {
-            let (positive_impact_factor, negative_impact_factor) = market_utils::get_adjusted_position_impact_factors(data_store, market);
+    if (is_same_side_rebalance) {
+        let has_positive_impact = next_diff_usd < initial_diff_usd;
+        let impact_factor = market_utils::get_adjusted_position_impact_factor(
+            data_store, market, has_positive_impact
+        );
 
-            return pricing_utils::get_price_impact_usd_for_crossover_rebalance(
-                initial_diff_usd,
-                next_diff_usd,
-                positive_impact_factor,
-                negative_impact_factor,
-                impact_exponent_factor
-            );
-        }
+        return pricing_utils::get_price_impact_usd_for_same_side_rebalance(
+            initial_diff_usd, next_diff_usd, impact_factor, impact_exponent_factor
+        );
+    } else {
+        let (positive_impact_factor, negative_impact_factor) =
+            market_utils::get_adjusted_position_impact_factors(
+            data_store, market
+        );
+
+        return pricing_utils::get_price_impact_usd_for_crossover_rebalance(
+            initial_diff_usd,
+            next_diff_usd,
+            positive_impact_factor,
+            negative_impact_factor,
+            impact_exponent_factor
+        );
+    }
 }
 
 /// Compute new open interest.

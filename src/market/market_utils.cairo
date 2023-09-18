@@ -767,24 +767,20 @@ fn market_token_amount_to_usd(
 /// * `token` - the token to check
 /// TODO internal function
 fn get_virtual_inventory_for_positions(
-    dataStore: IDataStoreDispatcher,
-    token: ContractAddress
+    dataStore: IDataStoreDispatcher, token: ContractAddress
 ) -> (bool, i128) { /// TODO
     (true, 0)
 }
 
 fn get_adjusted_position_impact_factor(
-    data_store: IDataStoreDispatcher,
-    market: ContractAddress,
-    isPositive: bool
+    data_store: IDataStoreDispatcher, market: ContractAddress, isPositive: bool
 ) -> u128 {
     // TODO
     0
 }
 
 fn get_adjusted_position_impact_factors(
-    data_store: IDataStoreDispatcher,
-    market: ContractAddress
-) -> (u128, u128) {
-    (0, 0)        
+    data_store: IDataStoreDispatcher, market: ContractAddress
+) -> (u128, u128) { // TODO
+    (0, 0)
 }
