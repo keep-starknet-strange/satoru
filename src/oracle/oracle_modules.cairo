@@ -37,12 +37,11 @@ fn with_oracle_prices_before(
     params: @SetPricesParams
 ) { 
     oracle.set_prices(data_store, event_emitter, params.clone()); 
-    //Performs additional tasks
-    oracle.clear_all_prices();
 }
 
 #[inline(always)]
-fn with_oracle_prices_after() { // TODO
+fn with_oracle_prices_after(oracle: IOracleDispatcher) { 
+    oracle.clear_all_prices();
 }
 
 /// Set oracle prices for a simulation.
@@ -74,9 +73,9 @@ fn with_simulated_oracle_prices_before(
 
     };
 
-    OracleError::END_OF_ORACLE_SIMULATION();
 }
 
 #[inline(always)]
-fn with_simulated_oracle_prices_after() { // TODO
+fn with_simulated_oracle_prices_after() { 
+    OracleError::END_OF_ORACLE_SIMULATION();
 }
