@@ -60,10 +60,6 @@ struct SwapFees {
     /// The ui fee amount.
     ui_fee_amount: u128,
 }
-fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> u128 { //TODO : change to i128
-    //TODO 
-    0
-}
 
 impl DefaultSwapFees of Default<SwapFees> {
     fn default() -> SwapFees {

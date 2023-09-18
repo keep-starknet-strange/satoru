@@ -95,9 +95,9 @@ fn get_swap_amount_out(
     if (token_in != market.long_token && token_in != market.short_token) { //Implement the error
     }
 
-    validate_swap_market(data_store, @market);
+    validate_swap_market(@data_store, @market);
 
-    cache.token_out = get_opposite_token(token_in, market);
+    cache.token_out = get_opposite_token(@market, token_in);
     cache.token_in_price = get_cached_token_price(token_in, market, prices);
     cache.token_out_price = get_cached_token_price(cache.token_out, market, prices);
 
