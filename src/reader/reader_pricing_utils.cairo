@@ -17,10 +17,6 @@ use satoru::order::{
     order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
     base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}
 };
-
-//use satoru::position::position::Position;
-//use satoru::position::position_utils::{get_execution_price, UpdatePositionParams};
-
 use satoru::position::{
     position::Position, position_utils::UpdatePositionParams, increase_position_utils,
     decrease_position_collateral_utils,
@@ -318,6 +314,53 @@ fn get_swap_price_impact(
     amount_in: u128,
     token_in_price: Price,
     token_out_price: Price
-) -> (i128, i128) { // TODO
-    (0, 0)
+) -> (u128, u128) { //todo : change to (i128, i128)
+    let mut cache: SwapCache = SwapCache {
+        token_out: 0.try_into().unwrap(),
+        token_in_price: Price { min: 0, max: 0 },
+        token_out_price: Price { min: 0, max: 0 },
+        amount_in: 0,
+        amount_out: 0,
+        pool_amount_out: 0,
+        price_impact_usd: 0,
+        price_impact_amount: 0,
+    };
+
+    let param: GetPriceImpactUsdParams = GetPriceImpactUsdParams {
+        dataStore: data_store,
+        market: market,
+        token_a: token_in,
+        token_b: cache.token_out,
+        price_for_token_a: cache.token_in_price.mid_price(),
+        price_for_token_b: cache.token_out_price.mid_price(),
+        usd_delta_for_token_a: (amount_in * cache.token_in_price.mid_price()), //to int256?
+        usd_delta_for_token_b: (amount_in
+            * cache.token_in_price.mid_price()) //todo : add `-` when i128 will implement Store
+    };
+
+    let price_impact_usd_before_cap: u128 = get_price_impact_usd(
+        param
+    ); //todo : check u128 to i128 
+
+    let mut price_impact_amount = 0;
+    if price_impact_usd_before_cap > 0 {
+        price_impact_amount =
+            get_swap_impact_amount_with_cap(
+                data_store,
+                market.market_token,
+                token_out,
+                token_out_price,
+                price_impact_usd_before_cap,
+            );
+    } else {
+        price_impact_amount =
+            get_swap_impact_amount_with_cap(
+                data_store,
+                market.market_token,
+                token_in,
+                token_in_price,
+                price_impact_usd_before_cap,
+            );
+    }
+    (price_impact_usd_before_cap, price_impact_amount)
 }
