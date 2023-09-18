@@ -6,20 +6,41 @@ use starknet::ContractAddress;
 use core::traits::TryInto;
 
 // Local imports.
-use satoru::position::position::Position;
 use satoru::market::market::Market;
 use satoru::market::market_utils::{
     MarketPrices, get_opposite_token, get_cached_token_price, get_swap_impact_amount_with_cap,
     validate_swap_market
+};
+
+use satoru::order::{
+    order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType},
+    order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
+    base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}
+};
+
+//use satoru::position::position::Position;
+//use satoru::position::position_utils::{get_execution_price, UpdatePositionParams};
+
+use satoru::position::{
+    position::Position, position_utils::UpdatePositionParams, increase_position_utils,
+    decrease_position_collateral_utils,
 };
 use satoru::price::price::{Price, PriceTrait};
 use satoru::pricing::position_pricing_utils::{PositionFees};
 use satoru::pricing::swap_pricing_utils::{
     SwapFees, get_swap_fees, get_price_impact_usd, GetPriceImpactUsdParams
 };
+use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::swap::swap_utils::SwapCache;
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+
+
+use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+use satoru::referral::referral_storage::interface::{
+    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
+};
 
 #[derive(Drop, starknet::Store, Serde)]
 struct ExecutionPriceResult {
@@ -165,8 +186,116 @@ fn get_execution_price(
     size_delta_usd: i128,
     is_long: bool
 ) -> ExecutionPriceResult {
-    // TODO
-    ExecutionPriceResult { price_impact_usd: 0, price_impact_diff_usd: 0, execution_price: 0, }
+    let mut params: UpdatePositionParams = UpdatePositionParams {
+        contracts: ExecuteOrderParamsContracts {
+            data_store: IDataStoreDispatcher { contract_address: 0.try_into().unwrap() },
+            event_emitter: IEventEmitterDispatcher { contract_address: 0.try_into().unwrap() },
+            order_vault: IOrderVaultDispatcher { contract_address: 0.try_into().unwrap() },
+            oracle: IOracleDispatcher { contract_address: 0.try_into().unwrap() },
+            swap_handler: ISwapHandlerDispatcher { contract_address: 0.try_into().unwrap() },
+            referral_storage: IReferralStorageDispatcher { contract_address: 0.try_into().unwrap() }
+        },
+        market: Market {
+            market_token: 0.try_into().unwrap(),
+            index_token: 0.try_into().unwrap(),
+            long_token: 0.try_into().unwrap(),
+            short_token: 0.try_into().unwrap()
+        },
+        order: Order {
+            key: 0,
+            decrease_position_swap_type: DecreasePositionSwapType::NoSwap,
+            order_type: OrderType::MarketSwap,
+            account: 0.try_into().unwrap(),
+            receiver: 0.try_into().unwrap(),
+            callback_contract: 0.try_into().unwrap(),
+            ui_fee_receiver: 0.try_into().unwrap(),
+            market: 0.try_into().unwrap(),
+            initial_collateral_token: 0.try_into().unwrap(),
+            swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
+            size_delta_usd: 0,
+            initial_collateral_delta_amount: 0,
+            trigger_price: 0,
+            acceptable_price: 0,
+            execution_fee: 0,
+            callback_gas_limit: 0,
+            min_output_amount: 0,
+            updated_at_block: 0,
+            is_long: true,
+            should_unwrap_native_token: true,
+            is_frozen: true,
+        },
+        order_key: 0,
+        position: Position {
+            key: 0,
+            account: 0.try_into().unwrap(),
+            market: 0.try_into().unwrap(),
+            collateral_token: 0.try_into().unwrap(),
+            size_in_usd: 0,
+            size_in_tokens: 0,
+            collateral_amount: 0,
+            borrowing_factor: 0,
+            funding_fee_amount_per_size: 0,
+            long_token_claimable_funding_amount_per_size: 0,
+            short_token_claimable_funding_amount_per_size: 0,
+            increased_at_block: 0,
+            decreased_at_block: 0,
+            is_long: true,
+        },
+        position_key: 0,
+        secondary_order_type: SecondaryOrderType::None,
+    };
+
+    params.contracts.data_store = data_store;
+    params.market = market;
+
+    let size_delta_usd_abs = if size_delta_usd > 0 {
+        size_delta_usd
+    } else {
+        -size_delta_usd
+    };
+    //params.order.size_delta_usd = size_delta_usd; //to abs
+    params.order.is_long = is_long;
+
+    let is_increase: bool = size_delta_usd > 0;
+    let should_execution_price_be_smaller = if is_increase {
+        is_long
+    } else {
+        !is_long
+    };
+    params
+        .order
+        .acceptable_price =
+            if should_execution_price_be_smaller {
+                0 //todo : replace by type(uint256).max (I don't know what's the cairo equivalent)
+            } else {
+                0
+            };
+
+    params.position.size_in_usd = position_size_in_usd;
+    params.position.size_in_tokens = position_size_in_tokens;
+    params.position.is_long = is_long;
+
+    let mut result: ExecutionPriceResult = ExecutionPriceResult {
+        price_impact_usd: 0, price_impact_diff_usd: 0, execution_price: 0,
+    };
+    if size_delta_usd > 0 {
+        let (price_impact_usd, a, b, execution_price) =
+            increase_position_utils::get_execution_price(
+            params, index_token_price
+        );
+
+        //result.price_impact_usd = price_impact_usd; //todo : convert to u128
+        result.execution_price = execution_price;
+    } else {
+        let (price_impact_usd, price_impact_diff_usd, execution_price) =
+            decrease_position_collateral_utils::get_execution_price(
+            params, index_token_price
+        );
+        //result.price_impact_usd = price_impact_usd; //todo : convert to u128
+        result.price_impact_diff_usd = price_impact_diff_usd;
+        result.execution_price = execution_price;
+    }
+    result
 }
 
 
