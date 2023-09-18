@@ -109,7 +109,7 @@ mod OracleError {
     }
 
     fn INVALID_PRIMARY_PRICES_FOR_SIMULATION(data_1:u32, data_2: u32 ) { 
-        panic(array!['Simulation:invalid primary prices', data_1.into(), data_2.into()])
+        panic(array!['Simulation:invalid prim_prices', data_1.into(), data_2.into()])
     }
 
     fn PRICE_FEED_NOT_UPDATED(data_1: ContractAddress, data_2: u64, data_3: u128) {

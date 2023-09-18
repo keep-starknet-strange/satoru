@@ -10,10 +10,11 @@
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::oracle::{
-    oracle::IOracleDispatcher, oracle_utils::{SetPricesParams, SimulatePricesParams},
+    oracle::{IOracleDispatcher, IOracleDispatcherTrait}, oracle_utils::{SetPricesParams, SimulatePricesParams},
 };
 use satoru::price::price::Price;
-
+use satoru::oracle::error::OracleError;
+use starknet::ContractAddress;
 
 /// Sets oracle prices, perform any additional tasks required,
 /// and clear the oracle prices after.
@@ -35,9 +36,9 @@ fn with_oracle_prices_before(
     event_emitter: IEventEmitterDispatcher,
     params: @SetPricesParams
 ) { 
-    oracle.set_prices(data_store, event_emitter, params); 
+    oracle.set_prices(data_store, event_emitter, params.clone()); 
     //Performs additional tasks
-    oracle.clearAllPrices();
+    oracle.clear_all_prices();
 }
 
 #[inline(always)]
@@ -55,7 +56,7 @@ fn with_oracle_prices_after() { // TODO
 /// # Arguments
 /// * `oracle` - `Oracle` contract dispatcher
 /// * `params` - parameters used to set oracle price
-#[inline(always)]
+
 fn with_simulated_oracle_prices_before(
     oracle: IOracleDispatcher, params: SimulatePricesParams
 ) { 
@@ -67,8 +68,8 @@ fn with_simulated_oracle_prices_before(
         if (cur_idx == params.primary_tokens.len()){ 
             break();
         }
-        let token: ContractAddress = params.(*primary_tokens).at(cur_idx);
-        let price: Price  = params.(*primary_prices).at(cur_idx);
+        let token: ContractAddress = *params.primary_tokens.at(cur_idx);
+        let price: Price  = *params.primary_prices.at(cur_idx);
         oracle.set_primary_price(token, price);
 
     };
