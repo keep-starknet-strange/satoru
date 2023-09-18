@@ -39,7 +39,7 @@ struct Withdrawal {
     /// The minimum amount of short tokens that must be withdrawn.
     min_short_token_amount: u128,
     /// The block at which the withdrawal was last updated.
-    updated_at_block: u128,
+    updated_at_block: u64,
     /// The execution fee for the withdrawal.
     execution_fee: u256,
     /// The gas limit for calling the callback contract.

@@ -23,7 +23,7 @@ use satoru::referral::referral_storage::interface::{
 use satoru::order::base_order_utils::ExecuteOrderParamsContracts;
 
 /// Struct used in increasePosition and decreasePosition.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Drop, Copy, starknet::Store, Serde)]
 struct UpdatePositionParams {
     /// BaseOrderUtils.ExecuteOrderParamsContracts
     contracts: ExecuteOrderParamsContracts,
@@ -199,7 +199,10 @@ fn get_position_pnl_usd(
 /// # Returns
 /// The position key.
 fn get_position_key(
-    account: ContractAddress, market: Market, collateral_token: ContractAddress, is_long: bool,
+    account: ContractAddress,
+    market: ContractAddress,
+    collateral_token: ContractAddress,
+    is_long: bool,
 ) -> felt252 {
     // TODO
     0

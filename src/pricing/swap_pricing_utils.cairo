@@ -65,10 +65,24 @@ fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> u128 { //TODO : chan
     0
 }
 
+impl DefaultSwapFees of Default<SwapFees> {
+    fn default() -> SwapFees {
+        SwapFees {
+            fee_receiver_amount: 0,
+            fee_amount_for_pool: 0,
+            amount_after_fees: 0,
+            ui_fee_receiver: Zeroable::zero(),
+            ui_fee_receiver_factor: 0,
+            ui_fee_amount: 0
+        }
+    }
+}
+
 /// Called by get_price_impact_usd().
 /// # Returns
 /// The price impact in USD.
-fn get_price_impact_usd_(params: GetPriceImpactUsdParams) -> i128 {
+/// TODO: update return to i128 when it will implement 
+fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> u128 {
     // TODO
     0
 }

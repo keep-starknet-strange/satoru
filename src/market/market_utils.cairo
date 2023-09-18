@@ -13,10 +13,13 @@ use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::data::keys;
-use satoru::market::error::MarketError;
-use satoru::market::market::Market;
+use satoru::market::{
+    market::Market, error::MarketError, market_pool_value_info::MarketPoolValueInfo,
+    market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait}
+};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::price::price::{Price, PriceTrait};
+use satoru::utils::span32::Span32;
 
 /// Struct to store the prices of tokens of a market.
 /// # Params
@@ -24,7 +27,7 @@ use satoru::price::price::{Price, PriceTrait};
 /// * `tokens` - Price of the market's long token.
 /// * `compacted_oracle_block_numbers` - Price of the market's short token.
 /// Struct to store the prices of tokens of a market
-#[derive(Drop, Copy, starknet::Store, Serde)]
+#[derive(Default, Drop, Copy, starknet::Store, Serde)]
 struct MarketPrices {
     index_token_price: Price,
     long_token_price: Price,
@@ -49,23 +52,6 @@ struct GetNextFundingAmountPerSizeResult {
     funding_factor_per_second: u128,
     funding_fee_amount_per_size_delta: PositionType,
     claimable_funding_amount_per_size_delta: PositionType,
-}
-
-// @dev get the opposite token of the market
-// if the inputToken is the longToken return the shortToken and vice versa
-// @param inputToken the input token
-// @param market the market values
-// @return the opposite token
-fn get_opposite_token(input_token: ContractAddress, market: Market) -> ContractAddress {
-    if (input_token == market.long_token) {
-        market.short_token
-    } else if (input_token == market.short_token) {
-        market.long_token
-    } else {
-        assert(false, "false");
-        market.long_token //todo : remove
-    }
-//TODO revert Errors.UnableToGetOppositeToken(inputToken, market.marketToken);
 }
 
 // @dev get the token price from the stored MarketPrices
@@ -429,6 +415,26 @@ fn apply_delta_to_position_impact_pool(
     next_value
 }
 
+/// Applies a delta to the pool amount for a given market and token.
+/// `validatePoolAmount` is not called in this function since `apply_delta_to_pool_amount`
+/// is typically called when receiving fees.
+/// # Arguments
+/// * `data_store` - Data store to manage internal states.
+/// * `event_emitter` - Emits events for the system.
+/// * `market` - The market to which the delta will be applied.
+/// * `token` - The token to which the delta will be applied.
+/// * `delta` - The delta amount to apply.
+fn apply_delta_to_pool_amount(
+    data_store: IDataStoreDispatcher,
+    eventEmitter: IEventEmitterDispatcher,
+    market: Market,
+    token: ContractAddress,
+    delta: u128 // This is supposed to be i128 when it will be supported.
+) -> u128 {
+    //TODO
+    0
+}
+
 /// Apply delta to the swap impact pool.
 /// # Arguments
 /// * `data_store` - The data store to use.
@@ -505,6 +511,68 @@ fn apply_delta_to_open_interest(
     0
 }
 
+/// Validates the swap path to ensure each market in the path is valid and the path length does not 
+//  exceed the maximum allowed length.
+/// # Arguments
+/// * `data_store` - The DataStore contract containing platform configuration.
+/// * `swap_path` - A vector of market addresses forming the swap path.
+fn validate_swap_path(
+    data_store: IDataStoreDispatcher, token_swap_path: Span32<ContractAddress>
+) { //TODO
+}
+
+/// Validates that the specified market exists and is enabled.
+/// # Arguments
+/// * `data_store` - DataStore
+/// * `market_address` - The address of the market
+fn validate_enabled_market(data_store: IDataStoreDispatcher, market: ContractAddress) { //TODO
+}
+
+/// @dev update the swap impact pool amount, if it is a positive impact amount
+/// cap the impact amount to the amount available in the swap impact pool
+/// # Arguments
+/// *`data_store` DataStore
+/// *`event_emitter` EventEmitter
+/// *`market` the market to apply to
+/// *`token` the token to apply to
+/// *`token_price` the price of the token
+/// *`price_impact_usd` the USD price impact
+/// # Returns
+/// The impact amount as integer
+fn apply_swap_impact_with_cap(
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    market: ContractAddress,
+    token: ContractAddress,
+    token_price: Price,
+    price_impact_usd: u128 // TODO: This is supposed to be i128 when it will be supported.
+) -> u128 { // TODO: This is supposed to be i128 when it will be supported.
+    // TODO: implement
+    return 0;
+}
+
+/// @dev validate that the pool amount is within the max allowed amount
+/// # Arguments
+/// *`data_store` DataStore
+/// *`market` the market to check
+/// *`token` the token to check
+fn validate_pool_amount(
+    data_store: @IDataStoreDispatcher, market: @Market, token: ContractAddress
+) { // TODO
+}
+
+/// @dev validate that the amount of tokens required to be reserved
+/// is below the configured threshold
+/// # Arguments
+/// * `data_store` DataStore
+/// * `market` the market values
+/// * `prices` the prices of the market tokens
+/// * `is_long` whether to check the long or short side
+fn validata_reserve(
+    data_store: @IDataStoreDispatcher, market: @Market, prices: @MarketPrices, is_long: bool
+) { // TODO
+}
+
 /// Validata the open interest.
 /// # Arguments
 /// * `data_store` - The data store to use.
@@ -521,9 +589,23 @@ fn validate_open_interest(data_store: IDataStoreDispatcher, market: @Market, is_
     assert(open_interest <= max_open_interest, MarketError::MAX_OPEN_INTEREST_EXCEEDED);
 }
 
-fn validate_swap_market(data_store: IDataStoreDispatcher, market: @Market) -> bool {
-    //TODO
-    true
+/// Validata the swap market.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market to validate the open interest for.
+fn validate_swap_market(data_store: @IDataStoreDispatcher, market: @Market) { // TODO
+}
+
+// @dev get the opposite token of the market
+// if the input_token is the token_long return the short_token and vice versa
+/// # Arguments
+/// * `market` - The market to validate the open interest for.
+/// * `token` - The input_token.
+/// # Returns
+/// The opposite token.
+fn get_opposite_token(market: @Market, token: ContractAddress) -> ContractAddress {
+    // TODO
+    token
 }
 
 // Get the min pnl factor after ADL
@@ -575,4 +657,136 @@ fn is_pnl_factor_exceeded(
 ) -> (bool, u128, u128) {
     // TODO
     (true, 0, 0)
+}
+
+// Check if the pending pnl exceeds the allowed amount
+// # Arguments
+// * `data_store` - The data_store dispatcher.
+// * `market` - The market to check.
+// * `prices` - The prices of the market tokens.
+// * `is_long` - Whether to check the long or short side.
+// * `pnl_factor_type` - The pnl factor type to check.
+fn is_pnl_factor_exceeded_direct(
+    data_store: IDataStoreDispatcher,
+    market: Market,
+    prices: MarketPrices,
+    is_long: bool,
+    pnl_factor_type: felt252
+) -> (bool, i128, u128) {
+    // TODO
+    (true, 0, 0)
+}
+
+/// Gets the enabled market. This function will revert if the market does not exist or is not enabled.
+/// # Arguments
+/// * `dataStore` - DataStore
+/// * `marketAddress` - The address of the market.
+fn get_enabled_market(data_store: IDataStoreDispatcher, market_address: ContractAddress) -> Market {
+    //TODO
+    Market {
+        market_token: Zeroable::zero(),
+        index_token: Zeroable::zero(),
+        long_token: Zeroable::zero(),
+        short_token: Zeroable::zero(),
+    }
+}
+
+/// Returns the primary prices for the market tokens.
+/// # Parameters
+/// - `oracle`: The Oracle instance.
+/// - `market`: The market values.
+fn get_market_prices(oracle: IOracleDispatcher, market: Market) -> MarketPrices {
+    //TODO
+    Default::default()
+}
+
+/// Validates that the amount of tokens required to be reserved is below the configured threshold.
+/// # Arguments
+/// * `dataStore`: DataStore - The data storage instance.
+/// * `market`: Market values to consider.
+/// * `prices`: Prices of the market tokens.
+/// * `isLong`: A boolean flag to indicate whether to check the long or short side.
+fn validate_reserve(
+    data_store: IDataStoreDispatcher, market: Market, prices: @MarketPrices, is_long: bool
+) { //TODO
+}
+
+/// Validates that the pending pnl is below the allowed amount.
+/// # Arguments
+/// * `dataStore` - DataStore
+/// * `market` - The market to check
+/// * `prices` - The prices of the market tokens
+/// * `pnlFactorType` - The pnl factor type to check
+fn validate_max_pnl(
+    data_store: IDataStoreDispatcher,
+    market: Market,
+    prices: @MarketPrices,
+    pnl_factor_type_for_longs: felt252,
+    pnl_factor_type_for_shorts: felt252,
+) { //TODO
+}
+
+fn validate_market_token_balance(data_store: IDataStoreDispatcher, market: Market) { //TODO
+}
+
+fn validate_markets_token_balance(data_store: IDataStoreDispatcher, market: Span<Market>) { //TODO
+}
+
+/// Gets a list of market values based on an input array of market addresses.
+/// # Parameters
+/// * `swap_path`: A list of market addresses.
+fn get_swap_path_markets(
+    data_store: IDataStoreDispatcher, swap_path: Span32<ContractAddress>
+) -> Array<Market> { //TODO
+    Default::default()
+}
+
+/// Gets the USD value of a pool.
+/// The value of a pool is determined by the worth of the liquidity provider tokens in the pool,
+/// minus any pending trader profit and loss (PNL).
+/// We use the token index prices for this calculation and ignore price impact. The reasoning is that
+/// if all positions were closed, the net price impact should be zero.
+/// # Arguments
+/// * `data_store` - The DataStore structure.
+/// * `market` - The market values.
+/// * `long_token_price` - Price of the long token.
+/// * `short_token_price` - Price of the short token.
+/// * `index_token_price` - Price of the index token.
+/// * `maximize` - Whether to maximize or minimize the pool value.
+/// # Returns
+/// Returns the value information of a pool.
+fn get_pool_value_info(
+    data_store: IDataStoreDispatcher,
+    market: Market,
+    index_token_price: Price,
+    long_token_price: Price,
+    short_token_price: Price,
+    pnl_factor_type: felt252,
+    maximize: bool
+) -> MarketPoolValueInfo {
+    // TODO
+    Default::default()
+}
+
+/// Gets the total supply of the marketToken.
+/// # Arguments
+/// * `market_token` - The market token whose total supply is to be retrieved.
+/// # Returns
+/// The total supply of the given marketToken.
+fn get_market_token_supply(market_token: IMarketTokenDispatcher) -> u128 {
+    // TODO
+    market_token.total_supply()
+}
+
+/// Converts a number of market tokens to its USD value.
+/// # Arguments
+/// * `market_token_amount` - The input number of market tokens.
+/// * `pool_value` - The value of the pool.
+/// * `supply` - The supply of market tokens.
+/// # Returns
+/// The USD value of the market tokens.
+fn market_token_amount_to_usd(
+    market_token_amount: u128, pool_value: u128, supply: u128
+) -> u128 { // TODO
+    0
 }
