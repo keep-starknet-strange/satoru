@@ -545,7 +545,7 @@ fn swap(
 
     cache.swap_params.amount_in = amount_in;
 
-    cache.swap_params.swap_path_markets = cache.swap_path_markets;
+    cache.swap_params.swap_path_markets = cache.swap_path_markets.span();
 
     cache.swap_params.min_output_amount = min_output_amount;
 
@@ -560,7 +560,7 @@ fn swap(
 
     // validate that internal state changes are correct before calling external callbacks
     market_utils::validate_markets_token_balance(
-        *params.data_store, cache.swap_params.swap_path_markets.span()
+        *params.data_store, cache.swap_params.swap_path_markets
     );
 
     (cache.output_token, cache.output_amount)

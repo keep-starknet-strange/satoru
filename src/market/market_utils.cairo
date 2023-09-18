@@ -492,6 +492,51 @@ fn validate_swap_path(
 }
 
 
+/// @dev update the swap impact pool amount, if it is a positive impact amount
+/// cap the impact amount to the amount available in the swap impact pool
+/// # Arguments
+/// *`data_store` DataStore
+/// *`event_emitter` EventEmitter
+/// *`market` the market to apply to
+/// *`token` the token to apply to
+/// *`token_price` the price of the token
+/// *`price_impact_usd` the USD price impact
+/// # Returns
+/// The impact amount as integer
+fn apply_swap_impact_with_cap(
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    market: ContractAddress,
+    token: ContractAddress,
+    token_price: Price,
+    price_impact_usd: u128 // TODO: This is supposed to be i128 when it will be supported.
+) -> u128 { // TODO: This is supposed to be i128 when it will be supported.
+    // TODO: implement
+    return 0;
+}
+
+/// @dev validate that the pool amount is within the max allowed amount
+/// # Arguments
+/// *`data_store` DataStore
+/// *`market` the market to check
+/// *`token` the token to check
+fn validate_pool_amount(
+    data_store: @IDataStoreDispatcher, market: @Market, token: ContractAddress
+) { // TODO
+}
+
+/// @dev validate that the amount of tokens required to be reserved
+/// is below the configured threshold
+/// # Arguments
+/// * `data_store` DataStore
+/// * `market` the market values
+/// * `prices` the prices of the market tokens
+/// * `is_long` whether to check the long or short side
+fn validata_reserve(
+    data_store: @IDataStoreDispatcher, market: @Market, prices: @MarketPrices, is_long: bool
+) { // TODO
+}
+
 /// Validata the open interest.
 /// # Arguments
 /// * `data_store` - The data store to use.
@@ -506,6 +551,25 @@ fn validate_open_interest(data_store: IDataStoreDispatcher, market: @Market, is_
 
     // Check that the open interest is not greater than the maximum open interest.
     assert(open_interest <= max_open_interest, MarketError::MAX_OPEN_INTEREST_EXCEEDED);
+}
+
+/// Validata the swap market.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market to validate the open interest for.
+fn validate_swap_market(data_store: @IDataStoreDispatcher, market: @Market) { // TODO
+}
+
+// @dev get the opposite token of the market
+// if the input_token is the token_long return the short_token and vice versa
+/// # Arguments
+/// * `market` - The market to validate the open interest for.
+/// * `token` - The input_token.
+/// # Returns
+/// The opposite token.
+fn get_opposite_token(market: @Market, token: ContractAddress) -> ContractAddress {
+    // TODO
+    token
 }
 
 // Get the min pnl factor after ADL

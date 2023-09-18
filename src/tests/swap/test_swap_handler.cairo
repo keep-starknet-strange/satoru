@@ -143,7 +143,7 @@ fn given_caller_not_controller_when_swap_then_fails() {
         key: 1,
         token_in: contract_address_const::<'token_in'>(),
         amount_in: 1,
-        swap_path_markets: ArrayTrait::new(),
+        swap_path_markets: ArrayTrait::new().span(),
         min_output_amount: 1,
         receiver: contract_address_const::<'receiver'>(),
         ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
@@ -175,8 +175,8 @@ fn given_normal_conditions_when_swap_then_works() {
         bank: bank,
         key: 1,
         token_in: contract_address_const::<'token_in'>(),
-        amount_in: 1,
-        swap_path_markets: ArrayTrait::new(),
+        amount_in: 0,
+        swap_path_markets: ArrayTrait::new().span(),
         min_output_amount: 1,
         receiver: contract_address_const::<'receiver'>(),
         ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
@@ -185,7 +185,7 @@ fn given_normal_conditions_when_swap_then_works() {
 
     let swap_result = swap_handler.swap(swap);
 
-    assert(swap_result == (0.try_into().unwrap(), 0), 'Error');
+    assert(swap_result == (contract_address_const::<'token_in'>(), 0), 'Error');
 
     teardown(role_store.contract_address);
 }
