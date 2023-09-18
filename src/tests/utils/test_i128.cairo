@@ -1,4 +1,4 @@
-use satoru::{I128Div, I1288Mul, I128Serde};
+use satoru::utils::i128::{I128Div, I1288Mul, I128Serde};
 use snforge_std::{declare, ContractClassTrait};
 
 
@@ -73,7 +73,7 @@ trait ITestI128Storage<TContractState> {
 
 #[starknet::contract]
 mod test_i128_storage_contract {
-    use satoru::{StoreI128, I128Serde};
+    use satoru::utils::i128::{StoreI128, I128Serde};
     use super::ITestI128Storage;
 
 
