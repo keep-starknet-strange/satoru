@@ -22,6 +22,7 @@ use satoru::referral::referral_tier::ReferralTier;
 /// * `referral_storage` - The referral storage instance to use.
 /// * `account` - The account of the trader.
 /// * `referral_code` - The referral code.
+#[inline(always)]
 fn set_trader_referral_code(
     referral_storage: IReferralStorageDispatcher, account: ContractAddress, referral_code: felt252
 ) {
@@ -35,10 +36,11 @@ fn set_trader_referral_code(
 /// # Arguments
 /// * `data_store` - The data store instance to use.
 /// * `event_emitter` - The event emitter instance to use.
-/// * `market` - The market address.
+// / * `market` - The market address.
 /// * `token` - The token address.
 /// * `affiliate` - The affiliate address.
 /// * `delta` - The amount to increment the reward balance by.
+#[inline(always)]
 fn increment_affiliate_reward(
     data_store: IDataStoreDispatcher,
     event_emitter: IEventEmitterDispatcher,
@@ -67,10 +69,10 @@ fn increment_affiliate_reward(
 /// * `trader` - The trader address.
 /// # Returns
 /// The referral code, the affiliate's address, the total rebate, and the discount share.
+#[inline(always)]
 fn get_referral_info(
     referral_storage: IReferralStorageDispatcher, trader: ContractAddress
 ) -> (felt252, ContractAddress, u128, u128) {
-    // TODO
     let code: felt252 = referral_storage.trader_referral_codes(trader);
     let mut affiliate: ContractAddress = 0.try_into().unwrap();
     let mut total_rebate: u128 = 0;

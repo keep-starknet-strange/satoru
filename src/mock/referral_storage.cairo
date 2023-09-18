@@ -252,7 +252,6 @@ mod ReferralStorage {
 
         fn set_code_owner(ref self: ContractState, code: felt252, new_account: ContractAddress) {
             assert(code != 0, MockError::INVALID_CODE);
-
             let account: ContractAddress = self.code_owners.read(code);
             assert(get_caller_address() == account, MockError::FORBIDDEN);
 
