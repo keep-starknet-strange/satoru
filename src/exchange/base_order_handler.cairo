@@ -212,12 +212,7 @@ mod BaseOrderHandler {
 
             let address_zero = 0.try_into().unwrap();
 
-            let mut market = Market {
-                market_token: address_zero,
-                index_token: address_zero,
-                long_token: address_zero,
-                short_token: address_zero,
-            };
+            let mut market = Default::default();
 
             if (order.market != address_zero) {
                 market = market_utils::get_enabled_market(data_store, order.market);
