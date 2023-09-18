@@ -44,7 +44,7 @@ trait IRoleStore<TContractState> {
     /// # Return
     /// The number of roles.
     fn get_role_count(self: @TContractState) -> u128;
-/// [TO FIX]
+/// # [TO FIX]
 /// Returns the keys of the roles stored in the contract.
 /// # Arguments
 /// `start` - The starting index of the range of roles to return.
@@ -53,7 +53,7 @@ trait IRoleStore<TContractState> {
 /// The keys of the roles.
 /// fn get_roles(self: @TContractState, start: u32, end: u32) -> Array<felt252>;
 
-/// #[TO DO]
+/// # [TO DO]
 /// Returns the number of members of the specified role.
 /// # Arguments
 /// `role_key` - The key of the role.
