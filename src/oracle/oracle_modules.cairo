@@ -5,8 +5,6 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use satoru::price::price::Price;
-use satoru::oracle::error::OracleError;
 use starknet::ContractAddress;
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -15,6 +13,8 @@ use satoru::oracle::{
     oracle::{IOracleDispatcher, IOracleDispatcherTrait},
     oracle_utils::{SetPricesParams, SimulatePricesParams},
 };
+use satoru::price::price::Price;
+use satoru::oracle::error::OracleError;
 
 /// Sets oracle prices, perform any additional tasks required,
 /// and clear the oracle prices after.
