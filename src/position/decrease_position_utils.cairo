@@ -12,7 +12,7 @@ use satoru::position::{
     position_utils, decrease_position_collateral_utils, decrease_position_swap_utils,
     position_utils::{UpdatePositionParams, DecreasePositionCache}
 };
-
+use satoru::utils::i128::u128_to_i128;
 use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
 use satoru::utils::precision;
 use satoru::market::market_utils;
@@ -99,13 +99,12 @@ fn decrease_position(ref params: UpdatePositionParams) -> DecreasePositionResult
         cache.estimated_remaining_pnl_usd = cache.estimated_position_pnl_usd
             - cache.estimated_realized_pnl_usd;
 
-        let open_interest_delta_felt252: felt252 = params.order.size_delta_usd.into();
         let position_values = position_utils::WillPositionCollateralBeSufficientValues {
             position_size_in_usd: params.position.size_in_usd - params.order.size_delta_usd,
             position_collateral_amount: params.position.collateral_amount
                 - params.order.initial_collateral_delta_amount,
             realized_pnl_usd: cache.estimated_realized_pnl_usd,
-            open_interest_delta: -(open_interest_delta_felt252.try_into().unwrap()),
+            open_interest_delta: -u128_to_i128(params.order.size_delta_usd),
         };
 
         let (will_be_sufficient, mut estimated_remaining_collateral_usd) =
@@ -136,32 +135,25 @@ fn decrease_position(ref params: UpdatePositionParams) -> DecreasePositionResult
             // the estimated_remaining_collateral_usd subtracts the initial_collateral_delta_amount
             // since the initial_collateral_delta_amount will be set to zero, the initial_collateral_delta_amount
             // should be added back to the estimated_remaining_collateral_usd
-            let estimated_remaining_collateral_usd_felt252: felt252 = (params
-                .order
-                .initial_collateral_delta_amount
-                * cache.collateral_token_price.min)
-                .into();
-            estimated_remaining_collateral_usd += estimated_remaining_collateral_usd_felt252
-                .try_into()
-                .unwrap();
+
+            estimated_remaining_collateral_usd +=
+                u128_to_i128(
+                    params.order.initial_collateral_delta_amount * cache.collateral_token_price.min
+                );
 
             params.order.initial_collateral_delta_amount = 0;
-        }
-        // if the remaining collateral including position pnl will be below
+        } // if the remaining collateral including position pnl will be below
         // the min collateral usd value, then close the position
         //
         // if the position has sufficient remaining collateral including pnl
         // then allow the position to be partially closed and the updated
         // position to remain open
-        let min_collateral_felt252: felt252 = (params
-            .contracts
-            .data_store
-            .get_u128(keys::min_collateral_usd()))
-            .into();
+
         if ((estimated_remaining_collateral_usd
-            + cache.estimated_remaining_pnl_usd) < min_collateral_felt252
-            .try_into()
-            .unwrap()) {
+            + cache
+                .estimated_remaining_pnl_usd) < u128_to_i128(
+                    params.contracts.data_store.get_u128(keys::min_collateral_usd())
+                )) {
             params
                 .contracts
                 .event_emitter
@@ -172,9 +164,10 @@ fn decrease_position(ref params: UpdatePositionParams) -> DecreasePositionResult
         }
 
         if (params.position.size_in_usd > params.order.size_delta_usd
-            && (params.position.size_in_usd - params.order.size_delta_usd) < min_collateral_felt252
-                .try_into()
-                .unwrap()) {
+            && (params.position.size_in_usd - params.order.size_delta_usd) < params
+                .contracts
+                .data_store
+                .get_u128(keys::min_collateral_usd())) {
             params
                 .contracts
                 .event_emitter
@@ -272,24 +265,19 @@ fn decrease_position(ref params: UpdatePositionParams) -> DecreasePositionResult
         params.contracts.data_store.set_position(params.position_key, params.position);
     }
 
-    let delta_felt252: felt252 = (cache.initial_collateral_amount
-        - params.position.collateral_amount)
-        .into();
     market_utils::apply_delta_to_collateral_sum(
         @params.contracts.data_store,
         @params.contracts.event_emitter,
         params.position.market,
         params.position.collateral_token,
         params.position.is_long,
-        -(delta_felt252.try_into().unwrap())
+        -u128_to_i128(cache.initial_collateral_amount - params.position.collateral_amount)
     );
 
-    let size_delta_usd_felt252: felt252 = params.order.size_delta_usd.into();
-    let size_delta_in_tokens_felt252: felt252 = values.size_delta_in_tokens.into();
     position_utils::update_open_interest(
         params,
-        -(size_delta_usd_felt252.try_into().unwrap()),
-        -(size_delta_in_tokens_felt252.try_into().unwrap())
+        -u128_to_i128(params.order.size_delta_usd),
+        -u128_to_i128(values.size_delta_in_tokens)
     );
 
     // affiliate rewards are still distributed even if the order is a liquidation order
