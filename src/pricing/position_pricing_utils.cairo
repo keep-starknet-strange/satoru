@@ -18,6 +18,7 @@ use satoru::referral::referral_storage::interface::{
 use satoru::market::market_utils;
 use satoru::utils::calc;
 use satoru::pricing::pricing_utils;
+use satoru::data::keys;
 
 /// Struct used in get_position_fees.
 #[derive(Drop, starknet::Store, Serde)]
@@ -43,7 +44,7 @@ struct GetPositionFeesParams {
 }
 
 /// Struct used in get_price_impact_usd.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Drop, Copy, starknet::Store, Serde)]
 struct GetPriceImpactUsdParams {
     /// The `DataStore` contract dispatcher.
     data_store: IDataStoreDispatcher,
@@ -197,7 +198,11 @@ fn _get_price_impact_usd(
     let initial_diff_usd = calc::diff(open_interest_params.long_open_interest, open_interest_params.short_open_interest);
     let next_diff_usd = calc::diff(open_interest_params.next_long_open_interest, open_interest_params.next_short_open_interest);
     
-    let is_same_side_rebalance = open_interest_params.long_open_interest <= open_interest_params.short_open_interest == open_interest_params.next_long_open_interest <= open_interest_params.next_short_open_interest;
+    let is_same_side_rebalance_first = open_interest_params.long_open_interest <= open_interest_params.short_open_interest; 
+    let is_same_side_rebalance_second = open_interest_params.short_open_interest <= open_interest_params.next_long_open_interest;
+    let is_same_side_rebalance_third = open_interest_params.next_long_open_interest <= open_interest_params.next_short_open_interest;
+    let is_same_side_rebalance = is_same_side_rebalance_first && is_same_side_rebalance_second && is_same_side_rebalance_third;
+
     let impact_exponent_factor = data_store.get_u128(keys::position_impact_exponent_factor_key(market));
 
         if (is_same_side_rebalance) {
@@ -211,7 +216,7 @@ fn _get_price_impact_usd(
                 impact_exponent_factor
             );
         } else {
-            let (positiveImpactFactor, negativeImpactFactor) = market_utils::get_adjusted_position_impact_factors(data_store, market);
+            let (positive_impact_factor, negative_impact_factor) = market_utils::get_adjusted_position_impact_factors(data_store, market);
 
             return pricing_utils::get_price_impact_usd_for_crossover_rebalance(
                 initial_diff_usd,

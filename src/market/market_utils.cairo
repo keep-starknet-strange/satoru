@@ -772,3 +772,19 @@ fn get_virtual_inventory_for_positions(
 ) -> (bool, i128) { /// TODO
     (true, 0)
 }
+
+fn get_adjusted_position_impact_factor(
+    data_store: IDataStoreDispatcher,
+    market: ContractAddress,
+    isPositive: bool
+) -> u128 {
+    // TODO
+    0
+}
+
+fn get_adjusted_position_impact_factors(
+    data_store: IDataStoreDispatcher,
+    market: ContractAddress
+) -> (u128, u128) {
+    (0, 0)        
+}

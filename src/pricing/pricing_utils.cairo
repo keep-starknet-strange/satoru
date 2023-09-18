@@ -19,7 +19,7 @@ fn get_price_impact_usd_for_same_side_rebalance(
 /// a crossover in balance is for example if the long open interest is larger
 /// than the short open interest, and a short position is opened such that the
 /// short open interest becomes larger than the long open interest.
-fn get_price_impact_usd_for_crossover_side_rebalance(
+fn get_price_impact_usd_for_crossover_rebalance(
     initial_diff_usd: u128,
     next_diff_usd: u128,
     positive_impact_factor: u128,
