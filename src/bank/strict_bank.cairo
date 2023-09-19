@@ -6,7 +6,7 @@
 
 // Core lib imports.
 use core::traits::Into;
-use starknet::ContractAddress;
+use starknet::{ContractAddress, get_contract_address};
 
 // *************************************************************************
 //                  Interface of the `StrictBank` contract.
@@ -31,7 +31,34 @@ trait IStrictBank<TContractState> {
     fn transfer_out(
         ref self: TContractState, token: ContractAddress, receiver: ContractAddress, amount: u128,
     );
+
+    /// Records a token transfer into the contract
+    /// # Arguments
+    /// * `token` - The token to record the transfer for
+    /// # Return
+    /// The amount of tokens transferred in
+    fn record_transfer_in(ref self: TContractState, token: ContractAddress) -> u128;
+
+    /// this can be used to update the tokenBalances in case of token burns
+    /// or similar balance changes
+    /// the prevBalance is not validated to be more than the nextBalance as this
+    /// could allow someone to block this call by transferring into the contract    
+    /// # Arguments
+    /// * `token` - The token to record the burn for
+    /// # Return
+    /// The new balance
+    fn sync_token_balance(ref self: TContractState, token: starknet::ContractAddress) -> u128;
 }
+
+trait IERC20DispatcherTrait<TContractState> {
+    fn balance_of(self: @TContractState, address: starknet::ContractAddress) -> u128; 
+}
+
+#[derive(Copy, Drop, starknet::Store, Serde)]
+struct IERC20Dispatcher {
+    contract_address: starknet::ContractAddress, 
+}
+
 
 #[starknet::contract]
 mod StrictBank {
@@ -40,19 +67,24 @@ mod StrictBank {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{get_caller_address, ContractAddress, contract_address_const};
+    use starknet::{get_caller_address, get_contract_address, ContractAddress, contract_address_const};
 
     use debug::PrintTrait;
 
     // Local imports.
     use satoru::bank::bank::{Bank, IBank};
     use super::IStrictBank;
+    use super::IERC20DispatcherTrait;
+    use super::IERC20Dispatcher;
+
 
     // *************************************************************************
     //                              STORAGE
     // *************************************************************************
     #[storage]
-    struct Storage {}
+    struct Storage {
+        token_balances: LegacyMap::<ContractAddress, u128>,
+    }
 
     // *************************************************************************
     //                              CONSTRUCTOR
@@ -93,6 +125,48 @@ mod StrictBank {
         ) {
             let mut state: Bank::ContractState = Bank::unsafe_new_contract_state();
             IBank::transfer_out(ref state, token, receiver, amount);
+        }
+
+        fn sync_token_balance(ref self: ContractState, token: ContractAddress) -> u128 {
+            let this_contract = get_contract_address();
+            let next_balance: u128 = IERC20Dispatcher{contract_address: token}.balance_of(this_contract); 
+            self.token_balances.write(token, next_balance);
+            next_balance 
+        }
+
+        fn record_transfer_in(ref self: ContractState, token: ContractAddress) -> u128 {
+             self.record_transfer_in_internal(token)
+        }
+    }
+
+    /////
+    //Internal
+    /////
+    #[generate_trait]
+    impl PrivateMethods of PrivateMethodsTrait {
+        /// Transfer tokens from this contract to a receiver
+        /// # Arguments
+        /// * `token` - token the token to transfer
+        fn after_transfer_out_infernal(ref self: ContractState, token: ContractAddress) {
+            let this_contract = get_contract_address();
+            let balance: u128 = IERC20Dispatcher{contract_address: token}.balance_of(this_contract);
+            self.token_balances.write(token, balance);
+            return(); 
+        }
+
+        /// Records a token transfer into the contract
+        /// # Arguments
+        /// * `token` - The token to record the transfer for
+        /// # Return
+        /// The amount of tokens transferred in
+        fn record_transfer_in_internal(ref self: ContractState, token: ContractAddress) -> u128 {
+            let prev_balance: u128 = self.token_balances.read(token);
+            let this_contract = get_contract_address(); 
+
+            let next_balance: u128 = IERC20Dispatcher{contract_address: token}.balance_of(this_contract); 
+            self.token_balances.write(token, next_balance); 
+
+            next_balance - prev_balance
         }
     }
 }
