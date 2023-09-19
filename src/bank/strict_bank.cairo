@@ -31,6 +31,14 @@ trait IStrictBank<TContractState> {
     fn transfer_out(
         ref self: TContractState, token: ContractAddress, receiver: ContractAddress, amount: u128,
     );
+    /// Updates the `token_balances` in case of token burns or similar balance changes.
+    /// The `prev_balance` is not validated to be more than the `next_balance` as this
+    /// could allow someone to block this call by transferring into the contract.
+    /// # Arguments
+    /// * `token` - The token to record the burn for.
+    /// # Returns
+    /// * The new balance.
+    fn sync_token_balance(ref self: TContractState, token: ContractAddress) -> u128;
 }
 
 #[starknet::contract]
@@ -93,6 +101,10 @@ mod StrictBank {
         ) {
             let mut state: Bank::ContractState = Bank::unsafe_new_contract_state();
             IBank::transfer_out(ref state, token, receiver, amount);
+        }
+
+        fn sync_token_balance(ref self: ContractState, token: ContractAddress) -> u128 {
+            0
         }
     }
 }

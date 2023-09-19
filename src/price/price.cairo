@@ -1,5 +1,7 @@
+use zeroable::Zeroable;
+
 /// Price
-#[derive(Copy, starknet::Store, Drop, Serde)]
+#[derive(Copy, Default, starknet::Store, Drop, Serde)]
 struct Price {
     /// The minimum price.
     min: u128,
@@ -35,6 +37,7 @@ trait PriceTrait {
     fn pick_price_for_pnl(self: @Price, is_long: bool, maximize: bool) -> u128;
 }
 
+
 impl PriceImpl of PriceTrait {
     fn mid_price(self: @Price) -> u128 {
         (*self.min + *self.max) / 2
@@ -54,5 +57,19 @@ impl PriceImpl of PriceTrait {
         } else {
             self.pick_price(!maximize)
         }
+    }
+}
+
+impl PriceZeroable of Zeroable<Price> {
+    fn zero() -> Price {
+        Price { min: 0, max: 0 }
+    }
+    #[inline(always)]
+    fn is_zero(self: Price) -> bool {
+        self.min == 0 && self.max == 0
+    }
+    #[inline(always)]
+    fn is_non_zero(self: Price) -> bool {
+        !self.is_zero()
     }
 }
