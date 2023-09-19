@@ -61,6 +61,7 @@ mod LiquidationHandler {
         oracle_utils::SetPricesParams
     };
     use satoru::order::{
+        order_utils,
         order::{SecondaryOrderType, OrderType, Order},
         order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
         base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}
@@ -153,10 +154,8 @@ mod LiquidationHandler {
                 starting_gas,
                 SecondaryOrderType::None
             );
-            let mut state_order: OrderHandler::ContractState =
-                OrderHandler::unsafe_new_contract_state();
             validate_feature(params.contracts.data_store, execute_order_feature_disabled_key(OrderHandler::get_contract_address(), OrderType::Liquidation));
-            IOrderHandler::execute_order(ref state_order, key, oracle_params);
+            order_utils::execute_order(params);
         }
     }
 }
