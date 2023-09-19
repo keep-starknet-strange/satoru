@@ -6,7 +6,7 @@ use integer::BoundedInt;
 use starknet::ContractAddress;
 
 // Local imports.
-use satoru::I128Div;
+use satoru::utils::i128::{I128Div, u128_to_i128, i128_to_u128};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
@@ -525,18 +525,4 @@ fn panic_unfulfillable(execution_price: u128, acceptable_price: u128) {
             acceptable_price.into()
         ]
     );
-}
-
-#[inline(always)]
-fn u128_to_i128(value: u128) -> i128 {
-    assert(value <= BoundedInt::max(), 'u128_to_i128: value too large');
-    let value: felt252 = value.into();
-    value.try_into().unwrap()
-}
-
-#[inline(always)]
-fn i128_to_u128(value: i128) -> u128 {
-    assert(value >= 0, 'i128_to_u128: value is negative');
-    let value: felt252 = value.into();
-    value.try_into().unwrap()
 }
