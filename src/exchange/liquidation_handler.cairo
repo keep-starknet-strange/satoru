@@ -40,8 +40,9 @@ mod LiquidationHandler {
     // *************************************************************************
 
     // Core lib imports.
-    use satoru::exchange::base_order_handler::BaseOrderHandler::{event_emitter::InternalContractMemberStateTrait, data_store::InternalContractMemberStateImpl};//::InternalContractMemberStateTrait;
-    //use satoru::exchange::base_order_handler::BaseOrderHandler::data_store::InternalContractMemberStateTrait;
+    use satoru::exchange::base_order_handler::BaseOrderHandler::{
+        event_emitter::InternalContractMemberStateTrait, data_store::InternalContractMemberStateImpl
+    };
     use starknet::ContractAddress;
 
 
@@ -49,9 +50,6 @@ mod LiquidationHandler {
     use super::ILiquidationHandler;
     use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
     use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait, DataStore};
-    //use satoru::event::event_emitter::{
-    //    IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait, EventEmitter
-    //};
     use satoru::oracle::{
         oracle::{IOracleDispatcher, IOracleDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
@@ -131,7 +129,7 @@ mod LiquidationHandler {
         ) {
             let starting_gas: u128 = starknet_utils::sn_gasleft(array![100]);
             let mut state_base: BaseOrderHandler::ContractState =
-            BaseOrderHandler::unsafe_new_contract_state(); //retrieve BaseOrderHandler state
+                BaseOrderHandler::unsafe_new_contract_state(); //retrieve BaseOrderHandler state
             let key: felt252 = create_liquidation_order(
                 state_base.data_store.read(),
                 state_base.event_emitter.read(),
@@ -143,17 +141,18 @@ mod LiquidationHandler {
             let tmp_oracle_params: SetPricesParams = oracle_params.clone();
             let params: ExecuteOrderParams = 
                 BaseOrderHandler::InternalImpl::get_execute_order_params(
-                    ref state_base,
-                    key,
-                    tmp_oracle_params,
-                    account,
-                    starting_gas,
-                    SecondaryOrderType::None
-                );
+                ref state_base,
+                key,
+                tmp_oracle_params,
+                account,
+                starting_gas,
+                SecondaryOrderType::None
+            );
             validate_feature(state_base.data_store.read(), key);
             let mut state_order: OrderHandler::ContractState =
                 OrderHandler::unsafe_new_contract_state();
             IOrderHandler::execute_order(ref state_order, key, oracle_params);
         }
     }
+    
 }
