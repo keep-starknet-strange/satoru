@@ -275,6 +275,7 @@ mod tests {
         mod test_withdrawal_events_emitted;
     }
     mod exchange {
+        mod test_liquidation_handler;
         mod test_withdrawal_handler;
     }
     mod feature {
