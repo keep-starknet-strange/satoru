@@ -22,23 +22,25 @@ use satoru::position::{
     decrease_position_collateral_utils,
 };
 use satoru::price::price::{Price, PriceTrait};
-use satoru::pricing::position_pricing_utils::{PositionFees};
-use satoru::pricing::swap_pricing_utils::{
-    SwapFees, get_swap_fees, get_price_impact_usd, GetPriceImpactUsdParams
+use satoru::pricing::{
+    position_pricing_utils::{PositionFees},
+    swap_pricing_utils::{SwapFees, get_swap_fees, get_price_impact_usd, GetPriceImpactUsdParams}
 };
 use satoru::utils::span32::{Span32, Array32Trait};
-use satoru::swap::swap_utils::SwapCache;
+use satoru::swap::{
+    swap_utils::SwapCache, swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait}
+};
+
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
 
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::referral::referral_storage::interface::{
     IReferralStorageDispatcher, IReferralStorageDispatcherTrait
 };
-
 use satoru::utils::i128::{StoreI128, I128Serde, I128Div, I128Mul, i128_to_u128, u128_to_i128};
+
 #[derive(Drop, starknet::Store, Serde)]
 struct ExecutionPriceResult {
     price_impact_usd: u128, // TODO replace with i128 when it derives Store
@@ -109,9 +111,10 @@ fn get_swap_amount_out(
         token_b: cache.token_out,
         price_for_token_a: cache.token_in_price.mid_price(),
         price_for_token_b: cache.token_out_price.mid_price(),
-        usd_delta_for_token_a: u128_to_i128(amount_in * cache.token_in_price.mid_price()), //to int256?
-        usd_delta_for_token_b: -u128_to_i128(amount_in
-            * cache.token_in_price.mid_price()) 
+        usd_delta_for_token_a: u128_to_i128(
+            amount_in * cache.token_in_price.mid_price()
+        ), //to int256?
+        usd_delta_for_token_b: -u128_to_i128(amount_in * cache.token_in_price.mid_price())
     };
 
     let price_impact_usd: i128 = get_price_impact_usd(param); //todo : check u128 to i128
@@ -315,7 +318,7 @@ fn get_swap_price_impact(
     amount_in: u128,
     token_in_price: Price,
     token_out_price: Price
-) -> (i128, i128) { 
+) -> (i128, i128) {
     let mut cache: SwapCache = SwapCache {
         token_out: 0.try_into().unwrap(),
         token_in_price: Price { min: 0, max: 0 },
@@ -335,13 +338,10 @@ fn get_swap_price_impact(
         price_for_token_a: cache.token_in_price.mid_price(),
         price_for_token_b: cache.token_out_price.mid_price(),
         usd_delta_for_token_a: u128_to_i128(amount_in * cache.token_in_price.mid_price()),
-        usd_delta_for_token_b: -u128_to_i128(amount_in
-            * cache.token_in_price.mid_price())
+        usd_delta_for_token_b: -u128_to_i128(amount_in * cache.token_in_price.mid_price())
     };
 
-    let price_impact_usd_before_cap: i128 = get_price_impact_usd(
-        param
-    ); 
+    let price_impact_usd_before_cap: i128 = get_price_impact_usd(param);
 
     let mut price_impact_amount = 0;
     if price_impact_usd_before_cap > 0 {

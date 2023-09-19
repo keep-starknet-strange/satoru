@@ -28,9 +28,9 @@ struct GetPriceImpactUsdParams {
     price_for_token_a: u128,
     price_for_token_b: u128,
     // The USD change in amount of token_a.
-    usd_delta_for_token_a: i128, 
+    usd_delta_for_token_a: i128,
     // The USD change in amount of token_b.
-    usd_delta_for_token_b: i128, 
+    usd_delta_for_token_b: i128,
 }
 
 /// Struct to contain pool values.

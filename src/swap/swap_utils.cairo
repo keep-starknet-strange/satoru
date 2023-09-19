@@ -6,7 +6,9 @@ use starknet::{ContractAddress, contract_address_const};
 use result::ResultTrait;
 use core::traits::{Into, TryInto};
 use core::integer::I128Neg;
-use satoru::utils::i128::{StoreI128, I128Serde, I128Div, I128Mul, I128Default, i128_to_u128, u128_to_i128};
+use satoru::utils::i128::{
+    StoreI128, I128Serde, I128Div, I128Mul, I128Default, i128_to_u128, u128_to_i128
+};
 
 
 // Local imports.
@@ -102,9 +104,9 @@ struct SwapCache {
     /// The total amount of the token that is being received by all users in the swap pool.
     pool_amount_out: u128,
     /// The price impact of the swap in USD.
-    price_impact_usd: i128, 
+    price_impact_usd: i128,
     /// The price impact of the swap in tokens.
-    price_impact_amount: i128, 
+    price_impact_amount: i128,
 }
 
 /// Swaps a given amount of a given token for another token based on a
@@ -216,8 +218,12 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
             token_b: cache.token_out,
             price_for_token_a: cache.token_in_price.mid_price(),
             price_for_token_b: cache.token_out_price.mid_price(),
-            usd_delta_for_token_a: -u128_to_i128(*_params.amount_in * cache.token_out_price.mid_price()),
-            usd_delta_for_token_b: u128_to_i128(*_params.amount_in * cache.token_out_price.mid_price())
+            usd_delta_for_token_a: -u128_to_i128(
+                *_params.amount_in * cache.token_out_price.mid_price()
+            ),
+            usd_delta_for_token_b: u128_to_i128(
+                *_params.amount_in * cache.token_out_price.mid_price()
+            )
         }
     );
 
@@ -377,8 +383,8 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
             *_params.amount_in,
             cache.amount_in,
             cache.amount_out,
-            price_impact_usd, 
-            price_impact_amount 
+            price_impact_usd,
+            price_impact_amount
         );
 
     (*params.event_emitter)

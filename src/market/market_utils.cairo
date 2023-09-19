@@ -547,8 +547,8 @@ fn apply_swap_impact_with_cap(
     market: ContractAddress,
     token: ContractAddress,
     token_price: Price,
-    price_impact_usd: i128 
-) -> i128 { 
+    price_impact_usd: i128
+) -> i128 {
     // TODO: implement
     return 0;
 }
