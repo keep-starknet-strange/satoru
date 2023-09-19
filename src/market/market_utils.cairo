@@ -20,6 +20,8 @@ use satoru::market::{
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::price::price::{Price, PriceTrait};
 use satoru::utils::span32::Span32;
+use satoru::utils::i128::{I128Div, I128Mul, I128Serde};
+
 
 /// Struct to store the prices of tokens of a market.
 /// # Params
@@ -78,8 +80,8 @@ fn get_swap_impact_amount_with_cap(
     market: ContractAddress,
     token: ContractAddress,
     tokenPrice: Price,
-    priceImpactUsd: u128 //TODO : check u128
-) -> u128 { //Todo : check u128
+    priceImpactUsd: i128 //TODO : check u128
+) -> i128 { //Todo : check u128
     //TODO
     return 0;
 }
@@ -545,8 +547,8 @@ fn apply_swap_impact_with_cap(
     market: ContractAddress,
     token: ContractAddress,
     token_price: Price,
-    price_impact_usd: u128 // TODO: This is supposed to be i128 when it will be supported.
-) -> u128 { // TODO: This is supposed to be i128 when it will be supported.
+    price_impact_usd: i128 
+) -> i128 { 
     // TODO: implement
     return 0;
 }

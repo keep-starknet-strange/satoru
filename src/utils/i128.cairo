@@ -23,7 +23,7 @@ impl I128Div of Div<i128> {
     }
 }
 
-impl I1288Mul of Mul<i128> {
+impl I128Mul of Mul<i128> {
     fn mul(lhs: i128, rhs: i128) -> i128 {
         let u_lhs = abs(lhs);
         let u_rhs = abs(rhs);

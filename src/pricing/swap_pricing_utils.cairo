@@ -11,6 +11,8 @@ use result::ResultTrait;
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::market::market::Market;
+use satoru::utils::i128::{StoreI128, I128Serde, I128Div, I128Mul, i128_to_u128, u128_to_i128};
+
 
 /// Struct used in get_price_impact_usd.
 #[derive(Drop, starknet::Store, Serde)]
@@ -26,9 +28,9 @@ struct GetPriceImpactUsdParams {
     price_for_token_a: u128,
     price_for_token_b: u128,
     // The USD change in amount of token_a.
-    usd_delta_for_token_a: u128, // TODO i128 when it will implement Store
+    usd_delta_for_token_a: i128, 
     // The USD change in amount of token_b.
-    usd_delta_for_token_b: u128, // TODO i128 when it will implement Store
+    usd_delta_for_token_b: i128, 
 }
 
 /// Struct to contain pool values.
@@ -77,8 +79,7 @@ impl DefaultSwapFees of Default<SwapFees> {
 /// Called by get_price_impact_usd().
 /// # Returns
 /// The price impact in USD.
-/// TODO: update return to i128 when it will implement 
-fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> u128 {
+fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i128 {
     // TODO
     0
 }

@@ -38,6 +38,7 @@ use satoru::referral::referral_storage::interface::{
     IReferralStorageDispatcher, IReferralStorageDispatcherTrait
 };
 
+use satoru::utils::i128::{StoreI128, I128Serde, I128Div, I128Mul, i128_to_u128, u128_to_i128};
 #[derive(Drop, starknet::Store, Serde)]
 struct ExecutionPriceResult {
     price_impact_usd: u128, // TODO replace with i128 when it derives Store
@@ -80,7 +81,7 @@ fn get_swap_amount_out(
     token_in: ContractAddress,
     amount_in: u128,
     ui_fee_receiver: ContractAddress
-) -> (u128, u128, SwapFees) { //Todo : change to (u128, i128, SwapFees)
+) -> (u128, i128, SwapFees) { //Todo : change to (u128, i128, SwapFees)
     let mut cache: SwapCache = SwapCache {
         token_out: 0.try_into().unwrap(),
         token_in_price: Price { min: 0, max: 0 },
@@ -108,18 +109,18 @@ fn get_swap_amount_out(
         token_b: cache.token_out,
         price_for_token_a: cache.token_in_price.mid_price(),
         price_for_token_b: cache.token_out_price.mid_price(),
-        usd_delta_for_token_a: (amount_in * cache.token_in_price.mid_price()), //to int256?
-        usd_delta_for_token_b: (amount_in
-            * cache.token_in_price.mid_price()) //todo : add `-` when i128 will implement Store
+        usd_delta_for_token_a: u128_to_i128(amount_in * cache.token_in_price.mid_price()), //to int256?
+        usd_delta_for_token_b: -u128_to_i128(amount_in
+            * cache.token_in_price.mid_price()) 
     };
 
-    let price_impact_usd: u128 = get_price_impact_usd(param); //todo : check u128 to i128
+    let price_impact_usd: i128 = get_price_impact_usd(param); //todo : check u128 to i128
 
     let fees: SwapFees = get_swap_fees(
         data_store, market.market_token, amount_in, price_impact_usd > 0, ui_fee_receiver
     );
 
-    let mut impact_amount: u128 = 0; //todo : change to i128
+    let mut impact_amount: i128 = 0; //todo : change to i128
 
     if (price_impact_usd > 0) {
         // when there is a positive price impact factor, additional tokens from the swap impact pool
@@ -142,7 +143,7 @@ fn get_swap_amount_out(
                 price_impact_usd
             );
 
-        cache.amount_out += impact_amount; //todo : u256?
+        cache.amount_out += i128_to_u128(impact_amount); //todo : u256?
     } else {
         // when there is a negative price impact factor,
         // less of the input amount is sent to the pool
@@ -314,7 +315,7 @@ fn get_swap_price_impact(
     amount_in: u128,
     token_in_price: Price,
     token_out_price: Price
-) -> (u128, u128) { //todo : change to (i128, i128)
+) -> (i128, i128) { 
     let mut cache: SwapCache = SwapCache {
         token_out: 0.try_into().unwrap(),
         token_in_price: Price { min: 0, max: 0 },
@@ -333,14 +334,14 @@ fn get_swap_price_impact(
         token_b: cache.token_out,
         price_for_token_a: cache.token_in_price.mid_price(),
         price_for_token_b: cache.token_out_price.mid_price(),
-        usd_delta_for_token_a: (amount_in * cache.token_in_price.mid_price()), //to int256?
-        usd_delta_for_token_b: (amount_in
-            * cache.token_in_price.mid_price()) //todo : add `-` when i128 will implement Store
+        usd_delta_for_token_a: u128_to_i128(amount_in * cache.token_in_price.mid_price()),
+        usd_delta_for_token_b: -u128_to_i128(amount_in
+            * cache.token_in_price.mid_price())
     };
 
-    let price_impact_usd_before_cap: u128 = get_price_impact_usd(
+    let price_impact_usd_before_cap: i128 = get_price_impact_usd(
         param
-    ); //todo : check u128 to i128 
+    ); 
 
     let mut price_impact_amount = 0;
     if price_impact_usd_before_cap > 0 {
