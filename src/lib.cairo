@@ -302,10 +302,12 @@ mod tests {
     }
     mod position {
         mod test_decrease_position_swap_utils;
+        mod test_position_utils;
     }
     mod price {
         mod test_price;
     }
+
     mod role {
         mod test_role_module;
         mod test_role_store;

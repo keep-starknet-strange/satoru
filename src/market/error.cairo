@@ -11,6 +11,9 @@ mod MarketError {
     const INVALID_POSITION_MARKET: felt252 = 'invalid_position_market';
     const INVALID_COLLATERAL_TOKEN_FOR_MARKET: felt252 = 'invalid_coll_token_for_market';
 
+    const EMPTY_MARKET: felt252 = 'empty_market';
+    const DISABLED_MARKET: felt252 = 'disabled_market';
+
     fn UNABLE_TO_GET_CACHED_TOKEN_PRICE(token_in: ContractAddress) {
         let mut data = array!['invalid token in'];
         data.append(token_in.into());

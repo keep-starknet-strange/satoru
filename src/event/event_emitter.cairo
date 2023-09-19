@@ -937,9 +937,9 @@ mod EventEmitter {
         collateral_delta_amount: u128,
         price_impact_diff_usd: u128,
         order_type: OrderType,
-        price_impact_usd: u128,
-        base_pnl_usd: u128,
-        uncapped_base_pnl_usd: u128,
+        price_impact_usd: i128,
+        base_pnl_usd: i128,
+        uncapped_base_pnl_usd: i128,
         is_long: bool,
         order_key: felt252,
         position_key: felt252

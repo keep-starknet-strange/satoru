@@ -6,6 +6,7 @@
 // Core lib imports.
 use starknet::ContractAddress;
 use result::ResultTrait;
+use zeroable::Zeroable;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -15,7 +16,7 @@ use satoru::position::position::Position;
 use satoru::referral::referral_storage::interface::{
     IReferralStorageDispatcher, IReferralStorageDispatcherTrait
 };
-
+use satoru::utils::i128::{StoreI128, I128Serde,};
 /// Struct used in get_position_fees.
 #[derive(Drop, starknet::Store, Serde)]
 struct GetPositionFeesParams {
@@ -47,7 +48,7 @@ struct GetPriceImpactUsdParams {
     /// The market to check.
     market: Market,
     /// The change in position size in USD.
-    usd_delta: u128, // TODO i128 when Storeable
+    usd_delta: i128,
     /// Whether the position is long or short.
     is_long: bool,
 }
@@ -65,8 +66,13 @@ struct OpenInterestParams {
     next_short_open_interest: u128,
 }
 
+impl DefaultContractAddress of Default<ContractAddress> {
+    fn default() -> ContractAddress {
+        Zeroable::zero()
+    }
+}
 /// Struct to store position fees data.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Default, Drop, starknet::Store, Serde)]
 struct PositionFees {
     /// The referral fees.
     referral: PositionReferralFees,
@@ -99,7 +105,7 @@ struct PositionFees {
 }
 
 /// Struct used to store referral parameters useful for fees computation.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Default, Drop, starknet::Store, Serde)]
 struct PositionReferralFees {
     /// The referral code used.
     referral_code: felt252,
@@ -120,7 +126,7 @@ struct PositionReferralFees {
 }
 
 /// Struct used to store position borrowing fees.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Default, Drop, starknet::Store, Serde)]
 struct PositionBorrowingFees {
     /// The borrowing fees amount in USD.
     borrowing_fee_usd: u128,
@@ -133,7 +139,7 @@ struct PositionBorrowingFees {
 }
 
 /// Struct used to store position funding fees.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Default, Drop, starknet::Store, Serde)]
 struct PositionFundingFees {
     /// The amount of funding fees in tokens.
     funding_fee_amount: u128,
@@ -150,7 +156,7 @@ struct PositionFundingFees {
 }
 
 /// Struct used to store position ui fees
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Default, Drop, starknet::Store, Serde)]
 struct PositionUiFees {
     /// The ui fee receiver address
     ui_fee_receiver: ContractAddress,
