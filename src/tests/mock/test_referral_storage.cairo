@@ -45,7 +45,7 @@ fn deploy_role_store() -> ContractAddress {
 }
 
 fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher,IEventEmitterDispatcher,IReferralStorageDispatcher, IGovernableDispatcher) {
-    let caller_address: ContractAddress = contract_address_const::<'caller_address'>();
+    let caller_address: ContractAddress = 0x101.try_into().unwrap();
 
     let role_store_address = deploy_role_store();
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
@@ -66,7 +66,7 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher,IEven
     start_prank(event_emitter_address, caller_address);
     start_prank(data_store_address, caller_address);
     start_prank(referral_storage_address, caller_address);
-    // start_prank(governable_address, caller_address);
+    start_prank(governable_address, caller_address);
 
     (caller_address, role_store, data_store, event_emitter, referral_storage, governable)
 }
@@ -77,7 +77,6 @@ fn testing() {
 
     let code:felt252 = 'EBDW';
     let new_account: ContractAddress = contract_address_const::<'new_account'>();
-
 
     referral_storage.gov_set_code_owner(code, new_account);
     let res:ContractAddress = referral_storage.code_owners(code);

@@ -83,7 +83,6 @@ fn get_referral_info(
         let referral_tier: ReferralTier = referral_storage.tiers(referral_tier_level);
         total_rebate = referral_tier.total_rebate;
         discount_share = referral_tier.discount_share;
-        // (total_rebate, discount_share) = referral_storage.tiers(referral_tier_level);
         let custom_discount_share: u128 = referral_storage.referrer_discount_shares(affiliate);
         if (custom_discount_share != 0) {
             discount_share = custom_discount_share;
