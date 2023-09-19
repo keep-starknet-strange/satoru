@@ -49,7 +49,9 @@ mod LiquidationHandler {
     // Local imports.
     use super::ILiquidationHandler;
     use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-    use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait, DataStore};
+    use satoru::data::data_store::{
+        IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait, DataStore
+    };
     use satoru::oracle::{
         oracle::{IOracleDispatcher, IOracleDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
@@ -122,10 +124,10 @@ mod LiquidationHandler {
         fn execute_liquidation(
             ref self: ContractState,
             account: ContractAddress,
-            market: ContractAddress, 
-            collateral_token: ContractAddress, 
-            is_long: bool, 
-            oracle_params: SetPricesParams 
+            market: ContractAddress,
+            collateral_token: ContractAddress,
+            is_long: bool,
+            oracle_params: SetPricesParams
         ) {
             let starting_gas: u128 = starknet_utils::sn_gasleft(array![100]);
             let mut state_base: BaseOrderHandler::ContractState =
@@ -139,7 +141,7 @@ mod LiquidationHandler {
                 is_long
             );
             let tmp_oracle_params: SetPricesParams = oracle_params.clone();
-            let params: ExecuteOrderParams = 
+            let params: ExecuteOrderParams =
                 BaseOrderHandler::InternalImpl::get_execute_order_params(
                 ref state_base,
                 key,
@@ -154,5 +156,4 @@ mod LiquidationHandler {
             IOrderHandler::execute_order(ref state_order, key, oracle_params);
         }
     }
-    
 }

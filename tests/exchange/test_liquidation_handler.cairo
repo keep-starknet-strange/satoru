@@ -1,9 +1,8 @@
-
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait, ContractClass};
 use satoru::exchange::liquidation_handler::{
     LiquidationHandler, ILiquidationHandlerDispatcher, ILiquidationHandler,
     ILiquidationHandlerDispatcherTrait
-    };
+};
 use starknet::{ContractAddress, contract_address_const, ClassHash, Felt252TryIntoContractAddress};
 use debug::PrintTrait;
 use satoru::referral::referral_storage;
@@ -70,16 +69,16 @@ fn deploy_liquidation_handler(
     contract
         .deploy(
             @array![
-            data_store_address.into(),
-            role_store_address.into(),
-            event_emitter_address.into(),
-            order_vault_address.into(),
-            oracle_address.into(),
-            swap_handler_address.into(),
-            Default::default()
-        ]
-    )
-    .unwrap()
+                data_store_address.into(),
+                role_store_address.into(),
+                event_emitter_address.into(),
+                order_vault_address.into(),
+                oracle_address.into(),
+                swap_handler_address.into(),
+                Default::default()
+            ]
+        )
+        .unwrap()
 }
 
 fn deploy_oracle(
@@ -99,7 +98,9 @@ fn deploy_referral_storage() -> ContractAddress {
     contract.deploy(@array![]).unwrap()
 }
 
-fn deploy_oracle_store(role_store_address: ContractAddress, event_emitter_address: ContractAddress) -> ContractAddress {
+fn deploy_oracle_store(
+    role_store_address: ContractAddress, event_emitter_address: ContractAddress
+) -> ContractAddress {
     let contract = declare('OracleStore');
     contract.deploy(@array![role_store_address.into(), event_emitter_address.into()]).unwrap()
 }
@@ -133,7 +134,7 @@ fn _setup() -> (
         swap_handler_address,
         oracle_address
     );
-    let liquidation_handler_dispatcher = ILiquidationHandlerDispatcher{
+    let liquidation_handler_dispatcher = ILiquidationHandlerDispatcher {
         contract_address: liquidation_handler_address
     };
     let role_module = deploy_role_module(role_store_address);
