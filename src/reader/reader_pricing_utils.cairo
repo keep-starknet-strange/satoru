@@ -96,9 +96,8 @@ fn get_swap_amount_out(
         price_impact_amount: 0,
     };
 
-    if (token_in != market.long_token && token_in != market.short_token) { //Implement the error
-            ReaderError::INVALID_TOKEN_IN(*token_in, *market.long_token);
-
+    if (token_in != market.long_token && token_in != market.short_token) {
+        ReaderError::INVALID_TOKEN_IN(token_in, market.long_token);
     }
 
     validate_swap_market(@data_store, @market);
@@ -114,9 +113,7 @@ fn get_swap_amount_out(
         token_b: cache.token_out,
         price_for_token_a: cache.token_in_price.mid_price(),
         price_for_token_b: cache.token_out_price.mid_price(),
-        usd_delta_for_token_a: u128_to_i128(
-            amount_in * cache.token_in_price.mid_price()
-        ),
+        usd_delta_for_token_a: u128_to_i128(amount_in * cache.token_in_price.mid_price()),
         usd_delta_for_token_b: -u128_to_i128(amount_in * cache.token_in_price.mid_price())
     };
 
@@ -126,7 +123,7 @@ fn get_swap_amount_out(
         data_store, market.market_token, amount_in, price_impact_usd > 0, ui_fee_receiver
     );
 
-    let mut impact_amount: i128 = 0; 
+    let mut impact_amount: i128 = 0;
 
     if (price_impact_usd > 0) {
         // when there is a positive price impact factor, additional tokens from the swap impact pool
@@ -149,7 +146,7 @@ fn get_swap_amount_out(
                 price_impact_usd
             );
 
-        cache.amount_out += i128_to_u128(impact_amount); 
+        cache.amount_out += i128_to_u128(impact_amount);
     } else {
         // when there is a negative price impact factor,
         // less of the input amount is sent to the pool
@@ -162,7 +159,7 @@ fn get_swap_amount_out(
                 data_store, market.market_token, token_in, cache.token_in_price, price_impact_usd
             );
 
-        cache.amount_in = fees.amount_after_fees - i128_to_u128(-impact_amount); 
+        cache.amount_in = fees.amount_after_fees - i128_to_u128(-impact_amount);
         cache.amount_out = cache.amount_in * cache.token_in_price.min / cache.token_out_price.max;
         cache.pool_amount_out = cache.amount_out;
     }
