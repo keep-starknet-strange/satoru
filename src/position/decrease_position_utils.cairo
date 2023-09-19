@@ -142,7 +142,9 @@ fn decrease_position(ref params: UpdatePositionParams) -> DecreasePositionResult
                 );
 
             params.order.initial_collateral_delta_amount = 0;
-        } // if the remaining collateral including position pnl will be below
+        }
+
+        // if the remaining collateral including position pnl will be below
         // the min collateral usd value, then close the position
         //
         // if the position has sufficient remaining collateral including pnl

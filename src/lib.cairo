@@ -308,6 +308,7 @@ mod tests {
         mod test_order;
     }
     mod position {
+        mod test_decrease_position_utils;
         mod test_decrease_position_swap_utils;
         mod test_position_utils;
     }
