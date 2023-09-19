@@ -19,24 +19,43 @@
 // *************************************************************************
 // Core lib imports.
 use starknet::ContractAddress;
-use result::ResultTrait;
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::data::keys;
 use satoru::event::event_utils::EventLogData;
 use satoru::order::order::Order;
 use satoru::deposit::deposit::Deposit;
 use satoru::withdrawal::withdrawal::Withdrawal;
+use satoru::callback::error::CallbackError;
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::callback::order_callback_receiver::interface::{
+    IOrderCallbackReceiverDispatcher, IOrderCallbackReceiverDispatcherTrait
+};
+use satoru::callback::deposit_callback_receiver::interface::{
+    IDepositCallbackReceiverDispatcher, IDepositCallbackReceiverDispatcherTrait
+};
+use satoru::callback::withdrawal_callback_receiver::interface::{
+    IWithdrawalCallbackReceiverDispatcher, IWithdrawalCallbackReceiverDispatcherTrait
+};
 
-/// Validate that the callbackGasLimit is less than the max specified value.
+/// Validate that the callback_gas_limit is less than the max specified value.
 /// This is to prevent callback gas limits which are larger than the max gas limits per block
 /// as this would allow for callback contracts that can consume all gas.
 /// # Arguments
 /// * `data_store` - The data store to use.
 /// * `callback_gas_limit` - The callback gas limit.
-fn validate_callback_gas_limit(
-    data_store: IDataStoreSafeDispatcher, callback_gas_limit: u128
-) { // TODO
+fn validate_callback_gas_limit(data_store: IDataStoreDispatcher, callback_gas_limit: u128) {
+    let max_callback_gas_limit = data_store.get_u128(keys::max_callback_gas_limit());
+    if callback_gas_limit > max_callback_gas_limit {
+        panic(
+            array![
+                CallbackError::MAX_CALLBACK_GAS_LIMIT_EXCEEDED,
+                callback_gas_limit.into(),
+                max_callback_gas_limit.into()
+            ]
+        );
+    }
 }
 
 /// It allows an external entity to associate a callback contract address
@@ -48,11 +67,12 @@ fn validate_callback_gas_limit(
 /// * `market` - The market to set callback contract for.
 /// * `callback_contract` - The callback_contract address.
 fn set_saved_callback_contract(
-    data_store: IDataStoreSafeDispatcher,
+    data_store: IDataStoreDispatcher,
     account: ContractAddress,
     market: ContractAddress,
     callback_contract: ContractAddress
-) { // TODO
+) {
+    data_store.set_address(keys::saved_callback_contract_key(account, market), callback_contract);
 }
 
 /// It retrieves a previously stored callback contract address associated with a given account
@@ -62,9 +82,9 @@ fn set_saved_callback_contract(
 /// * `account` - The account to set callback contract for.
 /// * `market` - The market to set callback contract for.
 fn get_saved_callback_contract(
-    data_store: IDataStoreSafeDispatcher, account: ContractAddress, market: ContractAddress
-) -> ContractAddress { // TODO
-    0.try_into().unwrap()
+    data_store: IDataStoreDispatcher, account: ContractAddress, market: ContractAddress
+) -> ContractAddress {
+    data_store.get_address(keys::saved_callback_contract_key(account, market))
 }
 
 /// Called after a deposit execution.
@@ -72,7 +92,16 @@ fn get_saved_callback_contract(
 /// * `key` - They key of the deposit.
 /// * `deposit` - The deposit that was executed.
 /// * `event_data` - The event log data.
-fn after_deposit_execution(key: felt252, deposit: Deposit, event_data: EventLogData) { // TODO
+fn after_deposit_execution(
+    key: felt252, deposit: Deposit, event_data: EventLogData, event_emitter: IEventEmitterDispatcher
+) {
+    if !is_valid_callback_contract(deposit.callback_contract) {
+        return;
+    }
+    let dispatcher = IDepositCallbackReceiverDispatcher {
+        contract_address: deposit.callback_contract
+    };
+    dispatcher.after_deposit_execution(key, deposit, event_data)
 }
 
 /// Called after a deposit cancellation.
@@ -80,7 +109,16 @@ fn after_deposit_execution(key: felt252, deposit: Deposit, event_data: EventLogD
 /// * `key` - They key of the deposit.
 /// * `deposit` - The deposit that was cancelled.
 /// * `event_data` - The event log data.
-fn after_deposit_cancellation(key: felt252, deposit: Deposit, event_data: EventLogData) { // TODO
+fn after_deposit_cancellation(
+    key: felt252, deposit: Deposit, event_data: EventLogData, event_emitter: IEventEmitterDispatcher
+) {
+    if !is_valid_callback_contract(deposit.callback_contract) {
+        return;
+    }
+    let dispatcher = IDepositCallbackReceiverDispatcher {
+        contract_address: deposit.callback_contract
+    };
+    dispatcher.after_deposit_cancellation(key, deposit, event_data)
 }
 
 /// Called after a withdrawal execution.
@@ -89,8 +127,18 @@ fn after_deposit_cancellation(key: felt252, deposit: Deposit, event_data: EventL
 /// * `withdrawal` - The withdrawal that was executed.
 /// * `event_data` - The event log data.
 fn after_withdrawal_execution(
-    key: felt252, withdrawal: Withdrawal, event_data: EventLogData
-) { // TODO + need to add withdrawal param also
+    key: felt252,
+    withdrawal: Withdrawal,
+    event_data: EventLogData,
+    event_emitter: IEventEmitterDispatcher
+) {
+    if !is_valid_callback_contract(withdrawal.callback_contract) {
+        return;
+    }
+    let dispatcher = IWithdrawalCallbackReceiverDispatcher {
+        contract_address: withdrawal.callback_contract
+    };
+    dispatcher.after_withdrawal_execution(key, withdrawal, event_data)
 }
 
 /// Called after an withdrawal cancellation.
@@ -99,8 +147,18 @@ fn after_withdrawal_execution(
 /// * `withdrawal` - The withdrawal that was cancelled.
 /// * `event_data` - The event log data.
 fn after_withdrawal_cancellation(
-    key: felt252, withdrawal: Withdrawal, event_data: EventLogData
-) { // TODO + need to add withdrawal param also
+    key: felt252,
+    withdrawal: Withdrawal,
+    event_data: EventLogData,
+    event_emitter: IEventEmitterDispatcher
+) {
+    if !is_valid_callback_contract(withdrawal.callback_contract) {
+        return;
+    }
+    let dispatcher = IWithdrawalCallbackReceiverDispatcher {
+        contract_address: withdrawal.callback_contract
+    };
+    dispatcher.after_withdrawal_cancellation(key, withdrawal, event_data)
 }
 
 /// Called after an order execution.
@@ -108,7 +166,14 @@ fn after_withdrawal_cancellation(
 /// * `key` - They key of the order.
 /// * `order` - The order that was executed.
 /// * `event_data` - The event log data.
-fn after_order_execution(key: felt252, order: Order, event_data: EventLogData) { // TODO
+fn after_order_execution(
+    key: felt252, order: Order, event_data: EventLogData, event_emitter: IEventEmitterDispatcher
+) {
+    if !is_valid_callback_contract(order.callback_contract) {
+        return;
+    }
+    let dispatcher = IOrderCallbackReceiverDispatcher { contract_address: order.callback_contract };
+    dispatcher.after_order_execution(key, order, event_data)
 }
 
 /// Called after an order cancellation.
@@ -116,7 +181,14 @@ fn after_order_execution(key: felt252, order: Order, event_data: EventLogData) {
 /// * `key` - They key of the order.
 /// * `order` - The order that was cancelled.
 /// * `event_data` - The event log data.
-fn after_order_cancellation(key: felt252, order: Order, event_data: EventLogData) { // TODO
+fn after_order_cancellation(
+    key: felt252, order: Order, event_data: EventLogData, event_emitter: IEventEmitterDispatcher
+) {
+    if !is_valid_callback_contract(order.callback_contract) {
+        return;
+    }
+    let dispatcher = IOrderCallbackReceiverDispatcher { contract_address: order.callback_contract };
+    dispatcher.after_order_cancellation(key, order, event_data)
 }
 
 /// Called after an order cancellation.
@@ -124,12 +196,19 @@ fn after_order_cancellation(key: felt252, order: Order, event_data: EventLogData
 /// * `key` - They key of the order.
 /// * `order` - The order that was frozen.
 /// * `event_data` - The event log data.
-fn after_order_frozen(key: felt252, order: Order, event_data: EventLogData) { // TODO
+fn after_order_frozen(
+    key: felt252, order: Order, event_data: EventLogData, event_emitter: IEventEmitterDispatcher
+) {
+    if !is_valid_callback_contract(order.callback_contract) {
+        return;
+    }
+    let dispatcher = IOrderCallbackReceiverDispatcher { contract_address: order.callback_contract };
+    dispatcher.after_order_frozen(key, order, event_data)
 }
 
 /// Validates that the given address is a contract.
 /// # Arguments
 /// * `callback_contract` - The callback contract.
-fn is_valid_callback_contract(callback_contract: ContractAddress) -> bool { // TODO
-    true
+fn is_valid_callback_contract(callback_contract: ContractAddress) -> bool {
+    callback_contract.is_non_zero()
 }

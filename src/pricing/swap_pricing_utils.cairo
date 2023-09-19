@@ -8,15 +8,15 @@ use starknet::ContractAddress;
 use result::ResultTrait;
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::market::market::Market;
 
 /// Struct used in get_price_impact_usd.
 #[derive(Drop, starknet::Store, Serde)]
 struct GetPriceImpactUsdParams {
     /// The `DataStore` contract dispatcher.
-    dataStore: IDataStoreSafeDispatcher,
+    dataStore: IDataStoreDispatcher,
     /// The market to check.
     market: Market,
     /// The token to check balance for.
@@ -61,10 +61,24 @@ struct SwapFees {
     ui_fee_amount: u128,
 }
 
+impl DefaultSwapFees of Default<SwapFees> {
+    fn default() -> SwapFees {
+        SwapFees {
+            fee_receiver_amount: 0,
+            fee_amount_for_pool: 0,
+            amount_after_fees: 0,
+            ui_fee_receiver: Zeroable::zero(),
+            ui_fee_receiver_factor: 0,
+            ui_fee_amount: 0
+        }
+    }
+}
+
 /// Called by get_price_impact_usd().
 /// # Returns
 /// The price impact in USD.
-fn get_price_impact_usd_(params: GetPriceImpactUsdParams) -> i128 {
+/// TODO: update return to i128 when it will implement 
+fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> u128 {
     // TODO
     0
 }
@@ -123,7 +137,7 @@ fn get_next_pool_amount_params(
 /// # Returns
 /// New swap fees.
 fn get_swap_fees(
-    data_store: IDataStoreSafeDispatcher,
+    data_store: IDataStoreDispatcher,
     market_token: ContractAddress,
     amount: u128,
     for_positive_impact: bool,
@@ -139,35 +153,4 @@ fn get_swap_fees(
         ui_fee_receiver_factor: 0,
         ui_fee_amount: 0,
     }
-}
-
-/// Note that the priceImpactUsd may not be entirely accurate since it is the
-/// base calculation and the actual price impact may be capped by the available
-/// amount in the swap impact pool.
-fn emit_swap_info(
-    event_emitter: IEventEmitterSafeDispatcher,
-    order_key: felt252,
-    market: ContractAddress,
-    receiver: ContractAddress,
-    token_in: ContractAddress,
-    token_out: ContractAddress,
-    token_in_price: u128,
-    token_out_price: u128,
-    amount_in: u128,
-    amount_in_after_fees: u128,
-    amount_out: u128,
-    price_impact_usd: i128,
-    price_impact_amount: i128,
-) { // TODO
-}
-
-/// Emit event about collected swap fees.
-fn emit_swap_fees_collected(
-    event_emitter: IEventEmitterSafeDispatcher,
-    market: ContractAddress,
-    token: ContractAddress,
-    token_price: u128,
-    action: felt252,
-    fees: SwapFees,
-) { // TODO
 }

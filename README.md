@@ -47,6 +47,22 @@ To test the project, run:
 snforge
 ```
 
+## 🚀 Deploy
+
+To deploy contracts of the saturo, you first need to setup a smart wallet :
+
+- Create a signer by following this tutorial : [Signers](https://book.starkli.rs/signers)
+
+- Create an account by following this tutorial : [Accounts](https://book.starkli.rs/accounts/)
+
+Once your smart wallet is setup, you can now run deployment files to deploy contracts, for example :
+
+```bash
+cd scripts
+
+./deploy_contract.sh
+```
+
 ## 📚 Resources
 
 Here are some resources to help you get started:
@@ -56,6 +72,7 @@ Here are some resources to help you get started:
 - [Starknet Book](https://book.starknet.io/)
 - [Starknet Foundry Book](https://foundry-rs.github.io/starknet-foundry/)
 - [Starknet By Example](https://starknet-by-example.voyager.online/)
+- [Starkli Book](https://book.starkli.rs/)
 - GMX v2 resources
   - [GMX Synthetics](https://github.com/gmx-io/gmx-synthetics)
   - [Trading on v2](https://docs.gmx.io/docs/trading/v2)
@@ -89,6 +106,16 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/parketh"><img src="https://avatars.githubusercontent.com/u/27808560?v=4?s=100" width="100px;" alt="parketh"/><br /><sub><b>parketh</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=parketh" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/enitrat"><img src="https://avatars.githubusercontent.com/u/60658558?v=4?s=100" width="100px;" alt="Mathieu"/><br /><sub><b>Mathieu</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=enitrat" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/gaetbout"><img src="https://avatars.githubusercontent.com/u/16206518?v=4?s=100" width="100px;" alt="gaetbout"/><br /><sub><b>gaetbout</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=gaetbout" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/ametel01"><img src="https://avatars.githubusercontent.com/u/91626827?v=4?s=100" width="100px;" alt="Alex Metelli"/><br /><sub><b>Alex Metelli</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=ametel01" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/FabienCoutant"><img src="https://avatars.githubusercontent.com/u/16558702?v=4?s=100" width="100px;" alt="Fabien C"/><br /><sub><b>Fabien C</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=FabienCoutant" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/rmzlb"><img src="https://avatars.githubusercontent.com/u/25151724?v=4?s=100" width="100px;" alt="rmzlb"/><br /><sub><b>rmzlb</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=rmzlb" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/0xTitan"><img src="https://avatars.githubusercontent.com/u/104304962?v=4?s=100" width="100px;" alt="0xTitan"/><br /><sub><b>0xTitan</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=0xTitan" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Bal7hazar"><img src="https://avatars.githubusercontent.com/u/97087040?v=4?s=100" width="100px;" alt="Bal7hazar @ Carbonable"/><br /><sub><b>Bal7hazar @ Carbonable</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=Bal7hazar" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/zizou0x"><img src="https://avatars.githubusercontent.com/u/111426680?v=4?s=100" width="100px;" alt="Zizou"/><br /><sub><b>Zizou</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=zizou0x" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Darlington02"><img src="https://avatars.githubusercontent.com/u/75126961?v=4?s=100" width="100px;" alt="Darlington02"/><br /><sub><b>Darlington02</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=Darlington02" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/eytanlvy"><img src="https://avatars.githubusercontent.com/u/97968794?v=4?s=100" width="100px;" alt="eytanlvy"/><br /><sub><b>Eytan Levy</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=eytanlvy" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

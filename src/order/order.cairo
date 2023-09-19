@@ -4,17 +4,25 @@
 
 // Core lib imports.
 use starknet::{ContractAddress, contract_address_const};
+use starknet::info::get_block_number;
 use debug::PrintTrait;
+use array::ArrayTrait;
 
 // Local imports.
 use satoru::utils::store_arrays::StoreContractAddressArray;
 use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
+use satoru::utils::span32::{Span32, Array32Trait};
 
 /// Struct for orders.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Copy, Drop, starknet::Store, Serde, PartialEq)]
 struct Order {
+    /// The unique identifier of the order.
+    key: felt252,
+    /// The order type.
     order_type: OrderType,
-    /// The account of the order.
+    // Decrease position swap type.
+    decrease_position_swap_type: DecreasePositionSwapType,
+    /// The account of the self.
     account: ContractAddress,
     /// The receiver for any token transfers.
     receiver: ContractAddress,
@@ -27,7 +35,7 @@ struct Order {
     /// The initial collateral token for increase orders.
     initial_collateral_token: ContractAddress,
     /// An array of market addresses to swap through.
-    swap_path: Array<ContractAddress>,
+    swap_path: Span32<ContractAddress>,
     /// The requested change in position size.
     size_delta_usd: u128,
     /// For increase orders, this is the amount of the initialCollateralToken sent in by the user.
@@ -39,7 +47,7 @@ struct Order {
     /// The acceptable execution price for increase / decrease orders.
     acceptable_price: u128,
     /// The execution fee for keepers.
-    execution_fee: u128,
+    execution_fee: u256,
     /// The gas limit for the callbackContract.
     callback_gas_limit: u128,
     /// The minimum output amount for decrease orders and swaps.
@@ -54,42 +62,70 @@ struct Order {
     is_frozen: bool,
 }
 
-#[generate_trait]
-impl OrderImpl of OrderTrait {
-    fn touch(ref self: Order, chain: IChainDispatcher) {
-        // TODO: Fix when it's possible to do starknet calls in pure Cairo programs.
-        self.updated_at_block = chain.get_block_number();
+impl DefaultOrder of Default<Order> {
+    fn default() -> Order {
+        Order {
+            key: 0,
+            decrease_position_swap_type: DecreasePositionSwapType::NoSwap,
+            order_type: OrderType::MarketSwap,
+            account: 0.try_into().unwrap(),
+            receiver: 0.try_into().unwrap(),
+            callback_contract: 0.try_into().unwrap(),
+            ui_fee_receiver: 0.try_into().unwrap(),
+            market: 0.try_into().unwrap(),
+            initial_collateral_token: 0.try_into().unwrap(),
+            swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
+            size_delta_usd: 0,
+            initial_collateral_delta_amount: 0,
+            trigger_price: 0,
+            acceptable_price: 0,
+            execution_fee: 0,
+            callback_gas_limit: 0,
+            min_output_amount: 0,
+            updated_at_block: 0,
+            is_long: true,
+            should_unwrap_native_token: true,
+            is_frozen: true,
+        }
     }
 }
 
-#[derive(Drop, starknet::Store, Serde)]
+#[generate_trait]
+impl OrderImpl of OrderTrait {
+    fn touch(ref self: Order) {
+        // TODO: Fix when it's possible to do starknet calls in pure Cairo programs.
+        self.updated_at_block = get_block_number();
+    }
+}
+
+#[derive(Copy, Drop, starknet::Store, Serde, PartialEq)]
 enum OrderType {
     ///  MarketSwap: swap token A to token B at the current market price.
     /// The order will be cancelled if the minOutputAmount cannot be fulfilled.
-    MarketSwap: (),
+    MarketSwap,
     ///  LimitSwap: swap token A to token B if the minOutputAmount can be fulfilled.
-    LimitSwap: (),
+    LimitSwap,
     ///  MarketIncrease: increase position at the current market price.
     /// The order will be cancelled if the position cannot be increased at the acceptablePrice.
-    MarketIncrease: (),
+    MarketIncrease,
     /// LimitIncrease: increase position if the triggerPrice is reached and the acceptablePrice can be fulfilled.
-    LimitIncrease: (),
+    LimitIncrease,
     ///  MarketDecrease: decrease position at the current market price.
     /// The order will be cancelled if the position cannot be decreased at the acceptablePrice.
-    MarketDecrease: (),
+    MarketDecrease,
     ///  LimitDecrease: decrease position if the triggerPrice is reached and the acceptablePrice can be fulfilled.
-    LimitDecrease: (),
+    LimitDecrease,
     ///  StopLossDecrease: decrease position if the triggerPrice is reached and the acceptablePrice can be fulfilled.
-    StopLossDecrease: (),
+    StopLossDecrease,
     ///  Liquidation: allows liquidation of positions if the criteria for liquidation are met.
-    Liquidation: (),
+    Liquidation,
 }
 
 /// To help further differentiate orders.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Drop, Copy, starknet::Store, Serde)]
 enum SecondaryOrderType {
-    None: (),
-    Adl: (),
+    None,
+    Adl,
 }
 
 impl SecondaryOrderTypePrintImpl of PrintTrait<SecondaryOrderType> {
@@ -103,11 +139,11 @@ impl SecondaryOrderTypePrintImpl of PrintTrait<SecondaryOrderType> {
 
 /// `DecreasePositionSwapType` is used to indicate whether the decrease order should swap
 /// the pnl token to collateral token or vice versa.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Drop, Copy, starknet::Store, Serde, PartialEq)]
 enum DecreasePositionSwapType {
-    NoSwap: (),
-    SwapPnlTokenToCollateralToken: (),
-    SwapCollateralTokenToPnlToken: (),
+    NoSwap,
+    SwapPnlTokenToCollateralToken,
+    SwapCollateralTokenToPnlToken,
 }
 
 impl DecreasePositionSwapTypePrintImpl of PrintTrait<DecreasePositionSwapType> {
@@ -118,6 +154,21 @@ impl DecreasePositionSwapTypePrintImpl of PrintTrait<DecreasePositionSwapType> {
                 .print(),
             DecreasePositionSwapType::SwapCollateralTokenToPnlToken => 'SwapCollateralTokenToPnlToken'
                 .print(),
+        }
+    }
+}
+
+impl OrderTypeInto of Into<OrderType, felt252> {
+    fn into(self: OrderType) -> felt252 {
+        match self {
+            OrderType::MarketSwap => 'MarketSwap',
+            OrderType::LimitSwap => 'LimitSwap',
+            OrderType::MarketIncrease => 'MarketIncrease',
+            OrderType::LimitIncrease => 'LimitIncrease',
+            OrderType::MarketDecrease => 'MarketDecrease',
+            OrderType::LimitDecrease => 'LimitDecrease',
+            OrderType::StopLossDecrease => 'StopLossDecrease',
+            OrderType::Liquidation => 'Liquidation',
         }
     }
 }

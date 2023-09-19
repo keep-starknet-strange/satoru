@@ -37,13 +37,13 @@ use zeroable::Zeroable;
 
 // Local imports.
 use satoru::market::error::MarketError;
-use satoru::market::market_token::{IMarketTokenSafeDispatcher, IMarketTokenSafeDispatcherTrait};
+use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
 
 /// Deriving the `storage_access::StorageAccess` trait
 /// allows us to store the `Market` struct in a contract's storage.
 /// We use `Copy` but this is inneficient.
 /// TODO: Optimize this.
-#[derive(Drop, Copy, starknet::Store, Serde)]
+#[derive(Drop, Copy, starknet::Store, Serde, PartialEq)]
 struct Market {
     /// Address of the market token for the market.
     market_token: ContractAddress,
@@ -53,6 +53,17 @@ struct Market {
     long_token: ContractAddress,
     /// Address of the short token for the market.
     short_token: ContractAddress,
+}
+
+impl DefaultMarket of Default<Market> {
+    fn default() -> Market {
+        Market {
+            market_token: Zeroable::zero(),
+            index_token: Zeroable::zero(),
+            long_token: Zeroable::zero(),
+            short_token: Zeroable::zero()
+        }
+    }
 }
 
 // *************************************************************************
@@ -67,7 +78,7 @@ trait IntoMarketToken {
     /// * `self` - The market.
     /// # Returns
     /// * The `MarketToken` contract interface of the market.
-    fn market_token(self: Market) -> IMarketTokenSafeDispatcher;
+    fn market_token(self: Market) -> IMarketTokenDispatcher;
 }
 
 /// Trait for getting the unique id of a market.
@@ -134,7 +145,7 @@ impl ValidateMarketImpl of ValidateMarket {
 
 /// Implementation of the `MarketToken` trait for the `Market` struct.
 impl MarketTokenImpl of IntoMarketToken {
-    fn market_token(self: Market) -> IMarketTokenSafeDispatcher {
-        IMarketTokenSafeDispatcher { contract_address: self.market_token }
+    fn market_token(self: Market) -> IMarketTokenDispatcher {
+        IMarketTokenDispatcher { contract_address: self.market_token }
     }
 }
