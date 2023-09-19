@@ -167,7 +167,7 @@ struct PositionUiFees {
 }
 
 /// Get the price impact in USD for a position increase / decrease.
-fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> u128 { //todo : change to i128?
+fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i128 { //todo : change to i128?
     // TODO
     0
 }

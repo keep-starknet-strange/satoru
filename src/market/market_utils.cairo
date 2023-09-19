@@ -20,7 +20,7 @@ use satoru::market::{
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::price::price::{Price, PriceTrait};
 use satoru::utils::span32::Span32;
-use satoru::utils::i128::{StoreI128, u128_to_i128, I128Serde, I128Div, I1288Mul};
+use satoru::utils::i128::{StoreI128, u128_to_i128, I128Serde, I128Div, I128Mul};
 /// Struct to store the prices of tokens of a market.
 /// # Params
 /// * `indexTokenPrice` - Price of the market's index token.
@@ -820,21 +820,6 @@ fn validate_enabled_market_address(
 /// * `market` - The market to validate.
 /// * `token` - The token to check
 fn validate_market_collateral_token(market: Market, token: ContractAddress) { // TODO
-}
-
-/// Get the token price from the stored MarketPrices
-/// # Arguments
-/// * `token` - The token to get the price for
-/// * `market` - The market values
-/// * `is_long` - Whether to get the long or short pending PNL.
-/// * `pnl` - The uncapped pnl of the market.
-/// * `pool_usd` - The USD value of the pool.
-/// * `pnl_factor_type` - The pnl factor type to use.
-/// # Returns
-/// The token price
-fn get_cached_token_price(token: ContractAddress, market: Market, prices: @MarketPrices,) -> Price {
-    // TODOs
-    Price { max: 0, min: 0 }
 }
 
 /// Get the max position impact factor for liquidations

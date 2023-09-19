@@ -84,7 +84,7 @@ fn get_swap_amount_out(
     token_in: ContractAddress,
     amount_in: u128,
     ui_fee_receiver: ContractAddress
-) -> (u128, i128, SwapFees) { //Todo : change to (u128, i128, SwapFees)
+) -> (u128, i128, SwapFees) {
     let mut cache: SwapCache = SwapCache {
         token_out: 0.try_into().unwrap(),
         token_in_price: Price { min: 0, max: 0 },
