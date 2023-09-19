@@ -50,9 +50,7 @@ mod LiquidationHandler {
     use super::ILiquidationHandler;
     use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
     use satoru::data::{
-        data_store::{
-        IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait, DataStore
-        },
+        data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait, DataStore},
         keys::execute_order_feature_disabled_key
     };
     use satoru::oracle::{
