@@ -1,4 +1,10 @@
-mod readerError {
-    const MARKET_NOT_FOUND: felt252 = 'market_not_found';
-    const MARKET_INDEX_NOT_FOUND: felt252 = 'market_index_not_found';
+mod ReaderError {
+    use starknet::ContractAddress;
+
+    fn INVALID_TOKEN_IN(token_in: ContractAddress, expected_token: ContractAddress) {
+        let mut data = array!['invalid token in'];
+        data.append(token_in.into());
+        data.append(expected_token.into());
+        panic(data)
+    }
 }

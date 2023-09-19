@@ -26,6 +26,7 @@ use satoru::pricing::{
     position_pricing_utils::{PositionFees},
     swap_pricing_utils::{SwapFees, get_swap_fees, get_price_impact_usd, GetPriceImpactUsdParams}
 };
+use satoru::reader::error:ReaderError;
 use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::swap::{
     swap_utils::SwapCache, swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait}
@@ -96,6 +97,8 @@ fn get_swap_amount_out(
     };
 
     if (token_in != market.long_token && token_in != market.short_token) { //Implement the error
+            ReaderError::INVALID_TOKEN_IN(*token_in, *market.long_token);
+
     }
 
     validate_swap_market(@data_store, @market);
@@ -113,17 +116,17 @@ fn get_swap_amount_out(
         price_for_token_b: cache.token_out_price.mid_price(),
         usd_delta_for_token_a: u128_to_i128(
             amount_in * cache.token_in_price.mid_price()
-        ), //to int256?
+        ),
         usd_delta_for_token_b: -u128_to_i128(amount_in * cache.token_in_price.mid_price())
     };
 
-    let price_impact_usd: i128 = get_price_impact_usd(param); //todo : check u128 to i128
+    let price_impact_usd: i128 = get_price_impact_usd(param);
 
     let fees: SwapFees = get_swap_fees(
         data_store, market.market_token, amount_in, price_impact_usd > 0, ui_fee_receiver
     );
 
-    let mut impact_amount: i128 = 0; //todo : change to i128
+    let mut impact_amount: i128 = 0; 
 
     if (price_impact_usd > 0) {
         // when there is a positive price impact factor, additional tokens from the swap impact pool
@@ -146,7 +149,7 @@ fn get_swap_amount_out(
                 price_impact_usd
             );
 
-        cache.amount_out += i128_to_u128(impact_amount); //todo : u256?
+        cache.amount_out += i128_to_u128(impact_amount); 
     } else {
         // when there is a negative price impact factor,
         // less of the input amount is sent to the pool
@@ -159,7 +162,7 @@ fn get_swap_amount_out(
                 data_store, market.market_token, token_in, cache.token_in_price, price_impact_usd
             );
 
-        //cache.amount_in = fees.amount_after_fees - (-impact_amount).into(); //TODO : when i128 will implement Store;
+        cache.amount_in = fees.amount_after_fees - i128_to_u128(-impact_amount); 
         cache.amount_out = cache.amount_in * cache.token_in_price.min / cache.token_out_price.max;
         cache.pool_amount_out = cache.amount_out;
     }
@@ -253,7 +256,7 @@ fn get_execution_price(
     } else {
         -size_delta_usd
     };
-    //params.order.size_delta_usd = size_delta_usd; //to abs
+    params.order.size_delta_usd = i128_to_u128(size_delta_usd_abs);
     params.order.is_long = is_long;
 
     let is_increase: bool = size_delta_usd > 0;
@@ -284,14 +287,14 @@ fn get_execution_price(
             params, index_token_price
         );
 
-        //result.price_impact_usd = price_impact_usd; //todo : convert to u128
+        result.price_impact_usd = i128_to_u128(price_impact_usd); //not sure of that conversion
         result.execution_price = execution_price;
     } else {
         let (price_impact_usd, price_impact_diff_usd, execution_price) =
             decrease_position_collateral_utils::get_execution_price(
             params, index_token_price
         );
-        //result.price_impact_usd = price_impact_usd; //todo : convert to u128
+        result.price_impact_usd = i128_to_u128(price_impact_usd); //not sure of that conversion
         result.price_impact_diff_usd = price_impact_diff_usd;
         result.execution_price = execution_price;
     }
