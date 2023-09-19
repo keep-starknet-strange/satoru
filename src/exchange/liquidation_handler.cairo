@@ -43,14 +43,17 @@ mod LiquidationHandler {
     use satoru::exchange::base_order_handler::BaseOrderHandler::{
         event_emitter::InternalContractMemberStateTrait, data_store::InternalContractMemberStateImpl
     };
-    use starknet::ContractAddress;
+    use starknet::{ContractAddress, get_caller_address, get_contract_address};
 
 
     // Local imports.
     use super::ILiquidationHandler;
     use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-    use satoru::data::data_store::{
+    use satoru::data::{
+        data_store::{
         IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait, DataStore
+        },
+        keys::execute_order_feature_disabled_key
     };
     use satoru::oracle::{
         oracle::{IOracleDispatcher, IOracleDispatcherTrait},
@@ -146,13 +149,13 @@ mod LiquidationHandler {
                 ref state_base,
                 key,
                 tmp_oracle_params,
-                account,
+                get_caller_address(),
                 starting_gas,
                 SecondaryOrderType::None
             );
-            validate_feature(state_base.data_store.read(), key);
             let mut state_order: OrderHandler::ContractState =
                 OrderHandler::unsafe_new_contract_state();
+            validate_feature(params.contracts.data_store, execute_order_feature_disabled_key(OrderHandler::get_contract_address(), OrderType::Liquidation));
             IOrderHandler::execute_order(ref state_order, key, oracle_params);
         }
     }
