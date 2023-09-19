@@ -26,7 +26,7 @@ use satoru::pricing::{
     position_pricing_utils::{PositionFees},
     swap_pricing_utils::{SwapFees, get_swap_fees, get_price_impact_usd, GetPriceImpactUsdParams}
 };
-use satoru::reader::error:ReaderError;
+use satoru::reader::error::ReaderError;
 use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::swap::{
     swap_utils::SwapCache, swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait}
