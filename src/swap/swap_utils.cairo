@@ -3,8 +3,6 @@
 // *************************************************************************
 // Core lib imports.
 use starknet::{ContractAddress, contract_address_const};
-use result::ResultTrait;
-use core::traits::{Into, TryInto};
 use core::integer::I128Neg;
 
 // Local imports.
@@ -208,7 +206,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
 
     let price_impact_usd = swap_pricing_utils::get_price_impact_usd(
         swap_pricing_utils::GetPriceImpactUsdParams {
-            dataStore: *params.data_store,
+            data_store: *params.data_store,
             market: *_params.market,
             token_a: *_params.token_in,
             token_b: cache.token_out,
