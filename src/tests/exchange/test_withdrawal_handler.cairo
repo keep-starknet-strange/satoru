@@ -315,6 +315,7 @@ fn setup() -> (
     start_prank(role_store_address, caller_address);
     role_store.grant_role(caller_address, role::CONTROLLER);
     role_store.grant_role(order_keeper, role::ORDER_KEEPER);
+    role_store.grant_role(withdrawal_handler_address, role::CONTROLLER);
     start_prank(data_store_address, caller_address);
     (caller_address, data_store, event_emitter, withdrawal_handler)
 }
