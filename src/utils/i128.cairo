@@ -101,3 +101,10 @@ fn i128_to_u128(value: i128) -> u128 {
     let value: felt252 = value.into();
     value.try_into().unwrap()
 }
+
+impl I128Default of Default<i128> {
+    #[inline(always)]
+    fn default() -> i128 {
+        0
+    }
+}

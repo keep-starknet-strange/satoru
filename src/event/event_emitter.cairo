@@ -641,6 +641,7 @@ mod EventEmitter {
     use satoru::pricing::position_pricing_utils::PositionFees;
     use satoru::order::order::{Order, SecondaryOrderType};
     use satoru::utils::span32::{Span32, DefaultSpan32};
+    use satoru::utils::i128::{I128Div, I128Mul, I128Serde};
 
     // *************************************************************************
     //                              STORAGE

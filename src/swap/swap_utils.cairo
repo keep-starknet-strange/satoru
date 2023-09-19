@@ -6,7 +6,7 @@ use starknet::{ContractAddress, contract_address_const};
 use result::ResultTrait;
 use core::traits::{Into, TryInto};
 use core::integer::I128Neg;
-use satoru::utils::i128::{StoreI128, I128Serde, I128Div, I128Mul, i128_to_u128, u128_to_i128};
+use satoru::utils::i128::{StoreI128, I128Serde, I128Div, I128Mul, I128Default, i128_to_u128, u128_to_i128};
 
 
 // Local imports.
@@ -102,9 +102,9 @@ struct SwapCache {
     /// The total amount of the token that is being received by all users in the swap pool.
     pool_amount_out: u128,
     /// The price impact of the swap in USD.
-    price_impact_usd: u128, // TODO: should refact in i128 when supported
+    price_impact_usd: i128, 
     /// The price impact of the swap in tokens.
-    price_impact_amount: u128, // TODO: should refact in i128 when supported
+    price_impact_amount: i128, 
 }
 
 /// Swaps a given amount of a given token for another token based on a
@@ -269,7 +269,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
                 price_impact_usd
             );
 
-        cache.amount_out += price_impact_amount;
+        cache.amount_out += i128_to_u128(price_impact_amount);
     } else {
         // when there is a negative price impact factor,
         // less of the input amount is sent to the pool
@@ -287,12 +287,12 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
             );
 
         // TODO should be -price_impact_amount when i128 supported
-        if (fees.amount_after_fees <= price_impact_amount) {
+        if (fees.amount_after_fees <= i128_to_u128(price_impact_amount)) {
             SwapError::SWAP_PRICE_IMPACT_EXCEEDS_AMOUNT_IN(
-                fees.amount_after_fees, price_impact_amount
+                fees.amount_after_fees, i128_to_u128(price_impact_amount)
             );
         }
-        cache.amount_in = fees.amount_after_fees - price_impact_amount;
+        cache.amount_in = fees.amount_after_fees - i128_to_u128(price_impact_amount);
         cache.amount_out = cache.amount_in * cache.token_in_price.min / cache.token_out_price.max;
         cache.pool_amount_out = cache.amount_out;
     }
