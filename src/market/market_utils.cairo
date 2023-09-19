@@ -69,10 +69,9 @@ fn get_cached_token_price(token: ContractAddress, market: Market, prices: Market
     } else if (token == market.index_token) {
         prices.index_token_price
     } else {
-        assert(false, "false");
+        MarketError::UNABLE_TO_GET_CACHED_TOKEN_PRICE(token);
         prices.index_token_price //todo : remove 
     }
-//TODO revert Errors.UnableToGetCachedTokenPrice(token, market.marketToken);
 }
 
 fn get_swap_impact_amount_with_cap(
