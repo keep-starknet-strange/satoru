@@ -154,7 +154,7 @@ mod LiquidationHandler {
                 starting_gas,
                 SecondaryOrderType::None
             );
-            validate_feature(params.contracts.data_store, execute_order_feature_disabled_key(OrderHandler::get_contract_address(), OrderType::Liquidation));
+            validate_feature(params.contracts.data_store, execute_order_feature_disabled_key(get_contract_address(), params.order.order_type));
             order_utils::execute_order(params);
         }
     }
