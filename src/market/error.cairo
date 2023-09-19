@@ -7,4 +7,6 @@ mod MarketError {
     const MAX_OPEN_INTEREST_EXCEEDED: felt252 = 'max_open_interest_exceeded';
     const INVALID_POSITION_MARKET: felt252 = 'invalid_position_market';
     const INVALID_COLLATERAL_TOKEN_FOR_MARKET: felt252 = 'invalid_coll_token_for_market';
+    const EMPTY_MARKET: felt252 = 'empty_market';
+    const DISABLED_MARKET: felt252 = 'disabled_market';
 }
