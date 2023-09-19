@@ -7,10 +7,10 @@
 // Core lib imports.
 
 // Local imports.
-use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::oracle::{
-    oracle::{IOracleDispatcher}, oracle_utils::{SetPricesParams, SimulatePricesParams},
+    oracle::IOracleDispatcher, oracle_utils::{SetPricesParams, SimulatePricesParams},
 };
 
 /// Sets oracle prices, perform any additional tasks required,
@@ -29,9 +29,9 @@ use satoru::oracle::{
 #[inline(always)]
 fn with_oracle_prices_before(
     oracle: IOracleDispatcher,
-    data_store: IDataStoreSafeDispatcher,
-    event_emitter: IEventEmitterSafeDispatcher,
-    params: SetPricesParams
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    params: @SetPricesParams
 ) { // TODO
 }
 

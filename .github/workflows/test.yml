@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 env:
   SCARB_VERSION: 0.7.0
-  STARKNET_FOUNDRY_VERSION: 0.5.0
+  STARKNET_FOUNDRY_VERSION: 0.6.0
 
 jobs:
   check:

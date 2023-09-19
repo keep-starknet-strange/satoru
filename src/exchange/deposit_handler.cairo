@@ -71,22 +71,20 @@ mod DepositHandler {
 
     // Local imports.
     use super::IDepositHandler;
-    use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-    use satoru::data::data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait};
-    use satoru::event::event_emitter::{
-        IEventEmitterSafeDispatcher, IEventEmitterSafeDispatcherTrait
-    };
+    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::oracle::{
-        oracle::{IOracleSafeDispatcher, IOracleSafeDispatcherTrait},
+        oracle::{IOracleDispatcher, IOracleDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
         oracle_utils::{SetPricesParams, SimulatePricesParams}
     };
     use satoru::order::base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts};
-    use satoru::swap::swap_handler::{ISwapHandlerSafeDispatcher, ISwapHandlerSafeDispatcherTrait};
+    use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use satoru::market::market::Market;
     use satoru::deposit::{
         deposit_utils::CreateDepositParams,
-        deposit_vault::{IDepositVaultSafeDispatcher, IDepositVaultSafeDispatcherTrait}
+        deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait}
     };
 
     // *************************************************************************
@@ -95,15 +93,15 @@ mod DepositHandler {
     #[storage]
     struct Storage {
         /// Interface to interact with the `DataStore` contract.
-        data_store: IDataStoreSafeDispatcher,
+        data_store: IDataStoreDispatcher,
         /// Interface to interact with the `RoleStore` contract.
-        role_store: IRoleStoreSafeDispatcher,
+        role_store: IRoleStoreDispatcher,
         /// Interface to interact with the `EventEmitter` contract.
-        event_emitter: IEventEmitterSafeDispatcher,
+        event_emitter: IEventEmitterDispatcher,
         /// Interface to interact with the `DepositVault` contract.
-        deposit_vault: IDepositVaultSafeDispatcher,
+        deposit_vault: IDepositVaultDispatcher,
         /// Interface to interact with the `Oracle` contract.
-        oracle: IOracleSafeDispatcher
+        oracle: IOracleDispatcher
     }
 
     // *************************************************************************
@@ -126,15 +124,15 @@ mod DepositHandler {
         deposit_vault_address: ContractAddress,
         oracle_address: ContractAddress,
     ) {
-        self.data_store.write(IDataStoreSafeDispatcher { contract_address: data_store_address });
-        self.role_store.write(IRoleStoreSafeDispatcher { contract_address: role_store_address });
+        self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
+        self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
         self
             .event_emitter
-            .write(IEventEmitterSafeDispatcher { contract_address: event_emitter_address });
+            .write(IEventEmitterDispatcher { contract_address: event_emitter_address });
         self
             .deposit_vault
-            .write(IDepositVaultSafeDispatcher { contract_address: deposit_vault_address });
-        self.oracle.write(IOracleSafeDispatcher { contract_address: oracle_address });
+            .write(IDepositVaultDispatcher { contract_address: deposit_vault_address });
+        self.oracle.write(IOracleDispatcher { contract_address: oracle_address });
     }
 
 
