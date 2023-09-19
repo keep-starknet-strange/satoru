@@ -243,7 +243,7 @@ mod WithdrawalHandler {
 
             self.execute_withdrawal_keeper(key, oracle_params_copy, get_caller_address());
 
-            oracle_modules::with_oracle_prices_after();
+            oracle_modules::with_oracle_prices_after(self.oracle.read());
 
             global_reentrancy_guard::non_reentrant_after(data_store); // Finalizes re-entrancy
         }
