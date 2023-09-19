@@ -70,6 +70,7 @@ mod LiquidationHandler {
     use debug::PrintTrait;
     use satoru::feature::feature_utils::validate_feature;
     use satoru::exchange::order_handler::{IOrderHandler, OrderHandler};
+    use satoru::utils::starknet_utils;
 
     // *************************************************************************
     //                              STORAGE
@@ -119,18 +120,18 @@ mod LiquidationHandler {
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
     #[external(v0)]
-    impl LiquidationHandlerImpl of super::ILiquidationHandler<ContractState> {
+    impl LiquidationHandlerImpl of super::ILiquidationHandler<ContractState> { // executes a position liquidation
         fn execute_liquidation(
             ref self: ContractState,
             account: ContractAddress,
-            market: ContractAddress,
-            collateral_token: ContractAddress,
-            is_long: bool,
-            oracle_params: SetPricesParams
+            market: ContractAddress, 
+            collateral_token: ContractAddress, 
+            is_long: bool, 
+            oracle_params: SetPricesParams 
         ) {
-            let starting_gas: u128 = 0;
+            let starting_gas: u128 = starknet_utils::sn_gasleft(array![100]);
             let mut state_base: BaseOrderHandler::ContractState =
-            BaseOrderHandler::unsafe_new_contract_state();
+            BaseOrderHandler::unsafe_new_contract_state(); //retrieve BaseOrderHandler state
             let key: felt252 = create_liquidation_order(
                 state_base.data_store.read(),
                 state_base.event_emitter.read(),

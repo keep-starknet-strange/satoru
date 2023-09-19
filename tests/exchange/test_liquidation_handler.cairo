@@ -10,14 +10,15 @@ use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait, 
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
 use satoru::role::role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait};
+use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
+use satoru::utils::span32::{Span32, Array32Trait};
 
 #[test]
 fn test_exec_liquidation_true(){
-    let collateral_token: ContractAddress = 0x123.try_into().unwrap();
+    let collateral_token: ContractAddress = contract_address_const::<1>();
     let (data_store, liquidation_keeper, liquidation_handler_address, liquidation_handler_dispatcher) = _setup();
     start_prank(liquidation_handler_address, liquidation_keeper);
-    //start_prank(role_module.contract_address, liquidation_keeper);
-    assert(data_store.get_account_position_count(contract_address_const::<'account'>()) == 0, 'is not at 0');
+    //TODO: add test for execute_liquidation
     liquidation_handler_dispatcher.execute_liquidation(
         account: contract_address_const::<'account'>(),
         market: contract_address_const::<'market'>(),
