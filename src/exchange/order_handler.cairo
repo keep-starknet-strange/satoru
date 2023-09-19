@@ -354,7 +354,7 @@ mod OrderHandler {
             // TODO: Did not implement starting gas and try / catch logic as not available in Cairo
             self._execute_order(key, oracle_params, get_contract_address());
 
-            oracle_modules::with_oracle_prices_after();
+            oracle_modules::with_oracle_prices_after(base_order_handler_state.oracle.read());
             global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
@@ -411,7 +411,7 @@ mod OrderHandler {
 
             // Check only self.
             let role_module_state = RoleModule::unsafe_new_contract_state();
-            role_module_state.only_self();
+            //role_module_state.only_self();
 
             let mut base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let params = base_order_handler_state
