@@ -61,8 +61,7 @@ mod LiquidationHandler {
         oracle_utils::SetPricesParams
     };
     use satoru::order::{
-        order_utils,
-        order::{SecondaryOrderType, OrderType, Order},
+        order_utils, order::{SecondaryOrderType, OrderType, Order},
         order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
         base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}
     };
@@ -154,7 +153,10 @@ mod LiquidationHandler {
                 starting_gas,
                 SecondaryOrderType::None
             );
-            validate_feature(params.contracts.data_store, execute_order_feature_disabled_key(get_contract_address(), params.order.order_type));
+            validate_feature(
+                params.contracts.data_store,
+                execute_order_feature_disabled_key(get_contract_address(), params.order.order_type)
+            );
             order_utils::execute_order(params);
         }
     }
