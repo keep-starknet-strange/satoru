@@ -19,7 +19,7 @@ use satoru::price::price::Price;
 use satoru::pricing::position_pricing_utils::PositionFees;
 use satoru::order::order::{Order, SecondaryOrderType};
 use satoru::utils::span32::{Span32, DefaultSpan32};
-
+use satoru::utils::i128::{I128Serde};
 //TODO: OrderCollatDeltaAmountAutoUpdtd must be renamed back to OrderCollateralDeltaAmountAutoUpdated when string will be allowed as event argument
 //TODO: AfterWithdrawalCancelError must be renamed back to AfterWithdrawalCancellationError when string will be allowed as event argument
 //TODO: CumulativeBorrowingFactorUpdatd must be renamed back to CumulativeBorrowingFactorUpdated when string will be allowed as event argument
@@ -639,6 +639,7 @@ mod EventEmitter {
     use satoru::pricing::position_pricing_utils::PositionFees;
     use satoru::order::order::{Order, SecondaryOrderType};
     use satoru::utils::span32::{Span32, DefaultSpan32};
+    use satoru::utils::i128::{I128Serde};
 
     // *************************************************************************
     //                              STORAGE
@@ -934,9 +935,9 @@ mod EventEmitter {
         collateral_delta_amount: u128,
         price_impact_diff_usd: u128,
         order_type: OrderType,
-        price_impact_usd: u128,
-        base_pnl_usd: u128,
-        uncapped_base_pnl_usd: u128,
+        price_impact_usd2: i128,
+        base_pnl_usd: i128,
+        uncapped_base_pnl_usd: i128,
         is_long: bool,
         order_key: felt252,
         position_key: felt252
@@ -1780,7 +1781,7 @@ mod EventEmitter {
                         collateral_delta_amount: collateral_delta_amount,
                         price_impact_diff_usd: values.price_impact_diff_usd,
                         order_type: order_type,
-                        price_impact_usd: values.price_impact_usd,
+                        price_impact_usd2: values.price_impact_usd,
                         base_pnl_usd: values.base_pnl_usd,
                         uncapped_base_pnl_usd: values.uncapped_base_pnl_usd,
                         is_long: position.is_long,

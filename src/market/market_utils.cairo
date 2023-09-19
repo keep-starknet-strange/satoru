@@ -20,7 +20,7 @@ use satoru::market::{
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::price::price::{Price, PriceTrait};
 use satoru::utils::span32::Span32;
-
+use satoru::utils::i128::{StoreI128, u128_to_i128, I128Serde, I128Div, I1288Mul};
 /// Struct to store the prices of tokens of a market.
 /// # Params
 /// * `indexTokenPrice` - Price of the market's index token.
@@ -307,9 +307,11 @@ fn get_pnl(
     index_token_price: @Price,
     is_long: bool,
     maximize: bool
-) -> u128 {
+) -> i128 {
     // Get the open interest.
-    let open_interest = get_open_interest_for_market_is_long(data_store, market, is_long);
+    let open_interest = u128_to_i128(
+        get_open_interest_for_market_is_long(data_store, market, is_long)
+    );
     // Get the open interest in tokens.
     let open_interest_in_tokens = get_open_interest_in_tokens_for_market(
         data_store, market, is_long
@@ -323,7 +325,7 @@ fn get_pnl(
     let price = index_token_price.pick_price_for_pnl(is_long, maximize);
 
     //  `open_interest` is the cost of all positions, `open_interest_valu`e is the current worth of all positions.
-    let open_interest_value = open_interest_in_tokens * price;
+    let open_interest_value = u128_to_i128(open_interest_in_tokens * price);
 
     // Return the PNL.
     // If `is_long` is true, then the PNL is the difference between the current worth of all positions and the cost of all positions.
@@ -449,7 +451,7 @@ fn apply_delta_to_open_interest(
     collateral_token: ContractAddress,
     is_long: bool,
     // TODO: Move to `i128` when `apply_delta_to_u128` is implemented and when supported in used Cairo version.
-    delta: u128
+    delta: i128
 ) -> u128 {
     // Check that the market is not a swap only market.
     assert(
@@ -746,10 +748,10 @@ fn get_capped_pnl(
     data_store: IDataStoreDispatcher,
     market: ContractAddress,
     is_long: bool,
-    pnl: u128,
+    pnl: i128,
     pool_usd: u128,
     pnl_factor_type: felt252
-) -> u128 {
+) -> i128 {
     // TODOs
     0
 }
@@ -834,7 +836,7 @@ fn get_min_collateral_factor(data_store: IDataStoreDispatcher, market: ContractA
 /// * `open_interest_delta` - The change in open interest.
 /// * `is_long` - Whether it is for the long or short side
 fn get_min_collateral_factor_for_open_interest(
-    data_store: IDataStoreDispatcher, market: Market, open_interest_delta: u128, is_long: bool
+    data_store: IDataStoreDispatcher, market: Market, open_interest_delta: i128, is_long: bool
 ) -> u128 {
     // TODOs
     0

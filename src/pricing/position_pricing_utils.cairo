@@ -16,7 +16,7 @@ use satoru::position::position::Position;
 use satoru::referral::referral_storage::interface::{
     IReferralStorageDispatcher, IReferralStorageDispatcherTrait
 };
-
+use satoru::utils::i128::{StoreI128, I128Serde,};
 /// Struct used in get_position_fees.
 #[derive(Drop, starknet::Store, Serde)]
 struct GetPositionFeesParams {
@@ -48,7 +48,7 @@ struct GetPriceImpactUsdParams {
     /// The market to check.
     market: Market,
     /// The change in position size in USD.
-    usd_delta: u128, // TODO i128 when Storeable
+    usd_delta: i128,
     /// Whether the position is long or short.
     is_long: bool,
 }
@@ -167,7 +167,7 @@ struct PositionUiFees {
 }
 
 /// Get the price impact in USD for a position increase / decrease.
-fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> u128 {
+fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i128 {
     // TODO
     0
 }
