@@ -22,6 +22,11 @@ use satoru::utils::calc;
 use satoru::pricing::pricing_utils;
 use satoru::data::keys;
 use satoru::utils::i128::{StoreI128, I128Serde,};
+use satoru::utils::i128::i128_to_u128;
+use satoru::utils::precision;
+use satoru::pricing::error::PricingError;
+use satoru::referral::referral_utils;
+
 /// Struct used in get_position_fees.
 #[derive(Drop, starknet::Store, Serde)]
 struct GetPositionFeesParams {
@@ -144,7 +149,7 @@ struct PositionBorrowingFees {
 }
 
 /// Struct used to store position funding fees.
-#[derive(Default, Drop, starknet::Store, Serde)]
+#[derive(Default, Copy, Drop, starknet::Store, Serde)]
 struct PositionFundingFees {
     /// The amount of funding fees in tokens.
     funding_fee_amount: u128,
@@ -267,16 +272,12 @@ fn _get_price_impact_usd(
 /// New open interest.
 fn get_next_open_interest(params: GetPriceImpactUsdParams) -> OpenInterestParams {
     let long_open_interest = market_utils::get_open_interest_for_market_is_long(
-            params.data_store,
-            @params.market,
-            true
+        params.data_store, @params.market, true
     );
 
     let short_open_interest = market_utils::get_open_interest_for_market_is_long(
-            params.data_store,
-            @params.market,
-            false
-        );
+        params.data_store, @params.market, false
+    );
 
     return get_next_open_interest_params(params, long_open_interest, short_open_interest);
 }
@@ -290,17 +291,17 @@ fn get_next_open_interest(params: GetPriceImpactUsdParams) -> OpenInterestParams
 fn get_next_open_interest_for_virtual_inventory(
     params: GetPriceImpactUsdParams, virtual_inventory: i128,
 ) -> OpenInterestParams {
-    let long_open_interest = 0;
-    let short_open_interest = 0;
+    let mut long_open_interest = 0;
+    let mut short_open_interest = 0;
 
     if (virtual_inventory > 0) {
         short_open_interest = i128_to_u128(virtual_inventory);
     } else {
-        long_open_interest = i128_to_u128(virtual_inventory) * (-1);
+        long_open_interest = i128_to_u128(-virtual_inventory);
     }
 
     if (params.usd_delta < 0) {
-        let offset = i128_to_u128(params.usdDelta) * (-1);
+        let offset = i128_to_u128(-params.usd_delta);
         long_open_interest += offset;
         short_open_interest += offset;
     }
@@ -318,13 +319,30 @@ fn get_next_open_interest_for_virtual_inventory(
 fn get_next_open_interest_params(
     params: GetPriceImpactUsdParams, long_open_interest: u128, short_open_interest: u128
 ) -> OpenInterestParams {
-    // TODO
-    OpenInterestParams {
-        long_open_interest: 0,
-        short_open_interest: 0,
-        next_long_open_interest: 0,
-        next_short_open_interest: 0,
+    let mut next_long_open_interest = long_open_interest;
+    let mut next_short_open_interest = short_open_interest;
+
+    if (params.is_long) {
+        if (params.usd_delta < 0 && i128_to_u128(-params.usd_delta) > long_open_interest) {
+            PricingError::USD_DELTA_EXCEEDS_LONG_OPEN_INTEREST(params.usd_delta, long_open_interest)
+        }
+
+        next_long_open_interest = calc::sum_return_uint_128(long_open_interest, params.usd_delta);
+    } else {
+        if (params.usd_delta < 0 && i128_to_u128(-params.usd_delta) > short_open_interest) {
+            PricingError::USD_DELTA_EXCEEDS_SHORT_OPEN_INTEREST(
+                params.usd_delta, short_open_interest
+            )
+        }
+
+        next_short_open_interest = calc::sum_return_uint_128(short_open_interest, params.usd_delta);
     }
+
+    let open_interest_params = OpenInterestParams {
+        long_open_interest, short_open_interest, next_long_open_interest, next_short_open_interest
+    };
+
+    open_interest_params
 }
 
 /// Compute position fees.
@@ -333,52 +351,77 @@ fn get_next_open_interest_params(
 /// # Returns
 /// Position fees.
 fn get_position_fees(params: GetPositionFeesParams,) -> PositionFees {
-    // TODO
-    let address_zero: ContractAddress = 0.try_into().unwrap();
-    let position_referral_fees = PositionReferralFees {
-        referral_code: 0,
-        affiliate: address_zero,
-        trader: address_zero,
-        total_rebate_factor: 0,
-        trader_discount_factor: 0,
-        total_rebate_amount: 0,
-        trader_discount_amount: 0,
-        affiliate_reward_amount: 0,
-    };
-    let position_funding_fees = PositionFundingFees {
-        funding_fee_amount: 0,
-        claimable_long_token_amount: 0,
-        claimable_short_token_amount: 0,
-        latest_funding_fee_amount_per_size: 0,
-        latest_long_token_claimable_funding_amount_per_size: 0,
-        latest_short_token_claimable_funding_amount_per_size: 0,
-    };
-    let position_borrowing_fees = PositionBorrowingFees {
-        borrowing_fee_usd: 0,
-        borrowing_fee_amount: 0,
-        borrowing_fee_receiver_factor: 0,
-        borrowing_fee_amount_for_fee_receiver: 0,
-    };
-    let position_ui_fees = PositionUiFees {
-        ui_fee_receiver: address_zero, ui_fee_receiver_factor: 0, ui_fee_amount: 0,
-    };
-    let price = Price { min: 0, max: 0, };
-    PositionFees {
-        referral: position_referral_fees,
-        funding: position_funding_fees,
-        borrowing: position_borrowing_fees,
-        ui: position_ui_fees,
-        collateral_token_price: price,
-        position_fee_factor: 0,
-        protocol_fee_amount: 0,
-        position_fee_receiver_factor: 0,
-        fee_receiver_amount: 0,
-        fee_amount_for_pool: 0,
-        position_fee_amount_for_pool: 0,
-        position_fee_amount: 0,
-        total_cost_amount_excluding_funding: 0,
-        total_cost_amount: 0,
-    }
+    let mut fees = get_position_fees_after_referral(
+        params.data_store,
+        params.referral_storage,
+        params.collateral_token_price,
+        params.for_positive_impact,
+        params.position.account,
+        params.position.market,
+        params.size_delta_usd
+    );
+
+    let borrowing_fee_usd = market_utils::get_borrowing_fees(params.data_store, params.position);
+
+    fees
+        .borrowing =
+            get_borrowing_fees(params.data_store, params.collateral_token_price, borrowing_fee_usd);
+
+    fees.fee_amount_for_pool = fees.position_fee_amount_for_pool
+        + fees.borrowing.borrowing_fee_amount
+        - fees.borrowing.borrowing_fee_amount_for_fee_receiver;
+    fees.fee_receiver_amount += fees.borrowing.borrowing_fee_amount_for_fee_receiver;
+
+    fees
+        .funding
+        .latest_funding_fee_amount_per_size =
+            market_utils::get_funding_fee_amount_per_size(
+                params.data_store,
+                params.position.market,
+                params.position.collateral_token,
+                params.position.is_long
+            );
+
+    fees
+        .funding
+        .latest_long_token_claimable_funding_amount_per_size =
+            market_utils::get_claimable_funding_amount_per_size(
+                params.data_store,
+                params.position.market,
+                params.long_token,
+                params.position.is_long
+            );
+
+    fees
+        .funding
+        .latest_short_token_claimable_funding_amount_per_size =
+            market_utils::get_claimable_funding_amount_per_size(
+                params.data_store,
+                params.position.market,
+                params.short_token,
+                params.position.is_long
+            );
+
+    fees.funding = get_funding_fees(fees.funding, params.position);
+
+    fees
+        .ui =
+            get_ui_fees(
+                params.data_store,
+                params.collateral_token_price,
+                params.size_delta_usd,
+                params.ui_fee_receiver
+            );
+
+    fees.total_cost_amount_excluding_funding = fees.position_fee_amount
+        + fees.borrowing.borrowing_fee_amount
+        + fees.ui.ui_fee_amount
+        - fees.referral.trader_discount_amount;
+
+    fees.total_cost_amount = fees.total_cost_amount_excluding_funding
+        + fees.funding.funding_fee_amount;
+
+    fees
 }
 
 /// Compute borrowing fees data.
@@ -391,12 +434,14 @@ fn get_position_fees(params: GetPositionFeesParams,) -> PositionFees {
 fn get_borrowing_fees(
     data_store: IDataStoreDispatcher, collateral_token_price: Price, borrowing_fee_usd: u128,
 ) -> PositionBorrowingFees {
-    // TODO
     PositionBorrowingFees {
-        borrowing_fee_usd: 0,
-        borrowing_fee_amount: 0,
-        borrowing_fee_receiver_factor: 0,
-        borrowing_fee_amount_for_fee_receiver: 0,
+        borrowing_fee_usd,
+        borrowing_fee_amount: borrowing_fee_usd / collateral_token_price.min,
+        borrowing_fee_receiver_factor: data_store.get_u128(keys::borrowing_fee_receiver_factor()),
+        borrowing_fee_amount_for_fee_receiver: precision::apply_factor_u128(
+            borrowing_fee_usd / collateral_token_price.min,
+            data_store.get_u128(keys::borrowing_fee_receiver_factor())
+        )
     }
 }
 
@@ -406,16 +451,37 @@ fn get_borrowing_fees(
 /// * `position` - The position to compute funding fees for.
 /// # Returns
 /// Borrowing fees.
-fn get_funding_fees(funding_fees: PositionFundingFees, position: Position,) -> PositionFundingFees {
-    // TODO
-    PositionFundingFees {
-        funding_fee_amount: 0,
-        claimable_long_token_amount: 0,
-        claimable_short_token_amount: 0,
-        latest_funding_fee_amount_per_size: 0,
-        latest_long_token_claimable_funding_amount_per_size: 0,
-        latest_short_token_claimable_funding_amount_per_size: 0,
-    }
+fn get_funding_fees(
+    mut funding_fees: PositionFundingFees, position: Position
+) -> PositionFundingFees {
+    funding_fees
+        .funding_fee_amount =
+            market_utils::get_funding_amount(
+                funding_fees.latest_funding_fee_amount_per_size,
+                position.funding_fee_amount_per_size,
+                position.size_in_usd,
+                true // roundUpMagnitude
+            );
+
+    funding_fees
+        .claimable_long_token_amount =
+            market_utils::get_funding_amount(
+                funding_fees.latest_long_token_claimable_funding_amount_per_size,
+                position.long_token_claimable_funding_amount_per_size,
+                position.size_in_usd,
+                false // roundUpMagnitude
+            );
+
+    funding_fees
+        .claimable_short_token_amount =
+            market_utils::get_funding_amount(
+                funding_fees.latest_short_token_claimable_funding_amount_per_size,
+                position.short_token_claimable_funding_amount_per_size,
+                position.size_in_usd,
+                false // roundUpMagnitude
+            );
+
+    funding_fees
 }
 
 /// Compute ui fees.
@@ -431,9 +497,20 @@ fn get_ui_fees(
     size_delta_usd: u128,
     ui_fee_receiver: ContractAddress
 ) -> PositionUiFees {
-    // TODO
-    let address_zero: ContractAddress = 0.try_into().unwrap();
-    PositionUiFees { ui_fee_receiver: address_zero, ui_fee_receiver_factor: 0, ui_fee_amount: 0, }
+    let mut ui_fees: PositionUiFees = Default::default();
+
+    if (ui_fee_receiver == 0.try_into().unwrap()) {
+        return ui_fees;
+    }
+
+    ui_fees.ui_fee_receiver = ui_fee_receiver;
+    ui_fees.ui_fee_receiver_factor = market_utils::get_ui_fee_factor(data_store, ui_fee_receiver);
+    ui_fees
+        .ui_fee_amount =
+            precision::apply_factor_u128(size_delta_usd, ui_fees.ui_fee_receiver_factor)
+        / collateral_token_price.min;
+
+    ui_fees
 }
 
 /// Get position fees after applying referral rebates / discounts.
@@ -455,50 +532,54 @@ fn get_position_fees_after_referral(
     market: ContractAddress,
     size_delta_usd: u128,
 ) -> PositionFees {
-    // TODO
-    let address_zero: ContractAddress = 0.try_into().unwrap();
-    let position_referral_fees = PositionReferralFees {
-        referral_code: 0,
-        affiliate: address_zero,
-        trader: address_zero,
-        total_rebate_factor: 0,
-        trader_discount_factor: 0,
-        total_rebate_amount: 0,
-        trader_discount_amount: 0,
-        affiliate_reward_amount: 0,
-    };
-    let position_funding_fees = PositionFundingFees {
-        funding_fee_amount: 0,
-        claimable_long_token_amount: 0,
-        claimable_short_token_amount: 0,
-        latest_funding_fee_amount_per_size: 0,
-        latest_long_token_claimable_funding_amount_per_size: 0,
-        latest_short_token_claimable_funding_amount_per_size: 0,
-    };
-    let position_borrowing_fees = PositionBorrowingFees {
-        borrowing_fee_usd: 0,
-        borrowing_fee_amount: 0,
-        borrowing_fee_receiver_factor: 0,
-        borrowing_fee_amount_for_fee_receiver: 0,
-    };
-    let position_ui_fees = PositionUiFees {
-        ui_fee_receiver: address_zero, ui_fee_receiver_factor: 0, ui_fee_amount: 0,
-    };
-    let price = Price { min: 0, max: 0, };
-    PositionFees {
-        referral: position_referral_fees,
-        funding: position_funding_fees,
-        borrowing: position_borrowing_fees,
-        ui: position_ui_fees,
-        collateral_token_price: price,
-        position_fee_factor: 0,
-        protocol_fee_amount: 0,
-        position_fee_receiver_factor: 0,
-        fee_receiver_amount: 0,
-        fee_amount_for_pool: 0,
-        position_fee_amount_for_pool: 0,
-        position_fee_amount: 0,
-        total_cost_amount_excluding_funding: 0,
-        total_cost_amount: 0,
-    }
+    let mut fees: PositionFees = Default::default();
+
+    fees.collateral_token_price = collateral_token_price;
+
+    fees.referral.trader = account;
+
+    let (referral_code, affiliate, total_rebate_factor, trader_discount_factor) =
+        referral_utils::get_referral_info(
+        referral_storage, account
+    );
+
+    fees.referral.referral_code = referral_code;
+    fees.referral.affiliate = affiliate;
+    fees.referral.total_rebate_factor = total_rebate_factor;
+    fees.referral.trader_discount_factor = trader_discount_factor;
+
+    fees
+        .position_fee_factor = data_store
+        .get_u128(keys::position_fee_factor_key(market, for_positive_impact));
+    fees
+        .position_fee_amount =
+            precision::apply_factor_u128(size_delta_usd, fees.position_fee_factor)
+        / collateral_token_price.min;
+
+    fees
+        .referral
+        .total_rebate_amount =
+            precision::apply_factor_u128(
+                fees.position_fee_amount, fees.referral.total_rebate_factor
+            );
+    fees
+        .referral
+        .trader_discount_amount =
+            precision::apply_factor_u128(
+                fees.referral.total_rebate_amount, fees.referral.trader_discount_factor
+            );
+    fees.referral.affiliate_reward_amount = fees.referral.total_rebate_amount
+        - fees.referral.trader_discount_amount;
+
+    fees.protocol_fee_amount = fees.position_fee_amount - fees.referral.total_rebate_amount;
+
+    fees.position_fee_receiver_factor = data_store.get_u128(keys::position_fee_receiver_factor());
+    fees
+        .fee_receiver_amount =
+            precision::apply_factor_u128(
+                fees.protocol_fee_amount, fees.position_fee_receiver_factor
+            );
+    fees.position_fee_amount_for_pool = fees.protocol_fee_amount - fees.fee_receiver_amount;
+
+    fees
 }

@@ -21,6 +21,8 @@ use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::price::price::{Price, PriceTrait};
 use satoru::utils::span32::Span32;
 use satoru::utils::i128::{StoreI128, u128_to_i128, I128Serde, I128Div, I1288Mul};
+use satoru::position::position::Position;
+
 /// Struct to store the prices of tokens of a market.
 /// # Params
 /// * `indexTokenPrice` - Price of the market's index token.
@@ -938,4 +940,71 @@ fn get_adjusted_position_impact_factors(
     data_store: IDataStoreDispatcher, market: ContractAddress
 ) -> (u128, u128) { // TODO
     (0, 0)
+}
+
+/// Get the borrowing fees for a position, assumes that cumulativeBorrowingFactor
+/// has already been updated to the latest value
+/// # Arguments
+/// * `dataStore` - DataStore
+/// * `position` - Position
+/// * `dataStore` - DataStore
+/// # Returns
+/// The borrowing fees for a position
+fn get_borrowing_fees(dataStore: IDataStoreDispatcher, position: Position) -> u128 {
+    0
+}
+
+/// Get the funding fee amount per size for a market
+/// # Arguments
+/// * `dataStore` - DataStore
+/// * `market` - the market to check
+/// * `collateral_token` - the collateralToken to check
+/// * `is_long` - whether to check the long or short size
+/// # Returns
+/// The funding fee amount per size for a market based on collateralToken
+fn get_funding_fee_amount_per_size(
+    dataStore: IDataStoreDispatcher,
+    market: ContractAddress,
+    collateral_token: ContractAddress,
+    is_long: bool
+) -> u128 {
+    0
+}
+
+/// Get the claimable funding amount per size for a market
+/// # Arguments
+/// * `dataStore` - DataStore
+/// * `market` - the market to check
+/// * `collateral_token` - the collateralToken to check
+/// * `is_long` - whether to check the long or short size
+/// # Returns
+/// The claimable funding amount per size for a market based on collateralToken
+fn get_claimable_funding_amount_per_size(
+    dataStore: IDataStoreDispatcher,
+    market: ContractAddress,
+    collateral_token: ContractAddress,
+    is_long: bool
+) -> u128 {
+    0
+}
+
+/// Get the funding amount to be deducted or distributed
+/// # Arguments
+/// * `latestFundingAmountPerSize` - the latest funding amount per size
+/// * `dataSpositionFundingAmountPerSizetore` - the funding amount per size for the position
+/// * `positionSizeInUsd` - the position size in USD
+/// * `roundUpMagnitude` - whether the round up the result
+/// # Returns
+/// fundingAmount
+fn get_funding_amount(
+    latest_funding_amount_per_size: u128,
+    position_funding_amount_per_size: u128,
+    position_size_in_usd: u128,
+    round_up_magnitude: bool
+) -> u128 {
+    0
+}
+
+fn get_ui_fee_factor(dataStore: IDataStoreDispatcher, account: ContractAddress) -> u128 {
+    0
 }

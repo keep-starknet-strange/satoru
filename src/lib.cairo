@@ -204,6 +204,7 @@ mod position {
 
 // `pricing` contains pricing utils
 mod pricing {
+    mod error;
     mod position_pricing_utils;
     mod pricing_utils;
     mod swap_pricing_utils;
