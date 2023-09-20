@@ -1,4 +1,4 @@
-use satoru::utils::i128::{I128Div, I1288Mul, I128Serde};
+use satoru::utils::i128::{I128Div, I128Mul, I128Serde};
 use snforge_std::{declare, ContractClassTrait};
 
 
