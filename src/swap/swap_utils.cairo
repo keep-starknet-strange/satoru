@@ -218,11 +218,11 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
             token_b: cache.token_out,
             price_for_token_a: cache.token_in_price.mid_price(),
             price_for_token_b: cache.token_out_price.mid_price(),
-            usd_delta_for_token_a: -u128_to_i128(
-                *_params.amount_in * cache.token_out_price.mid_price()
+            usd_delta_for_token_a: u128_to_i128(
+                *_params.amount_in * cache.token_in_price.mid_price()
             ),
-            usd_delta_for_token_b: u128_to_i128(
-                *_params.amount_in * cache.token_out_price.mid_price()
+            usd_delta_for_token_b: -u128_to_i128(
+                *_params.amount_in * cache.token_in_price.mid_price()
             )
         }
     );

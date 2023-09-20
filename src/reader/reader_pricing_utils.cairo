@@ -44,7 +44,7 @@ use satoru::utils::i128::{StoreI128, I128Serde, I128Div, I128Mul, i128_to_u128, 
 
 #[derive(Drop, starknet::Store, Serde)]
 struct ExecutionPriceResult {
-    price_impact_usd: u128, // TODO replace with i128 when it derives Store
+    price_impact_usd: i128, 
     price_impact_diff_usd: u128,
     execution_price: u128,
 }
@@ -54,8 +54,8 @@ struct PositionInfo {
     position: Position,
     fees: PositionFees,
     execution_price_result: ExecutionPriceResult,
-    base_pnl_usd: u128, // TODO replace with i128 when it derives Store
-    pnl_after_price_impact_usd: u128, // TODO replace with i128 when it derives Store
+    base_pnl_usd: i128,
+    pnl_after_price_impact_usd: i128,
 }
 
 #[derive(Drop, starknet::Store, Serde)]
@@ -63,8 +63,8 @@ struct GetPositionInfoCache {
     market: Market,
     collateral_token_price: Price,
     pending_borrowing_fee_usd: u128,
-    latest_long_token_funding_amount_per_size: u128, // TODO replace with i128 when it derives Store
-    latest_short_token_funding_amount_per_size: u128, // TODO replace with i128 when it derives Store
+    latest_long_token_funding_amount_per_size: i128, 
+    latest_short_token_funding_amount_per_size: i128, 
 }
 
 /// Calculates the output amount and fees for a token swap operation.
@@ -85,16 +85,7 @@ fn get_swap_amount_out(
     amount_in: u128,
     ui_fee_receiver: ContractAddress
 ) -> (u128, i128, SwapFees) {
-    let mut cache: SwapCache = SwapCache {
-        token_out: 0.try_into().unwrap(),
-        token_in_price: Price { min: 0, max: 0 },
-        token_out_price: Price { min: 0, max: 0 },
-        amount_in: 0,
-        amount_out: 0,
-        pool_amount_out: 0,
-        price_impact_usd: 0,
-        price_impact_amount: 0,
-    };
+    let mut cache: SwapCache = Default::default();
 
     if (token_in != market.long_token && token_in != market.short_token) {
         ReaderError::INVALID_TOKEN_IN(token_in, market.long_token);
@@ -279,19 +270,19 @@ fn get_execution_price(
         price_impact_usd: 0, price_impact_diff_usd: 0, execution_price: 0,
     };
     if size_delta_usd > 0 {
-        let (price_impact_usd, a, b, execution_price) =
+        let (price_impact_usd, _, _, execution_price) =
             increase_position_utils::get_execution_price(
             params, index_token_price
         );
 
-        result.price_impact_usd = i128_to_u128(price_impact_usd); //not sure of that conversion
+        result.price_impact_usd = price_impact_usd; 
         result.execution_price = execution_price;
     } else {
         let (price_impact_usd, price_impact_diff_usd, execution_price) =
             decrease_position_collateral_utils::get_execution_price(
             params, index_token_price
         );
-        result.price_impact_usd = i128_to_u128(price_impact_usd); //not sure of that conversion
+        result.price_impact_usd = price_impact_usd;
         result.price_impact_diff_usd = price_impact_diff_usd;
         result.execution_price = execution_price;
     }
@@ -319,26 +310,17 @@ fn get_swap_price_impact(
     token_in_price: Price,
     token_out_price: Price
 ) -> (i128, i128) {
-    let mut cache: SwapCache = SwapCache {
-        token_out: 0.try_into().unwrap(),
-        token_in_price: Price { min: 0, max: 0 },
-        token_out_price: Price { min: 0, max: 0 },
-        amount_in: 0,
-        amount_out: 0,
-        pool_amount_out: 0,
-        price_impact_usd: 0,
-        price_impact_amount: 0,
-    };
+    let mut cache: SwapCache = Default::default();
 
     let param: GetPriceImpactUsdParams = GetPriceImpactUsdParams {
         dataStore: data_store,
         market: market,
         token_a: token_in,
-        token_b: cache.token_out,
-        price_for_token_a: cache.token_in_price.mid_price(),
-        price_for_token_b: cache.token_out_price.mid_price(),
-        usd_delta_for_token_a: u128_to_i128(amount_in * cache.token_in_price.mid_price()),
-        usd_delta_for_token_b: -u128_to_i128(amount_in * cache.token_in_price.mid_price())
+        token_b: token_out,
+        price_for_token_a: token_in_price.mid_price(),
+        price_for_token_b: token_out_price.mid_price(),
+        usd_delta_for_token_a: u128_to_i128(amount_in * token_in_price.mid_price()),
+        usd_delta_for_token_b: -u128_to_i128(amount_in * token_in_price.mid_price())
     };
 
     let price_impact_usd_before_cap: i128 = get_price_impact_usd(param);
