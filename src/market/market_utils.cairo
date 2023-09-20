@@ -20,7 +20,7 @@ use satoru::market::{
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::price::price::{Price, PriceTrait};
 use satoru::utils::span32::Span32;
-use satoru::utils::i128::{StoreI128, u128_to_i128, I128Serde, I128Div, I1288Mul};
+use satoru::utils::i128::{StoreI128, u128_to_i128, I128Serde, I128Div, I128Mul};
 use satoru::position::position::Position;
 
 /// Struct to store the prices of tokens of a market.
