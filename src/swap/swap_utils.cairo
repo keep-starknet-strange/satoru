@@ -11,7 +11,7 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::market::{market::Market, market_utils};
 use satoru::fee::fee_utils;
-use satoru::utils::{store_arrays::StoreMarketSpan, traits::ContractAddressDefault};
+use satoru::utils::{calc, store_arrays::StoreMarketSpan, traits::ContractAddressDefault};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::swap::error::SwapError;
 use satoru::data::keys;
@@ -98,9 +98,9 @@ struct SwapCache {
     /// The total amount of the token that is being received by all users in the swap pool.
     pool_amount_out: u128,
     /// The price impact of the swap in USD.
-    price_impact_usd: u128, // TODO: should refact in i128 when supported
+    price_impact_usd: i128,
     /// The price impact of the swap in tokens.
-    price_impact_amount: u128, // TODO: should refact in i128 when supported
+    price_impact_amount: i128,
 }
 
 /// Swaps a given amount of a given token for another token based on a
@@ -244,7 +244,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
         fees.ui_fee_amount,
         keys::swap_fee_type(),
     );
-    let mut price_impact_amount: u128 = 0;
+    let mut price_impact_amount: i128 = 0;
     if (price_impact_usd > 0) {
         // when there is a positive price impact factor, additional tokens from the swap impact pool
         // are withdrawn for the user
@@ -266,7 +266,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
                 price_impact_usd
             );
 
-        cache.amount_out += price_impact_amount;
+        cache.amount_out += calc::to_unsigned(price_impact_amount);
     } else {
         // when there is a negative price impact factor,
         // less of the input amount is sent to the pool
@@ -283,13 +283,12 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
                 price_impact_usd
             );
 
-        // TODO should be -price_impact_amount when i128 supported
-        if (fees.amount_after_fees <= price_impact_amount) {
+        if (fees.amount_after_fees <= calc::to_unsigned(-price_impact_amount)) {
             SwapError::SWAP_PRICE_IMPACT_EXCEEDS_AMOUNT_IN(
                 fees.amount_after_fees, price_impact_amount
             );
         }
-        cache.amount_in = fees.amount_after_fees - price_impact_amount;
+        cache.amount_in = fees.amount_after_fees - calc::to_unsigned(-price_impact_amount);
         cache.amount_out = cache.amount_in * cache.token_in_price.min / cache.token_out_price.max;
         cache.pool_amount_out = cache.amount_out;
     }
@@ -374,8 +373,10 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
             *_params.amount_in,
             cache.amount_in,
             cache.amount_out,
-            price_impact_usd, //TODO: should accept i128
-            price_impact_amount //TODO: should accept i128
+            // price_impact_usd: calc::to_unsigned(price_impact_usd), //TODO: should accept i128
+            // price_impact_amount: price_impact_amount, //TODO: should accept i128
+            price_impact_usd,
+            price_impact_amount,
         );
 
     (*params.event_emitter)

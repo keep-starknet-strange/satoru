@@ -515,8 +515,8 @@ fn apply_swap_impact_with_cap(
     market: ContractAddress,
     token: ContractAddress,
     token_price: Price,
-    price_impact_usd: u128 // TODO: This is supposed to be i128 when it will be supported.
-) -> u128 { // TODO: This is supposed to be i128 when it will be supported.
+    price_impact_usd: i128,
+) -> i128 {
     // TODO: implement
     return 0;
 }
