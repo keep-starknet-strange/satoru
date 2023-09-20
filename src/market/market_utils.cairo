@@ -721,18 +721,6 @@ fn get_enabled_market(data_store: IDataStoreDispatcher, market_address: Contract
     }
 }
 
-/// @dev get the token price from the stored MarketPrices
-/// # Arguments
-/// *`token` the token to get the price for
-/// *`market` the market values
-/// *`the market token prices
-/// # Returns
-/// The token price from the stored MarketPrices
-fn get_cached_token_price(
-    token: ContractAddress, market: @Market, prices: @MarketPrices
-) -> Price { //TODO
-    Default::default()
-}
 
 /// Get the cumulative borrowing factor for a market
 /// # Arguments

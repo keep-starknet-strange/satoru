@@ -57,7 +57,7 @@ fn decrease_position(ref params: UpdatePositionParams) -> DecreasePositionResult
     cache
         .collateral_token_price =
             market_utils::get_cached_token_price(
-                params.order.initial_collateral_token, @params.market, @cache.prices
+                params.order.initial_collateral_token, params.market, @cache.prices
             );
 
     // cap the order size to the position size

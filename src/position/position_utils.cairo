@@ -7,7 +7,7 @@
 use starknet::ContractAddress;
 use poseidon::poseidon_hash_span;
 // Local imports.
-use satoru::utils::i128::{StoreI128, I128Serde, I128Default};
+
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
