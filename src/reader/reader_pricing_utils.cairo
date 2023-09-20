@@ -257,7 +257,7 @@ fn get_execution_price(
         .order
         .acceptable_price =
             if should_execution_price_be_smaller {
-                0 //todo : replace by type(uint256).max (I don't know what's the cairo equivalent)
+                340282366920938463463374607431768211455
             } else {
                 0
             };
