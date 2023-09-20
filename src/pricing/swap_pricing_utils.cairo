@@ -16,6 +16,7 @@ use satoru::market::market_utils;
 use satoru::pricing::error::PricingError;
 use satoru::pricing::pricing_utils;
 use satoru::utils::calc;
+use satoru::utils::i128::{StoreI128, I128Serde};
 
 /// Struct used in get_price_impact_usd.
 #[derive(Copy, Drop, starknet::Store, Serde)]
@@ -31,9 +32,9 @@ struct GetPriceImpactUsdParams {
     price_for_token_a: u128,
     price_for_token_b: u128,
     // The USD change in amount of token_a.
-    usd_delta_for_token_a: u128, // TODO i128 when it will implement Store
+    usd_delta_for_token_a: i128, // TODO i128 when it will implement Store
     // The USD change in amount of token_b.
-    usd_delta_for_token_b: u128, // TODO i128 when it will implement Store
+    usd_delta_for_token_b: i128, // TODO i128 when it will implement Store
 }
 
 /// Struct to contain pool values.
@@ -174,31 +175,6 @@ fn get_price_impact_usd_(
     // adding $1999 USDC into the pool will reduce absolute balance from $1000 to $999 but it does not
     // help rebalance the pool much, the isSameSideRebalance value helps avoid gaming using this case
 
-    // bool isSameSideRebalance = (poolParams.poolUsdForTokenA <= poolParams.poolUsdForTokenB) == (poolParams.nextPoolUsdForTokenA <= poolParams.nextPoolUsdForTokenB);
-    // uint256 impactExponentFactor = dataStore.getUint(Keys.swapImpactExponentFactorKey(market.marketToken));
-
-    // if (isSameSideRebalance) {
-    //     bool hasPositiveImpact = nextDiffUsd < initialDiffUsd;
-    //     uint256 impactFactor = MarketUtils.getAdjustedSwapImpactFactor(dataStore, market.marketToken, hasPositiveImpact);
-
-    //     return PricingUtils.getPriceImpactUsdForSameSideRebalance(
-    //         initialDiffUsd,
-    //         nextDiffUsd,
-    //         impactFactor,
-    //         impactExponentFactor
-    //     );
-    // } else {
-    //     (uint256 positiveImpactFactor, uint256 negativeImpactFactor) = MarketUtils.getAdjustedSwapImpactFactors(dataStore, market.marketToken);
-
-    //     return PricingUtils.getPriceImpactUsdForCrossoverRebalance(
-    //         initialDiffUsd,
-    //         nextDiffUsd,
-    //         positiveImpactFactor,
-    //         negativeImpactFactor,
-    //         impactExponentFactor
-    //     );
-    // }
-
     let a_lte_b = pool_params.pool_usd_for_token_a <= pool_params.pool_usd_for_token_b;
     let next_a_lte_b = pool_params
         .next_pool_usd_for_token_a <= pool_params
@@ -256,17 +232,31 @@ fn get_next_pool_amount_params(
     let pool_usd_for_token_a = pool_amount_for_token_a * params.price_for_token_a;
     let pool_usd_for_token_b = pool_amount_for_token_b * params.price_for_token_b;
     // TODO: uncomment when i128 implements Store
-    // if params.usd_delta_for_token_a < 0 && (-params.usd_delta_for_token_a).try_into().unwrap() > pool_usd_for_token_a {
-    //     panic(array![PricingError::USD_DELTA_EXCEEDS_POOL_VALUE, params.usd_delta_for_token_a.into(), pool_usd_for_token_a.into()]);
-    // }
-    // if params.usd_delta_for_token_b < 0 && (-params.usd_delta_for_token_b).try_into().unwrap() > pool_usd_for_token_b {
-    //     panic(array![PricingError::USD_DELTA_EXCEEDS_POOL_VALUE, params.usd_delta_for_token_b.into(), pool_usd_for_token_b.into()]);
-    // }
+    if params.usd_delta_for_token_a < 0
+        && calc::to_unsigned(-params.usd_delta_for_token_a) > pool_usd_for_token_a {
+        panic(
+            array![
+                PricingError::USD_DELTA_EXCEEDS_POOL_VALUE,
+                params.usd_delta_for_token_a.into(),
+                pool_usd_for_token_a.into()
+            ]
+        );
+    }
+    if params.usd_delta_for_token_b < 0
+        && calc::to_unsigned(-params.usd_delta_for_token_b) > pool_usd_for_token_b {
+        panic(
+            array![
+                PricingError::USD_DELTA_EXCEEDS_POOL_VALUE,
+                params.usd_delta_for_token_b.into(),
+                pool_usd_for_token_b.into()
+            ]
+        );
+    }
     let next_pool_usd_for_token_a = calc::sum_return_uint_128(
-        pool_usd_for_token_a, calc::to_signed(params.usd_delta_for_token_a, true)
+        pool_usd_for_token_a, params.usd_delta_for_token_a
     );
     let next_pool_usd_for_token_b = calc::sum_return_uint_128(
-        pool_usd_for_token_b, calc::to_signed(params.usd_delta_for_token_b, true)
+        pool_usd_for_token_b, params.usd_delta_for_token_b
     );
 
     PoolParams {
@@ -294,7 +284,7 @@ fn get_swap_fees(
     ui_fee_receiver: ContractAddress,
 ) -> SwapFees {
     // TODO
-    let address_zero: ContractAddress = 0.try_into().unwrap();
+    let address_zero: ContractAddress = Zeroable::zero();
     SwapFees {
         fee_receiver_amount: 0,
         fee_amount_for_pool: 0,

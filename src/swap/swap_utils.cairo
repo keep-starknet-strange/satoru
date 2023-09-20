@@ -7,12 +7,12 @@ use core::integer::I128Neg;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::utils::i128::{DefaultI128, StoreI128, I128Serde};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::market::{market::Market, market_utils};
 use satoru::fee::fee_utils;
 use satoru::utils::{calc, store_arrays::StoreMarketSpan, traits::ContractAddressDefault};
+use satoru::utils::i128::{DefaultI128, StoreI128, I128Serde};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::swap::error::SwapError;
 use satoru::data::keys;
@@ -205,6 +205,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
         * cache.token_out_price.mid_price())
         .into();
 
+    let usd_delta = *_params.amount_in * cache.token_out_price.mid_price();
     let price_impact_usd = swap_pricing_utils::get_price_impact_usd(
         swap_pricing_utils::GetPriceImpactUsdParams {
             data_store: *params.data_store,
@@ -213,9 +214,8 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
             token_b: cache.token_out,
             price_for_token_a: cache.token_in_price.mid_price(),
             price_for_token_b: cache.token_out_price.mid_price(),
-            usd_delta_for_token_a: (*_params.amount_in * cache.token_out_price.mid_price()),
-            // TODO: should be -(*_params.amount_in * cache.token_out_price.mid_price()) when i128 supported
-            usd_delta_for_token_b: (*_params.amount_in * cache.token_out_price.mid_price())
+            usd_delta_for_token_a: calc::to_signed(usd_delta, true),
+            usd_delta_for_token_b: calc::to_signed(usd_delta, false),
         }
     );
 

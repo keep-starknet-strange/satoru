@@ -153,12 +153,12 @@ fn bounded_sub(a: i128, b: i128) -> i128 {
 /// # Return
 /// The signed integer.
 fn to_signed(a: u128, is_positive: bool) -> i128 {
+    let a_felt: felt252 = a.into();
+    let a_signed = a_felt.try_into().expect('i128 Overflow');
     if is_positive {
-        let a_felt: felt252 = a.into();
-        a_felt.try_into().expect('i128 Overflow')
+        a_signed
     } else {
-        let a_felt: felt252 = a.into();
-        -a_felt.try_into().expect('i128 Overflow')
+        -a_signed
     }
 }
 
