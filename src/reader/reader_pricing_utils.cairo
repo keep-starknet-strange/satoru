@@ -44,7 +44,7 @@ use satoru::utils::i128::{StoreI128, I128Serde, I128Div, I128Mul, i128_to_u128, 
 
 #[derive(Drop, starknet::Store, Serde)]
 struct ExecutionPriceResult {
-    price_impact_usd: i128, 
+    price_impact_usd: i128,
     price_impact_diff_usd: u128,
     execution_price: u128,
 }
@@ -63,8 +63,8 @@ struct GetPositionInfoCache {
     market: Market,
     collateral_token_price: Price,
     pending_borrowing_fee_usd: u128,
-    latest_long_token_funding_amount_per_size: i128, 
-    latest_short_token_funding_amount_per_size: i128, 
+    latest_long_token_funding_amount_per_size: i128,
+    latest_short_token_funding_amount_per_size: i128,
 }
 
 /// Calculates the output amount and fees for a token swap operation.
@@ -275,7 +275,7 @@ fn get_execution_price(
             params, index_token_price
         );
 
-        result.price_impact_usd = price_impact_usd; 
+        result.price_impact_usd = price_impact_usd;
         result.execution_price = execution_price;
     } else {
         let (price_impact_usd, price_impact_diff_usd, execution_price) =

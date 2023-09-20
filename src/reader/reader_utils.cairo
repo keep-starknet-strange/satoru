@@ -36,9 +36,9 @@ struct PositionInfo {
     position: Position,
     fees: PositionFees,
     execution_price_result: ExecutionPriceResult,
-    base_pnl_usd: i128, 
-    uncapped_base_pnl_usd: i128, 
-    pnl_after_price_impact_usd: i128, 
+    base_pnl_usd: i128,
+    uncapped_base_pnl_usd: i128,
+    pnl_after_price_impact_usd: i128,
 }
 
 #[derive(Drop, starknet::Store, Serde)]
