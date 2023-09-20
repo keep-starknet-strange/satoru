@@ -40,27 +40,38 @@ mod LiquidationHandler {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::ContractAddress;
+    use satoru::exchange::base_order_handler::BaseOrderHandler::{
+        event_emitter::InternalContractMemberStateTrait, data_store::InternalContractMemberStateImpl
+    };
+    use starknet::{ContractAddress, get_caller_address, get_contract_address};
 
 
     // Local imports.
     use super::ILiquidationHandler;
-    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+    use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+    use satoru::data::{
+        data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait, DataStore},
+        keys::execute_order_feature_disabled_key
+    };
     use satoru::oracle::{
         oracle::{IOracleDispatcher, IOracleDispatcherTrait},
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
         oracle_utils::SetPricesParams
     };
     use satoru::order::{
-        order::{SecondaryOrderType, OrderType, Order},
+        order_utils, order::{SecondaryOrderType, OrderType, Order},
         order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
         base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}
     };
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use satoru::market::market::Market;
     use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
+    use satoru::liquidation::liquidation_utils::create_liquidation_order;
+    use satoru::exchange::order_handler;
+    use debug::PrintTrait;
+    use satoru::feature::feature_utils::validate_feature;
+    use satoru::exchange::order_handler::{IOrderHandler, OrderHandler};
+    use satoru::utils::starknet_utils;
 
     // *************************************************************************
     //                              STORAGE
@@ -110,7 +121,7 @@ mod LiquidationHandler {
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
     #[external(v0)]
-    impl LiquidationHandlerImpl of super::ILiquidationHandler<ContractState> {
+    impl LiquidationHandlerImpl of super::ILiquidationHandler<ContractState> { // executes a position liquidation
         fn execute_liquidation(
             ref self: ContractState,
             account: ContractAddress,
@@ -118,7 +129,33 @@ mod LiquidationHandler {
             collateral_token: ContractAddress,
             is_long: bool,
             oracle_params: SetPricesParams
-        ) { // TODO
+        ) {
+            let starting_gas: u128 = starknet_utils::sn_gasleft(array![100]);
+            let mut state_base: BaseOrderHandler::ContractState =
+                BaseOrderHandler::unsafe_new_contract_state(); //retrieve BaseOrderHandler state
+            let key: felt252 = create_liquidation_order(
+                state_base.data_store.read(),
+                state_base.event_emitter.read(),
+                account,
+                market,
+                collateral_token,
+                is_long
+            );
+            let tmp_oracle_params: SetPricesParams = oracle_params.clone();
+            let params: ExecuteOrderParams =
+                BaseOrderHandler::InternalImpl::get_execute_order_params(
+                ref state_base,
+                key,
+                tmp_oracle_params,
+                get_caller_address(),
+                starting_gas,
+                SecondaryOrderType::None
+            );
+            validate_feature(
+                params.contracts.data_store,
+                execute_order_feature_disabled_key(get_contract_address(), params.order.order_type)
+            );
+            order_utils::execute_order(params);
         }
     }
 }

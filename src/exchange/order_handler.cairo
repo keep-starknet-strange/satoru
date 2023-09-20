@@ -411,7 +411,7 @@ mod OrderHandler {
 
             // Check only self.
             let role_module_state = RoleModule::unsafe_new_contract_state();
-            role_module_state.only_self();
+            //role_module_state.only_self();
 
             let mut base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let params = base_order_handler_state
