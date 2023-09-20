@@ -23,6 +23,8 @@ trait IStrictBank<TContractState> {
         role_store_address: ContractAddress,
     );
 
+    fn view_balance(self :@TContractState, address: ContractAddress) -> u128;
+
     /// Transfer tokens from this contract to a receiver.
     /// # Arguments
     /// * `token` - The token address to transfer.
@@ -50,15 +52,10 @@ trait IStrictBank<TContractState> {
     fn sync_token_balance(ref self: TContractState, token: starknet::ContractAddress) -> u128;
 }
 
-trait IERC20DispatcherTrait<TContractState> {
+#[starknet::interface]
+trait IERC20<TContractState> {
     fn balance_of(self: @TContractState, address: starknet::ContractAddress) -> u128; 
 }
-
-#[derive(Copy, Drop, starknet::Store, Serde)]
-struct IERC20Dispatcher {
-    contract_address: starknet::ContractAddress, 
-}
-
 
 #[starknet::contract]
 mod StrictBank {
@@ -76,6 +73,7 @@ mod StrictBank {
     use super::IStrictBank;
     use super::IERC20DispatcherTrait;
     use super::IERC20Dispatcher;
+    use satoru::role::role_module::{RoleModule, IRoleModule};
 
 
     // *************************************************************************
@@ -117,6 +115,10 @@ mod StrictBank {
             IBank::initialize(ref state, data_store_address, role_store_address);
         }
 
+        fn view_balance(self :@ContractState, address: ContractAddress) -> u128{
+            self.token_balances.read(address)
+        }
+
         fn transfer_out(
             ref self: ContractState,
             token: ContractAddress,
@@ -128,6 +130,10 @@ mod StrictBank {
         }
 
         fn sync_token_balance(ref self: ContractState, token: ContractAddress) -> u128 {
+            // assert that caller is a controller
+            let mut role_module: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
+            role_module.only_controller();
+
             let this_contract = get_contract_address();
             let next_balance: u128 = IERC20Dispatcher{contract_address: token}.balance_of(this_contract); 
             self.token_balances.write(token, next_balance);
@@ -135,9 +141,14 @@ mod StrictBank {
         }
 
         fn record_transfer_in(ref self: ContractState, token: ContractAddress) -> u128 {
-             self.record_transfer_in_internal(token)
+            // assert that caller is a controller
+            let mut role_module: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
+            role_module.only_controller();
+            
+            self.record_transfer_in_internal(token)
         }
     }
+
 
     /////
     //Internal
@@ -147,7 +158,7 @@ mod StrictBank {
         /// Transfer tokens from this contract to a receiver
         /// # Arguments
         /// * `token` - token the token to transfer
-        fn after_transfer_out_infernal(ref self: ContractState, token: ContractAddress) {
+        fn after_transfer_out_infernal(ref self: ContractState, token: starknet::ContractAddress) {
             let this_contract = get_contract_address();
             let balance: u128 = IERC20Dispatcher{contract_address: token}.balance_of(this_contract);
             self.token_balances.write(token, balance);
@@ -159,11 +170,14 @@ mod StrictBank {
         /// * `token` - The token to record the transfer for
         /// # Return
         /// The amount of tokens transferred in
-        fn record_transfer_in_internal(ref self: ContractState, token: ContractAddress) -> u128 {
+        fn record_transfer_in_internal(ref self: ContractState, token: starknet::ContractAddress) -> u128 {
             let prev_balance: u128 = self.token_balances.read(token);
             let this_contract = get_contract_address(); 
 
-            let next_balance: u128 = IERC20Dispatcher{contract_address: token}.balance_of(this_contract); 
+            let next_balance: u128 = IERC20Dispatcher{contract_address: token}.balance_of(this_contract).into(); 
+
+            assert(next_balance > prev_balance, 'zero transfer');
+
             self.token_balances.write(token, next_balance); 
 
             next_balance - prev_balance
