@@ -7,6 +7,11 @@ use starknet::{
 };
 use integer::BoundedInt;
 
+impl DefaultI128 of Default<i128> {
+    fn default() -> i128 {
+        0
+    }
+}
 
 impl I128Div of Div<i128> {
     fn div(lhs: i128, rhs: i128) -> i128 {

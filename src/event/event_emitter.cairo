@@ -19,6 +19,7 @@ use satoru::price::price::Price;
 use satoru::pricing::position_pricing_utils::PositionFees;
 use satoru::order::order::{Order, SecondaryOrderType};
 use satoru::utils::span32::{Span32, DefaultSpan32};
+use satoru::utils::i128::{StoreI128, I128Serde};
 
 //TODO: OrderCollatDeltaAmountAutoUpdtd must be renamed back to OrderCollateralDeltaAmountAutoUpdated when string will be allowed as event argument
 //TODO: AfterWithdrawalCancelError must be renamed back to AfterWithdrawalCancellationError when string will be allowed as event argument
@@ -1454,7 +1455,7 @@ mod EventEmitter {
         amount_in_after_fees: u128,
         amount_out: u128,
         price_impact_usd: i128,
-        price_impact_amount: i128
+        price_impact_amount: i128,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -2587,7 +2588,7 @@ mod EventEmitter {
                         amount_in_after_fees,
                         amount_out,
                         price_impact_usd,
-                        price_impact_amount
+                        price_impact_amount,
                     }
                 );
         }

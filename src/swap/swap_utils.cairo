@@ -7,6 +7,7 @@ use core::integer::I128Neg;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::utils::i128::{DefaultI128, StoreI128, I128Serde};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::market::{market::Market, market_utils};
@@ -373,8 +374,6 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
             *_params.amount_in,
             cache.amount_in,
             cache.amount_out,
-            // price_impact_usd: calc::to_unsigned(price_impact_usd), //TODO: should accept i128
-            // price_impact_amount: price_impact_amount, //TODO: should accept i128
             price_impact_usd,
             price_impact_amount,
         );
