@@ -647,6 +647,16 @@ fn is_pnl_factor_exceeded_direct(
     (true, 0, 0)
 }
 
+fn get_ui_fee_factor(data_store: IDataStoreDispatcher, account: ContractAddress) -> u128 {
+    let max_ui_fee_factor = data_store.get_u128(keys::max_ui_fee_factor());
+    let ui_fee_factor = data_store.get_u128(keys::ui_fee_factor_key(account));
+    if ui_fee_factor < max_ui_fee_factor {
+        ui_fee_factor
+    } else {
+        max_ui_fee_factor
+    }
+}
+
 /// Gets the enabled market. This function will revert if the market does not exist or is not enabled.
 /// # Arguments
 /// * `dataStore` - DataStore

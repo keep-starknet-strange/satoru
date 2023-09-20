@@ -16,6 +16,7 @@ use satoru::market::market_utils;
 use satoru::pricing::error::PricingError;
 use satoru::pricing::pricing_utils;
 use satoru::utils::calc;
+use satoru::utils::precision;
 use satoru::utils::i128::{StoreI128, I128Serde};
 
 /// Struct used in get_price_impact_usd.
@@ -231,7 +232,6 @@ fn get_next_pool_amount_params(
 ) -> PoolParams {
     let pool_usd_for_token_a = pool_amount_for_token_a * params.price_for_token_a;
     let pool_usd_for_token_b = pool_amount_for_token_b * params.price_for_token_b;
-    // TODO: uncomment when i128 implements Store
     if params.usd_delta_for_token_a < 0
         && calc::to_unsigned(-params.usd_delta_for_token_a) > pool_usd_for_token_a {
         panic(
@@ -283,14 +283,32 @@ fn get_swap_fees(
     for_positive_impact: bool,
     ui_fee_receiver: ContractAddress,
 ) -> SwapFees {
-    // TODO
-    let address_zero: ContractAddress = Zeroable::zero();
+    // note that since it is possible to incur both positive and negative price impact values
+    // and the negative price impact factor may be larger than the positive impact factor
+    // it is possible for the balance to be improved overall but for the price impact to still be negative
+    // in this case the fee factor for the negative price impact would be charged
+    // a user could split the order into two, to incur a smaller fee, reducing the fee through this should not be a large issue
+
+    let fee_factor = data_store
+        .get_u128(keys::swap_fee_factor_key(market_token, for_positive_impact));
+    let swap_fee_receiver_factor = data_store.get_u128(keys::swap_fee_receiver_factor());
+
+    let fee_amount = precision::apply_factor_u128(amount, fee_factor);
+
+    let fee_receiver_amount = precision::apply_factor_u128(fee_amount, swap_fee_receiver_factor);
+    let fee_amount_for_pool = fee_amount - fee_receiver_amount;
+
+    let ui_fee_receiver_factor = market_utils::get_ui_fee_factor(data_store, ui_fee_receiver);
+    let ui_fee_amount = precision::apply_factor_u128(amount, ui_fee_receiver_factor);
+
+    let amount_after_fees = amount - fee_amount - ui_fee_amount;
+
     SwapFees {
-        fee_receiver_amount: 0,
-        fee_amount_for_pool: 0,
-        amount_after_fees: 0,
-        ui_fee_receiver: address_zero,
-        ui_fee_receiver_factor: 0,
-        ui_fee_amount: 0,
+        fee_receiver_amount,
+        fee_amount_for_pool,
+        amount_after_fees,
+        ui_fee_receiver,
+        ui_fee_receiver_factor,
+        ui_fee_amount,
     }
 }
