@@ -22,14 +22,13 @@ use satoru::price::price::{Price, PriceTrait};
 use satoru::utils::span32::Span32;
 use satoru::utils::i128::{StoreI128, u128_to_i128, I128Serde, I128Div, I1288Mul};
 use satoru::position::position::Position;
-
 /// Struct to store the prices of tokens of a market.
 /// # Params
 /// * `indexTokenPrice` - Price of the market's index token.
 /// * `tokens` - Price of the market's long token.
 /// * `compacted_oracle_block_numbers` - Price of the market's short token.
 /// Struct to store the prices of tokens of a market
-#[derive(Default, Copy, Drop, starknet::Store, Serde)]
+#[derive(Default, Drop, Copy, starknet::Store, Serde)]
 struct MarketPrices {
     index_token_price: Price,
     long_token_price: Price,
@@ -54,6 +53,35 @@ struct GetNextFundingAmountPerSizeResult {
     funding_factor_per_second: u128,
     funding_fee_amount_per_size_delta: PositionType,
     claimable_funding_amount_per_size_delta: PositionType,
+}
+
+// @dev get the token price from the stored MarketPrices
+// @param token the token to get the price for
+// @param the market values
+// @param the market token prices
+// @return the token price from the stored MarketPrices
+fn get_cached_token_price(token: ContractAddress, market: Market, prices: MarketPrices) -> Price {
+    if (token == market.long_token) {
+        prices.long_token_price
+    } else if (token == market.short_token) {
+        prices.short_token_price
+    } else if (token == market.index_token) {
+        prices.index_token_price
+    } else {
+        MarketError::UNABLE_TO_GET_CACHED_TOKEN_PRICE(token);
+        prices.index_token_price //todo : remove 
+    }
+}
+
+fn get_swap_impact_amount_with_cap(
+    dataStore: IDataStoreDispatcher,
+    market: ContractAddress,
+    token: ContractAddress,
+    tokenPrice: Price,
+    priceImpactUsd: i128 //TODO : check u128
+) -> i128 { //Todo : check u128
+    //TODO
+    return 0;
 }
 
 /// Get the long and short open interest for a market based on the collateral token used.
@@ -513,8 +541,8 @@ fn apply_swap_impact_with_cap(
     market: ContractAddress,
     token: ContractAddress,
     token_price: Price,
-    price_impact_usd: u128 // TODO: This is supposed to be i128 when it will be supported.
-) -> u128 { // TODO: This is supposed to be i128 when it will be supported.
+    price_impact_usd: i128
+) -> i128 {
     // TODO: implement
     return 0;
 }
@@ -793,21 +821,6 @@ fn validate_enabled_market_address(
 /// * `market` - The market to validate.
 /// * `token` - The token to check
 fn validate_market_collateral_token(market: Market, token: ContractAddress) { // TODO
-}
-
-/// Get the token price from the stored MarketPrices
-/// # Arguments
-/// * `token` - The token to get the price for
-/// * `market` - The market values
-/// * `is_long` - Whether to get the long or short pending PNL.
-/// * `pnl` - The uncapped pnl of the market.
-/// * `pool_usd` - The USD value of the pool.
-/// * `pnl_factor_type` - The pnl factor type to use.
-/// # Returns
-/// The token price
-fn get_cached_token_price(token: ContractAddress, market: Market, prices: @MarketPrices,) -> Price {
-    // TODOs
-    Price { max: 0, min: 0 }
 }
 
 /// Get the max position impact factor for liquidations

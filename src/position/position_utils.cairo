@@ -25,7 +25,7 @@ use satoru::referral::referral_storage::interface::{
 use satoru::order::base_order_utils::ExecuteOrderParamsContracts;
 use satoru::price::price::{Price, PriceTrait};
 use satoru::utils::{
-    precision, i128::{StoreI128, u128_to_i128, i128_to_u128, I128Serde, I128Div, I1288Mul}
+    precision, i128::{StoreI128, u128_to_i128, i128_to_u128, I128Serde, I128Div, I128Mul}
 };
 use satoru::utils::calc::{roundup_division};
 use satoru::referral::referral_utils;
@@ -421,7 +421,7 @@ fn is_position_liquiditable(
 
     cache
         .collateral_token_price =
-            market_utils::get_cached_token_price(position.collateral_token, market, @prices);
+            market_utils::get_cached_token_price(position.collateral_token, market, prices);
 
     cache.collateral_usd = position.collateral_amount * cache.collateral_token_price.min;
     // calculate the usdDeltaForPriceImpact for fully closing the position
@@ -550,7 +550,7 @@ fn will_position_collateral_be_sufficient(
     values: WillPositionCollateralBeSufficientValues,
 ) -> (bool, i128) {
     let collateral_token_price = market_utils::get_cached_token_price(
-        collateral_token, market, @prices
+        collateral_token, market, prices
     );
     let mut remaining_collateral_usd = u128_to_i128(values.position_collateral_amount)
         * u128_to_i128(collateral_token_price.min);
