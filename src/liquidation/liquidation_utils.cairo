@@ -13,6 +13,7 @@ use satoru::order::order::{SecondaryOrderType, OrderType, Order, DecreasePositio
 use satoru::callback::callback_utils::get_saved_callback_contract;
 use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::nonce::nonce_utils::get_next_key;
+use integer::BoundedInt;
 
 /// Creates a liquidation order for a position.
 /// # Arguments
@@ -30,14 +31,13 @@ fn create_liquidation_order(
     collateral_token: ContractAddress,
     is_long: bool
 ) -> felt252 {
-    // TODlO
     let key = get_position_key(account, market, collateral_token, is_long);
     let position = data_store.get_position(key).expect('no position found');
     let callback_contract = get_saved_callback_contract(data_store, account, market);
     let acceptable_price = if position.is_long {
         0
     } else {
-        100000000000000000000000
+        BoundedInt::<u128>::max()
     };
     let callback_gas_limit = data_store.get_u128(keys::max_callback_gas_limit());
     let swap_path = Array32Trait::<ContractAddress>::span32(@ArrayTrait::new());
