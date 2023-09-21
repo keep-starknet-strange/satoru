@@ -14,6 +14,7 @@ use satoru::pricing::position_pricing_utils::{
 use satoru::order::order::OrderType;
 use satoru::price::price::Price;
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::utils::i128::{StoreI128, u128_to_i128, I128Serde, I128Div, I128Mul};
 
 #[test]
 fn given_normal_conditions_when_emit_position_increase_then_works() {
