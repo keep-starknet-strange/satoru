@@ -121,6 +121,8 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/StarkFishinator"><img src="https://avatars.githubusercontent.com/u/128840478?v=4?s=100" width="100px;" alt="StarkFishinator "/><br /><sub><b>StarkFishinator </b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=StarkFishinator" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/axelizsak"><img src="https://avatars.githubusercontent.com/u/98711930?v=4?s=100" width="100px;" alt="Axel Izsak"/><br /><sub><b>Axel Izsak</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=axelizsak" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/lucienfer"><img src="https://avatars.githubusercontent.com/u/98711930?v=4?s=100" width="100px;" alt="Luciefer"/><br /><sub><b>Luciefer</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=lucienfer" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
