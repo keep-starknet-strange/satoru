@@ -6,8 +6,6 @@ use integer::BoundedInt;
 use starknet::ContractAddress;
 
 // Local imports.
-use satoru::utils::i128::{I128Div, u128_to_i128, i128_to_u128};
-use satoru::utils::i128::{StoreI128, I128Serde};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
@@ -25,6 +23,7 @@ use satoru::referral::referral_storage::interface::{
 };
 use satoru::utils::span32::Span32;
 use satoru::utils::calc;
+use satoru::utils::i128::{I128Div, StoreI128, I128Serde};
 
 #[derive(Drop, starknet::Store, Serde)]
 struct ExecuteOrderParams {
