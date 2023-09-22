@@ -22,6 +22,9 @@ use satoru::price::price::{Price, PriceTrait};
 use satoru::utils::span32::Span32;
 use satoru::utils::i128::{StoreI128, u128_to_i128, I128Serde, I128Div, I128Mul};
 use satoru::position::position::Position;
+use satoru::utils::precision::{FLOAT_PRECISION, FLOAT_PRECISION_SQRT};
+use satoru::utils::precision::{mul_div_roundup};
+use satoru::utils::calc::{roundup_division};
 /// Struct to store the prices of tokens of a market.
 /// # Params
 /// * `indexTokenPrice` - Price of the market's index token.
@@ -823,11 +826,26 @@ fn market_token_amount_to_usd(
     0
 }
 
+//FROM HERE
+
 // store funding values as token amount per (Precision.FLOAT_PRECISION_SQRT / Precision.FLOAT_PRECISION) of USD size
 fn get_funding_amount_per_size_delta(
     funding_usd: u128, open_interest: u128, token_price: u128,roundup_magnitude: bool
 ) -> u128 { // TODO
-    0
+    if funding_usd == 0 || open_interest == 0 {
+        return 0;
+    }
+    let funding_usd_per_size: u128 = mul_div_roundup(
+        funding_usd,
+        FLOAT_PRECISION * FLOAT_PRECISION_SQRT,
+        open_interest,
+        roundup_magnitude
+    );
+    if roundup_magnitude {
+        roundup_division(funding_usd_per_size, token_price);
+    } else {
+        funding_usd_per_size / token_price;
+    }
 }
 
 
@@ -845,6 +863,10 @@ fn update_cumulative_borrowing_factor(
     prices: MarketPrices,
     is_long: bool
 ) { // TODO
+    let (_, delta) = get_next_cumulative_borrowing_factor(
+        data_store, prices, market, is_long
+    );
+    // TODO
 }
 
 // Get the ratio of pnl to pool value.
@@ -1062,4 +1084,25 @@ fn apply_delta_to_virtual_inventory_for_swaps(
     delta: i128
 ) -> (bool, u128){ // TODO
     (false, 0)
+}
+
+/// Get the next cumulative borrowing factor.
+///
+/// # Arguments
+/// * `dataStore`: DataStore - The data storage instance.
+/// * `prices`: Prices of the market tokens.
+/// * `market`: The market to check.
+/// * `longToken`: The long token of the market.
+/// * `shortToken`: The short token of the market.
+/// * `isLong`: Whether to check the long or short side.
+///
+/// # Returns
+/// Returns a tuple (cumulative_borrowing_factor, updated_timestamp).
+fn get_next_cumulative_borrowing_factor(
+    data_store: IDataStoreDispatcher,
+    prices: MarketPrices,
+    market: Market,
+    is_long: bool
+) -> (u128, u128) { // TODO
+    (0, 0)
 }
