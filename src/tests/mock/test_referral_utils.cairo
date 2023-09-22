@@ -52,7 +52,7 @@ fn deploy_role_store() -> ContractAddress {
 /// * `ContractAddress` - The address of the caller.
 /// * `IDataStoreDispatcher` - The data store dispatcher.
 /// * `IRoleStoreDispatcher` - The role store dispatcher.
-fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher,IReferralStorageDispatcher) {
+fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher,IEventEmitterDispatcher,IReferralStorageDispatcher, IGovernableDispatcher) {
     let caller_address: ContractAddress = 0x101.try_into().unwrap();
 
     let role_store_address = deploy_role_store();
@@ -71,49 +71,26 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher,IRefe
     let governable = IGovernableDispatcher { contract_address: governable_address };
 
     start_prank(role_store_address, caller_address);
+    start_prank(event_emitter_address, caller_address);
     start_prank(data_store_address, caller_address);
     start_prank(referral_storage_address, caller_address);
+    start_prank(governable_address, caller_address);
 
-    (caller_address, role_store, data_store, referral_storage)
+    (caller_address, role_store, data_store, event_emitter, referral_storage, governable)
 }
 
 #[test]
 fn given_normal_conditions_when_set_and_override_new_deposit_then_works() {
     // Setup
-    let (caller_address, role_store, data_store, referral_storage, governable) = setup();
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
+
+    referral_storage.set_handler(caller_address, true);
     let account: ContractAddress = contract_address_const::<111>();
-    let referral_code: felt252 = 'EOIWE';
+    let referral_code: felt252 = 'QWERTY';
     let x = referral_utils::set_trader_referral_code(referral_storage, account, referral_code);
     let answer = referral_storage.trader_referral_codes(account);
 
-    assert(answer == referral_code, 'NOOB');
+    assert(answer == referral_code, 'this is not the correct code');
 
     teardown(data_store.contract_address);
-}
-
-#[test]
-fn testing(){
-    let (caller_address, role_store, data_store, referral_storage, governable) = setup();
-
-    let market: ContractAddress = contract_address_const::<'market'>();
-    let token: ContractAddress = contract_address_const::<'token'>();
-    let affiliate: ContractAddress = contract_address_const::<'affiliate'>();
-    let delta: u128 = 231;
-    referral_utils(data_store, event_emitter, market, token, affiliate,delta);
-
-
-    teardown(data_store.contract_address);
-}
-
-
-#[test]
-fn testing_referral_info(){
-    let (caller_address, role_store, data_store, referral_storage, governable) = setup();
-    let trader: ContractAddress = contract_address_const::<'trader'>();
-
-    //set referral code 
-    set_trader_referral_code()
-
-    referral_utils.get_referral_info(referral_storage, trader);
-
 }
