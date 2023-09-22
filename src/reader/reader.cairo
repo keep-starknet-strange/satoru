@@ -14,38 +14,38 @@ use result::ResultTrait;
 // Local imports.
 
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::referral::referral_storage::interface::{
+    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
+};
 use satoru::market::{
-    market_utils::GetNextFundingAmountPerSizeResult, market::Market, market_utils::MarketPrices,
-    market_utils::PositionType, market_utils::CollateralType,
-    market_pool_value_info::MarketPoolValueInfo,
+    market_utils, market_utils::GetNextFundingAmountPerSizeResult, market::Market,
+    market_utils::MarketPrices, market_pool_value_info::MarketPoolValueInfo,
 };
 use satoru::price::price::Price;
-use satoru::order::order::{Order, DecreasePositionSwapType};
-use satoru::pricing::position_pricing_utils::PositionBorrowingFees;
-use satoru::pricing::position_pricing_utils::PositionReferralFees;
-use satoru::pricing::position_pricing_utils::PositionFundingFees;
-use satoru::pricing::position_pricing_utils::PositionUiFees;
-use satoru::pricing::position_pricing_utils::PositionFees;
+use satoru::order::order::{Order};
+use satoru::pricing::position_pricing_utils::{
+    PositionBorrowingFees, PositionReferralFees, PositionFundingFees, PositionUiFees, PositionFees
+};
 
 use satoru::reader::{
-    reader_utils::PositionInfo, reader_utils::BaseFundingValues,
+    reader_utils, reader_utils::PositionInfo, reader_utils::BaseFundingValues, reader_pricing_utils,
     reader_pricing_utils::ExecutionPriceResult,
 };
 
 use satoru::withdrawal::withdrawal::Withdrawal;
-use satoru::position::position::Position;
-use satoru::order::order::OrderType;
+use satoru::position::{position_utils, position::Position};
 use satoru::pricing::swap_pricing_utils::SwapFees;
 use satoru::deposit::deposit::Deposit;
-use satoru::referral::referral_storage::interface::{
-    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
-};
+
+use satoru::utils::{i128::{StoreI128, u128_to_i128, i128_to_u128, I128Serde, I128Div, I128Mul}};
+use satoru::data::keys;
+use satoru::adl::adl_utils;
 
 #[derive(Drop, starknet::Store, Serde)]
 struct VirtualInventory {
     virtual_pool_amount_for_long_token: u128,
     virtual_pool_amount_for_short_token: u128,
-    virtual_inventory_for_positions: u128, // TODO replace with i128 when it derives Store
+    virtual_inventory_for_positions: i128,
 }
 
 #[derive(Drop, starknet::Store, Serde)]
@@ -53,7 +53,6 @@ struct MarketInfo {
     market: Market,
     borrowing_factor_per_second_for_longs: u128,
     borrowing_factor_per_second_for_shorts: u128,
-    virtual_inventory_for_positions: u128, // TODO replace with i128 when it derives Store
     base_funding: BaseFundingValues,
     next_funding: GetNextFundingAmountPerSizeResult,
     virtual_inventory: VirtualInventory,
@@ -67,13 +66,7 @@ struct MarketInfo {
 /// # Returns
 /// Returns a struct representing market-related information.
 fn get_market(data_store: IDataStoreDispatcher, key: ContractAddress) -> Market {
-    // TODO
-    Market {
-        market_token: 0.try_into().unwrap(),
-        index_token: 0.try_into().unwrap(),
-        long_token: 0.try_into().unwrap(),
-        short_token: 0.try_into().unwrap(),
-    }
+    data_store.get_market(key).unwrap()
 }
 
 /// Retrieve market-related data using a provided salt value as an additional parameter.
@@ -83,13 +76,7 @@ fn get_market(data_store: IDataStoreDispatcher, key: ContractAddress) -> Market 
 /// # Returns
 /// Returns a struct representing market-related information.
 fn get_market_by_salt(data_store: IDataStoreDispatcher, salt: felt252) -> Market {
-    // TODO
-    Market {
-        market_token: 0.try_into().unwrap(),
-        index_token: 0.try_into().unwrap(),
-        long_token: 0.try_into().unwrap(),
-        short_token: 0.try_into().unwrap(),
-    }
+    data_store.get_by_salt_market(salt).unwrap()
 }
 
 /// Retrieve deposit-related data using a provided key value.
@@ -99,8 +86,7 @@ fn get_market_by_salt(data_store: IDataStoreDispatcher, salt: felt252) -> Market
 /// # Returns
 /// Returns a struct representing deposit-related information.
 fn get_deposit(data_store: IDataStoreDispatcher, key: felt252) -> Deposit {
-    // TODO
-    Default::default()
+    data_store.get_deposit(key).unwrap()
 }
 
 /// Retrieve withdrawal-related data using a provided key value.
@@ -109,9 +95,8 @@ fn get_deposit(data_store: IDataStoreDispatcher, key: felt252) -> Deposit {
 /// * `key` - The key of the withdrawal.
 /// # Returns
 /// Returns a struct representing withdrawal-related information.
-fn get_withdrawl(data_store: IDataStoreDispatcher, key: felt252) -> Withdrawal {
-    // TODO
-    Default::default()
+fn get_withdrawal(data_store: IDataStoreDispatcher, key: felt252) -> Withdrawal {
+    data_store.get_withdrawal(key).unwrap()
 }
 
 /// Retrieve position-related data using a provided key value.
@@ -121,23 +106,7 @@ fn get_withdrawl(data_store: IDataStoreDispatcher, key: felt252) -> Withdrawal {
 /// # Returns
 /// Returns a struct representing position-related information.
 fn get_position(data_store: IDataStoreDispatcher, key: felt252) -> Position {
-    // TODO
-    Position {
-        key: 0,
-        account: 0.try_into().unwrap(),
-        market: 0.try_into().unwrap(),
-        collateral_token: 0.try_into().unwrap(),
-        size_in_usd: 0,
-        size_in_tokens: 0,
-        collateral_amount: 0,
-        borrowing_factor: 0,
-        funding_fee_amount_per_size: 0,
-        long_token_claimable_funding_amount_per_size: 0,
-        short_token_claimable_funding_amount_per_size: 0,
-        increased_at_block: 0,
-        decreased_at_block: 0,
-        is_long: true,
-    }
+    data_store.get_position(key).unwrap()
 }
 
 /// Retrieve order-related data using a provided key value.
@@ -147,8 +116,7 @@ fn get_position(data_store: IDataStoreDispatcher, key: felt252) -> Position {
 /// # Returns
 /// Returns a struct representing order-related information.
 fn get_order(data_store: IDataStoreDispatcher, key: felt252) -> Order {
-    // TODO
-    Default::default()
+    data_store.get_order(key).unwrap()
 }
 
 /// Intended to calculate and return various metrics related to the profit and loss (PNL) of a position within a market.
@@ -167,8 +135,8 @@ fn get_position_pnl_usd(
     position_key: felt252,
     size_delta_usd: u128
 ) -> (i128, i128, u128) {
-    // TODO
-    (0, 0, 0)
+    let position = data_store.get_position(position_key).unwrap();
+    position_utils::get_position_pnl_usd(data_store, market, prices, position, size_delta_usd)
 }
 
 /// Retrieve an array of position data associated with a specific account within a specified range.
@@ -180,10 +148,21 @@ fn get_position_pnl_usd(
 /// # Returns
 /// Returns an array of Position.
 fn get_account_positions(
-    data_store: IDataStoreDispatcher, account: ContractAddress, start: u128, end: u128
+    data_store: IDataStoreDispatcher, account: ContractAddress, start: u32, end: u32
 ) -> Array<Position> {
-    // TODO
-    ArrayTrait::new()
+    let position_keys = data_store.get_account_position_keys(account, start, end);
+    let length = position_keys.len();
+    let mut positions = ArrayTrait::<Position>::new();
+    let mut i = 0;
+    loop {
+        if i == length {
+            break;
+        }
+        let position = data_store.get_position(*position_keys.at(i)).unwrap();
+        positions.append(position);
+        i += 1;
+    };
+    positions
 }
 
 /// Retrieve an array of position data associated with a specific account within a specified range.
@@ -202,8 +181,21 @@ fn get_account_position_info_list(
     prices: Array<MarketPrices>,
     ui_fee_receiver: ContractAddress
 ) -> Array<PositionInfo> {
-    // TODO
-    ArrayTrait::new()
+    let mut position_info_list = ArrayTrait::<PositionInfo>::new();
+    let length = position_keys.len();
+    let mut i = 0;
+    loop {
+        if i == length {
+            break;
+        }
+        let position_key = *position_keys.at(i);
+        let info = get_position_info(
+            data_store, referral_storage, position_key, *prices.at(i), 0, ui_fee_receiver, true
+        );
+        position_info_list.append(info);
+        i += 1;
+    };
+    position_info_list
 }
 
 /// Retrieve an array of position data associated with a specific account within a specified range.
@@ -226,99 +218,41 @@ fn get_position_info(
     ui_fee_receiver: ContractAddress,
     use_position_size_as_size_delta_usd: bool
 ) -> PositionInfo {
-    // TODO
-    let address_zero: ContractAddress = 0.try_into().unwrap();
-    let position_referral_fees = PositionReferralFees {
-        referral_code: 0,
-        affiliate: address_zero,
-        trader: address_zero,
-        total_rebate_factor: 0,
-        trader_discount_factor: 0,
-        total_rebate_amount: 0,
-        trader_discount_amount: 0,
-        affiliate_reward_amount: 0,
-    };
-
-    let position = Position {
-        key: 0,
-        account: 0.try_into().unwrap(),
-        market: 0.try_into().unwrap(),
-        collateral_token: 0.try_into().unwrap(),
-        size_in_usd: 0,
-        size_in_tokens: 0,
-        collateral_amount: 0,
-        borrowing_factor: 0,
-        funding_fee_amount_per_size: 0,
-        long_token_claimable_funding_amount_per_size: 0,
-        short_token_claimable_funding_amount_per_size: 0,
-        increased_at_block: 0,
-        decreased_at_block: 0,
-        is_long: true,
-    };
-
-    let position_funding_fees = PositionFundingFees {
-        funding_fee_amount: 0,
-        claimable_long_token_amount: 0,
-        claimable_short_token_amount: 0,
-        latest_funding_fee_amount_per_size: 0,
-        latest_long_token_claimable_funding_amount_per_size: 0,
-        latest_short_token_claimable_funding_amount_per_size: 0,
-    };
-    let position_borrowing_fees = PositionBorrowingFees {
-        borrowing_fee_usd: 0,
-        borrowing_fee_amount: 0,
-        borrowing_fee_receiver_factor: 0,
-        borrowing_fee_amount_for_fee_receiver: 0,
-    };
-    let position_ui_fees = PositionUiFees {
-        ui_fee_receiver: address_zero, ui_fee_receiver_factor: 0, ui_fee_amount: 0,
-    };
-
-    let execution_price_result = ExecutionPriceResult {
-        price_impact_usd: 0, price_impact_diff_usd: 0, execution_price: 0,
-    };
-
-    let price = Price { min: 0, max: 0, };
-
-    let position_fees = PositionFees {
-        referral: position_referral_fees,
-        funding: position_funding_fees,
-        borrowing: position_borrowing_fees,
-        ui: position_ui_fees,
-        collateral_token_price: price,
-        position_fee_factor: 0,
-        protocol_fee_amount: 0,
-        position_fee_receiver_factor: 0,
-        fee_receiver_amount: 0,
-        fee_amount_for_pool: 0,
-        position_fee_amount_for_pool: 0,
-        position_fee_amount: 0,
-        total_cost_amount_excluding_funding: 0,
-        total_cost_amount: 0,
-    };
-
-    PositionInfo {
-        position: position,
-        fees: position_fees,
-        execution_price_result: execution_price_result,
-        base_pnl_usd: 0,
-        uncapped_base_pnl_usd: 0,
-        pnl_after_price_impact_usd: 0,
-    }
+    reader_utils::get_position_info(
+        data_store,
+        referral_storage,
+        position_key,
+        prices,
+        size_delta_usd,
+        ui_fee_receiver,
+        use_position_size_as_size_delta_usd
+    )
 }
 
 /// Retrieve an array of Order associated with a specific account within a specified range of order keys.
 /// # Arguments
 /// * `data_store` - The `DataStore` contract dispatcher.
-/// * `account` - The position's account.
+/// * `account` - The orders's account.
 /// * `start` - Representing the starting point in the order key range.
 /// * `end` - Representing the ending point in the order key range.
 /// # Returns
 /// Returns an array of Order structs representing the properties of orders associated with the specified account within the specified range.
 fn get_account_orders(
-    data_store: IDataStoreDispatcher, account: ContractAddress, start: u128, end: u128
+    data_store: IDataStoreDispatcher, account: ContractAddress, start: u32, end: u32
 ) -> Array<Order> {
-    ArrayTrait::new()
+    let order_keys = data_store.get_account_order_keys(account, start, end);
+    let length = order_keys.len();
+    let mut orders = ArrayTrait::<Order>::new();
+    let mut i = 0;
+    loop {
+        if i == length {
+            break;
+        }
+        let order = data_store.get_order(*order_keys.at(i)).unwrap();
+        orders.append(order);
+        i += 1;
+    };
+    orders
 }
 
 /// Retrieve an array of Market within a specified range of market keys.
@@ -328,9 +262,20 @@ fn get_account_orders(
 /// * `end` - Representing the ending point in the market key range.
 /// # Returns
 /// Returns an array of Market structs representing the properties of markets within the specified range.
-fn get_markets(data_store: IDataStoreDispatcher, start: u128, end: u128) -> Array<Market> {
-    // TODO
-    ArrayTrait::new()
+fn get_markets(data_store: IDataStoreDispatcher, start: u32, end: u32) -> Array<Market> {
+    let market_keys = data_store.get_market_keys(start, end);
+    let length = market_keys.len();
+    let mut markets = ArrayTrait::<Market>::new();
+    let mut i = 0;
+    loop {
+        if i == length {
+            break;
+        }
+        let market = data_store.get_market(*market_keys.at(i)).unwrap();
+        markets.append(market);
+        i += 1;
+    };
+    markets
 }
 
 /// Retrieve an array of MarketInfo structures, which contain comprehensive information about multiple markets within a specified range of market keys.
@@ -342,10 +287,25 @@ fn get_markets(data_store: IDataStoreDispatcher, start: u128, end: u128) -> Arra
 /// # Returns
 /// Returns an array of MarketInfo structures representing comprehensive information about multiple markets within the specified range.
 fn get_market_info_list(
-    data_store: IDataStoreDispatcher, market_price_list: Array<MarketPrices>, start: u128, end: u128
+    data_store: IDataStoreDispatcher,
+    market_price_list: Array<MarketPrices>,
+    start: usize,
+    end: usize
 ) -> Array<MarketInfo> {
-    // TODO
-    ArrayTrait::new()
+    let market_keys = data_store.get_market_keys(start, end);
+    let mut market_info_list = ArrayTrait::<MarketInfo>::new();
+    let length = market_keys.len();
+    let mut i = 0;
+    loop {
+        if i == length {
+            break;
+        }
+        let position_key = *market_keys.at(i);
+        let info = get_market_info(data_store, *market_price_list.at(i), position_key);
+        market_info_list.append(info);
+        i += 1;
+    };
+    market_info_list
 }
 
 /// Retrieves comprehensive information about a specific market identified by market_key.
@@ -358,68 +318,30 @@ fn get_market_info_list(
 fn get_market_info(
     data_store: IDataStoreDispatcher, prices: MarketPrices, market_key: ContractAddress
 ) -> MarketInfo {
-    // TODO
-    let funding_fee_amount_per_size_collateral_type_long = CollateralType {
-        long_token: 0, short_token: 0,
-    };
-    let funding_fee_amount_per_size_collateral_type_short = CollateralType {
-        long_token: 0, short_token: 0,
-    };
-    let claimable_funding_amount_per_size_type_long = CollateralType {
-        long_token: 0, short_token: 0,
-    };
-    let claimable_funding_amount_per_size_type_short = CollateralType {
-        long_token: 0, short_token: 0,
-    };
+    let market = data_store.get_market(market_key).unwrap();
+    let borrowing_factor_per_second_for_longs = market_utils::get_borrowing_factor_per_second(
+        data_store, market, prices, true
+    );
+    let borrowing_factor_per_second_for_shorts = market_utils::get_borrowing_factor_per_second(
+        data_store, market, prices, false
+    );
 
-    let funding_fee_amount_per_size = PositionType {
-        long: funding_fee_amount_per_size_collateral_type_long,
-        short: funding_fee_amount_per_size_collateral_type_short,
-    };
-    let claimable_funding_amount_per_size = PositionType {
-        long: claimable_funding_amount_per_size_type_long,
-        short: claimable_funding_amount_per_size_type_short,
-    };
-    let base_funding_values = BaseFundingValues {
-        funding_fee_amount_per_size: PositionType {
-            long: CollateralType { long_token: 0, short_token: 0, },
-            short: CollateralType { long_token: 0, short_token: 0, },
-        },
-        claimable_funding_amount_per_size: PositionType {
-            long: CollateralType { long_token: 0, short_token: 0, },
-            short: CollateralType { long_token: 0, short_token: 0, },
-        },
-    };
+    let base_funding = reader_utils::get_base_funding_values(data_store, market);
+    let next_funding = reader_utils::get_next_funding_amount_per_size(data_store, market, prices);
 
-    let get_next_funding_amount_per_size_result = GetNextFundingAmountPerSizeResult {
-        longs_pay_shorts: true,
-        funding_factor_per_second: 0,
-        funding_fee_amount_per_size_delta: funding_fee_amount_per_size,
-        claimable_funding_amount_per_size_delta: claimable_funding_amount_per_size,
-    };
+    let virtual_inventory = get_virtual_inventory(data_store, market);
 
-    let market = Market {
-        market_token: 0.try_into().unwrap(),
-        index_token: 0.try_into().unwrap(),
-        long_token: 0.try_into().unwrap(),
-        short_token: 0.try_into().unwrap(),
-    };
-
-    let virtual_inventory = VirtualInventory {
-        virtual_pool_amount_for_long_token: 0,
-        virtual_pool_amount_for_short_token: 0,
-        virtual_inventory_for_positions: 0,
-    };
-
+    let is_disabled = data_store
+        .get_bool(keys::is_market_disabled_key(market.market_token))
+        .unwrap();
     MarketInfo {
-        market: market,
-        borrowing_factor_per_second_for_longs: 0,
-        borrowing_factor_per_second_for_shorts: 0,
-        virtual_inventory_for_positions: 0,
-        base_funding: base_funding_values,
-        next_funding: get_next_funding_amount_per_size_result,
-        virtual_inventory: virtual_inventory,
-        is_disabled: true,
+        market,
+        borrowing_factor_per_second_for_longs,
+        borrowing_factor_per_second_for_shorts,
+        base_funding,
+        next_funding,
+        virtual_inventory,
+        is_disabled
     }
 }
 
@@ -443,21 +365,15 @@ fn get_market_token_price(
     pnl_factor_type: felt252,
     maximize: bool
 ) -> (i128, MarketPoolValueInfo) {
-    // TODO
-    let market_pool_value_info = MarketPoolValueInfo {
-        pool_value: 0,
-        long_pnl: 0,
-        short_pnl: 0,
-        net_pnl: 0,
-        long_token_amount: 0,
-        short_token_amount: 0,
-        long_token_usd: 0,
-        short_token_usd: 0,
-        total_borrowing_fees: 0,
-        borrowing_fee_pool_factor: 0,
-        impact_pool_amount: 0,
-    };
-    (0, market_pool_value_info)
+    market_utils::get_market_token_price(
+        data_store,
+        market,
+        index_token_price,
+        long_token_price,
+        short_token_price,
+        pnl_factor_type,
+        maximize
+    )
 }
 
 /// Calculate and return the net profit and loss (PnL) for a specific market based on various input parameters.
@@ -470,9 +386,8 @@ fn get_market_token_price(
 /// Returns an integer representing the calculated net profit and loss (PnL) for the specified market.
 fn get_net_pnl(
     data_store: IDataStoreDispatcher, market: Market, index_token_price: Price, maximize: bool
-) -> u128 {
-    // TODO
-    0
+) -> i128 {
+    market_utils::get_net_pnl(data_store, @market, @index_token_price, maximize)
 }
 
 /// Calculate and return the profit and loss (PnL) for a specific market position, either long or short, based on various input parameters.
@@ -489,9 +404,8 @@ fn get_pnl(
     index_token_price: Price,
     is_long: bool,
     maximize: bool
-) -> u128 {
-    // TODO
-    0
+) -> i128 {
+    market_utils::get_pnl(data_store, @market, @index_token_price, is_long, maximize)
 }
 
 /// Calculate and return the open interest with profit and loss (PnL) for a specific market position.
@@ -509,8 +423,9 @@ fn get_open_interest_with_pnl(
     is_long: bool,
     maximize: bool
 ) -> i128 {
-    // TODO
-    0
+    market_utils::get_open_interest_with_pnl(
+        data_store, market, index_token_price, is_long, maximize
+    )
 }
 
 /// Calculate and return the profit and loss (PnL) to pool factor for a specific market position.
@@ -528,8 +443,8 @@ fn get_pnl_to_pool_factor(
     is_long: bool,
     maximize: bool
 ) -> i128 {
-    // TODO
-    0
+    let market = data_store.get_market(market_address).unwrap();
+    market_utils::get_pnl_to_pool_factor_from_prices(data_store, market, prices, is_long, maximize)
 }
 
 /// Calculate and return various values related to a swap operation, including the amount of the output token, fees associated with the swap, and other information.
@@ -551,19 +466,9 @@ fn get_swap_amount_out(
     token_in: ContractAddress,
     amount_in: u128,
     ui_fee_receiver: ContractAddress
-) -> (u128, u128, SwapFees) {
-    // TODO
-    (
-        0,
-        0,
-        SwapFees {
-            fee_receiver_amount: 0,
-            fee_amount_for_pool: 0,
-            amount_after_fees: 0,
-            ui_fee_receiver: 0.try_into().unwrap(),
-            ui_fee_receiver_factor: 0,
-            ui_fee_amount: 0,
-        }
+) -> (u128, i128, SwapFees) {
+    reader_pricing_utils::get_swap_amount_out(
+        data_store, market, prices, token_in, amount_in, ui_fee_receiver
     )
 }
 
@@ -574,11 +479,17 @@ fn get_swap_amount_out(
 /// # Returns
 /// Returns VirtualInventory struct containing information about the virtual inventory for the specified market.
 fn get_virtual_inventory(data_store: IDataStoreDispatcher, market: Market) -> VirtualInventory {
-    // TODO
+    let (_, virtual_pool_amount_for_long_token, virtual_pool_amount_for_short_token) =
+        market_utils::get_virtual_inventory_for_swaps(
+        data_store, market.market_token
+    );
+    let (_, virtual_inventory_for_positions) = market_utils::get_virtual_inventory_for_positions(
+        data_store, market.index_token
+    );
     VirtualInventory {
-        virtual_pool_amount_for_long_token: 0,
-        virtual_pool_amount_for_short_token: 0,
-        virtual_inventory_for_positions: 0,
+        virtual_pool_amount_for_long_token,
+        virtual_pool_amount_for_short_token,
+        virtual_inventory_for_positions
     }
 }
 
@@ -599,10 +510,19 @@ fn get_execution_price(
     index_token_price: Price,
     position_size_in_usd: u128,
     position_size_in_token: u128,
-    size_delta_usd: u128, // TODO replace with i128 when it derives Store
+    size_delta_usd: i128,
     is_long: bool
 ) -> ExecutionPriceResult {
-    ExecutionPriceResult { price_impact_usd: 0, price_impact_diff_usd: 0, execution_price: 0, }
+    let market = data_store.get_market(market_key).unwrap();
+    reader_pricing_utils::get_execution_price(
+        data_store,
+        market,
+        index_token_price,
+        position_size_in_usd,
+        position_size_in_token,
+        size_delta_usd,
+        is_long
+    )
 }
 
 /// Calculate and return the price impact of a swap operation between two tokens within a specific market.
@@ -625,8 +545,10 @@ fn get_swap_price_impact(
     token_in_price: Price,
     token_out_price: Price
 ) -> (i128, i128) {
-    // TODO
-    (0, 0)
+    let market = data_store.get_market(market_key).unwrap();
+    reader_pricing_utils::get_swap_price_impact(
+        data_store, market, token_in, token_out, amount_in, token_in_price, token_out_price
+    )
 }
 
 /// Retrieve and return the state of the Account Deleveraging (ADL) system for a specific market and position (either long or short).
@@ -640,7 +562,12 @@ fn get_swap_price_impact(
 /// signed integer representing the PnL to pool factor, which is a metric used to assess the position's impact on the and an unsigned integer representing the maximum PnL factor.
 fn get_adl_state(
     data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool, prices: MarketPrices
-) -> (u128, bool, i128, u128) {
-    // TODO
-    (0, true, 0, 0)
+) -> (u64, bool, i128, u128) {
+    let latest_adl_block = adl_utils::get_latest_adl_block(data_store, market, is_long);
+    let _market = market_utils::get_enabled_market(data_store, market);
+    let (should_enabled_ald, pnl_to_pool_factor, max_pnl_factor) =
+        market_utils::is_pnl_factor_exceeded_direct(
+        data_store, _market, prices, is_long, keys::max_pnl_factor_for_adl()
+    );
+    (latest_adl_block, should_enabled_ald, pnl_to_pool_factor, max_pnl_factor)
 }
