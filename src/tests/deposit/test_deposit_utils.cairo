@@ -50,7 +50,6 @@ fn should_panic_if_unsufficient_wnt_amount_for_deposit() {
 //     );
 // }
 
-
 #[test]
 fn should_cancel_deposit() {
     let (caller_address, data_store, event_emitter, deposit_vault, chain) = setup();
