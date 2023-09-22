@@ -80,8 +80,20 @@ fn testing() {
 
     referral_storage.gov_set_code_owner(code, new_account);
     let res:ContractAddress = referral_storage.code_owners(code);
+    assert(res == new_account, 'noob');
 
+    teardown(data_store.contract_address);
+}
 
+#[test]
+fn testing2() {
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
+
+    let code:felt252 = 'EBDW';
+    let new_account: ContractAddress = contract_address_const::<'new_account'>();
+
+    referral_storage.gov_set_code_owner(code, new_account);
+    let res:ContractAddress = referral_storage.code_owners(code);
     assert(res == new_account, 'noob');
 
     teardown(data_store.contract_address);

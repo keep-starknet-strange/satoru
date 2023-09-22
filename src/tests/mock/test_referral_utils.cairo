@@ -6,13 +6,15 @@ use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorag
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::mock::governable::{IGovernableDispatcher, IGovernableDispatcherTrait};
 
+use snforge_std::{
+    declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event,
+    EventAssertions, start_prank
+};
 use satoru::role::role;
 use satoru::deposit::deposit::Deposit;
 use satoru::tests_lib::teardown;
 use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::referral::referral_utils;
-
-use snforge_std::{declare, start_prank, ContractClassTrait};
 
 /// Utility function to deploy a `DataStore` contract and return its dispatcher.
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
@@ -91,6 +93,130 @@ fn given_normal_conditions_when_set_and_override_new_deposit_then_works() {
     let answer = referral_storage.trader_referral_codes(account);
 
     assert(answer == referral_code, 'this is not the correct code');
+
+    teardown(data_store.contract_address);
+}
+
+#[test]
+#[should_panic(expected: ('forbidden',))]
+fn given_normal_conditions_when_set_and_override_new_deposit_then_works_without_haandler() {
+    // Setup
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
+
+    let account: ContractAddress = contract_address_const::<111>();
+    let referral_code: felt252 = 'QWERTY';
+    let x = referral_utils::set_trader_referral_code(referral_storage, account, referral_code);
+    let answer = referral_storage.trader_referral_codes(account);
+    assert(answer == referral_code, 'this is not the correct code');
+    teardown(data_store.contract_address);
+}
+
+
+#[test]
+fn xxxx() {
+    // Setup
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
+    role_store.grant_role(caller_address, role::CONTROLLER);
+
+    let market: ContractAddress = contract_address_const::<'market'>();
+    let token: ContractAddress = contract_address_const::<'token'>();
+    let affiliate: ContractAddress = contract_address_const::<'affiliate'>();
+
+    let delta: u128 = 3;
+    let next_value: u128 = 3;
+    let next_pool_value: u128 = 3;
+
+   let expected_data: Array<felt252> = array![
+        market.into(), token.into(), affiliate.into(), delta.into(), next_value.into(), next_pool_value.into()
+    ];
+
+    referral_utils::increment_affiliate_reward(data_store, event_emitter, market, token, affiliate, delta);
+    
+    let mut spy = spy_events(SpyOn::One(caller_address));
+    spy
+        .assert_emitted(
+            @array![
+                Event {
+                    from: caller_address,
+                    name: 'EmitAffiliateRewardUpdated',
+                    keys: array![],
+                    data: expected_data
+                }
+            ]
+        );
+
+    assert(spy.events.len() == 0, 'There should be no events');
+
+    teardown(data_store.contract_address);
+}
+//add test for increment_affiliate_reward
+
+#[test]
+fn test4() {
+    // Setup
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
+
+    referral_storage.set_handler(caller_address, true);
+
+    //add referral code
+    let code: felt252 = 'WISOQKW';
+    referral_storage.set_trader_referral_code(caller_address, code);
+    //set code owner gov
+    referral_storage.gov_set_code_owner(code, caller_address);
+    //set referrer tier
+    referral_storage.set_referrer_tier(caller_address, 2);
+    //set tier
+    referral_storage.set_tier(2,20,30);
+    //set referrer discount share
+    referral_storage.set_referrer_discount_share(30);
+
+    let (code,affiliate,total_rebate,discount_share) = referral_utils::get_referral_info(referral_storage, caller_address);
+
+    assert(code == code, 'the code is wrong');
+    assert(affiliate == caller_address, 'the affiliate is wrong');
+    assert(total_rebate == 2000000000000000000000000000, 'the total_rebate is wrong');
+    assert(discount_share == 3000000000000000000000000000, 'the discount_share is wrong');
+
+    teardown(data_store.contract_address);
+}
+
+#[test]
+fn test5() {
+    // Setup
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
+
+    let market: ContractAddress = contract_address_const::<'market'>();
+    let token: ContractAddress = contract_address_const::<'token'>();
+    let account: ContractAddress = contract_address_const::<'account'>();
+    let receiver: ContractAddress = contract_address_const::<'receiver'>();
+
+    role_store.grant_role(caller_address, role::CONTROLLER);
+
+    let reward_amount: u128 = referral_utils::claim_affiliate_reward(data_store, event_emitter, market, token, account, receiver);
+
+    assert(reward_amount == 0, 'the reward amount is wrong');
+
+    teardown(data_store.contract_address);
+}
+
+#[test]
+fn test6() {
+    // Setup
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
+
+    let market: ContractAddress = contract_address_const::<'market'>();
+    let token: ContractAddress = contract_address_const::<'token'>();
+    let affiliate: ContractAddress = contract_address_const::<'affiliate'>();
+    let account: ContractAddress = contract_address_const::<'account'>();
+    let receiver: ContractAddress = contract_address_const::<'receiver'>();
+    let delta: u128 = 10;
+
+    role_store.grant_role(caller_address, role::CONTROLLER);
+    referral_utils::increment_affiliate_reward(data_store, event_emitter, market, token, affiliate, delta);
+    
+    let reward_amount: u128 = referral_utils::claim_affiliate_reward(data_store, event_emitter, market, token, account, receiver);
+
+    // assert(reward_amount == 10, 'the reward amount is wrong');
 
     teardown(data_store.contract_address);
 }
