@@ -6,15 +6,26 @@
 // *************************************************************************
 // Core lib imports.
 use starknet::ContractAddress;
+use starknet::info::get_block_number;
 use result::ResultTrait;
 
-use debug::PrintTrait;
 // Local imports.
-use satoru::utils::store_arrays::StoreContractAddressArray;
+use satoru::utils::{
+    starknet_utils, store_arrays::StoreContractAddressArray, account_utils::validate_account,
+    account_utils::validate_receiver, span32::Span32
+};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
-use satoru::utils::span32::Span32;
+use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
+use satoru::deposit::{deposit::Deposit, error::DepositError};
+use satoru::market::market_utils;
+use satoru::gas::{error::GasError, gas_utils};
+use satoru::callback::callback_utils::{validate_callback_gas_limit, after_deposit_cancellation};
+use satoru::nonce::nonce_utils;
+use satoru::token::token_utils;
+use starknet::contract_address::ContractAddressZeroable;
+use satoru::event::event_utils::EventLogData;
 
 /// Helps with deposit creation.
 #[derive(Drop, starknet::Store, Serde)]
@@ -41,7 +52,7 @@ struct CreateDepositParams {
     /// to the user in case the deposit gets cancelled.
     should_unwrap_native_token: bool,
     /// The execution fee for keepers.
-    execution_fee: u256,
+    execution_fee: u128,
     /// The gas limit for the callback_contract.
     callback_gas_limit: u128,
 }
@@ -59,10 +70,72 @@ fn create_deposit(
     event_emitter: IEventEmitterDispatcher,
     deposit_vault: IDepositVaultDispatcher,
     account: ContractAddress,
-    params: CreateDepositParams
+    mut params: CreateDepositParams
 ) -> felt252 {
-    //TODO
-    0
+    validate_account(account);
+
+    //let market = data_store.get_market(data_store,params.market);
+    let market = market_utils::get_enabled_market(data_store, params.market);
+    market_utils::validate_swap_path(data_store, params.long_token_swap_path);
+    market_utils::validate_swap_path(data_store, params.short_token_swap_path);
+
+    // if the initialLongToken and initialShortToken are the same, only the initialLongTokenAmount would
+    // be non-zero, the initialShortTokenAmount would be zero
+    let mut initial_long_token_amount = deposit_vault.record_transfer_in(params.initial_long_token);
+    let mut initial_short_token_amount = deposit_vault
+        .record_transfer_in(params.initial_short_token);
+
+    let wnt: ContractAddress = token_utils::wnt(data_store);
+
+    if params.initial_long_token == wnt {
+        initial_long_token_amount -= params.execution_fee;
+    } else if params.initial_short_token == wnt {
+        initial_short_token_amount -= params.execution_fee;
+    } else {
+        let wnt_amount = deposit_vault.record_transfer_in(wnt);
+        assert(
+            wnt_amount >= params.execution_fee, GasError::INSUFFICIENT_WNT_AMOUNT_FOR_EXECUTION_FEE
+        );
+
+        params.execution_fee = wnt_amount;
+    }
+
+    assert(
+        initial_long_token_amount > 0 || initial_short_token_amount > 0,
+        DepositError::EMPTY_DEPOSIT_AMOUNTS
+    );
+
+    validate_receiver(params.receiver);
+    let key = nonce_utils::get_next_key(data_store);
+    let deposit = Deposit {
+        key,
+        account: account,
+        receiver: params.receiver,
+        callback_contract: params.callback_contract,
+        ui_fee_receiver: params.ui_fee_receiver,
+        market: market.market_token,
+        initial_long_token: params.initial_long_token,
+        initial_short_token: params.initial_short_token,
+        long_token_swap_path: params.long_token_swap_path,
+        short_token_swap_path: params.short_token_swap_path,
+        initial_long_token_amount: initial_long_token_amount,
+        initial_short_token_amount: initial_short_token_amount,
+        min_market_tokens: params.min_market_tokens,
+        updated_at_block: get_block_number(),
+        execution_fee: params.execution_fee,
+        callback_gas_limit: params.callback_gas_limit,
+    };
+
+    validate_callback_gas_limit(data_store, deposit.callback_gas_limit);
+    let estimated_gas_limit = gas_utils::estimate_execute_deposit_gas_limit(data_store, deposit);
+    gas_utils::validate_execution_fee(data_store, estimated_gas_limit, params.execution_fee);
+
+    // add deposit values in data_store 
+    data_store.set_deposit(key, deposit);
+
+    // emit event
+    event_emitter.emit_deposit_created(key, deposit);
+    key
 }
 
 /// Cancels a deposit, funds are sent back to the user.
@@ -79,9 +152,56 @@ fn cancel_deposit(
     event_emitter: IEventEmitterDispatcher,
     deposit_vault: IDepositVaultDispatcher,
     key: felt252,
-    address: ContractAddress,
-    starting_gas: u128,
+    keeper: ContractAddress,
+    mut starting_gas: u128,
     reason: felt252,
     reason_bytes: Array<felt252>
-) { //TODO
+) {
+    starting_gas -= (starknet_utils::sn_gasleft(array![]) / 63);
+
+    // get deposit info from data_store
+    let mut deposit = Default::default();
+    match data_store.get_deposit(key) {
+        Option::Some(stored_deposit) => deposit = stored_deposit,
+        Option::None => panic(array![DepositError::EMPTY_DEPOSIT, key])
+    }
+
+    assert(ContractAddressZeroable::is_non_zero(deposit.account), DepositError::EMPTY_DEPOSIT);
+    assert(
+        deposit.initial_long_token_amount > 0 || deposit.initial_short_token_amount > 0,
+        DepositError::EMPTY_DEPOSIT_AMOUNTS
+    );
+
+    // remove key,account from data_store
+    data_store.remove_deposit(key, deposit.account);
+
+    if deposit.initial_long_token_amount > 0 {
+        deposit_vault
+            .transfer_out(
+                deposit.initial_long_token, deposit.account, deposit.initial_long_token_amount
+            );
+    }
+
+    if deposit.initial_short_token_amount > 0 {
+        deposit_vault
+            .transfer_out(
+                deposit.initial_short_token, deposit.account, deposit.initial_short_token_amount
+            );
+    }
+
+    event_emitter.emit_deposit_cancelled(key, reason, reason_bytes.span());
+
+    let event_log_data = EventLogData { cant_be_empty: 0 };
+    after_deposit_cancellation(key, deposit, event_log_data, event_emitter);
+
+    gas_utils::pay_execution_fee_deposit(
+        data_store,
+        event_emitter,
+        deposit_vault,
+        deposit.execution_fee,
+        starting_gas,
+        keeper,
+        deposit.account
+    );
 }
+

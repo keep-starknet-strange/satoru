@@ -35,8 +35,7 @@ fn given_normal_conditions_when_emit_withdrawal_created_then_works() {
         withdrawal.min_long_token_amount.into(),
         withdrawal.min_short_token_amount.into(),
         withdrawal.updated_at_block.into(),
-        withdrawal.execution_fee.low.into(),
-        withdrawal.execution_fee.high.into(),
+        withdrawal.execution_fee.into(),
         withdrawal.callback_gas_limit.into(),
         withdrawal.should_unwrap_native_token.into(),
     ];

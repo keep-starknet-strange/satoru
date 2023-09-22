@@ -444,7 +444,7 @@ fn create_new_order(
     let initial_collateral_delta_amount = 1000 * order_no;
     let trigger_price = 11111 * order_no;
     let acceptable_price = 11111 * order_no;
-    let execution_fee: u256 = 10 * order_no.into();
+    let execution_fee: u128 = 10 * order_no.into();
     let min_output_amount = 10 * order_no;
     let updated_at_block = 1;
 

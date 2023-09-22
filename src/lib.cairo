@@ -91,6 +91,7 @@ mod fee {
 // `gas` is used for execution fee estimation and payments.
 mod gas {
     mod gas_utils;
+    mod error;
 }
 
 // `nonce` is a module that maintains a progressively increasing nonce value.

@@ -53,7 +53,7 @@ struct CreateWithdrawalParams {
     /// Whether the native token should be unwrapped when executing the withdrawal.
     should_unwrap_native_token: bool,
     /// The execution fee for the withdrawal.
-    execution_fee: u256,
+    execution_fee: u128,
     /// The gas limit for calling the callback contract.
     callback_gas_limit: u128,
 }
@@ -129,10 +129,8 @@ fn create_withdrawal(
 
     let wnt_amount = withdrawal_vault.record_transfer_in(wnt);
 
-    if wnt_amount < params.execution_fee.try_into().unwrap() {
-        WithdrawalError::INSUFFICIENT_WNT_AMOUNT(
-            wnt_amount, params.execution_fee.try_into().unwrap()
-        );
+    if wnt_amount < params.execution_fee {
+        WithdrawalError::INSUFFICIENT_WNT_AMOUNT(wnt_amount, params.execution_fee);
     }
 
     account_utils::validate_receiver(params.receiver);
