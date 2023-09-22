@@ -5,13 +5,16 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-
+use starknet::ContractAddress;
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::oracle::{
-    oracle::IOracleDispatcher, oracle_utils::{SetPricesParams, SimulatePricesParams},
+    oracle::{IOracleDispatcher, IOracleDispatcherTrait},
+    oracle_utils::{SetPricesParams, SimulatePricesParams},
 };
+use satoru::price::price::Price;
+use satoru::oracle::error::OracleError;
 
 /// Sets oracle prices, perform any additional tasks required,
 /// and clear the oracle prices after.
@@ -32,11 +35,13 @@ fn with_oracle_prices_before(
     data_store: IDataStoreDispatcher,
     event_emitter: IEventEmitterDispatcher,
     params: @SetPricesParams
-) { // TODO
+) {
+    oracle.set_prices(data_store, event_emitter, params.clone());
 }
 
 #[inline(always)]
-fn with_oracle_prices_after() { // TODO
+fn with_oracle_prices_after(oracle: IOracleDispatcher) {
+    oracle.clear_all_prices();
 }
 
 /// Set oracle prices for a simulation.
@@ -50,12 +55,25 @@ fn with_oracle_prices_after() { // TODO
 /// # Arguments
 /// * `oracle` - `Oracle` contract dispatcher
 /// * `params` - parameters used to set oracle price
-#[inline(always)]
-fn with_simulated_oracle_prices_before(
-    oracle: IOracleDispatcher, params: SimulatePricesParams
-) { // TODO
+
+fn with_simulated_oracle_prices_before(oracle: IOracleDispatcher, params: SimulatePricesParams) {
+    if (params.primary_tokens.len() != params.primary_prices.len()) {
+        OracleError::INVALID_PRIMARY_PRICES_FOR_SIMULATION(
+            params.primary_tokens.len(), params.primary_prices.len()
+        );
+    }
+    let cur_idx = 0;
+    loop {
+        if (cur_idx == params.primary_tokens.len()) {
+            break ();
+        }
+        let token: ContractAddress = *params.primary_tokens.at(cur_idx);
+        let price: Price = *params.primary_prices.at(cur_idx);
+        oracle.set_primary_price(token, price);
+    };
 }
 
 #[inline(always)]
-fn with_simulated_oracle_prices_after() { // TODO
+fn with_simulated_oracle_prices_after() {
+    OracleError::END_OF_ORACLE_SIMULATION();
 }

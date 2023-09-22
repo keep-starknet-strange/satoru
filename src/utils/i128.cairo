@@ -23,7 +23,7 @@ impl I128Div of Div<i128> {
     }
 }
 
-impl I1288Mul of Mul<i128> {
+impl I128Mul of Mul<i128> {
     fn mul(lhs: i128, rhs: i128) -> i128 {
         let u_lhs = abs(lhs);
         let u_rhs = abs(rhs);
@@ -100,4 +100,11 @@ fn i128_to_u128(value: i128) -> u128 {
     assert(value >= 0, 'i128_to_u128: value is negative');
     let value: felt252 = value.into();
     value.try_into().unwrap()
+}
+
+impl I128Default of Default<i128> {
+    #[inline(always)]
+    fn default() -> i128 {
+        0
+    }
 }
