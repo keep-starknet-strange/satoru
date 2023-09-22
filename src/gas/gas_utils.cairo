@@ -14,6 +14,7 @@ use satoru::withdrawal::{
     withdrawal::Withdrawal,
     withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait}
 };
+use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
 
 /// Get the minimal gas to handle execution.
 /// # Arguments
@@ -47,7 +48,29 @@ fn pay_execution_fee(
     data_store: IDataStoreDispatcher,
     event_emitter: IEventEmitterDispatcher,
     bank: IWithdrawalVaultDispatcher,
-    execution_fee: u256,
+    execution_fee: u128,
+    starting_gas: u128,
+    keeper: ContractAddress,
+    refund_receiver: ContractAddress
+) { // TODO
+}
+
+/// Pay the keeper the execution fee and refund any excess amount.
+/// # Arguments
+/// * `data_store` - The data storage contract dispatcher.
+/// * `event_emitter` - The event emitter contract dispatcher.
+/// * `bank` - The StrictBank contract holding the execution fee.
+/// * `execution_fee` - The executionFee amount.
+/// * `starting_gas` - The starting gas.
+/// * `keeper` - The keeper to pay.
+/// * `refund_receiver` - The account that should receive any excess gas refunds.
+/// # Returns
+/// * The key for the account order list.
+fn pay_execution_fee_deposit(
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    bank: IDepositVaultDispatcher,
+    execution_fee: u128,
     starting_gas: u128,
     keeper: ContractAddress,
     refund_receiver: ContractAddress
@@ -62,7 +85,7 @@ fn pay_execution_fee(
 /// # Returns
 /// * The key for the account order list.
 fn validate_execution_fee(
-    data_store: IDataStoreDispatcher, estimated_gas_limit: u128, execution_fee: u256
+    data_store: IDataStoreDispatcher, estimated_gas_limit: u128, execution_fee: u128
 ) { // TODO
 }
 

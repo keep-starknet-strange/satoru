@@ -41,7 +41,7 @@ struct Withdrawal {
     /// The block at which the withdrawal was last updated.
     updated_at_block: u64,
     /// The execution fee for the withdrawal.
-    execution_fee: u256,
+    execution_fee: u128,
     /// The gas limit for calling the callback contract.
     callback_gas_limit: u128,
     /// whether to unwrap the native token
