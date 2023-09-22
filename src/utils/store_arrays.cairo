@@ -78,7 +78,7 @@ impl StoreContractAddressArray of Store<Array<ContractAddress>> {
     }
 
     fn size() -> u8 {
-        1
+        255
     }
 }
 
@@ -142,7 +142,7 @@ impl StoreMarketArray of Store<Array<Market>> {
     }
 
     fn size() -> u8 {
-        4
+        63
     }
 }
 
@@ -206,7 +206,7 @@ impl StoreMarketSpan of Store<Span<Market>> {
     }
 
     fn size() -> u8 {
-        4
+        63
     }
 }
 
@@ -269,7 +269,7 @@ impl StorePriceArray of Store<Array<Price>> {
     }
 
     fn size() -> u8 {
-        2
+        127
     }
 }
 
@@ -332,7 +332,7 @@ impl StoreU128Array of Store<Array<u128>> {
     }
 
     fn size() -> u8 {
-        1
+        255
     }
 }
 
@@ -395,7 +395,7 @@ impl StoreU64Array of Store<Array<u64>> {
     }
 
     fn size() -> u8 {
-        1
+        255
     }
 }
 
@@ -459,6 +459,6 @@ impl StoreFelt252Array of Store<Array<felt252>> {
     }
 
     fn size() -> u8 {
-        1
+        255
     }
 }
