@@ -400,12 +400,12 @@ fn get_net_pnl(
 /// Returns an integer representing the calculated profit and loss (PnL) for the specified market position.
 fn get_pnl(
     data_store: IDataStoreDispatcher,
-    market: Market,
-    index_token_price: Price,
+    market: @Market,
+    index_token_price: @Price,
     is_long: bool,
     maximize: bool
 ) -> i128 {
-    market_utils::get_pnl(data_store, @market, @index_token_price, is_long, maximize)
+    market_utils::get_pnl(data_store, market, index_token_price, is_long, maximize)
 }
 
 /// Calculate and return the open interest with profit and loss (PnL) for a specific market position.
