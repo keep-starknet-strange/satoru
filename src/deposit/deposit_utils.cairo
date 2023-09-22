@@ -6,6 +6,7 @@
 // *************************************************************************
 // Core lib imports.
 use starknet::ContractAddress;
+use starknet::info::get_block_number;
 use result::ResultTrait;
 
 // Local imports.
@@ -68,13 +69,13 @@ fn create_deposit(
     data_store: IDataStoreDispatcher,
     event_emitter: IEventEmitterDispatcher,
     deposit_vault: IDepositVaultDispatcher,
-    chain: IChainDispatcher,
     account: ContractAddress,
     mut params: CreateDepositParams
 ) -> felt252 {
     validate_account(account);
 
-    let market = data_store.get_market(params.market);
+    //let market = data_store.get_market(data_store,params.market);
+    let market = market_utils::get_enabled_market(data_store, params.market);
     market_utils::validate_swap_path(data_store, params.long_token_swap_path);
     market_utils::validate_swap_path(data_store, params.short_token_swap_path);
 
@@ -93,14 +94,14 @@ fn create_deposit(
     } else {
         let wnt_amount = deposit_vault.record_transfer_in(wnt);
         assert(
-            wnt_amount > params.execution_fee, GasError::INSUFFICIENT_WNT_AMOUNT_FOR_EXECUTION_FEE
+            wnt_amount >= params.execution_fee, GasError::INSUFFICIENT_WNT_AMOUNT_FOR_EXECUTION_FEE
         );
 
         params.execution_fee = wnt_amount;
     }
 
     assert(
-        initial_long_token_amount > 0 && initial_short_token_amount > 0,
+        initial_long_token_amount > 0 || initial_short_token_amount > 0,
         DepositError::EMPTY_DEPOSIT_AMOUNTS
     );
 
@@ -112,7 +113,7 @@ fn create_deposit(
         receiver: params.receiver,
         callback_contract: params.callback_contract,
         ui_fee_receiver: params.ui_fee_receiver,
-        market: params.market,
+        market: market.market_token,
         initial_long_token: params.initial_long_token,
         initial_short_token: params.initial_short_token,
         long_token_swap_path: params.long_token_swap_path,
@@ -120,8 +121,7 @@ fn create_deposit(
         initial_long_token_amount: initial_long_token_amount,
         initial_short_token_amount: initial_short_token_amount,
         min_market_tokens: params.min_market_tokens,
-        // TODO : use chain.get_block_number chain will be a library
-        updated_at_block: chain.get_block_number(),
+        updated_at_block: get_block_number(),
         execution_fee: params.execution_fee,
         callback_gas_limit: params.callback_gas_limit,
     };
@@ -168,7 +168,7 @@ fn cancel_deposit(
 
     assert(ContractAddressZeroable::is_non_zero(deposit.account), DepositError::EMPTY_DEPOSIT);
     assert(
-        deposit.initial_long_token_amount > 0 && deposit.initial_short_token_amount > 0,
+        deposit.initial_long_token_amount > 0 || deposit.initial_short_token_amount > 0,
         DepositError::EMPTY_DEPOSIT_AMOUNTS
     );
 

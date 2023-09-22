@@ -18,7 +18,7 @@ use snforge_std::{declare, start_prank, ContractClassTrait};
 
 
 #[test]
-fn should_create_deposit() {
+fn given_normal_conditions_when_deposit_then_works() {
     let (caller_address, data_store, event_emitter, deposit_vault, chain) = setup();
     let account: ContractAddress = 'account'.try_into().unwrap();
     let deposit_param = create_dummy_deposit_param();
@@ -30,7 +30,7 @@ fn should_create_deposit() {
 
 #[test]
 #[should_panic(expected: ('insffcient_wnt_amt_for_exec_fee',))]
-fn should_panic_if_unsufficient_wnt_amount_for_deposit() {
+fn given_unsufficient_wnt_amount_for_deposit_then_fails() {
     let (caller_address, data_store, event_emitter, deposit_vault, chain) = setup();
     let account: ContractAddress = 'account'.try_into().unwrap();
     let deposit_param = create_dummy_deposit_param();
@@ -41,7 +41,7 @@ fn should_panic_if_unsufficient_wnt_amount_for_deposit() {
 
 // #[test]
 // #[should_panic(expected: ('empty_deposit_amounts',))]
-// fn should_panic_on_empty_deposit_amount() {
+// fn given_empty_deposit_amount_then_fails() {
 //     let (caller_address, data_store, event_emitter, deposit_vault, chain) = setup();
 //     let account: ContractAddress = 'account'.try_into().unwrap();
 //     let deposit_param = create_dummy_deposit_param();
@@ -51,7 +51,7 @@ fn should_panic_if_unsufficient_wnt_amount_for_deposit() {
 // }
 
 #[test]
-fn should_cancel_deposit() {
+fn given_normal_conditions_when_cancel_deposit_then_works() {
     let (caller_address, data_store, event_emitter, deposit_vault, chain) = setup();
     let account: ContractAddress = 'account'.try_into().unwrap();
     let keeper: ContractAddress = 'keeper'.try_into().unwrap();
