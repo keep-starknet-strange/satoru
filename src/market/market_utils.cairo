@@ -21,6 +21,7 @@ use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::price::price::{Price, PriceTrait};
 use satoru::utils::span32::Span32;
 use satoru::utils::i128::{StoreI128, u128_to_i128, I128Serde, I128Div, I128Mul};
+use satoru::position::position::Position;
 /// Struct to store the prices of tokens of a market.
 /// # Params
 /// * `indexTokenPrice` - Price of the market's index token.
@@ -70,17 +71,6 @@ fn get_cached_token_price(token: ContractAddress, market: Market, prices: Market
         MarketError::UNABLE_TO_GET_CACHED_TOKEN_PRICE(token);
         prices.index_token_price //todo : remove 
     }
-}
-
-fn get_swap_impact_amount_with_cap(
-    dataStore: IDataStoreDispatcher,
-    market: ContractAddress,
-    token: ContractAddress,
-    tokenPrice: Price,
-    priceImpactUsd: i128 //TODO : check u128
-) -> i128 { //Todo : check u128
-    //TODO
-    return 0;
 }
 
 /// Get the long and short open interest for a market based on the collateral token used.
@@ -522,40 +512,6 @@ fn validate_swap_path(
 ) { //TODO
 }
 
-
-/// @dev update the swap impact pool amount, if it is a positive impact amount
-/// cap the impact amount to the amount available in the swap impact pool
-/// # Arguments
-/// *`data_store` DataStore
-/// *`event_emitter` EventEmitter
-/// *`market` the market to apply to
-/// *`token` the token to apply to
-/// *`token_price` the price of the token
-/// *`price_impact_usd` the USD price impact
-/// # Returns
-/// The impact amount as integer
-fn apply_swap_impact_with_cap(
-    data_store: IDataStoreDispatcher,
-    event_emitter: IEventEmitterDispatcher,
-    market: ContractAddress,
-    token: ContractAddress,
-    token_price: Price,
-    price_impact_usd: i128
-) -> i128 {
-    // TODO: implement
-    return 0;
-}
-
-/// @dev validate that the pool amount is within the max allowed amount
-/// # Arguments
-/// *`data_store` DataStore
-/// *`market` the market to check
-/// *`token` the token to check
-fn validate_pool_amount(
-    data_store: @IDataStoreDispatcher, market: @Market, token: ContractAddress
-) { // TODO
-}
-
 /// @dev validate that the amount of tokens required to be reserved
 /// is below the configured threshold
 /// # Arguments
@@ -566,22 +522,6 @@ fn validate_pool_amount(
 fn validata_reserve(
     data_store: @IDataStoreDispatcher, market: @Market, prices: @MarketPrices, is_long: bool
 ) { // TODO
-}
-
-/// Validata the open interest.
-/// # Arguments
-/// * `data_store` - The data store to use.
-/// * `market` - The market to validate the open interest for.
-/// * `is_long` - Whether to validate the long or short side.
-fn validate_open_interest(data_store: IDataStoreDispatcher, market: @Market, is_long: bool) {
-    // Get the open interest.
-    let open_interest = get_open_interest_for_market_is_long(data_store, market, is_long);
-
-    // Get the maximum open interest.
-    let max_open_interest = get_max_open_interest(data_store, *market.market_token, is_long);
-
-    // Check that the open interest is not greater than the maximum open interest.
-    assert(open_interest <= max_open_interest, MarketError::MAX_OPEN_INTEREST_EXCEEDED);
 }
 
 /// Validata the swap market.
@@ -610,26 +550,6 @@ fn get_opposite_token(market: @Market, token: ContractAddress) -> ContractAddres
 // * `is_long` whether to check the long or short side.
 fn get_min_pnl_factor_after_adl(
     data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
-) -> u128 {
-    // TODO
-    0
-}
-
-// Get the ratio of pnl to pool value.
-// # Arguments
-// * `data_store` - The data_store dispatcher.
-// * `market` the market values.
-// * `prices` the prices of the market tokens.
-// * `is_long` whether to get the value for the long or short side.
-// * `maximize` whether to maximize the factor.
-// # Returns
-// (pnl of positions) / (long or short pool value)
-fn get_pnl_to_pool_factor(
-    data_store: IDataStoreDispatcher,
-    oracle: IOracleDispatcher,
-    market: ContractAddress,
-    is_long: bool,
-    maximize: bool
 ) -> u128 {
     // TODO
     0
@@ -693,17 +613,6 @@ fn get_enabled_market(data_store: IDataStoreDispatcher, market_address: Contract
 fn get_market_prices(oracle: IOracleDispatcher, market: Market) -> MarketPrices {
     //TODO
     Default::default()
-}
-
-/// Validates that the amount of tokens required to be reserved is below the configured threshold.
-/// # Arguments
-/// * `dataStore`: DataStore - The data storage instance.
-/// * `market`: Market values to consider.
-/// * `prices`: Prices of the market tokens.
-/// * `isLong`: A boolean flag to indicate whether to check the long or short side.
-fn validate_reserve(
-    data_store: IDataStoreDispatcher, market: Market, prices: @MarketPrices, is_long: bool
-) { //TODO
 }
 
 /// Validates that the pending pnl is below the allowed amount.
@@ -871,22 +780,6 @@ fn update_funding_state(
 ) { // TODO
 }
 
-/// Update the cumulative borrowing factor for a market
-/// # Arguments
-/// * `data_store` - The data store to use.
-/// * `event_emitter` - The event emitter.
-/// * `market` - The market.
-/// * `prices` - The market prices.
-/// * `is_long` - Whether to update the long or short side.
-fn update_cumulative_borrowing_factor(
-    data_store: IDataStoreDispatcher,
-    event_emitter: IEventEmitterDispatcher,
-    market: Market,
-    prices: MarketPrices,
-    is_long: bool
-) { // TODO
-}
-
 /// # Arguments
 /// * `data_store` - The data store to use.
 /// * `market` - The market.
@@ -928,4 +821,245 @@ fn market_token_amount_to_usd(
     market_token_amount: u128, pool_value: u128, supply: u128
 ) -> u128 { // TODO
     0
+}
+
+// store funding values as token amount per (Precision.FLOAT_PRECISION_SQRT / Precision.FLOAT_PRECISION) of USD size
+fn get_funding_amount_per_size_delta(
+    funding_usd: u128, open_interest: u128, token_price: u128,roundup_magnitude: bool
+) -> u128 { // TODO
+    0
+}
+
+
+/// Update the cumulative borrowing factor for a market
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `event_emitter` - The event emitter.
+/// * `market` - The market.
+/// * `prices` - The market prices.
+/// * `is_long` - Whether to update the long or short side.
+fn update_cumulative_borrowing_factor(
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    market: Market,
+    prices: MarketPrices,
+    is_long: bool
+) { // TODO
+}
+
+// Get the ratio of pnl to pool value.
+// # Arguments
+// * `data_store` - The data_store dispatcher.
+// * `market` the market values.
+// * `prices` the prices of the market tokens.
+// * `is_long` whether to get the value for the long or short side.
+// * `maximize` whether to maximize the factor.
+// # Returns
+// (pnl of positions) / (long or short pool value)
+fn get_pnl_to_pool_factor(
+    data_store: IDataStoreDispatcher,
+    oracle: IOracleDispatcher,
+    market: ContractAddress,
+    is_long: bool,
+    maximize: bool
+) -> u128 {
+    // TODO
+    0
+}
+
+/// Validata the open interest.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market to validate the open interest for.
+/// * `is_long` - Whether to validate the long or short side.
+fn validate_open_interest(data_store: IDataStoreDispatcher, market: @Market, is_long: bool) {
+    // Get the open interest.
+    let open_interest = get_open_interest_for_market_is_long(data_store, market, is_long);
+
+    // Get the maximum open interest.
+    let max_open_interest = get_max_open_interest(data_store, *market.market_token, is_long);
+
+    // Check that the open interest is not greater than the maximum open interest.
+    assert(open_interest <= max_open_interest, MarketError::MAX_OPEN_INTEREST_EXCEEDED);
+}
+
+/// @dev validate that the pool amount is within the max allowed amount
+/// # Arguments
+/// *`data_store` DataStore
+/// *`market` the market to check
+/// *`token` the token to check
+fn validate_pool_amount(
+    data_store: @IDataStoreDispatcher, market: @Market, token: ContractAddress
+) { // TODO
+}
+
+/// Validates that the amount of tokens required to be reserved is below the configured threshold.
+/// # Arguments
+/// * `dataStore`: DataStore - The data storage instance.
+/// * `market`: Market values to consider.
+/// * `prices`: Prices of the market tokens.
+/// * `is_long`: A boolean flag to indicate whether to check the long or short side.
+fn validate_reserve(
+    data_store: IDataStoreDispatcher, market: Market, prices: @MarketPrices, is_long: bool
+) { //TODO
+}
+
+// @dev validate that the amount of tokens required to be reserved for open interest
+// is below the configured threshold
+// @param dataStore: DataStore - The data storage instance.
+// @param market: Market values to consider.
+// @param prices: Prices of the market tokens.
+// @param is_long: A boolean flag to indicate whether to check the long or short side.
+fn validate_open_interest_reserve(
+    data_store: IDataStoreDispatcher, market: Market, prices: MarketPrices, is_long: bool
+) { // TODO
+}
+
+/// @dev update the swap impact pool amount, if it is a positive impact amount
+/// cap the impact amount to the amount available in the swap impact pool
+/// # Arguments
+/// *`data_store` DataStore
+/// *`event_emitter` EventEmitter
+/// *`market` the market to apply to
+/// *`token` the token to apply to
+/// *`token_price` the price of the token
+/// *`price_impact_usd` the USD price impact
+/// # Returns
+/// The impact amount as integer
+fn apply_swap_impact_with_cap(
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    market: ContractAddress,
+    token: ContractAddress,
+    token_price: Price,
+    price_impact_usd: i128
+) -> i128 { // TODO
+    0
+}
+
+fn get_swap_impact_amount_with_cap(
+    dataStore: IDataStoreDispatcher,
+    market: ContractAddress,
+    token: ContractAddress,
+    tokenPrice: Price,
+    priceImpactUsd: i128
+) -> i128 { //Todo : check u128
+    0
+}
+
+// @notice Get the funding amount to be deducted or distributed.
+//
+// @param latest_funding_amount_per_size The latest funding amount per size.
+// @param position_funding_amount_per_size The funding amount per size for the position.
+// @param position_size_in_usd The position size in USD.
+// @param round_up_magnitude Whether to round up the result.
+//
+// @return funding_amount
+fn get_funding_amount(
+    latest_funding_amount_per_size: u128, 
+    position_funding_amount_per_size: u128, 
+    position_size_in_usd: u128, 
+    round_up_magnitude: bool
+) -> u128 { // TODO
+    0
+}
+
+// @notice Get the borrowing fees for a position, assuming that cumulativeBorrowingFactor
+// has already been updated to the latest value.
+//
+// @param data_store DataStore
+// @param position PositionProps
+//
+// @return The borrowing fees for a position.
+fn get_borrowing_fees(
+    data_store: IDataStoreDispatcher, position: Position
+    ) -> u128 { // TODO
+    0
+}
+
+// @notice Get the next borrowing fees for a position.
+//
+// @param data_store IDataStoreDispatcher
+// @param position Position
+// @param market Market
+// @param prices @MarketPrices
+//
+// @return The next borrowing fees for a position.
+fn get_next_borrowing_fees(
+    data_store: IDataStoreDispatcher, 
+    position: Position, 
+    market: Market,
+    prices: MarketPrices
+) -> u128 {
+    0
+}
+
+// @notice Get the total reserved USD required for positions.
+//
+// @param market The market to check.
+// @param prices The prices of the market tokens.
+// @param is_long Whether to get the value for the long or short side.
+//
+// @return The total reserved USD required for positions.
+fn get_reserved_usd(
+    data_store: IDataStoreDispatcher, 
+    market: Market,
+    prices: MarketPrices,
+    is_long: bool
+) -> u128 { // TODO
+    0
+}
+
+/// Get the virtual inventory for swaps.
+///
+/// # Arguments
+/// * `dataStore`: DataStore - The data storage instance.
+/// * `market`: Market values to consider.
+///
+/// # Returns
+/// Returns a tuple (has_virtual_inventory, virtual_long_token_inventory, virtual_short_token_inventory).
+fn get_virtual_inventory_for_swaps(
+    data_store: IDataStoreDispatcher, market: ContractAddress
+) -> (bool, u128, u128) { // TODO
+    (false, 0, 0)
+} 
+
+fn get_is_long_token(
+    market: Market, token: ContractAddress
+) -> bool { // TODO
+    false
+}
+
+/// Get the virtual inventory for positions.
+///
+/// # Arguments
+/// * `dataStore`: DataStore - The data storage instance.
+/// * `token`: The token to check.
+///
+/// # Returns
+/// Returns a tuple (has_virtual_inventory, virtual_token_inventory).
+fn get_virtual_inventory_for_positions(
+    data_store: IDataStoreDispatcher, token: ContractAddress
+) -> (bool, u128) { // TODO
+    (false, 0)
+}
+
+/// Update the virtual inventory for swaps.
+///
+/// # Arguments
+/// * `data_store`: The data storage instance.
+/// * `market_address`: The address of the market to update.
+/// * `token`: The token to update.
+/// * `delta`: The update amount.
+///
+/// # Returns
+/// Returns a tuple (success, updated_amount).
+fn apply_delta_to_virtual_inventory_for_swaps(
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    market: Market,
+    token: ContractAddress,
+    delta: i128
+) -> (bool, u128){ // TODO
+    (false, 0)
 }
