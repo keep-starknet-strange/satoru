@@ -138,7 +138,7 @@ fn create_dummy_deposit_param() -> CreateDepositParams {
         /// to the user in case the deposit gets cancelled.
         should_unwrap_native_token: false,
         /// The execution fee for keepers.
-        execution_fee: 0,
+        execution_fee: 1,
         /// The gas limit for the callback_contract.
         callback_gas_limit: 20
     }
