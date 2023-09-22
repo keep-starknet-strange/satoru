@@ -198,6 +198,33 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "StarkFishinator",
+      "name": "StarkFishinator",
+      "avatar_url": "https://avatars.githubusercontent.com/u/128840478?v=4",
+      "profile": "https://github.com/StarkFishinator",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "axelizsak",
+      "name": "Axel Izsak",
+      "avatar_url": "https://avatars.githubusercontent.com/u/98711930?v=4",
+      "profile": "https://github.com/axelizsak",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "lucienfer",
+      "name": "Luciefer",
+      "avatar_url": "https://avatars.githubusercontent.com/u/31387342?v=4",
+      "profile": "https://github.com/lucienfer",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

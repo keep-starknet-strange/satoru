@@ -100,6 +100,7 @@ mod nonce {
 
 // 'reader' is a module that retrieves the financial market data and trading utility.
 mod reader {
+    mod error;
     mod reader_pricing_utils;
     mod reader_utils;
     mod reader;

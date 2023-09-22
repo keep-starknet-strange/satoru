@@ -19,7 +19,9 @@ use satoru::price::price::Price;
 use satoru::pricing::position_pricing_utils::PositionFees;
 use satoru::order::order::{Order, SecondaryOrderType};
 use satoru::utils::span32::{Span32, DefaultSpan32};
-use satoru::utils::i128::{I128Serde};
+use satoru::utils::i128::{I128Div, I128Mul, I128Serde};
+
+
 //TODO: OrderCollatDeltaAmountAutoUpdtd must be renamed back to OrderCollateralDeltaAmountAutoUpdated when string will be allowed as event argument
 //TODO: AfterWithdrawalCancelError must be renamed back to AfterWithdrawalCancellationError when string will be allowed as event argument
 //TODO: CumulativeBorrowingFactorUpdatd must be renamed back to CumulativeBorrowingFactorUpdated when string will be allowed as event argument
@@ -593,8 +595,8 @@ trait IEventEmitter<TContractState> {
         amount_in: u128,
         amount_in_after_fees: u128,
         amount_out: u128,
-        price_impact_usd: u128,
-        price_impact_amount: u128
+        price_impact_usd: i128,
+        price_impact_amount: i128
     );
 
     /// Emits the `SwapFeesCollected` event.
@@ -670,7 +672,7 @@ mod EventEmitter {
     use satoru::pricing::position_pricing_utils::PositionFees;
     use satoru::order::order::{Order, SecondaryOrderType};
     use satoru::utils::span32::{Span32, DefaultSpan32};
-    use satoru::utils::i128::{I128Serde};
+    use satoru::utils::i128::{I128Div, I128Mul, I128Serde};
 
     // *************************************************************************
     //                              STORAGE
@@ -1493,8 +1495,8 @@ mod EventEmitter {
         amount_in: u128,
         amount_in_after_fees: u128,
         amount_out: u128,
-        price_impact_usd: u128,
-        price_impact_amount: u128
+        price_impact_usd: i128,
+        price_impact_amount: i128
     }
 
     #[derive(Drop, starknet::Event)]
@@ -2665,8 +2667,8 @@ mod EventEmitter {
             amount_in: u128,
             amount_in_after_fees: u128,
             amount_out: u128,
-            price_impact_usd: u128,
-            price_impact_amount: u128
+            price_impact_usd: i128,
+            price_impact_amount: i128
         ) {
             self
                 .emit(
