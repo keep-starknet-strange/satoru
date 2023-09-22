@@ -23,7 +23,7 @@ fn given_normal_conditions_when_deposit_then_works() {
     let account: ContractAddress = 'account'.try_into().unwrap();
     let deposit_param = create_dummy_deposit_param();
 // let key = create_deposit(
-//     data_store, event_emitter, deposit_vault, chain, account, deposit_param
+//     data_store, event_emitter, deposit_vault, account, deposit_param
 // );
 }
 
@@ -34,9 +34,7 @@ fn given_unsufficient_wnt_amount_for_deposit_then_fails() {
     let (caller_address, data_store, event_emitter, deposit_vault, chain) = setup();
     let account: ContractAddress = 'account'.try_into().unwrap();
     let deposit_param = create_dummy_deposit_param();
-    let key = create_deposit(
-        data_store, event_emitter, deposit_vault, chain, account, deposit_param
-    );
+    let key = create_deposit(data_store, event_emitter, deposit_vault, account, deposit_param);
 }
 
 // #[test]
@@ -61,7 +59,7 @@ fn given_normal_conditions_when_cancel_deposit_then_works() {
     let starting_gas = 2;
     let reason_bytes = array!['reason_bytes_1', 'reason_bytes_2',];
 // let key = create_deposit(
-//     data_store, event_emitter, deposit_vault, chain, account, deposit_param
+//     data_store, event_emitter, deposit_vault, account, deposit_param
 // );
 
 // cancel_deposit(
