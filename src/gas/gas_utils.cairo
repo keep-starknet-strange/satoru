@@ -21,6 +21,7 @@ use satoru::withdrawal::{
 use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
 use satoru::utils::{precision, starknet_utils::{sn_gasleft, sn_gasprice}};
 use satoru::utils::span32::{Span32, Span32Trait};
+use satoru::token::token_utils;
 
 /// Get the minimal gas to handle execution.
 /// # Arguments
@@ -61,22 +62,21 @@ fn pay_execution_fee(
     keeper: ContractAddress,
     refund_receiver: ContractAddress
 ) {
+    let fee_token: ContractAddress = token_utils::fee_token(data_store);
+
     // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
     let reduced_starting_gas = starting_gas - sn_gasleft(array![100]) / 63;
     let gas_used = reduced_starting_gas - sn_gasleft(array![100]);
 
     // each external call forwards 63/64 of the remaining gas
     let mut execution_fee_for_keeper = adjust_gas_usage(data_store, gas_used)
-        * sn_gasprice(array![10]); //questions
+        * sn_gasprice(array![10]);
 
     if (execution_fee_for_keeper > execution_fee) {
         execution_fee_for_keeper = execution_fee;
     }
 
-    bank
-        .transfer_out(
-            keeper, keeper, execution_fee_for_keeper, false
-        ); // fix this, transferOutNativetoken isnt used
+    bank.transfer_out(fee_token, keeper, execution_fee_for_keeper);
 
     event_emitter.emit_keeper_execution_fee(keeper, execution_fee_for_keeper);
 
@@ -87,10 +87,7 @@ fn pay_execution_fee(
         return;
     }
 
-    bank
-        .transfer_out(
-            refund_receiver, refund_receiver, refund_fee_amount, false
-        ); // fix this, transferOutNativetoken isnt used
+    bank.transfer_out(fee_token, refund_receiver, refund_fee_amount);
 
     event_emitter.emit_execution_fee_refund(refund_receiver, refund_fee_amount);
 }
@@ -198,8 +195,8 @@ fn estimate_execute_order_gas_limit(data_store: IDataStoreDispatcher, order: @Or
         return estimate_execute_swap_order_gas_limit(data_store, *order);
     }
 
-    panic(array![OrderError::UNSUPPORTED_ORDER_TYPE]);
-    return 0; //question
+    assert(false, OrderError::UNSUPPORTED_ORDER_TYPE);
+    return 0;
 }
 
 /// The estimated gas limit for increase orders.
