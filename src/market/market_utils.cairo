@@ -11,6 +11,7 @@ use zeroable::Zeroable;
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
+use satoru::chain::chain::Chain;
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::data::keys;
 use satoru::market::{
@@ -18,12 +19,14 @@ use satoru::market::{
     market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait}
 };
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use satoru::oracle::oracle::{Oracle, SetPricesParams};
+use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
 use satoru::price::price::{Price, PriceTrait};
 use satoru::utils::span32::Span32;
 use satoru::utils::i128::{StoreI128, u128_to_i128, I128Serde, I128Div, I128Mul};
 use satoru::position::position::Position;
 use satoru::utils::precision::{FLOAT_PRECISION, FLOAT_PRECISION_SQRT};
-use satoru::utils::precision::{mul_div_roundup};
+use satoru::utils::precision::{mul_div_roundup, to_factor_ival, apply_factor_u128};
 use satoru::utils::calc::{roundup_division};
 /// Struct to store the prices of tokens of a market.
 /// # Params
@@ -37,6 +40,7 @@ struct MarketPrices {
     long_token_price: Price,
     short_token_price: Price,
 }
+
 
 #[derive(Drop, starknet::Store, Serde)]
 struct CollateralType {
@@ -842,9 +846,9 @@ fn get_funding_amount_per_size_delta(
         roundup_magnitude
     );
     if roundup_magnitude {
-        roundup_division(funding_usd_per_size, token_price);
+        roundup_division(funding_usd_per_size, token_price)
     } else {
-        funding_usd_per_size / token_price;
+        funding_usd_per_size / token_price
     }
 }
 
@@ -861,12 +865,22 @@ fn update_cumulative_borrowing_factor(
     event_emitter: IEventEmitterDispatcher,
     market: Market,
     prices: MarketPrices,
+    chain: IChainDispatcher,
     is_long: bool
 ) { // TODO
     let (_, delta) = get_next_cumulative_borrowing_factor(
         data_store, prices, market, is_long
     );
-    // TODO
+    increment_cumulative_borrowing_factor(
+        data_store, event_emitter, market.market_token, is_long, delta
+    );
+    data_store.set_u128(
+        keys::cumulative_borrowing_factor_updated_at_key(
+            market.market_token, is_long
+        ),
+        chain.get_block_timestamp().into()
+    );
+
 }
 
 // Get the ratio of pnl to pool value.
@@ -884,10 +898,47 @@ fn get_pnl_to_pool_factor(
     market: ContractAddress,
     is_long: bool,
     maximize: bool
-) -> u128 {
-    // TODO
-    0
+) -> i128 { // TODO
+    let _market: Market = get_enabled_market(data_store, market);
+    let prices: MarketPrices = MarketPrices {
+        index_token_price: oracle.get_primary_price(_market.index_token),
+        long_token_price: oracle.get_primary_price(_market.long_token),
+        short_token_price: oracle.get_primary_price(_market.short_token)
+    };
+
+    return get_pnl_to_pool_factor_utils(data_store, _market, prices, is_long, maximize);
 }
+
+/// Get the ratio of PNL (Profit and Loss) to pool value.
+///
+/// # Arguments
+/// * `dataStore`: DataStore - The data storage instance.
+/// * `market`: Market values.
+/// * `prices`: Prices of the market tokens.
+/// * `isLong`: Whether to get the value for the long or short side.
+/// * `maximize`: Whether to maximize the factor.
+///
+/// # Returns
+/// Returns the ratio of PNL of positions to long or short pool value.
+fn get_pnl_to_pool_factor_utils(
+    data_store: IDataStoreDispatcher,
+    market: Market,
+    prices: MarketPrices,
+    is_long: bool,
+    maximize: bool
+) -> i128 {
+    let pool_usd: u128 = get_pool_usd_without_pnl(
+        data_store, market, prices, is_long, !maximize
+    );
+    if pool_usd == 0_u128 {
+        0_i128
+    }
+    let pnl: i128 = get_pnl(
+        data_store, @market, @prices.index_token_price, is_long, maximize
+    );
+    return to_factor_ival(pnl, pool_usd);
+}
+
 
 /// Validata the open interest.
 /// # Arguments
@@ -913,6 +964,9 @@ fn validate_open_interest(data_store: IDataStoreDispatcher, market: @Market, is_
 fn validate_pool_amount(
     data_store: @IDataStoreDispatcher, market: @Market, token: ContractAddress
 ) { // TODO
+    let pool_amount: u128 = get_pool_amount(*data_store, market, token);
+    let max_pool_amount: u128 = get_max_pool_amount(*data_store, *market.market_token, token);
+    assert(pool_amount <= max_pool_amount, MarketError::MAX_POOL_AMOUNT_EXCEEDED);
 }
 
 /// Validates that the amount of tokens required to be reserved is below the configured threshold.
@@ -924,6 +978,20 @@ fn validate_pool_amount(
 fn validate_reserve(
     data_store: IDataStoreDispatcher, market: Market, prices: @MarketPrices, is_long: bool
 ) { //TODO
+    // poolUsd is used instead of pool amount as the indexToken may not match the longToken
+    // additionally, the shortToken may not be a stablecoin
+    let pool_usd: u128 = get_pool_usd_without_pnl(data_store, market, *prices, is_long, false);
+    let reserve_factor: u128 = get_reserve_factor(data_store, market.market_token, is_long);
+    let max_reserved_usd: u128 = apply_factor_u128(pool_usd, reserve_factor);
+
+    let reserved_usd: u128 = get_reserved_usd(
+        data_store,
+        market,
+        *prices,
+        is_long
+    );
+
+    assert(reserved_usd <= max_reserved_usd, MarketError::MAX_RESERVE_EXCEEDED);
 }
 
 // @dev validate that the amount of tokens required to be reserved for open interest
@@ -1105,4 +1173,62 @@ fn get_next_cumulative_borrowing_factor(
     is_long: bool
 ) -> (u128, u128) { // TODO
     (0, 0)
+}
+
+//NOT TO DO
+
+/// Increase the cumulative borrowing factor.
+///
+/// # Arguments
+/// * `dataStore`: DataStore - The data storage instance.
+/// * `eventEmitter`: EventEmitter - The event emitter.
+/// * `market`: The market to increment the borrowing factor for.
+/// * `isLong`: Whether to increment the long or short side.
+/// * `delta`: The increase amount.
+fn increment_cumulative_borrowing_factor(
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    market: ContractAddress,
+    is_long: bool,
+    delta: u128
+) {
+    ()
+}
+
+/// Get the USD value of either the long or short tokens in the pool without accounting for the PNL of open positions.
+///
+/// # Arguments
+/// * `dataStore`: DataStore - The data storage instance.
+/// * `market`: Market values.
+/// * `prices`: Prices of the market tokens.
+/// * `isLong`: Whether to return the value for the long or short token.
+/// * `maximize`: Whether to maximize the value.
+///
+/// # Returns
+/// Returns the USD value of either the long or short tokens in the pool.
+fn get_pool_usd_without_pnl(
+    data_store: IDataStoreDispatcher,
+    market: Market,
+    prices: MarketPrices,
+    is_long: bool,
+    maximize: bool
+) -> u128 {
+    Default::default()
+}
+
+/// Get the reserve factor for a market.
+///
+/// # Arguments
+/// * `dataStore`: DataStore - The data storage instance.
+/// * `market`: The market to check.
+/// * `isLong`: Whether to get the value for longs or shorts.
+///
+/// # Returns
+/// Returns the reserve factor for a market.
+fn get_reserve_factor(
+    data_store: IDataStoreDispatcher,
+    market: ContractAddress,
+    is_long: bool
+) -> u128 {
+    Default::default()
 }

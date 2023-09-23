@@ -19,4 +19,7 @@ mod MarketError {
         data.append(token_in.into());
         panic(data)
     }
+
+    const MAX_POOL_AMOUNT_EXCEEDED: felt252 = 'max_pool_amount_exceeded';
+    const MAX_RESERVE_EXCEEDED: felt252 = 'max_reserve_exceeded';
 }
