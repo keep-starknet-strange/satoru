@@ -1,3 +1,4 @@
 mod GasError {
-    const INSUFFICIENT_WNT_AMOUNT_FOR_EXECUTION_FEE: felt252 = 'insffcient_wnt_amt_for_exec_fee';
+    const INSUFFICIENT_FEE_TOKEN_AMOUNT_FOR_EXECUTION_FEE: felt252 =
+        'insffcient_tok_amt_for_exec_fee';
 }

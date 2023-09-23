@@ -50,8 +50,6 @@ struct CreateWithdrawalParams {
     min_long_token_amount: u128,
     /// The minimum amount of short tokens that must be withdrawn.
     min_short_token_amount: u128,
-    /// Whether the native token should be unwrapped when executing the withdrawal.
-    should_unwrap_native_token: bool,
     /// The execution fee for the withdrawal.
     execution_fee: u128,
     /// The gas limit for calling the callback contract.
@@ -125,12 +123,12 @@ fn create_withdrawal(
 ) -> felt252 {
     account_utils::validate_account(account);
 
-    let wnt = data_store.get_address(keys::wnt());
+    let fee_token = data_store.get_address(keys::fee_token());
 
-    let wnt_amount = withdrawal_vault.record_transfer_in(wnt);
+    let fee_token_amount = withdrawal_vault.record_transfer_in(fee_token);
 
-    if wnt_amount < params.execution_fee {
-        WithdrawalError::INSUFFICIENT_WNT_AMOUNT(wnt_amount, params.execution_fee);
+    if fee_token_amount < params.execution_fee {
+        WithdrawalError::INSUFFICIENT_FEE_TOKEN_AMOUNT(fee_token_amount, params.execution_fee);
     }
 
     account_utils::validate_receiver(params.receiver);
@@ -141,7 +139,7 @@ fn create_withdrawal(
         WithdrawalError::EMPTY_WITHDRAWAL_AMOUNT;
     }
 
-    params.execution_fee = wnt_amount.into();
+    params.execution_fee = fee_token_amount.into();
 
     market_utils::validate_enabled_market_address(data_store, params.market);
 
@@ -164,7 +162,6 @@ fn create_withdrawal(
         updated_at_block: 0,
         execution_fee: 0,
         callback_gas_limit: 0,
-        should_unwrap_native_token: true,
     };
 
     withdrawal.account = account;
@@ -180,7 +177,6 @@ fn create_withdrawal(
     withdrawal.updated_at_block = get_block_timestamp();
     withdrawal.execution_fee = params.execution_fee;
     withdrawal.callback_gas_limit = params.callback_gas_limit;
-    withdrawal.should_unwrap_native_token = params.should_unwrap_native_token;
 
     callback_utils::validate_callback_gas_limit(data_store, withdrawal.callback_gas_limit);
 
@@ -296,7 +292,7 @@ fn cancel_withdrawal(
     data_store.remove_withdrawal(key, withdrawal.account);
 
     withdrawal_vault
-        .transfer_out(withdrawal.market, withdrawal.account, withdrawal.market_token_amount, false);
+        .transfer_out(withdrawal.market, withdrawal.account, withdrawal.market_token_amount);
 
     event_emitter.emit_withdrawal_cancelled(key, reason, reason_bytes.span());
 
@@ -451,8 +447,7 @@ fn execute_withdrawal_(
         withdrawal.long_token_swap_path,
         withdrawal.min_long_token_amount,
         withdrawal.receiver,
-        withdrawal.ui_fee_receiver,
-        withdrawal.should_unwrap_native_token
+        withdrawal.ui_fee_receiver
     );
     result.output_token = output_token;
     result.output_amount = output_amount;
@@ -465,8 +460,7 @@ fn execute_withdrawal_(
         withdrawal.short_token_swap_path,
         withdrawal.min_short_token_amount,
         withdrawal.receiver,
-        withdrawal.ui_fee_receiver,
-        withdrawal.should_unwrap_native_token
+        withdrawal.ui_fee_receiver
     );
     result.secondary_output_token = secondary_output_token;
     result.secondary_output_amount = secondary_output_amount;
@@ -505,7 +499,6 @@ fn execute_withdrawal_(
 /// * `min_output_amount` - The minimum output amount.
 /// * `receiver` - The receiver of the swap output.
 /// * `ui_fee_receiver` - The ui fee receiver.
-/// * `should_unwrap_native_token` - Weither native token should be unwraped or not.
 /// # Returns
 /// Output token and its amount.
 #[inline(always)]
@@ -518,7 +511,6 @@ fn swap(
     min_output_amount: u128,
     receiver: ContractAddress,
     ui_fee_receiver: ContractAddress,
-    should_unwrap_native_token: bool,
 ) -> (ContractAddress, u128) {
     let mut cache = SwapCache {
         swap_path_markets: Default::default(),
@@ -550,8 +542,6 @@ fn swap(
     cache.swap_params.receiver = receiver;
 
     cache.swap_params.ui_fee_receiver = ui_fee_receiver;
-
-    cache.swap_params.should_unwrap_native_token = should_unwrap_native_token;
 
     let cache_swap_params = @cache.swap_params;
     let (output_token, output_amount) = swap_utils::swap(cache_swap_params);

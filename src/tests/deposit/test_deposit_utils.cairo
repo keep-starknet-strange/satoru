@@ -29,8 +29,8 @@ fn given_normal_conditions_when_deposit_then_works() {
 
 
 #[test]
-#[should_panic(expected: ('insffcient_wnt_amt_for_exec_fee',))]
-fn given_unsufficient_wnt_amount_for_deposit_then_fails() {
+#[should_panic(expected: ('insffcient_tok_amt_for_exec_fee',))]
+fn given_unsufficient_fee_token_amount_for_deposit_then_fails() {
     let (caller_address, data_store, event_emitter, deposit_vault, chain) = setup();
     let account: ContractAddress = 'account'.try_into().unwrap();
     let deposit_param = create_dummy_deposit_param();
@@ -134,9 +134,6 @@ fn create_dummy_deposit_param() -> CreateDepositParams {
             .span32(),
         /// The minimum acceptable number of liquidity tokens.
         min_market_tokens: 10,
-        /// Whether to unwrap the native token when sending funds back
-        /// to the user in case the deposit gets cancelled.
-        should_unwrap_native_token: false,
         /// The execution fee for keepers.
         execution_fee: 1,
         /// The gas limit for the callback_contract.
