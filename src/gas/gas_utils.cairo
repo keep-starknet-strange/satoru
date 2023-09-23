@@ -22,6 +22,7 @@ use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispa
 use satoru::utils::{precision, starknet_utils::{sn_gasleft, sn_gasprice}};
 use satoru::utils::span32::{Span32, Span32Trait};
 use satoru::token::token_utils;
+use satoru::gas::error::GasError;
 
 /// Get the minimal gas to handle execution.
 /// # Arguments
@@ -37,7 +38,7 @@ fn get_min_handle_execution_error_gas(data_store: IDataStoreDispatcher) -> u128 
 fn get_execution_gas(data_store: IDataStoreDispatcher, starting_gas: u128) -> u128 {
     let min_handle_error_gas = get_min_handle_execution_error_gas(data_store);
     if starting_gas < min_handle_error_gas {
-        panic(array!["GasUtilsErros::INSUFFICIENT_EXECUTION_GAS"]);
+        panic(array![GasError::INSUFF_EXEC_GAS]);
     }
     starting_gas - min_handle_error_gas
 }
@@ -144,7 +145,7 @@ fn validate_execution_fee(
     let gas_limit = adjust_gas_limit_for_estimate(data_store, estimated_gas_limit);
     let min_execution_fee = gas_limit * sn_gasprice(array![10]);
     if (execution_fee < min_execution_fee) {
-        panic(array!["GasUtilsErrors::INSUFFICIENT_EXECUTION_FEE"]);
+        panic(array![GasError::INSUFF_EXEC_FEE]);
     }
 }
 
