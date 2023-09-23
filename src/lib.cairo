@@ -310,6 +310,10 @@ mod tests {
         mod test_price;
     }
 
+    mod reader {
+        mod test_reader;
+    }
+
     mod role {
         mod test_role_module;
         mod test_role_store;
