@@ -241,10 +241,14 @@ fn deploy_withdrawal_handler(
 }
 
 fn deploy_oracle(
-    oracle_store_address: ContractAddress, role_store_address: ContractAddress
+    oracle_store_address: ContractAddress,
+    role_store_address: ContractAddress,
+    pragma_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare('Oracle');
-    let constructor_calldata = array![role_store_address.into(), oracle_store_address.into()];
+    let constructor_calldata = array![
+        role_store_address.into(), oracle_store_address.into(), pragma_address.into()
+    ];
     contract.deploy(@constructor_calldata).unwrap()
 }
 
@@ -300,7 +304,9 @@ fn setup() -> (
     let strict_bank_address = deploy_strict_bank(data_store_address, role_store_address);
     let withdrawal_vault_address = deploy_withdrawal_vault(strict_bank_address);
     let oracle_store_address = deploy_oracle_store(role_store_address, event_emitter_address);
-    let oracle_address = deploy_oracle(oracle_store_address, role_store_address);
+    let oracle_address = deploy_oracle(
+        oracle_store_address, role_store_address, contract_address_const::<'pragma'>()
+    );
     let withdrawal_handler_address = deploy_withdrawal_handler(
         data_store_address,
         role_store_address,

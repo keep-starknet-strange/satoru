@@ -635,6 +635,28 @@ fn get_pnl_to_pool_factor(
     0
 }
 
+// Get the ratio of pnl to pool value.
+// # Arguments
+// * `data_store` - The data_store dispatcher.
+// * `market` Rhe market.
+// * `prices` the prices of the market tokens.
+// * `is_long` whether to get the value for the long or short side.
+// * `maximize` whether to maximize the factor.
+// # Returns
+// (pnl of positions) / (long or short pool value)
+// TODO same function names getPnlToPoolFactor
+fn get_pnl_to_pool_factor_from_prices(
+    data_store: IDataStoreDispatcher,
+    market: Market,
+    prices: MarketPrices,
+    is_long: bool,
+    maximize: bool
+) -> i128 {
+    // TODO
+    0
+}
+
+
 // Check if the pending pnl exceeds the allowed amount
 // # Arguments
 // * `data_store` - The data_store dispatcher.
@@ -929,3 +951,110 @@ fn market_token_amount_to_usd(
 ) -> u128 { // TODO
     0
 }
+
+
+/// Get the borrowing factor per second.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market.
+/// * `prices` - The prices of the market tokens.
+/// * `is_long` - Whether to get the factor for the long or short side
+/// # Returns
+/// The borrowing factor per second.
+fn get_borrowing_factor_per_second(
+    data_store: IDataStoreDispatcher, market: Market, prices: MarketPrices, is_long: bool
+) -> u128 {
+    // TODO
+    0
+}
+
+/// Get the borrowing factor per second.
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - Market to check.
+/// * `index_token_price` - Price of the market's index token.
+/// * `long_token_price` - Price of the market's long token.
+/// * `short_token_price` - Price of the market's short token.
+/// * `pnl_factor_type` - The pnl factor type.
+/// * `maximize` - Whether to maximize or minimize the net PNL.
+/// # Returns
+/// Returns an integer representing the calculated market token price and MarketPoolValueInfo struct containing additional information related to market pool value.
+
+fn get_market_token_price(
+    data_store: IDataStoreDispatcher,
+    market: Market,
+    index_token_price: Price,
+    long_token_price: Price,
+    short_token_price: Price,
+    pnl_factor_type: felt252,
+    maximize: bool
+) -> (i128, MarketPoolValueInfo) {
+    // TODO
+    (0, Default::default())
+}
+
+/// Get the net pending pnl for a market
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market to get the pending PNL for.
+/// * `index_token_price` - The price of the index token.
+/// * `maximize` - Whether to maximize or minimize the net PNL.
+/// # Returns
+/// The net pending pnl for a market
+fn get_net_pnl(
+    data_store: IDataStoreDispatcher, market: @Market, index_token_price: @Price, maximize: bool
+) -> i128 {
+    // TODO
+    0
+}
+
+/// The sum of open interest and pnl for a market
+// get_open_interest_in_tokens * token_price would not reflect pending positive pnl
+// for short positions, so get_open_interest_with_pnl should be used if that info is needed
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market.
+/// * `index_token_price` - The price of the index token.
+/// * `is_long` -  Whether to check the long or short side
+/// * `maximize` - Whether to maximize or minimize the net PNL.
+/// # Returns
+/// The net pending pnl for a market
+fn get_open_interest_with_pnl(
+    data_store: IDataStoreDispatcher,
+    market: Market,
+    index_token_price: Price,
+    is_long: bool,
+    maximize: bool
+) -> i128 {
+    // TODO
+    0
+}
+
+
+/// Get the virtual inventory for swaps
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market address.
+/// # Returns
+/// has virtual inventory, virtual long token inventory, virtual short token inventory
+fn get_virtual_inventory_for_swaps(
+    data_store: IDataStoreDispatcher, market: ContractAddress,
+) -> (bool, u128, u128) {
+    // TODO
+    (false, 0, 0)
+}
+
+
+/// Get the virtual inventory for positions
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `token` - The token to check.
+/// # Returns
+/// has virtual inventory, virtual inventory
+fn get_virtual_inventory_for_positions(
+    data_store: IDataStoreDispatcher, token: ContractAddress,
+) -> (bool, i128) {
+    // TODO
+    (false, 0)
+}
+

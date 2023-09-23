@@ -30,12 +30,15 @@ fn deploy_event_emitter() -> ContractAddress {
 
 /// Utility function to deploy a `Oracle` contract and return its dispatcher.
 fn deploy_oracle(
-    role_store_address: ContractAddress, oracle_address: ContractAddress
+    role_store_address: ContractAddress,
+    oracle_address: ContractAddress,
+    pragma_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare('Oracle');
     let mut constructor_calldata = array![];
     constructor_calldata.append(role_store_address.into());
     constructor_calldata.append(oracle_address.into());
+    constructor_calldata.append(pragma_address.into());
     contract.deploy(@constructor_calldata).unwrap()
 }
 
@@ -96,7 +99,11 @@ fn setup() -> (
     let event_emitter_address = deploy_event_emitter();
     let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
 
-    let oracle_address = deploy_oracle(role_store_address, contract_address_const::<'oracle'>());
+    let oracle_address = deploy_oracle(
+        role_store_address,
+        contract_address_const::<'oracle'>(),
+        contract_address_const::<'pragma'>()
+    );
     let oracle = IOracleDispatcher { contract_address: oracle_address };
 
     let bank_address = deploy_bank_address(data_store_address, role_store_address);
