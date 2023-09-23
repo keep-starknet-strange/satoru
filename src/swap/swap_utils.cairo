@@ -150,10 +150,7 @@ fn swap(params: @SwapParams) -> (ContractAddress, u128) {
             *params.receiver
         };
         let _params = _SwapParams {
-            market: market,
-            token_in: token_out,
-            amount_in: output_amount,
-            receiver: receiver,
+            market: market, token_in: token_out, amount_in: output_amount, receiver: receiver,
         };
         let (_token_out_res, _output_amount_res) = _swap(params, @_params);
         token_out = _token_out_res;

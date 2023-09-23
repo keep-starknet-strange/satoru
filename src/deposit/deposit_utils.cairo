@@ -91,7 +91,8 @@ fn create_deposit(
     } else {
         let fee_token_amount = deposit_vault.record_transfer_in(fee_token);
         assert(
-            fee_token_amount >= params.execution_fee, GasError::INSUFFICIENT_FEE_TOKEN_AMOUNT_FOR_EXECUTION_FEE
+            fee_token_amount >= params.execution_fee,
+            GasError::INSUFFICIENT_FEE_TOKEN_AMOUNT_FOR_EXECUTION_FEE
         );
 
         params.execution_fee = fee_token_amount;
