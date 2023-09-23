@@ -2,12 +2,13 @@ use starknet::{ContractAddress, contract_address_const};
 
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::reader::reader::{IReaderDispatcher, IReaderDispatcherTrait};
+
 use satoru::role::role;
 use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
 use satoru::tests_lib::{setup, teardown};
 use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::market::market::{Market};
-use satoru::reader::reader;
 use snforge_std::{PrintTrait, declare, start_prank, stop_prank, ContractClassTrait};
 use poseidon::poseidon_hash_span;
 use satoru::deposit::deposit::{Deposit};
@@ -22,6 +23,7 @@ fn given_normal_conditions_when_get_market_then_works() {
     // Setup
     //
     let (caller_address, role_store, data_store) = setup();
+    let (reader_address, reader) = setup_reader();
 
     let key: ContractAddress = 123456789.try_into().unwrap();
     let mut market = Market {
@@ -38,7 +40,7 @@ fn given_normal_conditions_when_get_market_then_works() {
 
     data_store.set_market(key, 0, market);
 
-    let market_by_key = reader::get_market(data_store, key);
+    let market_by_key = reader.get_market(data_store, key);
     assert(market_by_key == market, 'Invalid market by key');
 
     teardown(data_store.contract_address);
@@ -50,6 +52,7 @@ fn given_normal_conditions_when_get_market_by_salt_then_works() {
     // Setup
     //
     let (caller_address, role_store, data_store) = setup();
+    let (reader_address, reader) = setup_reader();
 
     let key: ContractAddress = 123456789.try_into().unwrap();
     let mut market = Market {
@@ -58,17 +61,32 @@ fn given_normal_conditions_when_get_market_by_salt_then_works() {
         long_token: 22222.try_into().unwrap(),
         short_token: 33333.try_into().unwrap(),
     };
+    let key2: ContractAddress = 222222222222.try_into().unwrap();
+
+    let mut market2 = Market {
+        market_token: key,
+        index_token: 12345.try_into().unwrap(),
+        long_token: 56678.try_into().unwrap(),
+        short_token: 8901234.try_into().unwrap(),
+    };
+
     start_prank(role_store.contract_address, caller_address);
     role_store.grant_role(caller_address, role::MARKET_KEEPER);
     stop_prank(role_store.contract_address);
 
-    let salt = poseidon_hash_span(array!['SATORU_MARKET', 0, 0, 0, 0].span());
+    let salt: felt252 = 'satoru_market';
+    let salt2: felt252 = 'satoru_market2';
 
     // Test logic
 
     data_store.set_market(key, salt, market);
-    let market_by_key = reader::get_market(data_store, key);
+    data_store.set_market(key2, salt2, market2);
+
+    let market_by_key = reader.get_market_by_salt(data_store, salt);
     assert(market_by_key == market, 'Invalid market by key');
+
+    let market_by_key2 = reader.get_market_by_salt(data_store, salt2);
+    assert(market_by_key2 == market2, 'Invalid market2 by key');
 
     teardown(data_store.contract_address);
 }
@@ -80,6 +98,7 @@ fn given_normal_conditions_when_get_deposit_then_works() {
     // Setup
     //
     let (caller_address, role_store, data_store) = setup();
+    let (reader_address, reader) = setup_reader();
 
     let key = 123456789;
     // Create random deposit
@@ -94,7 +113,7 @@ fn given_normal_conditions_when_get_deposit_then_works() {
 
     data_store.set_deposit(key, deposit);
 
-    let deposit_by_key = reader::get_deposit(data_store, key);
+    let deposit_by_key = reader.get_deposit(data_store, key);
     assert(deposit_by_key == deposit, 'Invalid deposit by key');
 
     teardown(data_store.contract_address);
@@ -107,6 +126,7 @@ fn given_normal_conditions_when_get_withdrawal_then_works() {
     // Setup
     //
     let (caller_address, role_store, data_store) = setup();
+    let (reader_address, reader) = setup_reader();
 
     let key = 123456789;
     // Create random withdrawal
@@ -121,7 +141,7 @@ fn given_normal_conditions_when_get_withdrawal_then_works() {
 
     data_store.set_withdrawal(key, withdrawal);
 
-    let withdrawal_by_key = reader::get_withdrawal(data_store, key);
+    let withdrawal_by_key = reader.get_withdrawal(data_store, key);
     assert(withdrawal_by_key == withdrawal, 'Invalid withdrawal by key');
 
     teardown(data_store.contract_address);
@@ -134,7 +154,7 @@ fn given_normal_conditions_when_get_position_then_works() {
     // Setup
     //
     let (caller_address, role_store, data_store) = setup();
-
+    let (reader_address, reader) = setup_reader();
     let key = 123456789;
     // Create random position
     let mut position: Position = Default::default();
@@ -148,7 +168,7 @@ fn given_normal_conditions_when_get_position_then_works() {
 
     data_store.set_position(key, position);
 
-    let position_by_key = reader::get_position(data_store, key);
+    let position_by_key = reader.get_position(data_store, key);
     assert(position_by_key == position, 'Invalid position by key');
 
     teardown(data_store.contract_address);
@@ -161,6 +181,7 @@ fn given_normal_conditions_when_get_order_then_works() {
     // Setup
     //
     let (caller_address, role_store, data_store) = setup();
+    let (reader_address, reader) = setup_reader();
 
     let key = 123456789;
     // Create random order
@@ -175,7 +196,7 @@ fn given_normal_conditions_when_get_order_then_works() {
 
     data_store.set_order(key, order);
 
-    let order_by_key = reader::get_order(data_store, key);
+    let order_by_key = reader.get_order(data_store, key);
     assert(order_by_key == order, 'Invalid order by key');
 
     teardown(data_store.contract_address);
@@ -190,6 +211,7 @@ fn given_normal_conditions_when_get_account_positions_then_works() {
     // Setup
     //
     let (caller_address, role_store, data_store) = setup();
+    let (reader_address, reader) = setup_reader();
 
     let key_1 = 1111111111;
     let account = 'account'.try_into().unwrap();
@@ -228,7 +250,7 @@ fn given_normal_conditions_when_get_account_positions_then_works() {
     data_store.set_position(key_3, position3);
     data_store.set_position(key_4, position4);
 
-    let account_position = reader::get_account_positions(data_store, account, 0, 10);
+    let account_position = reader.get_account_positions(data_store, account, 0, 10);
     assert(account_position.len() == 4, 'invalid position len');
     assert(account_position.at(0) == @position1, 'invalid position1');
     assert(account_position.at(1) == @position2, 'invalid position2');
@@ -250,6 +272,7 @@ fn given_normal_conditions_when_get_account_orders_then_works() {
     // Setup
     //
     let (caller_address, role_store, data_store) = setup();
+    let (reader_address, reader) = setup_reader();
 
     let key_1 = 1111111111;
     let account = 'account'.try_into().unwrap();
@@ -288,7 +311,7 @@ fn given_normal_conditions_when_get_account_orders_then_works() {
     data_store.set_order(key_3, order3);
     data_store.set_order(key_4, order4);
 
-    let account_order = reader::get_account_orders(data_store, account, 0, 10);
+    let account_order = reader.get_account_orders(data_store, account, 0, 10);
     assert(account_order.len() == 4, 'invalid order len');
     assert(account_order.at(0) == @order1, 'invalid order1');
     assert(account_order.at(1) == @order2, 'invalid order2');
@@ -305,6 +328,7 @@ fn given_normal_conditions_when_get_markets_then_works() {
     // Setup
     //
     let (caller_address, role_store, data_store) = setup();
+    let (reader_address, reader) = setup_reader();
 
     let key_1: ContractAddress = 1111111111.try_into().unwrap();
     let key_2: ContractAddress = 22222222222.try_into().unwrap();
@@ -338,7 +362,7 @@ fn given_normal_conditions_when_get_markets_then_works() {
     data_store.set_market(key_3, 3, market3);
     data_store.set_market(key_4, 4, market4);
 
-    let markets = reader::get_markets(data_store, 0, 10);
+    let markets = reader.get_markets(data_store, 0, 10);
     assert(markets.len() == 4, 'invalid market len');
     assert(markets.at(0) == @market1, 'invalid market1');
     assert(markets.at(1) == @market2, 'invalid market2');
@@ -366,6 +390,7 @@ fn given_normal_conditions_when_get_pnl_then_works() {
     // Setup
     //
     let (caller_address, role_store, data_store) = setup();
+    let (reader_address, reader) = setup_reader();
 
     let market_token_address = contract_address_const::<'market_token'>();
     let market = Market {
@@ -404,7 +429,7 @@ fn given_normal_conditions_when_get_pnl_then_works() {
     data_store.set_u128(open_interest_in_tokens_key_for_short, 250);
 
     // Actual test case.
-    let pnl = reader::get_pnl(data_store, @market, @price, is_long, maximize);
+    let pnl = reader.get_pnl(data_store, market, price, is_long, maximize);
 
     // Perform assertions.
     assert(pnl == 22250, 'wrong pnl');
@@ -432,4 +457,13 @@ fn given_normal_conditions_when_get_pnl_then_works() {
 // TODO missing libraries 'market_utils::is_pnl_factor_exceeded_direct' and 'market_utils::get_enabled_market' not implemented 
 //fn given_normal_conditions_when_get_adl_state_then_works() {
 
+// *************************************************************************
+//                          SETUP READER
+// *************************************************************************
 
+fn setup_reader() -> (ContractAddress, IReaderDispatcher) {
+    let contract = declare('Reader');
+    let reader_address = contract.deploy(@array![]).unwrap();
+    let reader = IReaderDispatcher { contract_address: reader_address };
+    (reader_address, reader)
+}

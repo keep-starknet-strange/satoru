@@ -769,6 +769,7 @@ mod DataStore {
                 // Valid indexes start from 1.
                 self.market_indexes.write(key, markets.len() + 1);
                 markets.append(market);
+                self.set_address(self.get_market_salt_hash(salt), key);
                 return;
             }
             let index = offsetted_index - 1;
