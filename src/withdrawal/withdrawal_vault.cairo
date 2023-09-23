@@ -22,7 +22,6 @@ trait IWithdrawalVault<TContractState> {
         token: ContractAddress,
         receiver: ContractAddress,
         amount: u128,
-        should_unwrap_native_token: bool
     );
     fn sync_token_balance(ref self: TContractState, token: ContractAddress) -> u128;
 }
@@ -90,7 +89,6 @@ mod WithdrawalVault {
             token: ContractAddress,
             receiver: ContractAddress,
             amount: u128,
-            should_unwrap_native_token: bool
         ) {}
 
         fn sync_token_balance(ref self: ContractState, token: ContractAddress) -> u128 {

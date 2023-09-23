@@ -49,9 +49,6 @@ struct SwapParams {
     receiver: ContractAddress,
     /// The address of the ui fee receiver.
     ui_fee_receiver: ContractAddress,
-    /// A boolean indicating whether the received tokens should be unwrapped from
-    /// the wrapped native token (WNT) if they are wrapped.
-    should_unwrap_native_token: bool,
 }
 
 impl DefaultSwapParams of Default<SwapParams> {
@@ -69,7 +66,6 @@ impl DefaultSwapParams of Default<SwapParams> {
             min_output_amount: 0,
             receiver: contract_address,
             ui_fee_receiver: contract_address,
-            should_unwrap_native_token: false,
         }
     }
 }
@@ -84,9 +80,6 @@ struct _SwapParams {
     amount_in: u128,
     /// The address to which the swapped tokens should be sent.
     receiver: ContractAddress,
-    /// A boolean indicating whether the received tokens should be unwrapped from
-    /// the wrapped native token (WNT) if they are wrapped.
-    should_unwrap_native_token: bool,
 }
 
 #[derive(Default, Drop, Copy, starknet::Store, Serde)]
@@ -161,11 +154,6 @@ fn swap(params: @SwapParams) -> (ContractAddress, u128) {
             token_in: token_out,
             amount_in: output_amount,
             receiver: receiver,
-            should_unwrap_native_token: if (i == array_length - 1) {
-                *params.should_unwrap_native_token
-            } else {
-                false
-            }
         };
         let (_token_out_res, _output_amount_res) = _swap(params, @_params);
         token_out = _token_out_res;

@@ -44,8 +44,6 @@ struct Withdrawal {
     execution_fee: u128,
     /// The gas limit for calling the callback contract.
     callback_gas_limit: u128,
-    /// whether to unwrap the native token
-    should_unwrap_native_token: bool,
 }
 
 impl DefaultWithdrawal of Default<Withdrawal> {
@@ -65,7 +63,6 @@ impl DefaultWithdrawal of Default<Withdrawal> {
             updated_at_block: 0,
             execution_fee: 0,
             callback_gas_limit: 0,
-            should_unwrap_native_token: true,
         }
     }
 }

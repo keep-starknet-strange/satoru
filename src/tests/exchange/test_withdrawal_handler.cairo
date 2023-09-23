@@ -43,7 +43,6 @@ fn given_normal_conditions_when_create_withdrawal_then_works() {
         short_token_swap_path: Default::default(),
         min_long_token_amount: Default::default(),
         min_short_token_amount: Default::default(),
-        should_unwrap_native_token: Default::default(),
         execution_fee: Default::default(),
         callback_gas_limit: Default::default(),
     };
@@ -68,7 +67,6 @@ fn given_caller_not_controller_when_create_withdrawal_then_fails() {
         short_token_swap_path: Default::default(),
         min_long_token_amount: Default::default(),
         min_short_token_amount: Default::default(),
-        should_unwrap_native_token: Default::default(),
         execution_fee: Default::default(),
         callback_gas_limit: Default::default(),
     };
@@ -93,7 +91,6 @@ fn given_normal_conditions_when_cancel_withdrawal_then_works() {
         updated_at_block: Default::default(),
         execution_fee: Default::default(),
         callback_gas_limit: Default::default(),
-        should_unwrap_native_token: Default::default(),
     };
 
     let (caller_address, data_store, event_emitter, withdrawal_handler) = setup();
@@ -124,7 +121,6 @@ fn given_unexisting_key_when_cancel_withdrawal_then_fails() {
         updated_at_block: Default::default(),
         execution_fee: Default::default(),
         callback_gas_limit: Default::default(),
-        should_unwrap_native_token: Default::default(),
     };
 
     let (caller_address, data_store, event_emitter, withdrawal_handler) = setup();

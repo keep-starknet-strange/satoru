@@ -154,7 +154,6 @@ fn given_caller_not_controller_when_swap_then_fails() {
         min_output_amount: 1,
         receiver: contract_address_const::<'receiver'>(),
         ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
-        should_unwrap_native_token: true,
     };
 
     swap_handler.swap(swap);
@@ -187,7 +186,6 @@ fn given_normal_conditions_when_swap_then_works() {
         min_output_amount: 1,
         receiver: contract_address_const::<'receiver'>(),
         ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
-        should_unwrap_native_token: true,
     };
 
     let swap_result = swap_handler.swap(swap);

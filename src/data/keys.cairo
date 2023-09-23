@@ -11,9 +11,9 @@ use poseidon::poseidon_hash_span;
 // *                        CONSTANT KEYS                                  *
 // *************************************************************************
 
-/// Key for the address of the wrapped native token.
-fn wnt() -> felt252 {
-    hash_poseidon_single('WNT')
+/// Key for the address of the fee token.
+fn fee_token() -> felt252 {
+    hash_poseidon_single('FEE_TOKEN')
 }
 
 /// Key for the nonce value used in NonceUtils.
