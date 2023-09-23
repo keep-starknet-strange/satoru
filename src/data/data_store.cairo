@@ -195,6 +195,26 @@ trait IDataStore<TContractState> {
     fn get_market_keys(self: @TContractState, start: usize, end: usize) -> Array<ContractAddress>;
 
     // *************************************************************************
+    //                      Oracle related functions.
+    // *************************************************************************
+    /// Sets the token ID for a given contract address.
+    /// This function checks if the caller has the `CONTROLLER` role
+    /// before updating the `tokens_ids` mapping.
+    /// # Arguments
+    /// * `self` - Mutable reference to the contract state.
+    /// * `token` - Contract address for which to set the ID.
+    /// * `id` - The ID to set.
+    fn set_token_id(ref self: TContractState, token: ContractAddress, id: felt252);
+
+    /// Retrieves the token ID associated with a given contract address.
+    /// # Arguments
+    /// * `self` - Reference to the contract state.
+    /// * `token` - Contract address for which to retrieve the ID.
+    /// # Returns
+    /// Returns the ID associated with the given token address.
+    fn get_token_id(self: @TContractState, token: ContractAddress) -> felt252;
+
+    // *************************************************************************
     //                      Order related functions.
     // *************************************************************************
     /// Get a order value for the given key.
@@ -471,6 +491,8 @@ mod DataStore {
         market_values: LegacyMap::<ContractAddress, Market>,
         markets: List<Market>,
         market_indexes: LegacyMap::<ContractAddress, usize>,
+        /// Oracle storage
+        tokens_ids: LegacyMap::<ContractAddress, felt252>,
         /// Order storage
         order_values: LegacyMap::<felt252, Order>,
         orders: List<Order>,
@@ -845,6 +867,18 @@ mod DataStore {
 
         fn get_market_salt_hash(self: @ContractState, salt: felt252) -> felt252 {
             poseidon_hash_span(array![MARKET, salt].span())
+        }
+
+        // *************************************************************************
+        //                      Oracle related functions.
+        // *************************************************************************
+        fn set_token_id(ref self: ContractState, token: ContractAddress, id: felt252) {
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.tokens_ids.write(token, id);
+        }
+
+        fn get_token_id(self: @ContractState, token: ContractAddress) -> felt252 {
+            self.tokens_ids.read(token)
         }
 
         // *************************************************************************
