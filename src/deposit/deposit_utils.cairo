@@ -192,7 +192,7 @@ fn cancel_deposit(
     let event_log_data = EventLogData { cant_be_empty: 0 };
     after_deposit_cancellation(key, deposit, event_log_data, event_emitter);
 
-    gas_utils::pay_execution_fee(
+    gas_utils::pay_execution_fee_deposit(
         data_store,
         event_emitter,
         deposit_vault,
