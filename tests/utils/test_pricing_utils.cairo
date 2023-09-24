@@ -1,6 +1,6 @@
 use satoru::pricing::pricing_utils::{
     apply_impact_factor, get_price_impact_usd_for_same_side_rebalance,
-    get_price_impact_usd_for_crossover_side_rebalance
+    get_price_impact_usd_for_crossover_rebalance
 };
 // *************************************************************************
 //                  Tests for apply_impact_factor function
@@ -22,15 +22,15 @@ fn test_get_price_impact_usd_for_same_side_rebalance_positive_impact() { //TODO 
 
 
 // *************************************************************************
-//       Tests for get_price_impact_usd_for_crossover_side_rebalance function
+//       Tests for get_price_impact_usd_for_crossover_rebalance function
 // *************************************************************************
 #[test]
 fn test_get_price_impact_usd_for_crossover_side_rebalance_positive_impact() { //TODO finish this test and add others test once apply_exponent_factor is implemented
-    //assert(get_price_impact_usd_for_crossover_side_rebalance(x, y, z, k) == r, 'should be r');
+    //assert(get_price_impact_usd_for_crossover_rebalance(x, y, z, k) == r, 'should be r');
     assert(1 == 1, '');
 }
 
 #[test]
-fn test_get_price_impact_usd_for_crossover_side_rebalance_negative_impact() { //assert(get_price_impact_usd_for_crossover_side_rebalance(x, y, z, k) == r, 'should be r');
+fn test_get_price_impact_usd_for_crossover_side_rebalance_negative_impact() { //assert(get_price_impact_usd_for_crossover_rebalance(x, y, z, k) == r, 'should be r');
     assert(1 == 1, '');
 }
