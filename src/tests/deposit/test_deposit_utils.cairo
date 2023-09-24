@@ -29,7 +29,7 @@ fn given_normal_conditions_when_deposit_then_works() {
 
 
 #[test]
-#[should_panic(expected: ('insffcient_tok_amt_for_exec_fee',))]
+#[should_panic(expected: ('insufficient_execution_fee',))]
 fn given_unsufficient_fee_token_amount_for_deposit_then_fails() {
     let (caller_address, data_store, event_emitter, deposit_vault, chain) = setup();
     let account: ContractAddress = 'account'.try_into().unwrap();
