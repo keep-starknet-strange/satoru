@@ -43,7 +43,6 @@ fn given_normal_conditions_when_create_withdrawal_then_works() {
         short_token_swap_path: Default::default(),
         min_long_token_amount: Default::default(),
         min_short_token_amount: Default::default(),
-        should_unwrap_native_token: Default::default(),
         execution_fee: Default::default(),
         callback_gas_limit: Default::default(),
     };
@@ -68,7 +67,6 @@ fn given_caller_not_controller_when_create_withdrawal_then_fails() {
         short_token_swap_path: Default::default(),
         min_long_token_amount: Default::default(),
         min_short_token_amount: Default::default(),
-        should_unwrap_native_token: Default::default(),
         execution_fee: Default::default(),
         callback_gas_limit: Default::default(),
     };
@@ -93,7 +91,6 @@ fn given_normal_conditions_when_cancel_withdrawal_then_works() {
         updated_at_block: Default::default(),
         execution_fee: Default::default(),
         callback_gas_limit: Default::default(),
-        should_unwrap_native_token: Default::default(),
     };
 
     let (caller_address, data_store, event_emitter, withdrawal_handler) = setup();
@@ -124,7 +121,6 @@ fn given_unexisting_key_when_cancel_withdrawal_then_fails() {
         updated_at_block: Default::default(),
         execution_fee: Default::default(),
         callback_gas_limit: Default::default(),
-        should_unwrap_native_token: Default::default(),
     };
 
     let (caller_address, data_store, event_emitter, withdrawal_handler) = setup();
@@ -241,10 +237,14 @@ fn deploy_withdrawal_handler(
 }
 
 fn deploy_oracle(
-    oracle_store_address: ContractAddress, role_store_address: ContractAddress
+    oracle_store_address: ContractAddress,
+    role_store_address: ContractAddress,
+    pragma_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare('Oracle');
-    let constructor_calldata = array![role_store_address.into(), oracle_store_address.into()];
+    let constructor_calldata = array![
+        role_store_address.into(), oracle_store_address.into(), pragma_address.into()
+    ];
     contract.deploy(@constructor_calldata).unwrap()
 }
 
@@ -300,7 +300,9 @@ fn setup() -> (
     let strict_bank_address = deploy_strict_bank(data_store_address, role_store_address);
     let withdrawal_vault_address = deploy_withdrawal_vault(strict_bank_address);
     let oracle_store_address = deploy_oracle_store(role_store_address, event_emitter_address);
-    let oracle_address = deploy_oracle(oracle_store_address, role_store_address);
+    let oracle_address = deploy_oracle(
+        oracle_store_address, role_store_address, contract_address_const::<'pragma'>()
+    );
     let withdrawal_handler_address = deploy_withdrawal_handler(
         data_store_address,
         role_store_address,

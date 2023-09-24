@@ -31,6 +31,7 @@ trait IStrictBank<TContractState> {
     fn transfer_out(
         ref self: TContractState, token: ContractAddress, receiver: ContractAddress, amount: u128,
     );
+
     /// Updates the `token_balances` in case of token burns or similar balance changes.
     /// The `prev_balance` is not validated to be more than the `next_balance` as this
     /// could allow someone to block this call by transferring into the contract.

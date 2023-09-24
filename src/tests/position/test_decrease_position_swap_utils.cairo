@@ -170,7 +170,6 @@ fn create_new_update_position_params(
         min_output_amount: 10,
         updated_at_block: 1,
         is_long: false,
-        should_unwrap_native_token: false,
         is_frozen: false
     };
 

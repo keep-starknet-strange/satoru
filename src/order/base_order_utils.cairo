@@ -102,8 +102,6 @@ struct CreateOrderParams {
     decrease_position_swap_type: DecreasePositionSwapType,
     /// Whether the order is for a long or short.
     is_long: bool,
-    /// Whether to unwrap native tokens before transferring to the user.
-    should_unwrap_native_token: bool,
     /// The referral code linked to this order.
     referral_code: felt252
 }
@@ -127,7 +125,6 @@ impl CreateOrderParamsClone of Clone<CreateOrderParams> {
             order_type: *self.order_type,
             decrease_position_swap_type: *self.decrease_position_swap_type,
             is_long: *self.is_long,
-            should_unwrap_native_token: *self.should_unwrap_native_token,
             referral_code: *self.referral_code
         }
     }

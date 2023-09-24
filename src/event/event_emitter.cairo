@@ -879,7 +879,7 @@ mod EventEmitter {
         initial_long_token_amount: u128,
         initial_short_token_amount: u128,
         min_market_tokens: u128,
-        updated_at_block: u128,
+        updated_at_block: u64,
         execution_fee: u128,
         callback_gas_limit: u128,
     }
@@ -910,9 +910,8 @@ mod EventEmitter {
         min_long_token_amount: u128,
         min_short_token_amount: u128,
         updated_at_block: u64,
-        execution_fee: u256,
+        execution_fee: u128,
         callback_gas_limit: u128,
-        should_unwrap_native_token: bool
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1772,7 +1771,6 @@ mod EventEmitter {
                         updated_at_block: withdrawal.updated_at_block,
                         execution_fee: withdrawal.execution_fee,
                         callback_gas_limit: withdrawal.callback_gas_limit,
-                        should_unwrap_native_token: withdrawal.should_unwrap_native_token
                     }
                 );
         }

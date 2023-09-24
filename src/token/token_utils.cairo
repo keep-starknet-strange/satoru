@@ -9,7 +9,7 @@ use satoru::bank::error::BankError;
 use integer::u256_from_felt252;
 
 
-fn wnt(data_store: IDataStoreDispatcher) -> ContractAddress {
+fn fee_token(data_store: IDataStoreDispatcher) -> ContractAddress {
     // TODO
     ContractAddressZeroable::zero()
 }
