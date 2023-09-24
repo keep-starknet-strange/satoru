@@ -12,9 +12,7 @@ use result::ResultTrait;
 // Local imports.
 
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::referral::referral_storage::interface::{
-    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
-};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::market::{
     market_utils::GetNextFundingAmountPerSizeResult, market::Market, market_utils::MarketPrices,
     market_pool_value_info::MarketPoolValueInfo,
@@ -445,7 +443,7 @@ mod Reader {
 
     // Local imports.
     use super::{MarketInfo, VirtualInventory, IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::referral::referral_storage::interface::{
+    use satoru::mock::referral_storage::{
         IReferralStorageDispatcher, IReferralStorageDispatcherTrait
     };
     use satoru::market::{
