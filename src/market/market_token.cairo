@@ -74,8 +74,10 @@ mod MarketToken {
         role_store_address: ContractAddress
     ) {
         self.initializer(NAME, SYMBOL);
-        let mut bank: Bank::ContractState = Bank::unsafe_new_contract_state();
-        IBank::initialize(ref bank, data_store_address, role_store_address)
+        //Might need to inherit bank. 
+        // let mut bank: Bank::ContractState = Bank::unsafe_new_contract_state();
+        // IBank::initialize(ref bank, data_store_address, role_store_address)
+        self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
     }
 
     //
