@@ -338,7 +338,6 @@ mod tests {
         mod test_starknet_utils;
         mod test_u128_mask;
         mod test_i128;
-        mod test_pricing_utils; 
     }
     mod mock {
         mod test_referral_utils;

@@ -12,7 +12,7 @@ use result::ResultTrait;
 // Local imports.
 
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::referral::referral_storage::interface::{
+use satoru::mock::referral_storage::{
     IReferralStorageDispatcher, IReferralStorageDispatcherTrait
 };
 use satoru::market::{
@@ -31,7 +31,6 @@ use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::position::{position_utils, position::Position};
 use satoru::pricing::swap_pricing_utils::SwapFees;
 use satoru::deposit::deposit::Deposit;
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::utils::{i128::{StoreI128, I128Serde, u128_to_i128, i128_to_u128, I128Div, I128Mul}};
 
 #[derive(Drop, starknet::Store, Serde)]
@@ -446,7 +445,7 @@ mod Reader {
 
     // Local imports.
     use super::{MarketInfo, VirtualInventory, IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::referral::referral_storage::interface::{
+    use satoru::mock::referral_storage::{
         IReferralStorageDispatcher, IReferralStorageDispatcherTrait
     };
     use satoru::market::{
