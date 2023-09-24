@@ -17,7 +17,8 @@ use satoru::pricing::error::PricingError;
 use satoru::pricing::pricing_utils;
 use satoru::utils::calc;
 use satoru::utils::precision;
-use satoru::utils::i128::{StoreI128, I128Serde};
+use satoru::utils::i128::{StoreI128, I128Serde, I128Div, I128Mul};
+
 
 /// Struct used in get_price_impact_usd.
 #[derive(Copy, Drop, starknet::Store, Serde)]
@@ -52,7 +53,7 @@ struct PoolParams {
 }
 
 /// Struct to contain swap fee values.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Drop, Clone, starknet::Store, Serde)]
 struct SwapFees {
     /// The fee amount for the fee receiver.
     fee_receiver_amount: u128,

@@ -19,7 +19,8 @@ use satoru::price::price::Price;
 use satoru::pricing::position_pricing_utils::PositionFees;
 use satoru::order::order::{Order, SecondaryOrderType};
 use satoru::utils::span32::{Span32, DefaultSpan32};
-use satoru::utils::i128::{StoreI128, I128Serde};
+use satoru::utils::i128::{I128Div, I128Mul, StoreI128, I128Serde};
+
 
 //TODO: OrderCollatDeltaAmountAutoUpdtd must be renamed back to OrderCollateralDeltaAmountAutoUpdated when string will be allowed as event argument
 //TODO: AfterWithdrawalCancelError must be renamed back to AfterWithdrawalCancellationError when string will be allowed as event argument
@@ -640,7 +641,7 @@ mod EventEmitter {
     use satoru::pricing::position_pricing_utils::PositionFees;
     use satoru::order::order::{Order, SecondaryOrderType};
     use satoru::utils::span32::{Span32, DefaultSpan32};
-    use satoru::utils::i128::{StoreI128, I128Serde};
+    use satoru::utils::i128::{I128Div, I128Mul, StoreI128, I128Serde};
 
     // *************************************************************************
     //                              STORAGE
@@ -838,7 +839,7 @@ mod EventEmitter {
         initial_long_token_amount: u128,
         initial_short_token_amount: u128,
         min_market_tokens: u128,
-        updated_at_block: u128,
+        updated_at_block: u64,
         execution_fee: u128,
         callback_gas_limit: u128,
     }
@@ -869,9 +870,8 @@ mod EventEmitter {
         min_long_token_amount: u128,
         min_short_token_amount: u128,
         updated_at_block: u64,
-        execution_fee: u256,
+        execution_fee: u128,
         callback_gas_limit: u128,
-        should_unwrap_native_token: bool
     }
 
     #[derive(Drop, starknet::Event)]
@@ -936,9 +936,9 @@ mod EventEmitter {
         collateral_delta_amount: u128,
         price_impact_diff_usd: u128,
         order_type: OrderType,
-        price_impact_usd: u128,
-        base_pnl_usd: u128,
-        uncapped_base_pnl_usd: u128,
+        price_impact_usd: i128,
+        base_pnl_usd: i128,
+        uncapped_base_pnl_usd: i128,
         is_long: bool,
         order_key: felt252,
         position_key: felt252
@@ -1455,7 +1455,7 @@ mod EventEmitter {
         amount_in_after_fees: u128,
         amount_out: u128,
         price_impact_usd: i128,
-        price_impact_amount: i128,
+        price_impact_amount: i128
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1676,7 +1676,6 @@ mod EventEmitter {
                         updated_at_block: withdrawal.updated_at_block,
                         execution_fee: withdrawal.execution_fee,
                         callback_gas_limit: withdrawal.callback_gas_limit,
-                        should_unwrap_native_token: withdrawal.should_unwrap_native_token
                     }
                 );
         }

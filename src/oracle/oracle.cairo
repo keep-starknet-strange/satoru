@@ -33,7 +33,8 @@ trait IOracle<TContractState> {
     fn initialize(
         ref self: TContractState,
         role_store_address: ContractAddress,
-        oracle_store_address: ContractAddress
+        oracle_store_address: ContractAddress,
+        pragma_address: ContractAddress,
     );
 
     /// Validate and store signed prices
@@ -209,7 +210,9 @@ mod Oracle {
     use satoru::oracle::{
         oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait}, oracle_utils,
         oracle_utils::{SetPricesParams, ReportInfo}, error::OracleError,
-        price_feed::{IPriceFeedSafeDispatcher, IPriceFeedSafeDispatcherTrait}
+        price_feed::{
+            IPriceFeedDispatcher, IPriceFeedDispatcherTrait, DataType, PragmaPricesResponse,
+        }
     };
     use satoru::role::role_module::{
         IRoleModule, RoleModule
@@ -219,6 +222,7 @@ mod Oracle {
     use satoru::utils::u128_mask::{Mask, MaskTrait, validate_unique_and_set_index};
 
     use super::{IOracle, SetPricesCache, SetPricesInnerCache, ValidatedPrice};
+
 
     // *************************************************************************
     //                              CONSTANTS
@@ -239,6 +243,8 @@ mod Oracle {
         role_store: IRoleStoreDispatcher,
         /// Interface to interact with the `OracleStore` contract.
         oracle_store: IOracleStoreDispatcher,
+        /// Interface to interact with the Pragma Oracle.
+        price_feed: IPriceFeedDispatcher,
         /// List of Prices related to a token.
         tokens_with_prices: List<ContractAddress>,
         /// Mapping between tokens and prices.
@@ -257,9 +263,10 @@ mod Oracle {
     fn constructor(
         ref self: ContractState,
         role_store_address: ContractAddress,
-        oracle_store_address: ContractAddress
+        oracle_store_address: ContractAddress,
+        pragma_address: ContractAddress,
     ) {
-        self.initialize(role_store_address, oracle_store_address);
+        self.initialize(role_store_address, oracle_store_address, pragma_address);
     }
 
 
@@ -271,7 +278,8 @@ mod Oracle {
         fn initialize(
             ref self: ContractState,
             role_store_address: ContractAddress,
-            oracle_store_address: ContractAddress
+            oracle_store_address: ContractAddress,
+            pragma_address: ContractAddress,
         ) {
             // Make sure the contract is not already initialized.
             assert(
@@ -280,7 +288,8 @@ mod Oracle {
             self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
             self
                 .oracle_store
-                .write(IOracleStoreDispatcher { contract_address: oracle_store_address })
+                .write(IOracleStoreDispatcher { contract_address: oracle_store_address });
+            self.price_feed.write(IPriceFeedDispatcher { contract_address: pragma_address });
         }
 
         fn set_prices(
@@ -691,7 +700,6 @@ mod Oracle {
 
                 let median_max_price = arrays::get_median(inner_cache_save.max_prices.span())
                     * report_info.precision;
-
                 let (has_price_feed, ref_price) = self
                     .get_price_feed_price(data_store, report_info.token);
 
@@ -818,7 +826,6 @@ mod Oracle {
             let diff = calc::diff(price, ref_price);
 
             let diff_factor = precision::to_factor(diff, ref_price);
-
             if diff_factor > max_ref_price_deviation_factor {
                 OracleError::MAX_REFPRICE_DEVIATION_EXCEEDED(
                     token, price, ref_price, max_ref_price_deviation_factor
@@ -880,32 +887,28 @@ mod Oracle {
         fn get_price_feed_price(
             self: @ContractState, data_store: IDataStoreDispatcher, token: ContractAddress,
         ) -> (bool, u128) {
-            let price_feed_address = data_store.get_address(keys::price_feed_key(token));
+            let token_id = data_store.get_token_id(token);
+            let response = self.price_feed.read().get_data_median(DataType::SpotEntry(token_id));
 
-            if price_feed_address.is_zero() {
-                return (false, 0);
-            }
-
-            let price_feed = IPriceFeedSafeDispatcher { contract_address: price_feed_address };
-
-            let (_, price, _, timestamp, _) = price_feed.latest_round_data().unwrap();
-
-            if price <= 0 {
-                OracleError::INVALID_PRICE_FEED(token, price);
+            if response.price <= 0 {
+                OracleError::INVALID_PRICE_FEED(token, response.price);
             }
 
             let heart_beat_duration = data_store
                 .get_u128(keys::price_feed_heartbeat_duration_key(token));
 
             let current_timestamp = get_block_timestamp();
-            if current_timestamp > timestamp && current_timestamp
-                - timestamp > heart_beat_duration.try_into().unwrap() {
-                OracleError::PRICE_FEED_NOT_UPDATED(token, timestamp, heart_beat_duration);
+            if current_timestamp > response.last_updated_timestamp && current_timestamp
+                - response.last_updated_timestamp > heart_beat_duration.try_into().unwrap() {
+                OracleError::PRICE_FEED_NOT_UPDATED(
+                    token, response.last_updated_timestamp, heart_beat_duration
+                );
             }
 
             let precision_ = self.get_price_feed_multiplier(data_store, token);
-
-            let adjusted_price = precision::mul_div(price, precision_, precision::FLOAT_PRECISION);
+            let adjusted_price = precision::mul_div(
+                response.price, precision_, precision::FLOAT_PRECISION
+            );
 
             (true, adjusted_price)
         }

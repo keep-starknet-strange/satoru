@@ -5,6 +5,7 @@
 use starknet::{ContractAddress, contract_address_const};
 use core::integer::I128Neg;
 
+
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -12,7 +13,7 @@ use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::market::{market::Market, market_utils};
 use satoru::fee::fee_utils;
 use satoru::utils::{calc, store_arrays::StoreMarketSpan, traits::ContractAddressDefault};
-use satoru::utils::i128::{DefaultI128, StoreI128, I128Serde};
+use satoru::utils::i128::{StoreI128, I128Serde, I128Div, I128Mul};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::swap::error::SwapError;
 use satoru::data::keys;
@@ -44,9 +45,6 @@ struct SwapParams {
     receiver: ContractAddress,
     /// The address of the ui fee receiver.
     ui_fee_receiver: ContractAddress,
-    /// A boolean indicating whether the received tokens should be unwrapped from
-    /// the wrapped native token (WNT) if they are wrapped.
-    should_unwrap_native_token: bool,
 }
 
 impl DefaultSwapParams of Default<SwapParams> {
@@ -64,7 +62,6 @@ impl DefaultSwapParams of Default<SwapParams> {
             min_output_amount: 0,
             receiver: contract_address,
             ui_fee_receiver: contract_address,
-            should_unwrap_native_token: false,
         }
     }
 }
@@ -79,9 +76,6 @@ struct _SwapParams {
     amount_in: u128,
     /// The address to which the swapped tokens should be sent.
     receiver: ContractAddress,
-    /// A boolean indicating whether the received tokens should be unwrapped from
-    /// the wrapped native token (WNT) if they are wrapped.
-    should_unwrap_native_token: bool,
 }
 
 #[derive(Default, Drop, Copy, starknet::Store, Serde)]
@@ -152,15 +146,7 @@ fn swap(params: @SwapParams) -> (ContractAddress, u128) {
             *params.receiver
         };
         let _params = _SwapParams {
-            market: market,
-            token_in: token_out,
-            amount_in: output_amount,
-            receiver: receiver,
-            should_unwrap_native_token: if (i == array_length - 1) {
-                *params.should_unwrap_native_token
-            } else {
-                false
-            }
+            market: market, token_in: token_out, amount_in: output_amount, receiver: receiver,
         };
         let (_token_out_res, _output_amount_res) = _swap(params, @_params);
         token_out = _token_out_res;
@@ -284,7 +270,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
                 price_impact_usd
             );
 
-        if (fees.amount_after_fees <= calc::to_unsigned(-price_impact_amount)) {
+        if fees.amount_after_fees <= calc::to_unsigned(-price_impact_amount) {
             SwapError::SWAP_PRICE_IMPACT_EXCEEDS_AMOUNT_IN(
                 fees.amount_after_fees, price_impact_amount
             );

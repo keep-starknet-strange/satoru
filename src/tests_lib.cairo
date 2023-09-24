@@ -1,4 +1,4 @@
-use starknet::{ContractAddress, Felt252TryIntoContractAddress};
+use starknet::{ContractAddress, Felt252TryIntoContractAddress, contract_address_const};
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -49,10 +49,14 @@ fn deploy_oracle_store(
 
 /// Utility function to deploy a `EventEmitter` contract and return its dispatcher.
 fn deploy_oracle(
-    role_store_address: ContractAddress, oracle_store_address: ContractAddress
+    role_store_address: ContractAddress,
+    oracle_store_address: ContractAddress,
+    pragma_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare('Oracle');
-    let constructor_calldata = array![role_store_address.into(), oracle_store_address.into()];
+    let constructor_calldata = array![
+        role_store_address.into(), oracle_store_address.into(), pragma_address.into()
+    ];
     contract.deploy(@constructor_calldata).unwrap()
 }
 
@@ -115,7 +119,9 @@ fn setup_oracle_and_store() -> (
     start_prank(data_store_address, caller_address);
     let (event_emitter_address, event_emitter) = setup_event_emitter();
     let oracle_store_address = deploy_oracle_store(role_store_address, event_emitter_address);
-    let oracle_address = deploy_oracle(role_store_address, oracle_store_address);
+    let oracle_address = deploy_oracle(
+        role_store_address, oracle_store_address, contract_address_const::<'pragma'>()
+    );
     let oracle = IOracleDispatcher { contract_address: oracle_address };
     (caller_address, role_store, data_store, event_emitter, oracle)
 }

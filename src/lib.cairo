@@ -91,6 +91,7 @@ mod fee {
 // `gas` is used for execution fee estimation and payments.
 mod gas {
     mod gas_utils;
+    mod error;
 }
 
 // `nonce` is a module that maintains a progressively increasing nonce value.
@@ -100,6 +101,7 @@ mod nonce {
 
 // 'reader' is a module that retrieves the financial market data and trading utility.
 mod reader {
+    mod error;
     mod reader_pricing_utils;
     mod reader_utils;
     mod reader;
@@ -276,6 +278,7 @@ mod tests {
         mod test_withdrawal_events_emitted;
     }
     mod exchange {
+        mod test_liquidation_handler;
         mod test_withdrawal_handler;
     }
     mod feature {
@@ -302,12 +305,16 @@ mod tests {
     }
     mod position {
         mod test_decrease_position_swap_utils;
+        mod test_position_utils;
     }
     mod price {
         mod test_price;
     }
     mod pricing {
         mod test_swap_pricing_utils;
+    }
+    mod reader {
+        mod test_reader;
     }
     mod role {
         mod test_role_module;

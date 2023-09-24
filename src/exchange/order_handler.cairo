@@ -30,7 +30,7 @@ trait IOrderHandler<TContractState> {
     /// Updates the given order with the specified size delta, acceptable price, and trigger price.
     /// The `updateOrder()` feature must be enabled for the given order type. The caller must be the owner
     /// of the order, and the order must not be a market order. The size delta, trigger price, and
-    /// acceptable price are updated on the order, and the order is unfrozen. Any additional WNT that is
+    /// acceptable price are updated on the order, and the order is unfrozen. Any additional FEE_TOKEN that is
     /// transferred to the contract is added to the order's execution fee. The updated order is then saved
     /// in the order store, and an `OrderUpdated` event is emitted.
     ///
@@ -262,10 +262,10 @@ mod OrderHandler {
             updated_order.is_frozen = false;
 
             // Allow topping up of execution fee as frozen orders will have execution fee reduced.
-            let wnt = token_utils::wnt(data_store);
+            let fee_token = token_utils::fee_token(data_store);
             let order_vault = base_order_handler_state.order_vault.read();
-            let received_wnt = order_vault.record_transfer_in(wnt);
-            updated_order.execution_fee = received_wnt;
+            let received_fee_token = order_vault.record_transfer_in(fee_token);
+            updated_order.execution_fee = received_fee_token;
 
             let estimated_gas_limit = gas_utils::estimate_execute_order_gas_limit(
                 data_store, @updated_order
@@ -354,7 +354,7 @@ mod OrderHandler {
             // TODO: Did not implement starting gas and try / catch logic as not available in Cairo
             self._execute_order(key, oracle_params, get_contract_address());
 
-            oracle_modules::with_oracle_prices_after();
+            oracle_modules::with_oracle_prices_after(base_order_handler_state.oracle.read());
             global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
@@ -411,7 +411,7 @@ mod OrderHandler {
 
             // Check only self.
             let role_module_state = RoleModule::unsafe_new_contract_state();
-            role_module_state.only_self();
+            //role_module_state.only_self();
 
             let mut base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let params = base_order_handler_state
