@@ -238,58 +238,58 @@ mod token {
 
 // This is a temporary solution for tests until they resolve the issue (https://github.com/foundry-rs/starknet-foundry/issues/647)
 mod tests {
-    // mod adl {
-    //     mod test_adl_utils;
-    // }
-    // mod bank {
-    //     mod test_bank;
-    // }
-    // mod callback {
-    //     mod test_callback_utils;
-    // }
-    // mod config {
-    //     mod test_config;
-    // }
-    // mod data {
-    //     mod test_data_store;
-    //     mod test_deposit_store;
-    //     mod test_keys;
-    //     mod test_market;
-    //     mod test_order;
-    //     mod test_position;
-    //     mod test_withdrawal;
-    // }
-    // mod deposit {
-    //     mod test_deposit_utils;
-    //     mod test_deposit_vault;
-    //     mod test_execute_deposit_utils;
-    // }
-    // mod event {
-    //     mod test_adl_events_emitted;
-    //     mod test_callback_events_emitted;
-    //     mod test_config_events_emitted;
-    //     mod test_gas_events_emitted;
-    //     mod test_market_events_emitted;
-    //     mod test_oracle_events_emitted;
-    //     mod test_order_events_emitted;
-    //     mod test_position_events_emitted;
-    //     mod test_pricing_events_emitted;
-    //     mod test_referral_events_emitted;
-    //     mod test_swap_events_emitted;
-    //     mod test_timelock_events_emitted;
-    //     mod test_withdrawal_events_emitted;
-    // }
-    // mod exchange {
-    //     mod test_liquidation_handler;
-    //     mod test_withdrawal_handler;
-    // }
-    // mod feature {
-    //     mod test_feature_utils;
-    // }
-    // mod fee {
-    //     mod test_fee_handler;
-    //     mod test_fee_utils;
-    // }
+    mod adl {
+        mod test_adl_utils;
+    }
+    mod bank {
+        mod test_bank;
+    }
+    mod callback {
+        mod test_callback_utils;
+    }
+    mod config {
+        mod test_config;
+    }
+    mod data {
+        mod test_data_store;
+        mod test_deposit_store;
+        mod test_keys;
+        mod test_market;
+        mod test_order;
+        mod test_position;
+        mod test_withdrawal;
+    }
+    mod deposit {
+        mod test_deposit_utils;
+        mod test_deposit_vault;
+        mod test_execute_deposit_utils;
+    }
+    mod event {
+        mod test_adl_events_emitted;
+        mod test_callback_events_emitted;
+        mod test_config_events_emitted;
+        mod test_gas_events_emitted;
+        mod test_market_events_emitted;
+        mod test_oracle_events_emitted;
+        mod test_order_events_emitted;
+        mod test_position_events_emitted;
+        mod test_pricing_events_emitted;
+        mod test_referral_events_emitted;
+        mod test_swap_events_emitted;
+        mod test_timelock_events_emitted;
+        mod test_withdrawal_events_emitted;
+    }
+    mod exchange {
+        mod test_liquidation_handler;
+        mod test_withdrawal_handler;
+    }
+    mod feature {
+        mod test_feature_utils;
+    }
+    mod fee {
+        mod test_fee_handler;
+        mod test_fee_utils;
+    }
     mod market {
         mod test_market_factory;
         mod test_market_token;
