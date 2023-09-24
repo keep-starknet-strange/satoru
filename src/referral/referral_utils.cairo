@@ -11,6 +11,7 @@ use result::ResultTrait;
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
 use satoru::bank::bank;
 use satoru::utils::precision;
 use satoru::market::market_utils;
@@ -123,7 +124,8 @@ fn claim_affiliate_reward(
     let next_pool_value: u128 = data_store
         .decrement_u128(keys::affiliate_reward_key(market, token), reward_amount);
 
-    // bank.transfer_out(token, receiver, reward_amount);
+    //TODO redo the function transfer_out and call it in bank maybe?
+    // IMarketTokenDispatcher { contract_address: market }.transfer_out(token, receiver, reward_amount);
 
     market_utils::validate_market_token_balance_with_address(data_store, market);
 

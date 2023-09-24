@@ -80,6 +80,8 @@ fn setup() -> (
     (caller_address, role_store, data_store, event_emitter, referral_storage, governable)
 }
 
+//TODO add more tests
+
 #[test]
 fn given_normal_conditions_when_setting_and_fetching_code_owner_from_storage_then_works() {
     let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =

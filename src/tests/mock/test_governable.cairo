@@ -116,6 +116,8 @@ fn setup_with_other_address() -> (
     (caller_address, role_store, data_store, event_emitter, referral_storage, governable)
 }
 
+//TODO add more tests
+
 #[test]
 fn given_normal_conditions_when_only_gov_then_works() {
     let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =

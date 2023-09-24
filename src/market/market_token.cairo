@@ -28,6 +28,7 @@ mod MarketToken {
 
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::role::role;
+    use satoru::bank::bank::{Bank, IBank};
 
     use super::IMarketToken;
 
@@ -67,8 +68,15 @@ mod MarketToken {
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState, role_store_address: ContractAddress) {
+    fn constructor(
+        ref self: ContractState,
+        data_store_address: ContractAddress,
+        role_store_address: ContractAddress
+    ) {
         self.initializer(NAME, SYMBOL);
+        //Might need to inherit bank. 
+        // let mut bank: Bank::ContractState = Bank::unsafe_new_contract_state();
+        // IBank::initialize(ref bank, data_store_address, role_store_address)
         self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
     }
 

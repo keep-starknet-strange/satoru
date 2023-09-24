@@ -90,6 +90,8 @@ fn setup() -> (
     (caller_address, role_store, data_store, event_emitter, referral_storage, governable)
 }
 
+//TODO add more tests
+
 #[test]
 fn given_normal_conditions_when_trader_referral_codes_then_works() {
     // Setup
