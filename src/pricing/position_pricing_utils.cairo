@@ -350,7 +350,7 @@ fn get_next_open_interest_params(
 /// * `params` - parameters to compute position fees.
 /// # Returns
 /// Position fees.
-fn get_position_fees(params: GetPositionFeesParams,) -> PositionFees {
+fn get_position_fees(params: GetPositionFeesParams) -> PositionFees {
     let mut fees = get_position_fees_after_referral(
         params.data_store,
         params.referral_storage,
