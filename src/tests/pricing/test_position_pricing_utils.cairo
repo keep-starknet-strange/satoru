@@ -1,8 +1,19 @@
 use starknet::{ContractAddress, contract_address_const};
+use satoru::price::price::Price;
+use satoru::position::position::Position;
 use satoru::pricing::position_pricing_utils;
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::role::role;
+use satoru::market::market::Market;
+use satoru::pricing::position_pricing_utils::{GetPositionFeesParams, PositionFundingFees, GetPriceImpactUsdParams};
+
+use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
+
+// TODO add asserts for each test when possible
 
 #[test]
-fn given_normal_conditions_when_get_price_impact_usd() {
+fn given_normal_conditions_when_get_price_impact_usd_then_works() {
     let (caller_address, data_store) = setup();
 
     let get_price_impact_params = create_get_price_impact_usd_params(data_store);
@@ -10,7 +21,7 @@ fn given_normal_conditions_when_get_price_impact_usd() {
 }
 
 #[test]
-fn given_normal_conditions_when_get_next_open_interest() {
+fn given_normal_conditions_when_get_next_open_interest_then_works() {
     let (caller_address, data_store) = setup();
 
     let get_price_impact_params = create_get_price_impact_usd_params(data_store);
@@ -18,7 +29,7 @@ fn given_normal_conditions_when_get_next_open_interest() {
 }
 
 #[test]
-fn given_normal_conditions_when_get_next_open_interest_for_virtual_inventory() {
+fn given_normal_conditions_when_get_next_open_interest_for_virtual_inventory_then_works() {
     let (caller_address, data_store) = setup();
 
     let get_price_impact_params = create_get_price_impact_usd_params(data_store);
@@ -26,39 +37,86 @@ fn given_normal_conditions_when_get_next_open_interest_for_virtual_inventory() {
 }
 
 #[test]
-fn given_normal_conditions_when_get_next_open_interest_params() {
+fn given_normal_conditions_when_get_next_open_interest_params_then_works() {
     let (caller_address, data_store) = setup();
 
     let get_price_impact_params = create_get_price_impact_usd_params(data_store);
     position_pricing_utils::get_next_open_interest_params(get_price_impact_params, 100, 20);
 }
 
-#[test]
-fn given_normal_conditions_when_get_position_fees() {
-    let (caller_address, data_store) = setup();
-
-    let get_price_impact_params = create_get_price_impact_usd_params(data_store);
-    position_pricing_utils::get_position_fees(get_price_impact_params);
-}
+// TODO needs referral storage contract
+// #[test]
+// fn given_normal_conditions_when_get_position_fees_then_works() {
+//     let (caller_address, data_store) = setup();
+// }
 
 #[test]
-fn given_normal_conditions_when_get_borrowing_fees() {
+fn given_normal_conditions_when_get_borrowing_fees_then_works() {
     let (caller_address, data_store) = setup();
     let price = Price {
         min: 5,
         max: 10,
-    }
+    };
 
-    let get_price_impact_params = create_get_price_impact_usd_params(data_store);
-    position_pricing_utils::get_position_fees(data_store, price, 3);
+    position_pricing_utils::get_borrowing_fees(data_store, price, 3);
 }
 
+#[test]
+fn given_normal_conditions_when_get_funding_fees_then_works() {
+    let (caller_address, data_store) = setup();
+    let position_funding_fees = PositionFundingFees {
+        funding_fee_amount: 10,
+        claimable_long_token_amount: 100,
+        claimable_short_token_amount: 50,
+        latest_funding_fee_amount_per_size: 15,
+        latest_long_token_claimable_funding_amount_per_size: 15,
+        latest_short_token_claimable_funding_amount_per_size: 15,
+    };
+
+    let position = Position {
+        key: 1,
+        account: contract_address_const::<'account'>(),
+        market: contract_address_const::<'market'>(),
+        collateral_token: contract_address_const::<'collateral_token'>(),
+        size_in_usd: 100,
+        size_in_tokens: 1,
+        collateral_amount: 2,
+        borrowing_factor: 3,
+        funding_fee_amount_per_size: 4,
+        long_token_claimable_funding_amount_per_size: 5,
+        short_token_claimable_funding_amount_per_size: 6,
+        increased_at_block: 15000,
+        decreased_at_block: 15001,
+        is_long: false
+    };
+
+    position_pricing_utils::get_funding_fees(position_funding_fees, position);
+}
+
+#[test]
+fn given_normal_conditions_when_get_ui_fees_then_works() {
+    let (caller_address, data_store) = setup();
+    let price = Price {
+        min: 5,
+        max: 10,
+    };
+    let ui_fee_receiver = contract_address_const::<'ui_fee_receiver'>();
+    position_pricing_utils::get_ui_fees(data_store, price, 10, ui_fee_receiver);
+}
+
+/// TODO needs referral storage contract
 // #[test]
-// #[should_panic(expected: ('null_account',))]
-// fn given_account_null_when_validate_account_then_fails() {
-//     let account = contract_address_const::<0>();
-//     validate_account(account);
+// fn given_normal_conditions_when_get_position_fees_after_referral_then_works() {
+//     let (caller_address, data_store) = setup();
+//     let price = Price {
+//         min: 5,
+//         max: 10,
+//     }
+//     let account = contract_address_const::<'account'>();
+//     let market = contract_address_const::<'market'>();
+//     position_pricing_utils::get_position_fees_after_referral(data_store, referral_storage, price, true, account, market, 10);
 // }
+
 
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('DataStore');
