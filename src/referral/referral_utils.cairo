@@ -123,7 +123,7 @@ fn claim_affiliate_reward(
     let next_pool_value: u128 = data_store
         .decrement_u128(keys::affiliate_reward_key(market, token), reward_amount);
 
-    bank.transfer_out(token, receiver, reward_amount)
+    // bank.transfer_out(token, receiver, reward_amount);
 
     market_utils::validate_market_token_balance_with_address(data_store, market);
 
