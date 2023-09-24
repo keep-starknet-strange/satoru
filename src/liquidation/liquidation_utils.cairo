@@ -66,7 +66,6 @@ fn create_liquidation_order(
         min_output_amount: 0,
         updated_at_block,
         is_long: position.is_long,
-        should_unwrap_native_token: true,
         is_frozen: false,
     };
     let nonce_key = get_next_key(data_store);
