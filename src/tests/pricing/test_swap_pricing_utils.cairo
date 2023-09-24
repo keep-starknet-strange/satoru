@@ -1,6 +1,8 @@
 use satoru::data::data_store::IDataStoreDispatcherTrait;
 use satoru::data::keys;
-use satoru::pricing::swap_pricing_utils::{GetPriceImpactUsdParams, get_price_impact_usd_, get_price_impact_usd, get_next_pool_amount_usd};
+use satoru::pricing::swap_pricing_utils::{
+    GetPriceImpactUsdParams, get_price_impact_usd_, get_price_impact_usd, get_next_pool_amount_usd
+};
 use satoru::market::market::Market;
 use satoru::utils::calc;
 use satoru::tests_lib::{setup, teardown};

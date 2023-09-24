@@ -98,7 +98,7 @@ fn get_swap_amount_out(
     cache.token_out_price = get_cached_token_price(cache.token_out, market, prices);
 
     let param: GetPriceImpactUsdParams = GetPriceImpactUsdParams {
-        dataStore: data_store,
+        data_store: data_store,
         market: market,
         token_a: token_in,
         token_b: cache.token_out,
@@ -256,7 +256,7 @@ fn get_swap_price_impact(
     let mut cache: SwapCache = Default::default();
 
     let param: GetPriceImpactUsdParams = GetPriceImpactUsdParams {
-        dataStore: data_store,
+        data_store: data_store,
         market: market,
         token_a: token_in,
         token_b: token_out,

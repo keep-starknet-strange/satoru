@@ -16,7 +16,7 @@ fn fee_token(data_store: IDataStoreDispatcher) -> ContractAddress {
 
 // Transfers the specified amount of `token` from the caller to `receiver`.
 // # Arguments
-// dataStore - The data store that contains the `tokenTransferGasLimit` for the specified `token`.
+// data_store - The data store that contains the `tokenTransferGasLimit` for the specified `token`.
 // token - The address of the ERC20 token that is being transferred.
 // receiver - The address of the recipient of the `token` transfer.
 // amount - The amount of `token` to transfer.
