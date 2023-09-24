@@ -68,11 +68,7 @@ mod MarketToken {
     }
 
     #[constructor]
-    fn constructor(
-        ref self: ContractState,
-        data_store_address: ContractAddress,
-        role_store_address: ContractAddress
-    ) {
+    fn constructor(ref self: ContractState, role_store_address: ContractAddress) {
         self.initializer(NAME, SYMBOL);
         //Might need to inherit bank. 
         // let mut bank: Bank::ContractState = Bank::unsafe_new_contract_state();
