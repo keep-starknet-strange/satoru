@@ -214,9 +214,9 @@ fn test6() {
     role_store.grant_role(caller_address, role::CONTROLLER);
     referral_utils::increment_affiliate_reward(data_store, event_emitter, market, token, affiliate, delta);
     
-    let reward_amount: u128 = referral_utils::claim_affiliate_reward(data_store, event_emitter, market, token, account, receiver);
+    let reward_amount: u128 = referral_utils::claim_affiliate_reward(data_store, event_emitter, market, token, affiliate, receiver);
 
-    // assert(reward_amount == 10, 'the reward amount is wrong');
+    assert(reward_amount == 10, 'the reward amount is wrong');
 
     teardown(data_store.contract_address);
 }

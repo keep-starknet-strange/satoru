@@ -40,7 +40,6 @@ fn set_trader_referral_code(
 /// * `token` - The token address.
 /// * `affiliate` - The affiliate address.
 /// * `delta` - The amount to increment the reward balance by.
-#[inline(always)]
 fn increment_affiliate_reward(
     data_store: IDataStoreDispatcher,
     event_emitter: IEventEmitterDispatcher,
