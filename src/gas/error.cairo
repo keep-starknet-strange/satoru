@@ -1,4 +1,4 @@
 mod GasError {
-    const INSUFFICIENT_FEE_TOKEN_AMOUNT_FOR_EXECUTION_FEE: felt252 =
-        'insffcient_tok_amt_for_exec_fee';
+    const INSUFF_EXEC_GAS: felt252 = 'insufficient_gas_for_execute';
+    const INSUFF_EXEC_FEE: felt252 = 'insufficient_execution_fee';
 }

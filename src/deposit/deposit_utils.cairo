@@ -90,10 +90,7 @@ fn create_deposit(
         initial_short_token_amount -= params.execution_fee;
     } else {
         let fee_token_amount = deposit_vault.record_transfer_in(fee_token);
-        assert(
-            fee_token_amount >= params.execution_fee,
-            GasError::INSUFFICIENT_FEE_TOKEN_AMOUNT_FOR_EXECUTION_FEE
-        );
+        assert(fee_token_amount >= params.execution_fee, GasError::INSUFF_EXEC_FEE);
 
         params.execution_fee = fee_token_amount;
     }
