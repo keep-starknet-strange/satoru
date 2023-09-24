@@ -342,7 +342,6 @@ fn create_dummy_order(key: felt252) -> Order {
         min_output_amount: 100,
         updated_at_block: 0,
         is_long: true,
-        should_unwrap_native_token: false,
         is_frozen: false,
     }
 }

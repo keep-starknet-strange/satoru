@@ -48,9 +48,6 @@ struct CreateDepositParams {
     short_token_swap_path: Span32<ContractAddress>,
     /// The minimum acceptable number of liquidity tokens.
     min_market_tokens: u128,
-    /// Whether to unwrap the native token when sending funds back
-    /// to the user in case the deposit gets cancelled.
-    should_unwrap_native_token: bool,
     /// The execution fee for keepers.
     execution_fee: u128,
     /// The gas limit for the callback_contract.
@@ -85,19 +82,20 @@ fn create_deposit(
     let mut initial_short_token_amount = deposit_vault
         .record_transfer_in(params.initial_short_token);
 
-    let wnt: ContractAddress = token_utils::wnt(data_store);
+    let fee_token: ContractAddress = token_utils::fee_token(data_store);
 
-    if params.initial_long_token == wnt {
+    if params.initial_long_token == fee_token {
         initial_long_token_amount -= params.execution_fee;
-    } else if params.initial_short_token == wnt {
+    } else if params.initial_short_token == fee_token {
         initial_short_token_amount -= params.execution_fee;
     } else {
-        let wnt_amount = deposit_vault.record_transfer_in(wnt);
+        let fee_token_amount = deposit_vault.record_transfer_in(fee_token);
         assert(
-            wnt_amount >= params.execution_fee, GasError::INSUFFICIENT_WNT_AMOUNT_FOR_EXECUTION_FEE
+            fee_token_amount >= params.execution_fee,
+            GasError::INSUFFICIENT_FEE_TOKEN_AMOUNT_FOR_EXECUTION_FEE
         );
 
-        params.execution_fee = wnt_amount;
+        params.execution_fee = fee_token_amount;
     }
 
     assert(
