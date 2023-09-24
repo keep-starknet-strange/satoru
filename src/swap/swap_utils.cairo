@@ -13,7 +13,7 @@ use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::market::{market::Market, market_utils};
 use satoru::fee::fee_utils;
 use satoru::utils::{calc, store_arrays::StoreMarketSpan, traits::ContractAddressDefault};
-use satoru::utils::i128::{StoreI128, I128Serde, I128Div, I128Mul};
+use satoru::utils::i128::{StoreI128, I128Serde, I128Div, I128Mul, I128Default};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::swap::error::SwapError;
 use satoru::data::keys;

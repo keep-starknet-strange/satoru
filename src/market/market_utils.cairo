@@ -962,52 +962,6 @@ fn market_token_amount_to_usd(
     0
 }
 
-// @dev get the virtual inventory for swaps
-// @param data_store DataStore
-// @param market the market to check
-// @return returns (has virtual inventory, virtual long token inventory, virtual short token inventory)
-fn get_virtual_inventory_for_swaps(
-    data_store: IDataStoreDispatcher, market: ContractAddress
-) -> (bool, u128, u128) {
-    let virtual_market_id = data_store.get_felt252(keys::virtual_market_id_key(market));
-    if virtual_market_id.is_zero() {
-        return (false, 0, 0);
-    }
-
-    return (
-        true,
-        data_store.get_u128(keys::virtual_inventory_for_swaps_key(virtual_market_id, true)),
-        data_store.get_u128(keys::virtual_inventory_for_swaps_key(virtual_market_id, false))
-    );
-}
-
-fn get_adjusted_swap_impact_factor(
-    data_store: IDataStoreDispatcher, market: ContractAddress, is_positive: bool
-) -> u128 {
-    let (positive_impact_factor, negative_impact_factor) = get_adjusted_swap_impact_factors(
-        data_store, market
-    );
-    if is_positive {
-        positive_impact_factor
-    } else {
-        negative_impact_factor
-    }
-}
-
-fn get_adjusted_swap_impact_factors(
-    data_store: IDataStoreDispatcher, market: ContractAddress
-) -> (u128, u128) {
-    let mut positive_impact_factor = data_store
-        .get_u128(keys::swap_impact_factor_key(market, true));
-    let negative_impact_factor = data_store.get_u128(keys::swap_impact_factor_key(market, false));
-    // if the positive impact factor is more than the negative impact factor, positions could be opened
-    // and closed immediately for a profit if the difference is sufficient to cover the position fees
-    if positive_impact_factor > negative_impact_factor {
-        positive_impact_factor = negative_impact_factor;
-    }
-    (positive_impact_factor, negative_impact_factor)
-}
-
 /// Get the borrowing factor per second.
 /// # Arguments
 /// * `data_store` - The data store to use.
@@ -1083,6 +1037,52 @@ fn get_open_interest_with_pnl(
 ) -> i128 {
     // TODO
     0
+}
+
+// @dev get the virtual inventory for swaps
+// @param data_store DataStore
+// @param market the market to check
+// @return returns (has virtual inventory, virtual long token inventory, virtual short token inventory)
+fn get_virtual_inventory_for_swaps(
+    data_store: IDataStoreDispatcher, market: ContractAddress
+) -> (bool, u128, u128) {
+    let virtual_market_id = data_store.get_felt252(keys::virtual_market_id_key(market));
+    if virtual_market_id.is_zero() {
+        return (false, 0, 0);
+    }
+
+    return (
+        true,
+        data_store.get_u128(keys::virtual_inventory_for_swaps_key(virtual_market_id, true)),
+        data_store.get_u128(keys::virtual_inventory_for_swaps_key(virtual_market_id, false))
+    );
+}
+
+fn get_adjusted_swap_impact_factor(
+    data_store: IDataStoreDispatcher, market: ContractAddress, is_positive: bool
+) -> u128 {
+    let (positive_impact_factor, negative_impact_factor) = get_adjusted_swap_impact_factors(
+        data_store, market
+    );
+    if is_positive {
+        positive_impact_factor
+    } else {
+        negative_impact_factor
+    }
+}
+
+fn get_adjusted_swap_impact_factors(
+    data_store: IDataStoreDispatcher, market: ContractAddress
+) -> (u128, u128) {
+    let mut positive_impact_factor = data_store
+        .get_u128(keys::swap_impact_factor_key(market, true));
+    let negative_impact_factor = data_store.get_u128(keys::swap_impact_factor_key(market, false));
+    // if the positive impact factor is more than the negative impact factor, positions could be opened
+    // and closed immediately for a profit if the difference is sufficient to cover the position fees
+    if positive_impact_factor > negative_impact_factor {
+        positive_impact_factor = negative_impact_factor;
+    }
+    (positive_impact_factor, negative_impact_factor)
 }
 
 
