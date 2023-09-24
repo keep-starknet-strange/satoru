@@ -1,6 +1,6 @@
 # Mock module
 
-The Mock module is responsible for managing the getter and setter for the referral.
+The Mock module is used to store mocked implementation of contracts to use them in tests.
 
 It contains the following Cairo library files:
 
