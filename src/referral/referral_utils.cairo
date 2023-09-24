@@ -70,7 +70,6 @@ fn increment_affiliate_reward(
 /// * `trader` - The trader address.
 /// # Returns
 /// The referral code, the affiliate's address, the total rebate, and the discount share.
-#[inline(always)]
 fn get_referral_info(
     referral_storage: IReferralStorageDispatcher, trader: ContractAddress
 ) -> (felt252, ContractAddress, u128, u128) {
