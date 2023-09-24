@@ -28,9 +28,7 @@ use satoru::role::role;
 use satoru::price::price::{Price, PriceTrait};
 use satoru::position::{position::Position, position_utils::UpdatePositionParams, position_utils};
 use satoru::tests_lib::{setup, setup_event_emitter, teardown};
-use satoru::mock::referral_storage::{
-    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
-};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::pricing::{position_pricing_utils::PositionFees};
 use satoru::order::{
     order::{Order, SecondaryOrderType, OrderType, DecreasePositionSwapType},

@@ -44,7 +44,14 @@ fn deploy_role_store() -> ContractAddress {
     contract.deploy(@array![]).unwrap()
 }
 
-fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher,IEventEmitterDispatcher,IReferralStorageDispatcher, IGovernableDispatcher) {
+fn setup() -> (
+    ContractAddress,
+    IRoleStoreDispatcher,
+    IDataStoreDispatcher,
+    IEventEmitterDispatcher,
+    IReferralStorageDispatcher,
+    IGovernableDispatcher
+) {
     let caller_address: ContractAddress = 0x101.try_into().unwrap();
 
     let role_store_address = deploy_role_store();
@@ -57,8 +64,10 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher,IEven
     let data_store = IDataStoreDispatcher { contract_address: data_store_address };
 
     let referral_storage_address = deploy_referral_storage(event_emitter_address);
-    let referral_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
-    
+    let referral_storage = IReferralStorageDispatcher {
+        contract_address: referral_storage_address
+    };
+
     let governable_address = deploy_governable(event_emitter_address);
     let governable = IGovernableDispatcher { contract_address: governable_address };
 
@@ -72,29 +81,63 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher,IEven
 }
 
 #[test]
-fn testing() {
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
+fn given_normal_conditions_when_setting_and_fetching_code_owner_from_storage_then_works() {
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =
+        setup();
 
-    let code:felt252 = 'EBDW';
+    //setting the code_owner and fetching it from storage
+    let code: felt252 = 'EBDW';
     let new_account: ContractAddress = contract_address_const::<'new_account'>();
 
     referral_storage.gov_set_code_owner(code, new_account);
-    let res:ContractAddress = referral_storage.code_owners(code);
-    assert(res == new_account, 'noob');
+    let res: ContractAddress = referral_storage.code_owners(code);
+    assert(res == new_account, 'the address is wrong');
 
     teardown(data_store.contract_address);
 }
 
 #[test]
-fn testing2() {
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
+fn given_normal_conditions_when_fetching_code_owner_from_storage_before_setting_then_works() {
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =
+        setup();
 
-    let code:felt252 = 'EBDW';
+    //fetching the code owner from storage before setting it
+    let code: felt252 = 'EBDW';
     let new_account: ContractAddress = contract_address_const::<'new_account'>();
 
-    referral_storage.gov_set_code_owner(code, new_account);
-    let res:ContractAddress = referral_storage.code_owners(code);
-    assert(res == new_account, 'noob');
+    let res: ContractAddress = referral_storage.code_owners(code);
+    assert(res == 0.try_into().unwrap(), 'the address is wrong');
+
+    teardown(data_store.contract_address);
+}
+
+#[test]
+fn given_normal_conditions_when_setting_and_fetching_referrer_tiers_from_storage_then_works() {
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =
+        setup();
+
+    //setting the referrer_id and fetching it from storage
+    let tier_id: u128 = 3;
+    let new_account: ContractAddress = contract_address_const::<'new_account'>();
+
+    referral_storage.set_referrer_tier(new_account, tier_id);
+    let res: u128 = referral_storage.referrer_tiers(new_account);
+    assert(res == tier_id, 'the tier_id is wrong');
+
+    teardown(data_store.contract_address);
+}
+
+#[test]
+fn given_normal_conditions_when_fetching_referrer_tiers_from_storage_before_setting_then_works() {
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =
+        setup();
+
+    //fetching the referrer_tier from storage before setting it
+    let tier_id: u128 = 3;
+    let new_account: ContractAddress = contract_address_const::<'new_account'>();
+
+    let res: u128 = referral_storage.referrer_tiers(new_account);
+    assert(res == 0, 'the tier_id is wrong');
 
     teardown(data_store.contract_address);
 }

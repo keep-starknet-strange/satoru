@@ -161,9 +161,6 @@ mod ReferralStorage {
         fn initialize(ref self: ContractState, event_emitter_address: ContractAddress) {
             let mut gov_state = Governable::unsafe_new_contract_state();
             gov_state.initialize(event_emitter_address);
-            self
-                .event_emitter
-                .write(IEventEmitterDispatcher { contract_address: event_emitter_address });
         }
 
         fn code_owners(self: @ContractState, code: felt252) -> ContractAddress {

@@ -44,7 +44,14 @@ fn deploy_role_store() -> ContractAddress {
     contract.deploy(@array![]).unwrap()
 }
 
-fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher,IEventEmitterDispatcher,IReferralStorageDispatcher, IGovernableDispatcher) {
+fn setup() -> (
+    ContractAddress,
+    IRoleStoreDispatcher,
+    IDataStoreDispatcher,
+    IEventEmitterDispatcher,
+    IReferralStorageDispatcher,
+    IGovernableDispatcher
+) {
     let caller_address: ContractAddress = 0x101.try_into().unwrap();
 
     let role_store_address = deploy_role_store();
@@ -57,8 +64,10 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher,IEven
     let data_store = IDataStoreDispatcher { contract_address: data_store_address };
 
     let referral_storage_address = deploy_referral_storage(event_emitter_address);
-    let referral_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
-    
+    let referral_storage = IReferralStorageDispatcher {
+        contract_address: referral_storage_address
+    };
+
     let governable_address = deploy_governable(event_emitter_address);
     let governable = IGovernableDispatcher { contract_address: governable_address };
 
@@ -71,7 +80,14 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher,IEven
     (caller_address, role_store, data_store, event_emitter, referral_storage, governable)
 }
 
-fn setup_with_other_address() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher,IEventEmitterDispatcher,IReferralStorageDispatcher, IGovernableDispatcher) {
+fn setup_with_other_address() -> (
+    ContractAddress,
+    IRoleStoreDispatcher,
+    IDataStoreDispatcher,
+    IEventEmitterDispatcher,
+    IReferralStorageDispatcher,
+    IGovernableDispatcher
+) {
     let caller_address: ContractAddress = 0x102.try_into().unwrap();
 
     let role_store_address = deploy_role_store();
@@ -84,8 +100,10 @@ fn setup_with_other_address() -> (ContractAddress, IRoleStoreDispatcher, IDataSt
     let data_store = IDataStoreDispatcher { contract_address: data_store_address };
 
     let referral_storage_address = deploy_referral_storage(event_emitter_address);
-    let referral_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
-    
+    let referral_storage = IReferralStorageDispatcher {
+        contract_address: referral_storage_address
+    };
+
     let governable_address = deploy_governable(event_emitter_address);
     let governable = IGovernableDispatcher { contract_address: governable_address };
 
@@ -99,23 +117,26 @@ fn setup_with_other_address() -> (ContractAddress, IRoleStoreDispatcher, IDataSt
 }
 
 #[test]
-fn given_correct_gov() {
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
+fn given_normal_conditions_when_only_gov_then_works() {
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =
+        setup();
     governable.only_gov();
     teardown(data_store.contract_address);
 }
 
 #[test]
 #[should_panic(expected: ('Unauthorized gov caller',))]
-fn test() {
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup_with_other_address();
+fn given_forbidden_when_only_gov_then_fails() {
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =
+        setup_with_other_address();
     governable.only_gov();
     teardown(data_store.contract_address);
 }
 
 #[test]
-fn given_address_to_transfer_ownership() {
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) = setup();
+fn given_normal_conditions_when_transfer_ownership_then_works() {
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =
+        setup();
     let new_caller_address: ContractAddress = 0x102.try_into().unwrap();
     governable.transfer_ownership(new_caller_address);
     teardown(data_store.contract_address);
