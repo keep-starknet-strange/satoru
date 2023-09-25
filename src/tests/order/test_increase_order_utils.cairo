@@ -10,6 +10,8 @@ use satoru::order::{
 };
 use satoru::order::increase_order_utils::{validate_oracle_block_numbers};
 
+// TODO - Add tests for process_order
+
 #[test]
 #[available_gas(100_000)]
 fn given_normal_conditions_when_validate_oracle_block_numbers_then_works() {
@@ -56,5 +58,3 @@ fn given_unsupported_order_type_when_validate_oracle_block_numbers_then_throw_er
         min_oracle_block_numbers, max_oracle_block_numbers, order_type, order_updated_at_block,
     );
 }
-
-// TODO - Add tests for process_order
