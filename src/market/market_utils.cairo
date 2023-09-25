@@ -1069,10 +1069,6 @@ fn get_funding_amount(
     0
 }
 
-fn get_ui_fee_factor(dataStore: IDataStoreDispatcher, account: ContractAddress) -> u128 {
-    0
-}
-
 /// Get the borrowing factor per second.
 /// # Arguments
 /// * `data_store` - The `DataStore` contract dispatcher.
@@ -1181,4 +1177,11 @@ fn get_adjusted_swap_impact_factors(
         positive_impact_factor = negative_impact_factor;
     }
     (positive_impact_factor, negative_impact_factor)
+}
+
+fn get_adjusted_position_impact_factor(
+    data_store: IDataStoreDispatcher, market: ContractAddress, isPositive: bool
+) -> u128 {
+    // TODO
+    0
 }

@@ -22,7 +22,7 @@ use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorag
 use satoru::utils::{calc, precision};
 use satoru::pricing::error::PricingError;
 use satoru::referral::referral_utils;
-use satoru::utils::i128::{I128Store, I128Serde,};
+use satoru::utils::i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default};
 /// Struct used in get_position_fees.
 #[derive(Drop, starknet::Store, Serde)]
 struct GetPositionFeesParams {
@@ -322,9 +322,9 @@ fn get_next_open_interest_for_virtual_inventory(
     /// to the virtualInventory value
 
     if (virtual_inventory > 0) {
-        short_open_interest = i128_to_u128(virtual_inventory);
+        short_open_interest = calc::to_unsigned(virtual_inventory);
     } else {
-        long_open_interest = i128_to_u128(-virtual_inventory);
+        long_open_interest = calc::to_unsigned(-virtual_inventory);
     }
 
     /// the virtual long and short open interest is adjusted by the usdDelta
@@ -332,7 +332,7 @@ fn get_next_open_interest_for_virtual_inventory(
     /// price impact depends on the change in USD balance, so offsetting both
     /// values equally should not change the price impact calculation
     if (params.usd_delta < 0) {
-        let offset = i128_to_u128(-params.usd_delta);
+        let offset = calc::to_unsigned(-params.usd_delta);
         long_open_interest += offset;
         short_open_interest += offset;
     }
@@ -354,13 +354,13 @@ fn get_next_open_interest_params(
     let mut next_short_open_interest = short_open_interest;
 
     if (params.is_long) {
-        if (params.usd_delta < 0 && i128_to_u128(-params.usd_delta) > long_open_interest) {
+        if (params.usd_delta < 0 && calc::to_unsigned(-params.usd_delta) > long_open_interest) {
             PricingError::USD_DELTA_EXCEEDS_LONG_OPEN_INTEREST(params.usd_delta, long_open_interest)
         }
 
         next_long_open_interest = calc::sum_return_uint_128(long_open_interest, params.usd_delta);
     } else {
-        if (params.usd_delta < 0 && i128_to_u128(-params.usd_delta) > short_open_interest) {
+        if (params.usd_delta < 0 && calc::to_unsigned(-params.usd_delta) > short_open_interest) {
             PricingError::USD_DELTA_EXCEEDS_SHORT_OPEN_INTEREST(
                 params.usd_delta, short_open_interest
             )
