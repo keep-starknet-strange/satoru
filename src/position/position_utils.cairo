@@ -19,9 +19,7 @@ use satoru::pricing::{
     position_pricing_utils::GetPriceImpactUsdParams, position_pricing_utils::GetPositionFeesParams
 };
 use satoru::order::order::{Order, SecondaryOrderType};
-use satoru::referral::referral_storage::interface::{
-    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
-};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::order::base_order_utils::ExecuteOrderParamsContracts;
 use satoru::price::price::{Price, PriceTrait};
 use satoru::utils::{
@@ -29,6 +27,7 @@ use satoru::utils::{
 };
 use satoru::utils::calc::{roundup_division};
 use satoru::referral::referral_utils;
+use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
 
 /// Struct used in increasePosition and decreasePosition.
 #[derive(Drop, Copy, starknet::Store, Serde)]
@@ -47,6 +46,29 @@ struct UpdatePositionParams {
     position_key: felt252,
     /// The secondary oder type.
     secondary_order_type: SecondaryOrderType,
+}
+
+impl DefaultUpdatePositionParams of Default<UpdatePositionParams> {
+    fn default() -> UpdatePositionParams {
+        UpdatePositionParams {
+            contracts: ExecuteOrderParamsContracts {
+                data_store: IDataStoreDispatcher { contract_address: 0.try_into().unwrap() },
+                event_emitter: IEventEmitterDispatcher { contract_address: 0.try_into().unwrap() },
+                order_vault: IOrderVaultDispatcher { contract_address: 0.try_into().unwrap() },
+                oracle: IOracleDispatcher { contract_address: 0.try_into().unwrap() },
+                swap_handler: ISwapHandlerDispatcher { contract_address: 0.try_into().unwrap() },
+                referral_storage: IReferralStorageDispatcher {
+                    contract_address: 0.try_into().unwrap()
+                }
+            },
+            market: Default::default(),
+            order: Default::default(),
+            order_key: 0,
+            position: Default::default(),
+            position_key: 0,
+            secondary_order_type: SecondaryOrderType::None,
+        }
+    }
 }
 
 /// Struct to determine wether position collateral will be sufficient.

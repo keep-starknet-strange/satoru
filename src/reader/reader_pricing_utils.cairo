@@ -37,9 +37,7 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 
 
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::referral::referral_storage::interface::{
-    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
-};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::utils::i128::{StoreI128, I128Serde, I128Div, I128Mul, i128_to_u128, u128_to_i128};
 
 #[derive(Drop, starknet::Store, Serde)]
@@ -177,64 +175,7 @@ fn get_execution_price(
     size_delta_usd: i128,
     is_long: bool
 ) -> ExecutionPriceResult {
-    let mut params: UpdatePositionParams = UpdatePositionParams {
-        contracts: ExecuteOrderParamsContracts {
-            data_store: IDataStoreDispatcher { contract_address: 0.try_into().unwrap() },
-            event_emitter: IEventEmitterDispatcher { contract_address: 0.try_into().unwrap() },
-            order_vault: IOrderVaultDispatcher { contract_address: 0.try_into().unwrap() },
-            oracle: IOracleDispatcher { contract_address: 0.try_into().unwrap() },
-            swap_handler: ISwapHandlerDispatcher { contract_address: 0.try_into().unwrap() },
-            referral_storage: IReferralStorageDispatcher { contract_address: 0.try_into().unwrap() }
-        },
-        market: Market {
-            market_token: 0.try_into().unwrap(),
-            index_token: 0.try_into().unwrap(),
-            long_token: 0.try_into().unwrap(),
-            short_token: 0.try_into().unwrap()
-        },
-        order: Order {
-            key: 0,
-            decrease_position_swap_type: DecreasePositionSwapType::NoSwap,
-            order_type: OrderType::MarketSwap,
-            account: 0.try_into().unwrap(),
-            receiver: 0.try_into().unwrap(),
-            callback_contract: 0.try_into().unwrap(),
-            ui_fee_receiver: 0.try_into().unwrap(),
-            market: 0.try_into().unwrap(),
-            initial_collateral_token: 0.try_into().unwrap(),
-            swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
-            size_delta_usd: 0,
-            initial_collateral_delta_amount: 0,
-            trigger_price: 0,
-            acceptable_price: 0,
-            execution_fee: 0,
-            callback_gas_limit: 0,
-            min_output_amount: 0,
-            updated_at_block: 0,
-            is_long: true,
-            should_unwrap_native_token: true,
-            is_frozen: true,
-        },
-        order_key: 0,
-        position: Position {
-            key: 0,
-            account: 0.try_into().unwrap(),
-            market: 0.try_into().unwrap(),
-            collateral_token: 0.try_into().unwrap(),
-            size_in_usd: 0,
-            size_in_tokens: 0,
-            collateral_amount: 0,
-            borrowing_factor: 0,
-            funding_fee_amount_per_size: 0,
-            long_token_claimable_funding_amount_per_size: 0,
-            short_token_claimable_funding_amount_per_size: 0,
-            increased_at_block: 0,
-            decreased_at_block: 0,
-            is_long: true,
-        },
-        position_key: 0,
-        secondary_order_type: SecondaryOrderType::None,
-    };
+    let mut params: UpdatePositionParams = Default::default();
 
     params.contracts.data_store = data_store;
     params.market = market;

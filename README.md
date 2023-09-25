@@ -123,6 +123,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/StarkFishinator"><img src="https://avatars.githubusercontent.com/u/128840478?v=4?s=100" width="100px;" alt="StarkFishinator "/><br /><sub><b>StarkFishinator </b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=StarkFishinator" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/axelizsak"><img src="https://avatars.githubusercontent.com/u/98711930?v=4?s=100" width="100px;" alt="Axel Izsak"/><br /><sub><b>Axel Izsak</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=axelizsak" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/lucienfer"><img src="https://avatars.githubusercontent.com/u/31387342?v=4?s=100" width="100px;" alt="Luciefer"/><br /><sub><b>Luciefer</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=lucienfer" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/tevrat-aksoy"><img src="https://avatars.githubusercontent.com/u/48439083?v=4?s=100" width="100px;" alt="tevrat aksoy"/><br /><sub><b>tevrat aksoy</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=tevrat-aksoy" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

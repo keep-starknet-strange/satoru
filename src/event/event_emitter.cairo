@@ -617,6 +617,37 @@ trait IEventEmitter<TContractState> {
         max_price: u128,
         is_price_feed: bool
     );
+
+    fn emit_set_handler(ref self: TContractState, handler: ContractAddress, is_active: bool);
+
+    fn emit_set_trader_referral_code(
+        ref self: TContractState, account: ContractAddress, code: felt252
+    );
+
+    fn emit_set_tier(
+        ref self: TContractState, tier_id: u128, total_rebate: u128, discount_share: u128
+    );
+
+    fn emit_set_referrer_tier(ref self: TContractState, referrer: ContractAddress, tier_id: u128);
+
+    fn emit_set_referrer_discount_share(
+        ref self: TContractState, referrer: ContractAddress, discount_share: u128
+    );
+
+    fn emit_register_code(ref self: TContractState, account: ContractAddress, code: felt252);
+
+    fn emit_set_code_owner(
+        ref self: TContractState,
+        account: ContractAddress,
+        new_account: ContractAddress,
+        code: felt252
+    );
+
+    fn emit_gov_set_code_owner(
+        ref self: TContractState, code: felt252, new_account: ContractAddress
+    );
+
+    fn emit_set_gov(ref self: TContractState, prev_gov: ContractAddress, next_gov: ContractAddress);
 }
 
 #[starknet::contract]
@@ -734,6 +765,15 @@ mod EventEmitter {
         SwapReverted: SwapReverted,
         SwapInfo: SwapInfo,
         SwapFeesCollected: SwapFeesCollected,
+        SetHandler: SetHandler,
+        SetTraderReferralCode: SetTraderReferralCode,
+        SetTier: SetTier,
+        SetReferrerTier: SetReferrerTier,
+        SetReferrerDiscountShare: SetReferrerDiscountShare,
+        SetRegisterCode: SetRegisterCode,
+        SetCodeOwner: SetCodeOwner,
+        GovSetCodeOwner: GovSetCodeOwner,
+        SetGov: SetGov,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -839,7 +879,7 @@ mod EventEmitter {
         initial_long_token_amount: u128,
         initial_short_token_amount: u128,
         min_market_tokens: u128,
-        updated_at_block: u128,
+        updated_at_block: u64,
         execution_fee: u128,
         callback_gas_limit: u128,
     }
@@ -870,9 +910,8 @@ mod EventEmitter {
         min_long_token_amount: u128,
         min_short_token_amount: u128,
         updated_at_block: u64,
-        execution_fee: u256,
+        execution_fee: u128,
         callback_gas_limit: u128,
-        should_unwrap_native_token: bool
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1468,6 +1507,61 @@ mod EventEmitter {
         fees: SwapFees
     }
 
+    #[derive(Drop, starknet::Event)]
+    struct SetHandler {
+        handler: ContractAddress,
+        is_active: bool
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SetTraderReferralCode {
+        account: ContractAddress,
+        code: felt252
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SetTier {
+        tier_id: u128,
+        total_rebate: u128,
+        discount_share: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SetReferrerTier {
+        referrer: ContractAddress,
+        tier_id: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SetReferrerDiscountShare {
+        referrer: ContractAddress,
+        discount_share: u128
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SetRegisterCode {
+        account: ContractAddress,
+        code: felt252
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SetCodeOwner {
+        account: ContractAddress,
+        new_account: ContractAddress,
+        code: felt252
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct GovSetCodeOwner {
+        code: felt252,
+        new_account: ContractAddress
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SetGov {
+        prev_gov: ContractAddress,
+        next_gov: ContractAddress
+    }
 
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
@@ -1677,7 +1771,6 @@ mod EventEmitter {
                         updated_at_block: withdrawal.updated_at_block,
                         execution_fee: withdrawal.execution_fee,
                         callback_gas_limit: withdrawal.callback_gas_limit,
-                        should_unwrap_native_token: withdrawal.should_unwrap_native_token
                     }
                 );
         }
@@ -2615,6 +2708,60 @@ mod EventEmitter {
             is_price_feed: bool
         ) {
             self.emit(OraclePriceUpdate { token, min_price, max_price, is_price_feed });
+        }
+
+        fn emit_set_handler(ref self: ContractState, handler: ContractAddress, is_active: bool) {
+            self.emit(SetHandler { handler, is_active });
+        }
+
+        fn emit_set_tier(
+            ref self: ContractState, tier_id: u128, total_rebate: u128, discount_share: u128
+        ) {
+            self.emit(SetTier { tier_id, total_rebate, discount_share });
+        }
+
+        fn emit_set_referrer_tier(
+            ref self: ContractState, referrer: ContractAddress, tier_id: u128
+        ) {
+            self.emit(SetReferrerTier { referrer, tier_id });
+        }
+
+        fn emit_set_referrer_discount_share(
+            ref self: ContractState, referrer: ContractAddress, discount_share: u128
+        ) {
+            self.emit(SetReferrerDiscountShare { referrer, discount_share });
+        }
+
+        fn emit_set_trader_referral_code(
+            ref self: ContractState, account: ContractAddress, code: felt252
+        ) {
+            self.emit(SetTraderReferralCode { account, code });
+        }
+
+
+        fn emit_register_code(ref self: ContractState, account: ContractAddress, code: felt252) {
+            self.emit(SetRegisterCode { account, code });
+        }
+
+        fn emit_set_code_owner(
+            ref self: ContractState,
+            account: ContractAddress,
+            new_account: ContractAddress,
+            code: felt252
+        ) {
+            self.emit(SetCodeOwner { account, new_account, code });
+        }
+
+        fn emit_gov_set_code_owner(
+            ref self: ContractState, code: felt252, new_account: ContractAddress
+        ) {
+            self.emit(GovSetCodeOwner { code, new_account });
+        }
+
+        fn emit_set_gov(
+            ref self: ContractState, prev_gov: ContractAddress, next_gov: ContractAddress
+        ) {
+            self.emit(SetGov { prev_gov, next_gov });
         }
     }
 }

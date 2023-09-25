@@ -5,8 +5,8 @@ mod WithdrawalError {
     const EMPTY_WITHDRAWAL_AMOUNT: felt252 = 'empty withdrawal amount';
     const EMPTY_WITHDRAWAL: felt252 = 'empty withdrawal';
 
-    fn INSUFFICIENT_WNT_AMOUNT(data_1: u128, data_2: u128) {
-        panic(array!['insufficient wnt amout', data_1.into(), data_2.into()])
+    fn INSUFFICIENT_FEE_TOKEN_AMOUNT(data_1: u128, data_2: u128) {
+        panic(array!['insufficient fee token amout', data_1.into(), data_2.into()])
     }
 
     fn INSUFFICIENT_MARKET_TOKENS(data_1: u128, data_2: u128) {

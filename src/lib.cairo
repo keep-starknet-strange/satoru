@@ -91,6 +91,7 @@ mod fee {
 // `gas` is used for execution fee estimation and payments.
 mod gas {
     mod gas_utils;
+    mod error;
 }
 
 // `nonce` is a module that maintains a progressively increasing nonce value.
@@ -168,6 +169,12 @@ mod market {
     mod market_event_utils;
 }
 
+mod mock {
+    mod error;
+    mod governable;
+    mod referral_storage;
+}
+
 // `oracle` contains functions related to oracles used by Satoru.
 mod oracle {
     mod error;
@@ -215,9 +222,6 @@ mod pricing {
 mod referral {
     mod referral_utils;
     mod referral_tier;
-    mod referral_storage {
-        mod interface;
-    }
 }
 
 mod swap {
@@ -312,6 +316,9 @@ mod tests {
     mod pricing {
         mod test_position_pricing_utils;
     }
+    mod reader {
+        mod test_reader;
+    }
     mod role {
         mod test_role_module;
         mod test_role_store;
@@ -333,6 +340,11 @@ mod tests {
         mod test_starknet_utils;
         mod test_u128_mask;
         mod test_i128;
+    }
+    mod mock {
+        mod test_referral_utils;
+        mod test_governable;
+        mod test_referral_storage;
     }
 }
 
