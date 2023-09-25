@@ -205,6 +205,7 @@ mod position {
     mod decrease_position_utils;
     mod increase_position_utils;
     mod position_event_utils;
+    mod position_store_utils;
     mod position_utils;
     mod position;
     mod error;
@@ -303,6 +304,7 @@ mod tests {
     }
     mod order {
         mod test_base_order_utils;
+        mod test_increase_order_utils;
         mod test_order;
     }
     mod position {

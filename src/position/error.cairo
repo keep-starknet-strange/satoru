@@ -7,4 +7,5 @@ mod PositionError {
     const INVALID_OUTPUT_TOKEN: felt252 = 'invalid output token';
     const MIN_POSITION_SIZE: felt252 = 'minumum position size';
     const LIQUIDATABLE_POSITION: felt252 = 'liquidatable position';
+    const UNEXPECTED_POSITION_STATE: felt252 = 'unexpected_position_state';
 }
