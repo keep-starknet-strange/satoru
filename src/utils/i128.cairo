@@ -95,18 +95,3 @@ impl I128Serde of Serde<i128> {
         Option::Some(i128_val)
     }
 }
-
-// TODO: the next 2 functions are duplicated as calc::to_signed & calc::to_unsigned
-
-// the assert is wrong on this one
-fn u128_to_i128(value: u128) -> i128 {
-    assert(value <= BoundedInt::max(), 'u128_to_i128: value too large');
-    let value: felt252 = value.into();
-    value.try_into().unwrap()
-}
-
-fn i128_to_u128(value: i128) -> u128 {
-    assert(value >= 0, 'i128_to_u128: value is negative');
-    let value: felt252 = value.into();
-    value.try_into().unwrap()
-}

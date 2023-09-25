@@ -19,8 +19,10 @@ use satoru::market::{
 };
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::price::price::{Price, PriceTrait};
+use satoru::utils::calc;
 use satoru::utils::span32::Span32;
-use satoru::utils::i128::{StoreI128, u128_to_i128, I128Serde, I128Div, I128Mul, I128Default};
+use satoru::utils::i128::{StoreI128, I128Serde, I128Div, I128Mul, I128Default};
+
 /// Struct to store the prices of tokens of a market.
 /// # Params
 /// * `indexTokenPrice` - Price of the market's index token.
@@ -338,8 +340,8 @@ fn get_pnl(
     maximize: bool
 ) -> i128 {
     // Get the open interest.
-    let open_interest = u128_to_i128(
-        get_open_interest_for_market_is_long(data_store, market, is_long)
+    let open_interest = calc::to_signed(
+        get_open_interest_for_market_is_long(data_store, market, is_long), true
     );
     // Get the open interest in tokens.
     let open_interest_in_tokens = get_open_interest_in_tokens_for_market(
@@ -354,7 +356,7 @@ fn get_pnl(
     let price = index_token_price.pick_price_for_pnl(is_long, maximize);
 
     //  `open_interest` is the cost of all positions, `open_interest_valu`e is the current worth of all positions.
-    let open_interest_value = u128_to_i128(open_interest_in_tokens * price);
+    let open_interest_value = calc::to_signed(open_interest_in_tokens * price, true);
 
     // Return the PNL.
     // If `is_long` is true, then the PNL is the difference between the current worth of all positions and the cost of all positions.

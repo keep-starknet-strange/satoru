@@ -27,6 +27,7 @@ use satoru::pricing::{
     swap_pricing_utils::{SwapFees, get_swap_fees, get_price_impact_usd, GetPriceImpactUsdParams}
 };
 use satoru::reader::error::ReaderError;
+use satoru::utils::calc;
 use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::swap::{
     swap_utils::SwapCache, swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait}
@@ -38,7 +39,7 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::utils::i128::{StoreI128, I128Serde, I128Div, I128Mul, i128_to_u128, u128_to_i128};
+use satoru::utils::i128::{StoreI128, I128Serde, I128Div, I128Mul};
 
 #[derive(Drop, starknet::Store, Serde)]
 struct ExecutionPriceResult {
@@ -102,8 +103,8 @@ fn get_swap_amount_out(
         token_b: cache.token_out,
         price_for_token_a: cache.token_in_price.mid_price(),
         price_for_token_b: cache.token_out_price.mid_price(),
-        usd_delta_for_token_a: u128_to_i128(amount_in * cache.token_in_price.mid_price()),
-        usd_delta_for_token_b: -u128_to_i128(amount_in * cache.token_in_price.mid_price())
+        usd_delta_for_token_a: calc::to_signed(amount_in * cache.token_in_price.mid_price(), true),
+        usd_delta_for_token_b: calc::to_signed(amount_in * cache.token_in_price.mid_price(), false)
     };
 
     let price_impact_usd: i128 = get_price_impact_usd(param);
@@ -135,7 +136,7 @@ fn get_swap_amount_out(
                 price_impact_usd
             );
 
-        cache.amount_out += i128_to_u128(impact_amount);
+        cache.amount_out += calc::to_unsigned(impact_amount);
     } else {
         // when there is a negative price impact factor,
         // less of the input amount is sent to the pool
@@ -148,7 +149,7 @@ fn get_swap_amount_out(
                 data_store, market.market_token, token_in, cache.token_in_price, price_impact_usd
             );
 
-        cache.amount_in = fees.amount_after_fees - i128_to_u128(-impact_amount);
+        cache.amount_in = fees.amount_after_fees - calc::to_unsigned(-impact_amount);
         cache.amount_out = cache.amount_in * cache.token_in_price.min / cache.token_out_price.max;
         cache.pool_amount_out = cache.amount_out;
     }
@@ -185,7 +186,7 @@ fn get_execution_price(
     } else {
         -size_delta_usd
     };
-    params.order.size_delta_usd = i128_to_u128(size_delta_usd_abs);
+    params.order.size_delta_usd = calc::to_unsigned(size_delta_usd_abs);
     params.order.is_long = is_long;
 
     let is_increase: bool = size_delta_usd > 0;
@@ -260,8 +261,8 @@ fn get_swap_price_impact(
         token_b: token_out,
         price_for_token_a: token_in_price.mid_price(),
         price_for_token_b: token_out_price.mid_price(),
-        usd_delta_for_token_a: u128_to_i128(amount_in * token_in_price.mid_price()),
-        usd_delta_for_token_b: -u128_to_i128(amount_in * token_in_price.mid_price())
+        usd_delta_for_token_a: calc::to_signed(amount_in * token_in_price.mid_price(), true),
+        usd_delta_for_token_b: calc::to_signed(amount_in * token_in_price.mid_price(), false)
     };
 
     let price_impact_usd_before_cap: i128 = get_price_impact_usd(param);
