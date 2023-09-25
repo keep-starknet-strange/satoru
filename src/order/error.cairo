@@ -13,4 +13,29 @@ mod OrderError {
     const PRICE_IMPACT_LARGER_THAN_ORDER_SIZE: felt252 =
         'price_impact_too_large'; // TODO: unshorten value
     const EMPTY_SIZE_DELTA_IN_TOKENS: felt252 = 'empty_size_delta_in_tokens';
+
+    fn ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(
+        min_oracle_block_numbers: Span<u64>, latest_updated_at_block: u64
+    ) {
+        let mut data: Array<felt252> = array!['Block nbs smaller than required'];
+        let len: u32 = min_oracle_block_numbers.len();
+        let mut i: u32 = 0;
+        loop {
+            if (i == len) {
+                break;
+            }
+            let value: u64 = *min_oracle_block_numbers.at(i);
+            data.append(value.into());
+            i += 1;
+        };
+        data.append(latest_updated_at_block.into());
+        panic(data)
+    }
+
+    fn INSUFFICIENT_OUTPUT_AMOUNT(output_usd: u128, min_output_amount: u128) {
+        let mut data = array!['Insufficient output amount'];
+        data.append(output_usd.into());
+        data.append(min_output_amount.into());
+        panic(data)
+    }
 }
