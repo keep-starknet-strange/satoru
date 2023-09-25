@@ -753,6 +753,15 @@ fn validate_max_pnl(
 ) { //TODO
 }
 
+/// Validates the token balance for a single market.
+/// # Arguments
+/// * `data_store` - The data_store dispatcher
+/// * `market` - Address of the market to check.
+fn validate_market_token_balance_with_address(
+    data_store: IDataStoreDispatcher, market: ContractAddress
+) { //TODO
+}
+
 fn validate_market_token_balance(data_store: IDataStoreDispatcher, market: Market) { //TODO
 }
 

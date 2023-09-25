@@ -18,9 +18,7 @@ use satoru::price::price::{Price, PriceTrait};
 use satoru::market::market::Market;
 use satoru::utils::precision;
 use satoru::utils::store_arrays::{StoreMarketArray, StoreU64Array, StoreContractAddressArray};
-use satoru::referral::referral_storage::interface::{
-    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
-};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::utils::span32::Span32;
 use satoru::utils::calc;
 use satoru::utils::i128::{I128Div, StoreI128, I128Serde};
