@@ -109,7 +109,6 @@ fn given_normal_conditions_when_get_swap_fees_then_works() {
     data_store.set_u128(keys::max_ui_fee_factor(), 9);
     data_store.set_u128(keys::ui_fee_factor_key(ui_fee_receiver), 9);
 
-
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
