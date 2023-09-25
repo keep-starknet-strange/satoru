@@ -16,13 +16,11 @@ use satoru::position::position::Position;
 
 
 use satoru::market::market_utils;
-use satoru::utils::calc;
 use satoru::pricing::pricing_utils;
 use satoru::data::keys;
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::utils::i128::{StoreI128, I128Serde,};
-use satoru::utils::i128::i128_to_u128;
-use satoru::utils::precision;
+use satoru::utils::{calc, precision};
+use satoru::utils::i128::{StoreI128, I128Serde, i128_to_u128};
 use satoru::pricing::error::PricingError;
 use satoru::referral::referral_utils;
 
@@ -176,11 +174,25 @@ struct PositionUiFees {
 }
 
 /// Get the price impact in USD for a position increase / decrease.
+/// # Arguments
+/// * `params` - GetPriceImpactUsdParams
+/// # Returns
+/// Price impact usd
 fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i128 {
     let open_interest_params: OpenInterestParams = get_next_open_interest(params);
     let price_impact_usd = get_price_impact_usd_internal(
         params.data_store, params.market.market_token, open_interest_params
     );
+
+    /// the virtual price impact calculation is skipped if the price impact
+    /// is positive since the action is helping to balance the pool
+    ///
+    /// in case two virtual pools are unbalanced in a different direction
+    /// e.g. pool0 has more longs than shorts while pool1 has less longs
+    /// than shorts
+    /// not skipping the virtual price impact calculation would lead to
+    /// a negative price impact for any trade on either pools and would
+    /// disincentivise the balancing of pools
 
     if (price_impact_usd >= 0) {
         return price_impact_usd;
@@ -211,6 +223,12 @@ fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i128 {
 }
 
 /// Called internally by get_price_impact_params().
+/// # Arguments
+/// * `data_store` - DataStore
+/// * `market` - the trading market
+/// * `openInterestParams` - OpenInterestParams
+/// # Returns
+/// Price impact usd
 fn get_price_impact_usd_internal(
     data_store: IDataStoreDispatcher,
     market: ContractAddress,
@@ -223,6 +241,10 @@ fn get_price_impact_usd_internal(
         open_interest_params.next_long_open_interest, open_interest_params.next_short_open_interest
     );
 
+    /// check whether an improvement in balance comes from causing the balance to switch sides
+    /// for example, if there is $2000 of ETH and $1000 of USDC in the pool
+    /// adding $1999 USDC into the pool will reduce absolute balance from $1000 to $999 but it does not
+    /// help rebalance the pool much, the isSameSideRebalance value helps avoid gaming using this case
     let is_same_side_rebalance_first = open_interest_params
         .long_open_interest <= open_interest_params
         .short_open_interest;
@@ -293,12 +315,23 @@ fn get_next_open_interest_for_virtual_inventory(
     let mut long_open_interest = 0;
     let mut short_open_interest = 0;
 
+    /// if virtualInventory is more than zero it means that
+    /// tokens were virtually sold to the pool, so set shortOpenInterest
+    /// to the virtualInventory value
+    /// if virtualInventory is less than zero it means that
+    /// tokens were virtually bought from the pool, so set longOpenInterest
+    /// to the virtualInventory value
+
     if (virtual_inventory > 0) {
         short_open_interest = i128_to_u128(virtual_inventory);
     } else {
         long_open_interest = i128_to_u128(-virtual_inventory);
     }
 
+    /// the virtual long and short open interest is adjusted by the usdDelta
+    /// to prevent an underflow in getNextOpenInterestParams
+    /// price impact depends on the change in USD balance, so offsetting both
+    /// values equally should not change the price impact calculation
     if (params.usd_delta < 0) {
         let offset = i128_to_u128(-params.usd_delta);
         long_open_interest += offset;
@@ -312,7 +345,7 @@ fn get_next_open_interest_for_virtual_inventory(
 /// # Arguments
 /// * `params` - Price impact in usd.
 /// * `long_open_interest` - Long positions open interest.
-/// * `long_open_interest` - Short positions open interest.
+/// * `short _open_interest` - Short positions open interest.
 /// # Returns
 /// New open interest.
 fn get_next_open_interest_params(
@@ -433,13 +466,14 @@ fn get_position_fees(params: GetPositionFeesParams) -> PositionFees {
 fn get_borrowing_fees(
     data_store: IDataStoreDispatcher, collateral_token_price: Price, borrowing_fee_usd: u128,
 ) -> PositionBorrowingFees {
+    let borrowing_fee_amount = borrowing_fee_usd / collateral_token_price.min;
+    let borrowing_fee_receiver_factor = data_store.get_u128(keys::borrowing_fee_receiver_factor());
     PositionBorrowingFees {
         borrowing_fee_usd,
-        borrowing_fee_amount: borrowing_fee_usd / collateral_token_price.min,
-        borrowing_fee_receiver_factor: data_store.get_u128(keys::borrowing_fee_receiver_factor()),
+        borrowing_fee_amount,
+        borrowing_fee_receiver_factor,
         borrowing_fee_amount_for_fee_receiver: precision::apply_factor_u128(
-            borrowing_fee_usd / collateral_token_price.min,
-            data_store.get_u128(keys::borrowing_fee_receiver_factor())
+            borrowing_fee_amount, borrowing_fee_receiver_factor
         )
     }
 }
@@ -449,7 +483,7 @@ fn get_borrowing_fees(
 /// * `funding_fees` - The position funding fees struct to store fees.
 /// * `position` - The position to compute funding fees for.
 /// # Returns
-/// Borrowing fees.
+/// Funding fees.
 fn get_funding_fees(
     mut funding_fees: PositionFundingFees, position: Position
 ) -> PositionFundingFees {
@@ -487,9 +521,10 @@ fn get_funding_fees(
 /// # Arguments
 /// * `data_store` - The `DataStore` contract dispatcher.
 /// * `collateral_token_price` - The price of the collateral token.
+/// * `size_delta_usd` - Size delta usd
 /// * `ui_fee receiver` - The ui fee receiver address.
 /// # Returns
-/// Borrowing fees.
+/// Ui fees.
 fn get_ui_fees(
     data_store: IDataStoreDispatcher,
     collateral_token_price: Price,
@@ -547,6 +582,11 @@ fn get_position_fees_after_referral(
     fees.referral.total_rebate_factor = total_rebate_factor;
     fees.referral.trader_discount_factor = trader_discount_factor;
 
+    /// note that since it is possible to incur both positive and negative price impact values
+    /// and the negative price impact factor may be larger than the positive impact factor
+    /// it is possible for the balance to be improved overall but for the price impact to still be negative
+    /// in this case the fee factor for the negative price impact would be charged
+    /// a user could split the order into two, to incur a smaller fee, reducing the fee through this should not be a large issue
     fees
         .position_fee_factor = data_store
         .get_u128(keys::position_fee_factor_key(market, for_positive_impact));
