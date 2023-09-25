@@ -771,6 +771,12 @@ fn validate_market_token_balance(data_store: IDataStoreDispatcher, market: Marke
 fn validate_markets_token_balance(data_store: IDataStoreDispatcher, market: Span<Market>) { //TODO
 }
 
+/// Validate that the positions can be opened in the given market
+/// # Parameters
+/// * `data_store`: dispatcher for the data store
+/// * `market`: the market to check
+fn validate_position_market(data_store: IDataStoreDispatcher, market: Market) {} // TODO
+
 /// Gets a list of market values based on an input array of market addresses.
 /// # Parameters
 /// * `swap_path`: A list of market addresses.
@@ -858,12 +864,22 @@ fn validate_enabled_market_address(
 ) { // TODO
 }
 
+// Check if the given token is a collateral token of the market
+// # Arguments
+// * `market` - the market to check
+// * `token` -  the token to check
+fn is_market_collateral_token(market: Market, token: ContractAddress) -> bool {
+    token == market.long_token || token == market.short_token
+}
 
 /// Validata if the given token is a collateral token of the market
 /// # Arguments
 /// * `market` - The market to validate.
 /// * `token` - The token to check
-fn validate_market_collateral_token(market: Market, token: ContractAddress) { // TODO
+fn validate_market_collateral_token(market: Market, token: ContractAddress) {
+    if !is_market_collateral_token(market, token) {
+        panic_with_felt252(MarketError::INVALID_COLLATERAL_TOKEN_FOR_MARKET)
+    }
 }
 
 /// Get the max position impact factor for liquidations
