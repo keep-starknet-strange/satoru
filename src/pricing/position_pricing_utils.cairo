@@ -14,7 +14,7 @@ use satoru::market::market::Market;
 use satoru::price::price::Price;
 use satoru::position::position::Position;
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::utils::i128::{StoreI128, I128Serde,};
+use satoru::utils::i128::{I128Store, I128Serde,};
 /// Struct used in get_position_fees.
 #[derive(Drop, starknet::Store, Serde)]
 struct GetPositionFeesParams {

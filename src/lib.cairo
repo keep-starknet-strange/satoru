@@ -215,6 +215,7 @@ mod pricing {
     mod position_pricing_utils;
     mod pricing_utils;
     mod swap_pricing_utils;
+    mod error;
 }
 
 // `referral` contains referral logic.
@@ -312,11 +313,12 @@ mod tests {
     mod price {
         mod test_price;
     }
-
+    mod pricing {
+        mod test_swap_pricing_utils;
+    }
     mod reader {
         mod test_reader;
     }
-
     mod role {
         mod test_role_module;
         mod test_role_store;

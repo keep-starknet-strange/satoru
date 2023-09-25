@@ -26,7 +26,7 @@ use satoru::pricing::position_pricing_utils::PositionReferralFees;
 use satoru::pricing::position_pricing_utils::PositionFundingFees;
 use satoru::pricing::position_pricing_utils::PositionUiFees;
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::utils::i128::{StoreI128, u128_to_i128, I128Serde, I128Div, I128Mul};
+use satoru::utils::i128::{I128Store, I128Serde, I128Div, I128Mul};
 
 #[derive(Drop, starknet::Store, Serde)]
 struct PositionInfo {
