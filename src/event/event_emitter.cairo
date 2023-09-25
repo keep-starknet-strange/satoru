@@ -2682,7 +2682,7 @@ mod EventEmitter {
                         amount_in_after_fees,
                         amount_out,
                         price_impact_usd,
-                        price_impact_amount,
+                        price_impact_amount
                     }
                 );
         }

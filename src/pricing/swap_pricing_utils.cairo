@@ -123,15 +123,14 @@ fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i128 {
     // large depeg of one of the tokens, in which case it may be necessary to remove that market from being a virtual
     // market, removal of virtual markets may lead to incorrect virtual token accounting, the feature to correct for
     // this can be added if needed
-    let inventory = market_utils::get_virtual_inventory_for_swaps(
-        params.data_store, params.market.market_token
-    );
     let (
         has_virtual_inventory,
         virtual_pool_amount_for_long_token,
         virtual_pool_amount_for_short_token
     ) =
-        inventory;
+        market_utils::get_virtual_inventory_for_swaps(
+        params.data_store, params.market.market_token
+    );
 
     if !has_virtual_inventory {
         return price_impact_usd;
@@ -160,6 +159,10 @@ fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i128 {
 }
 
 /// Called by get_price_impact_usd().
+/// # Arguments
+/// * `data_store` - DataStore
+/// * `market` - the trading market
+/// * `pool_params` - PoolParams
 /// # Returns
 /// The price impact in USD.
 fn get_price_impact_usd_(
@@ -210,6 +213,11 @@ fn get_price_impact_usd_(
     }
 }
 
+/// Get the next pool amounts in USD
+/// # Arguments
+/// `params` - GetPriceImpactUsdParams
+/// # Returns
+/// PoolParams
 fn get_next_pool_amount_usd(params: GetPriceImpactUsdParams) -> PoolParams {
     let pool_amount_for_token_a = market_utils::get_pool_amount(
         params.data_store, @params.market, params.token_a
