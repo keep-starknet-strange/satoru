@@ -178,7 +178,7 @@ struct PositionUiFees {
 /// Get the price impact in USD for a position increase / decrease.
 fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i128 {
     let open_interest_params: OpenInterestParams = get_next_open_interest(params);
-    let price_impact_usd = _get_price_impact_usd(
+    let price_impact_usd = get_price_impact_usd_internal(
         params.data_store, params.market.market_token, open_interest_params
     );
 
@@ -199,7 +199,7 @@ fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i128 {
         get_next_open_interest_for_virtual_inventory(
         params, virtual_inventory
     );
-    let price_impact_usd_for_virtual_inventory = _get_price_impact_usd(
+    let price_impact_usd_for_virtual_inventory = get_price_impact_usd_internal(
         params.data_store, params.market.market_token, open_interest_params_for_virtual_inventory
     );
 
@@ -211,7 +211,7 @@ fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i128 {
 }
 
 /// Called internally by get_price_impact_params().
-fn _get_price_impact_usd(
+fn get_price_impact_usd_internal(
     data_store: IDataStoreDispatcher,
     market: ContractAddress,
     open_interest_params: OpenInterestParams,
