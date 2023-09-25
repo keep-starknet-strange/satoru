@@ -6,8 +6,9 @@ use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
 use satoru::market::market::Market;
-use satoru::pricing::position_pricing_utils::{GetPositionFeesParams, PositionFundingFees, GetPriceImpactUsdParams};
-
+use satoru::pricing::position_pricing_utils::{
+    GetPositionFeesParams, PositionFundingFees, GetPriceImpactUsdParams
+};
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 
 // TODO add asserts for each test when possible
@@ -33,7 +34,9 @@ fn given_normal_conditions_when_get_next_open_interest_for_virtual_inventory_the
     let (caller_address, data_store) = setup();
 
     let get_price_impact_params = create_get_price_impact_usd_params(data_store);
-    position_pricing_utils::get_next_open_interest_for_virtual_inventory(get_price_impact_params, 50);
+    position_pricing_utils::get_next_open_interest_for_virtual_inventory(
+        get_price_impact_params, 50
+    );
 }
 
 #[test]
@@ -53,10 +56,7 @@ fn given_normal_conditions_when_get_next_open_interest_params_then_works() {
 #[test]
 fn given_normal_conditions_when_get_borrowing_fees_then_works() {
     let (caller_address, data_store) = setup();
-    let price = Price {
-        min: 5,
-        max: 10,
-    };
+    let price = Price { min: 5, max: 10, };
 
     position_pricing_utils::get_borrowing_fees(data_store, price, 3);
 }
@@ -96,10 +96,7 @@ fn given_normal_conditions_when_get_funding_fees_then_works() {
 #[test]
 fn given_normal_conditions_when_get_ui_fees_then_works() {
     let (caller_address, data_store) = setup();
-    let price = Price {
-        min: 5,
-        max: 10,
-    };
+    let price = Price { min: 5, max: 10, };
     let ui_fee_receiver = contract_address_const::<'ui_fee_receiver'>();
     position_pricing_utils::get_ui_fees(data_store, price, 10, ui_fee_receiver);
 }
@@ -116,7 +113,6 @@ fn given_normal_conditions_when_get_ui_fees_then_works() {
 //     let market = contract_address_const::<'market'>();
 //     position_pricing_utils::get_position_fees_after_referral(data_store, referral_storage, price, true, account, market, 10);
 // }
-
 
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('DataStore');
@@ -149,11 +145,6 @@ fn create_get_price_impact_usd_params(data_store: IDataStoreDispatcher) -> GetPr
         long_token: contract_address_const::<'long_token'>(),
         short_token: contract_address_const::<'short_token'>()
     };
-    
-    GetPriceImpactUsdParams {
-        data_store,
-        market,
-        usd_delta: 50,
-        is_long: true
-    }
+
+    GetPriceImpactUsdParams { data_store, market, usd_delta: 50, is_long: true }
 }

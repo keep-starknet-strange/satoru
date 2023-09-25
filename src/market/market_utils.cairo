@@ -1143,17 +1143,3 @@ fn get_virtual_inventory_for_swaps(
     // TODO
     (false, 0, 0)
 }
-
-
-/// Get the virtual inventory for positions
-/// # Arguments
-/// * `data_store` - The data store to use.
-/// * `token` - The token to check.
-/// # Returns
-/// has virtual inventory, virtual inventory
-fn get_virtual_inventory_for_positions(
-    data_store: IDataStoreDispatcher, token: ContractAddress,
-) -> (bool, i128) {
-    // TODO
-    (false, 0)
-}
