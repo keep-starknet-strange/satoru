@@ -19,8 +19,10 @@ use satoru::market::{
 };
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::price::price::{Price, PriceTrait};
+use satoru::utils::calc;
 use satoru::utils::span32::Span32;
-use satoru::utils::i128::{StoreI128, u128_to_i128, I128Serde, I128Div, I128Mul};
+use satoru::utils::i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default};
+
 /// Struct to store the prices of tokens of a market.
 /// # Params
 /// * `indexTokenPrice` - Price of the market's index token.
@@ -73,11 +75,11 @@ fn get_cached_token_price(token: ContractAddress, market: Market, prices: Market
 }
 
 fn get_swap_impact_amount_with_cap(
-    dataStore: IDataStoreDispatcher,
+    data_store: IDataStoreDispatcher,
     market: ContractAddress,
     token: ContractAddress,
-    tokenPrice: Price,
-    priceImpactUsd: i128 //TODO : check u128
+    token_price: Price,
+    price_impact_usd: i128 //TODO : check u128
 ) -> i128 { //Todo : check u128
     //TODO
     return 0;
@@ -338,8 +340,8 @@ fn get_pnl(
     maximize: bool
 ) -> i128 {
     // Get the open interest.
-    let open_interest = u128_to_i128(
-        get_open_interest_for_market_is_long(data_store, market, is_long)
+    let open_interest = calc::to_signed(
+        get_open_interest_for_market_is_long(data_store, market, is_long), true
     );
     // Get the open interest in tokens.
     let open_interest_in_tokens = get_open_interest_in_tokens_for_market(
@@ -354,7 +356,7 @@ fn get_pnl(
     let price = index_token_price.pick_price_for_pnl(is_long, maximize);
 
     //  `open_interest` is the cost of all positions, `open_interest_valu`e is the current worth of all positions.
-    let open_interest_value = u128_to_i128(open_interest_in_tokens * price);
+    let open_interest_value = calc::to_signed(open_interest_in_tokens * price, true);
 
     // Return the PNL.
     // If `is_long` is true, then the PNL is the difference between the current worth of all positions and the cost of all positions.
@@ -694,6 +696,16 @@ fn is_pnl_factor_exceeded_direct(
     (true, 0, 0)
 }
 
+fn get_ui_fee_factor(data_store: IDataStoreDispatcher, account: ContractAddress) -> u128 {
+    let max_ui_fee_factor = data_store.get_u128(keys::max_ui_fee_factor());
+    let ui_fee_factor = data_store.get_u128(keys::ui_fee_factor_key(account));
+    if ui_fee_factor < max_ui_fee_factor {
+        ui_fee_factor
+    } else {
+        max_ui_fee_factor
+    }
+}
+
 /// Gets the enabled market. This function will revert if the market does not exist or is not enabled.
 /// # Arguments
 /// * `dataStore` - DataStore
@@ -977,7 +989,6 @@ fn market_token_amount_to_usd(
     0
 }
 
-
 /// Get the borrowing factor per second.
 /// # Arguments
 /// * `data_store` - The data store to use.
@@ -1055,18 +1066,52 @@ fn get_open_interest_with_pnl(
     0
 }
 
-
 /// Get the virtual inventory for swaps
 /// # Arguments
 /// * `data_store` - The data store to use.
-/// * `market` - The market address.
+/// * `market` - The market.
 /// # Returns
-/// has virtual inventory, virtual long token inventory, virtual short token inventory
+/// The tuple (has virtual inventory, virtual long token inventory, virtual short token inventory)
 fn get_virtual_inventory_for_swaps(
-    data_store: IDataStoreDispatcher, market: ContractAddress,
+    data_store: IDataStoreDispatcher, market: ContractAddress
 ) -> (bool, u128, u128) {
-    // TODO
-    (false, 0, 0)
+    let virtual_market_id = data_store.get_felt252(keys::virtual_market_id_key(market));
+    if virtual_market_id.is_zero() {
+        return (false, 0, 0);
+    }
+
+    return (
+        true,
+        data_store.get_u128(keys::virtual_inventory_for_swaps_key(virtual_market_id, true)),
+        data_store.get_u128(keys::virtual_inventory_for_swaps_key(virtual_market_id, false))
+    );
+}
+
+fn get_adjusted_swap_impact_factor(
+    data_store: IDataStoreDispatcher, market: ContractAddress, is_positive: bool
+) -> u128 {
+    let (positive_impact_factor, negative_impact_factor) = get_adjusted_swap_impact_factors(
+        data_store, market
+    );
+    if is_positive {
+        positive_impact_factor
+    } else {
+        negative_impact_factor
+    }
+}
+
+fn get_adjusted_swap_impact_factors(
+    data_store: IDataStoreDispatcher, market: ContractAddress
+) -> (u128, u128) {
+    let mut positive_impact_factor = data_store
+        .get_u128(keys::swap_impact_factor_key(market, true));
+    let negative_impact_factor = data_store.get_u128(keys::swap_impact_factor_key(market, false));
+    // if the positive impact factor is more than the negative impact factor, positions could be opened
+    // and closed immediately for a profit if the difference is sufficient to cover the position fees
+    if positive_impact_factor > negative_impact_factor {
+        positive_impact_factor = negative_impact_factor;
+    }
+    (positive_impact_factor, negative_impact_factor)
 }
 
 
