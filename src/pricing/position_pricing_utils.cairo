@@ -20,10 +20,9 @@ use satoru::pricing::pricing_utils;
 use satoru::data::keys;
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::utils::{calc, precision};
-use satoru::utils::i128::{StoreI128, I128Serde, i128_to_u128};
 use satoru::pricing::error::PricingError;
 use satoru::referral::referral_utils;
-
+use satoru::utils::i128::{I128Store, I128Serde,};
 /// Struct used in get_position_fees.
 #[derive(Drop, starknet::Store, Serde)]
 struct GetPositionFeesParams {
