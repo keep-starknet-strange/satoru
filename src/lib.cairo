@@ -304,6 +304,7 @@ mod tests {
     }
     mod order {
         mod test_base_order_utils;
+        mod test_increase_order_utils;
         mod test_order;
     }
     mod position {
