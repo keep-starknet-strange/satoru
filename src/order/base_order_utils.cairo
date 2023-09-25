@@ -21,7 +21,7 @@ use satoru::utils::store_arrays::{StoreMarketArray, StoreU64Array, StoreContract
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::utils::span32::Span32;
 use satoru::utils::calc;
-use satoru::utils::i128::{I128Div, StoreI128, I128Serde};
+use satoru::utils::i128::{I128Div, I128Store, I128Serde};
 
 #[derive(Drop, starknet::Store, Serde)]
 struct ExecuteOrderParams {

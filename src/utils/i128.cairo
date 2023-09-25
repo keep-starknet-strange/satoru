@@ -53,10 +53,10 @@ fn abs(signed_integer: i128) -> u128 {
     response.try_into().expect('u128 Overflow')
 }
 
-impl StoreI128 of Store<i128> {
+impl I128Store of Store<i128> {
     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<i128> {
         Result::Ok(
-            Store::<felt252>::read(address_domain, base)?.try_into().expect('StoreI128 - non i128')
+            Store::<felt252>::read(address_domain, base)?.try_into().expect('I128Store - non i128')
         )
     }
     #[inline(always)]
@@ -70,7 +70,7 @@ impl StoreI128 of Store<i128> {
         Result::Ok(
             Store::<felt252>::read_at_offset(address_domain, base, offset)?
                 .try_into()
-                .expect('StoreI128 - non i128')
+                .expect('I128Store - non i128')
         )
     }
     #[inline(always)]
