@@ -860,8 +860,7 @@ fn validate_market_collateral_token(market: Market, token: ContractAddress) { //
 fn get_max_position_impact_factor_for_liquidations(
     data_store: IDataStoreDispatcher, market: ContractAddress
 ) -> u128 {
-    // TODOs
-    0
+    data_store.get_u128(keys::get_min_collateral_factor_for_liquidations_key(market))
 }
 
 /// Get the min collateral factor
@@ -869,8 +868,7 @@ fn get_max_position_impact_factor_for_liquidations(
 /// * `data_store` - The data store to use.
 /// * `market` - The market.
 fn get_min_collateral_factor(data_store: IDataStoreDispatcher, market: ContractAddress) -> u128 {
-    // TODOs
-    0
+    data_store.get_u128(keys::get_min_collateral_factor_key(market))
 }
 
 
@@ -880,7 +878,7 @@ fn get_min_collateral_factor(data_store: IDataStoreDispatcher, market: ContractA
 /// * `market` - The market.
 /// * `open_interest_delta` - The change in open interest.
 /// * `is_long` - Whether it is for the long or short side
-fn get_min_collateral_factor_for_open_interest(
+fn _for_open_interest(
     data_store: IDataStoreDispatcher, market: Market, open_interest_delta: i128, is_long: bool
 ) -> u128 {
     // TODOs
@@ -1065,5 +1063,81 @@ fn get_virtual_inventory_for_positions(
 ) -> (bool, i128) {
     // TODO
     (false, 0)
+}
+
+fn get_max_position_impact_factor(
+    data_store: IDataStoreDispatcher, market: ContractAddress, is_positive: bool,
+) -> u128 {
+    let (max_positive_impact_factor, max_negative_impact_factor) = get_max_position_impact_factors(data_store, market);
+
+    if is_positive {
+        max_positive_impact_factor
+    } else {
+        max_negative_impact_factor
+    }
+}
+
+fn get_max_position_impact_factors(
+    data_store: IDataStoreDispatcher, market: ContractAddress,
+) -> (u128, u128) {
+    let mut max_positive_impact_factor: u128 = data_store.get_u128(keys::max_positive_impact_factor_key(market));
+    let max_negative_impact_factor: u128 = data_store.get_u128(keys::max_negative_impact_factor_key(market));
+
+    if max_positive_impact_factor > max_negative_impact_factor {
+        max_positive_impact_factor = max_negative_impact_factor;
+    }
+
+    (max_positive_impact_factor, max_negative_impact_factor)
+}
+
+// get_max_position_impact_factor_for_liquidations done above 
+
+// get_min_collaterak_factor done above
+
+
+    //Find what is Market.props to do it 
+fn get_min_collateral_factor_for_open_interest(
+    data_store: IDataStoreDispatcher, market: market, open_interest_delta: i128, is_long: bool
+) -> u128 {
+    let mut open_interest: u128 = get_open_interest_for_market_is_long(data_store, market, is_long);
+    open_interest = sum_return_uint_128(open_interest, open_interest_delta);
+    let multiplier_factor = get_min_collateral_factor_for_open_interest_multiplier(data_store, market, is_long);
+    apply_factor_u128(open_interest, multiplier_factor)
+}
+
+fn get_collateral_sum(
+    data_store: IDataStoreDispatcher, market: Market, CreateAdlOrderParams::collateral_token: ContractAddress, is_long: bool, divisor: u128
+) -> u128 {
+    data_store.get_u128(keys::collateral_sum_key(market.market_token, collateral_token, is_long)) / divisor
+}
+
+fn get_reserve_factor(
+    data_store: IDataStoreDispatcher, market: Market, is_long: bool
+) -> u128 {
+    data_store.get_u128(keys::reserve_factor_key(market.market_token, is_long))
+}
+
+fn get_open_interest_reserve_factor(
+    data_store: IDataStoreDispatcher, market: Market, is_long: bool
+) -> u128 {
+    data_store.get_u128(keys::open_interest_reserve_factor_key(market.market_token, is_long))
+}
+
+fn get_max_pnl_factor(
+    data_store: IDataStoreDispatcher, pnl_factor_type: felt252, market: Market, is_long: bool
+) -> u128 {
+    data_store.get_u128(keys::max_pnl_factor_key(pnl_factor_type, market.market_token, is_long))
+}
+
+fn get_min_pnl_factor_after_adl(
+    data_store: IDataStoreDispatcher, market: Market, is_long: bool
+) -> u128 {
+    data_store.get_u128(keys::min_pnl_factor_after_adl_key(market.market_token, is_long))
+}
+
+fn get_funding_factor(
+    data_store: IDataStoreDispatcher, market: Market
+) -> u128 {
+    data_store.get_u128(keys::funding_factor_key(market.market_token)
 }
 
