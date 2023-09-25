@@ -1039,10 +1039,12 @@ fn get_open_interest_with_pnl(
     0
 }
 
-// @dev get the virtual inventory for swaps
-// @param data_store DataStore
-// @param market the market to check
-// @return returns (has virtual inventory, virtual long token inventory, virtual short token inventory)
+/// Get the virtual inventory for swaps
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market.
+/// # Returns
+/// The tuple (has virtual inventory, virtual long token inventory, virtual short token inventory)
 fn get_virtual_inventory_for_swaps(
     data_store: IDataStoreDispatcher, market: ContractAddress
 ) -> (bool, u128, u128) {
