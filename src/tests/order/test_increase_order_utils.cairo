@@ -43,6 +43,21 @@ fn given_smaller_oracle_block_numbers_when_validate_oracle_block_numbers_then_th
     );
 }
 
+#[test]
+#[available_gas(200_000)]
+#[should_panic(expected: ('block number not in range', 5, 0, 1, 2, 3, 4, 5, 4, 5, 6, 7, 8, 5))]
+fn given_not_within_range_block_number_when_validate_oracle_block_numbers_then_throw_error() {
+    // Given
+    let min_oracle_block_numbers = array![0, 1, 2, 3, 4].span();
+    let max_oracle_block_numbers = array![4, 5, 6, 7, 8].span();
+    let order_type = OrderType::MarketIncrease;
+    let order_updated_at_block = 5;
+
+    // When
+    validate_oracle_block_numbers(
+        min_oracle_block_numbers, max_oracle_block_numbers, order_type, order_updated_at_block,
+    );
+}
 
 #[test]
 #[should_panic(expected: ('unsupported_order_type',))]
