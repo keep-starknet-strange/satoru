@@ -11,8 +11,7 @@ use satoru::market::market_utils;
 use satoru::swap::swap_utils;
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::position::{
-    position::PositionTrait, position_utils, position_store_utils, error::PositionError,
-    increase_position_utils
+    position::PositionTrait, position_utils, error::PositionError, increase_position_utils
 };
 use satoru::event::event_utils;
 

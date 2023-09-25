@@ -205,7 +205,6 @@ mod position {
     mod decrease_position_utils;
     mod increase_position_utils;
     mod position_event_utils;
-    mod position_store_utils;
     mod position_utils;
     mod position;
     mod error;
