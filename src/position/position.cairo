@@ -59,38 +59,3 @@ impl DefaultPosition of Default<Position> {
         }
     }
 }
-/// Trait for Position.
-#[generate_trait]
-impl PositionImpl of PositionTrait {
-    fn account(self: Position) -> ContractAddress {
-        self.account
-    }
-
-    fn set_account(ref self: Position, value: ContractAddress) {
-        self.account = value;
-    }
-
-    fn market(self: Position) -> ContractAddress {
-        self.market
-    }
-
-    fn set_market(ref self: Position, value: ContractAddress) {
-        self.market = value;
-    }
-
-    fn collateral_token(self: Position) -> ContractAddress {
-        self.collateral_token
-    }
-
-    fn set_collateral_token(ref self: Position, value: ContractAddress) {
-        self.collateral_token = value;
-    }
-
-    fn is_long(self: Position) -> bool {
-        self.is_long
-    }
-
-    fn set_is_long(ref self: Position, value: bool) {
-        self.is_long = value;
-    }
-}

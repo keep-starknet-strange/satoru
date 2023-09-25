@@ -10,9 +10,7 @@ use satoru::oracle::{oracle_utils, error::OracleError};
 use satoru::market::market_utils;
 use satoru::swap::swap_utils;
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
-use satoru::position::{
-    position::PositionTrait, position_utils, error::PositionError, increase_position_utils
-};
+use satoru::position::{position_utils, error::PositionError, increase_position_utils};
 use satoru::event::event_utils;
 
 // External imports.
@@ -60,14 +58,14 @@ fn process_order(params: ExecuteOrderParams) -> event_utils::EventLogData {
 
     // Initialize position
     if position.account.is_zero() {
-        position.set_account(params.order.account);
+        position.account = params.order.account;
         if !position.market.is_zero() || !position.collateral_token.is_zero() {
             panic_with_felt252(PositionError::UNEXPECTED_POSITION_STATE);
         }
 
-        position.set_market(params.order.market);
-        position.set_collateral_token(collateral_token);
-        position.set_is_long(params.order.is_long);
+        position.market = params.order.market;
+        position.collateral_token = collateral_token;
+        position.is_long = params.order.is_long;
     };
 
     validate_oracle_block_numbers(
