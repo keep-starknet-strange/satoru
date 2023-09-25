@@ -5,7 +5,8 @@ use starknet::ContractAddress;
 use satoru::order::{
     base_order_utils::ExecuteOrderParams, order::{Order, OrderType}, error::OrderError
 };
-use satoru::oracle::{oracle_utils, error};
+use satoru::data::{data_store::IDataStoreDispatcherTrait, error::DataError};
+use satoru::oracle::{oracle_utils, error::OracleError};
 use satoru::market::market_utils;
 use satoru::swap::swap_utils;
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
@@ -52,7 +53,11 @@ fn process_order(params: ExecuteOrderParams) -> event_utils::EventLogData {
     let position_key = position_utils::get_position_key(
         params.order.account, params.order.market, collateral_token, params.order.is_long,
     );
-    let mut position = position_store_utils::get(params.contracts.data_store, position_key);
+    let mut position = params
+        .contracts
+        .data_store
+        .get_position(position_key)
+        .expect(DataError::POSITION_NOT_FOUND);
 
     // Initialize position
     if position.account.is_zero() {
@@ -116,9 +121,11 @@ fn validate_oracle_block_numbers(
         // for this case, when the limit order price is reached, the order should be frozen
         // the frozen order keepers should only execute frozen orders if the latest prices
         // fulfill the limit price
-        let min_oracle_block_number = min_oracle_block_numbers.min().unwrap();
+        let min_oracle_block_number = min_oracle_block_numbers
+            .min()
+            .expect(OracleError::EMPTY_ORACLE_BLOCK_NUMBERS);
         if min_oracle_block_number < order_updated_at_block {
-            error::OracleError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(
+            OracleError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(
                 min_oracle_block_numbers, order_updated_at_block
             );
         }

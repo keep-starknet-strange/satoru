@@ -3,6 +3,7 @@ mod OracleError {
     use serde::Serde;
 
     const ALREADY_INITIALIZED: felt252 = 'already_initialized';
+    const EMPTY_ORACLE_BLOCK_NUMBERS: felt252 = 'empty_oracle_block_numbers';
 
     fn NON_EMPTY_TOKENS_WITH_PRICES(data: u32) {
         panic(array!['non empty tokens prices', data.into()])
