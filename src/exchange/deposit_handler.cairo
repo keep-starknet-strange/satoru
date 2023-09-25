@@ -66,10 +66,7 @@ mod DepositHandler {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{
-        get_caller_address, get_contract_address, ContractAddress
-    };
-
+    use starknet::{get_caller_address, get_contract_address, ContractAddress};
 
     // Local imports.
     use super::IDepositHandler;
@@ -152,8 +149,10 @@ mod DepositHandler {
         fn create_deposit(
             ref self: ContractState, account: ContractAddress, params: CreateDepositParams
         ) -> felt252 {
-            feature_utils::validate_feature(self.data_store.read(), keys::create_deposit_feature_disabled_key(get_contract_address()));
-
+            feature_utils::validate_feature(
+                self.data_store.read(),
+                keys::create_deposit_feature_disabled_key(get_contract_address())
+            );
             deposit_utils::create_deposit(
                 self.data_store.read(),
                 self.event_emitter.read(),
@@ -169,12 +168,11 @@ mod DepositHandler {
             let data_store = self.data_store.read();
             let deposit = data_store.get_deposit(key).unwrap();
 
-            feature_utils::validate_feature(data_store, keys::cancel_deposit_feature_disabled_key(get_contract_address()));
-
+            feature_utils::validate_feature(
+                data_store, keys::cancel_deposit_feature_disabled_key(get_contract_address())
+            );
             exchange_utils::validate_request_cancellation(
-                data_store,
-                deposit.updated_at_block,
-                'Deposit'
+                data_store, deposit.updated_at_block, 'Deposit'
             );
 
             deposit_utils::cancel_deposit(
@@ -189,18 +187,12 @@ mod DepositHandler {
             )
         }
 
-        fn execute_deposit(
-            ref self: ContractState, key: felt252, oracle_params: SetPricesParams
-        ) {
+        fn execute_deposit(ref self: ContractState, key: felt252, oracle_params: SetPricesParams) {
             let data_store = self.data_store.read();
             // let starting_gas = gas_left();
             let execution_gas = gas_utils::get_execution_gas(data_store, 0);
 
-            self.execute_deposit_keeper(
-                key,
-                oracle_params,
-                get_caller_address()
-            )
+            self.execute_deposit_keeper(key, oracle_params, get_caller_address())
         }
 
         fn simulate_execute_deposit(
@@ -208,11 +200,7 @@ mod DepositHandler {
         ) {
             let oracleParams = Default::default();
 
-            self.execute_deposit_keeper(
-                key,
-                oracleParams,
-                get_caller_address()
-            );
+            self.execute_deposit_keeper(key, oracleParams, get_caller_address())
         }
 
         fn execute_deposit_keeper(
@@ -223,16 +211,15 @@ mod DepositHandler {
         ) {
             // let starting_gas = gas_left();
             let data_store = self.data_store.read();
-            feature_utils::validate_feature(data_store, keys::execute_deposit_feature_disabled_key(get_contract_address()));
-
+            feature_utils::validate_feature(
+                data_store, keys::execute_deposit_feature_disabled_key(get_contract_address())
+            );
             let min_oracle_block_numbers = oracle_utils::get_uncompacted_oracle_block_numbers(
-                oracle_params.compacted_min_oracle_block_numbers.span(),
-                oracle_params.tokens.len()
+                oracle_params.compacted_min_oracle_block_numbers.span(), oracle_params.tokens.len()
             );
 
             let max_oracle_block_numbers = oracle_utils::get_uncompacted_oracle_block_numbers(
-                oracle_params.compacted_max_oracle_block_numbers.span(),
-                oracle_params.tokens.len()
+                oracle_params.compacted_max_oracle_block_numbers.span(), oracle_params.tokens.len()
             );
 
             let params = execute_deposit_utils::ExecuteDepositParams {
@@ -244,7 +231,7 @@ mod DepositHandler {
                 min_oracle_block_numbers,
                 max_oracle_block_numbers,
                 keeper,
-                starting_gas: 0   // TODO starting_gas
+                starting_gas: 0 // TODO starting_gas
             };
 
             execute_deposit_utils::execute_deposit(params);
