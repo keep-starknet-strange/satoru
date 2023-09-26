@@ -237,20 +237,20 @@ mod DepositHandler {
             execute_deposit_utils::execute_deposit(params);
         }
     }
-
-    // *************************************************************************
-    //                          INTERNAL FUNCTIONS
-    // *************************************************************************
-    #[generate_trait]
-    impl InternalImpl of InternalTrait {
-        /// Handles error from deposit.
-        /// # Arguments
-        /// * `key` - The key of the deposit to handle error for.
-        /// * `starting_gas` - The starting gas of the transaction.
-        /// * `reason_bytes` - The reason of the error.
-        fn handle_deposit_error(
-            ref self: ContractState, key: felt252, starting_gas: u128, reason_bytes: Array<felt252>
-        ) { // TODO
-        }
-    }
+    /// TODO not needed
+    // // *************************************************************************
+    // //                          INTERNAL FUNCTIONS
+    // // *************************************************************************
+    // #[generate_trait]
+    // impl InternalImpl of InternalTrait {
+    //     /// Handles error from deposit.
+    //     /// # Arguments
+    //     /// * `key` - The key of the deposit to handle error for.
+    //     /// * `starting_gas` - The starting gas of the transaction.
+    //     /// * `reason_bytes` - The reason of the error.
+    //     fn handle_deposit_error(
+    //         ref self: ContractState, key: felt252, starting_gas: u128, reason_bytes: Array<felt252>
+    //     ) { // TODO
+    //     }
+    // }
 }
