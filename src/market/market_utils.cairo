@@ -22,7 +22,7 @@ use satoru::price::price::{Price, PriceTrait};
 use satoru::utils::calc;
 use satoru::utils::span32::Span32;
 use satoru::position::position::Position;
-use satoru::utils::i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default};
+use satoru::utils::i128::{I128Store, I128Serde, I128Div, I128Mul};
 
 /// Struct to store the prices of tokens of a market.
 /// # Params

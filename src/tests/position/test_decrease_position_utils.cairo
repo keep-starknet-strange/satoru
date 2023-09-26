@@ -17,9 +17,8 @@ use satoru::order::{
     order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
     base_order_utils::ExecuteOrderParamsContracts
 };
-use satoru::referral::referral_storage::interface::{
-    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
-};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+
 use satoru::position::{
     position::Position, decrease_position_utils, position_utils::UpdatePositionParams
 };
@@ -158,7 +157,6 @@ fn create_new_update_position_params(
         min_output_amount: 10,
         updated_at_block: 1,
         is_long: false,
-        should_unwrap_native_token: false,
         is_frozen: false
     };
 

@@ -24,7 +24,7 @@ use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorag
 use satoru::utils::traits::ContractAddressDefault;
 use satoru::order::base_order_utils::ExecuteOrderParamsContracts;
 use satoru::price::price::{Price, PriceTrait};
-use satoru::utils::{calc, precision, i128::{I128Store, I128Serde, I128Div, I128Mul}};
+use satoru::utils::{calc, precision, i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}};
 use satoru::referral::referral_utils;
 use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
 
