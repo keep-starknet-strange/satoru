@@ -1142,7 +1142,12 @@ fn get_next_borrowing_fees(
     market: Market,
     prices: MarketPrices
 ) -> u128 {
-    0
+    let (next_cumulative_borrowing_factor, _) = get_next_cumulative_borrowing_factor(
+        data_store, market, prices, position.is_long
+    );
+    assert(next_cumulative_borrowing_factor >= position.borrowing_factor, MarketError::UNEXCEPTED_BORROWING_FACTOR);
+    let diff_factor: u128 = next_cumulative_borrowing_factor - position.borrowing_factor;
+    return apply_factor_u128(position.size_in_usd, diff_factor);
 }
 
 // @notice Get the total reserved USD required for positions.
@@ -1215,8 +1220,8 @@ fn apply_delta_to_virtual_inventory_for_swaps(
 /// Returns a tuple (cumulative_borrowing_factor, updated_timestamp).
 fn get_next_cumulative_borrowing_factor(
     data_store: IDataStoreDispatcher,
-    prices: MarketPrices,
     market: Market,
+    prices: MarketPrices,
     is_long: bool
 ) -> (u128, u128) { // TODO
     (0, 0)
