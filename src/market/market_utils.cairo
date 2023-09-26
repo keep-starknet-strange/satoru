@@ -22,7 +22,7 @@ use satoru::price::price::{Price, PriceTrait};
 use satoru::utils::calc;
 use satoru::utils::span32::Span32;
 use satoru::position::position::Position;
-use satoru::utils::i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default};
+use satoru::utils::i128::{I128Store, I128Serde, I128Div, I128Mul};
 
 /// Struct to store the prices of tokens of a market.
 /// # Params
@@ -526,7 +526,7 @@ fn validate_swap_path(
 }
 
 
-/// @dev update the swap impact pool amount, if it is a positive impact amount
+/// Update the swap impact pool amount, if it is a positive impact amount
 /// cap the impact amount to the amount available in the swap impact pool
 /// # Arguments
 /// *`data_store` DataStore
@@ -720,6 +720,43 @@ fn get_enabled_market(data_store: IDataStoreDispatcher, market_address: Contract
         short_token: Zeroable::zero(),
     }
 }
+
+
+/// Get the cumulative borrowing factor for a market
+/// # Arguments
+/// * `data_store` DataStore
+/// * `market` the market to check
+/// * `is_long` whether to check the long or short side
+/// # Returns
+// The cumulative borrowing factor for a market
+fn get_cumulative_borrowing_factor(
+    data_store: @IDataStoreDispatcher, market: ContractAddress, is_long: bool
+) -> u128 {
+    (*data_store).get_u128(keys::cumulative_borrowing_factor_key(market, is_long))
+}
+
+/// @dev apply a delta to the collateral sum
+/// # Arguments
+/// * `data_store` DataStore
+/// * `event_emitter` EventEmitter
+/// * `market` the market to apply to
+/// * `collateral_token` the collateralToken to apply to
+/// * `is_long` whether to apply to the long or short side
+/// * `delta` the delta amount
+/// # Returns
+/// The updated collateral sum amount
+fn apply_delta_to_collateral_sum(
+    data_store: @IDataStoreDispatcher,
+    event_emitter: @IEventEmitterDispatcher,
+    market: ContractAddress,
+    collateral_token: ContractAddress,
+    is_long: bool,
+    delta: i128
+) -> u128 {
+    //TODO
+    0
+}
+
 
 /// Returns the primary prices for the market tokens.
 /// # Parameters
