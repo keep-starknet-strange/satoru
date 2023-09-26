@@ -1,4 +1,4 @@
-use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait, ContractClass};
+use snforge_std::{declare, start_prank, stop_prank, start_roll, ContractClassTrait, ContractClass};
 use satoru::exchange::liquidation_handler::{
     LiquidationHandler, ILiquidationHandlerDispatcher, ILiquidationHandler,
     ILiquidationHandlerDispatcherTrait
@@ -31,7 +31,7 @@ fn test_exec_liquidation_true() {
         liquidation_keeper,
         liquidation_handler_address,
         liquidation_handler_dispatcher,
-        _
+        _,
     ) =
         _setup();
     start_prank(liquidation_handler_address, liquidation_keeper);
@@ -67,6 +67,7 @@ fn test_create_liquidation_order() {
     ) =
         _setup();
     start_prank(liquidation_handler_address, liquidation_keeper);
+    start_roll(liquidation_keeper, 1);
     let account = contract_address_const::<'account'>();
     let market = contract_address_const::<'market'>();
     let is_long = true;
