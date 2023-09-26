@@ -22,4 +22,6 @@ mod MarketError {
 
     const MAX_POOL_AMOUNT_EXCEEDED: felt252 = 'max_pool_amount_exceeded';
     const MAX_RESERVE_EXCEEDED: felt252 = 'max_reserve_exceeded';
+    const INSUFFICIENT_RESERVE: felt252 = 'insufficient_reserve';
+    const UNEXCEPTED_BORROWING_FACTOR: felt252 = 'unexpected_borrowing_factor';
 }

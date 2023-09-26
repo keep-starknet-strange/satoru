@@ -9,6 +9,7 @@ use debug::PrintTrait;
 use zeroable::Zeroable;
 
 // Local imports.
+use satoru::utils::calc::roundup_magnitude_division;
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
 use satoru::chain::chain::Chain;
@@ -30,6 +31,7 @@ use satoru::utils::precision::{mul_div_roundup, to_factor_ival, apply_factor_u12
 use satoru::utils::calc::{roundup_division};
 use satoru::position::position::Position;
 use satoru::utils::i128::I128Default;
+use integer::u128_to_felt252;
 
 /// Struct to store the prices of tokens of a market.
 /// # Params
@@ -1029,7 +1031,7 @@ fn validate_reserve(
         is_long
     );
 
-    assert(reserved_usd <= max_reserved_usd, MarketError::MAX_RESERVE_EXCEEDED);
+    assert(reserved_usd <= max_reserved_usd, MarketError::INSUFFICIENT_RESERVE);
 }
 
 // @dev validate that the amount of tokens required to be reserved for open interest
@@ -1041,6 +1043,20 @@ fn validate_reserve(
 fn validate_open_interest_reserve(
     data_store: IDataStoreDispatcher, market: Market, prices: MarketPrices, is_long: bool
 ) { // TODO
+    // poolUsd is used instead of pool amount as the indexToken may not match the longToken
+    // additionally, the shortToken may not be a stablecoin
+    let pool_usd: u128 = get_pool_usd_without_pnl(data_store, market, prices, is_long, false);
+    let reserve_factor: u128 = get_open_interest_reserve_factor(data_store, market.market_token, is_long);
+    let max_reserved_usd: u128 = apply_factor_u128(pool_usd, reserve_factor);
+
+    let reserved_usd: u128 = get_reserved_usd(
+        data_store,
+        market,
+        prices,
+        is_long
+    );
+
+    assert(reserved_usd <= max_reserved_usd, MarketError::INSUFFICIENT_RESERVE);
 }
 
 /// @dev update the swap impact pool amount, if it is a positive impact amount
@@ -1062,17 +1078,54 @@ fn apply_swap_impact_with_cap(
     token_price: Price,
     price_impact_usd: i128
 ) -> i128 { // TODO
-    0
+    let impact_amount: u128 = get_swap_impact_amount_with_cap(
+        data_store,
+        market,
+        token,
+        token_price,
+        price_impact_usd
+    );
+    // if there is a positive impact, the impact pool amount should be reduced
+    // if there is a negative impact, the impact pool amount should be increased
+    // apply_delta_to_swap_impact_pool(
+    //     data_store,
+    //     event_emitter,
+    //     market,
+    //     token,
+    //     -impact_amount
+    // );
+
+    return impact_amount;
 }
 
 fn get_swap_impact_amount_with_cap(
-    dataStore: IDataStoreDispatcher,
+    data_store: IDataStoreDispatcher,
     market: ContractAddress,
     token: ContractAddress,
-    tokenPrice: Price,
-    priceImpactUsd: i128
+    token_price: Price,
+    price_impact_usd: i128
 ) -> i128 { //Todo : check u128
-    0
+    let mut impact_amount: i128 = 0;
+    // positive impact: minimize impactAmount, use tokenPrice.max
+    // negative impact: maximize impactAmount, use tokenPrice.min
+    if price_impact_usd > 0 {
+        let price_u128: u128 = token_price.max;
+        // round positive impactAmount down, this will be deducted from the swap impact pool for the user
+        let price: i128 = u128_to_i128(price_u128);
+        impact_amount = price_impact_usd / price;
+
+        let max_impact_amount: i128 = u128_to_i128(
+            get_swap_impact_pool_amount(data_store, market, token)
+        );
+        if (impact_amount > max_impact_amount) {
+            impact_amount = max_impact_amount;
+        }
+    } else {
+        let price: u128 = token_price.min;
+        // round negative impactAmount up, this will be deducted from the user
+        impact_amount = roundup_magnitude_division(price_impact_usd, price);
+    }
+    impact_amount
 }
 
 // @notice Get the next borrowing fees for a position.
@@ -1234,8 +1287,11 @@ fn get_reserve_factor(
 /// * `dataStore` - DataStore
 /// # Returns
 /// The borrowing fees for a position
-fn get_borrowing_fees(dataStore: IDataStoreDispatcher, position: Position) -> u128 {
-    0
+fn get_borrowing_fees(data_store: IDataStoreDispatcher, position: Position) -> u128 {
+    let cumulative_borrowing_factor: u128 = get_cumulative_borrowing_factor(data_store, position.market, position.is_long);
+    assert(cumulative_borrowing_factor >= position.borrowing_factor, MarketError::UNEXCEPTED_BORROWING_FACTOR);
+    let diff_factor: u128 = cumulative_borrowing_factor - position.borrowing_factor;
+    return apply_factor_u128(position.size_in_usd, diff_factor);
 }
 
 /// Get the funding fee amount per size for a market
@@ -1284,9 +1340,15 @@ fn get_funding_amount(
     latest_funding_amount_per_size: u128,
     position_funding_amount_per_size: u128,
     position_size_in_usd: u128,
-    round_up_magnitude: bool
+    roundup_magnitude: bool
 ) -> u128 {
-    0
+    let funding_diff_factor: u128 = (latest_funding_amount_per_size - position_funding_amount_per_size);
+    return mul_div_roundup(
+        position_size_in_usd,
+        funding_diff_factor,
+        FLOAT_PRECISION * FLOAT_PRECISION_SQRT,
+        roundup_magnitude
+    );
 }
 
 /// Get the borrowing factor per second.
@@ -1403,5 +1465,27 @@ fn get_adjusted_position_impact_factor(
     data_store: IDataStoreDispatcher, market: ContractAddress, isPositive: bool
 ) -> u128 {
     // TODO
+    0
+}
+
+// @dev get the open interest reserve factor for a market
+// @param dataStore DataStore
+// @param market the market to check
+// @param isLong whether to get the value for longs or shorts
+// @return the open interest reserve factor for a market
+fn get_open_interest_reserve_factor(
+    data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
+) -> u128 {
+    Default::default()
+}
+
+// @dev get the cumulative borrowing factor for a market
+// @param dataStore DataStore
+// @param market the market to check
+// @param isLong whether to check the long or short side
+// @return the cumulative borrowing factor for a market
+fn get_cumulative_borrowing_factor(
+    data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
+) -> u128 {
     0
 }
