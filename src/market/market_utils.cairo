@@ -865,7 +865,7 @@ fn update_cumulative_borrowing_factor(
     event_emitter: IEventEmitterDispatcher,
     market: Market,
     prices: MarketPrices,
-    chain: IChainDispatcher,
+    // chain: IChainDispatcher,
     is_long: bool
 ) { // TODO
     let (_, delta) = get_next_cumulative_borrowing_factor(
@@ -878,7 +878,7 @@ fn update_cumulative_borrowing_factor(
         keys::cumulative_borrowing_factor_updated_at_key(
             market.market_token, is_long
         ),
-        chain.get_block_timestamp().into()
+        0 // put chain.get_block_timestamp().into() instead
     );
 
 }
