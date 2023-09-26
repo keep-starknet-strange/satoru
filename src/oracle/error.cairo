@@ -1,7 +1,9 @@
 mod OracleError {
     use starknet::ContractAddress;
+    use serde::Serde;
 
     const ALREADY_INITIALIZED: felt252 = 'already_initialized';
+    const EMPTY_ORACLE_BLOCK_NUMBERS: felt252 = 'empty_oracle_block_numbers';
 
     fn NON_EMPTY_TOKENS_WITH_PRICES(data: u32) {
         panic(array!['non empty tokens prices', data.into()])
@@ -127,5 +129,25 @@ mod OracleError {
     fn END_OF_ORACLE_SIMULATION() {
         panic(array!['end of oracle simulation'])
     }
-}
 
+    fn ORACLE_BLOCK_NUMBERS_NOT_WITHIN_RANGE(
+        min_oracle_block_numbers: Span<u64>, max_oracle_block_numbers: Span<u64>, block_number: u64
+    ) {
+        let mut data: Array<felt252> = array![];
+        data.append('block number not in range');
+        Serde::serialize(min_oracle_block_numbers.snapshot, ref data);
+        Serde::serialize(max_oracle_block_numbers.snapshot, ref data);
+        data.append(block_number.into());
+        panic(data)
+    }
+
+    fn ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(
+        min_oracle_block_numbers: Span<u64>, block_number: u64
+    ) {
+        let mut data: Array<felt252> = array![];
+        data.append('block numbers too small');
+        Serde::serialize(min_oracle_block_numbers.snapshot, ref data);
+        data.append(block_number.into());
+        panic(data)
+    }
+}

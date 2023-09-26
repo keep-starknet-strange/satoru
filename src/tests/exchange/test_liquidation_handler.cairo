@@ -5,7 +5,7 @@ use satoru::exchange::liquidation_handler::{
 };
 use starknet::{ContractAddress, contract_address_const, ClassHash, Felt252TryIntoContractAddress};
 use debug::PrintTrait;
-use satoru::referral::referral_storage;
+use satoru::mock::referral_storage;
 use traits::Default;
 use satoru::oracle::oracle_utils::SetPricesParams;
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait, IDataStore};
@@ -82,10 +82,16 @@ fn deploy_liquidation_handler(
 }
 
 fn deploy_oracle(
-    role_store_address: ContractAddress, oracle_store_address: ContractAddress
+    role_store_address: ContractAddress,
+    oracle_store_address: ContractAddress,
+    pragma_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare('Oracle');
-    contract.deploy(@array![role_store_address.into(), oracle_store_address.into()]).unwrap()
+    contract
+        .deploy(
+            @array![role_store_address.into(), oracle_store_address.into(), pragma_address.into()]
+        )
+        .unwrap()
 }
 
 fn deploy_swap_handler(role_store_address: ContractAddress) -> ContractAddress {
@@ -99,7 +105,7 @@ fn deploy_referral_storage() -> ContractAddress {
 }
 
 fn deploy_oracle_store(
-    role_store_address: ContractAddress, event_emitter_address: ContractAddress
+    role_store_address: ContractAddress, event_emitter_address: ContractAddress,
 ) -> ContractAddress {
     let contract = declare('OracleStore');
     contract.deploy(@array![role_store_address.into(), event_emitter_address.into()]).unwrap()
@@ -124,7 +130,9 @@ fn _setup() -> (
     let order_vault_address = deploy_order_vault(data_store_address, role_store_address);
     let swap_handler_address = deploy_swap_handler(role_store_address);
     let oracle_store_address = deploy_oracle_store(role_store_address, event_emitter_address);
-    let oracle_address = deploy_oracle(role_store_address, oracle_store_address);
+    let oracle_address = deploy_oracle(
+        role_store_address, oracle_store_address, contract_address_const::<'pragma'>()
+    );
     //let referral_storage_address = deploy_referral_storage();
     let liquidation_handler_address = deploy_liquidation_handler(
         role_store_address,

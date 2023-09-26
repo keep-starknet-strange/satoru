@@ -316,7 +316,6 @@ fn create_dummy_withdrawal() -> Withdrawal {
         updated_at_block: 40,
         execution_fee: 50,
         callback_gas_limit: 60,
-        should_unwrap_native_token: false,
     }
 }
 
@@ -345,7 +344,6 @@ fn create_dummy_order(key: felt252) -> Order {
         min_output_amount: 100,
         updated_at_block: 0,
         is_long: true,
-        should_unwrap_native_token: false,
         is_frozen: false,
     }
 }

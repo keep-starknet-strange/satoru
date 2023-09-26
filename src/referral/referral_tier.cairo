@@ -1,5 +1,6 @@
 //! Library for referral tier struct.
 
+#[derive(Drop, starknet::Store, Serde)]
 struct ReferralTier {
     /// The total rebate for the tier (affiliate reward + trader discount).
     total_rebate: u128,
