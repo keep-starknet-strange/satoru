@@ -21,12 +21,17 @@ use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
 use satoru::exchange::base_order_handler::BaseOrderHandler::{
     event_emitter::InternalContractMemberStateTrait, data_store::InternalContractMemberStateImpl
 };
+use satoru::event::event_emitter::{IEventEmitterDispatcher};
 
 #[test]
 fn test_exec_liquidation_true() {
     let collateral_token: ContractAddress = contract_address_const::<1>();
     let (
-        data_store, liquidation_keeper, liquidation_handler_address, liquidation_handler_dispatcher
+        data_store,
+        liquidation_keeper,
+        liquidation_handler_address,
+        liquidation_handler_dispatcher,
+        _
     ) =
         _setup();
     start_prank(liquidation_handler_address, liquidation_keeper);
@@ -51,11 +56,14 @@ fn test_exec_liquidation_true() {
 }
 
 #[test]
-#[ignore]
 fn test_create_liquidation_order() {
     let collateral_token: ContractAddress = contract_address_const::<1>();
     let (
-        data_store, liquidation_keeper, liquidation_handler_address, liquidation_handler_dispatcher
+        data_store,
+        liquidation_keeper,
+        liquidation_handler_address,
+        liquidation_handler_dispatcher,
+        event_emitter
     ) =
         _setup();
     start_prank(liquidation_handler_address, liquidation_keeper);
@@ -69,16 +77,8 @@ fn test_create_liquidation_order() {
 
     data_store.set_position(key, position);
 
-    let mut state_base: BaseOrderHandler::ContractState =
-        BaseOrderHandler::unsafe_new_contract_state(); //retrieve BaseOrderHandler state
-
     let key: felt252 = create_liquidation_order(
-        state_base.data_store.read(),
-        state_base.event_emitter.read(),
-        account,
-        market,
-        collateral_token,
-        is_long
+        data_store, event_emitter, account, market, collateral_token, is_long
     );
 
     let order = data_store.get_order(key).expect('order should be present');
@@ -170,7 +170,11 @@ fn deploy_role_module(role_store_address: ContractAddress) -> IRoleModuleDispatc
 }
 
 fn _setup() -> (
-    IDataStoreDispatcher, ContractAddress, ContractAddress, ILiquidationHandlerDispatcher
+    IDataStoreDispatcher,
+    ContractAddress,
+    ContractAddress,
+    ILiquidationHandlerDispatcher,
+    IEventEmitterDispatcher
 ) {
     let caller_address: ContractAddress = 0x101.try_into().unwrap();
     let liquidation_keeper: ContractAddress = 0x2233.try_into().unwrap();
@@ -179,6 +183,7 @@ fn _setup() -> (
     let data_store_address = deploy_data_store(role_store_address);
     let data_store = IDataStoreDispatcher { contract_address: data_store_address };
     let event_emitter_address = deploy_event_emitter();
+    let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
     let order_vault_address = deploy_order_vault(data_store_address, role_store_address);
     let swap_handler_address = deploy_swap_handler(role_store_address);
     let oracle_store_address = deploy_oracle_store(role_store_address, event_emitter_address);
@@ -205,7 +210,13 @@ fn _setup() -> (
     role_store.grant_role(liquidation_handler_address, role::FROZEN_ORDER_KEEPER);
     role_store.grant_role(liquidation_handler_address, role::CONTROLLER);
     start_prank(data_store_address, caller_address);
-    (data_store, liquidation_keeper, liquidation_handler_address, liquidation_handler_dispatcher)
+    (
+        data_store,
+        liquidation_keeper,
+        liquidation_handler_address,
+        liquidation_handler_dispatcher,
+        event_emitter
+    )
 }
 
 fn create_new_position(
