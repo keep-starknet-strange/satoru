@@ -4,7 +4,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
+use starknet::{ContractAddress, contract_address_const};
 use result::ResultTrait;
 
 // Local imports

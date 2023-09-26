@@ -104,7 +104,7 @@ fn given_normal_conditions_when_cancel_withdrawal_then_works() {
 }
 
 #[test]
-#[should_panic(expected: ('Option::unwrap failed.',))]
+#[should_panic(expected: ('get_withdrawal failed',))]
 fn given_unexisting_key_when_cancel_withdrawal_then_fails() {
     let withdrawal = Withdrawal {
         key: Default::default(),

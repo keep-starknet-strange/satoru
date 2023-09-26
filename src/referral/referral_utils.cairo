@@ -4,7 +4,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
+use starknet::{ContractAddress, contract_address_const};
 use result::ResultTrait;
 
 // Local imports.
@@ -74,7 +74,7 @@ fn get_referral_info(
     referral_storage: IReferralStorageDispatcher, trader: ContractAddress
 ) -> (felt252, ContractAddress, u128, u128) {
     let code: felt252 = referral_storage.trader_referral_codes(trader);
-    let mut affiliate: ContractAddress = 0.try_into().unwrap();
+    let mut affiliate = contract_address_const::<0>();
     let mut total_rebate: u128 = 0;
     let mut discount_share: u128 = 0;
     if (code != 0) {

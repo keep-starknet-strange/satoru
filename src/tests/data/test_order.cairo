@@ -73,7 +73,7 @@ fn given_order_account_0_when_set_order_then_fails() {
     let (caller_address, role_store, data_store) = setup();
 
     let key: felt252 = 123456789;
-    let account = 0.try_into().unwrap();
+    let account = contract_address_const::<0>();
     let mut order: Order = create_new_order(
         key,
         account,

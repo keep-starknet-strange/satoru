@@ -69,7 +69,7 @@ fn given_position_account_0_when_set_position_then_fails() {
     let (caller_address, role_store, data_store) = setup();
 
     let key: felt252 = 123456789;
-    let account = 0.try_into().unwrap();
+    let account = contract_address_const::<0>();
     let mut position: Position = create_new_position(
         key,
         account,

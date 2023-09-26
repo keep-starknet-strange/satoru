@@ -101,10 +101,9 @@ fn given_deposit_account_0_when_set_deposit_then_fails() {
     let (caller_address, role_store, data_store) = setup();
 
     let key: felt252 = 123456789;
-    let account = 0.try_into().unwrap();
     let mut deposit: Deposit = create_new_deposit(
         key,
-        account,
+        contract_address_const::<0>(),
         contract_address_const::<'receiver1'>(),
         contract_address_const::<'market1'>(),
         deposit_no: 1
