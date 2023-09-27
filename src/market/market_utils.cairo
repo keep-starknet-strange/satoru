@@ -26,13 +26,13 @@ use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatche
 use satoru::price::price::{Price, PriceTrait};
 use satoru::utils::calc;
 use satoru::utils::span32::Span32;
-use satoru::utils::i128::{I128Serde, I128Div, I128Mul};
 use satoru::utils::precision::{FLOAT_PRECISION, FLOAT_PRECISION_SQRT};
 use satoru::utils::precision::{mul_div_roundup, to_factor_ival, apply_factor_u128};
 use satoru::utils::calc::{roundup_division};
 use satoru::position::position::Position;
 use satoru::utils::i128::I128Default;
 use integer::u128_to_felt252;
+use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}, error_utils};
 
 /// Struct to store the prices of tokens of a market.
 /// # Params
@@ -132,7 +132,7 @@ fn get_open_interest(
     is_long: bool,
     divisor: u128
 ) -> u128 {
-    assert(divisor != 0, MarketError::DIVISOR_CANNOT_BE_ZERO);
+    error_utils::check_division_by_zero(divisor, 'get_open_interest');
     let key = keys::open_interest_key(market, collateral_token, is_long);
     data_store.get_u128(key) / divisor
 }
@@ -217,6 +217,7 @@ fn get_open_interest_in_tokens(
     is_long: bool,
     divisor: u128
 ) -> u128 {
+    error_utils::check_division_by_zero(divisor, 'get_open_interest_in_tokens');
     data_store.get_u128(keys::open_interest_in_tokens_key(market, collateral_token, is_long))
         / divisor
 }
@@ -232,6 +233,7 @@ fn get_pool_amount(
     data_store: IDataStoreDispatcher, market: @Market, token_address: ContractAddress
 ) -> u128 {
     let divisor = get_pool_divisor(*market.long_token, *market.short_token);
+    error_utils::check_division_by_zero(divisor, 'get_pool_amount');
     data_store.get_u128(keys::pool_amount_key(*market.market_token, token_address)) / divisor
 }
 
@@ -282,6 +284,7 @@ fn increment_claimable_collateral_amount(
     delta: u128
 ) {
     let divisor = data_store.get_u128(keys::claimable_collateral_time_divisor());
+    error_utils::check_division_by_zero(divisor, 'increment_claimable_collateral');
     // Get current timestamp.
     let current_timestamp = chain.get_block_timestamp().into();
     let time_key = current_timestamp / divisor;
@@ -789,15 +792,18 @@ fn get_enabled_market(data_store: IDataStoreDispatcher, market_address: Contract
     }
 }
 
-// @dev get the cumulative borrowing factor for a market
-// @param dataStore DataStore
-// @param market the market to check
-// @param isLong whether to check the long or short side
-// @return the cumulative borrowing factor for a market
+
+/// Get the cumulative borrowing factor for a market
+/// # Arguments
+/// * `data_store` DataStore
+/// * `market` the market to check
+/// * `is_long` whether to check the long or short side
+/// # Returns
+// The cumulative borrowing factor for a market
 fn get_cumulative_borrowing_factor(
-    data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
+    data_store: @IDataStoreDispatcher, market: ContractAddress, is_long: bool
 ) -> u128 {
-    0
+    (*data_store).get_u128(keys::cumulative_borrowing_factor_key(market, is_long))
 }
 
 /// @dev apply a delta to the collateral sum

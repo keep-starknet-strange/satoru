@@ -44,7 +44,7 @@ mod OracleError {
             if length == 0 {
                 break;
             }
-            data.append(*data_1.pop_front().unwrap());
+            data.append(*data_1.pop_front().expect('array pop_front failed'));
         };
         data.append(data_2.into());
         data.append(msg);
@@ -58,7 +58,7 @@ mod OracleError {
             if length == 0 {
                 break;
             }
-            data.append((*data_1.pop_front().unwrap()).into());
+            data.append((*data_1.pop_front().expect('array pop_front failed')).into());
         };
         data.append(data_2.into());
         data.append(msg);

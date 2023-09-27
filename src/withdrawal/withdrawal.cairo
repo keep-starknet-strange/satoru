@@ -50,11 +50,11 @@ impl DefaultWithdrawal of Default<Withdrawal> {
     fn default() -> Withdrawal {
         Withdrawal {
             key: 0,
-            account: 0.try_into().unwrap(),
-            receiver: 0.try_into().unwrap(),
-            callback_contract: 0.try_into().unwrap(),
-            ui_fee_receiver: 0.try_into().unwrap(),
-            market: 0.try_into().unwrap(),
+            account: contract_address_const::<0>(),
+            receiver: contract_address_const::<0>(),
+            callback_contract: contract_address_const::<0>(),
+            ui_fee_receiver: contract_address_const::<0>(),
+            market: contract_address_const::<0>(),
             long_token_swap_path: Default::default(),
             short_token_swap_path: Default::default(),
             market_token_amount: 0,

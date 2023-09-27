@@ -140,7 +140,7 @@ impl StoreContractAddressSpan32 of Store<Span32<ContractAddress>> {
             }
 
             let value = Store::<ContractAddress>::read_at_offset(address_domain, base, offset)
-                .unwrap();
+                .expect('read_ad_offset failed');
             arr.append(value);
             offset += Store::<ContractAddress>::size();
         };

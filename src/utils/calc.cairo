@@ -2,6 +2,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
+use satoru::utils::error_utils;
 
 /// Calculates the result of dividing the first number by the second number 
 /// rounded up to the nearest integer.
@@ -25,6 +26,7 @@ fn roundup_division(a: u128, b: u128) -> u128 {
 /// The result of dividing the first number by the second number, rounded up to the nearest integer.
 // TODO Update to use i128 division when available
 fn roundup_magnitude_division(a: i128, b: u128) -> i128 {
+    error_utils::check_division_by_zero(b, 'roundup_magnitude_division');
     let a_abs = if a < 0 {
         -a
     } else {
@@ -32,18 +34,18 @@ fn roundup_magnitude_division(a: i128, b: u128) -> i128 {
     };
     // TODO remove all felt conversion when possible to try_into from u128 -> i128
     let a_felt: felt252 = a_abs.into();
-    let a_u128: u128 = a_felt.try_into().unwrap();
+    let a_u128: u128 = a_felt.try_into().expect('felt252 into u128 failed');
     if a < 0 {
         if a_u128 < b {
             return 0;
         }
         let response_u128 = (a_u128 - b + 1) / b;
         let response_felt: felt252 = response_u128.into();
-        -response_felt.try_into().unwrap() - 1
+        -response_felt.try_into().expect('felt252 into i128 failed') - 1
     } else {
         let response_u128 = (a_u128 + b - 1) / b;
         let response_felt: felt252 = response_u128.into();
-        response_felt.try_into().unwrap()
+        response_felt.try_into().expect('felt252 into i128 failed')
     }
 }
 
@@ -60,7 +62,7 @@ fn sum_return_uint_128(a: u128, b: i128) -> u128 {
         b
     };
     let b_abs: felt252 = b_abs.into();
-    let b_abs: u128 = b_abs.try_into().unwrap();
+    let b_abs: u128 = b_abs.try_into().expect('felt252 into u128 failed');
     if (b > 0) {
         a + b_abs
     } else {
@@ -168,7 +170,7 @@ fn to_signed(a: u128, is_positive: bool) -> i128 {
 fn to_unsigned(value: i128) -> u128 {
     assert(value >= 0, 'to_unsigned: value is negative');
     let value: felt252 = value.into();
-    value.try_into().unwrap()
+    value.try_into().expect('i128 into u128 failed')
 }
 
 // TODO use BoundedInt::max() && BoundedInt::mint() when possible

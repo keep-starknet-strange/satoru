@@ -133,7 +133,7 @@ fn swap(params: @SwapParams) -> (ContractAddress, u128) {
         let market: Market = *params.swap_path_markets[i];
         let flag_exists = (*params.data_store)
             .get_bool(keys::swap_path_market_flag_key(market.market_token))
-            .unwrap();
+            .expect('get_bool failed');
         if (flag_exists) {
             SwapError::DUPLICATED_MARKET_IN_SWAP_PATH(market.market_token);
         }
@@ -292,7 +292,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
         *params.event_emitter,
         *_params.market,
         *_params.token_in,
-        delta_felt252.try_into().unwrap(),
+        delta_felt252.try_into().expect('felt252 into u128 faild'),
     );
 
     // the poolAmountOut excludes the positive price impact amount

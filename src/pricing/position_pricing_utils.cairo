@@ -4,7 +4,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
+use starknet::{ContractAddress, contract_address_const};
 use result::ResultTrait;
 use zeroable::Zeroable;
 
@@ -22,7 +22,7 @@ use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorag
 use satoru::utils::{calc, precision};
 use satoru::pricing::error::PricingError;
 use satoru::referral::referral_utils;
-use satoru::utils::i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default};
+use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}, error_utils};
 /// Struct used in get_position_fees.
 #[derive(Drop, starknet::Store, Serde)]
 struct GetPositionFeesParams {
@@ -78,7 +78,7 @@ impl DefaultContractAddress of Default<ContractAddress> {
     }
 }
 /// Struct to store position fees data.
-#[derive(Default, Drop, starknet::Store, Serde)]
+#[derive(Default, Drop, Copy, starknet::Store, Serde)]
 struct PositionFees {
     /// The referral fees.
     referral: PositionReferralFees,
@@ -111,7 +111,7 @@ struct PositionFees {
 }
 
 /// Struct used to store referral parameters useful for fees computation.
-#[derive(Default, Drop, starknet::Store, Serde)]
+#[derive(Default, Drop, Copy, starknet::Store, Serde)]
 struct PositionReferralFees {
     /// The referral code used.
     referral_code: felt252,
@@ -132,7 +132,7 @@ struct PositionReferralFees {
 }
 
 /// Struct used to store position borrowing fees.
-#[derive(Default, Drop, starknet::Store, Serde)]
+#[derive(Default, Drop, Copy, starknet::Store, Serde)]
 struct PositionBorrowingFees {
     /// The borrowing fees amount in USD.
     borrowing_fee_usd: u128,
@@ -162,7 +162,7 @@ struct PositionFundingFees {
 }
 
 /// Struct used to store position ui fees
-#[derive(Default, Drop, starknet::Store, Serde)]
+#[derive(Default, Drop, Copy, starknet::Store, Serde)]
 struct PositionUiFees {
     /// The ui fee receiver address
     ui_fee_receiver: ContractAddress,
@@ -465,6 +465,7 @@ fn get_position_fees(params: GetPositionFeesParams) -> PositionFees {
 fn get_borrowing_fees(
     data_store: IDataStoreDispatcher, collateral_token_price: Price, borrowing_fee_usd: u128,
 ) -> PositionBorrowingFees {
+    error_utils::check_division_by_zero(collateral_token_price.min, 'collateral_token_price.min');
     let borrowing_fee_amount = borrowing_fee_usd / collateral_token_price.min;
     let borrowing_fee_receiver_factor = data_store.get_u128(keys::borrowing_fee_receiver_factor());
     PositionBorrowingFees {
@@ -532,12 +533,13 @@ fn get_ui_fees(
 ) -> PositionUiFees {
     let mut ui_fees: PositionUiFees = Default::default();
 
-    if (ui_fee_receiver == 0.try_into().unwrap()) {
+    if (ui_fee_receiver == contract_address_const::<0>()) {
         return ui_fees;
     }
 
     ui_fees.ui_fee_receiver = ui_fee_receiver;
     ui_fees.ui_fee_receiver_factor = market_utils::get_ui_fee_factor(data_store, ui_fee_receiver);
+    error_utils::check_division_by_zero(collateral_token_price.min, 'collateral_token_price.min');
     ui_fees
         .ui_fee_amount =
             precision::apply_factor_u128(size_delta_usd, ui_fees.ui_fee_receiver_factor)
@@ -589,6 +591,7 @@ fn get_position_fees_after_referral(
     fees
         .position_fee_factor = data_store
         .get_u128(keys::position_fee_factor_key(market, for_positive_impact));
+    error_utils::check_division_by_zero(collateral_token_price.min, 'collateral_token_price.min');
     fees
         .position_fee_amount =
             precision::apply_factor_u128(size_delta_usd, fees.position_fee_factor)
