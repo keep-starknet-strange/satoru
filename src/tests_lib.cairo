@@ -22,6 +22,21 @@ fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
     contract.deploy(@constructor_calldata).unwrap()
 }
 
+/// Utility function to deploy a `SwapHandler` contract and return its dispatcher.
+///
+/// # Arguments
+///
+/// * `role_store_address` - The address of the role store contract.
+///
+/// # Returns
+///
+/// * `ContractAddress` - The address of the deployed data store contract.
+fn deploy_swap_handler_address(role_store_address: ContractAddress) -> ContractAddress {
+    let contract = declare('SwapHandler');
+    let constructor_calldata = array![role_store_address.into()];
+    contract.deploy(@constructor_calldata).unwrap()
+}
+
 /// Utility function to deploy a role store contract and return its address.
 ///
 /// # Returns

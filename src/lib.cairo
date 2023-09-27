@@ -212,6 +212,7 @@ mod position {
 
 // `pricing` contains pricing utils
 mod pricing {
+    mod error;
     mod position_pricing_utils;
     mod pricing_utils;
     mod swap_pricing_utils;
@@ -303,20 +304,24 @@ mod tests {
     }
     mod order {
         mod test_base_order_utils;
+        mod test_increase_order_utils;
         mod test_order;
     }
     mod position {
+        mod test_decrease_position_utils;
         mod test_decrease_position_swap_utils;
         mod test_position_utils;
     }
     mod price {
         mod test_price;
     }
-
+    mod pricing {
+        mod test_position_pricing_utils;
+        mod test_swap_pricing_utils;
+    }
     mod reader {
         mod test_reader;
     }
-
     mod role {
         mod test_role_module;
         mod test_role_store;

@@ -9,7 +9,7 @@ use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapTyp
 use satoru::tests_lib::{setup, teardown};
 use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::market::market::{Market};
-use snforge_std::{PrintTrait, declare, start_prank, stop_prank, ContractClassTrait};
+use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 use poseidon::poseidon_hash_span;
 use satoru::deposit::deposit::{Deposit};
 use satoru::withdrawal::withdrawal::{Withdrawal};

@@ -2,7 +2,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-
+use satoru::utils::error_utils;
 /// Gets the value of the element at the specified index in the given array. If the index is out of bounds, returns 0.
 /// # Arguments
 /// * `arr` - the array to get the element of.
@@ -158,10 +158,10 @@ fn are_lte(mut arr: Span<u128>, value: u128) -> bool {
 /// the median value of the elements in the given array.
 fn get_median(arr: Span<u128>) -> u128 {
     if arr.len() % 2 == 1 {
-        *arr.get(arr.len() / 2).unwrap().unbox()
+        *arr.get(arr.len() / 2).expect('array.get failed').unbox()
     } else {
-        let left = *arr.get(arr.len() / 2 - 1).unwrap().unbox();
-        let right = *arr.get(arr.len() / 2).unwrap().unbox();
+        let left = *arr.get(arr.len() / 2 - 1).expect('array.get failed').unbox();
+        let right = *arr.get(arr.len() / 2).expect('array.get failed').unbox();
         (left + right) / 2
     }
 }
@@ -182,8 +182,14 @@ fn get_uncompacted_value(
     bit_mask: u128,
     label: felt252
 ) -> u128 {
+    error_utils::check_division_by_zero(
+        compacted_value_bit_length.into(), 'compacted_value_bit_length'
+    );
     let compacted_values_per_slot = 128 / compacted_value_bit_length;
 
+    error_utils::check_division_by_zero(
+        compacted_values_per_slot.into(), 'compacted_values_per_slot'
+    );
     let slot_index = index / compacted_values_per_slot;
     if slot_index >= compacted_values.len() {
         panic(array!['CompactedArrayOutOfBounds', index.into(), slot_index.into(), label]);
@@ -245,7 +251,7 @@ impl StoreContractAddressSpan of Store<Span<ContractAddress>> {
             }
 
             let value = Store::<ContractAddress>::read_at_offset(address_domain, base, offset)
-                .unwrap();
+                .expect('read_at_offset failed');
             arr.append(value);
             offset += Store::<ContractAddress>::size();
         };

@@ -4,7 +4,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
+use starknet::{ContractAddress, contract_address_const};
 
 /// Main struct used to store positions.
 #[derive(Copy, Drop, starknet::Store, Serde, PartialEq)]
@@ -43,9 +43,9 @@ impl DefaultPosition of Default<Position> {
     fn default() -> Position {
         Position {
             key: 0,
-            account: 0.try_into().unwrap(),
-            market: 0.try_into().unwrap(),
-            collateral_token: 0.try_into().unwrap(),
+            account: contract_address_const::<0>(),
+            market: contract_address_const::<0>(),
+            collateral_token: contract_address_const::<0>(),
             size_in_usd: 0,
             size_in_tokens: 0,
             collateral_amount: 0,

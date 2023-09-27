@@ -7,7 +7,7 @@ use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapTyp
 use satoru::tests_lib::{setup, teardown};
 use satoru::utils::span32::{Span32, Array32Trait};
 
-use snforge_std::{PrintTrait, declare, start_prank, stop_prank, ContractClassTrait};
+use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 
 #[test]
 fn given_normal_conditions_when_set_order_new_and_override_then_works() {
@@ -73,7 +73,7 @@ fn given_order_account_0_when_set_order_then_fails() {
     let (caller_address, role_store, data_store) = setup();
 
     let key: felt252 = 123456789;
-    let account = 0.try_into().unwrap();
+    let account = contract_address_const::<0>();
     let mut order: Order = create_new_order(
         key,
         account,

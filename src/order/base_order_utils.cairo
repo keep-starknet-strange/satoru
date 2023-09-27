@@ -6,7 +6,6 @@ use integer::BoundedInt;
 use starknet::ContractAddress;
 
 // Local imports.
-use satoru::utils::i128::{I128Div, u128_to_i128, i128_to_u128};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
@@ -21,6 +20,8 @@ use satoru::utils::precision;
 use satoru::utils::store_arrays::{StoreMarketArray, StoreU64Array, StoreContractAddressArray};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::utils::span32::Span32;
+use satoru::utils::calc;
+use satoru::utils::i128::{I128Div, I128Store, I128Serde};
 
 #[derive(Drop, starknet::Store, Serde)]
 struct ExecuteOrderParams {
@@ -414,7 +415,7 @@ fn get_execution_price_for_decrease(
         };
 
         if adjusted_price_impact_usd < 0
-            && i128_to_u128(-adjusted_price_impact_usd) > size_delta_usd {
+            && calc::to_unsigned(-adjusted_price_impact_usd) > size_delta_usd {
             panic(
                 array![
                     OrderError::PRICE_IMPACT_LARGER_THAN_ORDER_SIZE,
@@ -430,9 +431,9 @@ fn get_execution_price_for_decrease(
         let numerator = precision::mul_div_inum(
             position_size_in_usd, adjusted_price_impact_usd, position_size_in_tokens
         );
-        let adjustment = numerator / u128_to_i128(size_delta_usd);
+        let adjustment = numerator / calc::to_signed(size_delta_usd, true);
 
-        let _execution_price: i128 = u128_to_i128(price) + adjustment;
+        let _execution_price: i128 = calc::to_signed(price, true) + adjustment;
 
         if _execution_price < 0 {
             panic(
@@ -447,7 +448,7 @@ fn get_execution_price_for_decrease(
             );
         }
 
-        execution_price = i128_to_u128(_execution_price);
+        execution_price = calc::to_unsigned(_execution_price);
     }
 
     // decrease order:

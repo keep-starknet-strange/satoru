@@ -10,8 +10,8 @@ use satoru::tests_lib::{setup, setup_event_emitter, setup_oracle_and_store, tear
 use satoru::position::position::{Position};
 
 use snforge_std::{
-    PrintTrait, declare, start_prank, stop_prank, ContractClassTrait, spy_events, SpyOn, EventSpy,
-    EventFetcher, event_name_hash, Event, EventAssertions, start_mock_call
+    declare, start_prank, stop_prank, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher,
+    event_name_hash, Event, EventAssertions, start_mock_call
 };
 use satoru::adl::adl_utils;
 
