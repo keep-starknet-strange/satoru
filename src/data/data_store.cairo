@@ -443,6 +443,12 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to delete the value for.
     fn remove_i128(ref self: TContractState, key: felt252);
 
+    // @dev add the input int value to the existing int value
+    // @param key the key of the value
+    // @param value the input int value
+    // @return the new int value
+    fn apply_delta_to_i128(ref self: TContractState, key: felt252, value: u128) -> u128;
+
     /// Add input to existing value.
     /// # Arguments
     /// * `key` - The key to add the value to.
@@ -714,6 +720,13 @@ mod DataStore {
             // Delete the value.
             self.i128_values.write(key, Default::default());
         }
+
+        fn apply_delta_to_i128(ref self: ContractState, key: felt252, value: u128) -> u128 {
+            let next_int: u128 = self.i128_values.read(key) + value;
+            self.i128_values.write(key, next_int);
+            return next_int;
+        }
+
 
         fn increment_i128(ref self: ContractState, key: felt252, value: u128) -> u128 {
             // Check that the caller has permission to set the value.

@@ -27,10 +27,9 @@ use satoru::price::price::{Price, PriceTrait};
 use satoru::utils::calc;
 use satoru::utils::span32::Span32;
 use satoru::utils::precision::{FLOAT_PRECISION, FLOAT_PRECISION_SQRT};
-use satoru::utils::precision::{mul_div_roundup, to_factor_ival, apply_factor_u128};
+use satoru::utils::precision::{mul_div_roundup, to_factor_ival, apply_factor_u128, to_factor};
 use satoru::utils::calc::{roundup_division};
 use satoru::position::position::Position;
-use satoru::utils::i128::I128Default;
 use integer::u128_to_felt252;
 use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}, error_utils};
 
@@ -374,11 +373,11 @@ fn get_pnl(
     index_token_price: @Price,
     is_long: bool,
     maximize: bool
-) -> i128 {
-    // Get the open interest.
-    let open_interest = calc::to_signed(
-        get_open_interest_for_market_is_long(data_store, market, is_long), true
-    );
+) -> u128 {
+    // let open_interest = calc::to_signed(
+    //     get_open_interest_for_market_is_long(data_store, market, is_long), true
+    // );
+    let open_interest = get_open_interest_for_market_is_long(data_store, market, is_long);
     // Get the open interest in tokens.
     let open_interest_in_tokens = get_open_interest_in_tokens_for_market(
         data_store, market, is_long
@@ -391,8 +390,8 @@ fn get_pnl(
     // Pick the price for PNL.
     let price = index_token_price.pick_price_for_pnl(is_long, maximize);
 
-    //  `open_interest` is the cost of all positions, `open_interest_valu`e is the current worth of all positions.
-    let open_interest_value = calc::to_signed(open_interest_in_tokens * price, true);
+    // let open_interest_value = calc::to_signed(open_interest_in_tokens * price, true);
+    let open_interest_value = open_interest_in_tokens * price;
 
     // Return the PNL.
     // If `is_long` is true, then the PNL is the difference between the current worth of all positions and the cost of all positions.
@@ -725,10 +724,10 @@ fn get_pnl_to_pool_factor_from_prices(
     if pool_usd == 0 {
         return 0;
     }
-    let pnl: i128 = get_pnl(
+    let pnl: u128 = get_pnl(
         data_store, @market, @prices.index_token_price, is_long, maximize
     );
-    return to_factor_ival(pnl, pool_usd);
+    return to_factor(pnl, pool_usd);
 }
 
 // Check if the pending pnl exceeds the allowed amount
@@ -1220,7 +1219,7 @@ fn get_is_long_token(
 /// Returns a tuple (has_virtual_inventory, virtual_token_inventory).
 fn get_virtual_inventory_for_positions(
     data_store: IDataStoreDispatcher, token: ContractAddress
-) -> (bool, i128) { // TODO
+) -> (bool, u128) { // TODO
     let virtual_token_id: felt252 = data_store.get_felt252(keys::virtual_token_id_key(token));
     if virtual_token_id == u128_to_felt252(0) {
         return (false, 0);
@@ -1376,7 +1375,7 @@ fn get_reserve_factor(
 /// # Returns
 /// The borrowing fees for a position
 fn get_borrowing_fees(data_store: IDataStoreDispatcher, position: Position) -> u128 {
-    let cumulative_borrowing_factor: u128 = get_cumulative_borrowing_factor(data_store, position.market, position.is_long);
+    let cumulative_borrowing_factor: u128 = get_cumulative_borrowing_factor(@data_store, position.market, position.is_long);
     assert(cumulative_borrowing_factor >= position.borrowing_factor, MarketError::UNEXCEPTED_BORROWING_FACTOR);
     let diff_factor: u128 = cumulative_borrowing_factor - position.borrowing_factor;
     return apply_factor_u128(position.size_in_usd, diff_factor);
@@ -1565,4 +1564,19 @@ fn get_open_interest_reserve_factor(
     data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
 ) -> u128 {
     Default::default()
+}
+
+/// Get the borrowing factor per second.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market.
+/// * `prices` - The prices of the market tokens.
+/// * `is_long` - Whether to get the factor for the long or short side
+/// # Returns
+/// The borrowing factor per second.
+fn get_borrowing_factor_per_second(
+    data_store: IDataStoreDispatcher, market: Market, prices: MarketPrices, is_long: bool
+) -> u128 {
+    // TODO
+    0
 }

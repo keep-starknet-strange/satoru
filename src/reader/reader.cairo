@@ -743,7 +743,7 @@ mod Reader {
             index_token_price: Price,
             is_long: bool,
             maximize: bool
-        ) -> i128 {
+        ) -> u128 {
             market_utils::get_pnl(data_store, @market, @index_token_price, is_long, maximize)
         }
 
@@ -767,7 +767,7 @@ mod Reader {
             prices: MarketPrices,
             is_long: bool,
             maximize: bool
-        ) -> i128 {
+        ) -> u128 {
             let market = data_store.get_market(market_address).expect('get_market failed');
             market_utils::get_pnl_to_pool_factor_from_prices(
                 data_store, market, prices, is_long, maximize
