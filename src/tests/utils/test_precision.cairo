@@ -84,6 +84,13 @@ fn test_mul_div_inum_roundup_positive() {
 }
 
 #[test]
+fn test_exp2() {
+    let value: u256 = 3;
+    let result = precision::exp2(value);
+    assert(result == 8, "should be 8");
+}
+
+#[test]
 fn test_to_factor_roundup() {
     let value: u128 = 450000;
     let divisor: u128 = 200_000_000_000_000_000_000_000_000_000_000_000; //2*10^35
