@@ -158,17 +158,71 @@ fn validate_swap_market(data_store: @IDataStoreDispatcher, market: @Market) {
 // @param the market token prices
 // @return the token price from the stored MarketPrices
 fn get_cached_token_price(token: ContractAddress, market: Market, prices: MarketPrices) -> Price {
-    if (token == market.long_token) {
+    if token == market.long_token {
         prices.long_token_price
-    } else if (token == market.short_token) {
+    } else if token == market.short_token {
         prices.short_token_price
-    } else if (token == market.index_token) {
+    } else if token == market.index_token {
         prices.index_token_price
     } else {
         MarketError::UNABLE_TO_GET_CACHED_TOKEN_PRICE(token);
         prices.index_token_price //todo : remove 
     }
 }
+
+/// Returns the primary prices for the market tokens.
+/// # Parameters
+/// - `oracle`: The Oracle instance.
+/// - `market`: The market values.
+fn get_market_prices(oracle: IOracleDispatcher, market: Market) -> MarketPrices {
+    MarketPrices {
+        index_token_price: oracle.get_primary_price(market.index_token),
+        long_token_price: oracle.get_primary_price(market.long_token),
+        short_token_price: oracle.get_primary_price(market.short_token),
+    }
+}
+
+/// Get the usd value of either the long or short tokens in the pool
+/// without accounting for the pnl of open positions
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market values.
+/// * `prices` - The prices of the market tokens.
+/// * `is_long` - Whether to return the value for the long or short token.
+/// * `maximize` - Whether to maximize or minimize the pool value.
+/// # Returns
+/// The usd value of either the long or short tokens in the pool.
+fn get_pool_usd_without_pnl(
+    data_store: IDataStoreDispatcher,
+    market: @Market,
+    prices: MarketPrices,
+    is_long: bool,
+    maximize: bool
+) -> u128 {
+    let token = if is_long {
+        *market.long_token
+    } else {
+        *market.short_token
+    };
+    // note that if it is a single token market, the poolAmount returned will be
+    // the amount of tokens in the pool divided by 2
+    let pool_amount = get_pool_amount(data_store, market, token);
+    let token_price = if maximize {
+        if is_long {
+            prices.long_token_price.max
+        } else {
+            prices.short_token_price.max
+        }
+    } else {
+        if is_long {
+            prices.long_token_price.min
+        } else {
+            prices.short_token_price.min
+        }
+    };
+    pool_amount * token_price
+}
+
 
 fn get_swap_impact_amount_with_cap(
     data_store: IDataStoreDispatcher,
@@ -834,16 +888,6 @@ fn apply_delta_to_collateral_sum(
 ) -> u128 {
     //TODO
     0
-}
-
-
-/// Returns the primary prices for the market tokens.
-/// # Parameters
-/// - `oracle`: The Oracle instance.
-/// - `market`: The market values.
-fn get_market_prices(oracle: IOracleDispatcher, market: Market) -> MarketPrices {
-    //TODO
-    Default::default()
 }
 
 /// Validates that the amount of tokens required to be reserved is below the configured threshold.
