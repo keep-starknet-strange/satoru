@@ -69,7 +69,7 @@ fn given_overflow_when_roundup_magnitude_division_then_works() {
 }
 
 #[test]
-#[should_panic(expected: ('u128 is 0',))]
+#[should_panic(expected: ('division by zero', 'roundup_magnitude_division',))]
 fn given_division_by_0_when_roundup_magnitude_division_then_fails() {
     roundup_magnitude_division(4, 0);
 }

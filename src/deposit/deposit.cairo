@@ -1,5 +1,5 @@
 // Core Lib imports
-use starknet::ContractAddress;
+use starknet::{ContractAddress, contract_address_const};
 
 // Satoru imports
 use satoru::utils::store_arrays::StoreContractAddressArray;
@@ -47,13 +47,13 @@ impl DefaultDeposit of Default<Deposit> {
     fn default() -> Deposit {
         Deposit {
             key: 0,
-            account: 0.try_into().unwrap(),
-            receiver: 0.try_into().unwrap(),
-            callback_contract: 0.try_into().unwrap(),
-            ui_fee_receiver: 0.try_into().unwrap(),
-            market: 0.try_into().unwrap(),
-            initial_long_token: 0.try_into().unwrap(),
-            initial_short_token: 0.try_into().unwrap(),
+            account: contract_address_const::<0>(),
+            receiver: contract_address_const::<0>(),
+            callback_contract: contract_address_const::<0>(),
+            ui_fee_receiver: contract_address_const::<0>(),
+            market: contract_address_const::<0>(),
+            initial_long_token: contract_address_const::<0>(),
+            initial_short_token: contract_address_const::<0>(),
             long_token_swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
             short_token_swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
             initial_long_token_amount: 0,

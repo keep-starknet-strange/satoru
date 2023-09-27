@@ -125,7 +125,7 @@ fn given_normal_conditions_when_set_withdrawal_new_and_override_then_works() {
 fn given_withdrawal_account_0_when_set_withdrawal_then_fails() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
-    let account = 0.try_into().unwrap();
+    let account = contract_address_const::<0>();
     // TODO make these Span32
     let long_token_swap_path: Span32<ContractAddress> = array![
         1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()

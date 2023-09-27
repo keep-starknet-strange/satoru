@@ -141,7 +141,7 @@ mod OracleStore {
         fn get_signer(self: @ContractState, index: usize) -> ContractAddress { // TODO
             // NOTE: temporarily implemented to complete oracle tests.
             let mut signers = self.signers.read();
-            signers.get(index).unwrap()
+            signers.get(index).expect('array get failed')
         }
 
         fn get_signers(

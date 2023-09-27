@@ -334,7 +334,7 @@ mod Oracle {
                 if len == self.tokens_with_prices.read().len() {
                     break;
                 }
-                let token = self.tokens_with_prices.read().get(len).unwrap();
+                let token = self.tokens_with_prices.read().get(len).expect('array get failed');
                 self.remove_primary_price(token);
                 len += 1;
             }
@@ -350,7 +350,7 @@ mod Oracle {
                 if i == tokens_with_prices_len {
                     break;
                 }
-                if !token_with_prices.get(i).unwrap().is_zero() {
+                if !token_with_prices.get(i).expect('array get failed').is_zero() {
                     count += 1;
                 }
                 i += 1;
@@ -491,13 +491,13 @@ mod Oracle {
                 .min_block_confirmations = data_store
                 .get_u128(keys::min_oracle_block_confirmations())
                 .try_into()
-                .unwrap();
+                .expect('get_u128 into u64 failed');
 
             cache
                 .max_price_age = data_store
                 .get_u128(keys::max_oracle_price_age())
                 .try_into()
-                .unwrap();
+                .expect('get_u128 into u64 failed');
 
             cache
                 .max_ref_price_deviation_factor = data_store
@@ -572,7 +572,7 @@ mod Oracle {
                                 params.compacted_decimals.span(), i.into()
                             )
                                 .try_into()
-                                .unwrap()
+                                .expect('u128 into u32 failed')
                         );
 
                 report_info
@@ -670,12 +670,12 @@ mod Oracle {
                     report_info
                         .min_price = *inner_cache
                         .min_prices
-                        .at(inner_cache.min_price_index.try_into().unwrap());
+                        .at(inner_cache.min_price_index.try_into().expect('array at failed'));
 
                     report_info
                         .max_price = *inner_cache
                         .max_prices
-                        .at(inner_cache.max_price_index.try_into().unwrap());
+                        .at(inner_cache.max_price_index.try_into().expect('array at failed'));
 
                     if report_info.min_price > report_info.max_price {
                         OracleError::INVALID_SIGNER_MIN_MAX_PRICE(
@@ -687,7 +687,8 @@ mod Oracle {
                         self.get_salt(),
                         report_info,
                         arrays::get_felt252(
-                            signatures_span, inner_cache.signature_index.try_into().unwrap()
+                            signatures_span,
+                            inner_cache.signature_index.try_into().expect('u128 into u32 failed')
                         ),
                         signers_span.at(j)
                     );
@@ -787,9 +788,14 @@ mod Oracle {
                 signers_index_mask.validate_unique_and_set_index(signer_index);
 
                 signers
-                    .append(self.oracle_store.read().get_signer(signer_index.try_into().unwrap()));
+                    .append(
+                        self
+                            .oracle_store
+                            .read()
+                            .get_signer(signer_index.try_into().expect('u128 into u32 failed'))
+                    );
 
-                if (*signers.at(len.try_into().unwrap())).is_zero() {
+                if (*signers.at(len.try_into().expect('u128 into u32 failed'))).is_zero() {
                     OracleError::EMPTY_SIGNER(signer_index);
                 }
 
@@ -899,7 +905,10 @@ mod Oracle {
 
             let current_timestamp = get_block_timestamp();
             if current_timestamp > response.last_updated_timestamp && current_timestamp
-                - response.last_updated_timestamp > heart_beat_duration.try_into().unwrap() {
+                - response
+                    .last_updated_timestamp > heart_beat_duration
+                    .try_into()
+                    .expect('u128 into u32 failed') {
                 OracleError::PRICE_FEED_NOT_UPDATED(
                     token, response.last_updated_timestamp, heart_beat_duration
                 );
