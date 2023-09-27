@@ -1,6 +1,6 @@
 use starknet::{ContractAddress, contract_address_const};
 
-use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait, PrintTrait};
+use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 
 use satoru::data::data_store::{DataStore, IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::data::keys;
