@@ -94,9 +94,8 @@ fn get_market_token_price(
         return (0, pool_value_info);
     }
 
-    // TODO: not 100% sure this is the right conversion
-    let market_token_price = calc::to_signed(
-        precision::mul_div(precision::WEI_PRECISION, pool_value_info.pool_value, supply), true
+    let market_token_price = precision::mul_div_inum(
+        precision::WEI_PRECISION, pool_value_info.pool_value, supply
     );
     (market_token_price, pool_value_info)
 }
@@ -223,6 +222,102 @@ fn get_pool_usd_without_pnl(
     pool_amount * token_price
 }
 
+/// Get the USD value of a pool.
+/// The value of a pool is the worth of the liquidity provider tokens in the pool - pending trader pnl.
+/// We use the token index prices to calculate this and ignore price impact since if all positions were closed the
+/// net price impact should be zero.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market values.
+/// * `index_token_price` - The price of the index token.
+/// * `long_token_price` - The price of the long token.
+/// * `short_token_price` - The price of the short token.
+/// * `maximize` - Whether to maximize or minimize the pool value.
+/// # Returns
+/// The value information of a pool.
+fn get_pool_value_info(
+    data_store: IDataStoreDispatcher,
+    market: Market,
+    index_token_price: Price,
+    long_token_price: Price,
+    short_token_price: Price,
+    pnl_factor_type: felt252,
+    maximize: bool
+) -> MarketPoolValueInfo {
+    let mut result: MarketPoolValueInfo = Default::default();
+
+    result.long_token_amount = get_pool_amount(data_store, @market, market.long_token);
+    result.short_token_amount = get_pool_amount(data_store, @market, market.short_token);
+
+    result.long_token_usd = result.long_token_amount * long_token_price.pick_price(maximize);
+    result.short_token_usd = result.short_token_amount * short_token_price.pick_price(maximize);
+
+    result.pool_value = calc::to_signed(result.long_token_usd + result.short_token_usd, true);
+
+    let prices = MarketPrices { index_token_price, long_token_price, short_token_price };
+
+    result
+        .total_borrowing_fees = get_total_pending_borrowing_fees(data_store, market, prices, true);
+
+    result
+        .total_borrowing_fees +=
+            get_total_pending_borrowing_fees(data_store, market, prices, false);
+
+    result.borrowing_fee_pool_factor = precision::FLOAT_PRECISION
+        - data_store.get_u128(keys::borrowing_fee_receiver_factor());
+
+    let value = precision::apply_factor_u128(
+        result.total_borrowing_fees, result.borrowing_fee_pool_factor
+    );
+    result.pool_value += calc::to_signed(value, true);
+
+    // !maximize should be used for net pnl as a larger pnl leads to a smaller pool value
+    // and a smaller pnl leads to a larger pool value
+    //
+    // while positions will always be closed at the less favourable price
+    // using the inverse of maximize for the getPnl calls would help prevent
+    // gaming of market token values by increasing the spread
+    //
+    // liquidations could be triggerred by manipulating a large spread but
+    // that should be more difficult to execute
+
+    result.long_pnl = get_pnl(data_store, @market, @index_token_price, true, !maximize);
+
+    result
+        .long_pnl =
+            get_capped_pnl(
+                data_store,
+                market.market_token,
+                true,
+                result.long_pnl,
+                result.long_token_usd,
+                pnl_factor_type,
+            );
+
+    result.short_pnl = get_pnl(data_store, @market, @index_token_price, false, !maximize);
+
+    result
+        .short_pnl =
+            get_capped_pnl(
+                data_store,
+                market.market_token,
+                false,
+                result.short_pnl,
+                result.short_token_usd,
+                pnl_factor_type,
+            );
+
+    result.net_pnl = result.long_pnl + result.short_pnl;
+    result.pool_value = result.pool_value - result.net_pnl;
+
+    result.impact_pool_amount = get_position_impact_pool_amount(data_store, market.market_token);
+    // use !maximize for pick_price since the impactPoolUsd is deducted from the poolValue
+    let impact_pool_usd = result.impact_pool_amount * index_token_price.pick_price(!maximize);
+
+    result.pool_value -= calc::to_signed(impact_pool_usd, true);
+
+    result
+}
 
 fn get_swap_impact_amount_with_cap(
     data_store: IDataStoreDispatcher,
@@ -946,33 +1041,6 @@ fn get_swap_path_markets(
     Default::default()
 }
 
-/// Gets the USD value of a pool.
-/// The value of a pool is determined by the worth of the liquidity provider tokens in the pool,
-/// minus any pending trader profit and loss (PNL).
-/// We use the token index prices for this calculation and ignore price impact. The reasoning is that
-/// if all positions were closed, the net price impact should be zero.
-/// # Arguments
-/// * `data_store` - The DataStore structure.
-/// * `market` - The market values.
-/// * `long_token_price` - Price of the long token.
-/// * `short_token_price` - Price of the short token.
-/// * `index_token_price` - Price of the index token.
-/// * `maximize` - Whether to maximize or minimize the pool value.
-/// # Returns
-/// Returns the value information of a pool.
-fn get_pool_value_info(
-    data_store: IDataStoreDispatcher,
-    market: Market,
-    index_token_price: Price,
-    long_token_price: Price,
-    short_token_price: Price,
-    pnl_factor_type: felt252,
-    maximize: bool
-) -> MarketPoolValueInfo {
-    // TODO
-    Default::default()
-}
-
 /// Get the capped pending pnl for a market
 /// # Arguments
 /// * `data_store` - The data store to use.
@@ -1322,6 +1390,19 @@ fn get_adjusted_swap_impact_factors(
 
 fn get_adjusted_position_impact_factor(
     data_store: IDataStoreDispatcher, market: ContractAddress, isPositive: bool
+) -> u128 {
+    // TODO
+    0
+}
+
+/// Get the total pending borrowing fees
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market to check.
+/// * `prices` - The prices of the market tokens.
+/// * `is_long` - Whether to check the long or short side.
+fn get_total_pending_borrowing_fees(
+    data_store: IDataStoreDispatcher, market: Market, prices: MarketPrices, is_long: bool
 ) -> u128 {
     // TODO
     0

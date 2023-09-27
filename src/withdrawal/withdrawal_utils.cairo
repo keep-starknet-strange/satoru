@@ -24,7 +24,7 @@ use satoru::oracle::{oracle::{IOracleDispatcher, IOracleDispatcherTrait}, oracle
 use satoru::pricing::{swap_pricing_utils, swap_pricing_utils::SwapFees};
 use satoru::swap::{swap_utils, swap_utils::SwapParams};
 use satoru::utils::{
-    account_utils, error_utils, precision, starknet_utils, span32::Span32,
+    calc, account_utils, error_utils, precision, starknet_utils, span32::Span32,
     store_arrays::{StoreContractAddressArray, StoreU128Array}
 };
 use satoru::withdrawal::{
@@ -580,7 +580,7 @@ fn get_output_amounts(
         WithdrawalError::INVALID_POOL_VALUE_FOR_WITHDRAWAL(pool_value_info.pool_value);
     }
 
-    let pool_value = pool_value_info.pool_value;
+    let pool_value = calc::to_unsigned(pool_value_info.pool_value);
 
     let market_tokens_supply = market_utils::get_market_token_supply(
         IMarketTokenDispatcher { contract_address: market.market_token }
