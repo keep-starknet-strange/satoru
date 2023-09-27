@@ -6,7 +6,7 @@ use satoru::role::role;
 use satoru::position::position::Position;
 use satoru::tests_lib::{setup, teardown};
 
-use snforge_std::{PrintTrait, declare, start_prank, stop_prank, ContractClassTrait};
+use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 
 #[test]
 fn given_normal_conditions_when_set_position_new_and_override_then_works() {
