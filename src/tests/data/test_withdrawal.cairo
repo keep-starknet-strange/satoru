@@ -85,7 +85,6 @@ fn given_normal_conditions_when_set_withdrawal_new_and_override_then_works() {
         updated_at_block: 1,
         execution_fee: 1,
         callback_gas_limit: 1,
-        should_unwrap_native_token: true,
     };
 
     // Test logic
@@ -126,7 +125,7 @@ fn given_normal_conditions_when_set_withdrawal_new_and_override_then_works() {
 fn given_withdrawal_account_0_when_set_withdrawal_then_fails() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
-    let account = 0.try_into().unwrap();
+    let account = contract_address_const::<0>();
     // TODO make these Span32
     let long_token_swap_path: Span32<ContractAddress> = array![
         1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
@@ -153,7 +152,6 @@ fn given_withdrawal_account_0_when_set_withdrawal_then_fails() {
         updated_at_block: 1,
         execution_fee: 1,
         callback_gas_limit: 1,
-        should_unwrap_native_token: true,
     };
 
     // Test logic
@@ -197,7 +195,6 @@ fn given_caller_not_controller_when_set_withdrawal_then_fails() {
         updated_at_block: 1,
         execution_fee: 1,
         callback_gas_limit: 1,
-        should_unwrap_native_token: true,
     };
 
     // Test logic
@@ -241,7 +238,6 @@ fn given_caller_not_controller_when_get_withdrawal_keys_then_fails() {
         updated_at_block: 1,
         execution_fee: 1,
         callback_gas_limit: 1,
-        should_unwrap_native_token: true,
     };
     data_store.set_withdrawal(key, withdrawal);
 
@@ -290,7 +286,6 @@ fn given_normal_conditions_when_remove_only_withdrawal_then_works() {
         updated_at_block: 1,
         execution_fee: 1,
         callback_gas_limit: 1,
-        should_unwrap_native_token: true,
     };
 
     data_store.set_withdrawal(key, withdrawal);
@@ -342,7 +337,6 @@ fn given_normal_conditions_when_remove_1_of_n_withdrawal_then_works() {
         updated_at_block: 1,
         execution_fee: 1,
         callback_gas_limit: 1,
-        should_unwrap_native_token: true,
     };
 
     let key_2: felt252 = 987654321;
@@ -361,7 +355,6 @@ fn given_normal_conditions_when_remove_1_of_n_withdrawal_then_works() {
         updated_at_block: 1,
         execution_fee: 1,
         callback_gas_limit: 1,
-        should_unwrap_native_token: true,
     };
 
     data_store.set_withdrawal(key_1, withdrawal_1);
@@ -420,7 +413,6 @@ fn given_caller_not_controller_when_remove_withdrawal_then_fails() {
         updated_at_block: 1,
         execution_fee: 1,
         callback_gas_limit: 1,
-        should_unwrap_native_token: true,
     };
     data_store.set_withdrawal(key, withdrawal);
 

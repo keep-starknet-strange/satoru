@@ -87,10 +87,10 @@ fn mul_div_inum(value: u128, numerator: i128, denominator: u128) -> i128 {
         numerator
     };
     let felt252_numerator: felt252 = i128_to_felt252(numerator_abs);
-    let u128_numerator = felt252_numerator.try_into().unwrap();
+    let u128_numerator = felt252_numerator.try_into().expect('felt252 into u128 failed');
     let result: u128 = mul_div(value, u128_numerator, denominator);
     let felt252_result: felt252 = u128_to_felt252(result);
-    let i128_result: i128 = felt252_result.try_into().unwrap();
+    let i128_result: i128 = felt252_result.try_into().expect('felt252 into i128 failed');
     if numerator > 0 {
         return i128_result;
     } else {
@@ -112,10 +112,10 @@ fn mul_div_inum_roundup(
         numerator
     };
     let felt252_numerator: felt252 = i128_to_felt252(numerator_abs);
-    let u128_numerator = felt252_numerator.try_into().unwrap();
+    let u128_numerator = felt252_numerator.try_into().expect('felt252 into u128 failed');
     let result: u128 = mul_div_roundup(value, u128_numerator, denominator, roundup_magnitude);
     let felt252_result: felt252 = u128_to_felt252(result);
-    let i128_result: i128 = felt252_result.try_into().unwrap();
+    let i128_result: i128 = felt252_result.try_into().expect('felt252 into i128 failed');
     if numerator > 0 {
         return i128_result;
     } else {
@@ -460,10 +460,10 @@ fn to_factor_ival(value: i128, divisor: u128) -> i128 {
         value
     };
     let felt252_value: felt252 = i128_to_felt252(value_abs);
-    let u128_value = felt252_value.try_into().unwrap();
+    let u128_value = felt252_value.try_into().expect('felt252 into u128 failed');
     let result: u128 = to_factor(u128_value, divisor);
     let felt252_result: felt252 = u128_to_felt252(result);
-    let i128_result: i128 = felt252_result.try_into().unwrap();
+    let i128_result: i128 = felt252_result.try_into().expect('felt252 into i128 failed');
     if value > 0 {
         i128_result
     } else {

@@ -27,7 +27,7 @@ trait IOrderVault<TContractState> {
     /// * `token` - The token address to transfer.
     /// # Returns
     /// * The amount of tokens transferred.
-    fn record_transfer_in(ref self: TContractState, token: ContractAddress) -> u256;
+    fn record_transfer_in(ref self: TContractState, token: ContractAddress) -> u128;
 }
 
 #[starknet::contract]
@@ -80,7 +80,7 @@ mod OrderVault {
         ) { // TODO
         }
 
-        fn record_transfer_in(ref self: ContractState, token: ContractAddress) -> u256 {
+        fn record_transfer_in(ref self: ContractState, token: ContractAddress) -> u128 {
             // TODO
             0
         }

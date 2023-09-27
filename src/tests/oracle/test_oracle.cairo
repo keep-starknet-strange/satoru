@@ -2,15 +2,18 @@ use starknet::{ContractAddress, contract_address_const};
 
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait, PrintTrait};
 
-use satoru::data::data_store::{DataStore, IDataStoreDispatcher};
+use satoru::data::data_store::{DataStore, IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::data::keys;
 use satoru::event::event_emitter::{EventEmitter, IEventEmitterDispatcher};
 use satoru::oracle::oracle::{Oracle, IOracleDispatcher, IOracleDispatcherTrait, SetPricesParams};
 use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
+use satoru::oracle::price_feed::PriceFeed;
 use satoru::price::price::Price;
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
+use satoru::utils::precision;
 
-// Panics due to the mocked IPriceFeed not returning data, triggering an error.
+// NOTE: requires oracle_utils to be completed to not panic.
 #[test]
 #[should_panic()]
 fn given_normal_conditions_when_set_prices_then_works() {
@@ -118,11 +121,11 @@ fn given_normal_conditions_when_get_tokens_with_prices_then_works() {
 fn given_normal_conditions_when_get_primary_price_then_works() {
     let (controller, data_store, event_emitter, oracle) = setup();
 
-    let token1 = contract_address_const::<111>();
+    let token1 = contract_address_const::<'ETH'>();
     let price1 = Price { min: 10, max: 11 };
-    let token2 = contract_address_const::<222>();
+    let token2 = contract_address_const::<'USDC'>();
     let price2 = Price { min: 20, max: 22 };
-    let token3 = contract_address_const::<333>();
+    let token3 = contract_address_const::<'DAI'>();
     let price3 = Price { min: 30, max: 33 };
 
     start_prank(oracle.contract_address, controller);
@@ -135,11 +138,10 @@ fn given_normal_conditions_when_get_primary_price_then_works() {
 }
 
 #[test]
-#[should_panic()]
 fn given_normal_conditions_when_price_feed_multiplier_then_works() {
     let (controller, data_store, event_emitter, oracle) = setup();
 
-    let token = contract_address_const::<111>();
+    let token = contract_address_const::<'ETH'>();
 
     oracle.get_price_feed_multiplier(data_store, token);
 }
@@ -148,18 +150,17 @@ fn given_normal_conditions_when_price_feed_multiplier_then_works() {
 fn given_normal_conditions_when_validate_prices_then_works() {
     let (controller, data_store, event_emitter, oracle) = setup();
     let params: SetPricesParams = mock_set_prices_params();
-    let token1 = contract_address_const::<111>();
-    let price1 = Price { min: 10, max: 11 };
-    let token2 = contract_address_const::<222>();
+    let token1 = contract_address_const::<'ETH'>();
+    let price1 = Price { min: 1700, max: 1701 };
+    let token2 = contract_address_const::<'USDC'>();
     let price2 = Price { min: 20, max: 22 };
-    let token3 = contract_address_const::<333>();
+    let token3 = contract_address_const::<'DAI'>();
     let price3 = Price { min: 30, max: 33 };
 
     start_prank(oracle.contract_address, controller);
     oracle.set_primary_price(token1, price1);
     oracle.set_primary_price(token2, price2);
     oracle.set_primary_price(token3, price3);
-
     let validated_prices = oracle.validate_prices(data_store, params);
 }
 
@@ -174,21 +175,50 @@ fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, I
     let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
     let oracle_store_address = deploy_oracle_store(role_store_address, event_emitter_address);
     let oracle_store = IOracleStoreDispatcher { contract_address: oracle_store_address };
-    let oracle_address = deploy_oracle(oracle_store_address, role_store_address);
+    let pragma_address = deploy_price_feed();
+    let oracle_address = deploy_oracle(oracle_store_address, role_store_address, pragma_address);
     let oracle = IOracleDispatcher { contract_address: oracle_address };
     start_prank(role_store_address, caller_address);
     role_store.grant_role(caller_address, role::CONTROLLER);
     role_store.grant_role(order_keeper, role::ORDER_KEEPER);
     oracle_store.add_signer(contract_address_const::<'signer'>());
     start_prank(data_store_address, caller_address);
+    data_store
+        .set_u128(
+            keys::price_feed_multiplier_key(contract_address_const::<'ETH'>()),
+            precision::FLOAT_PRECISION
+        );
+    data_store
+        .set_u128(
+            keys::price_feed_multiplier_key(contract_address_const::<'USDC'>()),
+            precision::FLOAT_PRECISION
+        );
+    data_store
+        .set_u128(
+            keys::price_feed_multiplier_key(contract_address_const::<'DAI'>()),
+            precision::FLOAT_PRECISION
+        );
+    data_store.set_u128(keys::max_oracle_ref_price_deviation_factor(), precision::FLOAT_PRECISION);
+    data_store.set_token_id(contract_address_const::<'ETH'>(), 'ETH/USD');
+    data_store.set_token_id(contract_address_const::<'USDC'>(), 'USDC/USD');
+    data_store.set_token_id(contract_address_const::<'DAI'>(), 'DAI/USD');
     (caller_address, data_store, event_emitter, oracle)
 }
 
+fn deploy_price_feed() -> ContractAddress {
+    let contract = declare('PriceFeed');
+    contract.deploy(@array![]).unwrap()
+}
+
 fn deploy_oracle(
-    oracle_address: ContractAddress, role_store_address: ContractAddress
+    oracle_store_address: ContractAddress,
+    role_store_address: ContractAddress,
+    pragma_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare('Oracle');
-    let constructor_calldata = array![role_store_address.into(), oracle_address.into()];
+    let constructor_calldata = array![
+        role_store_address.into(), oracle_store_address.into(), pragma_address.into()
+    ];
     contract.deploy(@constructor_calldata).unwrap()
 }
 
@@ -220,23 +250,23 @@ fn mock_set_prices_params() -> SetPricesParams {
     SetPricesParams {
         signer_info: 1,
         tokens: array![
-            contract_address_const::<1>(),
-            contract_address_const::<2>(),
-            contract_address_const::<3>()
+            contract_address_const::<'ETH'>(),
+            contract_address_const::<'USDC'>(),
+            contract_address_const::<'DAI'>()
         ],
         compacted_min_oracle_block_numbers: array![0, 0, 0],
         compacted_max_oracle_block_numbers: array![6400, 6400, 6400],
         compacted_oracle_timestamps: array![0, 0, 0],
         compacted_decimals: array![18, 18, 18],
-        compacted_min_prices: array![100, 200, 300],
+        compacted_min_prices: array![0, 0, 0],
         compacted_min_prices_indexes: array![1, 2, 3],
-        compacted_max_prices: array![101, 201, 301],
+        compacted_max_prices: array![0, 0, 0],
         compacted_max_prices_indexes: array![1, 2, 3],
         signatures: array![1, 2, 3],
         price_feed_tokens: array![
-            contract_address_const::<1>(),
-            contract_address_const::<2>(),
-            contract_address_const::<3>()
+            contract_address_const::<'ETH'>(),
+            contract_address_const::<'USDC'>(),
+            contract_address_const::<'DAI'>()
         ]
     }
 }
