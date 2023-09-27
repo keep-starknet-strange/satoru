@@ -212,10 +212,10 @@ mod position {
 
 // `pricing` contains pricing utils
 mod pricing {
+    mod error;
     mod position_pricing_utils;
     mod pricing_utils;
     mod swap_pricing_utils;
-    mod error;
 }
 
 // `referral` contains referral logic.
@@ -304,9 +304,11 @@ mod tests {
     }
     mod order {
         mod test_base_order_utils;
+        mod test_increase_order_utils;
         mod test_order;
     }
     mod position {
+        mod test_decrease_position_utils;
         mod test_decrease_position_swap_utils;
         mod test_position_utils;
     }
@@ -314,6 +316,7 @@ mod tests {
         mod test_price;
     }
     mod pricing {
+        mod test_position_pricing_utils;
         mod test_swap_pricing_utils;
     }
     mod reader {

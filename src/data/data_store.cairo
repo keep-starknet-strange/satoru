@@ -897,7 +897,7 @@ mod DataStore {
         fn set_order(ref self: ContractState, key: felt252, order: Order) {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
-            assert(order.account != 0.try_into().unwrap(), OrderError::CANT_BE_ZERO);
+            assert(order.account != contract_address_const::<0>(), OrderError::CANT_BE_ZERO);
 
             let mut orders = self.orders.read();
             let mut account_orders = self.account_orders.read(order.account);
@@ -1028,7 +1028,7 @@ mod DataStore {
         fn set_position(ref self: ContractState, key: felt252, position: Position) {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
-            assert(position.account != 0.try_into().unwrap(), PositionError::CANT_BE_ZERO);
+            assert(position.account != contract_address_const::<0>(), PositionError::CANT_BE_ZERO);
 
             let mut positions = self.positions.read();
             let mut account_positions = self.account_positions.read(position.account);
@@ -1159,7 +1159,9 @@ mod DataStore {
         fn set_withdrawal(ref self: ContractState, key: felt252, withdrawal: Withdrawal) {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
-            assert(withdrawal.account != 0.try_into().unwrap(), WithdrawalError::CANT_BE_ZERO);
+            assert(
+                withdrawal.account != contract_address_const::<0>(), WithdrawalError::CANT_BE_ZERO
+            );
 
             let mut withdrawals = self.withdrawals.read();
             let mut account_withdrawals = self.account_withdrawals.read(withdrawal.account);
@@ -1286,7 +1288,7 @@ mod DataStore {
         fn set_deposit(ref self: ContractState, key: felt252, deposit: Deposit) {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
-            assert(deposit.account != 0.try_into().unwrap(), DepositError::CANT_BE_ZERO);
+            assert(deposit.account != contract_address_const::<0>(), DepositError::CANT_BE_ZERO);
 
             let mut deposits = self.deposits.read();
             let mut account_deposits = self.account_deposits.read(deposit.account);

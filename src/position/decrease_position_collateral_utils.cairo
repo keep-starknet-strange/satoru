@@ -4,7 +4,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
+use starknet::{ContractAddress, contract_address_const};
 use result::ResultTrait;
 
 // Local imports.
@@ -61,7 +61,7 @@ fn process_collateral(
     params: UpdatePositionParams, cache: DecreasePositionCache
 ) -> (DecreasePositionCollateralValues, PositionFees) {
     // TODO
-    let address_zero: ContractAddress = 0.try_into().unwrap();
+    let address_zero = contract_address_const::<0>();
     let decrease_position_collateral_values_output = DecreasePositionCollateralValuesOutput {
         output_token: address_zero,
         output_amount: 0,
@@ -154,7 +154,7 @@ fn pay_for_cost(
     cost_usd: u128,
 ) -> (DecreasePositionCollateralValues, PayForCostResult) {
     // TODO
-    let address_zero: ContractAddress = 0.try_into().unwrap();
+    let address_zero = contract_address_const::<0>();
     let decrease_position_collateral_values_output = DecreasePositionCollateralValuesOutput {
         output_token: address_zero,
         output_amount: 0,
@@ -194,7 +194,7 @@ fn handle_early_return(
     collateral_cache: ProcessCollateralCache,
 ) -> (DecreasePositionCollateralValues, PositionFees) {
     // TODO
-    let address_zero: ContractAddress = 0.try_into().unwrap();
+    let address_zero = contract_address_const::<0>();
     let decrease_position_collateral_values_output = DecreasePositionCollateralValuesOutput {
         output_token: address_zero,
         output_amount: 0,
@@ -266,7 +266,7 @@ fn handle_early_return(
 /// An empty PositionFees struct.
 fn get_empty_fees(fees: PositionFees) -> PositionFees {
     // TODO
-    let address_zero: ContractAddress = 0.try_into().unwrap();
+    let address_zero = contract_address_const::<0>();
     let position_referral_fees = PositionReferralFees {
         referral_code: 0,
         affiliate: address_zero,

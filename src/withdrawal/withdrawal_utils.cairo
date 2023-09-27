@@ -2,7 +2,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::{ContractAddress, get_block_timestamp};
+use starknet::{ContractAddress, get_block_timestamp, contract_address_const};
 
 // Local imports.
 use satoru::bank::{bank::{IBankDispatcher, IBankDispatcherTrait},};
@@ -24,7 +24,7 @@ use satoru::oracle::{oracle::{IOracleDispatcher, IOracleDispatcherTrait}, oracle
 use satoru::pricing::{swap_pricing_utils, swap_pricing_utils::SwapFees};
 use satoru::swap::{swap_utils, swap_utils::SwapParams};
 use satoru::utils::{
-    account_utils, precision, starknet_utils, span32::Span32,
+    account_utils, error_utils, precision, starknet_utils, span32::Span32,
     store_arrays::{StoreContractAddressArray, StoreU128Array}
 };
 use satoru::withdrawal::{
@@ -149,11 +149,11 @@ fn create_withdrawal(
 
     let mut withdrawal = Withdrawal {
         key: 0,
-        account: 0.try_into().unwrap(),
-        receiver: 0.try_into().unwrap(),
-        callback_contract: 0.try_into().unwrap(),
-        ui_fee_receiver: 0.try_into().unwrap(),
-        market: 0.try_into().unwrap(),
+        account: contract_address_const::<0>(),
+        receiver: contract_address_const::<0>(),
+        callback_contract: contract_address_const::<0>(),
+        ui_fee_receiver: contract_address_const::<0>(),
+        market: contract_address_const::<0>(),
         long_token_swap_path: Default::default(),
         short_token_swap_path: Default::default(),
         market_token_amount: 0,
@@ -279,7 +279,7 @@ fn cancel_withdrawal(
     // startingGas -= gasleft() / 63;
     starting_gas -= (starknet_utils::sn_gasleft(array![]) / 63);
 
-    let withdrawal = data_store.get_withdrawal(key).unwrap();
+    let withdrawal = data_store.get_withdrawal(key).expect('get_withdrawal failed');
 
     if withdrawal.account.is_zero() {
         WithdrawalError::EMPTY_WITHDRAWAL;
@@ -615,6 +615,9 @@ fn get_output_amounts(
     let short_token_output_usd = precision::mul_div(
         market_token_usd, short_token_pool_usd, total_pool_usd
     );
+
+    error_utils::check_division_by_zero(*prices.long_token_price.max, 'long_token_price.max');
+    error_utils::check_division_by_zero(*prices.short_token_price.max, 'short_token_price.max');
 
     (
         long_token_output_usd / *prices.long_token_price.max,

@@ -12,10 +12,14 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::market::market::{Market};
 use satoru::oracle::oracle::{SetPricesCache, SetPricesInnerCache};
+use satoru::oracle::error::OracleError;
 use satoru::price::price::{Price};
 use satoru::utils::store_arrays::{
     StoreContractAddressArray, StorePriceArray, StoreU128Array, StoreFelt252Array
 };
+
+// External imports.
+use alexandria_data_structures::array_ext::SpanTraitExt;
 
 
 /// SetPricesParams struct for values required in Oracle.set_prices.
@@ -85,7 +89,14 @@ struct ReportInfo {
 /// * `block_number` - The block number to compare to.
 fn validate_block_number_within_range(
     min_oracle_block_numbers: Span<u64>, max_oracle_block_numbers: Span<u64>, block_number: u64
-) { // TODO
+) {
+    if !is_block_number_within_range(
+        min_oracle_block_numbers, max_oracle_block_numbers, block_number
+    ) {
+        OracleError::ORACLE_BLOCK_NUMBERS_NOT_WITHIN_RANGE(
+            min_oracle_block_numbers, max_oracle_block_numbers, block_number
+        );
+    }
 }
 
 /// Validates wether a block number is in range.
@@ -96,10 +107,11 @@ fn validate_block_number_within_range(
 /// # Returns
 /// True if block_number is in range, false else.
 fn is_block_number_within_range(
-    min_oracle_block_numbers: Array<u128>, max_oracle_block_numbers: Array<u128>, block_number: u128
+    min_oracle_block_numbers: Span<u64>, max_oracle_block_numbers: Span<u64>, block_number: u64
 ) -> bool {
-    // TODO
-    true
+    let lower_bound = min_oracle_block_numbers.max().expect('array max failed');
+    let upper_bound = max_oracle_block_numbers.min().expect('array min failed');
+    lower_bound <= block_number && block_number <= upper_bound
 }
 
 /// Get the uncompacted price at the specified index.
@@ -192,15 +204,6 @@ fn validate_signer(
 ) { // TODO
 }
 
-/// Revert with OracleBlockNumberNotWithinRange error.
-/// # Arguments
-/// * `max_oracle_block_number` - The max block number used for the signed message hash.
-/// * `block` - The current block number.
-fn revert_oracle_block_number_not_within_range(
-    min_oracle_block_numbers: Array<u128>, max_oracle_block_numbers: Array<u128>, block_number: u64
-) { // TODO
-}
-
 /// Check wether `error` is an OracleError.
 /// # Arguments
 /// * `error` - The error to check.
@@ -246,4 +249,3 @@ impl DefaultReportInfo of Default<ReportInfo> {
         }
     }
 }
-

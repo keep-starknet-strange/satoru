@@ -75,4 +75,3 @@ fn given_empty_order_when_validate_non_empty_order_then_fails() {
     let order: Order = Default::default();
     validate_non_empty_order(@order);
 }
-

@@ -60,9 +60,9 @@ fn deploy_role_store() -> ContractAddress {
 fn given_normal_conditions_when_set_market_new_and_override_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
-    let address_zero: ContractAddress = 0.try_into().unwrap();
+    let address_zero = contract_address_const::<0>();
 
-    let key: ContractAddress = 123456789.try_into().unwrap();
+    let key = contract_address_const::<123456789>();
     let mut market = Market {
         market_token: key,
         index_token: address_zero,
@@ -93,9 +93,9 @@ fn given_normal_conditions_when_set_market_new_and_override_then_works() {
 fn given_normal_conditions_when_set_market_and_get_by_salt_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
-    let address_zero: ContractAddress = 0.try_into().unwrap();
+    let address_zero = contract_address_const::<0>();
 
-    let key: ContractAddress = 123456789.try_into().unwrap();
+    let key = contract_address_const::<123456789>();
     let mut market = Market {
         market_token: key,
         index_token: address_zero,
@@ -122,9 +122,9 @@ fn given_not_market_keeper_when_set_market_then_fails() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     role_store.revoke_role(caller_address, role::MARKET_KEEPER);
-    let address_zero: ContractAddress = 0.try_into().unwrap();
+    let address_zero = contract_address_const::<0>();
 
-    let key: ContractAddress = 123456789.try_into().unwrap();
+    let key = contract_address_const::<123456789>();
     let mut market = Market {
         market_token: key,
         index_token: address_zero,
@@ -144,9 +144,9 @@ fn given_not_market_keeper_when_set_market_then_fails() {
 fn given_normal_conditions_when_get_market_keys_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
-    let address_zero: ContractAddress = 0.try_into().unwrap();
+    let address_zero = contract_address_const::<0>();
 
-    let key: ContractAddress = 123456789.try_into().unwrap();
+    let key = contract_address_const::<123456789>();
     let mut market = Market {
         market_token: key,
         index_token: address_zero,
@@ -177,9 +177,9 @@ fn given_normal_conditions_when_get_market_keys_then_works() {
 fn given_normal_conditions_when_remove_only_one_market_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
-    let address_zero: ContractAddress = 0.try_into().unwrap();
+    let address_zero = contract_address_const::<0>();
 
-    let key: ContractAddress = 123456789.try_into().unwrap();
+    let key = contract_address_const::<123456789>();
     let mut market = Market {
         market_token: key,
         index_token: address_zero,
@@ -203,10 +203,10 @@ fn given_normal_conditions_when_remove_only_one_market_then_works() {
 fn given_normal_conditions_when_remove_1_of_n_market_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
-    let address_zero: ContractAddress = 0.try_into().unwrap();
+    let address_zero = contract_address_const::<0>();
     let address_one: ContractAddress = 1.try_into().unwrap();
 
-    let key: ContractAddress = 123456789.try_into().unwrap();
+    let key = contract_address_const::<123456789>();
     let mut market = Market {
         market_token: key,
         index_token: address_zero,
@@ -245,9 +245,9 @@ fn given_caller_not_market_keeper_when_remove_market_then_fails() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     role_store.revoke_role(caller_address, role::MARKET_KEEPER);
-    let address_zero: ContractAddress = 0.try_into().unwrap();
+    let address_zero = contract_address_const::<0>();
 
-    let key: ContractAddress = 123456789.try_into().unwrap();
+    let key = contract_address_const::<123456789>();
     let mut market = Market {
         market_token: key,
         index_token: address_zero,
