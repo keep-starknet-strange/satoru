@@ -1721,10 +1721,42 @@ fn validate_market_token_balance_util(
     let expected_min_balance: u128 = get_expected_min_token_balance(data_store, market, token);
 
     assert(balance >= expected_min_balance, MarketError::INVALID_MARKET_TOKEN_BALANCE);
+
+
+
+
+    let mut collateral_amount: u128 = get_collateral_sum(data_store, market, token, true, 1);
+    collateral_amount += get_collateral_sum(data_store, market, token, false, 1);
+
+    assert(balance >= collateral_amount, 
+        MarketError::INVALID_MARKET_TOKEN_BALANCE_FOR_COLLATERAL_AMOUNT);
+
+    let claimable_funding_fee_amount = data_store.get_u128(keys::claimable_funding_amount_key(market.market_token, token));
+
+    assert(balance >= claimable_funding_fee_amount, 
+        MarketError::INVALID_MARKET_TOKEN_BALANCE_FOR_CLAIMABLE_FUNDING);
 }
 
+fn get_expected_min_token_balance(
+    data_store: IDataStoreDispatcher,
+    market: Market,
+    token: ContractAddress
+) -> u128 {
+   let mut cache: get_expected_min_token_balance_cache; //Need this struct to compile properly
 
+   let cache.pool_amount = data_store.get_u128(keys::pool_amount_key(market.market_token, token));
+   let cache.swap_impact_pool_amount = get_swap_impact_pool_amount(data_store, market.market_token, token);
+   let cache.claimable_collateral_amount = data_store.get_u128(keys::claimable_collateral_amount_key(market.market_token, token));
+   let cache.claimable_fee_amount = data_store.get_u128(keys::claimable_fee_amount_key(market.market_token, token));
+   let cache.claimable_ui_fee_amount = data_store.get_u128(keys::claimable_ui_fee_amount_key(market.market_token, token));
+   let cache.affiliate_reward_amount = data_store.get_u128(keys::affiliate_reward_key(market.market_token, token));
 
-// market props = Market && prices: MarketPrices,
+    let cache_result = cache.pool_amount
+    + cache.swap_impact_pool_amount
+    + cache.claimable_collateral_amount
+    + cache.claimable_fee_amount
+    + cache.claimable_ui_fee_amount
+    + cache.affiliate_reward_amount;
 
-// assert(divisor != 0, MarketError::DIVISOR_CANNOT_BE_ZERO); si le premier argument est faux, alors on declenche le second
+    cache_result
+}

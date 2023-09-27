@@ -23,6 +23,10 @@ mod MarketError {
     const EMPTY_ADDRESS_IN_MARKET_TOKEN_BALANCE_VALIDATION: felt252 =
         'empty_address_in_market_token_balance_validation';
     const INVALID_MARKET_TOKEN_BALANCE: felt252 = 'invalid_market_token_balance';
+    const INVALID_MARKET_TOKEN_BALANCE_FOR_COLLATERAL_AMOUNT: felt252 =
+        'invalid_market_token_balance_for_collateral_amount';
+    const INVALID_MARKET_TOKEN_BALANCE_FOR_CLAIMABLE_FUNDING: felt252 =
+        'invalid_market_token_balance_for_claimable_funding';
 
     fn UNABLE_TO_GET_CACHED_TOKEN_PRICE(token_in: ContractAddress) {
         let mut data = array!['invalid token in'];
