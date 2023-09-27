@@ -6,7 +6,7 @@
 
 // Core lib imports.
 use core::traits::Into;
-use starknet::ContractAddress;
+use starknet::{ContractAddress, contract_address_const};
 
 use satoru::oracle::oracle_utils::SetPricesParams;
 use satoru::order::{order::SecondaryOrderType, base_order_utils::ExecuteOrderParams};
@@ -210,7 +210,7 @@ mod BaseOrderHandler {
                 oracle_params.compacted_max_oracle_block_numbers.span(), oracle_params.tokens.len()
             );
 
-            let address_zero = 0.try_into().unwrap();
+            let address_zero = contract_address_const::<0>();
 
             let mut market = Default::default();
 

@@ -108,7 +108,7 @@ fn given_normal_conditions_when_fetching_code_owner_from_storage_before_setting_
     let new_account: ContractAddress = contract_address_const::<'new_account'>();
 
     let res: ContractAddress = referral_storage.code_owners(code);
-    assert(res == 0.try_into().unwrap(), 'the address is wrong');
+    assert(res == contract_address_const::<0>(), 'the address is wrong');
 
     teardown(data_store.contract_address);
 }

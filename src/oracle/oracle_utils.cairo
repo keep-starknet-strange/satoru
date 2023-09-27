@@ -109,8 +109,8 @@ fn validate_block_number_within_range(
 fn is_block_number_within_range(
     min_oracle_block_numbers: Span<u64>, max_oracle_block_numbers: Span<u64>, block_number: u64
 ) -> bool {
-    let lower_bound = min_oracle_block_numbers.max().unwrap();
-    let upper_bound = max_oracle_block_numbers.min().unwrap();
+    let lower_bound = min_oracle_block_numbers.max().expect('array max failed');
+    let upper_bound = max_oracle_block_numbers.min().expect('array min failed');
     lower_bound <= block_number && block_number <= upper_bound
 }
 

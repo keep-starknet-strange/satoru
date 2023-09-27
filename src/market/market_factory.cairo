@@ -131,7 +131,7 @@ mod MarketFactory {
             let (market_token_deployed_address, return_data) = deploy_syscall(
                 self.market_token_class_hash.read(), salt, constructor_calldata.span(), false
             )
-                .unwrap();
+                .expect('failed to deploy market');
 
             // Create the market.
             let market = Market {
