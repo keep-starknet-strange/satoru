@@ -36,7 +36,6 @@ use satoru::swap::{
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
-
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul}, error_utils};
@@ -92,7 +91,7 @@ fn get_swap_amount_out(
 
     validate_swap_market(@data_store, @market);
 
-    cache.token_out = get_opposite_token(@market, token_in);
+    cache.token_out = get_opposite_token(token_in, @market);
     cache.token_in_price = get_cached_token_price(token_in, market, prices);
     cache.token_out_price = get_cached_token_price(cache.token_out, market, prices);
 

@@ -3,10 +3,6 @@
 // *************************************************************************
 // Core lib imports.
 use starknet::{ContractAddress, get_block_timestamp};
-use result::ResultTrait;
-
-use debug::PrintTrait;
-use zeroable::Zeroable;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -15,14 +11,13 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 use satoru::data::keys;
 use satoru::market::{
     market::Market, error::MarketError, market_pool_value_info::MarketPoolValueInfo,
-    market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait}
+    market_store_utils, market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait}
 };
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::price::price::{Price, PriceTrait};
-use satoru::utils::calc;
-use satoru::utils::span32::Span32;
 use satoru::position::position::Position;
 use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}, error_utils};
+use satoru::utils::{calc, precision, span32::Span32};
 
 /// Struct to store the prices of tokens of a market.
 /// # Params
@@ -55,6 +50,106 @@ struct GetNextFundingAmountPerSizeResult {
     funding_factor_per_second: u128,
     funding_fee_amount_per_size_delta: PositionType,
     claimable_funding_amount_per_size_delta: PositionType,
+}
+
+/// Get the market token price.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market to get the market token price for.
+/// * `long_token_price` - The price of the long token.
+/// * `short_token_price` - The price of the short token.
+/// * `index_token_price` - The price of the index token.
+/// * `maximize` - Whether to maximize or minimize the market token price.
+/// # Returns
+/// The market token price.
+fn get_market_token_price(
+    data_store: IDataStoreDispatcher,
+    market: Market,
+    index_token_price: Price,
+    long_token_price: Price,
+    short_token_price: Price,
+    pnl_factor_type: felt252,
+    maximize: bool
+) -> (i128, MarketPoolValueInfo) {
+    let supply = get_market_token_supply(
+        IMarketTokenDispatcher { contract_address: market.market_token }
+    );
+
+    let pool_value_info = get_pool_value_info(
+        data_store,
+        market,
+        index_token_price,
+        long_token_price,
+        short_token_price,
+        pnl_factor_type,
+        maximize
+    );
+
+    // if the supply is zero then treat the market token price as 1 USD
+    if supply == 0 {
+        return (calc::to_signed(precision::FLOAT_PRECISION, true), pool_value_info);
+    }
+
+    if pool_value_info.pool_value == 0 {
+        return (0, pool_value_info);
+    }
+
+    // TODO: not 100% sure this is the right conversion
+    let market_token_price = calc::to_signed(
+        precision::mul_div(precision::WEI_PRECISION, pool_value_info.pool_value, supply), true
+    );
+    (market_token_price, pool_value_info)
+}
+
+/// Gets the total supply of the marketToken.
+/// # Arguments
+/// * `market_token` - The market token whose total supply is to be retrieved.
+/// # Returns
+/// The total supply of the given marketToken.
+fn get_market_token_supply(market_token: IMarketTokenDispatcher) -> u128 {
+    market_token.total_supply()
+}
+
+/// Get the opposite token of the market
+/// if the input_token is the token_long return the short_token and vice versa
+/// # Arguments
+/// * `market` - The market to validate the open interest for.
+/// * `token` - The input_token.
+/// # Returns
+/// The opposite token.
+fn get_opposite_token(input_token: ContractAddress, market: @Market) -> ContractAddress {
+    if input_token == *market.long_token {
+        *market.short_token
+    } else if input_token == *market.short_token {
+        *market.long_token
+    } else {
+        panic(
+            array![
+                MarketError::UNABLE_TO_GET_OPPOSITE_TOKEN,
+                input_token.into(),
+                (*market.market_token).into()
+            ]
+        )
+    }
+}
+
+fn validate_swap_market_address(
+    data_store: @IDataStoreDispatcher, market_address: ContractAddress
+) {
+    let market = market_store_utils::get(data_store, market_address);
+    validate_swap_market(data_store, @market);
+}
+
+/// Validata the swap market.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market to validate the open interest for.
+fn validate_swap_market(data_store: @IDataStoreDispatcher, market: @Market) {
+    validate_enabled_market(*data_store, *market);
+
+    if *market.long_token == *market.short_token {
+        panic(array![MarketError::INVALID_SWAP_MARKET, (*market.market_token).into()])
+    }
 }
 
 // @dev get the token price from the stored MarketPrices
@@ -590,25 +685,6 @@ fn validate_open_interest(data_store: IDataStoreDispatcher, market: @Market, is_
     assert(open_interest <= max_open_interest, MarketError::MAX_OPEN_INTEREST_EXCEEDED);
 }
 
-/// Validata the swap market.
-/// # Arguments
-/// * `data_store` - The data store to use.
-/// * `market` - The market to validate the open interest for.
-fn validate_swap_market(data_store: @IDataStoreDispatcher, market: @Market) { // TODO
-}
-
-// @dev get the opposite token of the market
-// if the input_token is the token_long return the short_token and vice versa
-/// # Arguments
-/// * `market` - The market to validate the open interest for.
-/// * `token` - The input_token.
-/// # Returns
-/// The opposite token.
-fn get_opposite_token(market: @Market, token: ContractAddress) -> ContractAddress {
-    // TODO
-    token
-}
-
 // Get the min pnl factor after ADL
 // Parameters
 // * `data_store` - - The data store to use.
@@ -900,7 +976,7 @@ fn validate_enabled_market(data_store: IDataStoreDispatcher, market: Market) {
 /// * `data_store` - The data store to use.
 /// * `market` - The market to validate.
 fn validate_enabled_market_address(
-    data_store: IDataStoreDispatcher, market: ContractAddress
+    data_store: @IDataStoreDispatcher, market: ContractAddress
 ) { // TODO
 }
 
@@ -1006,16 +1082,6 @@ fn update_total_borrowing(
 ) { // TODO
 }
 
-
-/// Gets the total supply of the marketToken.
-/// # Arguments
-/// * `market_token` - The market token whose total supply is to be retrieved.
-/// # Returns
-/// The total supply of the given marketToken.
-fn get_market_token_supply(market_token: IMarketTokenDispatcher) -> u128 {
-    // TODO
-    market_token.total_supply()
-}
 
 /// Converts a number of market tokens to its USD value.
 /// # Arguments
@@ -1123,31 +1189,6 @@ fn get_funding_amount(
     round_up_magnitude: bool
 ) -> u128 {
     0
-}
-
-/// Get the borrowing factor per second.
-/// # Arguments
-/// * `data_store` - The `DataStore` contract dispatcher.
-/// * `market` - Market to check.
-/// * `index_token_price` - Price of the market's index token.
-/// * `long_token_price` - Price of the market's long token.
-/// * `short_token_price` - Price of the market's short token.
-/// * `pnl_factor_type` - The pnl factor type.
-/// * `maximize` - Whether to maximize or minimize the net PNL.
-/// # Returns
-/// Returns an integer representing the calculated market token price and MarketPoolValueInfo struct containing additional information related to market pool value.
-
-fn get_market_token_price(
-    data_store: IDataStoreDispatcher,
-    market: Market,
-    index_token_price: Price,
-    long_token_price: Price,
-    short_token_price: Price,
-    pnl_factor_type: felt252,
-    maximize: bool
-) -> (i128, MarketPoolValueInfo) {
-    // TODO
-    (0, Default::default())
 }
 
 /// Get the net pending pnl for a market
