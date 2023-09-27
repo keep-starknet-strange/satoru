@@ -7,7 +7,7 @@ use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapTyp
 use satoru::tests_lib::{setup, teardown};
 use satoru::utils::span32::{Span32, Array32Trait};
 
-use snforge_std::{PrintTrait, declare, start_prank, stop_prank, ContractClassTrait};
+use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 
 #[test]
 fn given_normal_conditions_when_set_order_new_and_override_then_works() {
