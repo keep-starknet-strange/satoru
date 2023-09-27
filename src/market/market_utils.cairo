@@ -26,8 +26,10 @@ use satoru::utils::{i128::{I128Store, i128_to_u128, I128Serde, I128Div, I128Mul,
 
 use satoru::utils::calc::sum_return_uint_128;
 use satoru::utils::precision::{apply_factor_u128, apply_exponent_factor, to_factor, float_to_wei, mul_div};
-use satoru::data::keys::skip_borrowing_fee_for_smaller_side;
+use satoru::data::keys::{skip_borrowing_fee_for_smaller_side, max_swap_path_length};
 use satoru::utils::arrays::get_u128;
+use satoru::event::event_emitter::emit_ui_fee_factor_updated;
+use satoru::chain::chain::current_timestamp;
 /// Struct to store the prices of tokens of a market.
 /// # Params
 /// * `indexTokenPrice` - Price of the market's index token.
@@ -1662,29 +1664,25 @@ fn get_swap_path_market(
     market
 }
 
-// *********************************** Function TO DO *********************************** //
 // fn get_swap_path_markets(
 //     data_store: IDataStoreDispatcher,
 //     swap_path: Array<ContractAddress>
 // ) -> Array<Market> {
-//     let mut markets: Array<Market> = Default::default();
-//     let mut data = array![];
+//     let mut markets: Array<Market> = ArrayTrait::new(swap_path.len());
+//     let i: u128 = 0;
+//     let length: u128 = swap_path.len();
 
 //     loop {
-
-
+//          if i == length {
+//               break;
+//          }
+//          let market_adress: ContractAddress = swap_path[i];
+//          markets.append(market_adress);
+//          i += 1;    
+//          
 //     }
-//     // for market_add in swap_path {
-//     //     let market: Market = get_swap_path_market(data_store, market_add);
-//     //     markets.push(market);
-//     // }
-
 //     markets
 // }
-
-// function isMarketCollateralToken(Market.Props memory market, address token) internal pure returns (bool) {
-//         return token == market.longToken || token == market.shortToken;
-//     }
 
 // fn validate_swap_path(
 //     data_store: IDataStoreDispatcher,
@@ -1693,10 +1691,14 @@ fn get_swap_path_market(
 //     let max_swap_path_length: u128 = data_store.get_u128(keys::max_swap_path_length());
 //     assert(swap_path.length <= max_swap_path_length, MarketError::MAX_SWAP_PATH_LENGTH_EXCEEDED);
 
-//      loop {
-//     for market_add in swap_path {
-//         let market: Market = get_swap_path_market(data_store, market_add);
-//         validate_swap_market(data_store, market);
+//     let mut i: u128 = 0;let i: u128 = 0;
+//     let length: u128 = swap_path.len();
+//     loop {
+//          if i == length {
+//               break;
+//          }
+//            let market_address: ContractAddress = swap_path[i];
+//            validate_swap_market(data_store, market_address);
 //     }
 
 
@@ -1736,7 +1738,7 @@ fn is_pnl_factor_exceeded(
     market_add: ContractAddress,
     is_long: bool,
     pnl_factor_type: felt252
-) -> (bool, u128, u128) {
+) -> (bool, i128, u128) {
     let market: Market = get_enabled_market(data_store, market_add);
     let prices: MarketPrices = get_market_prices(oracle, market);
 
@@ -1749,7 +1751,7 @@ fn is_pnl_factor_exceeded_check(
     prices: MarketPrices,
     is_long: bool,
     pnl_factor_type: felt252
-) -> (bool, u128, u128) {
+) -> (bool, i128, u128) {
     let pnl_to_pool_factor: i128 = get_pnl_to_pool_factor(data_store, market, prices, is_long, true);
     let max_pnl_factor: u128 = get_max_pnl_factor(data_store, pnl_factor_type, market.market_token, is_long);
 
@@ -1785,22 +1787,27 @@ fn set_ui_fee_factor(
 
     data_store.set_u128(keys::ui_fee_factor_key(account), ui_fee_factor);
 
-    market_event_utils.emit_ui_fee_factor_updated(event_emitter, account, ui_fee_factor);
+    emit_ui_fee_factor_updated(event_emitter, account, ui_fee_factor);
 }
-
-// TO_DO 
-//  fn validate_market_token_balance(
+ 
+//  fn validate_market_token_balance_add(
 //       data_store: IDataStoreDispatcher,
 //       markets: Array<market>
-//     ) public view {
-//         for (uint256 i; i < markets.length; i++) {
-//             validateMarketTokenBalance(dataStore, markets[i]);
-//         }
+//     ) {
+//         let length: u128 = markets.len();
+//         let i: u128 = 0;
+//         loop {
+//              if i == length {
+//                   break;
+//              }
+//                validate_market_token_balance_check(data_store, markets[i]);
+//                i += 1;
+//         };
 //     }
 
 fn validate_market_token_balance(
     data_store: IDataStoreDispatcher,
-    market_add: contractAddress
+    market_add: ContractAddress
 ) {
     let market: Market = get_enabled_market(data_store, market_add);
     validate_market_token_balance_check(data_store, market);
@@ -1810,12 +1817,12 @@ fn validate_market_token_balance_check(
     data_store: IDataStoreDispatcher,
     market: Market
 ) {
-    validate_maket_token_balance_util(data_store, market, market.long_token);
+    validate_market_token_balance_util(data_store, market, market.long_token);
 
     if (market.long_token == market.short_token) {
         return;
     }
-    validate_maket_token_balance_util(data_store, market, market.short_token);
+    validate_market_token_balance_util(data_store, market, market.short_token);
 }
 
 fn validate_market_token_balance_util(
@@ -1869,7 +1876,3 @@ fn validate_market_token_balance_util(
 
 //     cache_result
 // }
-
-// market props = Market && prices: MarketPrices,
-
-// assert(divisor != 0, MarketError::DIVISOR_CANNOT_BE_ZERO); si le premier argument est faux, alors on declenche le second
