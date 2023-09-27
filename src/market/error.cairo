@@ -14,6 +14,16 @@ mod MarketError {
     const EMPTY_MARKET: felt252 = 'empty_market';
     const DISABLED_MARKET: felt252 = 'disabled_market';
 
+    const EMPTY_MARKET_TOKEN_SUPPLY: felt252 = 'empty_market_token_suppply';
+    const INVALID_MARKET_COLLATERAL_TOKEN: felt252 = 'invalid_market_collateral_token';
+    const MAX_SWAP_PATH_LENGTH_EXCEEDED: felt252 = 'max_swap_path_length_exceeded';
+    const PNL_EXCEEDED_FOR_LONGS: felt252 = 'pnl_exceeded_for_longs';
+    const PNL_EXCEEDED_FOR_SHORTS: felt252 = 'pnl_exceeded_for_shorts';
+    const UI_FEE_FACTOR_EXCEEDED: felt252 = 'ui_fee_factor_exceeded';
+    const EMPTY_ADDRESS_IN_MARKET_TOKEN_BALANCE_VALIDATION: felt252 =
+        'empty_address_in_market_token_balance_validation';
+    const INVALID_MARKET_TOKEN_BALANCE: felt252 = 'invalid_market_token_balance';
+
     fn UNABLE_TO_GET_CACHED_TOKEN_PRICE(token_in: ContractAddress) {
         let mut data = array!['invalid token in'];
         data.append(token_in.into());
