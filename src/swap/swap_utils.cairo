@@ -320,7 +320,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
     };
 
     market_utils::validate_pool_amount(params.data_store, _params.market, *_params.token_in);
-    market_utils::validata_reserve(
+    market_utils::validate_reserve(
         params.data_store, _params.market, @prices, cache.token_out == *_params.market.long_token
     );
     let (pnl_factor_type_for_longs, pnl_factor_type_for_shorts) = if (cache
