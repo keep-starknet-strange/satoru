@@ -91,7 +91,7 @@ fn get_swap_impact_amount_with_cap(
     token: ContractAddress,
     token_price: Price,
     price_impact_usd: i128
-) -> i128 { //Todo : check u128
+) -> i128 {
     let mut impact_amount: i128 = 0;
     // positive impact: minimize impactAmount, use tokenPrice.max
     // negative impact: maximize impactAmount, use tokenPrice.min
@@ -577,13 +577,9 @@ fn apply_swap_impact_with_cap(
     token: ContractAddress,
     token_price: Price,
     price_impact_usd: i128
-) -> i128 { // TODO
+) -> i128 {
     let impact_amount: i128 = get_swap_impact_amount_with_cap(
-        data_store,
-        market,
-        token,
-        token_price,
-        price_impact_usd
+        data_store, market, token, token_price, price_impact_usd
     );
     return impact_amount;
 }
@@ -616,15 +612,11 @@ fn validate_reserve(
     let reserve_factor: u128 = get_reserve_factor(data_store, market.market_token, is_long);
     let max_reserved_usd: u128 = apply_factor_u128(pool_usd, reserve_factor);
 
-    let reserved_usd: u128 = get_reserved_usd(
-        data_store,
-        @market,
-        *prices,
-        is_long
-    );
+    let reserved_usd: u128 = get_reserved_usd(data_store, @market, *prices, is_long);
 
     assert(reserved_usd <= max_reserved_usd, MarketError::INSUFFICIENT_RESERVE);
 }
+
 
 /// Validate the open interest.
 /// # Arguments
@@ -717,16 +709,12 @@ fn get_pnl_to_pool_factor_from_prices(
     prices: MarketPrices,
     is_long: bool,
     maximize: bool
-) -> u128 {
-    let pool_usd: u128 = get_pool_usd_without_pnl(
-        data_store, market, prices, is_long, !maximize
-    );
+) -> u128 { // move to i128 when supported
+    let pool_usd: u128 = get_pool_usd_without_pnl(data_store, market, prices, is_long, !maximize);
     if pool_usd == 0 {
         return 0;
     }
-    let pnl: u128 = get_pnl(
-        data_store, @market, @prices.index_token_price, is_long, maximize
-    );
+    let pnl: u128 = get_pnl(data_store, @market, @prices.index_token_price, is_long, maximize);
     return to_factor(pnl, pool_usd);
 }
 
@@ -930,7 +918,6 @@ fn get_capped_pnl(
     0
 }
 
-
 /// Validata that the specified market exists and is enabled
 /// # Arguments
 /// * `data_store` - The data store to use.
@@ -1041,18 +1028,15 @@ fn update_cumulative_borrowing_factor(
     // chain: IChainDispatcher,
     is_long: bool
 ) { // TODO
-    let (_, delta) = get_next_cumulative_borrowing_factor(
-        data_store, market, prices, is_long
-    );
+    let (_, delta) = get_next_cumulative_borrowing_factor(data_store, market, prices, is_long);
     increment_cumulative_borrowing_factor(
         data_store, event_emitter, market.market_token, is_long, delta
     );
-    data_store.set_u128(
-        keys::cumulative_borrowing_factor_updated_at_key(
-            market.market_token, is_long
-        ),
-        0 // put chain.get_block_timestamp().into() instead
-    );
+    data_store
+        .set_u128(
+            keys::cumulative_borrowing_factor_updated_at_key(market.market_token, is_long),
+            0 // put chain.get_block_timestamp().into() instead
+        );
 }
 
 /// # Arguments
@@ -1098,20 +1082,55 @@ fn market_token_amount_to_usd(
     0
 }
 
-//FROM HERE
+/// Get the virtual inventory for positions.
+///
+/// # Arguments
+/// * `dataStore`: DataStore - The data storage instance.
+/// * `token`: The token to check.
+///
+/// # Returns
+/// Returns a tuple (has_virtual_inventory, virtual_token_inventory).
+fn get_virtual_inventory_for_positions(
+    data_store: IDataStoreDispatcher, token: ContractAddress
+) -> (bool, u128) { // move to i128 when supported
+    let virtual_token_id: felt252 = data_store.get_felt252(keys::virtual_token_id_key(token));
+    if virtual_token_id == u128_to_felt252(0) {
+        return (false, 0);
+    }
+    return (true, data_store.get_i128(keys::virtual_inventory_for_positions_key(virtual_token_id)));
+}
+
+/// Get the borrowing factor per second.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market.
+/// * `prices` - The prices of the market tokens.
+/// * `is_long` - Whether to get the factor for the long or short side
+/// # Returns
+/// The borrowing factor per second.
+fn get_borrowing_factor_per_second(
+    data_store: IDataStoreDispatcher, market: Market, prices: MarketPrices, is_long: bool
+) -> u128 {
+    // TODO
+    0
+}
+
+fn get_adjusted_position_impact_factors(
+    data_store: IDataStoreDispatcher, market: ContractAddress
+) -> (u128, u128) { // TODO
+    (0, 0)
+}
+
 
 // store funding values as token amount per (Precision.FLOAT_PRECISION_SQRT / Precision.FLOAT_PRECISION) of USD size
 fn get_funding_amount_per_size_delta(
-    funding_usd: u128, open_interest: u128, token_price: u128,roundup_magnitude: bool
+    funding_usd: u128, open_interest: u128, token_price: u128, roundup_magnitude: bool
 ) -> u128 { // TODO
     if funding_usd == 0 || open_interest == 0 {
         return 0;
     }
     let funding_usd_per_size: u128 = mul_div_roundup(
-        funding_usd,
-        FLOAT_PRECISION * FLOAT_PRECISION_SQRT,
-        open_interest,
-        roundup_magnitude
+        funding_usd, FLOAT_PRECISION * FLOAT_PRECISION_SQRT, open_interest, roundup_magnitude
     );
     if roundup_magnitude {
         roundup_division(funding_usd_per_size, token_price)
@@ -1132,15 +1151,12 @@ fn validate_open_interest_reserve(
     // poolUsd is used instead of pool amount as the indexToken may not match the longToken
     // additionally, the shortToken may not be a stablecoin
     let pool_usd: u128 = get_pool_usd_without_pnl(data_store, market, prices, is_long, false);
-    let reserve_factor: u128 = get_open_interest_reserve_factor(data_store, market.market_token, is_long);
+    let reserve_factor: u128 = get_open_interest_reserve_factor(
+        data_store, market.market_token, is_long
+    );
     let max_reserved_usd: u128 = apply_factor_u128(pool_usd, reserve_factor);
 
-    let reserved_usd: u128 = get_reserved_usd(
-        data_store,
-        @market,
-        prices,
-        is_long
-    );
+    let reserved_usd: u128 = get_reserved_usd(data_store, @market, prices, is_long);
 
     assert(reserved_usd <= max_reserved_usd, MarketError::INSUFFICIENT_RESERVE);
 }
@@ -1154,15 +1170,15 @@ fn validate_open_interest_reserve(
 //
 // @return The next borrowing fees for a position.
 fn get_next_borrowing_fees(
-    data_store: IDataStoreDispatcher, 
-    position: Position, 
-    market: Market,
-    prices: MarketPrices
+    data_store: IDataStoreDispatcher, position: Position, market: Market, prices: MarketPrices
 ) -> u128 {
     let (next_cumulative_borrowing_factor, _) = get_next_cumulative_borrowing_factor(
         data_store, market, prices, position.is_long
     );
-    assert(next_cumulative_borrowing_factor >= position.borrowing_factor, MarketError::UNEXCEPTED_BORROWING_FACTOR);
+    assert(
+        next_cumulative_borrowing_factor >= position.borrowing_factor,
+        MarketError::UNEXCEPTED_BORROWING_FACTOR
+    );
     let diff_factor: u128 = next_cumulative_borrowing_factor - position.borrowing_factor;
     return apply_factor_u128(position.size_in_usd, diff_factor);
 }
@@ -1175,11 +1191,8 @@ fn get_next_borrowing_fees(
 //
 // @return The total reserved USD required for positions.
 fn get_reserved_usd(
-    data_store: IDataStoreDispatcher, 
-    market: @Market,
-    prices: MarketPrices,
-    is_long: bool
-) -> u128 { // TODO
+    data_store: IDataStoreDispatcher, market: @Market, prices: MarketPrices, is_long: bool
+) -> u128 {
     let mut reserved_usd: u128 = 0;
     if (is_long) {
         // for longs calculate the reserved USD based on the open interest and current indexTokenPrice
@@ -1188,7 +1201,9 @@ fn get_reserved_usd(
         // this also works for e.g. a SOL / USD market with long collateral token as WETH
         // if the price of SOL increases more than the price of ETH, additional amounts would be
         // automatically reserved
-        let open_interest_in_tokens: u128 = get_open_interest_in_tokens_for_market(data_store, market, is_long);
+        let open_interest_in_tokens: u128 = get_open_interest_in_tokens_for_market(
+            data_store, market, is_long
+        );
         reserved_usd = open_interest_in_tokens * prices.index_token_price.max;
     } else {
         // for shorts use the open interest as the reserved USD value
@@ -1199,32 +1214,11 @@ fn get_reserved_usd(
     reserved_usd
 }
 
-fn get_is_long_token(
-    market: Market, token: ContractAddress
-) -> bool { // TODO
+fn get_is_long_token(market: Market, token: ContractAddress) -> bool {
     assert(
-        token == market.long_token && token == market.short_token,
-        MarketError::UNEXCEPTED_TOKEN
+        token == market.long_token && token == market.short_token, MarketError::UNEXCEPTED_TOKEN
     );
     return token == market.long_token;
-}
-
-/// Get the virtual inventory for positions.
-///
-/// # Arguments
-/// * `dataStore`: DataStore - The data storage instance.
-/// * `token`: The token to check.
-///
-/// # Returns
-/// Returns a tuple (has_virtual_inventory, virtual_token_inventory).
-fn get_virtual_inventory_for_positions(
-    data_store: IDataStoreDispatcher, token: ContractAddress
-) -> (bool, u128) { // TODO
-    let virtual_token_id: felt252 = data_store.get_felt252(keys::virtual_token_id_key(token));
-    if virtual_token_id == u128_to_felt252(0) {
-        return (false, 0);
-    }
-    return (true, data_store.get_i128(keys::virtual_inventory_for_positions_key(virtual_token_id)));
 }
 
 /// Update the virtual inventory for swaps.
@@ -1242,22 +1236,27 @@ fn apply_delta_to_virtual_inventory_for_swaps(
     event_emitter: IEventEmitterDispatcher,
     market: Market,
     token: ContractAddress,
-    delta: i128
-) -> (bool, u128){ // TODO
-    let virtual_market_id: felt252 = data_store.get_felt252(keys::virtual_market_id_key(market.market_token));
+    delta: u128 // move to i128 when supported
+) -> (bool, u128) { // TODO
+    let virtual_market_id: felt252 = data_store
+        .get_felt252(keys::virtual_market_id_key(market.market_token));
     if (virtual_market_id == u128_to_felt252(0)) {
         return (false, 0);
     }
     let is_long_token: bool = get_is_long_token(market, token);
 
-    let next_value: u128 = data_store.apply_bounded_delta_to_u128(
-        keys::virtual_inventory_for_swaps_key(virtual_market_id, is_long_token),
-        delta
+    let next_value: u128 = data_store
+        .apply_bounded_delta_to_u128(
+            keys::virtual_inventory_for_swaps_key(virtual_market_id, is_long_token), delta
+        );
+
+    //have to convert delta to i128 while i128 is not supported
+    let delta: i128 = u128_to_felt252(delta).try_into().unwrap();
+    market_event_utils::emit_virtual_swap_inventory_updated(
+        event_emitter, market.market_token, is_long_token, virtual_market_id, delta, next_value
     );
-    market_event_utils::emit_virtual_swap_inventory_updated(event_emitter, market.market_token, is_long_token, virtual_market_id, delta, next_value);
 
     return (true, next_value);
-
 }
 
 /// Update the virtual inventory for positions.
@@ -1271,18 +1270,18 @@ fn apply_delta_to_virtual_inventory_for_positions(
     data_store: IDataStoreDispatcher,
     event_emitter: IEventEmitterDispatcher,
     token: ContractAddress,
-    delta: i128
-) -> (bool, i128) {
+    delta: u128 // move to i128 when supported
+) -> (bool, u128) {
     let virtual_token_id: felt252 = data_store.get_felt252(keys::virtual_token_id_key(token));
     if (virtual_token_id == u128_to_felt252(0)) {
         return (false, 0);
     }
 
-    let next_value: i128 = data_store.apply_delta_to_int(
-        keys::virtual_inventory_for_positions_key(virtual_token_id),
-        delta
+    let next_value: u128 = data_store
+        .apply_delta_to_i128(keys::virtual_inventory_for_positions_key(virtual_token_id), delta);
+    market_event_utils::emit_virtual_position_inventory_updated(
+        event_emitter, token, virtual_token_id, delta, next_value
     );
-    market_event_utils::emit_virtual_position_inventory_updated(event_emitter, token, virtual_token_id, delta, next_value);
 
     return (true, next_value);
 }
@@ -1303,10 +1302,7 @@ fn apply_delta_to_virtual_inventory_for_positions(
 /// # Returns
 /// Returns a tuple (cumulative_borrowing_factor, updated_timestamp).
 fn get_next_cumulative_borrowing_factor(
-    data_store: IDataStoreDispatcher,
-    market: Market,
-    prices: MarketPrices,
-    is_long: bool
+    data_store: IDataStoreDispatcher, market: Market, prices: MarketPrices, is_long: bool
 ) -> (u128, u128) { // TODO
     (0, 0)
 }
@@ -1360,12 +1356,12 @@ fn get_pool_usd_without_pnl(
 /// # Returns
 /// Returns the reserve factor for a market.
 fn get_reserve_factor(
-    data_store: IDataStoreDispatcher,
-    market: ContractAddress,
-    is_long: bool
+    data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
 ) -> u128 {
     Default::default()
 }
+
+
 /// Get the borrowing fees for a position, assumes that cumulativeBorrowingFactor
 /// has already been updated to the latest value
 /// # Arguments
@@ -1375,11 +1371,17 @@ fn get_reserve_factor(
 /// # Returns
 /// The borrowing fees for a position
 fn get_borrowing_fees(data_store: IDataStoreDispatcher, position: Position) -> u128 {
-    let cumulative_borrowing_factor: u128 = get_cumulative_borrowing_factor(@data_store, position.market, position.is_long);
-    assert(cumulative_borrowing_factor >= position.borrowing_factor, MarketError::UNEXCEPTED_BORROWING_FACTOR);
+    let cumulative_borrowing_factor: u128 = get_cumulative_borrowing_factor(
+        @data_store, position.market, position.is_long
+    );
+    assert(
+        cumulative_borrowing_factor >= position.borrowing_factor,
+        MarketError::UNEXCEPTED_BORROWING_FACTOR
+    );
     let diff_factor: u128 = cumulative_borrowing_factor - position.borrowing_factor;
     return apply_factor_u128(position.size_in_usd, diff_factor);
 }
+
 
 /// Get the funding fee amount per size for a market
 /// # Arguments
@@ -1415,6 +1417,7 @@ fn get_claimable_funding_amount_per_size(
     0
 }
 
+
 /// Get the funding amount to be deducted or distributed
 /// # Arguments
 /// * `latestFundingAmountPerSize` - the latest funding amount per size
@@ -1429,7 +1432,8 @@ fn get_funding_amount(
     position_size_in_usd: u128,
     roundup_magnitude: bool
 ) -> u128 {
-    let funding_diff_factor: u128 = (latest_funding_amount_per_size - position_funding_amount_per_size);
+    let funding_diff_factor: u128 = (latest_funding_amount_per_size
+        - position_funding_amount_per_size); //11
     return mul_div_roundup(
         position_size_in_usd,
         funding_diff_factor,
@@ -1500,6 +1504,7 @@ fn get_open_interest_with_pnl(
     0
 }
 
+
 /// Get the virtual inventory for swaps
 /// # Arguments
 /// * `data_store` - The data store to use.
@@ -1534,6 +1539,7 @@ fn get_adjusted_swap_impact_factor(
     }
 }
 
+
 fn get_adjusted_swap_impact_factors(
     data_store: IDataStoreDispatcher, market: ContractAddress
 ) -> (u128, u128) {
@@ -1566,17 +1572,3 @@ fn get_open_interest_reserve_factor(
     Default::default()
 }
 
-/// Get the borrowing factor per second.
-/// # Arguments
-/// * `data_store` - The data store to use.
-/// * `market` - The market.
-/// * `prices` - The prices of the market tokens.
-/// * `is_long` - Whether to get the factor for the long or short side
-/// # Returns
-/// The borrowing factor per second.
-fn get_borrowing_factor_per_second(
-    data_store: IDataStoreDispatcher, market: Market, prices: MarketPrices, is_long: bool
-) -> u128 {
-    // TODO
-    0
-}

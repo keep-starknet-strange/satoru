@@ -121,7 +121,7 @@ trait IDataStore<TContractState> {
     /// # Arguments
     /// * `key` -  the key of the value
     /// * `value` - the input int value
-    fn apply_bounded_delta_to_u128(ref self: TContractState, key: felt252, value: i128) -> u128;
+    fn apply_bounded_delta_to_u128(ref self: TContractState, key: felt252, value: u128) -> u128;
 
     // *************************************************************************
     //                      Address related functions.
@@ -684,16 +684,17 @@ mod DataStore {
             new_value
         }
 
-        fn apply_bounded_delta_to_u128(ref self: ContractState, key: felt252, value: i128) -> u128 {
+        fn apply_bounded_delta_to_u128(ref self: ContractState, key: felt252, value: u128) -> u128 {
             let uintValue: u128 = self.u128_values.read(key);
-            let felt252_value: felt252 = i128_to_felt252(-value);
-            let u128_value = felt252_value.try_into().unwrap();
-            if (value < 0 && u128_value > uintValue) {
-                self.u128_values.write(key, 0);
-                return 0;
-            }
+            // let felt252_value: felt252 = i128_to_felt252(-value);
+            // let u128_value = felt252_value.try_into().unwrap();
+            // if (value < 0 && u128_value > uintValue) {
+            //     self.u128_values.write(key, 0);
+            //     return 0;
+            // }
 
-            let nextUint: u128 = sum_return_uint_128(uintValue, value);
+            //let nextUint: u128 = sum_return_uint_128(uintValue, value);
+            let nextUint: u128 = uintValue + value;
             self.u128_values.write(key, nextUint);
             return nextUint;
         }

@@ -23,6 +23,8 @@ use satoru::utils::{calc, precision};
 use satoru::pricing::error::PricingError;
 use satoru::referral::referral_utils;
 use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}, error_utils};
+
+use integer::u128_to_felt252;
 /// Struct used in get_position_fees.
 #[derive(Drop, starknet::Store, Serde)]
 struct GetPositionFeesParams {
@@ -197,7 +199,7 @@ fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i128 {
         return price_impact_usd;
     }
 
-    let (has_virtual_inventory, virtual_inventory) =
+    let (has_virtual_inventory, virtual_inventory_u128) =
         market_utils::get_virtual_inventory_for_positions(
         params.data_store, params.market.index_token
     );
@@ -205,6 +207,9 @@ fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i128 {
     if (!has_virtual_inventory) {
         return price_impact_usd;
     }
+
+    // while get_virtual_inventory_for_positions returns u128, we have to convert virtual_inventory_to i128
+    let virtual_inventory: i128 = u128_to_felt252(virtual_inventory_u128).try_into().unwrap();
 
     let open_interest_params_for_virtual_inventory: OpenInterestParams =
         get_next_open_interest_for_virtual_inventory(
