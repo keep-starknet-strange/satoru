@@ -404,7 +404,7 @@ fn execute_withdrawal_(
         *params.event_emitter,
         market,
         market.long_token,
-        cache.long_token_pool_amount_delta // This should be - int128 once supported.
+        calc::to_signed(cache.long_token_pool_amount_delta, false)
     );
 
     market_utils::apply_delta_to_pool_amount(
@@ -412,7 +412,7 @@ fn execute_withdrawal_(
         *params.event_emitter,
         market,
         market.short_token,
-        cache.long_token_pool_amount_delta // This should be - int128 once supported.
+        calc::to_signed(cache.short_token_pool_amount_delta, false)
     );
 
     market_utils::validate_reserve(*params.data_store, market, @prices, true);

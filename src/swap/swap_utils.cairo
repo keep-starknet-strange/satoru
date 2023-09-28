@@ -302,7 +302,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
         *params.event_emitter,
         *_params.market,
         cache.token_out,
-        cache.pool_amount_out // TODO: should be -price_impact_amount when i128 supported
+        calc::to_signed(cache.pool_amount_out, false),
     );
 
     let prices = market_utils::MarketPrices {

@@ -676,7 +676,7 @@ fn apply_delta_to_pool_amount(
     event_emitter: IEventEmitterDispatcher,
     market: Market,
     token: ContractAddress,
-    delta: u128
+    delta: i128
 ) -> u128 {
     let key = keys::pool_amount_key(market.market_token, token);
     // let next_value = data_store.apply_delta_to_u128(key, delta, 'negative poolAmount');
@@ -924,7 +924,7 @@ fn apply_delta_to_open_interest_in_tokens(
     market: Market,
     collateral_token: ContractAddress,
     is_long: bool,
-    delta: u128
+    delta: i128
 ) -> u128 {
     let key = keys::open_interest_in_tokens_key(market.market_token, collateral_token, is_long);
     // let next_value = data_store.apply_delta_to_u128(key, delta, 'negative open interest tokens');
@@ -1656,7 +1656,7 @@ fn apply_delta_to_virtual_inventory_for_swaps(
     event_emitter: IEventEmitterDispatcher,
     market: Market,
     token: ContractAddress,
-    delta: u128
+    delta: i128
 ) -> (bool, u128) {
     // TODO
     (true, 0)

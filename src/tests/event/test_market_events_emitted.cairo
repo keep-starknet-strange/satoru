@@ -64,7 +64,7 @@ fn given_normal_conditions_when_emit_pool_amount_updated_then_works() {
     // Create dummy data.
     let market = contract_address_const::<'market'>();
     let token = contract_address_const::<'token'>();
-    let delta: u128 = 1;
+    let delta: i128 = 1;
     let next_value: u128 = 2;
 
     // Create the expected data.
@@ -185,7 +185,7 @@ fn given_normal_conditions_when_emit_open_interest_in_tokens_updated_then_works(
     let market = contract_address_const::<'market'>();
     let collateral_token = contract_address_const::<'collateral_token'>();
     let is_long: bool = true;
-    let delta: u128 = 1;
+    let delta: i128 = 1;
     let next_value: u128 = 2;
 
     // Create the expected data.
