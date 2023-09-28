@@ -71,10 +71,11 @@ mod DepositHandler {
     // Local imports.
     use super::IDepositHandler;
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::role::role_module::{RoleModule, IRoleModule};
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::oracle::{
-        oracle::{IOracleDispatcher, IOracleDispatcherTrait},
+        oracle::{IOracleDispatcher, IOracleDispatcherTrait}, oracle_modules,
         oracle_modules::{with_oracle_prices_before, with_oracle_prices_after},
         oracle_utils::{SetPricesParams, SimulatePricesParams}
     };
@@ -92,6 +93,8 @@ mod DepositHandler {
     use satoru::exchange::exchange_utils;
     use satoru::deposit::execute_deposit_utils;
     use satoru::oracle::oracle_utils;
+    use satoru::utils::global_reentrancy_guard;
+
     // *************************************************************************
     //                              STORAGE
     // *************************************************************************
@@ -149,23 +152,39 @@ mod DepositHandler {
         fn create_deposit(
             ref self: ContractState, account: ContractAddress, params: CreateDepositParams
         ) -> felt252 {
+            let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
+            IRoleModule::only_controller(@state);
+
+            let data_store = self.data_store.read();
+            global_reentrancy_guard::non_reentrant_before(data_store);
+
             feature_utils::validate_feature(
                 self.data_store.read(),
                 keys::create_deposit_feature_disabled_key(get_contract_address())
             );
-            deposit_utils::create_deposit(
+
+            let key = deposit_utils::create_deposit(
                 self.data_store.read(),
                 self.event_emitter.read(),
                 self.deposit_vault.read(),
                 account,
                 params
-            )
+            );
+
+            global_reentrancy_guard::non_reentrant_after(data_store);
+
+            key
         }
 
         fn cancel_deposit(ref self: ContractState, key: felt252) {
-            // let starting_gas = gas_left();
+            let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
+            IRoleModule::only_controller(@state);
 
             let data_store = self.data_store.read();
+            global_reentrancy_guard::non_reentrant_before(data_store);
+
+            // let starting_gas = gas_left();
+
             let deposit = data_store.get_deposit(key).unwrap();
 
             feature_utils::validate_feature(
@@ -184,23 +203,49 @@ mod DepositHandler {
                 0, //starting_gas
                 keys::user_initiated_cancel(),
                 array!['Cancel Deposit'] //TODO should be empty string
-            )
+            );
+
+            global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
         fn execute_deposit(ref self: ContractState, key: felt252, oracle_params: SetPricesParams) {
+            let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
+            IRoleModule::only_order_keeper(@state);
+
             let data_store = self.data_store.read();
+            let oracle = self.oracle.read();
+            let event_emitter = self.event_emitter.read();
+            global_reentrancy_guard::non_reentrant_before(data_store);
+            oracle_modules::with_oracle_prices_before(
+                oracle, data_store, event_emitter, @oracle_params
+            );
+
             // let starting_gas = gas_left();
             let execution_gas = gas_utils::get_execution_gas(data_store, 0);
 
-            self.execute_deposit_keeper(key, oracle_params, get_caller_address())
+            self.execute_deposit_keeper(key, oracle_params, get_caller_address());
+
+            oracle_modules::with_oracle_prices_after(oracle);
+            global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
         fn simulate_execute_deposit(
             ref self: ContractState, key: felt252, params: SimulatePricesParams
         ) {
+            let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
+            IRoleModule::only_controller(@state);
+
+            let data_store = self.data_store.read();
+            let oracle = self.oracle.read();
+            global_reentrancy_guard::non_reentrant_before(data_store);
+            oracle_modules::with_simulated_oracle_prices_before(oracle, params);
+
             let oracleParams = Default::default();
 
-            self.execute_deposit_keeper(key, oracleParams, get_caller_address())
+            self.execute_deposit_keeper(key, oracleParams, get_caller_address());
+
+            oracle_modules::with_simulated_oracle_prices_after();
+            global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
         fn execute_deposit_keeper(
@@ -209,6 +254,9 @@ mod DepositHandler {
             oracle_params: SetPricesParams,
             keeper: ContractAddress
         ) {
+            let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
+            IRoleModule::only_self(@state);
+
             // let starting_gas = gas_left();
             let data_store = self.data_store.read();
             feature_utils::validate_feature(
