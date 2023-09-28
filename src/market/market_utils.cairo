@@ -33,19 +33,19 @@ struct MarketPrices {
     short_token_price: Price,
 }
 
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Default, Drop, starknet::Store, Serde)]
 struct CollateralType {
     long_token: u128,
     short_token: u128,
 }
 
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Default, Drop, starknet::Store, Serde)]
 struct PositionType {
     long: CollateralType,
     short: CollateralType,
 }
 
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Default, Drop, starknet::Store, Serde)]
 struct GetNextFundingAmountPerSizeResult {
     longs_pay_shorts: bool,
     funding_factor_per_second: u128,
@@ -679,8 +679,7 @@ fn apply_delta_to_pool_amount(
     delta: i128
 ) -> u128 {
     let key = keys::pool_amount_key(market.market_token, token);
-    // let next_value = data_store.apply_delta_to_u128(key, delta, 'negative poolAmount');
-    let next_value = 0;
+    let next_value = data_store.apply_delta_to_u128(key, delta, 'negative poolAmount');
 
     apply_delta_to_virtual_inventory_for_swaps(data_store, event_emitter, market, token, delta);
 
@@ -888,8 +887,7 @@ fn apply_delta_to_open_interest(
 
     // Increment the open interest by the delta.
     let key = keys::open_interest_key(*market.market_token, collateral_token, is_long);
-    // let next_value = data_store.apply_delta_to_u128(key, delta, 'negative open interest');
-    let next_value = 0;
+    let next_value = data_store.apply_delta_to_u128(key, delta, 'negative open interest');
 
     // If the open interest for longs is increased then tokens were virtually bought from the pool
     // so the virtual inventory should be decreased.
@@ -927,8 +925,7 @@ fn apply_delta_to_open_interest_in_tokens(
     delta: i128
 ) -> u128 {
     let key = keys::open_interest_in_tokens_key(market.market_token, collateral_token, is_long);
-    // let next_value = data_store.apply_delta_to_u128(key, delta, 'negative open interest tokens');
-    let next_value = 0;
+    let next_value = data_store.apply_delta_to_u128(key, delta, 'negative open interest tokens');
 
     event_emitter
         .emit_open_interest_in_tokens_updated(
@@ -936,6 +933,322 @@ fn apply_delta_to_open_interest_in_tokens(
         );
 
     next_value
+}
+
+/// @dev apply a delta to the collateral sum
+/// # Arguments
+/// * `data_store` DataStore
+/// * `event_emitter` EventEmitter
+/// * `market` the market to apply to
+/// * `collateral_token` the collateralToken to apply to
+/// * `is_long` whether to apply to the long or short side
+/// * `delta` the delta amount
+/// # Returns
+/// The updated collateral sum amount
+fn apply_delta_to_collateral_sum(
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    market: ContractAddress,
+    collateral_token: ContractAddress,
+    is_long: bool,
+    delta: i128
+) -> u128 {
+    let key = keys::collateral_sum_key(market, collateral_token, is_long);
+    let next_value = data_store.apply_delta_to_u128(key, delta, 'negative collateralSum');
+
+    event_emitter.emit_collateral_sum_updated(market, collateral_token, is_long, delta, next_value);
+
+    next_value
+}
+
+/// Update the funding state
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `event_emitter` - The event emitter.
+/// * `market` - The market.
+/// * `prices` - The market prices.
+fn update_funding_state(
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    market: Market,
+    prices: MarketPrices
+) {
+    let result = get_next_funding_amount_per_size(data_store, market, prices);
+
+    apply_delta_to_funding_fee_amount_per_size(
+        data_store,
+        event_emitter,
+        market.market_token,
+        market.long_token,
+        true,
+        result.funding_fee_amount_per_size_delta.long.long_token
+    );
+
+    apply_delta_to_funding_fee_amount_per_size(
+        data_store,
+        event_emitter,
+        market.market_token,
+        market.long_token,
+        false,
+        result.funding_fee_amount_per_size_delta.short.long_token
+    );
+
+    apply_delta_to_funding_fee_amount_per_size(
+        data_store,
+        event_emitter,
+        market.market_token,
+        market.short_token,
+        true,
+        result.funding_fee_amount_per_size_delta.long.short_token
+    );
+
+    apply_delta_to_funding_fee_amount_per_size(
+        data_store,
+        event_emitter,
+        market.market_token,
+        market.short_token,
+        false,
+        result.funding_fee_amount_per_size_delta.short.short_token
+    );
+
+    apply_delta_to_claimable_funding_amount_per_size(
+        data_store,
+        event_emitter,
+        market.market_token,
+        market.long_token,
+        true,
+        result.claimable_funding_amount_per_size_delta.long.long_token
+    );
+
+    apply_delta_to_claimable_funding_amount_per_size(
+        data_store,
+        event_emitter,
+        market.market_token,
+        market.long_token,
+        false,
+        result.claimable_funding_amount_per_size_delta.short.long_token
+    );
+
+    apply_delta_to_claimable_funding_amount_per_size(
+        data_store,
+        event_emitter,
+        market.market_token,
+        market.short_token,
+        true,
+        result.claimable_funding_amount_per_size_delta.long.short_token
+    );
+
+    apply_delta_to_claimable_funding_amount_per_size(
+        data_store,
+        event_emitter,
+        market.market_token,
+        market.short_token,
+        false,
+        result.claimable_funding_amount_per_size_delta.short.short_token
+    );
+
+    let key = keys::funding_updated_at_key(market.market_token);
+    data_store.set_u128(key, get_block_timestamp().into());
+}
+
+/// Get the next funding amount per size values.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The market to update.
+/// * `prices` - The market prices.
+/// # Returns
+/// The next funding amount per size values.
+fn get_next_funding_amount_per_size(
+    data_store: IDataStoreDispatcher, market: Market, prices: MarketPrices
+) -> GetNextFundingAmountPerSizeResult {
+    let mut result: GetNextFundingAmountPerSizeResult = Default::default();
+    let divisor = get_pool_divisor(market.long_token, market.short_token);
+
+    // get the open interest values by long / short and by collateral used.
+
+    let open_interest = PositionType {
+        long: CollateralType {
+            long_token: get_open_interest(
+                data_store, market.market_token, market.long_token, true, divisor
+            ),
+            short_token: get_open_interest(
+                data_store, market.market_token, market.short_token, true, divisor
+            ),
+        },
+        short: CollateralType {
+            long_token: get_open_interest(
+                data_store, market.market_token, market.long_token, false, divisor
+            ),
+            short_token: get_open_interest(
+                data_store, market.market_token, market.short_token, false, divisor
+            ),
+        },
+    };
+
+    // sum the open interest values to get the total long and short open interest values.
+    let long_open_interest = open_interest.long.long_token + open_interest.long.short_token;
+    let short_open_interest = open_interest.short.long_token + open_interest.short.short_token;
+
+    // if either long or short open interest is zero, then funding should not be updated
+    // as there would not be any user to pay the funding to.
+    if long_open_interest == 0 || short_open_interest == 0 {
+        return result;
+    }
+
+    // if the blockchain is not progressing / a market is disabled, funding fees
+    // will continue to accumulate
+    // this should be a rare occurrence so funding fees are not adjusted for this case.
+    let duration_in_seconds = get_seconds_since_funding_updated(data_store, market.market_token);
+
+    let diff_usd = calc::diff(long_open_interest, short_open_interest);
+    let total_open_interest = long_open_interest + short_open_interest;
+    let size_of_larger_side = if long_open_interest > short_open_interest {
+        long_open_interest
+    } else {
+        short_open_interest
+    };
+
+    result
+        .funding_factor_per_second =
+            get_funding_factor_per_second(
+                data_store, market.market_token, diff_usd, total_open_interest
+            );
+
+    // for single token markets, if there is $200,000 long open interest
+    // and $100,000 short open interest and if the fundingUsd is $8:
+    // fundingUsdForLongCollateral: $4
+    // fundingUsdForShortCollateral: $4
+    // fundingFeeAmountPerSizeDelta.long.longToken: 4 / 100,000
+    // fundingFeeAmountPerSizeDelta.long.shortToken: 4 / 100,000
+    // claimableFundingAmountPerSizeDelta.short.longToken: 4 / 100,000
+    // claimableFundingAmountPerSizeDelta.short.shortToken: 4 / 100,000
+    //
+    // the divisor for fundingFeeAmountPerSizeDelta is 100,000 because the
+    // cache.openInterest.long.longOpenInterest and cache.openInterest.long.shortOpenInterest is divided by 2
+    //
+    // when the fundingFeeAmountPerSize value is incremented, it would be incremented twice:
+    // 4 / 100,000 + 4 / 100,000 = 8 / 100,000
+    //
+    // since the actual long open interest is $200,000, this would result in a total of 8 / 100,000 * 200,000 = $16 being charged
+    //
+    // when the claimableFundingAmountPerSize value is incremented, it would similarly be incremented twice:
+    // 4 / 100,000 + 4 / 100,000 = 8 / 100,000
+    //
+    // when calculating the amount to be claimed, the longTokenClaimableFundingAmountPerSize and shortTokenClaimableFundingAmountPerSize
+    // are compared against the market's claimableFundingAmountPerSize for the longToken and claimableFundingAmountPerSize for the shortToken
+    //
+    // since both these values will be duplicated, the amount claimable would be:
+    // (8 / 100,000 + 8 / 100,000) * 100,000 = $16
+    //
+    // due to these, the fundingUsd should be divided by the divisor
+
+    let funding_usd = precision::apply_factor_u128(
+        size_of_larger_side, duration_in_seconds * result.funding_factor_per_second
+    );
+    let funding_usd = funding_usd / divisor;
+
+    result.longs_pay_shorts = long_open_interest > short_open_interest;
+
+    // split the fundingUsd value by long and short collateral
+    // e.g. if the fundingUsd value is $500, and there is $1000 of long open interest using long collateral and $4000 of long open interest
+    // with short collateral, then $100 of funding fees should be paid from long positions using long collateral, $400 of funding fees
+    // should be paid from long positions using short collateral
+    // short positions should receive $100 of funding fees in long collateral and $400 of funding fees in short collateral
+    let funding_usd_for_long_collateral = if result.longs_pay_shorts {
+        precision::mul_div(funding_usd, open_interest.long.long_token, long_open_interest)
+    } else {
+        precision::mul_div(funding_usd, open_interest.short.long_token, short_open_interest)
+    };
+
+    let funding_usd_for_short_collateral = if result.longs_pay_shorts {
+        precision::mul_div(funding_usd, open_interest.long.short_token, long_open_interest)
+    } else {
+        precision::mul_div(funding_usd, open_interest.short.short_token, short_open_interest)
+    };
+
+    // calculate the change in funding amount per size values
+    // for example, if the fundingUsdForLongCollateral is $100, the longToken price is $2000, the longOpenInterest is $10,000, shortOpenInterest is $5000
+    // if longs pay shorts then the fundingFeeAmountPerSize.long.longToken should be increased by 0.05 tokens per $10,000 or 0.000005 tokens per $1
+    // the claimableFundingAmountPerSize.short.longToken should be increased by 0.05 tokens per $5000 or 0.00001 tokens per $1
+    if result.longs_pay_shorts {
+        // use the same longTokenPrice.max and shortTokenPrice.max to calculate the amount to be paid and received
+        // positions only pay funding in the position's collateral token
+        // so the fundingUsdForLongCollateral is divided by the total long open interest for long positions using the longToken as collateral
+        // and the fundingUsdForShortCollateral is divided by the total long open interest for long positions using the shortToken as collateral
+        let amount = get_funding_amount_per_size_delta(
+            funding_usd_for_long_collateral,
+            open_interest.long.long_token,
+            prices.long_token_price.max,
+            true // roundUpMagnitude
+        );
+        result.funding_fee_amount_per_size_delta.long.long_token = amount;
+
+        let amount = get_funding_amount_per_size_delta(
+            funding_usd_for_short_collateral,
+            open_interest.long.short_token,
+            prices.short_token_price.max,
+            true // roundUpMagnitude
+        );
+        result.funding_fee_amount_per_size_delta.long.short_token = amount;
+
+        // positions receive funding in both the longToken and shortToken
+        // so the fundingUsdForLongCollateral and fundingUsdForShortCollateral is divided by the total short open interest
+        let amount = get_funding_amount_per_size_delta(
+            funding_usd_for_long_collateral,
+            short_open_interest,
+            prices.long_token_price.max,
+            false // roundUpMagnitude
+        );
+        result.claimable_funding_amount_per_size_delta.short.long_token = amount;
+
+        let amount = get_funding_amount_per_size_delta(
+            funding_usd_for_short_collateral,
+            short_open_interest,
+            prices.short_token_price.max,
+            false // roundUpMagnitude
+        );
+        result.claimable_funding_amount_per_size_delta.short.short_token = amount;
+    } else {
+        // use the same longTokenPrice.max and shortTokenPrice.max to calculate the amount to be paid and received
+        // positions only pay funding in the position's collateral token
+        // so the fundingUsdForLongCollateral is divided by the total short open interest for short positions using the longToken as collateral
+        // and the fundingUsdForShortCollateral is divided by the total short open interest for short positions using the shortToken as collateral
+        let amount = get_funding_amount_per_size_delta(
+            funding_usd_for_long_collateral,
+            open_interest.short.long_token,
+            prices.long_token_price.max,
+            true // roundUpMagnitude
+        );
+        result.funding_fee_amount_per_size_delta.short.long_token = amount;
+
+        let amount = get_funding_amount_per_size_delta(
+            funding_usd_for_short_collateral,
+            open_interest.short.short_token,
+            prices.short_token_price.max,
+            true // roundUpMagnitude
+        );
+        result.funding_fee_amount_per_size_delta.short.short_token = amount;
+
+        // positions receive funding in both the longToken and shortToken
+        // so the fundingUsdForLongCollateral and fundingUsdForShortCollateral is divided by the total long open interest
+        let amount = get_funding_amount_per_size_delta(
+            funding_usd_for_long_collateral,
+            long_open_interest,
+            prices.long_token_price.max,
+            false // roundUpMagnitude
+        );
+        result.claimable_funding_amount_per_size_delta.long.long_token = amount;
+
+        let amount = get_funding_amount_per_size_delta(
+            funding_usd_for_short_collateral,
+            long_open_interest,
+            prices.short_token_price.max,
+            false // roundUpMagnitude
+        );
+        result.claimable_funding_amount_per_size_delta.long.short_token = amount;
+    }
+
+    result
 }
 
 
@@ -1274,28 +1587,6 @@ fn get_cumulative_borrowing_factor(
     (*data_store).get_u128(keys::cumulative_borrowing_factor_key(market, is_long))
 }
 
-/// @dev apply a delta to the collateral sum
-/// # Arguments
-/// * `data_store` DataStore
-/// * `event_emitter` EventEmitter
-/// * `market` the market to apply to
-/// * `collateral_token` the collateralToken to apply to
-/// * `is_long` whether to apply to the long or short side
-/// * `delta` the delta amount
-/// # Returns
-/// The updated collateral sum amount
-fn apply_delta_to_collateral_sum(
-    data_store: @IDataStoreDispatcher,
-    event_emitter: @IEventEmitterDispatcher,
-    market: ContractAddress,
-    collateral_token: ContractAddress,
-    is_long: bool,
-    delta: i128
-) -> u128 {
-    //TODO
-    0
-}
-
 /// Validates that the amount of tokens required to be reserved is below the configured threshold.
 /// # Arguments
 /// * `dataStore`: DataStore - The data storage instance.
@@ -1432,20 +1723,6 @@ fn get_min_collateral_factor_for_open_interest(
     0
 }
 
-
-/// Update the funding state
-/// # Arguments
-/// * `data_store` - The data store to use.
-/// * `event_emitter` - The event emitter.
-/// * `market` - The market.
-/// * `prices` - The market prices.
-fn update_funding_state(
-    data_store: IDataStoreDispatcher,
-    event_emitter: IEventEmitterDispatcher,
-    market: Market,
-    prices: MarketPrices
-) { // TODO
-}
 
 /// Update the cumulative borrowing factor for a market
 /// # Arguments
@@ -1664,6 +1941,50 @@ fn apply_delta_to_virtual_inventory_for_swaps(
 
 fn get_max_position_impact_factor(
     data_store: IDataStoreDispatcher, market: ContractAddress, foo: bool
+) -> u128 {
+    // TODO
+    0
+}
+
+fn apply_delta_to_funding_fee_amount_per_size(
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    market: ContractAddress,
+    collateral_token: ContractAddress,
+    is_long: bool,
+    delta: u128
+) { // TODO
+}
+
+fn apply_delta_to_claimable_funding_amount_per_size(
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    market: ContractAddress,
+    collateral_token: ContractAddress,
+    is_long: bool,
+    delta: u128
+) { // TODO
+}
+
+fn get_funding_amount_per_size_delta(
+    funding_usd: u128, open_interest: u128, token_price: u128, round_up_magnitude: bool
+) -> u128 {
+    // TODO
+    0
+}
+
+fn get_seconds_since_funding_updated(
+    data_store: IDataStoreDispatcher, market: ContractAddress
+) -> u128 {
+    // TODO
+    0
+}
+
+fn get_funding_factor_per_second(
+    data_store: IDataStoreDispatcher,
+    market: ContractAddress,
+    diff_usd: u128,
+    total_open_interest: u128
 ) -> u128 {
     // TODO
     0

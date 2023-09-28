@@ -357,7 +357,7 @@ fn given_normal_conditions_when_emit_collateral_sum_updated_then_works() {
     let market = contract_address_const::<'market'>();
     let collateral_token = contract_address_const::<'collateral_token'>();
     let is_long: bool = true;
-    let delta: u128 = 1;
+    let delta: i128 = 1;
     let next_value: u128 = 2;
 
     // Create the expected data.
