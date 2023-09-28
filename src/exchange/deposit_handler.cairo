@@ -254,9 +254,6 @@ mod DepositHandler {
             oracle_params: SetPricesParams,
             keeper: ContractAddress
         ) {
-            let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-            IRoleModule::only_self(@state);
-
             // let starting_gas = gas_left();
             let data_store = self.data_store.read();
             feature_utils::validate_feature(
