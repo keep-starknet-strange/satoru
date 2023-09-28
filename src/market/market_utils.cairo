@@ -1025,17 +1025,18 @@ fn update_cumulative_borrowing_factor(
     event_emitter: IEventEmitterDispatcher,
     market: Market,
     prices: MarketPrices,
-    // chain: IChainDispatcher,
     is_long: bool
 ) { // TODO
     let (_, delta) = get_next_cumulative_borrowing_factor(data_store, market, prices, is_long);
     increment_cumulative_borrowing_factor(
         data_store, event_emitter, market.market_token, is_long, delta
     );
+    let block_timestamp: u128 = starknet::info::get_block_timestamp().into();
+
     data_store
         .set_u128(
             keys::cumulative_borrowing_factor_updated_at_key(market.market_token, is_long),
-            0 // put chain.get_block_timestamp().into() instead
+            block_timestamp
         );
 }
 
