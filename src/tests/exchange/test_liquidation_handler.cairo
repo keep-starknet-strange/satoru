@@ -55,37 +55,37 @@ fn test_exec_liquidation_true() {
         );
 }
 
-#[test]
-fn test_create_liquidation_order() {
-    let collateral_token: ContractAddress = contract_address_const::<1>();
-    let (
-        data_store,
-        liquidation_keeper,
-        liquidation_handler_address,
-        liquidation_handler_dispatcher,
-        event_emitter
-    ) =
-        _setup();
-    start_prank(liquidation_handler_address, liquidation_keeper);
-    start_roll(liquidation_keeper, 1);
-    let account = contract_address_const::<'account'>();
-    let market = contract_address_const::<'market'>();
-    let is_long = true;
-    let key: felt252 = get_position_key(account, market, collateral_token, true);
-    let mut position: Position = create_new_position(
-        key, account, market, collateral_token, is_long, position_no: 1
-    );
+// TODO: uncomment this test after https://github.com/foundry-rs/starknet-foundry/issues/659 is merged
+// #[test]
+// fn test_create_liquidation_order() {
+//     let collateral_token: ContractAddress = contract_address_const::<1>();
+//     let (
+//         data_store,
+//         liquidation_keeper,
+//         liquidation_handler_address,
+//         liquidation_handler_dispatcher,
+//         event_emitter
+//     ) =
+//         _setup();
+//     start_prank(liquidation_handler_address, liquidation_keeper);
+//     start_roll(liquidation_keeper, 1);
+//     let account = contract_address_const::<'account'>();
+//     let market = contract_address_const::<'market'>();
+//     let is_long = true;
+//     let key: felt252 = get_position_key(account, market, collateral_token, true);
+//     let mut position: Position = create_new_position(
+//         key, account, market, collateral_token, is_long, position_no: 1
+//     );
 
-    data_store.set_position(key, position);
+//     data_store.set_position(key, position);
 
-    let key: felt252 = create_liquidation_order(
-        data_store, event_emitter, account, market, collateral_token, is_long
-    );
+//     let key: felt252 = create_liquidation_order(
+//         data_store, event_emitter, account, market, collateral_token, is_long
+//     );
 
-    let order = data_store.get_order(key).expect('order should be present');
-    assert(order.order_type == OrderType::Liquidation, 'wrong order type');
-}
-
+//     let order = data_store.get_order(key).expect('order should be present');
+//     assert(order.order_type == OrderType::Liquidation, 'wrong order type');
+// }
 
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('DataStore');
