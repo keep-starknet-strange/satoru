@@ -13,6 +13,7 @@ mod MarketError {
     const UNABLE_TO_GET_OPPOSITE_TOKEN: felt252 = 'unable_to_get_opposite_token';
     const EMPTY_MARKET: felt252 = 'empty_market';
     const DISABLED_MARKET: felt252 = 'disabled_market';
+    const COLLATERAL_ALREADY_CLAIMED: felt252 = 'collateral_already_claimed';
 
     fn UNABLE_TO_GET_CACHED_TOKEN_PRICE(token_in: ContractAddress) {
         let mut data = array!['invalid token in'];

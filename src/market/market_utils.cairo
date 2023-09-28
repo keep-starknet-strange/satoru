@@ -5,6 +5,7 @@
 use starknet::{ContractAddress, get_block_timestamp};
 
 // Local imports.
+use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -330,8 +331,9 @@ fn get_pool_value_info(
 fn get_net_pnl(
     data_store: IDataStoreDispatcher, market: @Market, index_token_price: @Price, maximize: bool
 ) -> i128 {
-    // TODO
-    0
+    let long_pnl = get_pnl(data_store, market, index_token_price, true, maximize);
+    let short_pnl = get_pnl(data_store, market, index_token_price, false, maximize);
+    long_pnl + short_pnl
 }
 
 /// Get the capped pending pnl for a market
@@ -352,8 +354,27 @@ fn get_capped_pnl(
     pool_usd: u128,
     pnl_factor_type: felt252
 ) -> i128 {
-    // TODOs
-    0
+    if pnl < 0 {
+        return pnl;
+    }
+    let max_pnl_factor = get_max_pnl_factor(data_store, pnl_factor_type, market, is_long);
+    let max_pnl = calc::to_signed(precision::apply_factor_u128(pool_usd, max_pnl_factor), true);
+    if pnl > max_pnl {
+        max_pnl
+    } else {
+        pnl
+    }
+}
+
+fn get_pnl_with_u128_price(
+    data_store: IDataStoreDispatcher,
+    market: @Market,
+    index_token_price: u128,
+    is_long: bool,
+    maximize: bool
+) -> i128 {
+    let index_token_price_ = Price { min: index_token_price, max: index_token_price };
+    get_pnl(data_store, market, @index_token_price_, is_long, maximize)
 }
 
 /// Get the pending PNL for a market for either longs or shorts.
@@ -469,13 +490,10 @@ fn increment_claimable_collateral_amount(
     let time_key = current_timestamp / divisor;
 
     // Increment the collateral amount for the account.
-    let next_value = data_store
-        .increment_u128(
-            keys::claimable_collateral_amount_for_account_key(
-                market_address, token, time_key, account
-            ),
-            delta
-        );
+    let key = keys::claimable_collateral_amount_for_account_key(
+        market_address, token, time_key, account
+    );
+    let next_value = data_store.increment_u128(key, delta);
 
     // Increment the total collateral amount for the market.
     let next_pool_value = data_store
@@ -521,6 +539,129 @@ fn increment_claimable_funding_amount(
         );
 }
 
+/// Claim funding fees
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `event_emitter` - The interface to interact with `EventEmitter` contract.
+/// * `market_address` - The market to claim for.
+/// * `token` - The token to claim.
+/// * `account` - The account to claim for.
+/// * `receiver` - The receiver to send the amount to.
+fn claim_funding_fees(
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    market_address: ContractAddress,
+    token: ContractAddress,
+    account: ContractAddress,
+    receiver: ContractAddress
+) -> u128 {
+    let key = keys::claimable_funding_amount_by_account_key(market_address, token, account);
+    let claimable_amount = data_store.get_u128(key);
+    data_store.set_u128(key, 0);
+
+    let next_pool_value = data_store
+        .decrement_u128(
+            keys::claimable_funding_amount_key(market_address, token), claimable_amount
+        );
+
+    // Transfer the amount to the receiver.
+    IBankDispatcher { contract_address: market_address }
+        .transfer_out(token, receiver, claimable_amount);
+
+    // Validate the market token balance.
+    validate_market_token_balance_with_address(data_store, market_address);
+
+    // TODO: Emit event.
+    // event_emitter
+    //     .emit_funding_fees_claimed(
+    //         market_address, token, account, claimable_amount, 0, next_pool_value
+    //     );
+
+    claimable_amount
+}
+
+/// Claim collateral
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `event_emitter` - The interface to interact with `EventEmitter` contract.
+/// * `market_address` - The market to claim for.
+/// * `token` - The token to claim.
+/// * `time_key` - The time key.
+/// * `account` - The account to claim for.
+/// * `receiver` - The receiver to send the amount to.
+fn claim_collateral(
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    market_address: ContractAddress,
+    token: ContractAddress,
+    time_key: u128,
+    account: ContractAddress,
+    receiver: ContractAddress
+) -> u128 {
+    let key = keys::claimable_collateral_amount_for_account_key(
+        market_address, token, time_key, account
+    );
+    let claimable_amount = data_store.get_u128(key);
+    data_store.set_u128(key, 0);
+
+    let key = keys::claimable_collateral_factor_key(market_address, token, time_key);
+    let claimable_factor_for_time = data_store.get_u128(key);
+
+    let key = keys::claimable_collateral_factor_for_account_key(
+        market_address, token, time_key, account
+    );
+    let claimable_factor_for_account = data_store.get_u128(key);
+
+    let claimable_factor = if claimable_factor_for_time > claimable_factor_for_account {
+        claimable_factor_for_time
+    } else {
+        claimable_factor_for_account
+    };
+
+    let key = keys::claimed_collateral_amount_key(market_address, token, time_key, account);
+    let claimed_amount = data_store.get_u128(key);
+
+    let adjusted_claimable_amount = precision::apply_factor_u128(
+        claimable_amount, claimable_factor
+    );
+    if adjusted_claimable_amount <= claimed_amount {
+        panic(
+            array![
+                MarketError::COLLATERAL_ALREADY_CLAIMED,
+                adjusted_claimable_amount.into(),
+                claimed_amount.into()
+            ]
+        )
+    }
+
+    let amount_to_be_claimed = adjusted_claimable_amount - claimed_amount;
+
+    let key = keys::claimed_collateral_amount_key(market_address, token, time_key, account);
+    data_store.set_u128(key, adjusted_claimable_amount);
+
+    let key = keys::claimable_collateral_amount_key(market_address, token);
+    let next_pool_value = data_store.decrement_u128(key, amount_to_be_claimed);
+
+    IBankDispatcher { contract_address: market_address }
+        .transfer_out(token, receiver, amount_to_be_claimed);
+
+    validate_market_token_balance_with_address(data_store, market_address);
+
+    event_emitter
+        .emit_collateral_claimed(
+            market_address,
+            token,
+            account,
+            receiver,
+            time_key,
+            amount_to_be_claimed,
+            next_pool_value
+        );
+
+    amount_to_be_claimed
+}
+
+
 /// Applies a delta to the pool amount for a given market and token.
 /// `validatePoolAmount` is not called in this function since `apply_delta_to_pool_amount`
 /// is typically called when receiving fees.
@@ -532,14 +673,273 @@ fn increment_claimable_funding_amount(
 /// * `delta` - The delta amount to apply.
 fn apply_delta_to_pool_amount(
     data_store: IDataStoreDispatcher,
-    eventEmitter: IEventEmitterDispatcher,
+    event_emitter: IEventEmitterDispatcher,
     market: Market,
     token: ContractAddress,
-    delta: u128 // This is supposed to be i128 when it will be supported.
+    delta: u128
 ) -> u128 {
-    //TODO
+    let key = keys::pool_amount_key(market.market_token, token);
+    // let next_value = data_store.apply_delta_to_u128(key, delta, 'negative poolAmount');
+    let next_value = 0;
+
+    apply_delta_to_virtual_inventory_for_swaps(data_store, event_emitter, market, token, delta);
+
+    event_emitter.emit_pool_amount_updated(market.market_token, token, delta, next_value);
+
+    next_value
+}
+
+fn get_adjusted_swap_impact_factor(
+    data_store: IDataStoreDispatcher, market: ContractAddress, is_positive: bool
+) -> u128 {
+    let (positive_impact_factor, negative_impact_factor) = get_adjusted_swap_impact_factors(
+        data_store, market
+    );
+    if is_positive {
+        positive_impact_factor
+    } else {
+        negative_impact_factor
+    }
+}
+
+fn get_adjusted_swap_impact_factors(
+    data_store: IDataStoreDispatcher, market: ContractAddress
+) -> (u128, u128) {
+    let mut positive_impact_factor = data_store
+        .get_u128(keys::swap_impact_factor_key(market, true));
+    let negative_impact_factor = data_store.get_u128(keys::swap_impact_factor_key(market, false));
+    // if the positive impact factor is more than the negative impact factor, positions could be opened
+    // and closed immediately for a profit if the difference is sufficient to cover the position fees
+    if positive_impact_factor > negative_impact_factor {
+        positive_impact_factor = negative_impact_factor;
+    }
+    (positive_impact_factor, negative_impact_factor)
+}
+
+fn get_adjusted_position_impact_factor(
+    data_store: IDataStoreDispatcher, market: ContractAddress, is_positive: bool
+) -> u128 {
+    let (positive_impact_factor, negative_impact_factor) = get_adjusted_position_impact_factors(
+        data_store, market
+    );
+    if is_positive {
+        positive_impact_factor
+    } else {
+        negative_impact_factor
+    }
+}
+
+fn get_adjusted_position_impact_factors(
+    data_store: IDataStoreDispatcher, market: ContractAddress
+) -> (u128, u128) {
+    let mut positive_impact_factor = data_store
+        .get_u128(keys::position_impact_factor_key(market, true));
+    let negative_impact_factor = data_store
+        .get_u128(keys::position_impact_factor_key(market, false));
+    // if the positive impact factor is more than the negative impact factor, positions could be opened
+    // and closed immediately for a profit if the difference is sufficient to cover the position fees
+    if positive_impact_factor > negative_impact_factor {
+        positive_impact_factor = negative_impact_factor;
+    }
+    (positive_impact_factor, negative_impact_factor)
+}
+
+/// Cap the input priceImpactUsd by the available amount in the swap impact pool and the max positive swap impact factor.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market` - The trading market.
+/// * `token_price` - The price of the token.
+/// * `price_impact_usd` - The calculated USD price impact.
+/// * `size_delta_usd` - The size delta in USD.
+/// # Returns
+/// The capped priceImpactUsd.
+fn get_capped_position_impact_usd(
+    data_store: IDataStoreDispatcher,
+    market: ContractAddress,
+    token_price: Price,
+    mut price_impact_usd: i128,
+    size_delta_usd: u128
+) -> i128 {
+    if price_impact_usd < 0 {
+        return price_impact_usd;
+    }
+
+    let impact_pool_amount = get_position_impact_pool_amount(data_store, market);
+    let max_price_impact_usd_based_on_impact_pool = calc::to_signed(
+        impact_pool_amount * token_price.min, true
+    );
+
+    if price_impact_usd > max_price_impact_usd_based_on_impact_pool {
+        price_impact_usd = max_price_impact_usd_based_on_impact_pool;
+    }
+
+    let max_price_impact_factor = get_max_position_impact_factor(data_store, market, true);
+    let max_price_impact_usd_based_on_max_price_impact_factor = calc::to_signed(
+        precision::apply_factor_u128(size_delta_usd, max_price_impact_factor), true
+    );
+
+    if price_impact_usd > max_price_impact_usd_based_on_max_price_impact_factor {
+        max_price_impact_usd_based_on_max_price_impact_factor
+    } else {
+        price_impact_usd
+    }
+}
+
+/// Get the position impact pool amount.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market_address` - The market to get the position impact pool amount for.
+/// # Returns
+/// The position impact pool amount.
+fn get_position_impact_pool_amount(
+    data_store: IDataStoreDispatcher, market_address: ContractAddress
+) -> u128 {
+    data_store.get_u128(keys::position_impact_pool_amount_key(market_address))
+}
+
+/// Get the swap impact pool amount.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `market_address` - The market to get the swap impact pool amount for.
+/// * `token` - The token to get the swap impact pool amount for.
+/// # Returns
+/// The swap impact pool amount.
+fn get_swap_impact_pool_amount(
+    data_store: IDataStoreDispatcher, market_address: ContractAddress, token: ContractAddress
+) -> u128 {
+    data_store.get_u128(keys::swap_impact_pool_amount_key(market_address, token))
+}
+
+/// Apply delta to the swap impact pool.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `event_emitter` - The interface to interact with `EventEmitter` contract.
+/// * `market_address` - The market to apply the delta to.
+/// * `token` - The token to apply the delta to.
+/// * `delta` - The delta to apply.
+/// # Returns
+/// The updated swap impact pool amount.
+fn apply_delta_to_swap_impact_pool(
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    market_address: ContractAddress,
+    token: ContractAddress,
+    delta: u128
+) -> u128 {
+    // Increment the swap impact pool amount.
+    let next_value = data_store
+        .increment_u128(keys::swap_impact_pool_amount_key(market_address, token), delta);
+
+    // Emit event.
+    event_emitter.emit_swap_impact_pool_amount_updated(market_address, token, delta, next_value);
+
+    // Return the updated swap impact pool amount.
+    next_value
+}
+
+/// Apply delta to the position impact pool.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `event_emitter` - The interface to interact with `EventEmitter` contract.
+/// * `market_address` - The market to apply the delta to.
+/// * `delta` - The delta to apply.
+/// # Returns
+/// The updated position impact pool amount.
+fn apply_delta_to_position_impact_pool(
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    market_address: ContractAddress,
+    delta: u128
+) -> u128 {
+    // Increment the position impact pool amount.
+    let next_value = data_store
+        .increment_u128(keys::position_impact_pool_amount_key(market_address), delta);
+
+    // Emit event.
+    event_emitter.emit_position_impact_pool_amount_updated(market_address, delta, next_value);
+
+    // Return the updated position impact pool amount.
+    next_value
+}
+
+/// Apply a delta to the open interest.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `event_emitter` - The interface to interact with `EventEmitter` contract.
+/// * `market` - The market to apply the delta to.
+/// * `collateral_token` - The collateral token to apply the delta to.
+/// * `is_long` - Whether to apply the delta to the long or short side.
+/// * `delta` - The delta to apply.
+/// # Returns
+/// The updated open interest.
+fn apply_delta_to_open_interest(
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    market: @Market,
+    collateral_token: ContractAddress,
+    is_long: bool,
+    delta: i128
+) -> u128 {
+    // Check that the market is not a swap only market.
+    assert(
+        (*market.index_token).is_non_zero(),
+        MarketError::OPEN_INTEREST_CANNOT_BE_UPDATED_FOR_SWAP_ONLY_MARKET
+    );
+
+    // Increment the open interest by the delta.
+    let key = keys::open_interest_key(*market.market_token, collateral_token, is_long);
+    // let next_value = data_store.apply_delta_to_u128(key, delta, 'negative open interest');
+    let next_value = 0;
+
+    // If the open interest for longs is increased then tokens were virtually bought from the pool
+    // so the virtual inventory should be decreased.
+    // If the open interest for longs is decreased then tokens were virtually sold to the pool
+    // so the virtual inventory should be increased.
+    // If the open interest for shorts is increased then tokens were virtually sold to the pool
+    // so the virtual inventory should be increased.
+    // If the open interest for shorts is decreased then tokens were virtually bought from the pool
+    // so the virtual inventory should be decreased.
+
+    // We need to validate the open interest if the delta is positive.
+    //if 0_i128 < delta {
+    //validate_open_interest(data_store, market, is_long);
+    //}
+
     0
 }
+
+/// Apply a delta to the open interest in tokens.
+/// # Arguments
+/// * `data_store` - The data store to use.
+/// * `event_emitter` - The interface to interact with `EventEmitter` contract.
+/// * `market` - The market to apply the delta to.
+/// * `collateral_token` - The collateral token to apply the delta to.
+/// * `is_long` - Whether to apply the delta to the long or short side.
+/// * `delta` - The delta to apply.
+/// # Returns
+/// The updated open interest in tokens.
+fn apply_delta_to_open_interest_in_tokens(
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    market: Market,
+    collateral_token: ContractAddress,
+    is_long: bool,
+    delta: u128
+) -> u128 {
+    let key = keys::open_interest_in_tokens_key(market.market_token, collateral_token, is_long);
+    // let next_value = data_store.apply_delta_to_u128(key, delta, 'negative open interest tokens');
+    let next_value = 0;
+
+    event_emitter
+        .emit_open_interest_in_tokens_updated(
+            market.market_token, collateral_token, is_long, delta, next_value
+        );
+
+    next_value
+}
+
+
+///////////////////////////////////////////////////////////////////////
 
 fn get_swap_impact_amount_with_cap(
     data_store: IDataStoreDispatcher,
@@ -671,132 +1071,6 @@ fn get_pool_divisor(long_token: ContractAddress, short_token: ContractAddress) -
     } else {
         1
     }
-}
-
-/// Get the position impact pool amount.
-/// # Arguments
-/// * `data_store` - The data store to use.
-/// * `market_address` - The market to get the position impact pool amount for.
-/// # Returns
-/// The position impact pool amount.
-fn get_position_impact_pool_amount(
-    data_store: IDataStoreDispatcher, market_address: ContractAddress
-) -> u128 {
-    data_store.get_u128(keys::position_impact_pool_amount_key(market_address))
-}
-
-/// Get the swap impact pool amount.
-/// # Arguments
-/// * `data_store` - The data store to use.
-/// * `market_address` - The market to get the swap impact pool amount for.
-/// * `token` - The token to get the swap impact pool amount for.
-/// # Returns
-/// The swap impact pool amount.
-fn get_swap_impact_pool_amount(
-    data_store: IDataStoreDispatcher, market_address: ContractAddress, token: ContractAddress
-) -> u128 {
-    data_store.get_u128(keys::swap_impact_pool_amount_key(market_address, token))
-}
-
-/// Apply delta to the position impact pool.
-/// # Arguments
-/// * `data_store` - The data store to use.
-/// * `event_emitter` - The interface to interact with `EventEmitter` contract.
-/// * `market_address` - The market to apply the delta to.
-/// * `delta` - The delta to apply.
-/// # Returns
-/// The updated position impact pool amount.
-fn apply_delta_to_position_impact_pool(
-    data_store: IDataStoreDispatcher,
-    event_emitter: IEventEmitterDispatcher,
-    market_address: ContractAddress,
-    delta: u128
-) -> u128 {
-    // Increment the position impact pool amount.
-    let next_value = data_store
-        .increment_u128(keys::position_impact_pool_amount_key(market_address), delta);
-
-    // Emit event.
-    event_emitter.emit_position_impact_pool_amount_updated(market_address, delta, next_value);
-
-    // Return the updated position impact pool amount.
-    next_value
-}
-
-/// Apply delta to the swap impact pool.
-/// # Arguments
-/// * `data_store` - The data store to use.
-/// * `event_emitter` - The interface to interact with `EventEmitter` contract.
-/// * `market_address` - The market to apply the delta to.
-/// * `token` - The token to apply the delta to.
-/// * `delta` - The delta to apply.
-/// # Returns
-/// The updated swap impact pool amount.
-fn apply_delta_to_swap_impact_pool(
-    data_store: IDataStoreDispatcher,
-    event_emitter: IEventEmitterDispatcher,
-    market_address: ContractAddress,
-    token: ContractAddress,
-    delta: u128
-) -> u128 {
-    // Increment the swap impact pool amount.
-    let next_value = data_store
-        .increment_u128(keys::swap_impact_pool_amount_key(market_address, token), delta);
-
-    // Emit event.
-    event_emitter.emit_swap_impact_pool_amount_updated(market_address, token, delta, next_value);
-
-    // Return the updated swap impact pool amount.
-    next_value
-}
-
-/// Apply a delta to the open interest.
-/// # Arguments
-/// * `data_store` - The data store to use.
-/// * `event_emitter` - The interface to interact with `EventEmitter` contract.
-/// * `market` - The market to apply the delta to.
-/// * `collateral_token` - The collateral token to apply the delta to.
-/// * `is_long` - Whether to apply the delta to the long or short side.
-/// * `delta` - The delta to apply.
-/// # Returns
-/// The updated open interest.
-fn apply_delta_to_open_interest(
-    data_store: IDataStoreDispatcher,
-    event_emitter: IEventEmitterDispatcher,
-    market: @Market,
-    collateral_token: ContractAddress,
-    is_long: bool,
-    // TODO: Move to `i128` when `apply_delta_to_u128` is implemented and when supported in used Cairo version.
-    delta: i128
-) -> u128 {
-    // Check that the market is not a swap only market.
-    assert(
-        (*market.index_token).is_non_zero(),
-        MarketError::OPEN_INTEREST_CANNOT_BE_UPDATED_FOR_SWAP_ONLY_MARKET
-    );
-
-    // Increment the open interest by the delta.
-    // TODO: create `apply_delta_to_u128` function in `DataStore` contract and pass `delta` as `i128`.
-    let next_value = data_store
-        .increment_u128(
-            keys::open_interest_key(*market.market_token, collateral_token, is_long), 0
-        );
-
-    // If the open interest for longs is increased then tokens were virtually bought from the pool
-    // so the virtual inventory should be decreased.
-    // If the open interest for longs is decreased then tokens were virtually sold to the pool
-    // so the virtual inventory should be increased.
-    // If the open interest for shorts is increased then tokens were virtually sold to the pool
-    // so the virtual inventory should be increased.
-    // If the open interest for shorts is decreased then tokens were virtually bought from the pool
-    // so the virtual inventory should be decreased.
-
-    // We need to validate the open interest if the delta is positive.
-    //if 0_i128 < delta {
-    //validate_open_interest(data_store, market, is_long);
-    //}
-
-    0
 }
 
 /// Validates the swap path to ensure each market in the path is valid and the path length does not 
@@ -1248,12 +1522,6 @@ fn get_borrowing_factor_per_second(
     0
 }
 
-fn get_adjusted_position_impact_factors(
-    data_store: IDataStoreDispatcher, market: ContractAddress
-) -> (u128, u128) { // TODO
-    (0, 0)
-}
-
 /// Get the borrowing fees for a position, assumes that cumulativeBorrowingFactor
 /// has already been updated to the latest value
 /// # Arguments
@@ -1360,40 +1628,6 @@ fn get_virtual_inventory_for_swaps(
     );
 }
 
-fn get_adjusted_swap_impact_factor(
-    data_store: IDataStoreDispatcher, market: ContractAddress, is_positive: bool
-) -> u128 {
-    let (positive_impact_factor, negative_impact_factor) = get_adjusted_swap_impact_factors(
-        data_store, market
-    );
-    if is_positive {
-        positive_impact_factor
-    } else {
-        negative_impact_factor
-    }
-}
-
-fn get_adjusted_swap_impact_factors(
-    data_store: IDataStoreDispatcher, market: ContractAddress
-) -> (u128, u128) {
-    let mut positive_impact_factor = data_store
-        .get_u128(keys::swap_impact_factor_key(market, true));
-    let negative_impact_factor = data_store.get_u128(keys::swap_impact_factor_key(market, false));
-    // if the positive impact factor is more than the negative impact factor, positions could be opened
-    // and closed immediately for a profit if the difference is sufficient to cover the position fees
-    if positive_impact_factor > negative_impact_factor {
-        positive_impact_factor = negative_impact_factor;
-    }
-    (positive_impact_factor, negative_impact_factor)
-}
-
-fn get_adjusted_position_impact_factor(
-    data_store: IDataStoreDispatcher, market: ContractAddress, isPositive: bool
-) -> u128 {
-    // TODO
-    0
-}
-
 /// Get the total pending borrowing fees
 /// # Arguments
 /// * `data_store` - The data store to use.
@@ -1402,6 +1636,34 @@ fn get_adjusted_position_impact_factor(
 /// * `is_long` - Whether to check the long or short side.
 fn get_total_pending_borrowing_fees(
     data_store: IDataStoreDispatcher, market: Market, prices: MarketPrices, is_long: bool
+) -> u128 {
+    // TODO
+    0
+}
+
+fn get_max_pnl_factor(
+    data_store: IDataStoreDispatcher,
+    pnl_factor_type: felt252,
+    market: ContractAddress,
+    is_long: bool
+) -> u128 {
+    // TODO
+    0
+}
+
+fn apply_delta_to_virtual_inventory_for_swaps(
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    market: Market,
+    token: ContractAddress,
+    delta: u128
+) -> (bool, u128) {
+    // TODO
+    (true, 0)
+}
+
+fn get_max_position_impact_factor(
+    data_store: IDataStoreDispatcher, market: ContractAddress, foo: bool
 ) -> u128 {
     // TODO
     0

@@ -33,10 +33,12 @@ fn short_token() -> felt252 {
 
 fn get(data_store: @IDataStoreDispatcher, key: ContractAddress) -> Market {
     let mut market: Market = Default::default();
-    // TODO: fix this
-    // if !data_store.contains_address(keys::market_list(), key) {
-    //     return market;
-    // }
+    match (*data_store).get_market(key) {
+        Option::Some => {},
+        Option::None => {
+            return market;
+        }
+    }
 
     let hash = poseidon_hash_span(array![key.into(), market_token()].span());
     market.market_token = (*data_store).get_address(hash);
