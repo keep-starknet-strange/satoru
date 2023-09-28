@@ -550,10 +550,10 @@ fn apply_delta_to_open_interest(
 /// # Arguments
 /// * `data_store` - The DataStore contract containing platform configuration.
 /// * `swap_path` - A vector of market addresses forming the swap path.
-fn validate_swap_path(
-    data_store: IDataStoreDispatcher, token_swap_path: Span32<ContractAddress>
-) { //TODO
-}
+// fn validate_swap_path(
+//     data_store: IDataStoreDispatcher, token_swap_path: Span32<ContractAddress>
+// ) { //TODO
+// }
 
 
 /// Update the swap impact pool amount, if it is a positive impact amount
@@ -867,11 +867,11 @@ fn validate_markets_token_balance(data_store: IDataStoreDispatcher, market: Span
 /// Gets a list of market values based on an input array of market addresses.
 /// # Parameters
 /// * `swap_path`: A list of market addresses.
-fn get_swap_path_markets(
-    data_store: IDataStoreDispatcher, swap_path: Span32<ContractAddress>
-) -> Array<Market> { //TODO
-    Default::default()
-}
+// fn get_swap_path_markets(
+//     data_store: IDataStoreDispatcher, swap_path: Span32<ContractAddress>
+// ) -> Array<Market> { //TODO
+//     Default::default()
+// }
 
 /// Gets the USD value of a pool.
 /// The value of a pool is determined by the worth of the liquidity provider tokens in the pool,
@@ -1995,42 +1995,45 @@ fn get_swap_path_market(
 
 // Get a list of market values based on an input array of market addresses
 // `swap_path` - list of market addresses
-// fn get_swap_path_markets(
-//     data_store: IDataStoreDispatcher,
-//     swap_path: Array<ContractAddress>
-// ) -> Array<Market> {
-//     let mut markets: Array<Market> = ArrayTrait::new(swap_path.len());
-//     let i: u128 = 0;
-//     let length: u128 = swap_path.len();
+fn get_swap_path_markets(
+    data_store: IDataStoreDispatcher,
+    swap_path: Span32<ContractAddress>
+) -> Array<Market> {
+    let mut markets: Array<Market> = ArrayTrait::new();
+    let mut i: u128 = 0;
+    let length: u128 = swap_path.len();
 
-//     loop {
-//          if i == length {
-//               break;
-//          }
-//          let market_adress: ContractAddress = swap_path[i];
-//          markets.append(market_adress);
-//          i += 1;    
-//          
-//     }
-//     markets
-// }
+    loop {
+         if i == length {
+              break;
+         }
+         let market_adress = swap_path.at(i);
+         markets.append(market_adress);
+         i += 1;    
+         
+    };
+    markets
+}
 
-// fn validate_swap_path(
-//     data_store: IDataStoreDispatcher,
-//     swap_path: Array<ContractAddress>
-// ) {
-//     let max_swap_path_length: u128 = data_store.get_u128(keys::max_swap_path_length());
-//     assert(swap_path.length <= max_swap_path_length, MarketError::MAX_SWAP_PATH_LENGTH_EXCEEDED);
+fn validate_swap_path(
+    data_store: IDataStoreDispatcher,
+    token_swap_path: Span32<ContractAddress>
+) {
+    let max_swap_path_length: u128 = data_store.get_u128(keys::max_swap_path_length());
+    let token_swap_path_length: u128 = token_swap_path.len();
+    assert(token_swap_path_length <= max_swap_path_length, MarketError::MAX_SWAP_PATH_LENGTH_EXCEEDED);
 
-//     let mut i: u128 = 0;let i: u128 = 0;
-//     let length: u128 = swap_path.len();
-//     loop {
-//          if i == length {
-//               break;
-//          }
-//            let market_address: ContractAddress = swap_path[i];
-//            validate_swap_market(data_store, market_address);
-//     }
+    let mut i: u128 = 0;
+    let length: u128 = token_swap_path.len();
+    loop {
+        if i == length {
+            break;
+        }
+        let market: Market = token_swap_path.at(i);
+        validate_swap_market(@data_store, @market);
+        i += 1;
+    };
+}
 
 // Validate that the pending pnl is below the allowed amount
 // `data_store` - DataStore
@@ -2135,20 +2138,21 @@ fn set_ui_fee_factor(
     event_emitter.emit_ui_fee_factor_updated(event_emitter, account, ui_fee_factor);
 }
  
-//  fn validate_market_token_balance_add(
-//       data_store: IDataStoreDispatcher,
-//       markets: Array<market>
-//     ) {
-//         let length: u128 = markets.len();
-//         let i: u128 = 0;
-//         loop {
-//              if i == length {
-//                   break;
-//              }
-//                validate_market_token_balance_check(data_store, markets[i]);
-//                i += 1;
-//         };
-//     }
+fn validate_market_token_balance_add(
+    data_store: IDataStoreDispatcher,
+    markets: Array<Market>
+) {
+    let length: u128 = markets.len();
+    let mut i: u128 = 0;
+    loop {
+        if i == length {
+            break;
+        }
+        let index = markets.at(i);
+        validate_market_token_balance_check(data_store, index);
+        i += 1;
+    };
+}
 
 fn validate_market_token_balance(
     data_store: IDataStoreDispatcher,
