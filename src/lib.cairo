@@ -284,6 +284,7 @@ mod tests {
     mod exchange {
         mod test_liquidation_handler;
         mod test_withdrawal_handler;
+        mod test_deposit_handler;
     }
     mod feature {
         mod test_feature_utils;
