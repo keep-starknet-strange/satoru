@@ -285,7 +285,7 @@ mod DepositHandler {
             execute_deposit_utils::execute_deposit(params);
         }
     }
-/// TODO not needed
+/// TODO no try catch, we need to find alternative
 // // *************************************************************************
 // //                          INTERNAL FUNCTIONS
 // // *************************************************************************
