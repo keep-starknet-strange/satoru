@@ -25,7 +25,7 @@ use alexandria_data_structures::array_ext::SpanTraitExt;
 /// needs it. We need to find a solution for that case.
 #[inline(always)]
 fn process_order(params: ExecuteOrderParams) -> event_utils::EventLogData {
-    market_utils::validate_position_market(params.contracts.data_store, params.market);
+    market_utils::validate_position_market_check(params.contracts.data_store, params.market);
 
     let (collateral_token, collateral_increment_amount) = swap_utils::swap(
         @swap_utils::SwapParams {

@@ -559,9 +559,13 @@ trait IEventEmitter<TContractState> {
         next_pool_value: u128
     );
 
-    /// Emits the `UiFeeFactorUpdated` event.
     fn emit_ui_fee_factor_updated(
         ref self: TContractState, account: ContractAddress, ui_fee_factor: u128
+    );
+
+    /// Emits the `UiFeeFactorUpdated` event.
+    fn emit_ui_fee_factor_updated_check(
+         ref self: TContractState, account: ContractAddress, ui_fee_factor: u128
     );
 
     /// Emits the `OraclePriceUpdate` event.
@@ -2619,6 +2623,12 @@ mod EventEmitter {
         /// Emits the `UiFeeFactorUpdated` event.
         fn emit_ui_fee_factor_updated(
             ref self: ContractState, account: ContractAddress, ui_fee_factor: u128
+        ) {
+            self.emit(UiFeeFactorUpdated { account, ui_fee_factor });
+        }
+
+        fn emit_ui_fee_factor_updated_check(
+         ref self: ContractState, account: ContractAddress, ui_fee_factor: u128
         ) {
             self.emit(UiFeeFactorUpdated { account, ui_fee_factor });
         }
