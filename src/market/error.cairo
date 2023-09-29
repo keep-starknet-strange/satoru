@@ -12,7 +12,7 @@ mod MarketError {
     const INVALID_COLLATERAL_TOKEN_FOR_MARKET: felt252 = 'invalid_coll_token_for_market';
 
     const EMPTY_MARKET: felt252 = 'empty_market';
-    const DISABLED_MARKET: felt252 = 'disabled_market';
+    const DISABLED_MARKET: felt252 = 'minumum position size';
 
     const EMPTY_MARKET_TOKEN_SUPPLY: felt252 = 'empty_market_token_suppply';
     const INVALID_MARKET_COLLATERAL_TOKEN: felt252 = 'invalid_market_collateral_token';

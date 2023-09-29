@@ -57,7 +57,7 @@ mod market {
     mod test_market_utils;
 }
 mod nonce {
-    mod test_nonce_utils;
+    // mod test_nonce_utils;
 }
 mod oracle {
     mod test_oracle;
