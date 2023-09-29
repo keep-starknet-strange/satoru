@@ -3,6 +3,7 @@
 // `adl` is a module to help with auto-deleveraging.
 mod adl {
     mod adl_utils;
+    mod error;
 }
 
 // `bank` is a module handling storing and transferring of tokens.
@@ -90,6 +91,7 @@ mod fee {
 // `gas` is used for execution fee estimation and payments.
 mod gas {
     mod gas_utils;
+    mod error;
 }
 
 // `nonce` is a module that maintains a progressively increasing nonce value.
@@ -99,6 +101,7 @@ mod nonce {
 
 // 'reader' is a module that retrieves the financial market data and trading utility.
 mod reader {
+    mod error;
     mod reader_pricing_utils;
     mod reader_utils;
     mod reader;
@@ -143,9 +146,12 @@ mod utils {
     mod span32;
     mod u128_mask;
     mod hash;
+    mod i128;
+    mod i128_test_storage_contract;
     mod store_arrays;
     mod error_utils;
     mod starknet_utils;
+    mod traits;
 }
 
 // `liquidation` function to help with liquidations.
@@ -161,6 +167,13 @@ mod market {
     mod market_factory;
     mod market;
     mod market_pool_value_info;
+    mod market_event_utils;
+}
+
+mod mock {
+    mod error;
+    mod governable;
+    mod referral_storage;
 }
 
 // `oracle` contains functions related to oracles used by Satoru.
@@ -170,6 +183,7 @@ mod oracle {
     mod oracle_store;
     mod oracle_utils;
     mod oracle;
+    mod price_feed;
 }
 
 // `order` contains order management functions.
@@ -199,6 +213,7 @@ mod position {
 
 // `pricing` contains pricing utils
 mod pricing {
+    mod error;
     mod position_pricing_utils;
     mod pricing_utils;
     mod swap_pricing_utils;
@@ -208,9 +223,6 @@ mod pricing {
 mod referral {
     mod referral_utils;
     mod referral_tier;
-    mod referral_storage {
-        mod interface;
-    }
 }
 
 mod swap {
@@ -226,6 +238,8 @@ mod token {
     mod token_utils;
 }
 
+mod tests_lib;
+
 // `withdrawal` contains withdrawal management functions
 mod withdrawal {
     mod error;
@@ -233,5 +247,3 @@ mod withdrawal {
     mod withdrawal_vault;
     mod withdrawal;
 }
-
-mod tests_lib;

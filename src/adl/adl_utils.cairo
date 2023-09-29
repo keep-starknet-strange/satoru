@@ -13,14 +13,24 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
-
+use starknet::{get_caller_address, ContractAddress, contract_address_const};
+use integer::BoundedInt;
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait},};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-
-
+use satoru::market::market_utils::{
+    MarketPrices, get_enabled_market, get_market_prices, is_pnl_factor_exceeded_direct
+};
+use satoru::adl::error::AdlError;
+use satoru::data::keys;
+use satoru::utils::arrays::u64_are_gte;
+use satoru::position::position_utils;
+use satoru::position::position::Position;
+use satoru::order::order::{Order, OrderType, DecreasePositionSwapType};
+use satoru::nonce::nonce_utils;
+use satoru::callback::callback_utils::get_saved_callback_contract;
+use satoru::utils::span32::{Span32, Array32Trait};
 /// CreateAdlOrderParams struct used in createAdlOrder to avoid stack
 #[derive(Drop, Copy, starknet::Store, Serde)]
 struct CreateAdlOrderParams {
@@ -69,6 +79,7 @@ struct CreateAdlOrderParams {
 /// * `max_oracle_block_numbers` - The oracle block numbers for the prices stored in the oracle.
 /// # Returns
 /// Return felt252 hash using the next nonce value
+
 fn update_adl_state(
     data_store: IDataStoreDispatcher,
     event_emitter: IEventEmitterDispatcher,
@@ -76,7 +87,34 @@ fn update_adl_state(
     market: ContractAddress,
     is_long: bool,
     max_oracle_block_numbers: Span<u64>
-) { // TODO
+) {
+    let latest_adl_block = get_latest_adl_block(data_store, market, is_long);
+    assert(
+        u64_are_gte(max_oracle_block_numbers, latest_adl_block),
+        AdlError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED
+    );
+    let _market = get_enabled_market(data_store, market);
+    let prices: MarketPrices = get_market_prices(oracle, _market);
+    // if the MAX_PNL_FACTOR_FOR_ADL is set to be higher than MAX_PNL_FACTOR_FOR_WITHDRAWALS
+    // it is possible for a pool to be in a state where withdrawals and ADL is not allowed
+    // this is similar to the case where there is a large amount of open positions relative
+    // to the amount of tokens in the pool
+    let (should_enable_adl, pnl_to_pool_factor, max_pnl_factor) = is_pnl_factor_exceeded_direct(
+        data_store, _market, prices, is_long, keys::max_pnl_factor_for_adl()
+    );
+    set_adl_enabled(data_store, market, is_long, should_enable_adl);
+    // the latest ADL block is always updated, an ADL keeper could continually
+    // cause the latest ADL block to be updated and prevent ADL orders
+    // from being executed, however, this may be preferrable over a case
+    // where stale prices could be used by ADL keepers to execute orders
+    // as such updating of the ADL block is allowed and it is expected
+    // that ADL keepers will keep this block updated so that latest prices
+    // will be used for ADL
+    set_latest_adl_block(data_store, market, is_long, starknet::info::get_block_number());
+
+    emit_adl_state_updated(
+        event_emitter, market, is_long, pnl_to_pool_factor, max_pnl_factor, should_enable_adl
+    );
 }
 
 /// Construct an ADL order, a decrease order is used to reduce a profitable position.
@@ -85,9 +123,79 @@ fn update_adl_state(
 /// # Returns
 /// Return the key of the created order.
 fn create_adl_order(params: CreateAdlOrderParams) -> felt252 {
-    // TODO
-    0
+    let positon_key = position_utils::get_position_key(
+        params.account, params.market, params.collateral_token, params.is_long
+    );
+    let position_result = params.data_store.get_position(positon_key);
+    let mut position: Position = Default::default();
+
+    // Check if the position is valid
+    match position_result {
+        Option::Some(pos) => {
+            assert(params.size_delta_usd <= pos.size_in_usd, AdlError::INVALID_SIZE_DELTA_FOR_ADL);
+            position = pos;
+        },
+        Option::None => {
+            panic_with_felt252(AdlError::POSTION_NOT_VALID);
+        }
+    }
+
+    // no slippage is set for this order, it may be preferrable for ADL orders
+    // to be executed, in case of large price impact, the user could be refunded
+    // through a protocol fund if required, this amount could later be claimed
+    // from the price impact pool, this claiming process should be added if
+    // required
+    //
+    // setting a maximum price impact that will work for majority of cases
+    // may also be challenging since the price impact would vary based on the
+    // amount of collateral being swapped
+    //
+    // note that the decreasePositionSwapType should be SwapPnlTokenToCollateralToken
+    // because fees are calculated with reference to the collateral token
+    // fees are deducted from the output amount if the output token is the same as the
+    // collateral token
+    // swapping the pnl token to the collateral token helps to ensure fees can be paid
+    // using the realized profit
+
+    let acceptable_price_: u128 = if position.is_long {
+        0_u128
+    } else {
+        BoundedInt::max()
+    };
+    let key = nonce_utils::get_next_key(params.data_store);
+    let order = Order {
+        key: key,
+        order_type: OrderType::MarketDecrease,
+        decrease_position_swap_type: DecreasePositionSwapType::SwapPnlTokenToCollateralToken,
+        account: params.account,
+        receiver: params.account,
+        callback_contract: get_saved_callback_contract(
+            params.data_store, params.account, params.market
+        ),
+        ui_fee_receiver: contract_address_const::<0>(),
+        market: params.market,
+        initial_collateral_token: position.collateral_token,
+        swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
+        size_delta_usd: params.size_delta_usd,
+        initial_collateral_delta_amount: 0,
+        trigger_price: 0,
+        acceptable_price: acceptable_price_,
+        execution_fee: 0,
+        callback_gas_limit: params
+            .data_store
+            .get_felt252(keys::max_callback_gas_limit())
+            .try_into()
+            .expect('get_felt252 into u128 failed'),
+        min_output_amount: 0,
+        updated_at_block: params.updated_at_block,
+        is_long: position.is_long,
+        is_frozen: false,
+    };
+    params.data_store.set_order(key, order);
+    params.event_emitter.emit_order_created(key, order);
+    key
 }
+
 
 /// Validate if the requested ADL can be executed.
 /// # Arguments
@@ -100,7 +208,14 @@ fn validate_adl(
     market: ContractAddress,
     is_long: bool,
     max_oracle_block_numbers: Span<u64>
-) { // TODO
+) {
+    let is_adl_enabled = get_adl_enabled(data_store, market, is_long);
+    assert(is_adl_enabled, AdlError::ADL_NOT_ENABLED);
+    let latest_block = get_latest_adl_block(data_store, market, is_long);
+    assert(
+        u64_are_gte(max_oracle_block_numbers, latest_block),
+        AdlError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED
+    );
 }
 
 /// Get the latest block at which the ADL flag was updated.
@@ -113,8 +228,10 @@ fn validate_adl(
 fn get_latest_adl_block(
     data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
 ) -> u64 {
-    // TODO
-    0
+    data_store
+        .get_u128(keys::latest_adl_block_key(market, is_long))
+        .try_into()
+        .expect('get_u128 into u64 failed')
 }
 
 /// Set the latest block at which the ADL flag was updated.
@@ -128,8 +245,8 @@ fn get_latest_adl_block(
 fn set_latest_adl_block(
     data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool, value: u64
 ) -> u64 {
-    // TODO
-    0
+    data_store.set_u128(keys::latest_adl_block_key(market, is_long), value.into());
+    value
 }
 
 /// Get whether ADL is enabled.
@@ -142,7 +259,15 @@ fn set_latest_adl_block(
 fn get_adl_enabled(
     data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
 ) -> bool { // TODO
-    true
+    let result = data_store.get_bool(keys::is_adl_enabled_key(market, is_long));
+    match result {
+        Option::Some(data) => {
+            return data;
+        },
+        Option::None => {
+            return false;
+        }
+    }
 }
 
 /// Set whether ADL is enabled.
@@ -156,8 +281,8 @@ fn get_adl_enabled(
 fn set_adl_enabled(
     data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool, value: bool
 ) -> bool {
-    // TODO
-    true
+    data_store.set_bool(keys::is_adl_enabled_key(market, is_long), value);
+    value
 }
 
 /// Emit ADL state update events.
@@ -165,15 +290,19 @@ fn set_adl_enabled(
 /// * `event_emitter` - The `EventEmitter` contract dispatcher.
 /// * `market` - Address of the market to check.
 /// * `is_long` - Indicates the ADL state update is for the long or short side of the market.
-/// * `pnt_to_pool_factor` - The ratio of PnL to pool value.
+/// * `pnl_to_pool_factor` - The ratio of PnL to pool value.
 /// * `max_pnl_factor` - The max PnL factor.
 /// * `should_enable_adl` - Whether ADL was enabled or disabled.
 fn emit_adl_state_updated(
     event_emitter: IEventEmitterDispatcher,
     market: ContractAddress,
     is_long: bool,
-    pnt_to_pool_factor: i128,
+    pnl_to_pool_factor: i128,
     max_pnl_factor: u128,
     should_enable_adl: bool
-) { // TODO
+) {
+    event_emitter
+        .emit_adl_state_updated(
+            market, is_long, pnl_to_pool_factor.into(), max_pnl_factor, should_enable_adl,
+        );
 }

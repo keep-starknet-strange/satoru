@@ -55,7 +55,7 @@ fn deploy_role_store() -> ContractAddress {
 }
 
 #[test]
-fn test_set_withdrawal_new_and_override() {
+fn given_normal_conditions_when_set_withdrawal_new_and_override_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     let account = 'account'.try_into().unwrap();
@@ -85,7 +85,6 @@ fn test_set_withdrawal_new_and_override() {
         updated_at_block: 1,
         execution_fee: 1,
         callback_gas_limit: 1,
-        should_unwrap_native_token: true,
     };
 
     // Test logic
@@ -123,10 +122,10 @@ fn test_set_withdrawal_new_and_override() {
 
 #[test]
 #[should_panic(expected: ('withdrawal account cant be 0',))]
-fn test_set_withdrawal_should_panic_zero() {
+fn given_withdrawal_account_0_when_set_withdrawal_then_fails() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
-    let account = 0.try_into().unwrap();
+    let account = contract_address_const::<0>();
     // TODO make these Span32
     let long_token_swap_path: Span32<ContractAddress> = array![
         1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
@@ -153,7 +152,6 @@ fn test_set_withdrawal_should_panic_zero() {
         updated_at_block: 1,
         execution_fee: 1,
         callback_gas_limit: 1,
-        should_unwrap_native_token: true,
     };
 
     // Test logic
@@ -167,7 +165,7 @@ fn test_set_withdrawal_should_panic_zero() {
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
-fn test_set_withdrawal_should_panic_not_controller() {
+fn given_caller_not_controller_when_set_withdrawal_then_fails() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     role_store.revoke_role(caller_address, role::CONTROLLER);
@@ -197,7 +195,6 @@ fn test_set_withdrawal_should_panic_not_controller() {
         updated_at_block: 1,
         execution_fee: 1,
         callback_gas_limit: 1,
-        should_unwrap_native_token: true,
     };
 
     // Test logic
@@ -210,7 +207,7 @@ fn test_set_withdrawal_should_panic_not_controller() {
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
-fn test_get_withdrawal_keys() {
+fn given_caller_not_controller_when_get_withdrawal_keys_then_fails() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     let account = 'account'.try_into().unwrap();
@@ -241,7 +238,6 @@ fn test_get_withdrawal_keys() {
         updated_at_block: 1,
         execution_fee: 1,
         callback_gas_limit: 1,
-        should_unwrap_native_token: true,
     };
     data_store.set_withdrawal(key, withdrawal);
 
@@ -260,7 +256,7 @@ fn test_get_withdrawal_keys() {
 }
 
 #[test]
-fn test_remove_only_withdrawal() {
+fn given_normal_conditions_when_remove_only_withdrawal_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     let account = 'account'.try_into().unwrap();
@@ -290,7 +286,6 @@ fn test_remove_only_withdrawal() {
         updated_at_block: 1,
         execution_fee: 1,
         callback_gas_limit: 1,
-        should_unwrap_native_token: true,
     };
 
     data_store.set_withdrawal(key, withdrawal);
@@ -312,7 +307,7 @@ fn test_remove_only_withdrawal() {
 }
 
 #[test]
-fn test_remove_1_of_n_withdrawal() {
+fn given_normal_conditions_when_remove_1_of_n_withdrawal_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     let account = 'account'.try_into().unwrap();
@@ -342,7 +337,6 @@ fn test_remove_1_of_n_withdrawal() {
         updated_at_block: 1,
         execution_fee: 1,
         callback_gas_limit: 1,
-        should_unwrap_native_token: true,
     };
 
     let key_2: felt252 = 987654321;
@@ -361,7 +355,6 @@ fn test_remove_1_of_n_withdrawal() {
         updated_at_block: 1,
         execution_fee: 1,
         callback_gas_limit: 1,
-        should_unwrap_native_token: true,
     };
 
     data_store.set_withdrawal(key_1, withdrawal_1);
@@ -389,7 +382,7 @@ fn test_remove_1_of_n_withdrawal() {
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
-fn test_remove_withdrawal_should_panic_not_controller() {
+fn given_caller_not_controller_when_remove_withdrawal_then_fails() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     let account = 'account'.try_into().unwrap();
@@ -420,7 +413,6 @@ fn test_remove_withdrawal_should_panic_not_controller() {
         updated_at_block: 1,
         execution_fee: 1,
         callback_gas_limit: 1,
-        should_unwrap_native_token: true,
     };
     data_store.set_withdrawal(key, withdrawal);
 

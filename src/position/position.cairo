@@ -4,7 +4,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
+use starknet::{ContractAddress, contract_address_const};
 
 /// Main struct used to store positions.
 #[derive(Copy, Drop, starknet::Store, Serde, PartialEq)]
@@ -37,4 +37,25 @@ struct Position {
     decreased_at_block: u64,
     /// Whether the position is a long or short.
     is_long: bool,
+}
+
+impl DefaultPosition of Default<Position> {
+    fn default() -> Position {
+        Position {
+            key: 0,
+            account: contract_address_const::<0>(),
+            market: contract_address_const::<0>(),
+            collateral_token: contract_address_const::<0>(),
+            size_in_usd: 0,
+            size_in_tokens: 0,
+            collateral_amount: 0,
+            borrowing_factor: 0,
+            funding_fee_amount_per_size: 0,
+            long_token_claimable_funding_amount_per_size: 0,
+            short_token_claimable_funding_amount_per_size: 0,
+            increased_at_block: 0,
+            decreased_at_block: 0,
+            is_long: false,
+        }
+    }
 }

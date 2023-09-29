@@ -14,9 +14,10 @@ use satoru::pricing::position_pricing_utils::{
 use satoru::order::order::OrderType;
 use satoru::price::price::Price;
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::utils::i128::{I128Store, I128Serde, I128Div, I128Mul};
 
 #[test]
-fn test_emit_position_increase() {
+fn given_normal_conditions_when_emit_position_increase_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -83,7 +84,7 @@ fn test_emit_position_increase() {
 }
 
 #[test]
-fn test_emit_position_decrease() {
+fn given_normal_conditions_when_emit_position_decrease_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -169,7 +170,7 @@ fn test_emit_position_decrease() {
 
 
 #[test]
-fn test_emit_insolvent_close() {
+fn given_normal_conditions_when_emit_insolvent_close_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -218,7 +219,7 @@ fn test_emit_insolvent_close() {
 
 
 #[test]
-fn test_emit_insufficient_funding_fee_payment() {
+fn given_normal_conditions_when_emit_insufficient_funding_fee_payment_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -273,7 +274,7 @@ fn test_emit_insufficient_funding_fee_payment() {
 
 
 #[test]
-fn test_emit_position_fees_collected() {
+fn given_normal_conditions_when_emit_position_fees_collected_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -363,7 +364,7 @@ fn test_emit_position_fees_collected() {
 }
 
 #[test]
-fn test_emit_position_fees_info() {
+fn given_normal_conditions_when_emit_position_fees_info_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************

@@ -9,7 +9,7 @@ use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::tests_lib::setup_event_emitter;
 
 #[test]
-fn test_emit_withdrawal_created() {
+fn given_normal_conditions_when_emit_withdrawal_created_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -35,10 +35,8 @@ fn test_emit_withdrawal_created() {
         withdrawal.min_long_token_amount.into(),
         withdrawal.min_short_token_amount.into(),
         withdrawal.updated_at_block.into(),
-        withdrawal.execution_fee.low.into(),
-        withdrawal.execution_fee.high.into(),
+        withdrawal.execution_fee.into(),
         withdrawal.callback_gas_limit.into(),
-        withdrawal.should_unwrap_native_token.into(),
     ];
 
     // Emit the event.
@@ -61,7 +59,7 @@ fn test_emit_withdrawal_created() {
 }
 
 #[test]
-fn test_emit_withdrawal_executed() {
+fn given_normal_conditions_when_emit_withdrawal_executed_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -98,7 +96,7 @@ fn test_emit_withdrawal_executed() {
 }
 
 #[test]
-fn test_emit_withdrawal_cancelled() {
+fn given_normal_conditions_when_emit_withdrawal_cancelled_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -155,6 +153,5 @@ fn create_dummy_withdrawal(key: felt252) -> Withdrawal {
         updated_at_block: 1,
         execution_fee: 1,
         callback_gas_limit: 1,
-        should_unwrap_native_token: true,
     }
 }

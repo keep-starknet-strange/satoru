@@ -12,7 +12,7 @@ use satoru::utils::span32::{Span32, Array32Trait};
 //TODO: OrderCollatDeltaAmountAutoUpdtd must be renamed back to OrderCollateralDeltaAmountAutoUpdated when string will be allowed as event argument
 
 #[test]
-fn test_emit_order_created() {
+fn given_normal_conditions_when_emit_order_created_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -51,7 +51,7 @@ fn test_emit_order_created() {
 }
 
 #[test]
-fn test_emit_order_executed() {
+fn given_normal_conditions_when_emit_order_executed_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -90,7 +90,7 @@ fn test_emit_order_executed() {
 }
 
 #[test]
-fn test_emit_order_updated() {
+fn given_normal_conditions_when_emit_order_updated_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -140,7 +140,7 @@ fn test_emit_order_updated() {
 }
 
 #[test]
-fn test_emit_order_size_delta_auto_updated() {
+fn given_normal_conditions_when_emit_order_size_delta_auto_updated_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -181,7 +181,7 @@ fn test_emit_order_size_delta_auto_updated() {
 }
 
 #[test]
-fn test_emit_order_collateral_delta_amount_auto_updated() {
+fn given_normal_conditions_when_emit_order_collateral_delta_amount_auto_updated_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -225,7 +225,7 @@ fn test_emit_order_collateral_delta_amount_auto_updated() {
 }
 
 #[test]
-fn test_emit_order_cancelled() {
+fn given_normal_conditions_when_emit_order_cancelled_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -265,7 +265,7 @@ fn test_emit_order_cancelled() {
 }
 
 #[test]
-fn test_emit_order_frozen() {
+fn given_normal_conditions_when_emit_order_frozen_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -342,7 +342,6 @@ fn create_dummy_order(key: felt252) -> Order {
         min_output_amount: 100,
         updated_at_block: 0,
         is_long: true,
-        should_unwrap_native_token: false,
         is_frozen: false,
     }
 }

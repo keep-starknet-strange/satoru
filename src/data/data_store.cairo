@@ -195,6 +195,26 @@ trait IDataStore<TContractState> {
     fn get_market_keys(self: @TContractState, start: usize, end: usize) -> Array<ContractAddress>;
 
     // *************************************************************************
+    //                      Oracle related functions.
+    // *************************************************************************
+    /// Sets the token ID for a given contract address.
+    /// This function checks if the caller has the `CONTROLLER` role
+    /// before updating the `tokens_ids` mapping.
+    /// # Arguments
+    /// * `self` - Mutable reference to the contract state.
+    /// * `token` - Contract address for which to set the ID.
+    /// * `id` - The ID to set.
+    fn set_token_id(ref self: TContractState, token: ContractAddress, id: felt252);
+
+    /// Retrieves the token ID associated with a given contract address.
+    /// # Arguments
+    /// * `self` - Reference to the contract state.
+    /// * `token` - Contract address for which to retrieve the ID.
+    /// # Returns
+    /// Returns the ID associated with the given token address.
+    fn get_token_id(self: @TContractState, token: ContractAddress) -> felt252;
+
+    // *************************************************************************
     //                      Order related functions.
     // *************************************************************************
     /// Get a order value for the given key.
@@ -471,6 +491,8 @@ mod DataStore {
         market_values: LegacyMap::<ContractAddress, Market>,
         markets: List<Market>,
         market_indexes: LegacyMap::<ContractAddress, usize>,
+        /// Oracle storage
+        tokens_ids: LegacyMap::<ContractAddress, felt252>,
         /// Order storage
         order_values: LegacyMap::<felt252, Order>,
         orders: List<Order>,
@@ -769,6 +791,7 @@ mod DataStore {
                 // Valid indexes start from 1.
                 self.market_indexes.write(key, markets.len() + 1);
                 markets.append(market);
+                self.set_address(self.get_market_salt_hash(salt), key);
                 return;
             }
             let index = offsetted_index - 1;
@@ -847,6 +870,18 @@ mod DataStore {
         }
 
         // *************************************************************************
+        //                      Oracle related functions.
+        // *************************************************************************
+        fn set_token_id(ref self: ContractState, token: ContractAddress, id: felt252) {
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            self.tokens_ids.write(token, id);
+        }
+
+        fn get_token_id(self: @ContractState, token: ContractAddress) -> felt252 {
+            self.tokens_ids.read(token)
+        }
+
+        // *************************************************************************
         //                      Order related functions.
         // *************************************************************************
 
@@ -862,7 +897,7 @@ mod DataStore {
         fn set_order(ref self: ContractState, key: felt252, order: Order) {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
-            assert(order.account != 0.try_into().unwrap(), OrderError::CANT_BE_ZERO);
+            assert(order.account != contract_address_const::<0>(), OrderError::CANT_BE_ZERO);
 
             let mut orders = self.orders.read();
             let mut account_orders = self.account_orders.read(order.account);
@@ -993,7 +1028,7 @@ mod DataStore {
         fn set_position(ref self: ContractState, key: felt252, position: Position) {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
-            assert(position.account != 0.try_into().unwrap(), PositionError::CANT_BE_ZERO);
+            assert(position.account != contract_address_const::<0>(), PositionError::CANT_BE_ZERO);
 
             let mut positions = self.positions.read();
             let mut account_positions = self.account_positions.read(position.account);
@@ -1124,7 +1159,9 @@ mod DataStore {
         fn set_withdrawal(ref self: ContractState, key: felt252, withdrawal: Withdrawal) {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
-            assert(withdrawal.account != 0.try_into().unwrap(), WithdrawalError::CANT_BE_ZERO);
+            assert(
+                withdrawal.account != contract_address_const::<0>(), WithdrawalError::CANT_BE_ZERO
+            );
 
             let mut withdrawals = self.withdrawals.read();
             let mut account_withdrawals = self.account_withdrawals.read(withdrawal.account);
@@ -1251,7 +1288,7 @@ mod DataStore {
         fn set_deposit(ref self: ContractState, key: felt252, deposit: Deposit) {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
-            assert(deposit.account != 0.try_into().unwrap(), DepositError::CANT_BE_ZERO);
+            assert(deposit.account != contract_address_const::<0>(), DepositError::CANT_BE_ZERO);
 
             let mut deposits = self.deposits.read();
             let mut account_deposits = self.account_deposits.read(deposit.account);

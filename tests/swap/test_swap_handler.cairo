@@ -30,12 +30,15 @@ fn deploy_event_emitter() -> ContractAddress {
 
 /// Utility function to deploy a `Oracle` contract and return its dispatcher.
 fn deploy_oracle(
-    role_store_address: ContractAddress, oracle_address: ContractAddress
+    role_store_address: ContractAddress,
+    oracle_address: ContractAddress,
+    pragma_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare('Oracle');
     let mut constructor_calldata = array![];
     constructor_calldata.append(role_store_address.into());
     constructor_calldata.append(oracle_address.into());
+    constructor_calldata.append(pragma_address.into());
     contract.deploy(@constructor_calldata).unwrap()
 }
 
@@ -96,7 +99,11 @@ fn setup() -> (
     let event_emitter_address = deploy_event_emitter();
     let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
 
-    let oracle_address = deploy_oracle(role_store_address, contract_address_const::<'oracle'>());
+    let oracle_address = deploy_oracle(
+        role_store_address,
+        contract_address_const::<'oracle'>(),
+        contract_address_const::<'pragma'>()
+    );
     let oracle = IOracleDispatcher { contract_address: oracle_address };
 
     let bank_address = deploy_bank_address(data_store_address, role_store_address);
@@ -121,7 +128,7 @@ fn setup() -> (
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
-fn test_check_unauthorized_access_role() {
+fn given_caller_not_controller_when_swap_then_fails() {
     let (caller_address, data_store, event_emitter, oracle, bank, role_store, swap_handler) =
         setup();
 
@@ -143,11 +150,10 @@ fn test_check_unauthorized_access_role() {
         key: 1,
         token_in: contract_address_const::<'token_in'>(),
         amount_in: 1,
-        swap_path_markets: ArrayTrait::new(),
+        swap_path_markets: ArrayTrait::new().span(),
         min_output_amount: 1,
         receiver: contract_address_const::<'receiver'>(),
         ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
-        should_unwrap_native_token: true,
     };
 
     swap_handler.swap(swap);
@@ -156,7 +162,7 @@ fn test_check_unauthorized_access_role() {
 
 
 #[test]
-fn test_check_swap_called() {
+fn given_normal_conditions_when_swap_then_works() {
     //Change that when swap_handler has been implemented
     let (caller_address, data_store, event_emitter, oracle, bank, role_store, swap_handler) =
         setup();
@@ -175,17 +181,16 @@ fn test_check_swap_called() {
         bank: bank,
         key: 1,
         token_in: contract_address_const::<'token_in'>(),
-        amount_in: 1,
-        swap_path_markets: ArrayTrait::new(),
+        amount_in: 0,
+        swap_path_markets: ArrayTrait::new().span(),
         min_output_amount: 1,
         receiver: contract_address_const::<'receiver'>(),
         ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
-        should_unwrap_native_token: true,
     };
 
     let swap_result = swap_handler.swap(swap);
 
-    assert(swap_result == (0.try_into().unwrap(), 0), 'Error');
+    assert(swap_result == (contract_address_const::<'token_in'>(), 0), 'Error');
 
     teardown(role_store.contract_address);
 }

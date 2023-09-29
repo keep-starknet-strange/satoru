@@ -42,7 +42,7 @@ trait IOracleStore<TContractState> {
     /// * `index` - Index of the signer to get.
     /// # Returns
     /// Signer at index.
-    fn get_signer(self: @TContractState, index: u128) -> ContractAddress;
+    fn get_signer(self: @TContractState, index: usize) -> ContractAddress;
 
     /// Get signers from start to end.
     /// # Arguments
@@ -63,6 +63,8 @@ mod OracleStore {
     use core::zeroable::Zeroable;
     use starknet::ContractAddress;
 
+    use alexandria_storage::list::{ListTrait, List};
+
     use result::ResultTrait;
 
     // Local imports.
@@ -80,6 +82,8 @@ mod OracleStore {
         role_store: IRoleStoreDispatcher,
         /// Interface to interact with the `EventEmitter` contract.
         event_emitter: IEventEmitterDispatcher,
+        // NOTE: temporarily implemented to complete oracle tests.
+        signers: List<ContractAddress>
     }
 
     // *************************************************************************
@@ -122,6 +126,9 @@ mod OracleStore {
         }
 
         fn add_signer(ref self: ContractState, account: ContractAddress) { // TODO
+            // NOTE: temporarily implemented to complete oracle tests.
+            let mut signers = self.signers.read();
+            signers.append(account);
         }
 
         fn remove_signer(ref self: ContractState, account: ContractAddress) { // TODO
@@ -131,8 +138,10 @@ mod OracleStore {
             0
         }
 
-        fn get_signer(self: @ContractState, index: u128) -> ContractAddress { // TODO
-            0.try_into().unwrap()
+        fn get_signer(self: @ContractState, index: usize) -> ContractAddress { // TODO
+            // NOTE: temporarily implemented to complete oracle tests.
+            let mut signers = self.signers.read();
+            signers.get(index).expect('array get failed')
         }
 
         fn get_signers(

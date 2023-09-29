@@ -7,10 +7,10 @@ use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapTyp
 use satoru::tests_lib::{setup, teardown};
 use satoru::utils::span32::{Span32, Array32Trait};
 
-use snforge_std::{PrintTrait, declare, start_prank, stop_prank, ContractClassTrait};
+use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 
 #[test]
-fn test_set_order_new_and_override() {
+fn given_normal_conditions_when_set_order_new_and_override_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
 
@@ -23,7 +23,6 @@ fn test_set_order_new_and_override() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        should_unwrap_native_token: false,
         is_frozen: false,
         order_no: 1
     );
@@ -69,12 +68,12 @@ fn test_set_order_new_and_override() {
 
 #[test]
 #[should_panic(expected: ('order account cant be 0',))]
-fn test_set_order_should_panic_zero() {
+fn given_order_account_0_when_set_order_then_fails() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
 
     let key: felt252 = 123456789;
-    let account = 0.try_into().unwrap();
+    let account = contract_address_const::<0>();
     let mut order: Order = create_new_order(
         key,
         account,
@@ -82,7 +81,6 @@ fn test_set_order_should_panic_zero() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        should_unwrap_native_token: false,
         is_frozen: false,
         order_no: 1
     );
@@ -97,7 +95,7 @@ fn test_set_order_should_panic_zero() {
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
-fn test_set_order_should_panic_not_controller() {
+fn given_caller_not_controller_when_set_order_then_fails() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     role_store.revoke_role(caller_address, role::CONTROLLER);
@@ -111,7 +109,6 @@ fn test_set_order_should_panic_not_controller() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        should_unwrap_native_token: false,
         is_frozen: false,
         order_no: 1
     );
@@ -127,7 +124,7 @@ fn test_set_order_should_panic_not_controller() {
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
-fn test_get_order_keys() {
+fn given_caller_not_controller_when_get_order_keys_then_fails() {
     let (caller_address, role_store, data_store) = setup();
     role_store.revoke_role(caller_address, role::CONTROLLER);
     let key: felt252 = 123456789;
@@ -139,7 +136,6 @@ fn test_get_order_keys() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        should_unwrap_native_token: false,
         is_frozen: false,
         order_no: 1
     );
@@ -165,7 +161,7 @@ fn test_get_order_keys() {
 
 
 #[test]
-fn test_remove_only_order() {
+fn given_normal_conditions_when_remove_only_order_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     let key: felt252 = 123456789;
@@ -177,7 +173,6 @@ fn test_remove_only_order() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        should_unwrap_native_token: false,
         is_frozen: false,
         order_no: 1
     );
@@ -205,7 +200,7 @@ fn test_remove_only_order() {
 
 
 #[test]
-fn test_remove_1_of_n_order() {
+fn given_normal_conditions_when_remove_1_of_n_order_then_works() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     let key_1: felt252 = 123456789;
@@ -217,7 +212,6 @@ fn test_remove_1_of_n_order() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        should_unwrap_native_token: false,
         is_frozen: false,
         order_no: 1
     );
@@ -231,7 +225,6 @@ fn test_remove_1_of_n_order() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        should_unwrap_native_token: false,
         is_frozen: false,
         order_no: 1
     );
@@ -269,7 +262,7 @@ fn test_remove_1_of_n_order() {
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
-fn test_remove_order_should_panic_not_controller() {
+fn given_caller_not_controller_when_remove_order_then_fails() {
     // Setup
     let (caller_address, role_store, data_store) = setup();
     role_store.revoke_role(caller_address, role::CONTROLLER);
@@ -282,7 +275,6 @@ fn test_remove_order_should_panic_not_controller() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        should_unwrap_native_token: false,
         is_frozen: false,
         order_no: 1
     );
@@ -305,7 +297,7 @@ fn test_remove_order_should_panic_not_controller() {
 
 
 #[test]
-fn test_multiple_account_keys() {
+fn given_normal_conditions_when_multiple_account_keys_then_works() {
     // Setup
 
     let (caller_address, role_store, data_store) = setup();
@@ -318,7 +310,6 @@ fn test_multiple_account_keys() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        should_unwrap_native_token: false,
         is_frozen: false,
         order_no: 1
     );
@@ -332,7 +323,6 @@ fn test_multiple_account_keys() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        should_unwrap_native_token: false,
         is_frozen: false,
         order_no: 2
     );
@@ -344,7 +334,6 @@ fn test_multiple_account_keys() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        should_unwrap_native_token: false,
         is_frozen: false,
         order_no: 1
     );
@@ -356,7 +345,6 @@ fn test_multiple_account_keys() {
         contract_address_const::<'market1'>(),
         contract_address_const::<'token1'>(),
         is_long: false,
-        should_unwrap_native_token: false,
         is_frozen: false,
         order_no: 1
     );
@@ -418,7 +406,6 @@ fn test_multiple_account_keys() {
 /// * `market` - The trading market.
 /// * `initial_collateral_token` - The initial collateral token for increase orders.
 /// * `is_long` - Whether the order is for a long or short.
-/// * `should_unwrap_native_token` - Whether to unwrap native tokens before transferring to the user.
 /// * `is_frozen` - Whether the order is frozen.
 /// * `order_no` - Random number to change values
 fn create_new_order(
@@ -428,7 +415,6 @@ fn create_new_order(
     market: ContractAddress,
     initial_collateral_token: ContractAddress,
     is_long: bool,
-    should_unwrap_native_token: bool,
     is_frozen: bool,
     order_no: u128
 ) -> Order {
@@ -444,7 +430,7 @@ fn create_new_order(
     let initial_collateral_delta_amount = 1000 * order_no;
     let trigger_price = 11111 * order_no;
     let acceptable_price = 11111 * order_no;
-    let execution_fee: u256 = 10 * order_no.into();
+    let execution_fee: u128 = 10 * order_no.into();
     let min_output_amount = 10 * order_no;
     let updated_at_block = 1;
 
@@ -471,44 +457,6 @@ fn create_new_order(
         min_output_amount,
         updated_at_block,
         is_long,
-        should_unwrap_native_token,
         is_frozen,
     }
 }
-
-/// Utility function to assert order structs
-/// This function will panic if any of the following fields do not match between the two orders:
-/// # Arguments
-///
-/// * `order1` - First order struct 
-/// * `order2` - Second order struct.
-fn assert_order_eq(order1: @Order, order2: @Order) {
-    assert(order1.account == order2.account, 'invalid account ');
-    assert(order1.receiver == order2.receiver, 'invalid receiver ');
-    assert(order1.callback_contract == order2.callback_contract, 'invalid callback_contract ');
-    assert(order1.ui_fee_receiver == order2.ui_fee_receiver, 'invalid ui_fee_receiver ');
-    assert(order1.market == order2.market, 'invalid market ');
-    assert(
-        order1.initial_collateral_token == order2.initial_collateral_token,
-        'invalid collateral_token '
-    );
-
-    assert(order1.size_delta_usd == order2.size_delta_usd, 'invalid size_delta_usd ');
-    assert(
-        order1.initial_collateral_delta_amount == order2.initial_collateral_delta_amount,
-        'invalid col_delta_amount '
-    );
-    assert(order1.trigger_price == order2.trigger_price, 'invalid trigger_price ');
-    assert(order1.acceptable_price == order2.acceptable_price, 'invalid acceptable_price ');
-    assert(order1.execution_fee == order2.execution_fee, 'invalid execution_fee ');
-    assert(order1.callback_gas_limit == order2.callback_gas_limit, 'invalid callback_gas_limit ');
-    assert(order1.min_output_amount == order2.min_output_amount, 'invalid min_output_amount ');
-    assert(order1.updated_at_block == order2.updated_at_block, 'invalid updated_at_block ');
-    assert(order1.is_long == order2.is_long, 'invalid is_long ');
-    assert(
-        order1.should_unwrap_native_token == order2.should_unwrap_native_token,
-        'invalid unwrap_native_token '
-    );
-    assert(order1.is_frozen == order2.is_frozen, 'invalid is_frozen ');
-}
-

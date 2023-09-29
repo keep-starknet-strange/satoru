@@ -9,7 +9,7 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 use satoru::pricing::swap_pricing_utils::SwapFees;
 
 #[test]
-fn test_emit_swap_info() {
+fn given_normal_conditions_when_emit_swap_info_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************
@@ -31,8 +31,8 @@ fn test_emit_swap_info() {
     let amount_in: u128 = 3;
     let amount_in_after_fees: u128 = 4;
     let amount_out: u128 = 5;
-    let price_impact_usd: u128 = 6;
-    let price_impact_amount: u128 = 7;
+    let price_impact_usd: i128 = 6;
+    let price_impact_amount: i128 = 7;
 
     // Create the expected data.
     let expected_data: Array<felt252> = array![
@@ -81,7 +81,7 @@ fn test_emit_swap_info() {
 }
 
 #[test]
-fn test_emit_swap_fees_collected() {
+fn given_normal_conditions_when_emit_swap_fees_collected_then_works() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
     // *********************************************************************************************

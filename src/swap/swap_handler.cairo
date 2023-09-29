@@ -34,6 +34,7 @@ mod SwapHandler {
     use satoru::swap::swap_utils::SwapParams;
     use satoru::swap::swap_utils;
     use satoru::role::role_module::{RoleModule, IRoleModule};
+    use satoru::utils::i128::{I128Store, I128Serde};
 
     // *************************************************************************
     //                              STORAGE
@@ -63,7 +64,7 @@ mod SwapHandler {
             let mut role_module: RoleModule::ContractState =
                 RoleModule::unsafe_new_contract_state();
             role_module.only_controller();
-            swap_utils::swap(params)
+            swap_utils::swap(@params)
         }
     }
 }

@@ -14,7 +14,7 @@ use satoru::callback::mocks::{ICallbackMockDispatcherTrait, deploy_callback_mock
 use satoru::tests_lib::{setup, teardown, setup_event_emitter};
 
 #[test]
-fn test_callback_utils_validate() {
+fn given_normal_conditions_when_validate_callback_gas_limit_then_works() {
     let (_, _, data_store) = setup();
     data_store.set_u128(keys::max_callback_gas_limit(), 100);
 
@@ -25,7 +25,7 @@ fn test_callback_utils_validate() {
 
 #[test]
 #[should_panic(expected: ('max_callback_gas_limit_exceeded', 101, 100))]
-fn test_callback_utils_validate_fail() {
+fn given_callback_gas_limit_exceeded_when_validate_callback_gas_limit_then_fails() {
     let (_, _, data_store) = setup();
     data_store.set_u128(keys::max_callback_gas_limit(), 100);
 
@@ -35,7 +35,7 @@ fn test_callback_utils_validate_fail() {
 }
 
 #[test]
-fn test_callback_utils_saved_callback() {
+fn given_normal_conditions_when_saved_callback_then_works() {
     let (_, _, data_store) = setup();
     let account: ContractAddress = 42.try_into().unwrap();
     let market: ContractAddress = 69.try_into().unwrap();
@@ -53,11 +53,11 @@ fn test_callback_utils_saved_callback() {
 }
 
 #[test]
-fn test_callback_utils_callback_contract() {
+fn given_normal_conditions_when_callback_contract_functions_then_works() {
     let (_, _, data_store) = setup();
 
     let mut deposit: Deposit = Default::default();
-    let log_data = EventLogData { cant_be_empty: 0 };
+    let log_data: EventLogData = EventLogData { cant_be_empty: 0 };
     let (_, event_emitter) = setup_event_emitter();
 
     let callback_mock = deploy_callback_mock();
