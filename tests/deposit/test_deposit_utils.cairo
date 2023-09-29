@@ -31,15 +31,15 @@ fn given_normal_conditions_when_deposit_then_works() {
 // );
 }
 
-
-#[test]
-#[should_panic(expected: ('insufficient_execution_fee',))]
-fn given_unsufficient_fee_token_amount_for_deposit_then_fails() {
-    let (caller_address, data_store, event_emitter, deposit_vault, chain, role_store) = setup_role();
-    let account: ContractAddress = 'account'.try_into().unwrap();
-    let deposit_param = create_dummy_deposit_param_market(data_store, role_store);
-    let key = create_deposit(data_store, event_emitter, deposit_vault, account, deposit_param);
-}
+//TODO : Use this test when get_market function is implemented
+// #[test]
+// #[should_panic(expected: ('insufficient_execution_fee',))]
+// fn given_unsufficient_fee_token_amount_for_deposit_then_fails() {
+//     let (caller_address, data_store, event_emitter, deposit_vault, chain, role_store) = setup_role();
+//     let account: ContractAddress = 'account'.try_into().unwrap();
+//     let deposit_param = create_dummy_deposit_param_market(data_store, role_store);
+//     let key = create_deposit(data_store, event_emitter, deposit_vault, account, deposit_param);
+// }
 
 // #[test]
 // #[should_panic(expected: ('empty_deposit_amounts',))]
@@ -174,7 +174,7 @@ fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
 fn create_dummy_deposit_param_market(data_store: IDataStoreDispatcher, role_store_address: ContractAddress) -> CreateDepositParams {
 
     let key: ContractAddress = 12345.try_into().unwrap();
-    let address_zero: ContractAddress = 12345.try_into().unwrap();
+    let address_zero: ContractAddress = 42.try_into().unwrap();
     let data_store_address = deploy_data_store(role_store_address);
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
     let caller_address: ContractAddress = 0x101.try_into().unwrap();
@@ -187,7 +187,7 @@ fn create_dummy_deposit_param_market(data_store: IDataStoreDispatcher, role_stor
         // Test logic
         // Test set_market function without permission
     start_prank(role_store_address, caller_address);
-    role_store.grant_role(caller_address, role::CONTROLLER);
+    role_store.grant_role(caller_address, role::MARKET_KEEPER);
     start_prank(data_store_address, caller_address);
     data_store.set_market(key, 0, market);
     
