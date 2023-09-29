@@ -133,22 +133,22 @@ fn get_opposite_token(input_token: ContractAddress, market: @Market) -> Contract
     }
 }
 
-fn validate_swap_market_address(
-    data_store: @IDataStoreDispatcher, market_address: ContractAddress
+fn validate_swap_market_with_address(
+    data_store: IDataStoreDispatcher, market_address: ContractAddress
 ) {
     let market = market_store_utils::get(data_store, market_address);
-    validate_swap_market(data_store, @market);
+    validate_swap_market(data_store, market);
 }
 
 /// Validata the swap market.
 /// # Arguments
 /// * `data_store` - The data store to use.
 /// * `market` - The market to validate the open interest for.
-fn validate_swap_market(data_store: @IDataStoreDispatcher, market: @Market) {
-    validate_enabled_market(*data_store, *market);
+fn validate_swap_market(data_store: IDataStoreDispatcher, market: Market) {
+    validate_enabled_market(data_store, market);
 
-    if *market.long_token == *market.short_token {
-        panic(array![MarketError::INVALID_SWAP_MARKET, (*market.market_token).into()])
+    if market.long_token == market.short_token {
+        panic(array![MarketError::INVALID_SWAP_MARKET, market.market_token.into()])
     }
 }
 
@@ -312,7 +312,7 @@ fn get_pool_value_info(
     result.pool_value = result.pool_value - result.net_pnl;
 
     result.impact_pool_amount = get_position_impact_pool_amount(data_store, market.market_token);
-    // use !maximize for pick_price since the impactPoolUsd is deducted from the poolValue
+    // use !maximize for pick_price since the impact_pool_usd is deducted from the pool_value
     let impact_pool_usd = result.impact_pool_amount * index_token_price.pick_price(!maximize);
 
     result.pool_value -= calc::to_signed(impact_pool_usd, true);

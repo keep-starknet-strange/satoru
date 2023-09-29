@@ -31,26 +31,25 @@ fn short_token() -> felt252 {
     hash_poseidon_single('SHORT_TOKEN')
 }
 
-fn get(data_store: @IDataStoreDispatcher, key: ContractAddress) -> Market {
-    let mut market: Market = Default::default();
-    match (*data_store).get_market(key) {
+fn get(data_store: IDataStoreDispatcher, key: ContractAddress) -> Market {
+    match data_store.get_market(key) {
         Option::Some => {},
         Option::None => {
-            return market;
+            return Default::default();
         }
     }
 
     let hash = poseidon_hash_span(array![key.into(), market_token()].span());
-    market.market_token = (*data_store).get_address(hash);
+    let market_token = data_store.get_address(hash);
 
     let hash = poseidon_hash_span(array![key.into(), index_token()].span());
-    market.index_token = (*data_store).get_address(hash);
+    let index_token = data_store.get_address(hash);
 
     let hash = poseidon_hash_span(array![key.into(), long_token()].span());
-    market.long_token = (*data_store).get_address(hash);
+    let long_token = data_store.get_address(hash);
 
     let hash = poseidon_hash_span(array![key.into(), short_token()].span());
-    market.short_token = (*data_store).get_address(hash);
+    let short_token = data_store.get_address(hash);
 
-    market
+    Market { market_token, index_token, long_token, short_token }
 }

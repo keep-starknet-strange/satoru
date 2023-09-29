@@ -181,7 +181,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
     }
     let mut cache: SwapCache = Default::default();
 
-    market_utils::validate_swap_market(params.data_store, _params.market);
+    market_utils::validate_swap_market(*params.data_store, *_params.market);
 
     cache.token_out = market_utils::get_opposite_token(*_params.token_in, _params.market);
     cache.token_in_price = (*params.oracle).get_primary_price(*_params.token_in);
