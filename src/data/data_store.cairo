@@ -10,6 +10,7 @@ use satoru::order::order::Order;
 use satoru::position::position::Position;
 use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::deposit::deposit::Deposit;
+use satoru::utils::i128::{I128Store, I128Serde};
 
 // *************************************************************************
 //                  Interface of the `DataStore` contract.
@@ -103,6 +104,8 @@ trait IDataStore<TContractState> {
     /// # Arguments
     /// * `key` - The key to delete the value for.
     fn remove_u128(ref self: TContractState, key: felt252);
+
+    fn apply_delta_to_u128(ref self: TContractState, key: felt252, value: u128) -> u128;
 
     /// Add input to existing value.
     /// # Arguments
@@ -474,6 +477,8 @@ mod DataStore {
     use satoru::position::{position::Position, error::PositionError};
     use satoru::withdrawal::{withdrawal::Withdrawal, error::WithdrawalError};
     use satoru::deposit::{deposit::Deposit, error::DepositError};
+    use satoru::utils::calc;
+    use satoru::utils::i128::{I128Store, I128Serde};
 
     // *************************************************************************
     //                              STORAGE
@@ -641,6 +646,10 @@ mod DataStore {
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             // Delete the value.
             self.u128_values.write(key, Default::default());
+        }
+
+        fn apply_delta_to_u128(ref self: ContractState, key: felt252, value: u128) -> u128 {
+            0
         }
 
         fn increment_u128(ref self: ContractState, key: felt252, value: u128) -> u128 {
