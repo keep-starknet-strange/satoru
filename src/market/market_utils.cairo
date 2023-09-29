@@ -165,8 +165,7 @@ fn get_cached_token_price(token: ContractAddress, market: Market, prices: Market
     } else if token == market.index_token {
         prices.index_token_price
     } else {
-        MarketError::UNABLE_TO_GET_CACHED_TOKEN_PRICE(token);
-        prices.index_token_price //todo : remove 
+        MarketError::UNABLE_TO_GET_CACHED_TOKEN_PRICE(token)
     }
 }
 
@@ -486,7 +485,7 @@ fn increment_claimable_collateral_amount(
     let divisor = data_store.get_u128(keys::claimable_collateral_time_divisor());
     error_utils::check_division_by_zero(divisor, 'increment_claimable_collateral');
     // Get current timestamp.
-    let current_timestamp = chain.get_block_timestamp().into();
+    let current_timestamp = get_block_timestamp().into();
     let time_key = current_timestamp / divisor;
 
     // Increment the collateral amount for the account.
