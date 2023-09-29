@@ -570,11 +570,10 @@ fn claim_funding_fees(
     // Validate the market token balance.
     validate_market_token_balance_with_address(data_store, market_address);
 
-    // TODO: Emit event.
-    // event_emitter
-    //     .emit_funding_fees_claimed(
-    //         market_address, token, account, claimable_amount, 0, next_pool_value
-    //     );
+    event_emitter
+        .emit_funding_fees_claimed(
+            market_address, token, account, receiver, claimable_amount, next_pool_value
+        );
 
     claimable_amount
 }

@@ -537,7 +537,7 @@ trait IEventEmitter<TContractState> {
     );
 
     /// Emits the `FundingFeesClaimed` event.
-    fn emit_founding_fees_claimed(
+    fn emit_funding_fees_claimed(
         ref self: TContractState,
         market: ContractAddress,
         token: ContractAddress,
@@ -2582,7 +2582,7 @@ mod EventEmitter {
         }
 
         /// Emits the `FundingFeesClaimed` event.
-        fn emit_founding_fees_claimed(
+        fn emit_funding_fees_claimed(
             ref self: ContractState,
             market: ContractAddress,
             token: ContractAddress,
