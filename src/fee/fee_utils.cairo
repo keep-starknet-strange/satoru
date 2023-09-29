@@ -66,8 +66,8 @@ fn increment_claimable_ui_fee_amount(
             keys::claimable_ui_fee_amount_for_account_key(market, token, ui_fee_receiver), delta
         );
 
-    let next_pool_value = data_store.increment_u128(keys::claimable_ui_fee_amount_key(market, token), delta);
-
+    let next_pool_value = data_store
+        .increment_u128(keys::claimable_ui_fee_amount_key(market, token), delta);
     event_emitter
         .emit_claimable_ui_fee_amount_updated(
             ui_fee_receiver, market, token, delta, next_value, next_pool_value, fee_type

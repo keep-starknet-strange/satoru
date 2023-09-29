@@ -1283,7 +1283,7 @@ fn validate_market_token_balance_market(data_store: IDataStoreDispatcher, market
 fn validate_market_token_balance_token(
     data_store: IDataStoreDispatcher, market: Market, token: ContractAddress
 ) {
-   0;
+    0;
 }
 
 /// Get the expected min token balance by summing all fees

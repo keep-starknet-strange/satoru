@@ -19,8 +19,7 @@ fn given_normal_conditions_when_fee_handler_then_works() {
     let tokens: Array<ContractAddress> = array![
         0x123.try_into().unwrap(), 0x234.try_into().unwrap(), 0x345.try_into().unwrap()
     ];
-
-    // fee_handler.claim_fees(markets, tokens); TODO wait for market_utils to be implemented
+// fee_handler.claim_fees(markets, tokens); TODO wait for market_utils to be implemented
 }
 
 #[test]
