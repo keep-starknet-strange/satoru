@@ -597,7 +597,7 @@ fn given_normal_conditions_when_emit_funding_fees_claimed_then_works() {
 
     // Emit the event.
     event_emitter
-        .emit_founding_fees_claimed(market, token, account, receiver, amount, next_pool_value);
+        .emit_funding_fees_claimed(market, token, account, receiver, amount, next_pool_value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
