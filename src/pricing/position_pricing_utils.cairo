@@ -22,7 +22,9 @@ use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorag
 use satoru::utils::{calc, precision};
 use satoru::pricing::error::PricingError;
 use satoru::referral::referral_utils;
-use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}, error_utils, calc::to_signed};
+use satoru::utils::{
+    i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}, error_utils, calc::to_signed
+};
 
 use integer::u128_to_felt252;
 /// Struct used in get_position_fees.
