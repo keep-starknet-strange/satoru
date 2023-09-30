@@ -92,4 +92,4 @@ let bank_dispatcher = IBankDispatcher { contract_address: bank_contract_address 
 
 // Transferring tokens using the Bank contract
 let receiver_address: ContractAddress = 0x202.try_into().unwrap();
-bank_dispatcher.transfer_out(erc20_contract_address, receiver_address, 100_u128); ```
+bank_dispatcher.transfer_out(erc20_contract_address, receiver_address, 100_u128);

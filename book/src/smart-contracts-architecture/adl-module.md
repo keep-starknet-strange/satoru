@@ -97,4 +97,4 @@ let params = adl_utils::CreateAdlOrderParams {
     size_delta_usd: /* ... */,
     updated_at_block: /* ... */,
 };
-adl_utils::create_adl_order(params); ```
+adl_utils::create_adl_order(params);
