@@ -2,6 +2,10 @@
 
 This module is crafted to manage the storage and transfer of tokens within a contract. It's a pivotal part of a broader project, allowing for basic bank functionalities like initializing the contract and transferring tokens out to a receiver.
 
+It contains the following Cairo library files:
+
+- [bank.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/bank/bank.cairo)
+
 ## Structures
 
 ### `Storage`
