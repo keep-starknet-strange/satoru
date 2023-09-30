@@ -6,7 +6,7 @@ src = "src"
 title = "Satoru Book"
 
 [output.html]
-git-repository-url = "https://github.com/keep-starknet-strange/satoru/"
+git-repository-url = "https://github.com/axelizsak/satoru/tree/doc"
 edit-url-template = "https://github.com/keep-starknet-strange/satoru/book/{path}"
 
 [output.html.playground]
