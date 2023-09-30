@@ -27,8 +27,7 @@ use satoru::price::price::{Price, PriceTrait};
 use satoru::utils::{calc, precision, error_utils, i128::{I128Store, I128Serde, I128Div, I128Mul}};
 use satoru::referral::referral_utils;
 use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
-use integer::u128_to_felt252;
-
+use satoru::utils::calc::to_signed;
 /// Struct used in increasePosition and decreasePosition.
 #[derive(Drop, Copy, starknet::Store, Serde)]
 struct UpdatePositionParams {
@@ -301,14 +300,10 @@ fn get_position_pnl_usd(
                 };
         cache.pool_token_usd = cache.pool_token_amount * cache.pool_token_price;
         cache
-            .pool_pnl =
-                u128_to_felt252(
-                    market_utils::get_pnl(
-                        data_store, @market, @prices.index_token_price, position.is_long, true
-                    )
-                )
-            .try_into()
-            .unwrap();
+            .pool_pnl = to_signed(market_utils::get_pnl(
+                data_store, @market, @prices.index_token_price, position.is_long, true),
+                true
+                );
         cache
             .capped_pool_pnl =
                 market_utils::get_capped_pnl(

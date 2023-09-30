@@ -685,18 +685,9 @@ mod DataStore {
         }
 
         fn apply_bounded_delta_to_u128(ref self: ContractState, key: felt252, value: u128) -> u128 {
-            let uintValue: u128 = self.u128_values.read(key);
-            // let felt252_value: felt252 = i128_to_felt252(-value);
-            // let u128_value = felt252_value.try_into().unwrap();
-            // if (value < 0 && u128_value > uintValue) {
-            //     self.u128_values.write(key, 0);
-            //     return 0;
-            // }
-
-            //let nextUint: u128 = sum_return_uint_128(uintValue, value);
-            let nextUint: u128 = uintValue + value;
-            self.u128_values.write(key, nextUint);
-            return nextUint;
+            let next_uint: u128 = self.u128_values.read(key) + value;
+            self.u128_values.write(key, next_uint);
+            next_uint
         }
 
 
@@ -725,7 +716,7 @@ mod DataStore {
         fn apply_delta_to_i128(ref self: ContractState, key: felt252, value: u128) -> u128 {
             let next_int: u128 = self.i128_values.read(key) + value;
             self.i128_values.write(key, next_int);
-            return next_int;
+            next_int
         }
 
 
