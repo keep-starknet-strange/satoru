@@ -4,7 +4,7 @@ The Callback module encapsulates the two-step process required in most features 
 
 This module contains the following Cairo library files:
 
-- [callback.cairo](https://github.com/keep-starknet-strange/satoru/tree/main/src/callback)
+- [callback](https://github.com/keep-starknet-strange/satoru/tree/main/src/callback)
 
 ## Functions
 
