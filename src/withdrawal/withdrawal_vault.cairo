@@ -55,7 +55,7 @@ mod WithdrawalVault {
     /// # Arguments
     /// * `strict_bank_address` - The address of the strict bank contract.
     #[constructor]
-    fn constructor(ref self: ContractState, strict_bank_address: ContractAddress,) {
+    fn constructor(ref self: ContractState, strict_bank_address: ContractAddress) {
         self.initialize(strict_bank_address);
     }
 
