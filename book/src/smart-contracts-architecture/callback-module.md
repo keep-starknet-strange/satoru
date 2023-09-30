@@ -32,7 +32,9 @@ Retrieves a previously stored callback contract address associated with a given 
   - `account`: The account to get callback contract for.
   - `market`: The market to get callback contract for.
 
-### `after_deposit_execution`, `after_deposit_cancellation`, `after_withdrawal_execution`, `after_withdrawal_cancellation`, `after_order_execution`, `after_order_cancellation`, and `after_order_frozen`
+### after_deposit_execution, after_deposit_cancellation, after_withdrawal_execution, after_withdrawal_cancellation, after_order_execution, after_order_cancellation, and after_order_frozen
+These functions are callback handlers called after specific actions such as deposit execution, deposit cancellation, withdrawal execution, withdrawal cancellation, order execution, order cancellation, and order frozen respectively.
+
 These functions are callback handlers called after specific actions such as deposit execution, deposit cancellation, withdrawal execution, withdrawal cancellation, order execution, order cancellation, and order frozen respectively.
 
 - **Common Arguments:**
