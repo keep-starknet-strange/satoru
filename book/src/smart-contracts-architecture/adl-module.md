@@ -1,6 +1,6 @@
 # Auto-Deleveraging (ADL) Module
 
-The ADL Module is designed to assist with auto-deleveraging in particular markets. This is especially relevant for markets with an index token that differs from the long token, such as a STRK / USDC perpetual market with ETH as the long token.
+The ADL Module is designed to assist with auto-deleveraging in particular markets. This is especially relevant for markets with an index token that differs from the long token, such as a STRK / USD perpetual market with ETH as the long token.
 
 It contains the following Cairo library files:
 
@@ -16,7 +16,7 @@ This struct is utilized within the `create_adl_order` function to encapsulate pa
 - `event_emitter`: The `EventEmitter` contract dispatcher utilized for emitting events on the blockchain, allowing users and other contracts to track changes in the system.
 - `account`: The address of the account whose position is to be reduced. In the ADL context, this typically means closing profitable positions to maintain system solvency.
 - `market`: Address of the concerned market. Each market may have its own parameters and states, and this address helps identify the specific market to be dealt with.
-- `collateral_token`: The address of the token used as collateral for the position. For instance, it's ETH in a DOGE/USD market as per the given example.
+- `collateral_token`: The address of the token used as collateral for the position. For instance, it's ETH in a STRK/USD market as per the given example.
 - `is_long`: Indicates whether the position is long or short. A long position benefits from a price increase in the market, while a short position benefits from a price decrease.
 - `size_delta_usd`: The size of the position to be reduced, expressed in US Dollars. This specifies how much of the position should be reduced to maintain system solvency.
 - `updated_at_block`: The block number at which the order was updated. This tracks when the ADL order was last created or modified.
