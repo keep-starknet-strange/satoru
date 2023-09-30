@@ -4,7 +4,7 @@ The ADL Module is designed to assist with auto-deleveraging in particular market
 
 It contains the following Cairo library files:
 
-- [adl.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/adl/adl.cairo)
+- [adl.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/adl/adl_utils.cairo)
 
 ## Structures and Types
 
