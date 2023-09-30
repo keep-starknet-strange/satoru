@@ -47,7 +47,7 @@ struct Order {
     /// The acceptable execution price for increase / decrease orders.
     acceptable_price: u128,
     /// The execution fee for keepers.
-    execution_fee: u256,
+    execution_fee: u128,
     /// The gas limit for the callbackContract.
     callback_gas_limit: u128,
     /// The minimum output amount for decrease orders and swaps.
@@ -56,8 +56,6 @@ struct Order {
     updated_at_block: u64,
     /// Whether the order is for a long or short.
     is_long: bool,
-    /// Whether to unwrap native tokens before transferring to the user.
-    should_unwrap_native_token: bool,
     /// Whether the order is frozen.
     is_frozen: bool,
 }
@@ -68,12 +66,12 @@ impl DefaultOrder of Default<Order> {
             key: 0,
             decrease_position_swap_type: DecreasePositionSwapType::NoSwap,
             order_type: OrderType::MarketSwap,
-            account: 0.try_into().unwrap(),
-            receiver: 0.try_into().unwrap(),
-            callback_contract: 0.try_into().unwrap(),
-            ui_fee_receiver: 0.try_into().unwrap(),
-            market: 0.try_into().unwrap(),
-            initial_collateral_token: 0.try_into().unwrap(),
+            account: contract_address_const::<0>(),
+            receiver: contract_address_const::<0>(),
+            callback_contract: contract_address_const::<0>(),
+            ui_fee_receiver: contract_address_const::<0>(),
+            market: contract_address_const::<0>(),
+            initial_collateral_token: contract_address_const::<0>(),
             swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
             size_delta_usd: 0,
             initial_collateral_delta_amount: 0,
@@ -84,7 +82,6 @@ impl DefaultOrder of Default<Order> {
             min_output_amount: 0,
             updated_at_block: 0,
             is_long: true,
-            should_unwrap_native_token: true,
             is_frozen: true,
         }
     }

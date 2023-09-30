@@ -16,6 +16,7 @@
   - [Fee Module](smart-contracts-architecture/fee-module.md)
   - [Gas Module](smart-contracts-architecture/gas-module.md)
   - [Liquidation](smart-contracts-architecture/liquidation-module.md)
+  - [Mock](smart-contracts-architecture/mock-module.md)
   - [Nonce Module](smart-contracts-architecture/nonce-module.md)
   - [Oracle Module](smart-contracts-architecture/oracle-module.md)
   - [Order Module](smart-contracts-architecture/order-module.md)

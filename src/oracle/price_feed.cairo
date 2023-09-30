@@ -1,46 +1,53 @@
-/// Mock interface used for oracle::get_price_feed_price. 
-use serde::Serde;
+/// Data Types
+/// The value is the `pair_id` of the data
+/// For future option, pair_id and expiration timestamp
+///
+/// * `Spot` - Spot price
+/// * `Future` - Future price
+/// * `Option` - Option price
+#[derive(Drop, Copy, Serde)]
+enum DataType {
+    SpotEntry: felt252,
+    FutureEntry: (felt252, u64),
+    GenericEntry: felt252,
+}
+
+#[derive(Serde, Drop, Copy)]
+struct PragmaPricesResponse {
+    price: u128,
+    decimals: u32,
+    last_updated_timestamp: u64,
+    num_sources_aggregated: u32,
+    expiration_timestamp: Option<u64>,
+}
 
 #[starknet::interface]
 trait IPriceFeed<TContractState> {
-    fn latest_round_data(self: @TContractState) -> (u128, u128, u128, u64, u128);
+    fn get_data_median(self: @TContractState, data_type: DataType) -> PragmaPricesResponse;
 }
 
 
-impl TupleSize5Serde<
-    E0,
-    E1,
-    E2,
-    E3,
-    E4,
-    impl E0Serde: Serde<E0>,
-    impl E0Drop: Drop<E0>,
-    impl E1Serde: Serde<E1>,
-    impl E1Drop: Drop<E1>,
-    impl E2Serde: Serde<E2>,
-    impl E2Drop: Drop<E2>,
-    impl E3Serde: Serde<E3>,
-    impl E3Drop: Drop<E3>,
-    impl E4Serde: Serde<E4>,
-    impl E4Drop: Drop<E4>,
-> of Serde<(E0, E1, E2, E3, E4)> {
-    fn serialize(self: @(E0, E1, E2, E3, E4), ref output: Array<felt252>) {
-        let (e0, e1, e2, e3, e4) = self;
-        e0.serialize(ref output);
-        e1.serialize(ref output);
-        e2.serialize(ref output);
-        e3.serialize(ref output);
-        e4.serialize(ref output)
-    }
-    fn deserialize(ref serialized: Span<felt252>) -> Option<(E0, E1, E2, E3, E4)> {
-        Option::Some(
-            (
-                E0Serde::deserialize(ref serialized)?,
-                E1Serde::deserialize(ref serialized)?,
-                E2Serde::deserialize(ref serialized)?,
-                E3Serde::deserialize(ref serialized)?,
-                E4Serde::deserialize(ref serialized)?
-            )
-        )
+// NOTE: mock for testing.
+#[starknet::contract]
+mod PriceFeed {
+    use super::{DataType, PragmaPricesResponse};
+
+    #[storage]
+    struct Storage {}
+
+    #[construct]
+    fn constructor() {}
+
+    #[external(v0)]
+    impl PriceFeedImpl of super::IPriceFeed<ContractState> {
+        fn get_data_median(self: @ContractState, data_type: DataType) -> PragmaPricesResponse {
+            PragmaPricesResponse {
+                price: 1700,
+                decimals: 18,
+                last_updated_timestamp: 0,
+                num_sources_aggregated: 5,
+                expiration_timestamp: Option::None,
+            }
+        }
     }
 }

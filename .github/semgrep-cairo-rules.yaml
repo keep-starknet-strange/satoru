@@ -1,0 +1,15 @@
+rules:  
+- id: unwrap
+  message: Use unwrap() method on $X, use expect() instead
+  languages: [cairo]
+  severity: WARNING
+  pattern: $X.unwrap()
+
+- id: division
+  message: Possible division by zero, use error_utils::check_division_by_zero to report a better error message
+  languages: [cairo]
+  severity: WARNING
+  patterns:
+    - pattern-regex: $Y / $X
+    - pattern-not-regex: error_utils::check_division_by_zero
+    

@@ -1,7 +1,9 @@
 mod OracleError {
     use starknet::ContractAddress;
+    use serde::Serde;
 
     const ALREADY_INITIALIZED: felt252 = 'already_initialized';
+    const EMPTY_ORACLE_BLOCK_NUMBERS: felt252 = 'empty_oracle_block_numbers';
 
     fn NON_EMPTY_TOKENS_WITH_PRICES(data: u32) {
         panic(array!['non empty tokens prices', data.into()])
@@ -42,7 +44,7 @@ mod OracleError {
             if length == 0 {
                 break;
             }
-            data.append(*data_1.pop_front().unwrap());
+            data.append(*data_1.pop_front().expect('array pop_front failed'));
         };
         data.append(data_2.into());
         data.append(msg);
@@ -56,7 +58,7 @@ mod OracleError {
             if length == 0 {
                 break;
             }
-            data.append((*data_1.pop_front().unwrap()).into());
+            data.append((*data_1.pop_front().expect('array pop_front failed')).into());
         };
         data.append(data_2.into());
         data.append(msg);
@@ -108,6 +110,10 @@ mod OracleError {
         panic(array!['invalid price feed', data_1.into(), data_2.into()])
     }
 
+    fn INVALID_PRIMARY_PRICES_FOR_SIMULATION(data_1: u32, data_2: u32) {
+        panic(array!['Simulation:invalid prim_prices', data_1.into(), data_2.into()])
+    }
+
     fn PRICE_FEED_NOT_UPDATED(data_1: ContractAddress, data_2: u64, data_3: u128) {
         panic(array!['price feed not updated', data_1.into(), data_2.into(), data_3.into()])
     }
@@ -119,5 +125,29 @@ mod OracleError {
     fn EMPTY_PRICE_FEED(data_1: ContractAddress) {
         panic(array!['empty price feed', data_1.into()])
     }
-}
 
+    fn END_OF_ORACLE_SIMULATION() {
+        panic(array!['end of oracle simulation'])
+    }
+
+    fn ORACLE_BLOCK_NUMBERS_NOT_WITHIN_RANGE(
+        min_oracle_block_numbers: Span<u64>, max_oracle_block_numbers: Span<u64>, block_number: u64
+    ) {
+        let mut data: Array<felt252> = array![];
+        data.append('block number not in range');
+        Serde::serialize(min_oracle_block_numbers.snapshot, ref data);
+        Serde::serialize(max_oracle_block_numbers.snapshot, ref data);
+        data.append(block_number.into());
+        panic(data)
+    }
+
+    fn ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(
+        min_oracle_block_numbers: Span<u64>, block_number: u64
+    ) {
+        let mut data: Array<felt252> = array![];
+        data.append('block numbers too small');
+        Serde::serialize(min_oracle_block_numbers.snapshot, ref data);
+        data.append(block_number.into());
+        panic(data)
+    }
+}

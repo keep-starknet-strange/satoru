@@ -6,7 +6,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
+use starknet::{ContractAddress, contract_address_const};
 use core::traits::TryInto;
 use result::ResultTrait;
 
@@ -25,18 +25,17 @@ use satoru::pricing::position_pricing_utils::PositionBorrowingFees;
 use satoru::pricing::position_pricing_utils::PositionReferralFees;
 use satoru::pricing::position_pricing_utils::PositionFundingFees;
 use satoru::pricing::position_pricing_utils::PositionUiFees;
-use satoru::referral::referral_storage::interface::{
-    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
-};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use satoru::utils::i128::{I128Store, I128Serde, I128Div, I128Mul};
 
 #[derive(Drop, starknet::Store, Serde)]
 struct PositionInfo {
     position: Position,
     fees: PositionFees,
     execution_price_result: ExecutionPriceResult,
-    base_pnl_usd: u128, // TODO replace with i128 when it derives Store
-    uncapped_base_pnl_usd: u128, // TODO replace with i128 when it derives Store
-    pnl_after_price_impact_usd: u128, // TODO replace with i128 when it derives Store
+    base_pnl_usd: i128,
+    uncapped_base_pnl_usd: i128,
+    pnl_after_price_impact_usd: i128,
 }
 
 #[derive(Drop, starknet::Store, Serde)]
@@ -184,11 +183,10 @@ fn get_position_info(
     ui_fee_receiver: ContractAddress,
     use_position_size_as_size_delta_usd: bool
 ) -> PositionInfo {
-    let address_zero: ContractAddress = 0.try_into().unwrap();
     let position_referral_fees = PositionReferralFees {
         referral_code: 0,
-        affiliate: address_zero,
-        trader: address_zero,
+        affiliate: contract_address_const::<0>(),
+        trader: contract_address_const::<0>(),
         total_rebate_factor: 0,
         trader_discount_factor: 0,
         total_rebate_amount: 0,
@@ -198,9 +196,9 @@ fn get_position_info(
 
     let position = Position {
         key: 0,
-        account: 0.try_into().unwrap(),
-        market: 0.try_into().unwrap(),
-        collateral_token: 0.try_into().unwrap(),
+        account: contract_address_const::<0>(),
+        market: contract_address_const::<0>(),
+        collateral_token: contract_address_const::<0>(),
         size_in_usd: 0,
         size_in_tokens: 0,
         collateral_amount: 0,
@@ -228,7 +226,7 @@ fn get_position_info(
         borrowing_fee_amount_for_fee_receiver: 0,
     };
     let position_ui_fees = PositionUiFees {
-        ui_fee_receiver: address_zero, ui_fee_receiver_factor: 0, ui_fee_amount: 0,
+        ui_fee_receiver: contract_address_const::<0>(), ui_fee_receiver_factor: 0, ui_fee_amount: 0,
     };
 
     let execution_price_result = ExecutionPriceResult {
