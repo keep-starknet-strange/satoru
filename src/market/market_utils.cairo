@@ -32,6 +32,7 @@ use satoru::utils::calc::{roundup_division};
 use satoru::position::position::Position;
 use integer::u128_to_felt252;
 use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}, error_utils};
+use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 
 /// Struct to store the prices of tokens of a market.
 /// # Params
@@ -65,6 +66,15 @@ struct GetNextFundingAmountPerSizeResult {
     funding_factor_per_second: u128,
     funding_fee_amount_per_size_delta: PositionType,
     claimable_funding_amount_per_size_delta: PositionType,
+}
+
+struct GetExpectedMinTokenBalanceCache {
+    pool_amount: u128,
+    swap_impact_pool_amount: u128,
+    claimable_collateral_amount: u128,
+    claimable_fee_amount: u128,
+    claimable_ui_fee_amount: u128,
+    affiliate_reward_amount: u128,
 }
 
 // @dev get the token price from the stored MarketPrices
@@ -1287,9 +1297,6 @@ fn apply_delta_to_virtual_inventory_for_positions(
     return (true, next_value);
 }
 
-
-//NOT TO DO
-
 /// Get the next cumulative borrowing factor.
 ///
 /// # Arguments
@@ -1573,3 +1580,67 @@ fn get_open_interest_reserve_factor(
     Default::default()
 }
 
+
+/// Validate that the specified market exists and is enabled
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - The address of the market
+fn validate_enable_market(data_store: IDataStoreDispatcher, market: Market) {
+    0;
+}
+
+/// Check if the market is valid
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - The market
+fn validate_market_token_balance_market(data_store: IDataStoreDispatcher, market: Market) {
+    validate_market_token_balance_token(data_store, market, market.long_token);
+
+    if (market.long_token == market.short_token) {
+        return;
+    }
+
+    validate_market_token_balance_token(data_store, market, market.short_token);
+}
+
+///  Validate that market is valid for the token 
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - The market to increment claimable fees for.
+/// * `token` - The fee token.
+fn validate_market_token_balance_token(
+    data_store: IDataStoreDispatcher, market: Market, token: ContractAddress
+) {
+    0;
+}
+
+/// Get the expected min token balance by summing all fees
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - The market to increment claimable fees for.
+/// * `token` - The fee token.
+fn get_expected_min_token_balance(
+    data_store: IDataStoreDispatcher, market: Market, token: ContractAddress
+) -> u128 {
+    // get the pool amount directly as MarketUtils.getPoolAmount will divide the amount by 2
+    // for markets with the same long and short token
+    0
+}
+
+/// Get the total amount of position collateral for a market
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - The market to check
+/// * `collateral_token` - the collateral_token to check
+/// * `is_long` - Whether to get the value for longs or shorts
+/// # Returns
+/// The total amount of position collateral for a market
+fn get_collateral_sum(
+    data_store: IDataStoreDispatcher,
+    market: ContractAddress,
+    collateral_token: ContractAddress,
+    is_long: bool,
+    divisor: u128
+) -> u128 {
+    0
+}
