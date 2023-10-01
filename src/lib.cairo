@@ -163,7 +163,6 @@ mod liquidation {
 mod market {
     mod error;
     mod market;
-    mod market_event_utils;
     mod market_factory;
     mod market_pool_value_info;
     mod market_store_utils;

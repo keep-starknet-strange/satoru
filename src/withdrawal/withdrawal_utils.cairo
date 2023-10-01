@@ -15,9 +15,8 @@ use satoru::event::{
 use satoru::fee::fee_utils;
 use satoru::gas::gas_utils;
 use satoru::market::{
-    market::Market, market_event_utils,
-    market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait}, market_utils,
-    market_utils::MarketPrices
+    market::Market, market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait},
+    market_utils, market_utils::MarketPrices
 };
 use satoru::nonce::nonce_utils;
 use satoru::oracle::{oracle::{IOracleDispatcher, IOracleDispatcherTrait}, oracle_utils};
@@ -586,9 +585,8 @@ fn get_output_amounts(
         IMarketTokenDispatcher { contract_address: market.market_token }
     );
 
-    market_event_utils::emit_market_pool_value_info(
-        *params.event_emitter, market.market_token, pool_value_info, market_tokens_supply
-    );
+    (*params.event_emitter)
+        .emit_market_pool_value_info(market.market_token, pool_value_info, market_tokens_supply);
 
     let long_token_pool_amount = market_utils::get_pool_amount(
         *params.data_store, @market, market.long_token
