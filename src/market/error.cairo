@@ -8,6 +8,11 @@ mod MarketError {
     const OPEN_INTEREST_CANNOT_BE_UPDATED_FOR_SWAP_ONLY_MARKET: felt252 =
         'oi_not_updated_swap_only_market';
     const MAX_OPEN_INTEREST_EXCEEDED: felt252 = 'max_open_interest_exceeded';
+    const EMPTY_ADDRESS_IN_MARKET_TOKEN_BALANCE_VALIDATION: felt252 =
+        'empty_addr_market_balance_val';
+    const EMPTY_ADDRESS_TOKEN_BALANCE_VAL: felt252 = 'empty_addr_token_balance_val';
+    const INVALID_MARKET_TOKEN_BALANCE: felt252 = 'invalid_market_token_balance';
+    const EmptyAddressInMarketTokenBalanceValidation: felt252 = 'EmptyAddressMarketBalanceVal';
     const INVALID_POSITION_MARKET: felt252 = 'invalid_position_market';
     const INVALID_COLLATERAL_TOKEN_FOR_MARKET: felt252 = 'invalid_coll_token_for_market';
 
@@ -23,9 +28,6 @@ mod MarketError {
     const PNL_EXCEEDED_FOR_LONGS: felt252 = 'pnl_exceeded_for_longs';
     const PNL_EXCEEDED_FOR_SHORTS: felt252 = 'pnl_exceeded_for_shorts';
     const UI_FEE_FACTOR_EXCEEDED: felt252 = 'ui_fee_factor_exceeded';
-    const EMPTY_ADDRESS_IN_MARKET_TOKEN_BALANCE_VALIDATION: felt252 =
-        'empty_address_in_market_token';
-    const INVALID_MARKET_TOKEN_BALANCE: felt252 = 'invalid_market_token_balance';
     const INVALID_MARKET_TOKEN_BALANCE_FOR_COLLATERAL_AMOUNT: felt252 =
         'invalid_market_token_balance';
     const INVALID_MARKET_TOKEN_BALANCE_FOR_CLAIMABLE_FUNDING: felt252 =

@@ -66,16 +66,6 @@ struct GetNextFundingAmountPerSizeResult {
     claimable_funding_amount_per_size_delta: PositionType,
 }
 
-#[derive(Drop, starknet::Store, Serde)]
-struct GetExpectedMinTokenBalanceCache {
-    pool_amount: u128,
-    swap_impact_pool_amount: u128,
-    claimable_collateral_amount: u128,
-    claimable_fee_amount: u128,
-    claimable_ui_fee_amount: u128,
-    affiliate_reward_amount: u128,
-}
-
 // @dev get the token price from the stored MarketPrices
 // @param token the token to get the price for
 // @param the market values
@@ -2175,48 +2165,35 @@ fn validate_market_token_balance_util(
 fn get_expected_min_token_balance(
     data_store: IDataStoreDispatcher, market: Market, token: ContractAddress
 ) -> u128 {
-    let mut cache = GetExpectedMinTokenBalanceCache {
-        pool_amount: 0,
-        swap_impact_pool_amount: 0,
-        claimable_collateral_amount: 0,
-        claimable_fee_amount: 0,
-        claimable_ui_fee_amount: 0,
-        affiliate_reward_amount: 0,
-    };
-
-    // get the pool amount directly as MarketUtils.getPoolAmount will divide the amount by 2
+    // get the pool amount directly as MarketUtils.get_pool_amount will divide the amount by 2
     // for markets with the same long and short token
-    cache.pool_amount = data_store.get_u128(keys::pool_amount_key(market.market_token, token));
-    cache
-        .swap_impact_pool_amount =
-            get_swap_impact_pool_amount(data_store, market.market_token, token);
-    cache
-        .claimable_collateral_amount = data_store
+    let pool_amount: u128 = data_store.get_u128(keys::pool_amount_key(market.market_token, token));
+    let swap_impact_pool_amount: u128 = get_swap_impact_pool_amount(
+        data_store, market.market_token, token
+    );
+    let claimable_collateral_amount: u128 = data_store
         .get_u128(keys::claimable_collateral_amount_key(market.market_token, token));
-    cache
-        .claimable_fee_amount = data_store
+    let claimable_fee_amount: u128 = data_store
         .get_u128(
             keys::claimable_fee_amount()
         ); // line must be :claimable_fee_amount_key(market.market_token, token));
-    cache
-        .claimable_ui_fee_amount = data_store
+    let claimable_ui_fee_amount: u128 = data_store
         .get_u128(
             keys::claimable_ui_fee_amount()
         ); //line must be : claimable_ui_fee_amount_key(market.market_token, token));
-    cache
-        .affiliate_reward_amount = data_store
+    let affiliate_reward_amount: u128 = data_store
         .get_u128(keys::affiliate_reward_key(market.market_token, token));
 
     // funding fees are excluded from this summation as claimable funding fees
     // are incremented without a corresponding decrease of the collateral of
     // other positions, the collateral of other positions is decreased when
     // those positions are updated
-    let cache_result = cache.pool_amount
-        + cache.swap_impact_pool_amount
-        + cache.claimable_collateral_amount
-        + cache.claimable_fee_amount
-        + cache.claimable_ui_fee_amount
-        + cache.affiliate_reward_amount;
+    let result = pool_amount
+        + swap_impact_pool_amount
+        + claimable_collateral_amount
+        + claimable_fee_amount
+        + claimable_ui_fee_amount
+        + affiliate_reward_amount;
 
-    cache_result
+    result
 }
