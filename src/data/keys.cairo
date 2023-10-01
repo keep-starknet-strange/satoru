@@ -694,7 +694,7 @@ fn account_order_list_key(account: ContractAddress) -> felt252 {
 /// * `token` - The token for the fee.
 /// # Returns
 /// * The key for the claimable fee amount.
-fn claim_fee_amount_key(market: ContractAddress, token: ContractAddress) -> felt252 {
+fn claimable_fee_amount_key(market: ContractAddress, token: ContractAddress) -> felt252 {
     let mut data = array![];
     data.append(claimable_fee_amount());
     data.append(market.into());
@@ -709,7 +709,7 @@ fn claim_fee_amount_key(market: ContractAddress, token: ContractAddress) -> felt
 /// * `account` - The account that can claim the ui fee.
 /// # Returns
 /// * The key for the claimable ui fee amount.
-fn claim_ui_fee_amount_key(market: ContractAddress, token: ContractAddress) -> felt252 {
+fn claimable_ui_fee_amount_key(market: ContractAddress, token: ContractAddress) -> felt252 {
     let mut data = array![];
     data.append(claimable_ui_fee_amount());
     data.append(market.into());
@@ -724,7 +724,7 @@ fn claim_ui_fee_amount_key(market: ContractAddress, token: ContractAddress) -> f
 /// * `account` - The account that can claim the ui fee.
 /// # Returns
 /// * The key for the claimable ui fee amount.
-fn claim_ui_fee_amount_for_account_key(
+fn claimable_ui_fee_amount_for_account_key(
     market: ContractAddress, token: ContractAddress, account: ContractAddress
 ) -> felt252 {
     let mut data = array![];

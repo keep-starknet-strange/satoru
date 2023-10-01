@@ -12,9 +12,6 @@ use satoru::withdrawal::withdrawal_vault::{
 };
 use satoru::fee::fee_handler::{IFeeHandlerDispatcher, IFeeHandlerDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys::{
-    claim_fee_amount_key, claim_ui_fee_amount_key, claim_ui_fee_amount_for_account_key
-};
 use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
