@@ -122,7 +122,7 @@ trait IDataStore<TContractState> {
     /// # Arguments
     /// * `key` -  the key of the value
     /// * `value` - the input int value
-    fn apply_bounded_delta_to_u128(ref self: TContractState, key: felt252, value: u128) -> u128;
+    fn apply_bounded_delta_to_u128(ref self: TContractState, key: felt252, value: i128) -> u128;
 
     // *************************************************************************
     //                      Address related functions.
@@ -488,7 +488,7 @@ mod DataStore {
     use satoru::position::{position::Position, error::PositionError};
     use satoru::withdrawal::{withdrawal::Withdrawal, error::WithdrawalError};
     use satoru::deposit::{deposit::Deposit, error::DepositError};
-    use satoru::utils::calc::sum_return_uint_128;
+    use satoru::utils::calc::{sum_return_uint_128, to_signed, to_unsigned};
     use integer::i128_to_felt252;
     use satoru::utils::i128::{I128Div, I128Mul, I128Store, I128Serde, I128Default};
 
@@ -686,8 +686,13 @@ mod DataStore {
             new_value
         }
 
-        fn apply_bounded_delta_to_u128(ref self: ContractState, key: felt252, value: u128) -> u128 {
-            let next_uint: u128 = self.u128_values.read(key) + value;
+        fn apply_bounded_delta_to_u128(ref self: ContractState, key: felt252, value: i128) -> u128 {
+            let uint_value: u128 = self.u128_values.read(key);
+            if (value < 0 && to_unsigned(-value) > uint_value) {
+                self.u128_values.write(key, 0);
+                0
+            }
+            let next_uint: u128 = sum_return_uint_128(uint_value, value);
             self.u128_values.write(key, next_uint);
             next_uint
         }

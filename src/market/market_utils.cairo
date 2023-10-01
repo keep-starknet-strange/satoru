@@ -28,7 +28,7 @@ use satoru::utils::calc;
 use satoru::utils::span32::Span32;
 use satoru::utils::precision::{FLOAT_PRECISION, FLOAT_PRECISION_SQRT};
 use satoru::utils::precision::{mul_div_roundup, to_factor_ival, apply_factor_u128, to_factor};
-use satoru::utils::calc::{roundup_division};
+use satoru::utils::calc::{roundup_division, to_signed};
 use satoru::position::position::Position;
 use integer::u128_to_felt252;
 use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}, error_utils};
@@ -106,16 +106,14 @@ fn get_swap_impact_amount_with_cap(
     // positive impact: minimize impactAmount, use tokenPrice.max
     // negative impact: maximize impactAmount, use tokenPrice.min
     if price_impact_usd > 0 {
-        let price_u128: u128 = token_price.max;
         // round positive impactAmount down, this will be deducted from the swap impact pool for the user
-        let price_felt252: felt252 = u128_to_felt252(price_u128);
-        let price: i128 = price_felt252.try_into().unwrap();
-        impact_amount = price_impact_usd / price;
+        let price: i128 = to_signed(token_price.max, true);
 
-        let max_impact_amount_felt252: felt252 = u128_to_felt252(
-            get_swap_impact_pool_amount(data_store, market, token)
+        let max_impact_amount: i128 = to_signed(
+            get_swap_impact_pool_amount(data_store, market, token),
+            true
         );
-        let max_impact_amount: i128 = max_impact_amount_felt252.try_into().unwrap();
+
         if (impact_amount > max_impact_amount) {
             impact_amount = max_impact_amount;
         }
@@ -383,13 +381,13 @@ fn get_pnl(
     index_token_price: @Price,
     is_long: bool,
     maximize: bool
-) -> u128 {
+) -> i128 {
     // let open_interest = calc::to_signed(
     //     get_open_interest_for_market_is_long(data_store, market, is_long), true
     // );
-    let open_interest = get_open_interest_for_market_is_long(data_store, market, is_long);
+    let open_interest: i128 = to_signed(get_open_interest_for_market_is_long(data_store, market, is_long), true);
     // Get the open interest in tokens.
-    let open_interest_in_tokens = get_open_interest_in_tokens_for_market(
+    let open_interest_in_tokens: u128 = get_open_interest_in_tokens_for_market(
         data_store, market, is_long
     );
     // If either the open interest or the open interest in tokens is zero, return zero.
@@ -398,10 +396,9 @@ fn get_pnl(
     }
 
     // Pick the price for PNL.
-    let price = index_token_price.pick_price_for_pnl(is_long, maximize);
+    let price: u128 = index_token_price.pick_price_for_pnl(is_long, maximize);
 
-    // let open_interest_value = calc::to_signed(open_interest_in_tokens * price, true);
-    let open_interest_value = open_interest_in_tokens * price;
+    let open_interest_value: i128 = to_signed(open_interest_in_tokens * price, true);
 
     // Return the PNL.
     // If `is_long` is true, then the PNL is the difference between the current worth of all positions and the cost of all positions.
@@ -601,7 +598,7 @@ fn apply_swap_impact_with_cap(
 /// *`token` the token to check
 fn validate_pool_amount(
     data_store: @IDataStoreDispatcher, market: @Market, token: ContractAddress
-) { // TODO
+) {
     let pool_amount: u128 = get_pool_amount(*data_store, market, token);
     let max_pool_amount: u128 = get_max_pool_amount(*data_store, *market.market_token, token);
     assert(pool_amount <= max_pool_amount, MarketError::MAX_POOL_AMOUNT_EXCEEDED);
@@ -615,7 +612,7 @@ fn validate_pool_amount(
 /// * `is_long`: A boolean flag to indicate whether to check the long or short side.
 fn validate_reserve(
     data_store: IDataStoreDispatcher, market: Market, prices: @MarketPrices, is_long: bool
-) { //TODO
+) {
     // poolUsd is used instead of pool amount as the indexToken may not match the longToken
     // additionally, the shortToken may not be a stablecoin
     let pool_usd: u128 = get_pool_usd_without_pnl(data_store, market, *prices, is_long, false);
@@ -691,7 +688,7 @@ fn get_pnl_to_pool_factor(
     market: ContractAddress,
     is_long: bool,
     maximize: bool
-) -> u128 { // TODO move to i128 when supported
+) -> i128 {
     let _market: Market = get_enabled_market(data_store, market);
     let prices: MarketPrices = MarketPrices {
         index_token_price: oracle.get_primary_price(_market.index_token),
@@ -719,13 +716,13 @@ fn get_pnl_to_pool_factor_from_prices(
     prices: MarketPrices,
     is_long: bool,
     maximize: bool
-) -> u128 { // move to i128 when supported
+) -> i128 {
     let pool_usd: u128 = get_pool_usd_without_pnl(data_store, market, prices, is_long, !maximize);
     if pool_usd == 0 {
         return 0;
     }
-    let pnl: u128 = get_pnl(data_store, @market, @prices.index_token_price, is_long, maximize);
-    return to_factor(pnl, pool_usd);
+    let pnl: i128 = get_pnl(data_store, @market, @prices.index_token_price, is_long, maximize);
+    return to_factor_ival(pnl, pool_usd);
 }
 
 // Check if the pending pnl exceeds the allowed amount
@@ -1036,7 +1033,7 @@ fn update_cumulative_borrowing_factor(
     market: Market,
     prices: MarketPrices,
     is_long: bool
-) { // TODO
+) {
     let (_, delta) = get_next_cumulative_borrowing_factor(data_store, market, prices, is_long);
     increment_cumulative_borrowing_factor(
         data_store, event_emitter, market.market_token, is_long, delta
@@ -1103,7 +1100,7 @@ fn market_token_amount_to_usd(
 /// Returns a tuple (has_virtual_inventory, virtual_token_inventory).
 fn get_virtual_inventory_for_positions(
     data_store: IDataStoreDispatcher, token: ContractAddress
-) -> (bool, u128) { // move to i128 when supported
+) -> (bool, i128) {
     let virtual_token_id: felt252 = data_store.get_felt252(keys::virtual_token_id_key(token));
     if virtual_token_id == u128_to_felt252(0) {
         return (false, 0);
@@ -1136,7 +1133,7 @@ fn get_adjusted_position_impact_factors(
 // store funding values as token amount per (Precision.FLOAT_PRECISION_SQRT / Precision.FLOAT_PRECISION) of USD size
 fn get_funding_amount_per_size_delta(
     funding_usd: u128, open_interest: u128, token_price: u128, roundup_magnitude: bool
-) -> u128 { // TODO
+) -> u128 {
     if funding_usd == 0 || open_interest == 0 {
         return 0;
     }
@@ -1158,7 +1155,7 @@ fn get_funding_amount_per_size_delta(
 // @param is_long: A boolean flag to indicate whether to check the long or short side.
 fn validate_open_interest_reserve(
     data_store: IDataStoreDispatcher, market: Market, prices: MarketPrices, is_long: bool
-) { // TODO
+) {
     // poolUsd is used instead of pool amount as the indexToken may not match the longToken
     // additionally, the shortToken may not be a stablecoin
     let pool_usd: u128 = get_pool_usd_without_pnl(data_store, market, prices, is_long, false);
@@ -1247,8 +1244,8 @@ fn apply_delta_to_virtual_inventory_for_swaps(
     event_emitter: IEventEmitterDispatcher,
     market: Market,
     token: ContractAddress,
-    delta: u128 // move to i128 when supported
-) -> (bool, u128) { // TODO
+    delta: i128
+) -> (bool, u128) {
     let virtual_market_id: felt252 = data_store
         .get_felt252(keys::virtual_market_id_key(market.market_token));
     if (virtual_market_id == u128_to_felt252(0)) {
@@ -1261,8 +1258,6 @@ fn apply_delta_to_virtual_inventory_for_swaps(
             keys::virtual_inventory_for_swaps_key(virtual_market_id, is_long_token), delta
         );
 
-    //have to convert delta to i128 while i128 is not supported
-    let delta: i128 = u128_to_felt252(delta).try_into().unwrap();
     market_event_utils::emit_virtual_swap_inventory_updated(
         event_emitter, market.market_token, is_long_token, virtual_market_id, delta, next_value
     );
@@ -1440,8 +1435,7 @@ fn get_funding_amount(
     position_size_in_usd: u128,
     roundup_magnitude: bool
 ) -> u128 {
-    let funding_diff_factor: u128 = (latest_funding_amount_per_size
-        - position_funding_amount_per_size); //11
+    let funding_diff_factor: u128 = latest_funding_amount_per_size - position_funding_amount_per_size;
     return mul_div_roundup(
         position_size_in_usd,
         funding_diff_factor,
