@@ -24,7 +24,9 @@ mod MarketError {
     const DISABLED_MARKET: felt252 = 'disabled_market';
     const COLLATERAL_ALREADY_CLAIMED: felt252 = 'collateral_already_claimed';
 
-    fn UNABLE_TO_GET_CACHED_TOKEN_PRICE(token_in: ContractAddress) -> never {
-        panic(array!['invalid token in', token_in.into()])
+    fn UNABLE_TO_GET_CACHED_TOKEN_PRICE(
+        token_in: ContractAddress, market_token: ContractAddress
+    ) -> never {
+        panic(array!['unable_to_get_cached_token_pri', token_in.into(), market_token.into()])
     }
 }

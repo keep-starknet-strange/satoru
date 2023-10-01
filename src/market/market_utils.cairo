@@ -175,7 +175,7 @@ fn get_cached_token_price(token: ContractAddress, market: Market, prices: Market
     } else if token == market.index_token {
         prices.index_token_price
     } else {
-        MarketError::UNABLE_TO_GET_CACHED_TOKEN_PRICE(token)
+        MarketError::UNABLE_TO_GET_CACHED_TOKEN_PRICE(token, market.market_token)
     }
 }
 
