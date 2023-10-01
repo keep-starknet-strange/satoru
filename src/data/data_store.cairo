@@ -10,6 +10,7 @@ use satoru::order::order::Order;
 use satoru::position::position::Position;
 use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::deposit::deposit::Deposit;
+use satoru::utils::i128::{I128Div, I128Mul, I128Store, I128Serde, I128Default};
 
 // *************************************************************************
 //                  Interface of the `DataStore` contract.
@@ -427,7 +428,7 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to get the value for.
     /// # Returns
     /// The value for the given key.
-    fn get_i128(self: @TContractState, key: felt252) -> u128;
+    fn get_i128(self: @TContractState, key: felt252) -> i128;
 
     /// Set the int value for the given key.
     /// # Arguments
@@ -435,7 +436,7 @@ trait IDataStore<TContractState> {
     /// `value` - The value to set
     /// # Return
     /// The int value for the key.
-    fn set_i128(ref self: TContractState, key: felt252, value: u128);
+    fn set_i128(ref self: TContractState, key: felt252, value: i128);
 
 
     /// Delete a i128 value for the given key.
@@ -447,19 +448,19 @@ trait IDataStore<TContractState> {
     // @param key the key of the value
     // @param value the input int value
     // @return the new int value
-    fn apply_delta_to_i128(ref self: TContractState, key: felt252, value: u128) -> u128;
+    fn apply_delta_to_i128(ref self: TContractState, key: felt252, value: i128) -> i128;
 
     /// Add input to existing value.
     /// # Arguments
     /// * `key` - The key to add the value to.
     /// * `value` - The value to add.
-    fn increment_i128(ref self: TContractState, key: felt252, value: u128) -> u128;
+    fn increment_i128(ref self: TContractState, key: felt252, value: i128) -> i128;
 
     /// Subtract input from existing value.
     /// # Arguments
     /// * `key` - The key to subtract the value from.
     /// * `value` - The value to subtract.
-    fn decrement_i128(ref self: TContractState, key: felt252, value: u128) -> u128;
+    fn decrement_i128(ref self: TContractState, key: felt252, value: i128) -> i128;
 }
 
 #[starknet::contract]
@@ -489,6 +490,7 @@ mod DataStore {
     use satoru::deposit::{deposit::Deposit, error::DepositError};
     use satoru::utils::calc::sum_return_uint_128;
     use integer::i128_to_felt252;
+    use satoru::utils::i128::{I128Div, I128Mul, I128Store, I128Serde, I128Default};
 
     // *************************************************************************
     //                              STORAGE
@@ -499,7 +501,7 @@ mod DataStore {
         felt252_values: LegacyMap::<felt252, felt252>,
         u256_values: LegacyMap::<felt252, u256>,
         u128_values: LegacyMap::<felt252, u128>,
-        i128_values: LegacyMap::<felt252, u128>,
+        i128_values: LegacyMap::<felt252, i128>,
         address_values: LegacyMap::<felt252, ContractAddress>,
         bool_values: LegacyMap::<felt252, Option<bool>>,
         /// Market storage
@@ -695,11 +697,11 @@ mod DataStore {
         // *************************************************************************
         //                      i128 related functions.
         // *************************************************************************
-        fn get_i128(self: @ContractState, key: felt252) -> u128 {
+        fn get_i128(self: @ContractState, key: felt252) -> i128 {
             self.i128_values.read(key)
         }
 
-        fn set_i128(ref self: ContractState, key: felt252, value: u128) {
+        fn set_i128(ref self: ContractState, key: felt252, value: i128) {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             // Set the value.
@@ -713,14 +715,13 @@ mod DataStore {
             self.i128_values.write(key, Default::default());
         }
 
-        fn apply_delta_to_i128(ref self: ContractState, key: felt252, value: u128) -> u128 {
-            let next_int: u128 = self.i128_values.read(key) + value;
+        fn apply_delta_to_i128(ref self: ContractState, key: felt252, value: i128) -> i128 {
+            let next_int: i128 = self.i128_values.read(key) + value;
             self.i128_values.write(key, next_int);
             next_int
         }
 
-
-        fn increment_i128(ref self: ContractState, key: felt252, value: u128) -> u128 {
+        fn increment_i128(ref self: ContractState, key: felt252, value: i128) -> i128 {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             // Get the current value.
@@ -734,7 +735,7 @@ mod DataStore {
             new_value
         }
 
-        fn decrement_i128(ref self: ContractState, key: felt252, value: u128) -> u128 {
+        fn decrement_i128(ref self: ContractState, key: felt252, value: i128) -> i128 {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             // Get the current value.
