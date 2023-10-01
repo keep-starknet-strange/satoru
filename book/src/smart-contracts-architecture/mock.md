@@ -54,9 +54,6 @@ The Mock Module is an essential component in the development lifecycle, specific
 ## Errors
 - The module defines a `MockError` to handle mock-specific errors with constants representing specific error cases in the Mock module, such as `INVALID_TOTAL_REBATE`, `INVALID_DISCOUNT_SHARE`, and `FORBIDDEN`.
 
-## Conclusion
-The Mock Module is crucial for the development lifecycle, allowing developers to simulate and test various contract functionalities and states, ensuring the reliability and security of the smart contracts before their deployment to the mainnet. The module’s structured approach and detailed functionalities make it an indispensable tool in smart contract development.
-
 ## Usage Example
 ```cairo
 // Example of registering a referral code

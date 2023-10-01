@@ -49,7 +49,3 @@ let params = liquidation_utils::CreateLiquidationOrderParams {
     is_long: /* ... */,
 };
 liquidation_utils::create_liquidation_order(params);
-
-## Conclusion
-
-The Liquidation Module is pivotal in maintaining the robustness and fluidity of the ecosystem, acting as a safeguard against market insolvencies by managing and facilitating liquidations effectively.

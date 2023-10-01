@@ -100,7 +100,3 @@ let market = Market {
 market.assert_valid();
 // Getting the MarketToken contract interface of the market
 let market_token_dispatcher = market.market_token();
-
-## Conclusion
-
-The Market Module is essential for creating and managing various trading markets within the system, allowing for risk isolation and potentially permissionless listings by providing functionalities such as market validation and unique identification. The struct, traits, and their implementations in this module work in unison to maintain the robustness and fluidity of the trading ecosystem.
