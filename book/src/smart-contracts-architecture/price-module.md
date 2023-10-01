@@ -1,6 +1,6 @@
 # Price Module
 
-The Price Module is designed to manage price-related functionalities, providing a structured way to handle minimum and maximum prices, and facilitating various operations with these prices.
+The Price Module helps manage everything related to prices. It organizes how to handle lowest and highest prices and makes working with these prices easier.
 
 ## Cairo Library Files
 

@@ -1,6 +1,6 @@
-# Order Module Documentation
+# Order Module
 
-The Order Module is central to managing the lifecycle of orders within the system, with a focus on vault orders and related functions. It is the foundation for order management, ensuring seamless processing, modification, and maintenance of orders.
+The Order Module is key for handling orders in the system. It’s important for changing, processing, and looking after orders.
 
 ## Overview
 

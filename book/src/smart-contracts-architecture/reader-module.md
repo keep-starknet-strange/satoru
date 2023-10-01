@@ -1,6 +1,6 @@
 # Reader Module
 
-The Reader Module is designed to retrieve financial market data and serves as a utility library for trading operations. It is particularly relevant for markets that require a variety of calculations and data retrievals for market operations and evaluations.
+The Reader Module gets market data and is like a utility library for trading. It’s especially important for markets that need lots of calculations and data for operating and evaluating the market.
 
 ## Cairo Library Files
 

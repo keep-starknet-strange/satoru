@@ -1,6 +1,6 @@
 # Market Module
 
-The Market Module is designed to facilitate both spot and perpetual trading across various markets. It allows the creation of markets by specifying a long collateral token, a short collateral token, and an index token.
+The Market Module helps with trading in different markets. It lets you create markets by choosing specific tokens. This module supports both regular and ongoing trading.
 
 Example markets include:
 
@@ -74,17 +74,6 @@ The module incorporates a `MarketError` enum to manage market-specific errors, p
 - **`DISABLED_MARKET`**: Triggered when the market is disabled.
 
 Additionally, there is a function `UNABLE_TO_GET_CACHED_TOKEN_PRICE` which panics with a specific message when it is unable to get the cached token price for a given token.
-
-## Imports
-
-### Core Library Imports
-- `starknet`: Provides essential functionalities required for StarkNet contracts, such as handling contract addresses.
-- `poseidon`: Provides a method to hash data using the Poseidon hash function.
-- `zeroable`: Provides a method to initialize the fields of the `Market` struct to zero.
-
-### Local Imports from `satoru` project
-- `market::error`: Module for handling market-specific errors.
-- `market::market_token`: Module providing the `MarketToken` contract interface.
 
 ## Usage Example
 

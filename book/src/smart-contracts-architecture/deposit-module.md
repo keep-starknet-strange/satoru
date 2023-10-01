@@ -64,10 +64,6 @@ Performs a token swap according to the provided parameters. (Function to be deve
 
 The `DepositVault` contract provides functions to initialize the contract, transfer tokens out of the contract, and record a token transfer into the contract.
 
-## Imports
-
-The module imports several libraries and modules to facilitate its functionalities, including the `starknet` library for basic StarkNet functionalities, and other local Satoru modules for specific utilities.
-
 ## Usage Example
 
 ```cairo

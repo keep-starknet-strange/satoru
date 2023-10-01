@@ -1,6 +1,6 @@
 # Fee Module
 
-The Fee Module is meticulously crafted to manage and execute fee-related operations, pivotal in maintaining economic equilibrium within the system. It is imperative for handling, transferring, and claiming fees across specified markets and is crucial for sustaining the seamless execution of financial transactions within the framework.
+The Fee Module takes care of everything related to fees. It’s crucial for moving and claiming fees in specific markets.
 
 The module incorporates the following components:
 - [FeeHandler.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/fee/fee_handler.cairo): The nucleus of the module, entrusted with initializing the contract and claiming fees from identified markets.
@@ -29,14 +29,3 @@ The `FeeHandler` struct is pivotal within the module, managing the interactions 
 ### `FeeError`
 - **ALREADY_INITIALIZED:** Triggered when there is an attempt to initialize an already initialized contract.
 - **INVALID_CLAIM_FEES_INPUT:** Occurs when the lengths of the market and tokens arrays do not match during a fee claim operation.
-
-## Usage and Interaction
-### Core Library Imports
-- `starknet`: The foundation library offering essential functionalities required for StarkNet contracts, such as handling contract addresses and more.
-- `core`: The core library essential for interaction and execution of foundational functionalities within the contract.
-
-### Local Imports
-- `satoru`: Local modules and libraries from the `satoru` project essential for data storage, role management, event emission, and other utilities pivotal for the functioning of the Fee module.
-
-## Additional Information
-It is of paramount importance for developers and users to comprehend the implications of fee operations and utilize this module judiciously to uphold system stability and integrity.

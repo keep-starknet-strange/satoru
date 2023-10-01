@@ -1,6 +1,6 @@
 # Referral Module
 
-The Referral Module is responsible for managing protocol users' affiliations, providing them with discounts and rebates. It is crucial for incentivizing users to refer others and reward them for their contributions to the platform's growth.
+The Referral Module handles user referrals, giving discounts and paybacks. It’s key for encouraging people to bring in others and rewarding them for helping the platform grow.
 
 It contains the following Cairo library files:
 
@@ -33,7 +33,7 @@ Specific error handling would be defined to manage any anomalies in referral ope
 ## Imports
 
 ### Core Library Imports
-- `starknet`: Used for core functionalities and structures in StarkNet contracts.
+- `starknet`: Used for core functionalities and structures in Starknet 🐺 contracts.
 - Several other local imports from the `satoru` project for various functionalities like data storage, event emission, and market utilities.
 
 ### Local Imports from `satoru` project

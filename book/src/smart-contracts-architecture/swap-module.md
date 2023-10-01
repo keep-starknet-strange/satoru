@@ -1,6 +1,6 @@
 # Swap Module
 
-The Swap Module is integral for performing token swaps in the system. It enables the exchange of one token for another within specified market conditions, adjusting for various factors such as price impact and fees.
+The Swap Module is crucial for switching one token for another in the system. It makes sure the swap meets market conditions, adjusting for things like price changes and fees.
 
 ## Smart Contracts
 
@@ -45,22 +45,6 @@ Handles errors like:
 - `INVALID_TOKEN_IN`: Raised when the input token is not valid.
 - `SWAP_PRICE_IMPACT_EXCEEDS_AMOUNT_IN`: Occurs when the price impact is more than the amount in.
 - `DUPLICATED_MARKET_IN_SWAP_PATH`: Triggered when there is a duplicate market in the swap path.
-
-### Core Library Imports
-- **starknet**: Provides foundational functionalities required for StarkNet contracts, such as handling contract addresses.
-- **core::integer::I128Neg**: Provides functionalities for handling signed 128-bit integers.
-
-### Local Imports from `satoru` project
-- **satoru::data::data_store**: Module for data storage functionalities.
-- **satoru::event::event_emitter**: Module for emitting events on the blockchain.
-- **satoru::bank::bank**: Provides access to the funds for the swap.
-- **satoru::oracle::oracle**: Module for fetching market price data.
-- **satoru::market::market_utils**: Contains utilities related to market operations.
-- **satoru::fee::fee_utils**: Contains utilities for handling fees.
-- **satoru::pricing::swap_pricing_utils**: Handles the pricing aspects during a swap.
-
-### Others
-This module also imports several other modules and libraries for error handling, array operations, and more to support its functionalities.
 
 ## Usage Example
 

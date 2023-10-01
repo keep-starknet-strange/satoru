@@ -1,11 +1,11 @@
 ## Data Module
 
-The Data Module serves as the backbone for storing and managing the protocol's data. It ensures the seamless operation of the protocol by accommodating various smart contracts and Cairo library files, each designed to fulfill specific roles within the module. Below is a detailed outline of its constituents and their respective functions and responsibilities.
+The Data Module serves as the backbone for storing and managing the protocol's data. Below is a detailed outline of its constituents and their respective functions and responsibilities.
 
 ### Smart Contracts
 
 #### [data_store.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/data/data_store.cairo)
-The `DataStore` is the central smart contract of the module, holding the pivotal responsibility of maintaining the protocol's data. It orchestrates the management of different financial entities, including orders, positions, withdrawals, and deposits, each associated with specific user accounts.
+The `DataStore` is the central smart contract of the module, holding the responsibility of maintaining the protocol's data. It manage different entities, including orders, positions, withdrawals, and deposits.
 
 ##### Key Features & Responsibilities:
 - **Order Management:** Enables the creation, reading, updating, and deletion of orders, each linked to a specific user account. Orders can be retrieved using their unique keys or can be listed per user account.
@@ -29,6 +29,3 @@ The constructor initializes the contract with a `role_store` address, establishi
 
 #### [keys.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/data/keys.cairo)
 This Cairo library file plays a crucial role in generating the keys for the protocol's entries in the data store. The keys serve as unique identifiers, enabling the protocol to accurately access and manage the stored data.
-
-### Conclusion
-The `DataStore` contract serves as the cornerstone for data management in the protocol, offering a range of functionalities to manipulate various financial entities and data types. It ensures security, transparency, and efficiency in data management, making the protocol robust and reliable. By combining sophisticated data structures with stringent access control mechanisms, it meets the diversified requirements of decentralized finance applications.

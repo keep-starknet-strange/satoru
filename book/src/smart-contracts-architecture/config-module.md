@@ -1,6 +1,6 @@
 # Config Module
 
-The Configuration Module is pivotal for managing various system configurations within the project, providing mechanisms for setting, modifying, and retrieving configurations related to contracts, roles, gas limits, markets, among other features. This ensures the system operates within defined parameters, making it a vital part of the system's operations.
+The Configuration Module is really important because it lets you manage different settings in the project. You can change and view configurations related to contracts, roles, gas limits, markets, and more. It makes sure everything works within set rules and is crucial for the system to operate properly.
 
 Below is a detailed documentation of the Configuration Module, explaining its structures, types, functions, errors, imports, and a sample usage.
 
@@ -52,24 +52,6 @@ This function computes the full key from the provided base key and additional da
 This module defines a `ConfigError` to handle configuration-specific errors. Here are the defined errors:
 
 - `INVALID_BASE_KEY`: This error is thrown when a base key provided is not in the list of allowed base keys. It is represented by the constant `'invalid_base_key'` in the `ConfigError` module.
-
-## Imports
-
-### Core Library Imports
-- `starknet`: A core library providing foundational functionalities required for StarkNet contracts such as handling contract addresses.
-- `poseidon`: A library used for hash computation.
-- `core`: Provides clone functionality.
-
-### Local Imports from `satoru` project
-- `role`: Module for role management.
-- `role_store`: Module for role store functionalities.
-- `data_store`: Module for data storage functionalities.
-- `event_emitter`: Module for emitting events on the blockchain.
-- `keys`: Module for managing keys.
-- `error`: Module for configuration error handling.
-
-### External Imports
-- `alexandria_data_structures`: Provides extended array functionalities.
 
 ## Usage Example
 

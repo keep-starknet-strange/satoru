@@ -1,6 +1,6 @@
 ## Chain Module
 
-The Chain module provides functionalities to query chain-specific variables. It is designed as a library contract for retrieving the current block number and timestamp. Due to some current limitations, it can't be used as a library and is instead implemented as a standalone contract. This issue is highlighted in the contract's comments with a TODO to fix it in the future.
+The Chain module provides functionalities to query chain-specific variables. It is designed as a library contract for retrieving the current block number and timestamp.
 
 This module contains the following Cairo library file:
 
@@ -9,14 +9,14 @@ This module contains the following Cairo library file:
 ## Functions
 
 ### `get_block_number`
-Returns the current block number on the StarkNet network.
+Returns the current block number on the Starknet 🐺 network.
 
 - **Arguments:** None.
 
 - **Returns:** `u64` - The current block number.
 
 ### `get_block_timestamp`
-Returns the timestamp of the current block on the StarkNet network.
+Returns the timestamp of the current block on the Starknet 🐺 network.
 
 - **Arguments:** None.
 
@@ -25,16 +25,6 @@ Returns the timestamp of the current block on the StarkNet network.
 ## Errors
 
 This module does not define any custom errors.
-
-## Imports
-
-### Core Library Imports
-
-- `starknet`: A library for StarkNet contract functionalities.
-
-### Local Imports
-
-None.
 
 ## Interface for `Chain`
 
@@ -62,4 +52,4 @@ Called to retrieve the timestamp of the current block.
 ## Usage Example
 
 ```cairo
-comming soon...
+TODO

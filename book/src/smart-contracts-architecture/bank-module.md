@@ -1,6 +1,6 @@
 # Bank Module (Token Handling)
 
-This module is crafted to manage the storage and transfer of tokens within a contract. It's a pivotal part of a broader project, allowing for basic bank functionalities like initializing the contract and transferring tokens out to a receiver.
+This module helps to store and move tokens within a contract. It's crucial for a bigger project, letting you do basic bank tasks like starting the contract and sending tokens to a receiver.
 
 It contains the following Cairo library files:
 
@@ -63,22 +63,6 @@ This enum encapsulates the error definitions for this contract, ensuring that th
 - `ALREADY_INITIALIZED`: Thrown if an attempt is made to initialize the contract when it's already initialized. Error code: `'already_initialized'`.
 - `SELF_TRANSFER_NOT_SUPPORTED`: Thrown if an attempt is made to transfer tokens to the contract itself. Error code: `'self_transfer_not_supported'`.
 - `TOKEN_TRANSFER_FAILED`: Thrown if a token transfer operation fails. Error code: `'token_transfer_failed'`.
-
-## Imports
-
-### Core Library Imports
-
-- `core`: Core library for Rust, providing essential traits.
-- `starknet`: A library for StarkNet contract functionalities.
-
-### Local Imports from `satoru` project
-
-- `satoru::data::data_store`: Module for data storage functionalities.
-- `satoru::bank::error::BankError`: Module for bank-specific error definitions.
-- `satoru::role::role_module`: Module for role management.
-- `satoru::token::token_utils`: Module for token utilities like the `transfer` function used in this contract.
-
-## Usage Example
 
 ## Usage Example
 

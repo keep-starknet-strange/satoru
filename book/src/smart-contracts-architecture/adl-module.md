@@ -1,6 +1,6 @@
 # Auto-Deleveraging (ADL) Module
 
-The ADL Module is designed to assist with auto-deleveraging in particular markets. This is especially relevant for markets with an index token that differs from the long token, such as a STRK / USD perpetual market with ETH as the long token.
+The ADL Module helps with automatic reduction of leverage in specific markets. This is particularly important for markets where the main token is different from the long token, like a STRK / USD perpetual market where ETH is the long token.
 
 It contains the following Cairo library files:
 
@@ -20,7 +20,6 @@ This struct is utilized within the `create_adl_order` function to encapsulate pa
 - `is_long`: Indicates whether the position is long or short. A long position benefits from a price increase in the market, while a short position benefits from a price decrease.
 - `size_delta_usd`: The size of the position to be reduced, expressed in US Dollars. This specifies how much of the position should be reduced to maintain system solvency.
 - `updated_at_block`: The block number at which the order was updated. This tracks when the ADL order was last created or modified.
-
 
 ## Functions
 
@@ -48,7 +47,6 @@ Interact with the `data_store` to get and set the ADL enabled state for a specif
 
 Emits ADL state update events to notify about changes in the ADL state, including the market, position type, PnL to pool factor, max PnL factor, and whether ADL was enabled or disabled.
 
-
 ## Errors
 
 The module defines an `AdlError` to handle ADL-specific errors. Each constant in the `AdlError` module represents a specific error case in the ADL module. Here are the defined errors:
@@ -61,27 +59,8 @@ The module defines an `AdlError` to handle ADL-specific errors. Each constant in
 
 - `POSITION_NOT_VALID`: Thrown when a position is not valid, for instance, if it doesn't exist or has already been closed. This error ensures that the position associated with the ADL order is valid and open.
 
-
-## Imports
-
-The module imports several libraries and modules to facilitate its functionalities. Here are the imports along with a brief description:
-
-### Core Library Imports
-- `starknet`: A core library providing foundational functionalities required for StarkNet contracts such as handling contract addresses, getting the caller address, and more.
-- `integer`: A library for bounded integer arithmetic operations.
-
-### Local Imports from `satoru` project
-- `data_store`: Module for data storage functionalities, essential for storing and retrieving information related to markets, positions, orders, etc.
-- `event_emitter`: Module for emitting events on the blockchain, enabling tracking of system changes by users and other contracts.
-- `oracle`: Module for fetching market price data, crucial for ADL operations.
-- `market`: Module containing utilities related to market operations.
-- `position`: Module for position management utilities and definitions.
-- `order`: Module for order management utilities and definitions.
-- `nonce`: Module for nonce management, ensuring order and transaction uniqueness.
-
 ### Others
 - Additional utility modules are imported for array operations, error handling, and callback utilities to support various functionalities within the ADL module.
-
 
 ## Usage Example
 

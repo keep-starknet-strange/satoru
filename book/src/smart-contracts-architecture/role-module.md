@@ -1,6 +1,6 @@
 # Role Module
 
-The Role Module is an essential component responsible for role-based access control, managing the assignment and revocation of roles to various accounts within the protocol. It is structured to facilitate the efficient and secure management of roles, with an emphasis on readability and ease of use.
+The Role Module is crucial for managing who has access to what, controlling the assignment and removal of roles to different accounts in the system.
 
 It consists of the following smart contracts and Cairo library files:
 
@@ -66,15 +66,6 @@ Emitted when a role is removed from an account.
 
 ### `UNAUTHORIZED_ACCESS`
 Indicates that an operation was attempted by an account lacking the necessary role.
-
-## Imports
-
-- Core library imports include `starknet`, essential for core functionalities and structures in StarkNet contracts.
-- Several local imports from the `satoru` project, necessary for various functionalities like role assignment and access control management.
-
-## Usage
-
-The Role Module is crucial for the secure and organized management of role-based access within the protocol, allowing for the assignment and revocation of roles, defining various roles and their permissions, and ensuring that unauthorized access is prevented.
 
 ## Example
 

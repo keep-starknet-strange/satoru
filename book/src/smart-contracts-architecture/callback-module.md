@@ -1,6 +1,6 @@
 ## Callback Module
 
-The Callback module encapsulates the two-step process required in most features of the Satoru project. Initially, a user sends a request transaction, followed by a transaction sent by a keeper to execute the request. This module supports better composability with other contracts by allowing a callback contract to be specified, which will be called after request executions or cancellations.
+The Callback module is a part of the Satoru project and manages a two-step process. First, a user sends a request, then a keeper sends another transaction to carry out that request. This module makes it easier to work with other contracts by letting a special contract be specified, which gets called after requests are done or cancelled.
 
 This module contains the following Cairo library files:
 
@@ -32,7 +32,7 @@ Retrieves a previously stored callback contract address associated with a given 
   - `account`: The account to get callback contract for.
   - `market`: The market to get callback contract for.
 
-### after_deposit_execution, after_deposit_cancellation, after_withdrawal_execution, after_withdrawal_cancellation, after_order_execution, after_order_cancellation, and after_order_frozen
+### function_after_deposit_execution, function_after_deposit_cancellation, function_after_withdrawal_execution, function_after_withdrawal_cancellation, function_after_order_execution, function_after_order_cancellation, and function_after_order_frozen
 These functions are callback handlers called after specific actions such as deposit execution, deposit cancellation, withdrawal execution, withdrawal cancellation, order execution, order cancellation, and order frozen respectively.
 
 These functions are callback handlers called after specific actions such as deposit execution, deposit cancellation, withdrawal execution, withdrawal cancellation, order execution, order cancellation, and order frozen respectively.
@@ -55,23 +55,6 @@ Validates that the given address is a contract.
 This enum encapsulates the error definitions for this module, ensuring that the contract's methods are used correctly and safely.
 
 - `MAX_CALLBACK_GAS_LIMIT_EXCEEDED`: Thrown when the `callback_gas_limit` exceeds the maximum specified value. Error code: `'max_callback_gas_limit_exceeded'`.
-
-## Imports
-
-### Core Library Imports
-
-- `starknet`: A library for StarkNet contract functionalities.
-
-### Local Imports from `satoru` project
-
-- `satoru::data::data_store`: Module for data storage functionalities.
-- `satoru::event::event_utils::EventLogData`: Module for event log data utilities.
-- `satoru::order::order::Order`: Module for order functionalities.
-- `satoru::deposit::deposit::Deposit`: Module for deposit functionalities.
-- `satoru::withdrawal::withdrawal::Withdrawal`: Module for withdrawal functionalities.
-- `satoru::callback::error::CallbackError`: Module for callback-specific error definitions.
-- `satoru::event::event_emitter`: Module for event emitting functionalities.
-- `satoru::callback`: Modules for different callback receiver interfaces.
 
 ## Interface for `DepositCallbackReceiver`
 

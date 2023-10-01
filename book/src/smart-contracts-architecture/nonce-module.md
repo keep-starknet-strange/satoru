@@ -1,6 +1,6 @@
 # Nonce Module
 
-The Nonce Module is pivotal in maintaining a progressively increasing nonce value, a critical element in the generation of unique keys. This module is fundamental for ensuring the uniqueness of transactions and order operations within the system.
+The Nonce Module keeps track of a number that goes up one at a time, which is crucial for creating unique keys. This is really important to make sure every operation in the system is unique.
 
 It contains the following smart contract:
 
@@ -47,18 +47,6 @@ It contains the following smart contract:
 ## Errors
 
 The module defines specific errors to handle nonce-specific anomalies and invalid operations, ensuring smooth and accurate operations within the module. 
-
-## Imports
-
-The module imports several libraries and modules to facilitate its functionalities. Here are the imports along with a brief description:
-
-### Core Library Imports
-- `starknet`: A core library providing foundational functionalities required for StarkNet contracts such as handling contract addresses.
-- `poseidon`: A library used for hashing operations within the module.
-
-### Local Imports from `satoru` project
-- `data_store`: Module for data storage functionalities, essential for storing and retrieving nonce-related information.
-- `keys`: Module containing utilities related to key operations.
 
 ## Usage Example
 

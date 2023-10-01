@@ -1,6 +1,6 @@
 # Liquidation Module
 
-The Liquidation Module is meticulously designed to facilitate and manage liquidations within the system, ensuring stability and solvency of the market.
+The Liquidation Module is designed to facilitate and manage liquidations within the system, ensuring stability and solvency of the market.
 
 ## Overview
 
@@ -26,17 +26,7 @@ This struct is used within the `create_liquidation_order` function to encapsulat
 
 This function creates a liquidation order for a specific position, ensuring market stability and solvency. The function returns a `felt252` type representing the key of the created order, where `felt252` is a type representing a 252-bit field element.
 
-## Imports
-
-### Core Library Imports
-- `starknet`: The foundational library providing essential functionalities required for StarkNet contracts, such as handling contract addresses.
-
-### Local Imports from `satoru` project
-- Multiple modules and libraries from the `satoru` project are imported, each contributing distinct functionalities and utilities, particularly related to data storage and event emission.
-
-## Usage and Interaction
-
-Understanding the intricacies of liquidation management is crucial for developers and users to ensure smooth interactions and transactions within the system, maintaining economic equilibrium, and avoiding potential disruptions.
+## Usage Example
 
 ```cairo
 // Example of creating a liquidation order

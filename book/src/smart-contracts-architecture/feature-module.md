@@ -1,6 +1,6 @@
 # Feature Module
 
-The Feature Module serves as a critical component in the system, designed to validate the operational status of different features, determining whether they are enabled or disabled. It is crucial for maintaining the integrity and stability of the system.
+The Feature Module checks if different parts of the system are turned on or off. It’s really important for keeping the system stable and working correctly.
 
 It encompasses the following smart contracts:
 - [feature_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/feature/feature_utils.cairo): Central to the module, this contract is responsible for validating the operational status of a feature, determining whether it is enabled or disabled.

@@ -1,6 +1,6 @@
 # Withdrawal Module
 
-The Withdrawal Module is devised to manage the operations related to withdrawals, ensuring secure and efficient handling of funds within the system.
+The Withdrawal Module role is to manage the operations related to withdrawals.
 
 ## Smart Contracts
 
@@ -90,19 +90,3 @@ Additionally, the module defines several panic functions to handle specific erro
 - `INSUFFICIENT_MARKET_TOKENS(data_1: u128, data_2: u128)`: Triggered when there are insufficient market tokens available, providing additional context with `data_1` and `data_2`.
 - `INVALID_POOL_VALUE_FOR_WITHDRAWAL(data: u128)`: Triggered when an invalid pool value is provided for withdrawal, providing additional context with `data`.
 - `INVALID_WITHDRAWAL_KEY(data: felt252)`: Triggered when an invalid withdrawal key is provided, providing additional context with `data`.
-
-## Imports
-
-### Core Library Imports
-- `starknet`: Provides foundational functionalities required for StarkNet contracts, like handling contract addresses.
-- `core::zeroable::Zeroable`: Utilized for zeroing operations.
-- `debug::PrintTrait`: Utilized for debugging operations.
-
-### Local Imports from `satoru` project
-- `satoru::bank::strict_bank::{IStrictBankDispatcher}`: Provides functionalities related to the strict bank dispatcher.
-- `satoru::withdrawal::error::WithdrawalError`: Contains the error definitions specific to the withdrawal module.
-- `satoru::utils::store_arrays::StoreContractAddressArray`: Provides functionalities to store arrays of contract addresses.
-- `satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait}`: Offers interfaces and traits related to chain dispatchers.
-- `alexandria_storage::list::List`: Used for list-related operations in storage.
-- `satoru::utils::arrays::StoreContractAddressSpan`: Provides functionalities to store spans of contract addresses.
-- `satoru::utils::span32::{Span32, DefaultSpan32}`: Provides functionalities related to 32-byte spans.

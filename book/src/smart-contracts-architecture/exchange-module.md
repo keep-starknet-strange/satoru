@@ -1,6 +1,6 @@
 # Exchange Module
 
-The Exchange module encapsulates the core functionalities of the Satoru protocol, handling the creation, execution, and cancellation of various on-chain actions.
+The Exchange module contains the core functionalities of the Satoru protocol, handling the creation, execution, and cancellation of various actions.
 
 ## Smart Contracts
 

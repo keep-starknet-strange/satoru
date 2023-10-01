@@ -1,6 +1,6 @@
 # Mock Module
 
-The Mock Module is an essential component in the development lifecycle, specifically designed for testing environments and testnets. It holds mocked implementations of contracts, facilitating their comprehensive testing to ensure the robustness and reliability of the deployed contracts.
+The Mock Module is essential for testing environments and testnets. It holds mocked implementations of contracts.
 
 ## Cairo Library Files
 - [error.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/mock/error.cairo): Contains error codes pertinent to the Mock Module.
