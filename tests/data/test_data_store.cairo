@@ -4,6 +4,8 @@ use satoru::data::data_store::IDataStoreDispatcherTrait;
 use satoru::role::role_store::IRoleStoreDispatcherTrait;
 use satoru::order::order::{Order, OrderType, OrderTrait};
 use satoru::tests_lib::{setup, teardown};
+use satoru::utils::i128::{I128Div, I128Mul, I128Store, I128Serde, I128Default};
+
 
 #[test]
 fn given_normal_conditions_when_felt252_functions_then_expected_results() {
