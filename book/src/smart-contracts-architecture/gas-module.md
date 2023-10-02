@@ -8,7 +8,7 @@ This module comprises the following Cairo library files:
 ## Structures and Types
 
 ### `ContractAddress`
-- A specialized type representing the address of a contract within the Starknet 🐺 network.
+- A specialized type representing the address of a contract within the Starknet network.
 
 ## Functions
 

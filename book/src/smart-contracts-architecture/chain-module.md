@@ -9,14 +9,14 @@ This module contains the following Cairo library file:
 ## Functions
 
 ### `get_block_number`
-Returns the current block number on the Starknet 🐺 network.
+Returns the current block number on the Starknet network.
 
 - **Arguments:** None.
 
 - **Returns:** `u64` - The current block number.
 
 ### `get_block_timestamp`
-Returns the timestamp of the current block on the Starknet 🐺 network.
+Returns the timestamp of the current block on the Starknet network.
 
 - **Arguments:** None.
 

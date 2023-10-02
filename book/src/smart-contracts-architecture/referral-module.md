@@ -33,7 +33,7 @@ Specific error handling would be defined to manage any anomalies in referral ope
 ## Imports
 
 ### Core Library Imports
-- `starknet`: Used for core functionalities and structures in Starknet 🐺 contracts.
+- `starknet`: Used for core functionalities and structures in Starknet contracts.
 - Several other local imports from the `satoru` project for various functionalities like data storage, event emission, and market utilities.
 
 ### Local Imports from `satoru` project
