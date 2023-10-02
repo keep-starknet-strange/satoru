@@ -105,7 +105,7 @@ fn given_normal_conditions_when_emit_swap_impact_pool_amount_updated_then_works(
     // Create dummy data.
     let market = contract_address_const::<'market'>();
     let token = contract_address_const::<'token'>();
-    let delta: u128 = 1;
+    let delta: i128 = 1;
     let next_value: u128 = 2;
 
     // Create the expected data.
@@ -270,7 +270,7 @@ fn given_normal_conditions_when_emit_virtual_swap_inventory_updated_then_works()
     let market = contract_address_const::<'market'>();
     let is_long_token: bool = true;
     let virtual_market_id = 'virtual_market_id';
-    let delta: u128 = 1;
+    let delta: i128 = 1;
     let next_value: u128 = 2;
 
     // Create the expected data.
@@ -314,8 +314,8 @@ fn given_normal_conditions_when_emit_virtual_position_inventory_updated_then_wor
     // Create dummy data.
     let token = contract_address_const::<'token'>();
     let virtual_token_id = 'virtual_token_id';
-    let delta: u128 = 1;
-    let next_value: u128 = 2;
+    let delta: i128 = 1;
+    let next_value: i128 = 2;
 
     // Create the expected data.
     let expected_data: Array<felt252> = array![

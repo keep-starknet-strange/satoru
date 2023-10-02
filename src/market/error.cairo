@@ -30,9 +30,19 @@ mod MarketError {
         panic(array!['unable_to_get_cached_token_pri', token_in.into(), market_token.into()])
     }
 
-    const MAX_POOL_AMOUNT_EXCEEDED: felt252 = 'max_pool_amount_exceeded';
-    const MAX_RESERVE_EXCEEDED: felt252 = 'max_reserve_exceeded';
-    const INSUFFICIENT_RESERVE: felt252 = 'insufficient_reserve';
-    const UNEXCEPTED_BORROWING_FACTOR: felt252 = 'unexpected_borrowing_factor';
-    const UNEXCEPTED_TOKEN: felt252 = 'unexpected_token';
+    fn MAX_POOL_AMOUNT_EXCEEDED( pool_amount: u128, max_pool_amount: u128 ) -> never {
+        panic(array!['max_pool_amount_exceeded', pool_amount.into(), max_pool_amount.into()])
+    }
+
+    fn INSUFFICIENT_RESERVE( reserve: u128, amount: u128 ) -> never {
+        panic(array!['insufficient_reserve', reserve.into(), amount.into()])
+    }
+
+    fn UNEXCEPTED_BORROWING_FACTOR( borrowing_factor: u128, next: u128 ) -> never {
+        panic(array!['unexpected_borrowing_factor', borrowing_factor.into(), next.into()])
+    }
+
+    fn UNEXCEPTED_TOKEN( token: ContractAddress) -> never {
+        panic(array!['unexpected_token', token.into()])
+    }
 }

@@ -1287,9 +1287,9 @@ fn get_swap_impact_amount_with_cap(
     // negative impact: maximize impactAmount, use tokenPrice.min
     if price_impact_usd > 0 {
         // round positive impactAmount down, this will be deducted from the swap impact pool for the user
-        let price: i128 = to_signed(token_price.max, true);
+        let price = to_signed(token_price.max, true);
 
-        let max_impact_amount: i128 = to_signed(
+        let max_impact_amount = to_signed(
             get_swap_impact_pool_amount(data_store, market, token), true
         );
 
@@ -1297,7 +1297,7 @@ fn get_swap_impact_amount_with_cap(
             impact_amount = max_impact_amount;
         }
     } else {
-        let price: u128 = token_price.min;
+        let price = token_price.min;
         // round negative impactAmount up, this will be deducted from the user
         impact_amount = roundup_magnitude_division(price_impact_usd, price);
     }
@@ -1475,7 +1475,9 @@ fn validate_pool_amount(
 ) {
     let pool_amount: u128 = get_pool_amount(*data_store, market, token);
     let max_pool_amount: u128 = get_max_pool_amount(*data_store, *market.market_token, token);
-    assert(pool_amount <= max_pool_amount, MarketError::MAX_POOL_AMOUNT_EXCEEDED);
+    if (pool_amount > max_pool_amount) {
+        MarketError::MAX_POOL_AMOUNT_EXCEEDED(pool_amount, max_pool_amount);
+    }
 }
 
 /// Validates that the amount of tokens required to be reserved is below the configured threshold.
@@ -1489,13 +1491,15 @@ fn validate_reserve(
 ) {
     // poolUsd is used instead of pool amount as the indexToken may not match the longToken
     // additionally, the shortToken may not be a stablecoin
-    let pool_usd: u128 = get_pool_usd_without_pnl(data_store, market, prices, is_long, false);
-    let reserve_factor: u128 = get_reserve_factor(data_store, *market.market_token, is_long);
-    let max_reserved_usd: u128 = apply_factor_u128(pool_usd, reserve_factor);
+    let pool_usd = get_pool_usd_without_pnl(data_store, market, prices, is_long, false);
+    let reserve_factor = get_reserve_factor(data_store, *market.market_token, is_long);
+    let max_reserved_usd = apply_factor_u128(pool_usd, reserve_factor);
 
-    let reserved_usd: u128 = get_reserved_usd(data_store, market, prices, is_long);
+    let reserved_usd = get_reserved_usd(data_store, market, prices, is_long);
 
-    assert(reserved_usd <= max_reserved_usd, MarketError::INSUFFICIENT_RESERVE);
+    if (reserved_usd > max_reserved_usd) {
+        MarketError::INSUFFICIENT_RESERVE(reserved_usd, max_reserved_usd);
+    }
 }
 
 
@@ -1907,7 +1911,9 @@ fn validate_open_interest_reserve(
 
     let reserved_usd: u128 = get_reserved_usd(data_store, market, prices, is_long);
 
-    assert(reserved_usd <= max_reserved_usd, MarketError::INSUFFICIENT_RESERVE);
+    if (reserved_usd > max_reserved_usd) {
+        MarketError::INSUFFICIENT_RESERVE(reserved_usd, max_reserved_usd);
+    }
 }
 
 // @notice Get the next borrowing fees for a position.
@@ -1924,10 +1930,9 @@ fn get_next_borrowing_fees(
     let (next_cumulative_borrowing_factor, _) = get_next_cumulative_borrowing_factor(
         data_store, *market, *prices, *position.is_long
     );
-    assert(
-        next_cumulative_borrowing_factor >= *position.borrowing_factor,
-        MarketError::UNEXCEPTED_BORROWING_FACTOR
-    );
+    if (next_cumulative_borrowing_factor < *position.borrowing_factor) {
+        MarketError::UNEXCEPTED_BORROWING_FACTOR(*position.borrowing_factor, next_cumulative_borrowing_factor);
+    }
     let diff_factor = next_cumulative_borrowing_factor - *position.borrowing_factor;
     return apply_factor_u128(*position.size_in_usd, diff_factor);
 }
@@ -1964,9 +1969,9 @@ fn get_reserved_usd(
 }
 
 fn get_is_long_token(market: Market, token: ContractAddress) -> bool {
-    assert(
-        token == market.long_token || token == market.short_token, MarketError::UNEXCEPTED_TOKEN
-    );
+    if (token != market.long_token && token != market.short_token) {
+        MarketError::UNEXCEPTED_TOKEN(token);
+    }
     return token == market.long_token;
 }
 
@@ -2097,10 +2102,9 @@ fn get_borrowing_fees(data_store: IDataStoreDispatcher, position: @Position) -> 
     let cumulative_borrowing_factor: u128 = get_cumulative_borrowing_factor(
         @data_store, *position.market, *position.is_long
     );
-    assert(
-        cumulative_borrowing_factor >= *position.borrowing_factor,
-        MarketError::UNEXCEPTED_BORROWING_FACTOR
-    );
+    if (cumulative_borrowing_factor < *position.borrowing_factor) {
+        MarketError::UNEXCEPTED_BORROWING_FACTOR(*position.borrowing_factor, cumulative_borrowing_factor);
+    }
     let diff_factor: u128 = cumulative_borrowing_factor - *position.borrowing_factor;
     return apply_factor_u128(*position.size_in_usd, diff_factor);
 }
