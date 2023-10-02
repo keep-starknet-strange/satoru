@@ -227,7 +227,9 @@ fn set_item_array_Felt252_items(
 
 // array of felt
 
-fn set_item_array_of_felt_items_items(mut items: ArrayOfFeltItems, index: u32, key: felt252, value: Array<felt252>) {
+fn set_item_array_of_felt_items_items(
+    mut items: ArrayOfFeltItems, index: u32, key: felt252, value: Array<felt252>
+) {
     let array_of_felt_items_key_value: ArrayOfFeltKeyValue = ArrayOfFeltKeyValue { key, value };
     items.items.append(array_of_felt_items_key_value);
 }
@@ -235,7 +237,9 @@ fn set_item_array_of_felt_items_items(mut items: ArrayOfFeltItems, index: u32, k
 fn set_item_array_array_of_felt_items(
     mut items: ArrayOfFeltItems, index: u32, key: felt252, value: Array<Array<felt252>>
 ) {
-    let array_of_felt_array_key_value: ArrayOfFeltArrayKeyValue = ArrayOfFeltArrayKeyValue { key, value };
+    let array_of_felt_array_key_value: ArrayOfFeltArrayKeyValue = ArrayOfFeltArrayKeyValue {
+        key, value
+    };
     items.array_items.append(array_of_felt_array_key_value);
 }
 
