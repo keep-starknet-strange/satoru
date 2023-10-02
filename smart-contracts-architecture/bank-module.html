@@ -1,0 +1,299 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Bank Module - Satoru Book</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Introduction</a></li><li class="chapter-item expanded "><a href="../getting-started/index.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../getting-started/prerequisites.html"><strong aria-hidden="true">1.1.</strong> Prerequisites</a></li><li class="chapter-item expanded "><a href="../getting-started/build.html"><strong aria-hidden="true">1.2.</strong> Build the contracts</a></li><li class="chapter-item expanded "><a href="../getting-started/test.html"><strong aria-hidden="true">1.3.</strong> Test the contracts</a></li></ol></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/index.html"><strong aria-hidden="true">2.</strong> Smart contracts architecture</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../smart-contracts-architecture/overview.html"><strong aria-hidden="true">2.1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/adl-module.html"><strong aria-hidden="true">2.2.</strong> Adl Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/bank-module.html" class="active"><strong aria-hidden="true">2.3.</strong> Bank Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/callback-module.html"><strong aria-hidden="true">2.4.</strong> Callback Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/chain-module.html"><strong aria-hidden="true">2.5.</strong> Chain Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/config-module.html"><strong aria-hidden="true">2.6.</strong> Config Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/data-module.html"><strong aria-hidden="true">2.7.</strong> Data Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/deposit-module.html"><strong aria-hidden="true">2.8.</strong> Deposit Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/exchange-module.html"><strong aria-hidden="true">2.9.</strong> Exchange Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/feature-module.html"><strong aria-hidden="true">2.10.</strong> Feature Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/fee-module.html"><strong aria-hidden="true">2.11.</strong> Fee Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/gas-module.html"><strong aria-hidden="true">2.12.</strong> Gas Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/liquidation-module.html"><strong aria-hidden="true">2.13.</strong> Liquidation Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/market-module.html"><strong aria-hidden="true">2.14.</strong> Market Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/mock-module.html"><strong aria-hidden="true">2.15.</strong> Mock Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/nonce-module.html"><strong aria-hidden="true">2.16.</strong> Nonce Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/oracle-module.html"><strong aria-hidden="true">2.17.</strong> Oracle Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/order-module.html"><strong aria-hidden="true">2.18.</strong> Order Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/position-module.html"><strong aria-hidden="true">2.19.</strong> Position Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/price-module.html"><strong aria-hidden="true">2.20.</strong> Price Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/pricing-module.html"><strong aria-hidden="true">2.21.</strong> Pricing Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/reader-module.html"><strong aria-hidden="true">2.22.</strong> Reader Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/referral-module.html"><strong aria-hidden="true">2.23.</strong> Referral Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/role-module.html"><strong aria-hidden="true">2.24.</strong> Role Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/router-module.html"><strong aria-hidden="true">2.25.</strong> Router Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/swap-module.html"><strong aria-hidden="true">2.26.</strong> Swap Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/utils-module.html"><strong aria-hidden="true">2.27.</strong> Utils Module</a></li><li class="chapter-item expanded "><a href="../smart-contracts-architecture/withdrawal-module.html"><strong aria-hidden="true">2.28.</strong> Withdrawal Module</a></li></ol></li><li class="chapter-item expanded "><a href="../continuous-integration/index.html"><strong aria-hidden="true">3.</strong> Continuous Integration</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../continuous-integration/workflows.html"><strong aria-hidden="true">3.1.</strong> Github Workflows Documentation</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Satoru Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/keep-starknet-strange/satoru/" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/keep-starknet-strange/satoru/book/src/smart-contracts-architecture/bank-module.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="bank-module-token-handling"><a class="header" href="#bank-module-token-handling">Bank Module (Token Handling)</a></h1>
+<p>This module helps to store and move tokens within a contract. It's crucial for a bigger project, letting you do basic bank tasks like starting the contract and sending tokens to a receiver.</p>
+<p>It contains the following Cairo library files:</p>
+<ul>
+<li><a href="https://github.com/keep-starknet-strange/satoru/blob/main/src/bank/bank.cairo">bank.cairo</a></li>
+</ul>
+<h2 id="structures"><a class="header" href="#structures">Structures</a></h2>
+<h3 id="storage"><a class="header" href="#storage"><code>Storage</code></a></h3>
+<p>This struct houses the interface to interact with the <code>DataStore</code> contract, which is essential for the storage of data within the contract.</p>
+<ul>
+<li><code>data_store</code>: An instance of <code>IDataStoreDispatcher</code> providing the necessary methods to interact with the <code>DataStore</code> contract.</li>
+</ul>
+<h2 id="interface"><a class="header" href="#interface">Interface</a></h2>
+<h3 id="ibanktcontractstate"><a class="header" href="#ibanktcontractstate"><code>IBank&lt;TContractState&gt;</code></a></h3>
+<p>This interface defines the contract's structure and methods. The generic <code>TContractState</code> allows for a flexible contract state definition.</p>
+<ul>
+<li><code>initialize</code>: This method sets up the contract with the necessary addresses for the data store and role store contracts.</li>
+<li><code>transfer_out</code>: A method to facilitate the transfer of tokens from this contract to a specified receiver.</li>
+</ul>
+<h2 id="implementation"><a class="header" href="#implementation">Implementation</a></h2>
+<h3 id="bank-module"><a class="header" href="#bank-module"><code>Bank</code> Module</a></h3>
+<p>This module provides the implementation for the <code>IBank</code> interface and additional helper methods necessary for the contract's functionality.</p>
+<h4 id="constructor"><a class="header" href="#constructor"><code>constructor</code></a></h4>
+<p>This is the constructor method for the contract, which calls the <code>initialize</code> method to set up the contract's state.</p>
+<h4 id="bankimpl-of-ibankcontractstate"><a class="header" href="#bankimpl-of-ibankcontractstate"><code>BankImpl</code> of <code>IBank&lt;ContractState&gt;</code></a></h4>
+<p>This implementation provides the methods defined in the <code>IBank</code> interface.</p>
+<ul>
+<li><code>initialize</code>: Ensures the contract is not already initialized, sets up the role module, and writes the data store address to the contract's state.</li>
+<li><code>transfer_out</code>: Ensures the caller is a controller before proceeding to call the internal method for token transfer.</li>
+</ul>
+<h4 id="bankhelperimpl-of-bankhelpertrait"><a class="header" href="#bankhelperimpl-of-bankhelpertrait"><code>BankHelperImpl</code> of <code>BankHelperTrait</code></a></h4>
+<p>This implementation provides additional helper methods for the contract.</p>
+<ul>
+<li><code>transfer_out_internal</code>: Checks that the receiver is not this contract itself, then performs the token transfer using the <code>transfer</code> method from <code>token_utils</code>.</li>
+</ul>
+<h2 id="strictbank-module"><a class="header" href="#strictbank-module">StrictBank Module</a></h2>
+<p>The StrictBank module extends the functionalities of the Bank module by implementing a sync function to update token balances, which can be particularly useful in scenarios of token burns or similar balance changes.</p>
+<h3 id="interface-1"><a class="header" href="#interface-1">Interface</a></h3>
+<h4 id="istrictbanktcontractstate"><a class="header" href="#istrictbanktcontractstate"><code>IStrictBank&lt;TContractState&gt;</code></a></h4>
+<p>This interface extends the <code>IBank</code> interface and includes an additional method for syncing token balances.</p>
+<ul>
+<li><code>sync_token_balance</code>: Updates the <code>token_balances</code> in case of token burns or similar balance changes. This function returns the new balance of the specified token.</li>
+</ul>
+<h3 id="implementation-1"><a class="header" href="#implementation-1">Implementation</a></h3>
+<h4 id="strictbank-of-istrictbankcontractstate"><a class="header" href="#strictbank-of-istrictbankcontractstate"><code>StrictBank</code> of <code>IStrictBank&lt;ContractState&gt;</code></a></h4>
+<p>This implementation provides the methods defined in the <code>IStrictBank</code> interface. It relies on the <code>Bank</code> module for <code>initialize</code> and <code>transfer_out</code> methods, while providing a custom implementation for <code>sync_token_balance</code> method which currently returns a placeholder value of <code>0</code>.</p>
+<h2 id="errors"><a class="header" href="#errors">Errors</a></h2>
+<h3 id="bankerror"><a class="header" href="#bankerror"><code>BankError</code></a></h3>
+<p>This enum encapsulates the error definitions for this contract, ensuring that the contract's methods are used correctly and safely.</p>
+<ul>
+<li><code>ALREADY_INITIALIZED</code>: Thrown if an attempt is made to initialize the contract when it's already initialized. Error code: <code>'already_initialized'</code>.</li>
+<li><code>SELF_TRANSFER_NOT_SUPPORTED</code>: Thrown if an attempt is made to transfer tokens to the contract itself. Error code: <code>'self_transfer_not_supported'</code>.</li>
+<li><code>TOKEN_TRANSFER_FAILED</code>: Thrown if a token transfer operation fails. Error code: <code>'token_transfer_failed'</code>.</li>
+</ul>
+<h2 id="usage-example"><a class="header" href="#usage-example">Usage Example</a></h2>
+<p>Here's a simplified example demonstrating how to initialize and interact with the <code>Bank</code> contract in Cairo:</p>
+<pre><code class="language-cairo">use starknet::{ContractAddress, contract_address_const};
+use satoru::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
+
+// Deploying the Bank contract
+let bank_contract = declare('Bank');
+let constructor_calldata = array![data_store_contract_address.into(), role_store_contract_address.into()];
+let bank_contract_address = bank_contract.deploy(@constructor_calldata).unwrap();
+let bank_dispatcher = IBankDispatcher { contract_address: bank_contract_address };
+
+// Transferring tokens using the Bank contract
+let receiver_address: ContractAddress = 0x202.try_into().unwrap();
+bank_dispatcher.transfer_out(erc20_contract_address, receiver_address, 100_u128);</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../smart-contracts-architecture/adl-module.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../smart-contracts-architecture/callback-module.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../smart-contracts-architecture/adl-module.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../smart-contracts-architecture/callback-module.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
