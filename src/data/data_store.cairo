@@ -105,6 +105,15 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to delete the value for.
     fn remove_u128(ref self: TContractState, key: felt252);
 
+    /// Add signed value to existing value if result positive.
+    /// # Arguments
+    /// * `key` - The key to add the value to.
+    /// * `value` - The value to add.
+    /// * `error` - The error to throw if result is negative.
+    fn apply_delta_to_u128(
+        ref self: TContractState, key: felt252, value: i128, error: felt252
+    ) -> u128;
+
     /// Add input to existing value.
     /// # Arguments
     /// * `key` - The key to add the value to.
@@ -475,6 +484,7 @@ mod DataStore {
     use satoru::position::{position::Position, error::PositionError};
     use satoru::withdrawal::{withdrawal::Withdrawal, error::WithdrawalError};
     use satoru::deposit::{deposit::Deposit, error::DepositError};
+    use satoru::utils::calc;
     use satoru::utils::i128::{I128Div, I128Mul, I128Store, I128Serde, I128Default};
 
     // *************************************************************************
@@ -643,6 +653,22 @@ mod DataStore {
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             // Delete the value.
             self.u128_values.write(key, Default::default());
+        }
+
+        fn apply_delta_to_u128(
+            ref self: ContractState, key: felt252, value: i128, error: felt252
+        ) -> u128 {
+            // Check that the caller has permission to set the value.
+            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+
+            let current_value = self.u128_values.read(key);
+            if value < 0 && calc::to_unsigned(-value) > current_value {
+                panic(array![error]);
+            }
+
+            let next_value = calc::sum_return_uint_128(current_value, value);
+            self.u128_values.write(key, next_value);
+            next_value
         }
 
         fn increment_u128(ref self: ContractState, key: felt252, value: u128) -> u128 {

@@ -15,16 +15,15 @@ use satoru::event::{
 use satoru::fee::fee_utils;
 use satoru::gas::gas_utils;
 use satoru::market::{
-    market::Market, market_event_utils,
-    market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait}, market_utils,
-    market_utils::MarketPrices
+    market::Market, market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait},
+    market_utils, market_utils::MarketPrices
 };
 use satoru::nonce::nonce_utils;
 use satoru::oracle::{oracle::{IOracleDispatcher, IOracleDispatcherTrait}, oracle_utils};
 use satoru::pricing::{swap_pricing_utils, swap_pricing_utils::SwapFees};
 use satoru::swap::{swap_utils, swap_utils::SwapParams};
 use satoru::utils::{
-    account_utils, error_utils, precision, starknet_utils, span32::Span32,
+    calc, account_utils, error_utils, precision, starknet_utils, span32::Span32,
     store_arrays::{StoreContractAddressArray, StoreU128Array}
 };
 use satoru::withdrawal::{
@@ -141,7 +140,7 @@ fn create_withdrawal(
 
     params.execution_fee = fee_token_amount.into();
 
-    market_utils::validate_enabled_market_address(data_store, params.market);
+    market_utils::validate_enabled_market_address(@data_store, params.market);
 
     market_utils::validate_swap_path(data_store, params.long_token_swap_path);
 
@@ -404,7 +403,7 @@ fn execute_withdrawal_(
         *params.event_emitter,
         market,
         market.long_token,
-        cache.long_token_pool_amount_delta // This should be - int128 once supported.
+        calc::to_signed(cache.long_token_pool_amount_delta, false)
     );
 
     market_utils::apply_delta_to_pool_amount(
@@ -412,7 +411,7 @@ fn execute_withdrawal_(
         *params.event_emitter,
         market,
         market.short_token,
-        cache.long_token_pool_amount_delta // This should be - int128 once supported.
+        calc::to_signed(cache.short_token_pool_amount_delta, false)
     );
 
     market_utils::validate_reserve(*params.data_store, market, @prices, true);
@@ -580,15 +579,14 @@ fn get_output_amounts(
         WithdrawalError::INVALID_POOL_VALUE_FOR_WITHDRAWAL(pool_value_info.pool_value);
     }
 
-    let pool_value = pool_value_info.pool_value;
+    let pool_value = calc::to_unsigned(pool_value_info.pool_value);
 
     let market_tokens_supply = market_utils::get_market_token_supply(
         IMarketTokenDispatcher { contract_address: market.market_token }
     );
 
-    market_event_utils::emit_market_pool_value_info(
-        *params.event_emitter, market.market_token, pool_value_info, market_tokens_supply
-    );
+    (*params.event_emitter)
+        .emit_market_pool_value_info(market.market_token, pool_value_info, market_tokens_supply);
 
     let long_token_pool_amount = market_utils::get_pool_amount(
         *params.data_store, @market, market.long_token
