@@ -29,9 +29,9 @@ use satoru::pricing::position_pricing_utils::PositionReferralFees;
 use satoru::pricing::position_pricing_utils::PositionFundingFees;
 use satoru::pricing::position_pricing_utils::PositionUiFees;
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::utils::{calc, i128::{I128Store, I128Serde, I128Div, I128Mul}};
+use satoru::utils::{calc, i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}};
 
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Default, Drop, starknet::Store, Serde)]
 struct PositionInfo {
     position: Position,
     fees: PositionFees,
@@ -41,49 +41,17 @@ struct PositionInfo {
     pnl_after_price_impact_usd: i128,
 }
 
-impl DefaultPositionInfo of Default<PositionInfo> {
-    fn default() -> PositionInfo {
-        PositionInfo {
-            position: Default::default(),
-            fees: Default::default(),
-            execution_price_result: Default::default(),
-            base_pnl_usd: 0,
-            uncapped_base_pnl_usd: 0,
-            pnl_after_price_impact_usd: 0,
-        }
-    }
-}
-
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Default, Drop, starknet::Store, Serde)]
 struct GetPositionInfoCache {
     market: Market,
     collateral_token_price: Price,
     pending_borrowing_fee_usd: u128,
 }
 
-impl DefaultGetPositionInfoCache of Default<GetPositionInfoCache> {
-    fn default() -> GetPositionInfoCache {
-        GetPositionInfoCache {
-            market: Default::default(),
-            collateral_token_price: Default::default(),
-            pending_borrowing_fee_usd: 0
-        }
-    }
-}
-
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Default, Drop, starknet::Store, Serde)]
 struct BaseFundingValues {
     funding_fee_amount_per_size: PositionType,
     claimable_funding_amount_per_size: PositionType,
-}
-
-impl DefaultBaseFundingValues of Default<BaseFundingValues> {
-    fn default() -> BaseFundingValues {
-        BaseFundingValues {
-            funding_fee_amount_per_size: Default::default(),
-            claimable_funding_amount_per_size: Default::default()
-        }
-    }
 }
 
 /// Designed to calculate and return the next borrowing fees that a specific position within a market is expected to incur.

@@ -38,9 +38,9 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul}, error_utils};
+use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}, error_utils};
 
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Default, Drop, starknet::Store, Serde)]
 struct ExecutionPriceResult {
     price_impact_usd: i128,
     price_impact_diff_usd: u128,
@@ -63,12 +63,6 @@ struct GetPositionInfoCache {
     pending_borrowing_fee_usd: u128,
     latest_long_token_funding_amount_per_size: i128,
     latest_short_token_funding_amount_per_size: i128,
-}
-
-impl DefaultExecutionPriceResult of Default<ExecutionPriceResult> {
-    fn default() -> ExecutionPriceResult {
-        ExecutionPriceResult { price_impact_usd: 0, price_impact_diff_usd: 0, execution_price: 0 }
-    }
 }
 
 /// Calculates the output amount and fees for a token swap operation.
