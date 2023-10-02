@@ -65,7 +65,7 @@ trait IEventEmitter<TContractState> {
         ref self: TContractState,
         market: ContractAddress,
         token: ContractAddress,
-        delta: u128,
+        delta: i128,
         next_value: u128,
     );
 
@@ -808,7 +808,7 @@ mod EventEmitter {
     struct SwapImpactPoolAmountUpdated {
         market: ContractAddress,
         token: ContractAddress,
-        delta: u128,
+        delta: i128,
         next_value: u128,
     }
 
@@ -1617,7 +1617,7 @@ mod EventEmitter {
             ref self: ContractState,
             market: ContractAddress,
             token: ContractAddress,
-            delta: u128,
+            delta: i128,
             next_value: u128,
         ) {
             self.emit(SwapImpactPoolAmountUpdated { market, token, delta, next_value, });

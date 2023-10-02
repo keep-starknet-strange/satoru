@@ -23,6 +23,6 @@ fn emit_virtual_position_inventory_updated(
     event_emitter: IEventEmitterDispatcher,
     token: ContractAddress,
     virtual_token_id: felt252,
-    delta: u128, //move to i128 when possible
-    next_value: u128 //move to i128 when possible
+    delta: i128,
+    next_value: i128
 ) {}

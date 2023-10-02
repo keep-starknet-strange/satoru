@@ -35,7 +35,7 @@ use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul}};
 struct VirtualInventory {
     virtual_pool_amount_for_long_token: u128,
     virtual_pool_amount_for_short_token: u128,
-    virtual_inventory_for_positions: u128,
+    virtual_inventory_for_positions: i128,
 }
 
 #[derive(Drop, starknet::Store, Serde)]
@@ -296,7 +296,7 @@ trait IReader<TContractState> {
         index_token_price: Price,
         is_long: bool,
         maximize: bool
-    ) -> u128;
+    ) -> i128;
 
     /// Calculate and return the open interest with profit and loss (PnL) for a specific market position.
     /// # Arguments
@@ -331,7 +331,7 @@ trait IReader<TContractState> {
         prices: MarketPrices,
         is_long: bool,
         maximize: bool
-    ) -> u128;
+    ) -> i128;
 
     /// Calculate and return various values related to a swap operation, including the amount of the output token, fees associated with the swap, and other information.
     /// # Arguments
@@ -743,7 +743,7 @@ mod Reader {
             index_token_price: Price,
             is_long: bool,
             maximize: bool
-        ) -> u128 {
+        ) -> i128 {
             market_utils::get_pnl(data_store, @market, @index_token_price, is_long, maximize)
         }
 
@@ -756,7 +756,7 @@ mod Reader {
             maximize: bool
         ) -> i128 {
             market_utils::get_open_interest_with_pnl(
-                data_store, market, index_token_price, is_long, maximize
+                data_store, @market, @index_token_price, is_long, maximize
             )
         }
 
@@ -767,7 +767,7 @@ mod Reader {
             prices: MarketPrices,
             is_long: bool,
             maximize: bool
-        ) -> u128 {
+        ) -> i128 {
             let market = data_store.get_market(market_address).expect('get_market failed');
             market_utils::get_pnl_to_pool_factor_from_prices(
                 data_store, market, prices, is_long, maximize

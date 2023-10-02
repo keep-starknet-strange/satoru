@@ -301,11 +301,8 @@ fn get_position_pnl_usd(
         cache.pool_token_usd = cache.pool_token_amount * cache.pool_token_price;
         cache
             .pool_pnl =
-                to_signed(
-                    market_utils::get_pnl(
-                        data_store, @market, @prices.index_token_price, position.is_long, true
-                    ),
-                    true
+                market_utils::get_pnl(
+                    data_store, @market, @prices.index_token_price, position.is_long, true
                 );
         cache
             .capped_pool_pnl =

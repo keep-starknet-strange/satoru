@@ -28,7 +28,7 @@ use satoru::utils::calc;
 use satoru::utils::span32::Span32;
 use satoru::utils::precision::{FLOAT_PRECISION, FLOAT_PRECISION_SQRT};
 use satoru::utils::precision::{mul_div_roundup, to_factor_ival, apply_factor_u128, to_factor};
-use satoru::utils::calc::{roundup_division, to_signed};
+use satoru::utils::calc::{roundup_division, to_signed, sum_return_int_128};
 use satoru::position::position::Position;
 use integer::u128_to_felt252;
 use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}, error_utils};
@@ -110,8 +110,7 @@ fn get_swap_impact_amount_with_cap(
         let price: i128 = to_signed(token_price.max, true);
 
         let max_impact_amount: i128 = to_signed(
-            get_swap_impact_pool_amount(data_store, market, token),
-            true
+            get_swap_impact_pool_amount(data_store, market, token), true
         );
 
         if (impact_amount > max_impact_amount) {
@@ -385,7 +384,9 @@ fn get_pnl(
     // let open_interest = calc::to_signed(
     //     get_open_interest_for_market_is_long(data_store, market, is_long), true
     // );
-    let open_interest: i128 = to_signed(get_open_interest_for_market_is_long(data_store, market, is_long), true);
+    let open_interest: i128 = to_signed(
+        get_open_interest_for_market_is_long(data_store, market, is_long), true
+    );
     // Get the open interest in tokens.
     let open_interest_in_tokens: u128 = get_open_interest_in_tokens_for_market(
         data_store, market, is_long
@@ -494,11 +495,11 @@ fn apply_delta_to_swap_impact_pool(
     event_emitter: IEventEmitterDispatcher,
     market_address: ContractAddress,
     token: ContractAddress,
-    delta: u128
+    delta: i128
 ) -> u128 {
     // Increment the swap impact pool amount.
     let next_value = data_store
-        .increment_u128(keys::swap_impact_pool_amount_key(market_address, token), delta);
+        .apply_bounded_delta_to_u128(keys::swap_impact_pool_amount_key(market_address, token), delta);
 
     // Emit event.
     event_emitter.emit_swap_impact_pool_amount_updated(market_address, token, delta, next_value);
@@ -588,6 +589,17 @@ fn apply_swap_impact_with_cap(
     let impact_amount: i128 = get_swap_impact_amount_with_cap(
         data_store, market, token, token_price, price_impact_usd
     );
+
+    // if there is a positive impact, the impact pool amount should be reduced
+    // if there is a negative impact, the impact pool amount should be increased
+    apply_delta_to_swap_impact_pool(
+        data_store,
+        event_emitter,
+        market,
+        token,
+        -impact_amount
+    );
+
     return impact_amount;
 }
 
@@ -689,14 +701,14 @@ fn get_pnl_to_pool_factor(
     is_long: bool,
     maximize: bool
 ) -> i128 {
-    let _market: Market = get_enabled_market(data_store, market);
+    let market: Market = get_enabled_market(data_store, market);
     let prices: MarketPrices = MarketPrices {
-        index_token_price: oracle.get_primary_price(_market.index_token),
-        long_token_price: oracle.get_primary_price(_market.long_token),
-        short_token_price: oracle.get_primary_price(_market.short_token)
+        index_token_price: oracle.get_primary_price(market.index_token),
+        long_token_price: oracle.get_primary_price(market.long_token),
+        short_token_price: oracle.get_primary_price(market.short_token)
     };
 
-    return get_pnl_to_pool_factor_from_prices(data_store, _market, prices, is_long, maximize);
+    return get_pnl_to_pool_factor_from_prices(data_store, market, prices, is_long, maximize);
 }
 
 /// Get the ratio of PNL (Profit and Loss) to pool value.
@@ -739,7 +751,7 @@ fn is_pnl_factor_exceeded(
     market_address: ContractAddress,
     is_long: bool,
     pnl_factor_type: felt252
-) -> (bool, u128, u128) {
+) -> (bool, i128, u128) {
     // TODO
     (true, 0, 0)
 }
@@ -758,7 +770,6 @@ fn is_pnl_factor_exceeded_direct(
     is_long: bool,
     pnl_factor_type: felt252
 ) -> (bool, i128, u128) {
-    // TODO
     (true, 0, 0)
 }
 
@@ -1073,7 +1084,6 @@ fn update_total_borrowing(
 /// # Returns
 /// The total supply of the given marketToken.
 fn get_market_token_supply(market_token: IMarketTokenDispatcher) -> u128 {
-    // TODO
     market_token.total_supply()
 }
 
@@ -1224,7 +1234,7 @@ fn get_reserved_usd(
 
 fn get_is_long_token(market: Market, token: ContractAddress) -> bool {
     assert(
-        token == market.long_token && token == market.short_token, MarketError::UNEXCEPTED_TOKEN
+        token == market.long_token || token == market.short_token, MarketError::UNEXCEPTED_TOKEN
     );
     return token == market.long_token;
 }
@@ -1248,7 +1258,7 @@ fn apply_delta_to_virtual_inventory_for_swaps(
 ) -> (bool, u128) {
     let virtual_market_id: felt252 = data_store
         .get_felt252(keys::virtual_market_id_key(market.market_token));
-    if (virtual_market_id == u128_to_felt252(0)) {
+    if (virtual_market_id == 0) {
         return (false, 0);
     }
     let is_long_token: bool = get_is_long_token(market, token);
@@ -1276,14 +1286,14 @@ fn apply_delta_to_virtual_inventory_for_positions(
     data_store: IDataStoreDispatcher,
     event_emitter: IEventEmitterDispatcher,
     token: ContractAddress,
-    delta: u128 // move to i128 when supported
-) -> (bool, u128) {
+    delta: i128
+) -> (bool, i128) {
     let virtual_token_id: felt252 = data_store.get_felt252(keys::virtual_token_id_key(token));
-    if (virtual_token_id == u128_to_felt252(0)) {
+    if (virtual_token_id == 0) {
         return (false, 0);
     }
 
-    let next_value: u128 = data_store
+    let next_value: i128 = data_store
         .apply_delta_to_i128(keys::virtual_inventory_for_positions_key(virtual_token_id), delta);
     market_event_utils::emit_virtual_position_inventory_updated(
         event_emitter, token, virtual_token_id, delta, next_value
@@ -1435,7 +1445,8 @@ fn get_funding_amount(
     position_size_in_usd: u128,
     roundup_magnitude: bool
 ) -> u128 {
-    let funding_diff_factor: u128 = latest_funding_amount_per_size - position_funding_amount_per_size;
+    let funding_diff_factor: u128 = latest_funding_amount_per_size
+        - position_funding_amount_per_size;
     return mul_div_roundup(
         position_size_in_usd,
         funding_diff_factor,
@@ -1497,13 +1508,14 @@ fn get_net_pnl(
 /// The net pending pnl for a market
 fn get_open_interest_with_pnl(
     data_store: IDataStoreDispatcher,
-    market: Market,
-    index_token_price: Price,
+    market: @Market,
+    index_token_price: @Price,
     is_long: bool,
     maximize: bool
 ) -> i128 {
-    // TODO
-    0
+    let open_interest: u128 = get_open_interest_for_market_is_long(data_store, market, is_long);
+    let pnl: i128 = get_pnl(data_store, market, index_token_price, is_long, maximize);
+    return sum_return_int_128(open_interest, pnl);
 }
 
 

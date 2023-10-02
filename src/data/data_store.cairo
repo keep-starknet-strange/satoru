@@ -690,7 +690,7 @@ mod DataStore {
             let uint_value: u128 = self.u128_values.read(key);
             if (value < 0 && to_unsigned(-value) > uint_value) {
                 self.u128_values.write(key, 0);
-                0
+                return 0;
             }
             let next_uint: u128 = sum_return_uint_128(uint_value, value);
             self.u128_values.write(key, next_uint);

@@ -210,9 +210,6 @@ fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i128 {
         return price_impact_usd;
     }
 
-    // while get_virtual_inventory_for_positions returns u128, we have to convert virtual_inventory_to i128
-    let virtual_inventory: i128 = to_signed(virtual_inventory, true);
-
     let open_interest_params_for_virtual_inventory: OpenInterestParams =
         get_next_open_interest_for_virtual_inventory(
         params, virtual_inventory
