@@ -186,7 +186,8 @@ fn get_cached_token_price(token: ContractAddress, market: Market, prices: Market
     } else if token == market.index_token {
         prices.index_token_price
     } else {
-        MarketError::UNABLE_TO_GET_CACHED_TOKEN_PRICE(token, market.market_token)
+        MarketError::UNABLE_TO_GET_CACHED_TOKEN_PRICE(token, market.market_token);
+        Default::default()
     }
 }
 
@@ -1477,6 +1478,7 @@ fn validate_pool_amount(
     let max_pool_amount: u128 = get_max_pool_amount(*data_store, *market.market_token, token);
     if (pool_amount > max_pool_amount) {
         MarketError::MAX_POOL_AMOUNT_EXCEEDED(pool_amount, max_pool_amount);
+        Default::default()
     }
 }
 
@@ -1499,6 +1501,7 @@ fn validate_reserve(
 
     if (reserved_usd > max_reserved_usd) {
         MarketError::INSUFFICIENT_RESERVE(reserved_usd, max_reserved_usd);
+        Default::default()
     }
 }
 
@@ -1913,6 +1916,7 @@ fn validate_open_interest_reserve(
 
     if (reserved_usd > max_reserved_usd) {
         MarketError::INSUFFICIENT_RESERVE(reserved_usd, max_reserved_usd);
+        Default::default()
     }
 }
 
@@ -1934,6 +1938,7 @@ fn get_next_borrowing_fees(
         MarketError::UNEXCEPTED_BORROWING_FACTOR(
             *position.borrowing_factor, next_cumulative_borrowing_factor
         );
+        Default::default()
     }
     let diff_factor = next_cumulative_borrowing_factor - *position.borrowing_factor;
     return apply_factor_u128(*position.size_in_usd, diff_factor);
@@ -1973,6 +1978,7 @@ fn get_reserved_usd(
 fn get_is_long_token(market: Market, token: ContractAddress) -> bool {
     if (token != market.long_token && token != market.short_token) {
         MarketError::UNEXCEPTED_TOKEN(token);
+        Default::default()
     }
     return token == market.long_token;
 }
@@ -2108,6 +2114,7 @@ fn get_borrowing_fees(data_store: IDataStoreDispatcher, position: @Position) -> 
         MarketError::UNEXCEPTED_BORROWING_FACTOR(
             *position.borrowing_factor, cumulative_borrowing_factor
         );
+        Default::default()
     }
     let diff_factor: u128 = cumulative_borrowing_factor - *position.borrowing_factor;
     return apply_factor_u128(*position.size_in_usd, diff_factor);
