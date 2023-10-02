@@ -4,7 +4,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
+use starknet::{ContractAddress, contract_address_const};
 use result::ResultTrait;
 
 // Local imports
@@ -50,11 +50,10 @@ fn process_collateral(
     price_impact_usd: i128,
 ) -> (i128, PositionFees) {
     // TODO
-    let address_zero: ContractAddress = 0.try_into().unwrap();
     let position_referral_fees = PositionReferralFees {
         referral_code: 0,
-        affiliate: address_zero,
-        trader: address_zero,
+        affiliate: contract_address_const::<0>(),
+        trader: contract_address_const::<0>(),
         total_rebate_factor: 0,
         trader_discount_factor: 0,
         total_rebate_amount: 0,
@@ -76,7 +75,7 @@ fn process_collateral(
         borrowing_fee_amount_for_fee_receiver: 0,
     };
     let position_ui_fees = PositionUiFees {
-        ui_fee_receiver: address_zero, ui_fee_receiver_factor: 0, ui_fee_amount: 0,
+        ui_fee_receiver: contract_address_const::<0>(), ui_fee_receiver_factor: 0, ui_fee_amount: 0,
     };
     let price = Price { min: 0, max: 0, };
     let position_fees = PositionFees {

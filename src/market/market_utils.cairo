@@ -19,8 +19,12 @@ use satoru::market::{
 };
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::price::price::{Price, PriceTrait};
+use satoru::utils::calc;
 use satoru::utils::span32::Span32;
-use satoru::utils::i128::{StoreI128, u128_to_i128, I128Serde, I128Div, I128Mul};
+use satoru::position::position::Position;
+use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}, error_utils};
+use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+
 /// Struct to store the prices of tokens of a market.
 /// # Params
 /// * `indexTokenPrice` - Price of the market's index token.
@@ -54,6 +58,15 @@ struct GetNextFundingAmountPerSizeResult {
     claimable_funding_amount_per_size_delta: PositionType,
 }
 
+struct GetExpectedMinTokenBalanceCache {
+    pool_amount: u128,
+    swap_impact_pool_amount: u128,
+    claimable_collateral_amount: u128,
+    claimable_fee_amount: u128,
+    claimable_ui_fee_amount: u128,
+    affiliate_reward_amount: u128,
+}
+
 // @dev get the token price from the stored MarketPrices
 // @param token the token to get the price for
 // @param the market values
@@ -73,11 +86,11 @@ fn get_cached_token_price(token: ContractAddress, market: Market, prices: Market
 }
 
 fn get_swap_impact_amount_with_cap(
-    dataStore: IDataStoreDispatcher,
+    data_store: IDataStoreDispatcher,
     market: ContractAddress,
     token: ContractAddress,
-    tokenPrice: Price,
-    priceImpactUsd: i128 //TODO : check u128
+    token_price: Price,
+    price_impact_usd: i128 //TODO : check u128
 ) -> i128 { //Todo : check u128
     //TODO
     return 0;
@@ -97,7 +110,7 @@ fn get_open_interest(
     is_long: bool,
     divisor: u128
 ) -> u128 {
-    assert(divisor != 0, MarketError::DIVISOR_CANNOT_BE_ZERO);
+    error_utils::check_division_by_zero(divisor, 'get_open_interest');
     let key = keys::open_interest_key(market, collateral_token, is_long);
     data_store.get_u128(key) / divisor
 }
@@ -182,6 +195,7 @@ fn get_open_interest_in_tokens(
     is_long: bool,
     divisor: u128
 ) -> u128 {
+    error_utils::check_division_by_zero(divisor, 'get_open_interest_in_tokens');
     data_store.get_u128(keys::open_interest_in_tokens_key(market, collateral_token, is_long))
         / divisor
 }
@@ -197,6 +211,7 @@ fn get_pool_amount(
     data_store: IDataStoreDispatcher, market: @Market, token_address: ContractAddress
 ) -> u128 {
     let divisor = get_pool_divisor(*market.long_token, *market.short_token);
+    error_utils::check_division_by_zero(divisor, 'get_pool_amount');
     data_store.get_u128(keys::pool_amount_key(*market.market_token, token_address)) / divisor
 }
 
@@ -247,6 +262,7 @@ fn increment_claimable_collateral_amount(
     delta: u128
 ) {
     let divisor = data_store.get_u128(keys::claimable_collateral_time_divisor());
+    error_utils::check_division_by_zero(divisor, 'increment_claimable_collateral');
     // Get current timestamp.
     let current_timestamp = chain.get_block_timestamp().into();
     let time_key = current_timestamp / divisor;
@@ -338,8 +354,8 @@ fn get_pnl(
     maximize: bool
 ) -> i128 {
     // Get the open interest.
-    let open_interest = u128_to_i128(
-        get_open_interest_for_market_is_long(data_store, market, is_long)
+    let open_interest = calc::to_signed(
+        get_open_interest_for_market_is_long(data_store, market, is_long), true
     );
     // Get the open interest in tokens.
     let open_interest_in_tokens = get_open_interest_in_tokens_for_market(
@@ -354,7 +370,7 @@ fn get_pnl(
     let price = index_token_price.pick_price_for_pnl(is_long, maximize);
 
     //  `open_interest` is the cost of all positions, `open_interest_valu`e is the current worth of all positions.
-    let open_interest_value = u128_to_i128(open_interest_in_tokens * price);
+    let open_interest_value = calc::to_signed(open_interest_in_tokens * price, true);
 
     // Return the PNL.
     // If `is_long` is true, then the PNL is the difference between the current worth of all positions and the cost of all positions.
@@ -523,7 +539,7 @@ fn validate_swap_path(
 }
 
 
-/// @dev update the swap impact pool amount, if it is a positive impact amount
+/// Update the swap impact pool amount, if it is a positive impact amount
 /// cap the impact amount to the amount available in the swap impact pool
 /// # Arguments
 /// *`data_store` DataStore
@@ -694,6 +710,16 @@ fn is_pnl_factor_exceeded_direct(
     (true, 0, 0)
 }
 
+fn get_ui_fee_factor(data_store: IDataStoreDispatcher, account: ContractAddress) -> u128 {
+    let max_ui_fee_factor = data_store.get_u128(keys::max_ui_fee_factor());
+    let ui_fee_factor = data_store.get_u128(keys::ui_fee_factor_key(account));
+    if ui_fee_factor < max_ui_fee_factor {
+        ui_fee_factor
+    } else {
+        max_ui_fee_factor
+    }
+}
+
 /// Gets the enabled market. This function will revert if the market does not exist or is not enabled.
 /// # Arguments
 /// * `dataStore` - DataStore
@@ -707,6 +733,43 @@ fn get_enabled_market(data_store: IDataStoreDispatcher, market_address: Contract
         short_token: Zeroable::zero(),
     }
 }
+
+
+/// Get the cumulative borrowing factor for a market
+/// # Arguments
+/// * `data_store` DataStore
+/// * `market` the market to check
+/// * `is_long` whether to check the long or short side
+/// # Returns
+// The cumulative borrowing factor for a market
+fn get_cumulative_borrowing_factor(
+    data_store: @IDataStoreDispatcher, market: ContractAddress, is_long: bool
+) -> u128 {
+    (*data_store).get_u128(keys::cumulative_borrowing_factor_key(market, is_long))
+}
+
+/// @dev apply a delta to the collateral sum
+/// # Arguments
+/// * `data_store` DataStore
+/// * `event_emitter` EventEmitter
+/// * `market` the market to apply to
+/// * `collateral_token` the collateralToken to apply to
+/// * `is_long` whether to apply to the long or short side
+/// * `delta` the delta amount
+/// # Returns
+/// The updated collateral sum amount
+fn apply_delta_to_collateral_sum(
+    data_store: @IDataStoreDispatcher,
+    event_emitter: @IEventEmitterDispatcher,
+    market: ContractAddress,
+    collateral_token: ContractAddress,
+    is_long: bool,
+    delta: i128
+) -> u128 {
+    //TODO
+    0
+}
+
 
 /// Returns the primary prices for the market tokens.
 /// # Parameters
@@ -743,11 +806,26 @@ fn validate_max_pnl(
 ) { //TODO
 }
 
+/// Validates the token balance for a single market.
+/// # Arguments
+/// * `data_store` - The data_store dispatcher
+/// * `market` - Address of the market to check.
+fn validate_market_token_balance_with_address(
+    data_store: IDataStoreDispatcher, market: ContractAddress
+) { //TODO
+}
+
 fn validate_market_token_balance(data_store: IDataStoreDispatcher, market: Market) { //TODO
 }
 
 fn validate_markets_token_balance(data_store: IDataStoreDispatcher, market: Span<Market>) { //TODO
 }
+
+/// Validate that the positions can be opened in the given market
+/// # Parameters
+/// * `data_store`: dispatcher for the data store
+/// * `market`: the market to check
+fn validate_position_market(data_store: IDataStoreDispatcher, market: Market) {} // TODO
 
 /// Gets a list of market values based on an input array of market addresses.
 /// # Parameters
@@ -836,12 +914,22 @@ fn validate_enabled_market_address(
 ) { // TODO
 }
 
+// Check if the given token is a collateral token of the market
+// # Arguments
+// * `market` - the market to check
+// * `token` -  the token to check
+fn is_market_collateral_token(market: Market, token: ContractAddress) -> bool {
+    token == market.long_token || token == market.short_token
+}
 
 /// Validata if the given token is a collateral token of the market
 /// # Arguments
 /// * `market` - The market to validate.
 /// * `token` - The token to check
-fn validate_market_collateral_token(market: Market, token: ContractAddress) { // TODO
+fn validate_market_collateral_token(market: Market, token: ContractAddress) {
+    if !is_market_collateral_token(market, token) {
+        panic_with_felt252(MarketError::INVALID_COLLATERAL_TOKEN_FOR_MARKET)
+    }
 }
 
 /// Get the max position impact factor for liquidations
@@ -952,6 +1040,16 @@ fn market_token_amount_to_usd(
     0
 }
 
+/// Get the virtual inventory for positions
+/// # Arguments
+/// * `dataStore` - DataStore
+/// * `token` - the token to check
+/// TODO internal function
+fn get_virtual_inventory_for_positions(
+    dataStore: IDataStoreDispatcher, token: ContractAddress
+) -> (bool, i128) { /// TODO
+    (true, 0)
+}
 
 /// Get the borrowing factor per second.
 /// # Arguments
@@ -965,6 +1063,75 @@ fn get_borrowing_factor_per_second(
     data_store: IDataStoreDispatcher, market: Market, prices: MarketPrices, is_long: bool
 ) -> u128 {
     // TODO
+    0
+}
+
+fn get_adjusted_position_impact_factors(
+    data_store: IDataStoreDispatcher, market: ContractAddress
+) -> (u128, u128) { // TODO
+    (0, 0)
+}
+
+/// Get the borrowing fees for a position, assumes that cumulativeBorrowingFactor
+/// has already been updated to the latest value
+/// # Arguments
+/// * `dataStore` - DataStore
+/// * `position` - Position
+/// * `dataStore` - DataStore
+/// # Returns
+/// The borrowing fees for a position
+fn get_borrowing_fees(dataStore: IDataStoreDispatcher, position: Position) -> u128 {
+    0
+}
+
+/// Get the funding fee amount per size for a market
+/// # Arguments
+/// * `dataStore` - DataStore
+/// * `market` - the market to check
+/// * `collateral_token` - the collateralToken to check
+/// * `is_long` - whether to check the long or short size
+/// # Returns
+/// The funding fee amount per size for a market based on collateralToken
+fn get_funding_fee_amount_per_size(
+    dataStore: IDataStoreDispatcher,
+    market: ContractAddress,
+    collateral_token: ContractAddress,
+    is_long: bool
+) -> u128 {
+    0
+}
+
+/// Get the claimable funding amount per size for a market
+/// # Arguments
+/// * `dataStore` - DataStore
+/// * `market` - the market to check
+/// * `collateral_token` - the collateralToken to check
+/// * `is_long` - whether to check the long or short size
+/// # Returns
+/// The claimable funding amount per size for a market based on collateralToken
+fn get_claimable_funding_amount_per_size(
+    dataStore: IDataStoreDispatcher,
+    market: ContractAddress,
+    collateral_token: ContractAddress,
+    is_long: bool
+) -> u128 {
+    0
+}
+
+/// Get the funding amount to be deducted or distributed
+/// # Arguments
+/// * `latestFundingAmountPerSize` - the latest funding amount per size
+/// * `dataSpositionFundingAmountPerSizetore` - the funding amount per size for the position
+/// * `positionSizeInUsd` - the position size in USD
+/// * `roundUpMagnitude` - whether the round up the result
+/// # Returns
+/// fundingAmount
+fn get_funding_amount(
+    latest_funding_amount_per_size: u128,
+    position_funding_amount_per_size: u128,
+    position_size_in_usd: u128,
+    round_up_magnitude: bool
+) -> u128 {
     0
 }
 
@@ -1030,31 +1197,122 @@ fn get_open_interest_with_pnl(
     0
 }
 
-
 /// Get the virtual inventory for swaps
 /// # Arguments
 /// * `data_store` - The data store to use.
-/// * `market` - The market address.
+/// * `market` - The market.
 /// # Returns
-/// has virtual inventory, virtual long token inventory, virtual short token inventory
+/// The tuple (has virtual inventory, virtual long token inventory, virtual short token inventory)
 fn get_virtual_inventory_for_swaps(
-    data_store: IDataStoreDispatcher, market: ContractAddress,
+    data_store: IDataStoreDispatcher, market: ContractAddress
 ) -> (bool, u128, u128) {
+    let virtual_market_id = data_store.get_felt252(keys::virtual_market_id_key(market));
+    if virtual_market_id.is_zero() {
+        return (false, 0, 0);
+    }
+
+    return (
+        true,
+        data_store.get_u128(keys::virtual_inventory_for_swaps_key(virtual_market_id, true)),
+        data_store.get_u128(keys::virtual_inventory_for_swaps_key(virtual_market_id, false))
+    );
+}
+
+fn get_adjusted_swap_impact_factor(
+    data_store: IDataStoreDispatcher, market: ContractAddress, is_positive: bool
+) -> u128 {
+    let (positive_impact_factor, negative_impact_factor) = get_adjusted_swap_impact_factors(
+        data_store, market
+    );
+    if is_positive {
+        positive_impact_factor
+    } else {
+        negative_impact_factor
+    }
+}
+
+fn get_adjusted_swap_impact_factors(
+    data_store: IDataStoreDispatcher, market: ContractAddress
+) -> (u128, u128) {
+    let mut positive_impact_factor = data_store
+        .get_u128(keys::swap_impact_factor_key(market, true));
+    let negative_impact_factor = data_store.get_u128(keys::swap_impact_factor_key(market, false));
+    // if the positive impact factor is more than the negative impact factor, positions could be opened
+    // and closed immediately for a profit if the difference is sufficient to cover the position fees
+    if positive_impact_factor > negative_impact_factor {
+        positive_impact_factor = negative_impact_factor;
+    }
+    (positive_impact_factor, negative_impact_factor)
+}
+
+fn get_adjusted_position_impact_factor(
+    data_store: IDataStoreDispatcher, market: ContractAddress, isPositive: bool
+) -> u128 {
     // TODO
-    (false, 0, 0)
+    0
 }
 
 
-/// Get the virtual inventory for positions
+/// Validate that the specified market exists and is enabled
 /// # Arguments
-/// * `data_store` - The data store to use.
-/// * `token` - The token to check.
-/// # Returns
-/// has virtual inventory, virtual inventory
-fn get_virtual_inventory_for_positions(
-    data_store: IDataStoreDispatcher, token: ContractAddress,
-) -> (bool, i128) {
-    // TODO
-    (false, 0)
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - The address of the market
+fn validate_enable_market(data_store: IDataStoreDispatcher, market: Market) {
+    0;
 }
 
+/// Check if the market is valid
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - The market
+fn validate_market_token_balance_market(data_store: IDataStoreDispatcher, market: Market) {
+    validate_market_token_balance_token(data_store, market, market.long_token);
+
+    if (market.long_token == market.short_token) {
+        return;
+    }
+
+    validate_market_token_balance_token(data_store, market, market.short_token);
+}
+
+///  Validate that market is valid for the token 
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - The market to increment claimable fees for.
+/// * `token` - The fee token.
+fn validate_market_token_balance_token(
+    data_store: IDataStoreDispatcher, market: Market, token: ContractAddress
+) {
+    0;
+}
+
+/// Get the expected min token balance by summing all fees
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - The market to increment claimable fees for.
+/// * `token` - The fee token.
+fn get_expected_min_token_balance(
+    data_store: IDataStoreDispatcher, market: Market, token: ContractAddress
+) -> u128 {
+    // get the pool amount directly as MarketUtils.getPoolAmount will divide the amount by 2
+    // for markets with the same long and short token
+    0
+}
+
+/// Get the total amount of position collateral for a market
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher.
+/// * `market` - The market to check
+/// * `collateral_token` - the collateral_token to check
+/// * `is_long` - Whether to get the value for longs or shorts
+/// # Returns
+/// The total amount of position collateral for a market
+fn get_collateral_sum(
+    data_store: IDataStoreDispatcher,
+    market: ContractAddress,
+    collateral_token: ContractAddress,
+    is_long: bool,
+    divisor: u128
+) -> u128 {
+    0
+}

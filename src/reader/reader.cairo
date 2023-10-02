@@ -12,9 +12,7 @@ use result::ResultTrait;
 // Local imports.
 
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::referral::referral_storage::interface::{
-    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
-};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::market::{
     market_utils::GetNextFundingAmountPerSizeResult, market::Market, market_utils::MarketPrices,
     market_pool_value_info::MarketPoolValueInfo,
@@ -31,7 +29,7 @@ use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::position::{position_utils, position::Position};
 use satoru::pricing::swap_pricing_utils::SwapFees;
 use satoru::deposit::deposit::Deposit;
-use satoru::utils::{i128::{StoreI128, I128Serde, u128_to_i128, i128_to_u128, I128Div, I128Mul}};
+use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul}};
 
 #[derive(Drop, starknet::Store, Serde)]
 struct VirtualInventory {
@@ -445,14 +443,14 @@ mod Reader {
 
     // Local imports.
     use super::{MarketInfo, VirtualInventory, IDataStoreDispatcher, IDataStoreDispatcherTrait};
-    use satoru::referral::referral_storage::interface::{
+    use satoru::mock::referral_storage::{
         IReferralStorageDispatcher, IReferralStorageDispatcherTrait
     };
     use satoru::market::{
         market_utils, market_utils::GetNextFundingAmountPerSizeResult, market::Market,
         market_utils::MarketPrices, market_pool_value_info::MarketPoolValueInfo,
     };
-    use satoru::utils::{i128::{StoreI128, I128Serde, u128_to_i128, i128_to_u128, I128Div, I128Mul}};
+    use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul}};
     use satoru::withdrawal::withdrawal::Withdrawal;
     use satoru::position::{position_utils, position::Position};
     use satoru::pricing::swap_pricing_utils::SwapFees;
@@ -482,38 +480,38 @@ mod Reader {
         fn get_market(
             self: @ContractState, data_store: IDataStoreDispatcher, key: ContractAddress
         ) -> Market {
-            data_store.get_market(key).unwrap()
+            data_store.get_market(key).expect('get_market failed')
         }
 
         fn get_market_by_salt(
             self: @ContractState, data_store: IDataStoreDispatcher, salt: felt252
         ) -> Market {
-            data_store.get_by_salt_market(salt).unwrap()
+            data_store.get_by_salt_market(salt).expect('get_by_salt_market failed')
         }
 
 
         fn get_deposit(
             self: @ContractState, data_store: IDataStoreDispatcher, key: felt252
         ) -> Deposit {
-            data_store.get_deposit(key).unwrap()
+            data_store.get_deposit(key).expect('get_deposit failed')
         }
 
         fn get_withdrawal(
             self: @ContractState, data_store: IDataStoreDispatcher, key: felt252
         ) -> Withdrawal {
-            data_store.get_withdrawal(key).unwrap()
+            data_store.get_withdrawal(key).expect('get_withdrawal failed')
         }
 
         fn get_position(
             self: @ContractState, data_store: IDataStoreDispatcher, key: felt252
         ) -> Position {
-            data_store.get_position(key).unwrap()
+            data_store.get_position(key).expect('get_position failed')
         }
 
         fn get_order(
             self: @ContractState, data_store: IDataStoreDispatcher, key: felt252
         ) -> Order {
-            data_store.get_order(key).unwrap()
+            data_store.get_order(key).expect('get_order failed')
         }
 
         fn get_position_pnl_usd(
@@ -524,7 +522,7 @@ mod Reader {
             position_key: felt252,
             size_delta_usd: u128
         ) -> (i128, i128, u128) {
-            let position = data_store.get_position(position_key).unwrap();
+            let position = data_store.get_position(position_key).expect('get_position failed');
             position_utils::get_position_pnl_usd(
                 data_store, market, prices, position, size_delta_usd
             )
@@ -545,7 +543,9 @@ mod Reader {
                 if i == length {
                     break;
                 }
-                let position = data_store.get_position(*position_keys.at(i)).unwrap();
+                let position = data_store
+                    .get_position(*position_keys.at(i))
+                    .expect('get_position failed');
                 positions.append(position);
                 i += 1;
             };
@@ -620,7 +620,7 @@ mod Reader {
                 if i == length {
                     break;
                 }
-                let order = data_store.get_order(*order_keys.at(i)).unwrap();
+                let order = data_store.get_order(*order_keys.at(i)).expect('get_order failed');
                 orders.append(order);
                 i += 1;
             };
@@ -638,7 +638,7 @@ mod Reader {
                 if i == length {
                     break;
                 }
-                let market = data_store.get_market(*market_keys.at(i)).unwrap();
+                let market = data_store.get_market(*market_keys.at(i)).expect('get_market failed');
                 markets.append(market);
                 i += 1;
             };
@@ -674,7 +674,7 @@ mod Reader {
             prices: MarketPrices,
             market_key: ContractAddress
         ) -> MarketInfo {
-            let market = data_store.get_market(market_key).unwrap();
+            let market = data_store.get_market(market_key).expect('get_market failed');
             let borrowing_factor_per_second_for_longs =
                 market_utils::get_borrowing_factor_per_second(
                 data_store, market, prices, true
@@ -693,7 +693,7 @@ mod Reader {
 
             let is_disabled = data_store
                 .get_bool(keys::is_market_disabled_key(market.market_token))
-                .unwrap();
+                .expect('get_bool failed');
             MarketInfo {
                 market,
                 borrowing_factor_per_second_for_longs,
@@ -768,7 +768,7 @@ mod Reader {
             is_long: bool,
             maximize: bool
         ) -> i128 {
-            let market = data_store.get_market(market_address).unwrap();
+            let market = data_store.get_market(market_address).expect('get_market failed');
             market_utils::get_pnl_to_pool_factor_from_prices(
                 data_store, market, prices, is_long, maximize
             )
@@ -816,7 +816,7 @@ mod Reader {
             size_delta_usd: i128,
             is_long: bool
         ) -> ExecutionPriceResult {
-            let market = data_store.get_market(market_key).unwrap();
+            let market = data_store.get_market(market_key).expect('get_market failed');
             reader_pricing_utils::get_execution_price(
                 data_store,
                 market,
@@ -838,7 +838,7 @@ mod Reader {
             token_in_price: Price,
             token_out_price: Price
         ) -> (i128, i128) {
-            let market = data_store.get_market(market_key).unwrap();
+            let market = data_store.get_market(market_key).expect('get_market failed');
             reader_pricing_utils::get_swap_price_impact(
                 data_store, market, token_in, token_out, amount_in, token_in_price, token_out_price
             )
