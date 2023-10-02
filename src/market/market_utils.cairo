@@ -1931,7 +1931,9 @@ fn get_next_borrowing_fees(
         data_store, *market, *prices, *position.is_long
     );
     if (next_cumulative_borrowing_factor < *position.borrowing_factor) {
-        MarketError::UNEXCEPTED_BORROWING_FACTOR(*position.borrowing_factor, next_cumulative_borrowing_factor);
+        MarketError::UNEXCEPTED_BORROWING_FACTOR(
+            *position.borrowing_factor, next_cumulative_borrowing_factor
+        );
     }
     let diff_factor = next_cumulative_borrowing_factor - *position.borrowing_factor;
     return apply_factor_u128(*position.size_in_usd, diff_factor);
@@ -2103,7 +2105,9 @@ fn get_borrowing_fees(data_store: IDataStoreDispatcher, position: @Position) -> 
         @data_store, *position.market, *position.is_long
     );
     if (cumulative_borrowing_factor < *position.borrowing_factor) {
-        MarketError::UNEXCEPTED_BORROWING_FACTOR(*position.borrowing_factor, cumulative_borrowing_factor);
+        MarketError::UNEXCEPTED_BORROWING_FACTOR(
+            *position.borrowing_factor, cumulative_borrowing_factor
+        );
     }
     let diff_factor: u128 = cumulative_borrowing_factor - *position.borrowing_factor;
     return apply_factor_u128(*position.size_in_usd, diff_factor);
