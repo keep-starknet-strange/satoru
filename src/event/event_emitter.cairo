@@ -454,7 +454,7 @@ trait IEventEmitter<TContractState> {
         ref self: TContractState,
         market: ContractAddress,
         token: ContractAddress,
-        delta: u128,
+        delta: i128,
         next_value: u128
     );
 
@@ -464,7 +464,7 @@ trait IEventEmitter<TContractState> {
         market: ContractAddress,
         collateral_token: ContractAddress,
         is_long: bool,
-        delta: u128,
+        delta: i128,
         next_value: u128
     );
 
@@ -503,7 +503,7 @@ trait IEventEmitter<TContractState> {
         market: ContractAddress,
         collateral_token: ContractAddress,
         is_long: bool,
-        delta: u128,
+        delta: i128,
         next_value: u128
     );
 
@@ -537,7 +537,7 @@ trait IEventEmitter<TContractState> {
     );
 
     /// Emits the `FundingFeesClaimed` event.
-    fn emit_founding_fees_claimed(
+    fn emit_funding_fees_claimed(
         ref self: TContractState,
         market: ContractAddress,
         token: ContractAddress,
@@ -1361,7 +1361,7 @@ mod EventEmitter {
     struct PoolAmountUpdated {
         market: ContractAddress,
         token: ContractAddress,
-        delta: u128,
+        delta: i128,
         next_value: u128
     }
 
@@ -1370,7 +1370,7 @@ mod EventEmitter {
         market: ContractAddress,
         collateral_token: ContractAddress,
         is_long: bool,
-        delta: u128,
+        delta: i128,
         next_value: u128
     }
 
@@ -1405,7 +1405,7 @@ mod EventEmitter {
         market: ContractAddress,
         collateral_token: ContractAddress,
         is_long: bool,
-        delta: u128,
+        delta: i128,
         next_value: u128
     }
 
@@ -2459,7 +2459,7 @@ mod EventEmitter {
             ref self: ContractState,
             market: ContractAddress,
             token: ContractAddress,
-            delta: u128,
+            delta: i128,
             next_value: u128
         ) {
             self.emit(PoolAmountUpdated { market, token, delta, next_value });
@@ -2471,7 +2471,7 @@ mod EventEmitter {
             market: ContractAddress,
             collateral_token: ContractAddress,
             is_long: bool,
-            delta: u128,
+            delta: i128,
             next_value: u128
         ) {
             self
@@ -2531,7 +2531,7 @@ mod EventEmitter {
             market: ContractAddress,
             collateral_token: ContractAddress,
             is_long: bool,
-            delta: u128,
+            delta: i128,
             next_value: u128
         ) {
             self
@@ -2586,7 +2586,7 @@ mod EventEmitter {
         }
 
         /// Emits the `FundingFeesClaimed` event.
-        fn emit_founding_fees_claimed(
+        fn emit_funding_fees_claimed(
             ref self: ContractState,
             market: ContractAddress,
             token: ContractAddress,

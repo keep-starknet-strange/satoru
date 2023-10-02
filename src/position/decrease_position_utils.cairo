@@ -269,8 +269,8 @@ fn decrease_position(ref params: UpdatePositionParams) -> DecreasePositionResult
     }
 
     market_utils::apply_delta_to_collateral_sum(
-        @params.contracts.data_store,
-        @params.contracts.event_emitter,
+        params.contracts.data_store,
+        params.contracts.event_emitter,
         params.position.market,
         params.position.collateral_token,
         params.position.is_long,
