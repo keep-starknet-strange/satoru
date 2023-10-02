@@ -36,12 +36,11 @@ use satoru::swap::{
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
-
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul}, error_utils};
+use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}, error_utils};
 
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Default, Drop, starknet::Store, Serde)]
 struct ExecutionPriceResult {
     price_impact_usd: i128,
     price_impact_diff_usd: u128,
@@ -90,15 +89,15 @@ fn get_swap_amount_out(
         ReaderError::INVALID_TOKEN_IN(token_in, market.long_token);
     }
 
-    validate_swap_market(@data_store, @market);
+    validate_swap_market(data_store, market);
 
-    cache.token_out = get_opposite_token(@market, token_in);
+    cache.token_out = get_opposite_token(token_in, @market);
     cache.token_in_price = get_cached_token_price(token_in, market, prices);
     cache.token_out_price = get_cached_token_price(cache.token_out, market, prices);
 
-    let param: GetPriceImpactUsdParams = GetPriceImpactUsdParams {
-        data_store: data_store,
-        market: market,
+    let param = GetPriceImpactUsdParams {
+        data_store,
+        market,
         token_a: token_in,
         token_b: cache.token_out,
         price_for_token_a: cache.token_in_price.mid_price(),
