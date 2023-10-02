@@ -67,11 +67,7 @@ struct GetPositionInfoCache {
 
 impl DefaultExecutionPriceResult of Default<ExecutionPriceResult> {
     fn default() -> ExecutionPriceResult {
-        ExecutionPriceResult {
-            price_impact_usd: 0,
-            price_impact_diff_usd: 0,
-            execution_price: 0
-        }
+        ExecutionPriceResult { price_impact_usd: 0, price_impact_diff_usd: 0, execution_price: 0 }
     }
 }
 

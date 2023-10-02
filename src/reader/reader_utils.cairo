@@ -123,39 +123,71 @@ fn get_borrowing_fees(
 /// # Returns
 /// Struct containing base funding values.
 fn get_base_funding_values(data_store: IDataStoreDispatcher, market: Market) -> BaseFundingValues {
-    let mut values : BaseFundingValues = Default::default();
-    values.funding_fee_amount_per_size.long.long_token = market_utils::get_funding_fee_amount_per_size(
-        data_store, market.market_token, market.long_token, true // is_long
-    );
+    let mut values: BaseFundingValues = Default::default();
+    values
+        .funding_fee_amount_per_size
+        .long
+        .long_token =
+            market_utils::get_funding_fee_amount_per_size(
+                data_store, market.market_token, market.long_token, true // is_long
+            );
 
-    values.funding_fee_amount_per_size.long.short_token = market_utils::get_funding_fee_amount_per_size(
-        data_store, market.market_token, market.short_token, true // is_long
-    );
+    values
+        .funding_fee_amount_per_size
+        .long
+        .short_token =
+            market_utils::get_funding_fee_amount_per_size(
+                data_store, market.market_token, market.short_token, true // is_long
+            );
 
-    values.funding_fee_amount_per_size.short.long_token = market_utils::get_funding_fee_amount_per_size(
-        data_store, market.market_token, market.long_token, false // is_long
-    );
+    values
+        .funding_fee_amount_per_size
+        .short
+        .long_token =
+            market_utils::get_funding_fee_amount_per_size(
+                data_store, market.market_token, market.long_token, false // is_long
+            );
 
-    values.funding_fee_amount_per_size.short.short_token = market_utils::get_funding_fee_amount_per_size(
-        data_store, market.market_token, market.short_token, false // is_long
-    );
+    values
+        .funding_fee_amount_per_size
+        .short
+        .short_token =
+            market_utils::get_funding_fee_amount_per_size(
+                data_store, market.market_token, market.short_token, false // is_long
+            );
 
-    values.claimable_funding_amount_per_size.long.long_token = market_utils::get_funding_fee_amount_per_size(
-        data_store, market.market_token, market.long_token, true // is_long
-    );
+    values
+        .claimable_funding_amount_per_size
+        .long
+        .long_token =
+            market_utils::get_funding_fee_amount_per_size(
+                data_store, market.market_token, market.long_token, true // is_long
+            );
 
-    values.claimable_funding_amount_per_size.long.short_token = market_utils::get_funding_fee_amount_per_size(
-        data_store, market.market_token, market.short_token, true // is_long
-    );
+    values
+        .claimable_funding_amount_per_size
+        .long
+        .short_token =
+            market_utils::get_funding_fee_amount_per_size(
+                data_store, market.market_token, market.short_token, true // is_long
+            );
 
-    values.claimable_funding_amount_per_size.short.long_token = market_utils::get_funding_fee_amount_per_size(
-        data_store, market.market_token, market.long_token, false // is_long
-    );
+    values
+        .claimable_funding_amount_per_size
+        .short
+        .long_token =
+            market_utils::get_funding_fee_amount_per_size(
+                data_store, market.market_token, market.long_token, false // is_long
+            );
 
-    values.claimable_funding_amount_per_size.short.short_token = market_utils::get_funding_fee_amount_per_size(
-        data_store, market.market_token, market.short_token, false // is_long
-    );
-    
+    values
+        .claimable_funding_amount_per_size
+        .short
+        .short_token =
+            market_utils::get_funding_fee_amount_per_size(
+                data_store, market.market_token, market.short_token, false // is_long
+            );
+
     values
 }
 
@@ -193,8 +225,8 @@ fn get_position_info(
     ui_fee_receiver: ContractAddress,
     use_position_size_as_size_delta_usd: bool
 ) -> PositionInfo {
-    let mut position_info : PositionInfo = Default::default();
-    let mut cache : GetPositionInfoCache = Default::default();
+    let mut position_info: PositionInfo = Default::default();
+    let mut cache: GetPositionInfoCache = Default::default();
 
     position_info.position = data_store.get_position(position_key).unwrap();
     cache.market = data_store.get_market(position_info.position.market).unwrap();
@@ -227,9 +259,7 @@ fn get_position_info(
         referral_storage,
         position: position_info.position,
         collateral_token_price: cache.collateral_token_price,
-        for_positive_impact: position_info
-            .execution_price_result
-            .price_impact_usd > 0,
+        for_positive_impact: position_info.execution_price_result.price_impact_usd > 0,
         long_token: cache.market.long_token,
         short_token: cache.market.short_token,
         size_delta_usd,
@@ -363,8 +393,7 @@ fn get_position_info(
                 position_info.fees.funding, position_info.position
             );
 
-    let (base_pnl_usd, uncapped_base_pnl_usd, _) =
-        position_utils::get_position_pnl_usd(
+    let (base_pnl_usd, uncapped_base_pnl_usd, _) = position_utils::get_position_pnl_usd(
         data_store, cache.market, prices, position_info.position, size_delta_usd
     );
 
