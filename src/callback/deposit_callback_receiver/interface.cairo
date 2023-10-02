@@ -1,6 +1,6 @@
 // Satoru imports
 use satoru::deposit::deposit::Deposit;
-use satoru::event::event_utils::EventLogData;
+use satoru::event::event_utils::LogData;
 
 // *************************************************************************
 //                  Interface of the `DepositCallbackReceiver` contract.
@@ -13,7 +13,7 @@ trait IDepositCallbackReceiver<TContractState> {
     /// * `event_data` - The event log data.
     /// * `deposit` - The deposit that was executed.
     fn after_deposit_execution(
-        ref self: TContractState, key: felt252, deposit: Deposit, event_data: EventLogData,
+        ref self: TContractState, key: felt252, deposit: Deposit, log_data: LogData,
     );
 
     /// Called after a deposit cancellation.
@@ -22,6 +22,6 @@ trait IDepositCallbackReceiver<TContractState> {
     /// * `event_data` - The event log data.
     /// * `deposit` - The deposit that was cancelled.
     fn after_deposit_cancellation(
-        ref self: TContractState, key: felt252, deposit: Deposit, event_data: EventLogData,
+        ref self: TContractState, key: felt252, deposit: Deposit, log_data: LogData,
     );
 }

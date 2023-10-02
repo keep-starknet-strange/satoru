@@ -1,6 +1,6 @@
 // Satoru imports
 use satoru::withdrawal::withdrawal::Withdrawal;
-use satoru::event::event_utils::EventLogData;
+use satoru::event::event_utils::LogData;
 
 // *************************************************************************
 //                  Interface of the `WithdrawalCallbackReceiver` contract.
@@ -11,18 +11,18 @@ trait IWithdrawalCallbackReceiver<TContractState> {
     /// # Arguments
     /// * `key` - They key of the withdrawal.
     /// * `withdrawal` - The withdrawal that was executed.
-    /// * `event_data` - The event log data.
+    /// * `log_data` - The log data.
     // TODO uncomment withdrawal when available
     fn after_withdrawal_execution(
-        ref self: TContractState, key: felt252, withdrawal: Withdrawal, event_data: EventLogData,
+        ref self: TContractState, key: felt252, withdrawal: Withdrawal, log_data: LogData,
     );
 
     /// Called after an withdrawal cancellation.
     /// # Arguments
     /// * `key` - They key of the withdrawal.
     /// * `withdrawal` - The withdrawal that was cancelled.
-    /// * `event_data` - The event log data.
+    /// * `log_data` - The log data.
     fn after_withdrawal_cancellation(
-        ref self: TContractState, key: felt252, withdrawal: Withdrawal, event_data: EventLogData,
+        ref self: TContractState, key: felt252, withdrawal: Withdrawal, log_data: LogData,
     );
 }
