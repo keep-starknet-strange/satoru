@@ -2062,3 +2062,17 @@ fn get_collateral_sum(
 ) -> u128 {
     0
 }
+
+/// Get the borrowing fees for a position by calculating the latest cumulativeBorrowingFactor
+/// # Arguments
+/// * `data_store` - The `DataStore` contract dispatcher
+/// * `position` - `Position`
+/// * `market` - `Market`
+/// * `prices` - The prices of the market tokens
+/// # Returns
+/// The borrowing fees for a position
+fn get_next_borrowing_fees(
+    data_store: IDataStoreDispatcher, position: Position, market: Market, prices: MarketPrices
+) -> u128 {
+    0
+}
