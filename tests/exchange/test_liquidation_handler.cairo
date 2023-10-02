@@ -24,7 +24,7 @@ use satoru::exchange::base_order_handler::BaseOrderHandler::{
 use satoru::event::event_emitter::{IEventEmitterDispatcher};
 
 #[test]
-fn test_exec_liquidation_true() {
+fn given_normal_conditions_when_create_execute_liquidation_then_works() {
     let collateral_token: ContractAddress = contract_address_const::<1>();
     let (
         data_store,
@@ -57,7 +57,7 @@ fn test_exec_liquidation_true() {
 
 // TODO: uncomment this test after https://github.com/foundry-rs/starknet-foundry/issues/659 is merged
 // #[test]
-// fn test_create_liquidation_order() {
+// fn given_normal_conditions_when_create_liquidation_order_works() {
 //     let collateral_token: ContractAddress = contract_address_const::<1>();
 //     let (
 //         data_store,
