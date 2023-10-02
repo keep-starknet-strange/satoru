@@ -127,6 +127,8 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/piotmag769"><img src="https://avatars.githubusercontent.com/u/56825108?v=4?s=100" width="100px;" alt="Piotr Magiera"/><br /><sub><b>Piotr Magiera</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=piotmag769" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/piotmag769"><img src="https://avatars.githubusercontent.com/u/56825108?v=4?s=100" width="100px;" alt="Piotr Magiera"/><br /><sub><b>Piotr Oak</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=piotmag769" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/piotmag769"><img src="https://avatars.githubusercontent.com/u/56825108?v=4?s=100" width="100px;" alt="Piotr Magiera"/><br /><sub><b>Piotr ftupas</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=piotmag769" title="Code">💻</a></td>
+    </tr>
+    <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/piotmag769"><img src="https://avatars.githubusercontent.com/u/56825108?v=4?s=100" width="100px;" alt="Piotr Magiera"/><br /><sub><b>Piotr lambda-0x</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=piotmag769" title="Code">💻</a></td>
     </tr>
   </tbody>
