@@ -18,12 +18,12 @@ struct LogData {
     uint_items: UintItems,
     int_items: IntItems,
     bool_items: BoolItems,
-    bytes_32_items: Bytes32Items,
-    bytes_items: BytesItems,
+    felt252_items: Felt252Items,
+    array_of_felt_items: ArrayOfFeltItems,
     string_items: StringItems,
 }
 
-//AddressItems => ContractAddress
+//ContractAddress
 #[derive(Default, Serde, Drop)]
 struct AddressItems {
     items: Array<AddressKeyValue>,
@@ -42,7 +42,7 @@ struct AddressArrayKeyValue {
     value: Array<ContractAddress>,
 }
 
-//UintItems => u128
+//u128
 
 #[derive(Default, Serde, Drop)]
 struct UintItems {
@@ -62,7 +62,7 @@ struct UintArrayKeyValue {
     value: Array<u128>,
 }
 
-//IntItems => i128
+//i128
 #[derive(Default, Serde, Drop)]
 struct IntItems {
     items: Array<IntKeyValue>,
@@ -81,7 +81,7 @@ struct IntArrayKeyValue {
     value: Array<i128>,
 }
 
-//BoolItems => bool
+//bool
 #[derive(Default, Serde, Drop)]
 struct BoolItems {
     items: Array<BoolKeyValue>,
@@ -100,38 +100,39 @@ struct BoolArrayKeyValue {
     value: Array<bool>,
 }
 
-//Bytes32 => felt252
+//Felt252 
 #[derive(Default, Serde, Drop)]
-struct Bytes32Items {
-    items: Array<Bytes32KeyValue>,
-    array_items: Array<Bytes32ArrayKeyValue>,
+struct Felt252Items {
+    items: Array<Felt252KeyValue>,
+    array_items: Array<Felt252ArrayKeyValue>,
 }
 
 #[derive(Default, Serde, Drop)]
-struct Bytes32KeyValue {
+struct Felt252KeyValue {
     key: felt252,
     value: felt252,
 }
 
 #[derive(Default, Serde, Drop)]
-struct Bytes32ArrayKeyValue {
+struct Felt252ArrayKeyValue {
     key: felt252,
     value: Array<felt252>,
 }
 
+//Array of Felt
 #[derive(Default, Serde, Drop)]
-struct BytesItems {
-    items: Array<BytesKeyValue>,
-    array_items: Array<BytesArrayKeyValue>,
+struct ArrayOfFeltItems {
+    items: Array<ArrayOfFeltKeyValue>,
+    array_items: Array<ArrayOfFeltArrayKeyValue>,
 }
 
 #[derive(Default, Serde, Drop)]
-struct BytesKeyValue {
+struct ArrayOfFeltKeyValue {
     key: felt252,
     value: Array<felt252>,
 }
 #[derive(Default, Serde, Drop)]
-struct BytesArrayKeyValue {
+struct ArrayOfFeltArrayKeyValue {
     key: felt252,
     value: Array<Array<felt252>>,
 }
@@ -162,92 +163,92 @@ struct StringArrayKeyValue {
 fn set_item_address_items(
     mut items: AddressItems, index: u32, key: felt252, value: ContractAddress
 ) {
-    let address_key_value: AddressKeyValue = AddressKeyValue { key, value, };
+    let address_key_value: AddressKeyValue = AddressKeyValue { key, value };
     items.items.append(address_key_value);
 }
 
 fn set_item_array_address_items(
     mut items: AddressItems, index: u32, key: felt252, value: Array<ContractAddress>
 ) {
-    let address_array_key_value: AddressArrayKeyValue = AddressArrayKeyValue { key, value, };
+    let address_array_key_value: AddressArrayKeyValue = AddressArrayKeyValue { key, value };
     items.array_items.append(address_array_key_value);
 }
 
 // Uint
 
 fn set_item_uint_items(mut items: UintItems, index: u32, key: felt252, value: u128) {
-    let uint_key_value: UintKeyValue = UintKeyValue { key, value, };
+    let uint_key_value: UintKeyValue = UintKeyValue { key, value };
     items.items.append(uint_key_value);
 }
 
 fn set_item_array_uint_items(mut items: UintItems, index: u32, key: felt252, value: Array<u128>) {
-    let uint_array_key_value: UintArrayKeyValue = UintArrayKeyValue { key, value, };
+    let uint_array_key_value: UintArrayKeyValue = UintArrayKeyValue { key, value };
     items.array_items.append(uint_array_key_value);
 }
 
 // in128
 
 fn set_item_int_items(mut items: IntItems, index: u32, key: felt252, value: i128) {
-    let int_key_value: IntKeyValue = IntKeyValue { key, value, };
+    let int_key_value: IntKeyValue = IntKeyValue { key, value };
     // items.items.set(index, int_key_value);
     items.items.append(int_key_value);
 }
 
 fn set_item_array_int_items(mut items: IntItems, index: u32, key: felt252, value: Array<i128>) {
-    let int_array_key_value: IntArrayKeyValue = IntArrayKeyValue { key, value, };
+    let int_array_key_value: IntArrayKeyValue = IntArrayKeyValue { key, value };
     items.array_items.append(int_array_key_value);
 }
 
 // bool
 
 fn set_item_bool_items(mut items: BoolItems, index: u32, key: felt252, value: bool) {
-    let bool_key_value: BoolKeyValue = BoolKeyValue { key, value, };
+    let bool_key_value: BoolKeyValue = BoolKeyValue { key, value };
     items.items.append(bool_key_value);
 }
 
 fn set_item_array_bool_items(mut items: BoolItems, index: u32, key: felt252, value: Array<bool>) {
-    let bool_array_key_value: BoolArrayKeyValue = BoolArrayKeyValue { key, value, };
+    let bool_array_key_value: BoolArrayKeyValue = BoolArrayKeyValue { key, value };
     items.array_items.append(bool_array_key_value);
 }
 
-// byte32
+// felt252
 
-fn set_item_byte32_items(mut items: Bytes32Items, index: u32, key: felt252, value: felt252) {
-    let byte32_key_value: Bytes32KeyValue = Bytes32KeyValue { key, value, };
-    items.items.append(byte32_key_value);
+fn set_item_Felt252_items(mut items: Felt252Items, index: u32, key: felt252, value: felt252) {
+    let Felt252_key_value: Felt252KeyValue = Felt252KeyValue { key, value };
+    items.items.append(Felt252_key_value);
 }
 
-fn set_item_array_byte32_items(
-    mut items: Bytes32Items, index: u32, key: felt252, value: Array<felt252>
+fn set_item_array_Felt252_items(
+    mut items: Felt252Items, index: u32, key: felt252, value: Array<felt252>
 ) {
-    let byte32_array_key_value: Bytes32ArrayKeyValue = Bytes32ArrayKeyValue { key, value, };
-    items.array_items.append(byte32_array_key_value);
+    let Felt252_array_key_value: Felt252ArrayKeyValue = Felt252ArrayKeyValue { key, value };
+    items.array_items.append(Felt252_array_key_value);
 }
 
-// byte
+// array of felt
 
-fn set_item_bytes_items(mut items: BytesItems, index: u32, key: felt252, value: Array<felt252>) {
-    let byte_key_value: BytesKeyValue = BytesKeyValue { key, value, };
-    items.items.append(byte_key_value);
+fn set_item_array_of_felt_items_items(mut items: ArrayOfFeltItems, index: u32, key: felt252, value: Array<felt252>) {
+    let array_of_felt_items_key_value: ArrayOfFeltKeyValue = ArrayOfFeltKeyValue { key, value };
+    items.items.append(array_of_felt_items_key_value);
 }
 
-fn set_item_array_bytes_items(
-    mut items: BytesItems, index: u32, key: felt252, value: Array<Array<felt252>>
+fn set_item_array_array_of_felt_items(
+    mut items: ArrayOfFeltItems, index: u32, key: felt252, value: Array<Array<felt252>>
 ) {
-    let byte_array_key_value: BytesArrayKeyValue = BytesArrayKeyValue { key, value, };
-    items.array_items.append(byte_array_key_value);
+    let array_of_felt_array_key_value: ArrayOfFeltArrayKeyValue = ArrayOfFeltArrayKeyValue { key, value };
+    items.array_items.append(array_of_felt_array_key_value);
 }
 
 // string
 
 fn set_item_string_items(mut items: StringItems, index: u32, key: felt252, value: felt252) {
-    let string_key_value: StringKeyValue = StringKeyValue { key, value, };
+    let string_key_value: StringKeyValue = StringKeyValue { key, value };
     items.items.append(string_key_value);
 }
 
 fn set_item_array_string_items(
     mut items: StringItems, index: u32, key: felt252, value: Array<felt252>
 ) {
-    let string_array_key_value: StringArrayKeyValue = StringArrayKeyValue { key, value, };
+    let string_array_key_value: StringArrayKeyValue = StringArrayKeyValue { key, value };
     items.array_items.append(string_array_key_value);
 }
