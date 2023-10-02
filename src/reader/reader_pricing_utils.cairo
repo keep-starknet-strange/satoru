@@ -38,9 +38,9 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul}, error_utils};
+use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}, error_utils};
 
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Default, Drop, starknet::Store, Serde)]
 struct ExecutionPriceResult {
     price_impact_usd: i128,
     price_impact_diff_usd: u128,

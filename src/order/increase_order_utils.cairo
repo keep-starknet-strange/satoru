@@ -88,7 +88,7 @@ fn process_order(params: ExecuteOrderParams) -> event_utils::EventLogData {
         collateral_increment_amount
     );
 
-    event_utils::EventLogData { cant_be_empty: 'todo' } // TODO
+    event_utils::EventLogData { cant_be_empty: 'todo' } // TODO switch to LogData
 }
 
 /// Validate the oracle block numbers used for the prices in the oracle.

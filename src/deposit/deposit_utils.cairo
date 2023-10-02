@@ -8,6 +8,8 @@
 use starknet::ContractAddress;
 use starknet::info::get_block_number;
 use result::ResultTrait;
+use satoru::utils::traits::ContractAddressDefault;
+use traits::Default;
 
 // Local imports.
 use satoru::utils::{
@@ -25,7 +27,7 @@ use satoru::callback::callback_utils::{validate_callback_gas_limit, after_deposi
 use satoru::nonce::nonce_utils;
 use satoru::token::token_utils;
 use starknet::contract_address::ContractAddressZeroable;
-use satoru::event::event_utils::EventLogData;
+use satoru::event::event_utils::LogData;
 
 /// Helps with deposit creation.
 #[derive(Drop, starknet::Store, Serde)]
@@ -186,8 +188,9 @@ fn cancel_deposit(
 
     event_emitter.emit_deposit_cancelled(key, reason, reason_bytes.span());
 
-    let event_log_data = EventLogData { cant_be_empty: 0 };
-    after_deposit_cancellation(key, deposit, event_log_data, event_emitter);
+    //TODO use log data instead
+    let log_data: LogData = Default::default();
+    after_deposit_cancellation(key, deposit, log_data);
 
     gas_utils::pay_execution_fee_deposit(
         data_store,
