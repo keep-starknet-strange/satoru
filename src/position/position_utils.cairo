@@ -27,7 +27,6 @@ use satoru::price::price::{Price, PriceTrait};
 use satoru::utils::{calc, precision, error_utils, i128::{I128Store, I128Serde, I128Div, I128Mul}};
 use satoru::referral::referral_utils;
 use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
-use satoru::utils::calc::to_signed;
 /// Struct used in increasePosition and decreasePosition.
 #[derive(Drop, Copy, starknet::Store, Serde)]
 struct UpdatePositionParams {
