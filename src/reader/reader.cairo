@@ -770,7 +770,7 @@ mod Reader {
         ) -> i128 {
             let market = data_store.get_market(market_address).expect('get_market failed');
             market_utils::get_pnl_to_pool_factor_from_prices(
-                data_store, market, prices, is_long, maximize
+                data_store, @market, @prices, is_long, maximize
             )
         }
 

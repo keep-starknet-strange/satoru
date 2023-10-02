@@ -396,7 +396,7 @@ fn get_position_fees(params: GetPositionFeesParams) -> PositionFees {
         params.size_delta_usd
     );
 
-    let borrowing_fee_usd = market_utils::get_borrowing_fees(params.data_store, params.position);
+    let borrowing_fee_usd = market_utils::get_borrowing_fees(params.data_store, @params.position);
 
     fees
         .borrowing =

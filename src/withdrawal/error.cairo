@@ -13,7 +13,7 @@ mod WithdrawalError {
         panic(array!['insufficient market token', data_1.into(), data_2.into()])
     }
 
-    fn INVALID_POOL_VALUE_FOR_WITHDRAWAL(data: u128) {
+    fn INVALID_POOL_VALUE_FOR_WITHDRAWAL(data: i128) {
         panic(array!['insuff pool val for withdrawal', data.into()])
     }
 
