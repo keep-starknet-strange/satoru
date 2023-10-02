@@ -65,6 +65,16 @@ struct GetPositionInfoCache {
     latest_short_token_funding_amount_per_size: i128,
 }
 
+impl DefaultExecutionPriceResult of Default<ExecutionPriceResult> {
+    fn default() -> ExecutionPriceResult {
+        ExecutionPriceResult {
+            price_impact_usd: 0,
+            price_impact_diff_usd: 0,
+            execution_price: 0
+        }
+    }
+}
+
 /// Calculates the output amount and fees for a token swap operation.
 /// # Arguments
 /// * `data_store` - The `DataStore` contract dispatcher.

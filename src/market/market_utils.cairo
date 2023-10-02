@@ -2076,33 +2076,3 @@ fn get_next_borrowing_fees(
 ) -> u128 {
     0
 }
-
-/// Get the next funding amount per size values
-/// # Arguments
-/// * `data_store` - The `DataStore` contract dispatcher
-/// * `market` - `Market`
-/// * `prices` - The prices of the market tokens
-fn get_next_funding_amount_per_size(
-    data_store: IDataStoreDispatcher, market: Market, prices: MarketPrices
-) -> GetNextFundingAmountPerSizeResult {
-    let long = CollateralType { long_token: 0, short_token: 0 };
-
-    let short = CollateralType { long_token: 0, short_token: 0 };
-
-    let long_claimable = CollateralType { long_token: 0, short_token: 0 };
-
-    let short_claimable = CollateralType { long_token: 0, short_token: 0 };
-
-    let funding_fee_amount_per_size_delta = PositionType { long, short };
-
-    let claimable_funding_amount_per_size_delta = PositionType {
-        long: long_claimable, short: short_claimable
-    };
-
-    GetNextFundingAmountPerSizeResult {
-        longs_pay_shorts: true,
-        funding_factor_per_second: 0,
-        funding_fee_amount_per_size_delta,
-        claimable_funding_amount_per_size_delta
-    }
-}

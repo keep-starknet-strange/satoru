@@ -41,6 +41,19 @@ struct PositionInfo {
     pnl_after_price_impact_usd: i128,
 }
 
+impl DefaultPositionInfo of Default<PositionInfo> {
+    fn default() -> PositionInfo {
+        PositionInfo {
+            position: Default::default(),
+            fees: Default::default(),
+            execution_price_result: Default::default(),
+            base_pnl_usd: 0,
+            uncapped_base_pnl_usd: 0,
+            pnl_after_price_impact_usd: 0,
+        }
+    }
+}
+
 #[derive(Drop, starknet::Store, Serde)]
 struct GetPositionInfoCache {
     market: Market,
@@ -48,10 +61,29 @@ struct GetPositionInfoCache {
     pending_borrowing_fee_usd: u128,
 }
 
+impl DefaultGetPositionInfoCache of Default<GetPositionInfoCache> {
+    fn default() -> GetPositionInfoCache {
+        GetPositionInfoCache {
+            market: Default::default(),
+            collateral_token_price: Default::default(),
+            pending_borrowing_fee_usd: 0
+        }
+    }
+}
+
 #[derive(Drop, starknet::Store, Serde)]
 struct BaseFundingValues {
     funding_fee_amount_per_size: PositionType,
     claimable_funding_amount_per_size: PositionType,
+}
+
+impl DefaultBaseFundingValues of Default<BaseFundingValues> {
+    fn default() -> BaseFundingValues {
+        BaseFundingValues {
+            funding_fee_amount_per_size: Default::default(),
+            claimable_funding_amount_per_size: Default::default()
+        }
+    }
 }
 
 /// Designed to calculate and return the next borrowing fees that a specific position within a market is expected to incur.
@@ -91,61 +123,40 @@ fn get_borrowing_fees(
 /// # Returns
 /// Struct containing base funding values.
 fn get_base_funding_values(data_store: IDataStoreDispatcher, market: Market) -> BaseFundingValues {
-    let funding_long_long_token = market_utils::get_funding_fee_amount_per_size(
+    let mut values : BaseFundingValues = Default::default();
+    values.funding_fee_amount_per_size.long.long_token = market_utils::get_funding_fee_amount_per_size(
         data_store, market.market_token, market.long_token, true // is_long
     );
 
-    let funding_long_short_token = market_utils::get_funding_fee_amount_per_size(
+    values.funding_fee_amount_per_size.long.short_token = market_utils::get_funding_fee_amount_per_size(
         data_store, market.market_token, market.short_token, true // is_long
     );
 
-    let funding_short_long_token = market_utils::get_funding_fee_amount_per_size(
+    values.funding_fee_amount_per_size.short.long_token = market_utils::get_funding_fee_amount_per_size(
         data_store, market.market_token, market.long_token, false // is_long
     );
 
-    let funding_short_short_token = market_utils::get_funding_fee_amount_per_size(
+    values.funding_fee_amount_per_size.short.short_token = market_utils::get_funding_fee_amount_per_size(
         data_store, market.market_token, market.short_token, false // is_long
     );
 
-    let claimable_long_long_token = market_utils::get_funding_fee_amount_per_size(
+    values.claimable_funding_amount_per_size.long.long_token = market_utils::get_funding_fee_amount_per_size(
         data_store, market.market_token, market.long_token, true // is_long
     );
 
-    let claimable_long_short_token = market_utils::get_funding_fee_amount_per_size(
+    values.claimable_funding_amount_per_size.long.short_token = market_utils::get_funding_fee_amount_per_size(
         data_store, market.market_token, market.short_token, true // is_long
     );
 
-    let claimable_short_long_token = market_utils::get_funding_fee_amount_per_size(
+    values.claimable_funding_amount_per_size.short.long_token = market_utils::get_funding_fee_amount_per_size(
         data_store, market.market_token, market.long_token, false // is_long
     );
 
-    let claimable_short_short_token = market_utils::get_funding_fee_amount_per_size(
+    values.claimable_funding_amount_per_size.short.short_token = market_utils::get_funding_fee_amount_per_size(
         data_store, market.market_token, market.short_token, false // is_long
     );
-
-    let long_funding = CollateralType {
-        long_token: funding_long_long_token, short_token: funding_long_short_token
-    };
-
-    let short_funding = CollateralType {
-        long_token: funding_short_long_token, short_token: funding_short_short_token
-    };
-
-    let long_claimable = CollateralType {
-        long_token: claimable_long_long_token, short_token: claimable_long_short_token
-    };
-
-    let short_claimable = CollateralType {
-        long_token: claimable_short_long_token, short_token: claimable_short_short_token
-    };
-
-    let funding_fee_amount_per_size = PositionType { long: long_funding, short: short_funding };
-
-    let claimable_funding_amount_per_size = PositionType {
-        long: long_claimable, short: short_claimable,
-    };
-
-    BaseFundingValues { funding_fee_amount_per_size, claimable_funding_amount_per_size }
+    
+    values
 }
 
 /// Calculate and return the next funding amount per size for a specific market.
@@ -182,27 +193,8 @@ fn get_position_info(
     ui_fee_receiver: ContractAddress,
     use_position_size_as_size_delta_usd: bool
 ) -> PositionInfo {
-    let position = Default::default();
-    let fees = Default::default();
-    let execution_price_result = ExecutionPriceResult {
-        price_impact_usd: 0, price_impact_diff_usd: 0, execution_price: 0
-    };
-
-    let mut position_info = PositionInfo {
-        position,
-        fees,
-        execution_price_result,
-        base_pnl_usd: 0,
-        uncapped_base_pnl_usd: 0,
-        pnl_after_price_impact_usd: 0
-    };
-
-    let market = Default::default();
-    let collateral_token_price = Price { min: 0, max: 0 };
-
-    let mut cache = GetPositionInfoCache {
-        market, collateral_token_price, pending_borrowing_fee_usd: 0
-    };
+    let mut position_info : PositionInfo = Default::default();
+    let mut cache : GetPositionInfoCache = Default::default();
 
     position_info.position = data_store.get_position(position_key).unwrap();
     cache.market = data_store.get_market(position_info.position.market).unwrap();
@@ -216,7 +208,7 @@ fn get_position_info(
         size_delta_usd = position_info.position.size_in_usd;
     }
 
-    let size_delta_usd_attribut = calc::to_signed(size_delta_usd, true);
+    let size_delta_usd_int = calc::to_signed(size_delta_usd, true);
 
     position_info
         .execution_price_result =
@@ -226,22 +218,22 @@ fn get_position_info(
                 prices.index_token_price,
                 position_info.position.size_in_usd,
                 position_info.position.size_in_tokens,
-                -size_delta_usd_attribut,
+                -size_delta_usd_int,
                 position_info.position.is_long
             );
 
     let get_position_fees_params = position_pricing_utils::GetPositionFeesParams {
-        data_store, // data_store
-        referral_storage, // referralStorage
-        position: position_info.position, // position
-        collateral_token_price: cache.collateral_token_price, // collateralTokenPrice
+        data_store,
+        referral_storage,
+        position: position_info.position,
+        collateral_token_price: cache.collateral_token_price,
         for_positive_impact: position_info
             .execution_price_result
-            .price_impact_usd > 0, // forPositiveImpact
-        long_token: cache.market.long_token, // long_token
-        short_token: cache.market.short_token, // short_token
-        size_delta_usd, // sizeDeltaUsd
-        ui_fee_receiver // uiFeeReceiver
+            .price_impact_usd > 0,
+        long_token: cache.market.long_token,
+        short_token: cache.market.short_token,
+        size_delta_usd,
+        ui_fee_receiver
     };
 
     position_info.fees = position_pricing_utils::get_position_fees(get_position_fees_params);
@@ -371,7 +363,7 @@ fn get_position_info(
                 position_info.fees.funding, position_info.position
             );
 
-    let (base_pnl_usd, uncapped_base_pnl_usd, size_delta_in_tokens) =
+    let (base_pnl_usd, uncapped_base_pnl_usd, _) =
         position_utils::get_position_pnl_usd(
         data_store, cache.market, prices, position_info.position, size_delta_usd
     );
