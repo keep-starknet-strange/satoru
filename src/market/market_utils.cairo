@@ -920,12 +920,25 @@ fn apply_delta_to_open_interest(
     // If the open interest for shorts is decreased then tokens were virtually bought from the pool
     // so the virtual inventory should be decreased.
 
-    // We need to validate the open interest if the delta is positive.
-    //if 0_i128 < delta {
-    //validate_open_interest(data_store, market, is_long);
-    //}
+    if is_long {
+        apply_delta_to_virtual_inventory_for_positions(
+            data_store, event_emitter, *market.index_token, -delta
+        );
+    } else {
+        apply_delta_to_virtual_inventory_for_positions(
+            data_store, event_emitter, *market.index_token, delta
+        );
+    }
 
-    0
+    if (delta > 0) {
+        validate_open_interest(data_store, market, is_long);
+    }
+    event_emitter
+        .emit_open_interest_updated(
+            *market.market_token, collateral_token, is_long, delta, next_value
+        );
+
+    next_value
 }
 
 /// Apply a delta to the open interest in tokens.

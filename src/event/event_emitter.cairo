@@ -474,7 +474,7 @@ trait IEventEmitter<TContractState> {
         market: ContractAddress,
         collateral_token: ContractAddress,
         is_long: bool,
-        delta: u128,
+        delta: i128,
         next_value: u128
     );
 
@@ -1375,7 +1375,7 @@ mod EventEmitter {
         market: ContractAddress,
         collateral_token: ContractAddress,
         is_long: bool,
-        delta: u128,
+        delta: i128,
         next_value: u128
     }
 
@@ -2484,7 +2484,7 @@ mod EventEmitter {
             market: ContractAddress,
             collateral_token: ContractAddress,
             is_long: bool,
-            delta: u128,
+            delta: i128,
             next_value: u128
         ) {
             self.emit(OpenInterestUpdated { market, collateral_token, is_long, delta, next_value });
