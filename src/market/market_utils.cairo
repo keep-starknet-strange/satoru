@@ -2906,8 +2906,11 @@ fn get_swap_path_markets(
 fn validate_swap_path(data_store: IDataStoreDispatcher, token_swap_path: Span32<ContractAddress>) {
     let max_swap_path_length: u128 = data_store.get_u128(keys::max_swap_path_length());
     let token_swap_path_length: u32 = token_swap_path.len();
+
     if (token_swap_path_length.into() <= max_swap_path_length) {
-        MarketError::MAX_SWAP_PATH_LENGTH_EXCEEDED(token_swap_path_length, max_swap_path_length);
+        MarketError::MAX_SWAP_PATH_LENGTH_EXCEEDED(
+            token_swap_path_length, max_swap_path_length
+        );
     }
 
     let mut i: u32 = 0;
