@@ -126,6 +126,13 @@ trait IDataStore<TContractState> {
     /// * `value` - The value to subtract.
     fn decrement_u128(ref self: TContractState, key: felt252, value: u128) -> u128;
 
+    /// Add the input int value to the existing uint value, prevent the uint
+    /// value from becoming negative
+    /// # Arguments
+    /// * `key` -  the key of the value
+    /// * `value` - the input int value
+    fn apply_bounded_delta_to_u128(ref self: TContractState, key: felt252, value: i128) -> u128;
+
     // *************************************************************************
     //                      Address related functions.
     // *************************************************************************
@@ -446,6 +453,12 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to delete the value for.
     fn remove_i128(ref self: TContractState, key: felt252);
 
+    // @dev add the input int value to the existing int value
+    // @param key the key of the value
+    // @param value the input int value
+    // @return the new int value
+    fn apply_delta_to_i128(ref self: TContractState, key: felt252, value: i128) -> i128;
+
     /// Add input to existing value.
     /// # Arguments
     /// * `key` - The key to add the value to.
@@ -484,6 +497,8 @@ mod DataStore {
     use satoru::position::{position::Position, error::PositionError};
     use satoru::withdrawal::{withdrawal::Withdrawal, error::WithdrawalError};
     use satoru::deposit::{deposit::Deposit, error::DepositError};
+    use satoru::utils::calc::{sum_return_uint_128, to_signed, to_unsigned};
+    use integer::i128_to_felt252;
     use satoru::utils::calc;
     use satoru::utils::i128::{I128Div, I128Mul, I128Store, I128Serde, I128Default};
 
@@ -697,6 +712,18 @@ mod DataStore {
             new_value
         }
 
+        fn apply_bounded_delta_to_u128(ref self: ContractState, key: felt252, value: i128) -> u128 {
+            let uint_value: u128 = self.u128_values.read(key);
+            if (value < 0 && to_unsigned(-value) > uint_value) {
+                self.u128_values.write(key, 0);
+                return 0;
+            }
+            let next_uint: u128 = sum_return_uint_128(uint_value, value);
+            self.u128_values.write(key, next_uint);
+            next_uint
+        }
+
+
         //TODO: Update u128 to i128 when Serde and Store for i128 implementations are released.
         // *************************************************************************
         //                      i128 related functions.
@@ -717,6 +744,12 @@ mod DataStore {
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             // Delete the value.
             self.i128_values.write(key, Default::default());
+        }
+
+        fn apply_delta_to_i128(ref self: ContractState, key: felt252, value: i128) -> i128 {
+            let next_int: i128 = self.i128_values.read(key) + value;
+            self.i128_values.write(key, next_int);
+            next_int
         }
 
         fn increment_i128(ref self: ContractState, key: felt252, value: i128) -> i128 {

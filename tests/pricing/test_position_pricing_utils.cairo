@@ -13,6 +13,7 @@ use satoru::pricing::position_pricing_utils::{
     GetPositionFeesParams, PositionFundingFees, GetPriceImpactUsdParams
 };
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
+use satoru::utils::precision::{FLOAT_PRECISION, FLOAT_PRECISION_SQRT};
 
 // TODO add asserts for each test when possible
 
@@ -101,9 +102,9 @@ fn given_normal_conditions_when_get_funding_fees_then_works() {
         funding_fee_amount: 10,
         claimable_long_token_amount: 100,
         claimable_short_token_amount: 50,
-        latest_funding_fee_amount_per_size: 15,
-        latest_long_token_claimable_funding_amount_per_size: 15,
-        latest_short_token_claimable_funding_amount_per_size: 15,
+        latest_funding_fee_amount_per_size: 15_000_000_000_000_000_000_000_000_000_000,
+        latest_long_token_claimable_funding_amount_per_size: 15_000_000_000_000_000_000_000_000_000_000,
+        latest_short_token_claimable_funding_amount_per_size: 15_000_000_000_000_000_000_000_000_000_000,
     };
 
     let position = Position {
@@ -115,9 +116,9 @@ fn given_normal_conditions_when_get_funding_fees_then_works() {
         size_in_tokens: 1,
         collateral_amount: 2,
         borrowing_factor: 3,
-        funding_fee_amount_per_size: 4,
-        long_token_claimable_funding_amount_per_size: 5,
-        short_token_claimable_funding_amount_per_size: 6,
+        funding_fee_amount_per_size: 4_000_000_000_000_000_000_000_000_000_000,
+        long_token_claimable_funding_amount_per_size: 5_000_000_000_000_000_000_000_000_000_000,
+        short_token_claimable_funding_amount_per_size: 6_000_000_000_000_000_000_000_000_000_000,
         increased_at_block: 15000,
         decreased_at_block: 15001,
         is_long: false
