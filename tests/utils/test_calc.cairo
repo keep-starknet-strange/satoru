@@ -78,7 +78,7 @@ fn given_division_by_0_when_roundup_magnitude_division_then_fails() {
 fn given_normal_conditions_when_sum_return_uint_128_then_works() {
     assert(sum_return_uint_128(12, 3) == 15, 'Should be 15');
     assert(sum_return_uint_128(12, -3) == 9, 'Should be 9');
-    //assert(_128(0, 3) == 3, 'Should be 3');
+    assert(sum_return_uint_128(0, 3) == 3, 'Should be 3');
     assert(sum_return_uint_128(12, 0) == 12, 'Should be 12');
     assert(sum_return_uint_128(BoundedInt::max(), 0) == BoundedInt::max(), 'Should be max');
 

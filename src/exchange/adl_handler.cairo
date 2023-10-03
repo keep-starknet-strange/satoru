@@ -245,7 +245,7 @@ mod AdlHandler {
                 data_store, oracle, market_address, is_long, keys::max_pnl_factor_for_adl()
             );
             cache.should_allow_adl = should_allow_adl;
-            //cache.pnl_to_pool_factor = pnl_to_pool_factor; missing implementation, need u128 to i128 here
+            cache.pnl_to_pool_factor = pnl_to_pool_factor;
             cache.max_pnl_factor_for_adl = max_pnl_factor_for_adl;
 
             assert(cache.should_allow_adl, 'adl not required');
