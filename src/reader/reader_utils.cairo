@@ -65,7 +65,7 @@ struct BaseFundingValues {
 fn get_next_borrowing_fees(
     data_store: IDataStoreDispatcher, position: Position, market: Market, prices: MarketPrices
 ) -> u128 {
-    market_utils::get_next_borrowing_fees(data_store, position, market, prices)
+    market_utils::get_next_borrowing_fees(data_store, @position, @market, @prices)
 }
 
 /// Designed to calculate and return borrowing fees for a specific position.

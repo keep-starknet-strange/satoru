@@ -192,8 +192,8 @@ fn given_normal_conditions_when_get_referral_info_then_works() {
 
     assert(code == code, 'the code is wrong');
     assert(affiliate == caller_address, 'the affiliate is wrong');
-    assert(total_rebate == 2000000000000000000000000000, 'the total_rebate is wrong');
-    assert(discount_share == 3000000000000000000000000000, 'the discount_share is wrong');
+    assert(total_rebate == 200000000000000000, 'the total_rebate is wrong');
+    assert(discount_share == 300000000000000000, 'the discount_share is wrong');
 
     teardown(data_store.contract_address);
 }

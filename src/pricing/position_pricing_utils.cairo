@@ -22,7 +22,11 @@ use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorag
 use satoru::utils::{calc, precision};
 use satoru::pricing::error::PricingError;
 use satoru::referral::referral_utils;
-use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}, error_utils};
+use satoru::utils::{
+    i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}, error_utils, calc::to_signed
+};
+
+use integer::u128_to_felt252;
 /// Struct used in get_position_fees.
 #[derive(Drop, starknet::Store, Serde)]
 struct GetPositionFeesParams {
@@ -392,7 +396,7 @@ fn get_position_fees(params: GetPositionFeesParams) -> PositionFees {
         params.size_delta_usd
     );
 
-    let borrowing_fee_usd = market_utils::get_borrowing_fees(params.data_store, params.position);
+    let borrowing_fee_usd = market_utils::get_borrowing_fees(params.data_store, @params.position);
 
     fees
         .borrowing =

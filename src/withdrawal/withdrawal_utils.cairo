@@ -414,9 +414,9 @@ fn execute_withdrawal_(
         calc::to_signed(cache.short_token_pool_amount_delta, false)
     );
 
-    market_utils::validate_reserve(*params.data_store, market, @prices, true);
+    market_utils::validate_reserve(*params.data_store, @market, @prices, true);
 
-    market_utils::validate_reserve(*params.data_store, market, @prices, false);
+    market_utils::validate_reserve(*params.data_store, @market, @prices, false);
 
     market_utils::validate_max_pnl(
         *params.data_store,
