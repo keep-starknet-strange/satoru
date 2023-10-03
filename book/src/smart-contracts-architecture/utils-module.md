@@ -1,27 +1,43 @@
 # Utils module
 
-The Utils module is a various collection of utility functions and tools designed to streamline various tasks within the protocol. This module serves as a repository for functions that do not fit into specific categories but are essential for enhancing the efficiency and readability of the codebase.
+The Utils module is like a toolbox, filled with different helpful functions and tools that make tasks in the protocol easier. It’s a place for essential functions that don’t fit elsewhere but make the code clearer and more efficient.
 
 It contains the following files:
 
-- [array.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/array.cairo): Helps with array manipulation.
+- [account_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/account_utils.cairo): This file is like a helper in the project, it has functions to check accounts and receivers in the system. It uses methods like `validate_account` and `validate_receiver` to make sure accounts in operations are valid and real, making interactions within the system safer and more secure. This checking is important to avoid mistakes and weaknesses from invalid or empty account interactions.
 
-- [basic_multicall.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/keys.cairo): Helps with multicall.
+- [array.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/array.cairo): This file is a helper in the project, it has a bunch of functions for working with lists of items (arrays), which is important for managing data within the contract. It has functions like `get_felt252` and `get_u128` to safely get items from a list, and others like `are_eq`, `are_gt`, `are_gte`, `are_lt`, `are_lte` to compare items in the list to a certain value. This file is really important to make sure list operations are done safely and quickly, avoiding possible mistakes.
 
-- [bits.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/keys.cairo): Bits constants.
+- [basic_multicall.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/basic_multicall.cairo): This utility’s job is to handle and run groups of function calls on a contract, letting many actions happen in one go. It’s really important for saving on gas and making smart contract interactions more efficient. The `multicall` function in this file takes a list of function calls and runs them one after the other.
 
-- [calc.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/keys.cairo): Various calculations.
+- [bits.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/bits.cairo): This file has constants like `BITMASK_8`, `BITMASK_16`, `BITMASK_32`, and `BITMASK_64` that represent different sizes of binary words, used to do bit-level actions like shifting and changing bits on `u128` type values in the contract's code. They are really important for accurately changing binary data at a low level.
 
-- [enumerable_values.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/keys.cairo): Extends EnumerableSet.
+- [calc.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/calc.cairo): This file has many utility functions to do different math calculations and change types. It has functions for dividing, adding numbers with specific types, finding the absolute difference between two numbers, and adding and subtracting within limits to avoid going too high or too low. It also has functions to change between different types of numbers, making sure calculations in the contract's code are accurate and safe.
 
-- [global_reentrancy_guard.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/keys.cairo): Reentrancy security on a global level.
+- [enumerable_set.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/enumerable_set.cairo): This file creates a special `Set` structure for handling collections of unique items. It lets you make new sets, add and remove items, check if an item is in a set, access items in specific spots, and get all items as a list. It has special versions for `felt252`, `ContractAddress`, and `u128` types, making it adaptable and accurate for different kinds of data in the protocol. The set operations in this file are really important for different parts of the project, helping manage unique collections efficiently and neatly.
 
-- [hash.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/keys.cairo): Hash utils.
+- [enumerable_values.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/enumerable_values.cairo): This file is like an add-on to `EnumerableSet`, possibly offering more and specialized features to manage enumerable sets in the system. It has placeholder methods meant to give back lists of specific types of values (`felt252`, `ContractAddress`, `u128`) from a set, between certain start and end points.
 
-- [precision.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/keys.cairo): Precisions utils.
+- [error_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/error_utils.cairo): This file is dedicated to providing functionalities related to error handling within the system.
 
-- [store_contract_address_array.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/keys.cairo): Implementation of store for Array of ContractAddress.
+- [error.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/error.cairo): This file defines constants for various types of errors, serving as standardized error messages or codes that can be referenced throughout the system to indicate specific error conditions.
 
-- [u128_mask.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/keys.cairo): Mask function.
+- [global_reentrancy_guard.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/global_reentrancy_guard.cairo): This file puts in place a high-level protection to keep smart contract functions safe from reentrancy attacks. It uses a global flag, `REENTRANCY_GUARD_STATUS`, to show if a secured function is running, and has `non_reentrant_before` and `non_reentrant_after` methods to control this flag, stopping harmful reentrant calls and making sure the smart contract runs consistently.
 
-- [validate_account.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/keys.cairo): Helps validating accounts.
+- [hash.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/hash.cairo): This file has utility functions for creating hashes, specifically with the Poseidon hash function. It has a function, `hash_poseidon_single`, that lets you hash a single `felt252` value using Poseidon, making sure data stays intact and meeting the cryptographic needs in the smart contract.
+
+- [i128_test_storage_contract.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/i128_test_storage_contract.cairo): This file creates a Starknet contract to test storing and getting `i128` values in the contract state. It’s a testing tool to make sure `i128` values are handled correctly in the smart contract environment.
+
+- [i128.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/i128.cairo): This file has ways to work with `i128` (signed 128-bit integers) in Cairo, including doing math operations, turning them into strings and back, and managing storage, allowing for precise and efficient use of `i128` values in Starknet smart contracts.
+
+- [precision.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/precision.cairo): This offers utility functions for detailed math and changing units, helping with accurate calculations and conversions between different measures, like from float to wei, applying factors, and managing rounding in the Satoru Starknet smart contract environment.
+
+- [span32.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/span32.cairo): Provides utility functions for managing and manipulating fixed-size arrays (span32). A wrapper around Span type with a maximum size of 32. Used to prevent size overflow when storing Span.
+
+- [starknet_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/starknet_utils.cairo): This puts in place fake utilities to mimic Starknet environment features, like `gasleft` and `tx.gasprice`, in the Satoru Starknet smart contract environment. These functions give back set values based on the given parameters, allowing a way to mimic Starknet gas actions during testing and development.
+
+- [store_arrays.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/store_arrays.cairo): This gives ways to read and write different kinds of lists, including lists of `ContractAddress`, `Market`, `Price`, `u128`, `u64`, and `felt252`, to and from Starknet storage. This tool helps in storing different kinds of data in an organized way, allowing easy access and changes, which are key for the smart contracts in the Satoru project to work.
+
+- [traits.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/traits.cairo): This file has a way to make a default `ContractAddress` type from the Starknet library. It uses the `Default` trait to give a method, `default()`, that returns a `ContractAddress` set to `0`. This is useful when you need to make a `ContractAddress` with a default value when there is no specific address given.
+
+- [u128_mask.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/u128_mask.cairo): This file creates a `Mask` structure to check if a given index is unique within a range of 128 bits. The `Mask` has a `bits` field representing a 128-bit unsigned number. The `validate_unique_and_set_index` function checks if the bit at a specific index is unique and not set; if it’s already set or out of bounds, it will cause an error. If not, it sets the bit at that index, showing that this index is now taken. This tool is useful for managing and confirming the uniqueness of indices in a 128-bit range.

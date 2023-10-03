@@ -1,6 +1,6 @@
 # Router module
 
-The exchange router is where users utilize the router to initiate token transactions, exchanges, and transfers.
+The exchange router is the place where users go to start token trades, swaps, and moves.
 
 ## Front-running solution
 

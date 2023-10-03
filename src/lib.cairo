@@ -147,6 +147,7 @@ mod utils {
     mod u128_mask;
     mod hash;
     mod i128;
+    mod i128_test_storage_contract;
     mod store_arrays;
     mod error_utils;
     mod starknet_utils;
@@ -160,13 +161,13 @@ mod liquidation {
 
 // `market` contains market management functions.
 mod market {
-    mod market_utils;
     mod error;
-    mod market_token;
-    mod market_factory;
     mod market;
+    mod market_factory;
     mod market_pool_value_info;
-    mod market_event_utils;
+    mod market_store_utils;
+    mod market_token;
+    mod market_utils;
 }
 
 mod mock {
@@ -235,120 +236,6 @@ mod swap {
 mod token {
     mod erc20;
     mod token_utils;
-}
-
-// This is a temporary solution for tests until they resolve the issue (https://github.com/foundry-rs/starknet-foundry/issues/647)
-mod tests {
-    mod adl {
-        mod test_adl_utils;
-    }
-    mod bank {
-        mod test_bank;
-    }
-    mod callback {
-        mod test_callback_utils;
-    }
-    mod config {
-        mod test_config;
-    }
-    mod data {
-        mod test_data_store;
-        mod test_deposit_store;
-        mod test_keys;
-        mod test_market;
-        mod test_order;
-        mod test_position;
-        mod test_withdrawal;
-    }
-    mod deposit {
-        mod test_deposit_utils;
-        mod test_deposit_vault;
-        mod test_execute_deposit_utils;
-    }
-    mod event {
-        mod test_adl_events_emitted;
-        mod test_callback_events_emitted;
-        mod test_config_events_emitted;
-        mod test_gas_events_emitted;
-        mod test_market_events_emitted;
-        mod test_oracle_events_emitted;
-        mod test_order_events_emitted;
-        mod test_position_events_emitted;
-        mod test_pricing_events_emitted;
-        mod test_referral_events_emitted;
-        mod test_swap_events_emitted;
-        mod test_timelock_events_emitted;
-        mod test_withdrawal_events_emitted;
-    }
-    mod exchange {
-        mod test_liquidation_handler;
-        mod test_withdrawal_handler;
-    }
-    mod feature {
-        mod test_feature_utils;
-    }
-    mod fee {
-        mod test_fee_handler;
-        mod test_fee_utils;
-    }
-    mod market {
-        mod test_market_factory;
-        mod test_market_token;
-        mod test_market_utils;
-    }
-    mod nonce {
-        mod test_nonce_utils;
-    }
-    mod oracle {
-        mod test_oracle;
-    }
-    mod order {
-        mod test_base_order_utils;
-        mod test_increase_order_utils;
-        mod test_order;
-    }
-    mod position {
-        mod test_decrease_position_utils;
-        mod test_decrease_position_swap_utils;
-        mod test_position_utils;
-    }
-    mod price {
-        mod test_price;
-    }
-    mod pricing {
-        mod test_position_pricing_utils;
-        mod test_swap_pricing_utils;
-    }
-    mod reader {
-        mod test_reader;
-    }
-    mod role {
-        mod test_role_module;
-        mod test_role_store;
-    }
-    mod router {
-        mod test_router;
-    }
-    mod swap {
-        mod test_swap_handler;
-    }
-    mod utils {
-        mod test_account_utils;
-        mod test_arrays;
-        mod test_basic_multicall;
-        mod test_calc;
-        mod test_enumerable_set;
-        mod test_precision;
-        mod test_reentrancy_guard;
-        mod test_starknet_utils;
-        mod test_u128_mask;
-        mod test_i128;
-    }
-    mod mock {
-        mod test_referral_utils;
-        mod test_governable;
-        mod test_referral_storage;
-    }
 }
 
 mod tests_lib;
