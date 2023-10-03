@@ -1530,7 +1530,9 @@ fn validate_open_interest(data_store: IDataStoreDispatcher, market: @Market, is_
     let max_open_interest = get_max_open_interest(data_store, *market.market_token, is_long);
 
     // Check that the open interest is not greater than the maximum open interest.
-    assert(open_interest <= max_open_interest, MarketError::MAX_OPEN_INTEREST_EXCEEDED);
+    if (open_interest > max_open_interest) {
+        MarketError::MAX_OPEN_INTEREST_EXCEDEED(open_interest, max_open_interest);
+    }
 }
 
 // Get the min pnl factor after ADL
