@@ -173,7 +173,10 @@ fn apply_exponent_factor(float_value: u128, exponent_factor: u128) -> u128 { // 
 //use starknet::cairo::common::cairo_builtins::bitwise_and;
 //use starknet::{*};
 use alexandria_math::BitShift;
-fn exp2(x: u256) -> u256 {
+
+fn exp2(mut x: u256) -> u256 {
+    x = BitShift::shl(x, 64);
+    x = x / 1000000000000000000;
     //what is the cairo equivalent of `unchecked` in solidity?
 
     // Start from 0.5 in the 192.64-bit fixed-point format.
@@ -185,10 +188,6 @@ fn exp2(x: u256) -> u256 {
     // 2. The rationale for organizing the if statements into groups of 8 is gas savings. If the result of performing
     // a bitwise AND operation between x and any value in the array [0x80; 0x40; 0x20; 0x10; 0x08; 0x04; 0x02; 0x01] is 1,
     // we know that `x & 0xFF` is also 1.
-
-    if (x & 0xFF00000000000000 > 0) {
-        result = BitShift::shr(result * 0x16A09E667F3BCC909, 64); //shr or shr?
-    }
 
     if (x & 0xFF00000000000000 > 0) {
         if (x & 0x8000000000000000 > 0) {
@@ -416,7 +415,7 @@ fn exp2(x: u256) -> u256 {
     // integer part, $2^n$.
 
     result *= 1000000000000000000; //maybe error comes from here?
-    result = BitShift::shr(191, BitShift::shr(x, 64));
+    result = BitShift::shr(result, 191 - BitShift::shr(x, 64));
     result
 }
 

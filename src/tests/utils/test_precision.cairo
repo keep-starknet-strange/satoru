@@ -85,9 +85,17 @@ fn test_mul_div_inum_roundup_positive() {
 
 #[test]
 fn test_exp2() {
-    let value: u256 = 3;
-    let result = precision::exp2(value);
-    assert(result == 8, 'should be 8');
+    let value1: u256 = 2000000000000000000;
+    let value2: u256 = 2500000000000000000;
+    let value3: u256 = 7482948646372839484;
+
+    let result1 = precision::exp2(value1);
+    let result2 = precision::exp2(value2);
+    let result3 = precision::exp2(value3);
+
+    assert(result1 == 4000000000000000000, 'should be 4000000000000000000');
+    assert(result2 == 5656854249492380195, 'should be 5656854249492380195');
+    assert(result3 == 178892444495791357043, 'should be 178892444495791357043');
 }
 
 #[test]
