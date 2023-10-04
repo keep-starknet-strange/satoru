@@ -81,6 +81,7 @@ mod RoleStore {
 
     // Local imports.
     use satoru::role::{role, error::RoleError};
+    
 
     // *************************************************************************
     // STORAGE
@@ -164,6 +165,10 @@ mod RoleStore {
         fn revoke_role(ref self: ContractState, account: ContractAddress, role_key: felt252) {
             // Check that the caller has the admin role.
             self._assert_only_role(get_caller_address(), role::ROLE_ADMIN);
+            // check that the are more than 1 RoleAdmin
+            if role_key == role::ROLE_ADMIN {
+                assert(self.get_role_member_count(role_key) > 1, RoleError::UNAUTHORIZED_CHANGE);
+            }
             // Revoke the role.
             self._revoke_role(account, role_key);
         }
