@@ -11,8 +11,8 @@ use core::traits::TryInto;
 use core::option::Option;
 use satoru::utils::calc::{roundup_division, roundup_magnitude_division};
 
-const FLOAT_PRECISION: u128 = 1_000_000_000_000_000_000_000_000_000_000; // 10^30
-const FLOAT_PRECISION_SQRT: u128 = 1_000_000_000_000_000; // 10^15
+const FLOAT_PRECISION: u128 = 100_000_000_000_000_000_000; // 10^20
+const FLOAT_PRECISION_SQRT: u128 = 10_000_000_000; // 10^10
 
 const WEI_PRECISION: u128 = 1_000_000_000_000_000_000; // 10^18
 const BASIS_POINTS_DIVISOR: u128 = 10000;

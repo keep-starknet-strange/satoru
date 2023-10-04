@@ -9,17 +9,18 @@ use starknet::{ContractAddress, ClassHash};
 // Local imports.
 use satoru::deposit::deposit::Deposit;
 use satoru::withdrawal::withdrawal::Withdrawal;
-use satoru::position::position::Position;
 use satoru::market::market_pool_value_info::MarketPoolValueInfo;
 use satoru::pricing::swap_pricing_utils::SwapFees;
-use satoru::position::position_event_utils::PositionIncreaseParams;
-use satoru::position::position_utils::DecreasePositionCollateralValues;
-use satoru::order::order::OrderType;
+use satoru::position::{
+    position::Position, position_event_utils::PositionIncreaseParams,
+    position_utils::DecreasePositionCollateralValues
+};
 use satoru::price::price::Price;
 use satoru::pricing::position_pricing_utils::PositionFees;
-use satoru::order::order::{Order, SecondaryOrderType};
-use satoru::utils::span32::{Span32, DefaultSpan32};
-use satoru::utils::i128::{I128Div, I128Mul, I128Store, I128Serde};
+use satoru::order::order::{Order, SecondaryOrderType, OrderType};
+use satoru::utils::{
+    i128::{I128Div, I128Mul, I128Store, I128Serde}, span32::{Span32, DefaultSpan32}
+};
 
 
 //TODO: OrderCollatDeltaAmountAutoUpdtd must be renamed back to OrderCollateralDeltaAmountAutoUpdated when string will be allowed as event argument
@@ -57,7 +58,7 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `PositionImpactPoolAmountUpdated` event.
     fn emit_position_impact_pool_amount_updated(
-        ref self: TContractState, market: ContractAddress, delta: u128, next_value: u128,
+        ref self: TContractState, market: ContractAddress, delta: i128, next_value: u128,
     );
 
     /// Emits the `SwapImpactPoolAmountUpdated` event.
@@ -65,7 +66,7 @@ trait IEventEmitter<TContractState> {
         ref self: TContractState,
         market: ContractAddress,
         token: ContractAddress,
-        delta: u128,
+        delta: i128,
         next_value: u128,
     );
 
@@ -182,7 +183,7 @@ trait IEventEmitter<TContractState> {
         ref self: TContractState,
         order_key: felt252,
         position_collateral_amount: u128,
-        base_pnl_usd: u128,
+        base_pnl_usd: i128,
         remaining_cost_usd: u128
     );
 
@@ -454,7 +455,7 @@ trait IEventEmitter<TContractState> {
         ref self: TContractState,
         market: ContractAddress,
         token: ContractAddress,
-        delta: u128,
+        delta: i128,
         next_value: u128
     );
 
@@ -464,7 +465,7 @@ trait IEventEmitter<TContractState> {
         market: ContractAddress,
         collateral_token: ContractAddress,
         is_long: bool,
-        delta: u128,
+        delta: i128,
         next_value: u128
     );
 
@@ -474,7 +475,7 @@ trait IEventEmitter<TContractState> {
         market: ContractAddress,
         collateral_token: ContractAddress,
         is_long: bool,
-        delta: u128,
+        delta: i128,
         next_value: u128
     );
 
@@ -484,7 +485,7 @@ trait IEventEmitter<TContractState> {
         market: ContractAddress,
         is_long_token: bool,
         virtual_market_id: felt252,
-        delta: u128,
+        delta: i128,
         next_value: u128
     );
 
@@ -493,8 +494,8 @@ trait IEventEmitter<TContractState> {
         ref self: TContractState,
         token: ContractAddress,
         virtual_token_id: felt252,
-        delta: u128,
-        next_value: u128
+        delta: i128,
+        next_value: i128
     );
 
     /// Emits the `CollateralSumUpdated` event.
@@ -503,7 +504,7 @@ trait IEventEmitter<TContractState> {
         market: ContractAddress,
         collateral_token: ContractAddress,
         is_long: bool,
-        delta: u128,
+        delta: i128,
         next_value: u128
     );
 
@@ -537,7 +538,7 @@ trait IEventEmitter<TContractState> {
     );
 
     /// Emits the `FundingFeesClaimed` event.
-    fn emit_founding_fees_claimed(
+    fn emit_funding_fees_claimed(
         ref self: TContractState,
         market: ContractAddress,
         token: ContractAddress,
@@ -800,7 +801,7 @@ mod EventEmitter {
     #[derive(Drop, starknet::Event)]
     struct PositionImpactPoolAmountUpdated {
         market: ContractAddress,
-        delta: u128,
+        delta: i128,
         next_value: u128,
     }
 
@@ -808,7 +809,7 @@ mod EventEmitter {
     struct SwapImpactPoolAmountUpdated {
         market: ContractAddress,
         token: ContractAddress,
-        delta: u128,
+        delta: i128,
         next_value: u128,
     }
 
@@ -988,7 +989,7 @@ mod EventEmitter {
     struct InsolventClose {
         order_key: felt252,
         position_collateral_amount: u128,
-        base_pnl_usd: u128,
+        base_pnl_usd: i128,
         remaining_cost_usd: u128
     }
 
@@ -1357,7 +1358,7 @@ mod EventEmitter {
     struct PoolAmountUpdated {
         market: ContractAddress,
         token: ContractAddress,
-        delta: u128,
+        delta: i128,
         next_value: u128
     }
 
@@ -1366,7 +1367,7 @@ mod EventEmitter {
         market: ContractAddress,
         collateral_token: ContractAddress,
         is_long: bool,
-        delta: u128,
+        delta: i128,
         next_value: u128
     }
 
@@ -1375,7 +1376,7 @@ mod EventEmitter {
         market: ContractAddress,
         collateral_token: ContractAddress,
         is_long: bool,
-        delta: u128,
+        delta: i128,
         next_value: u128
     }
 
@@ -1384,7 +1385,7 @@ mod EventEmitter {
         market: ContractAddress,
         is_long_token: bool,
         virtual_market_id: felt252,
-        delta: u128,
+        delta: i128,
         next_value: u128
     }
 
@@ -1392,8 +1393,8 @@ mod EventEmitter {
     struct VirtualPositionInventoryUpdated {
         token: ContractAddress,
         virtual_token_id: felt252,
-        delta: u128,
-        next_value: u128
+        delta: i128,
+        next_value: i128
     }
 
     #[derive(Drop, starknet::Event)]
@@ -1401,7 +1402,7 @@ mod EventEmitter {
         market: ContractAddress,
         collateral_token: ContractAddress,
         is_long: bool,
-        delta: u128,
+        delta: i128,
         next_value: u128
     }
 
@@ -1607,7 +1608,7 @@ mod EventEmitter {
 
         /// Emits the `PositionImpactPoolAmountUpdated` event.
         fn emit_position_impact_pool_amount_updated(
-            ref self: ContractState, market: ContractAddress, delta: u128, next_value: u128,
+            ref self: ContractState, market: ContractAddress, delta: i128, next_value: u128,
         ) {
             self.emit(PositionImpactPoolAmountUpdated { market, delta, next_value, });
         }
@@ -1617,7 +1618,7 @@ mod EventEmitter {
             ref self: ContractState,
             market: ContractAddress,
             token: ContractAddress,
-            delta: u128,
+            delta: i128,
             next_value: u128,
         ) {
             self.emit(SwapImpactPoolAmountUpdated { market, token, delta, next_value, });
@@ -1947,7 +1948,7 @@ mod EventEmitter {
             ref self: ContractState,
             order_key: felt252,
             position_collateral_amount: u128,
-            base_pnl_usd: u128,
+            base_pnl_usd: i128,
             remaining_cost_usd: u128
         ) {
             self
@@ -2455,7 +2456,7 @@ mod EventEmitter {
             ref self: ContractState,
             market: ContractAddress,
             token: ContractAddress,
-            delta: u128,
+            delta: i128,
             next_value: u128
         ) {
             self.emit(PoolAmountUpdated { market, token, delta, next_value });
@@ -2467,7 +2468,7 @@ mod EventEmitter {
             market: ContractAddress,
             collateral_token: ContractAddress,
             is_long: bool,
-            delta: u128,
+            delta: i128,
             next_value: u128
         ) {
             self
@@ -2484,7 +2485,7 @@ mod EventEmitter {
             market: ContractAddress,
             collateral_token: ContractAddress,
             is_long: bool,
-            delta: u128,
+            delta: i128,
             next_value: u128
         ) {
             self.emit(OpenInterestUpdated { market, collateral_token, is_long, delta, next_value });
@@ -2496,7 +2497,7 @@ mod EventEmitter {
             market: ContractAddress,
             is_long_token: bool,
             virtual_market_id: felt252,
-            delta: u128,
+            delta: i128,
             next_value: u128
         ) {
             self
@@ -2512,8 +2513,8 @@ mod EventEmitter {
             ref self: ContractState,
             token: ContractAddress,
             virtual_token_id: felt252,
-            delta: u128,
-            next_value: u128
+            delta: i128,
+            next_value: i128
         ) {
             self
                 .emit(
@@ -2527,7 +2528,7 @@ mod EventEmitter {
             market: ContractAddress,
             collateral_token: ContractAddress,
             is_long: bool,
-            delta: u128,
+            delta: i128,
             next_value: u128
         ) {
             self
@@ -2582,7 +2583,7 @@ mod EventEmitter {
         }
 
         /// Emits the `FundingFeesClaimed` event.
-        fn emit_founding_fees_claimed(
+        fn emit_funding_fees_claimed(
             ref self: ContractState,
             market: ContractAddress,
             token: ContractAddress,

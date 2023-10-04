@@ -1,14 +1,16 @@
+use satoru::utils::i128::{I128Store, I128Serde, I128Default};
+
 /// Struct to store MarketPoolValue infos.
 #[derive(Default, Drop, Copy, starknet::Store, Serde)]
 struct MarketPoolValueInfo {
     /// The pool value.
-    pool_value: u128, // TODO replace with i128 when it derives Store
+    pool_value: i128,
     /// The pending pnl of long positions.
-    long_pnl: u128, // TODO replace with i128 when it derives Store
+    long_pnl: i128,
     /// The pending pnl of short positions
-    short_pnl: u128, // TODO replace with i128 when it derives Store
+    short_pnl: i128,
     /// The net pnl of long and short positions.
-    net_pnl: u128, // TODO replace with i128 when it derives Store
+    net_pnl: i128,
     /// The amount of long token in the pool.
     long_token_amount: u128,
     /// The amount of short token in the pool.
