@@ -9,17 +9,18 @@ use starknet::{ContractAddress, ClassHash};
 // Local imports.
 use satoru::deposit::deposit::Deposit;
 use satoru::withdrawal::withdrawal::Withdrawal;
-use satoru::position::position::Position;
 use satoru::market::market_pool_value_info::MarketPoolValueInfo;
 use satoru::pricing::swap_pricing_utils::SwapFees;
-use satoru::position::position_event_utils::PositionIncreaseParams;
-use satoru::position::position_utils::DecreasePositionCollateralValues;
-use satoru::order::order::OrderType;
+use satoru::position::{
+    position::Position, position_event_utils::PositionIncreaseParams,
+    position_utils::DecreasePositionCollateralValues
+};
 use satoru::price::price::Price;
 use satoru::pricing::position_pricing_utils::PositionFees;
-use satoru::order::order::{Order, SecondaryOrderType};
-use satoru::utils::span32::{Span32, DefaultSpan32};
-use satoru::utils::i128::{I128Div, I128Mul, I128Store, I128Serde};
+use satoru::order::order::{Order, SecondaryOrderType, OrderType};
+use satoru::utils::{
+    i128::{I128Div, I128Mul, I128Store, I128Serde}, span32::{Span32, DefaultSpan32}
+};
 
 
 //TODO: OrderCollatDeltaAmountAutoUpdtd must be renamed back to OrderCollateralDeltaAmountAutoUpdated when string will be allowed as event argument
@@ -57,7 +58,7 @@ trait IEventEmitter<TContractState> {
 
     /// Emits the `PositionImpactPoolAmountUpdated` event.
     fn emit_position_impact_pool_amount_updated(
-        ref self: TContractState, market: ContractAddress, delta: u128, next_value: u128,
+        ref self: TContractState, market: ContractAddress, delta: i128, next_value: u128,
     );
 
     /// Emits the `SwapImpactPoolAmountUpdated` event.
@@ -182,7 +183,7 @@ trait IEventEmitter<TContractState> {
         ref self: TContractState,
         order_key: felt252,
         position_collateral_amount: u128,
-        base_pnl_usd: u128,
+        base_pnl_usd: i128,
         remaining_cost_usd: u128
     );
 
@@ -800,7 +801,7 @@ mod EventEmitter {
     #[derive(Drop, starknet::Event)]
     struct PositionImpactPoolAmountUpdated {
         market: ContractAddress,
-        delta: u128,
+        delta: i128,
         next_value: u128,
     }
 
@@ -988,7 +989,7 @@ mod EventEmitter {
     struct InsolventClose {
         order_key: felt252,
         position_collateral_amount: u128,
-        base_pnl_usd: u128,
+        base_pnl_usd: i128,
         remaining_cost_usd: u128
     }
 
@@ -1607,7 +1608,7 @@ mod EventEmitter {
 
         /// Emits the `PositionImpactPoolAmountUpdated` event.
         fn emit_position_impact_pool_amount_updated(
-            ref self: ContractState, market: ContractAddress, delta: u128, next_value: u128,
+            ref self: ContractState, market: ContractAddress, delta: i128, next_value: u128,
         ) {
             self.emit(PositionImpactPoolAmountUpdated { market, delta, next_value, });
         }
@@ -1947,7 +1948,7 @@ mod EventEmitter {
             ref self: ContractState,
             order_key: felt252,
             position_collateral_amount: u128,
-            base_pnl_usd: u128,
+            base_pnl_usd: i128,
             remaining_cost_usd: u128
         ) {
             self
