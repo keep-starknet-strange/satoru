@@ -4,9 +4,10 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
+use starknet::{ContractAddress, contract_address_const};
 use poseidon::poseidon_hash_span;
 // Local imports.
+
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
@@ -19,17 +20,13 @@ use satoru::pricing::{
     position_pricing_utils::GetPriceImpactUsdParams, position_pricing_utils::GetPositionFeesParams
 };
 use satoru::order::order::{Order, SecondaryOrderType};
-use satoru::referral::referral_storage::interface::{
-    IReferralStorageDispatcher, IReferralStorageDispatcherTrait
-};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use satoru::utils::traits::ContractAddressDefault;
 use satoru::order::base_order_utils::ExecuteOrderParamsContracts;
 use satoru::price::price::{Price, PriceTrait};
-use satoru::utils::{
-    precision, i128::{StoreI128, u128_to_i128, i128_to_u128, I128Serde, I128Div, I128Mul}
-};
-use satoru::utils::calc::{roundup_division};
+use satoru::utils::{calc, precision, error_utils, i128::{I128Store, I128Serde, I128Div, I128Mul}};
 use satoru::referral::referral_utils;
-
+use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
 /// Struct used in increasePosition and decreasePosition.
 #[derive(Drop, Copy, starknet::Store, Serde)]
 struct UpdatePositionParams {
@@ -49,6 +46,28 @@ struct UpdatePositionParams {
     secondary_order_type: SecondaryOrderType,
 }
 
+impl DefaultUpdatePositionParams of Default<UpdatePositionParams> {
+    fn default() -> UpdatePositionParams {
+        let contract_address = contract_address_const::<0>();
+        UpdatePositionParams {
+            contracts: ExecuteOrderParamsContracts {
+                data_store: IDataStoreDispatcher { contract_address },
+                event_emitter: IEventEmitterDispatcher { contract_address },
+                order_vault: IOrderVaultDispatcher { contract_address },
+                oracle: IOracleDispatcher { contract_address },
+                swap_handler: ISwapHandlerDispatcher { contract_address },
+                referral_storage: IReferralStorageDispatcher { contract_address }
+            },
+            market: Default::default(),
+            order: Default::default(),
+            order_key: 0,
+            position: Default::default(),
+            position_key: 0,
+            secondary_order_type: SecondaryOrderType::None,
+        }
+    }
+}
+
 /// Struct to determine wether position collateral will be sufficient.
 #[derive(Drop, starknet::Store, Serde)]
 struct WillPositionCollateralBeSufficientValues {
@@ -59,7 +78,7 @@ struct WillPositionCollateralBeSufficientValues {
 }
 
 /// Struct used as decrease_position_collateral output.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Drop, Copy, starknet::Store, Serde)]
 struct DecreasePositionCollateralValuesOutput {
     /// The output token address.
     output_token: ContractAddress,
@@ -72,7 +91,7 @@ struct DecreasePositionCollateralValuesOutput {
 }
 
 /// Struct used to contain the values in process_collateral
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Drop, Copy, starknet::Store, Serde)]
 struct DecreasePositionCollateralValues {
     /// The order execution price.
     execution_price: u128,
@@ -92,7 +111,7 @@ struct DecreasePositionCollateralValues {
     output: DecreasePositionCollateralValuesOutput
 }
 
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Copy, Drop, starknet::Store, Serde)]
 struct DecreasePositionCache {
     /// The prices of the tokens in the market.
     prices: MarketPrices,
@@ -174,8 +193,8 @@ impl DefaultGetPositionPnlUsdCache of Default<GetPositionPnlUsdCache> {
         GetPositionPnlUsdCache {
             position_value: 0,
             total_position_pnl: 0,
-            uncapped_total_position_pnl: 0.try_into().unwrap(),
-            pnl_token: 0.try_into().unwrap(),
+            uncapped_total_position_pnl: 0.try_into().expect('felt252 into i128 failed'),
+            pnl_token: contract_address_const::<0>(),
             pool_token_amount: 0,
             pool_token_price: 0,
             pool_token_usd: 0,
@@ -201,6 +220,23 @@ impl DefaultIsPositionLiquidatableCache of Default<IsPositionLiquidatableCache> 
             min_collateral_usd: 0,
             min_collateral_usd_for_leverage: 0,
             remaining_collateral_usd: 0
+        }
+    }
+}
+
+impl DefaultDecreasePositionCache of Default<DecreasePositionCache> {
+    fn default() -> DecreasePositionCache {
+        DecreasePositionCache {
+            prices: Default::default(),
+            estimated_position_pnl_usd: 0,
+            estimated_realized_pnl_usd: 0,
+            estimated_remaining_pnl_usd: 0,
+            pnl_token: Default::default(),
+            pnl_token_price: Default::default(),
+            collateral_token_price: Default::default(),
+            initial_collateral_amount: Default::default(),
+            next_position_size_in_usd: Default::default(),
+            next_position_borrowing_factor: Default::default(),
         }
     }
 }
@@ -235,13 +271,13 @@ fn get_position_pnl_usd(
     let execution_price = prices.index_token_price.pick_price_for_pnl(position.is_long, false);
 
     // position.sizeInUsd is the cost of the tokens, positionValue is the current worth of the tokens
-    cache.position_value = u128_to_i128(position.size_in_tokens * execution_price);
+    cache.position_value = calc::to_signed(position.size_in_tokens * execution_price, true);
     cache
         .total_position_pnl =
             if position.is_long {
-                cache.position_value - u128_to_i128(position.size_in_usd)
+                cache.position_value - calc::to_signed(position.size_in_usd, true)
             } else {
-                u128_to_i128(position.size_in_usd) - cache.position_value
+                calc::to_signed(position.size_in_usd, true) - cache.position_value
             };
     cache.uncapped_total_position_pnl = cache.total_position_pnl;
 
@@ -283,9 +319,9 @@ fn get_position_pnl_usd(
             cache
                 .total_position_pnl =
                     precision::mul_div_inum(
-                        i128_to_u128(cache.total_position_pnl),
+                        calc::to_unsigned(cache.total_position_pnl),
                         cache.capped_pool_pnl,
-                        i128_to_u128(cache.pool_pnl)
+                        calc::to_unsigned(cache.pool_pnl)
                     );
         }
     }
@@ -295,10 +331,11 @@ fn get_position_pnl_usd(
         if position.is_long {
             cache
                 .size_delta_in_tokens =
-                    roundup_division(
+                    calc::roundup_division(
                         position.size_in_tokens * size_delta_usd, position.size_in_usd
                     );
         } else {
+            error_utils::check_division_by_zero(position.size_in_usd, 'position.size_in_usd');
             cache.size_delta_in_tokens = position.size_in_tokens
                 * size_delta_usd
                 / position.size_in_usd;
@@ -425,7 +462,7 @@ fn is_position_liquiditable(
 
     cache.collateral_usd = position.collateral_amount * cache.collateral_token_price.min;
     // calculate the usdDeltaForPriceImpact for fully closing the position
-    cache.usd_delta_for_price_impact = -u128_to_i128(position.size_in_usd);
+    cache.usd_delta_for_price_impact = calc::to_signed(position.size_in_usd, false);
     cache
         .price_impact_usd =
             position_pricing_utils::get_price_impact_usd(
@@ -452,8 +489,8 @@ fn is_position_liquiditable(
         // this could result in very large price impact temporarily
         // cap the max negative price impact to prevent cascading liquidations
 
-        let max_negatice_price_impact = u128_to_i128(
-            precision::apply_factor_u128(position.size_in_usd, max_price_impact_factor)
+        let max_negatice_price_impact = calc::to_signed(
+            precision::apply_factor_u128(position.size_in_usd, max_price_impact_factor), true
         );
         if cache.price_impact_usd < max_negatice_price_impact {
             cache.price_impact_usd = max_negatice_price_impact;
@@ -468,7 +505,7 @@ fn is_position_liquiditable(
         long_token: market.long_token,
         short_token: market.short_token,
         size_delta_usd: position.size_in_usd,
-        ui_fee_receiver: 0.try_into().unwrap(),
+        ui_fee_receiver: contract_address_const::<0>(),
     };
     let fees = position_pricing_utils::get_position_fees(pos_fees_params);
     // the totalCostAmount is in tokens, use collateralTokenPrice.min to calculate the cost in USD
@@ -479,13 +516,15 @@ fn is_position_liquiditable(
     // the position's pnl is counted as collateral for the liquidation check
     // as a position in profit should not be liquidated if the pnl is sufficient
     // to cover the position's fees
-    cache.remaining_collateral_usd = u128_to_i128(cache.collateral_usd)
+    cache.remaining_collateral_usd = calc::to_signed(cache.collateral_usd, true)
         + cache.position_pnl_usd
         + cache.price_impact_usd
-        - u128_to_i128(collateral_cost_usd);
+        - calc::to_signed(collateral_cost_usd, true);
 
     if should_validate_min_collateral_usd {
-        cache.min_collateral_usd = u128_to_i128(data_store.get_u128(keys::min_collateral_usd()));
+        cache
+            .min_collateral_usd =
+                calc::to_signed(data_store.get_u128(keys::min_collateral_usd()), true);
         if (cache.remaining_collateral_usd < cache.min_collateral_usd) {
             return (true, 'min collateral');
         }
@@ -501,8 +540,9 @@ fn is_position_liquiditable(
     // i.e. if the position does not have sufficient collateral after closing fees it is considered a liquidatable position
     cache
         .min_collateral_usd_for_leverage =
-            u128_to_i128(
-                precision::apply_factor_u128(position.size_in_usd, cache.min_collateral_factor)
+            calc::to_signed(
+                precision::apply_factor_u128(position.size_in_usd, cache.min_collateral_factor),
+                true
             );
     if cache.remaining_collateral_usd <= cache.min_collateral_usd_for_leverage {
         return (true, 'min collateral for leverage');
@@ -552,8 +592,8 @@ fn will_position_collateral_be_sufficient(
     let collateral_token_price = market_utils::get_cached_token_price(
         collateral_token, market, prices
     );
-    let mut remaining_collateral_usd = u128_to_i128(values.position_collateral_amount)
-        * u128_to_i128(collateral_token_price.min);
+    let mut remaining_collateral_usd = calc::to_signed(values.position_collateral_amount, true)
+        * calc::to_signed(collateral_token_price.min, true);
     // deduct realized pnl if it is negative since this would be paid from
     // the position's collateral
     if values.realized_pnl_usd < 0 {
@@ -580,8 +620,8 @@ fn will_position_collateral_be_sufficient(
     if (min_collateral_factor_for_market > min_collateral_factor) {
         min_collateral_factor = min_collateral_factor_for_market;
     }
-    let min_collateral_usd_for_leverage = u128_to_i128(
-        precision::apply_factor_u128(values.position_size_in_usd, min_collateral_factor)
+    let min_collateral_usd_for_leverage = calc::to_signed(
+        precision::apply_factor_u128(values.position_size_in_usd, min_collateral_factor), true
     );
     let will_be_sufficient: bool = remaining_collateral_usd >= min_collateral_usd_for_leverage;
 

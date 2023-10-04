@@ -32,12 +32,6 @@ use satoru::exchange::{
 // *************************************************************************
 #[starknet::interface]
 trait IExchangeRouter<TContractState> {
-    /// Wraps the specified amount of native tokens into WNT then sends the WNT to the specified address.
-    /// # Arguments
-    /// * `receiver` - The address of the receiver.
-    /// * `amount` - The amount of tokens to transfer.
-    fn send_wnt(ref self: TContractState, receiver: ContractAddress, amount: u128);
-
     /// Sends the given amount of tokens to the given address.
     /// # Arguments
     /// * `token` - The token address to transfer.
@@ -271,9 +265,6 @@ mod ExchangeRouter {
     // *************************************************************************
     #[external(v0)]
     impl ExchangeRouterImpl of super::IExchangeRouter<ContractState> {
-        fn send_wnt(ref self: ContractState, receiver: ContractAddress, amount: u128) { //TODO
-        }
-
         fn send_tokens(
             ref self: ContractState, token: ContractAddress, receiver: ContractAddress, amount: u128
         ) { //TODO

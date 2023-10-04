@@ -2,7 +2,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::{ContractAddress, get_block_timestamp};
+use starknet::{ContractAddress, get_block_timestamp, contract_address_const};
 
 // Local imports.
 use satoru::bank::{bank::{IBankDispatcher, IBankDispatcherTrait},};
@@ -15,16 +15,15 @@ use satoru::event::{
 use satoru::fee::fee_utils;
 use satoru::gas::gas_utils;
 use satoru::market::{
-    market::Market, market_event_utils,
-    market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait}, market_utils,
-    market_utils::MarketPrices
+    market::Market, market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait},
+    market_utils, market_utils::MarketPrices
 };
 use satoru::nonce::nonce_utils;
 use satoru::oracle::{oracle::{IOracleDispatcher, IOracleDispatcherTrait}, oracle_utils};
 use satoru::pricing::{swap_pricing_utils, swap_pricing_utils::SwapFees};
 use satoru::swap::{swap_utils, swap_utils::SwapParams};
 use satoru::utils::{
-    account_utils, precision, starknet_utils, span32::Span32,
+    calc, account_utils, error_utils, precision, starknet_utils, span32::Span32,
     store_arrays::{StoreContractAddressArray, StoreU128Array}
 };
 use satoru::withdrawal::{
@@ -50,10 +49,8 @@ struct CreateWithdrawalParams {
     min_long_token_amount: u128,
     /// The minimum amount of short tokens that must be withdrawn.
     min_short_token_amount: u128,
-    /// Whether the native token should be unwrapped when executing the withdrawal.
-    should_unwrap_native_token: bool,
     /// The execution fee for the withdrawal.
-    execution_fee: u256,
+    execution_fee: u128,
     /// The gas limit for calling the callback contract.
     callback_gas_limit: u128,
 }
@@ -125,14 +122,12 @@ fn create_withdrawal(
 ) -> felt252 {
     account_utils::validate_account(account);
 
-    let wnt = data_store.get_address(keys::wnt());
+    let fee_token = data_store.get_address(keys::fee_token());
 
-    let wnt_amount = withdrawal_vault.record_transfer_in(wnt);
+    let fee_token_amount = withdrawal_vault.record_transfer_in(fee_token);
 
-    if wnt_amount < params.execution_fee.try_into().unwrap() {
-        WithdrawalError::INSUFFICIENT_WNT_AMOUNT(
-            wnt_amount, params.execution_fee.try_into().unwrap()
-        );
+    if fee_token_amount < params.execution_fee {
+        WithdrawalError::INSUFFICIENT_FEE_TOKEN_AMOUNT(fee_token_amount, params.execution_fee);
     }
 
     account_utils::validate_receiver(params.receiver);
@@ -143,9 +138,9 @@ fn create_withdrawal(
         WithdrawalError::EMPTY_WITHDRAWAL_AMOUNT;
     }
 
-    params.execution_fee = wnt_amount.into();
+    params.execution_fee = fee_token_amount.into();
 
-    market_utils::validate_enabled_market_address(data_store, params.market);
+    market_utils::validate_enabled_market_address(@data_store, params.market);
 
     market_utils::validate_swap_path(data_store, params.long_token_swap_path);
 
@@ -153,11 +148,11 @@ fn create_withdrawal(
 
     let mut withdrawal = Withdrawal {
         key: 0,
-        account: 0.try_into().unwrap(),
-        receiver: 0.try_into().unwrap(),
-        callback_contract: 0.try_into().unwrap(),
-        ui_fee_receiver: 0.try_into().unwrap(),
-        market: 0.try_into().unwrap(),
+        account: contract_address_const::<0>(),
+        receiver: contract_address_const::<0>(),
+        callback_contract: contract_address_const::<0>(),
+        ui_fee_receiver: contract_address_const::<0>(),
+        market: contract_address_const::<0>(),
         long_token_swap_path: Default::default(),
         short_token_swap_path: Default::default(),
         market_token_amount: 0,
@@ -166,7 +161,6 @@ fn create_withdrawal(
         updated_at_block: 0,
         execution_fee: 0,
         callback_gas_limit: 0,
-        should_unwrap_native_token: true,
     };
 
     withdrawal.account = account;
@@ -182,7 +176,6 @@ fn create_withdrawal(
     withdrawal.updated_at_block = get_block_timestamp();
     withdrawal.execution_fee = params.execution_fee;
     withdrawal.callback_gas_limit = params.callback_gas_limit;
-    withdrawal.should_unwrap_native_token = params.should_unwrap_native_token;
 
     callback_utils::validate_callback_gas_limit(data_store, withdrawal.callback_gas_limit);
 
@@ -285,7 +278,7 @@ fn cancel_withdrawal(
     // startingGas -= gasleft() / 63;
     starting_gas -= (starknet_utils::sn_gasleft(array![]) / 63);
 
-    let withdrawal = data_store.get_withdrawal(key).unwrap();
+    let withdrawal = data_store.get_withdrawal(key).expect('get_withdrawal failed');
 
     if withdrawal.account.is_zero() {
         WithdrawalError::EMPTY_WITHDRAWAL;
@@ -298,7 +291,7 @@ fn cancel_withdrawal(
     data_store.remove_withdrawal(key, withdrawal.account);
 
     withdrawal_vault
-        .transfer_out(withdrawal.market, withdrawal.account, withdrawal.market_token_amount, false);
+        .transfer_out(withdrawal.market, withdrawal.account, withdrawal.market_token_amount);
 
     event_emitter.emit_withdrawal_cancelled(key, reason, reason_bytes.span());
 
@@ -410,7 +403,7 @@ fn execute_withdrawal_(
         *params.event_emitter,
         market,
         market.long_token,
-        cache.long_token_pool_amount_delta // This should be - int128 once supported.
+        calc::to_signed(cache.long_token_pool_amount_delta, false)
     );
 
     market_utils::apply_delta_to_pool_amount(
@@ -418,12 +411,12 @@ fn execute_withdrawal_(
         *params.event_emitter,
         market,
         market.short_token,
-        cache.long_token_pool_amount_delta // This should be - int128 once supported.
+        calc::to_signed(cache.short_token_pool_amount_delta, false)
     );
 
-    market_utils::validate_reserve(*params.data_store, market, @prices, true);
+    market_utils::validate_reserve(*params.data_store, @market, @prices, true);
 
-    market_utils::validate_reserve(*params.data_store, market, @prices, false);
+    market_utils::validate_reserve(*params.data_store, @market, @prices, false);
 
     market_utils::validate_max_pnl(
         *params.data_store,
@@ -453,8 +446,7 @@ fn execute_withdrawal_(
         withdrawal.long_token_swap_path,
         withdrawal.min_long_token_amount,
         withdrawal.receiver,
-        withdrawal.ui_fee_receiver,
-        withdrawal.should_unwrap_native_token
+        withdrawal.ui_fee_receiver
     );
     result.output_token = output_token;
     result.output_amount = output_amount;
@@ -467,8 +459,7 @@ fn execute_withdrawal_(
         withdrawal.short_token_swap_path,
         withdrawal.min_short_token_amount,
         withdrawal.receiver,
-        withdrawal.ui_fee_receiver,
-        withdrawal.should_unwrap_native_token
+        withdrawal.ui_fee_receiver
     );
     result.secondary_output_token = secondary_output_token;
     result.secondary_output_amount = secondary_output_amount;
@@ -507,7 +498,6 @@ fn execute_withdrawal_(
 /// * `min_output_amount` - The minimum output amount.
 /// * `receiver` - The receiver of the swap output.
 /// * `ui_fee_receiver` - The ui fee receiver.
-/// * `should_unwrap_native_token` - Weither native token should be unwraped or not.
 /// # Returns
 /// Output token and its amount.
 #[inline(always)]
@@ -520,7 +510,6 @@ fn swap(
     min_output_amount: u128,
     receiver: ContractAddress,
     ui_fee_receiver: ContractAddress,
-    should_unwrap_native_token: bool,
 ) -> (ContractAddress, u128) {
     let mut cache = SwapCache {
         swap_path_markets: Default::default(),
@@ -552,8 +541,6 @@ fn swap(
     cache.swap_params.receiver = receiver;
 
     cache.swap_params.ui_fee_receiver = ui_fee_receiver;
-
-    cache.swap_params.should_unwrap_native_token = should_unwrap_native_token;
 
     let cache_swap_params = @cache.swap_params;
     let (output_token, output_amount) = swap_utils::swap(cache_swap_params);
@@ -592,15 +579,14 @@ fn get_output_amounts(
         WithdrawalError::INVALID_POOL_VALUE_FOR_WITHDRAWAL(pool_value_info.pool_value);
     }
 
-    let pool_value = pool_value_info.pool_value;
+    let pool_value = calc::to_unsigned(pool_value_info.pool_value);
 
     let market_tokens_supply = market_utils::get_market_token_supply(
         IMarketTokenDispatcher { contract_address: market.market_token }
     );
 
-    market_event_utils::emit_market_pool_value_info(
-        *params.event_emitter, market.market_token, pool_value_info, market_tokens_supply
-    );
+    (*params.event_emitter)
+        .emit_market_pool_value_info(market.market_token, pool_value_info, market_tokens_supply);
 
     let long_token_pool_amount = market_utils::get_pool_amount(
         *params.data_store, @market, market.long_token
@@ -627,6 +613,9 @@ fn get_output_amounts(
     let short_token_output_usd = precision::mul_div(
         market_token_usd, short_token_pool_usd, total_pool_usd
     );
+
+    error_utils::check_division_by_zero(*prices.long_token_price.max, 'long_token_price.max');
+    error_utils::check_division_by_zero(*prices.short_token_price.max, 'short_token_price.max');
 
     (
         long_token_output_usd / *prices.long_token_price.max,

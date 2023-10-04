@@ -55,6 +55,7 @@ trait IStrictBank<TContractState> {
 #[starknet::interface]
 trait IERC20<TContractState> {
     fn balance_of(self: @TContractState, address: starknet::ContractAddress) -> u128; 
+
 }
 
 #[starknet::contract]
