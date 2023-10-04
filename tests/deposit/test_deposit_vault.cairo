@@ -4,7 +4,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use integer::u256_from_felt252;
+use integer::{u128_from_felt252, u256_from_felt252};
 use result::ResultTrait;
 use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
@@ -61,6 +61,17 @@ fn given_normal_conditions_when_transfer_out_then_works() {
 }
 
 #[test]
+#[should_panic(expected: ('u256_sub Overflow',))]
+fn given_not_enough_token_when_transfer_out_then_fails() {
+    let (_, receiver_address, _, data_store, deposit_vault, erc20) = setup();
+
+    let amount_to_transfer: u128 = u128_from_felt252(INITIAL_TOKENS_MINTED + 1);
+    deposit_vault.transfer_out(erc20.contract_address, receiver_address, amount_to_transfer);
+
+    teardown(data_store, deposit_vault);
+}
+
+#[test]
 #[should_panic(expected: ('unauthorized_access',))]
 fn given_caller_has_no_controller_role_when_transfer_out_then_fails() {
     let (caller_address, receiver_address, _, data_store, deposit_vault, erc20) = setup();
@@ -88,7 +99,6 @@ fn given_normal_conditions_when_record_transfer_in_then_works() {
 // *********************************************************************************************
 // *                                      SETUP                                                *
 // *********************************************************************************************
-
 /// Utility function to setup the test environment.
 ///
 /// Complete statement to retrieve everything:
