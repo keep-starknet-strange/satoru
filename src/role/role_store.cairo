@@ -81,7 +81,7 @@ mod RoleStore {
 
     // Local imports.
     use satoru::role::{role, error::RoleError};
-    
+
 
     // *************************************************************************
     // STORAGE

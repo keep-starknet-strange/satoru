@@ -43,7 +43,7 @@ fn given_normal_conditions_when_has_role_after_revoke_then_works() {
     assert(!role_store.has_role(account_1(), ROLE_ADMIN), 'Invalid role');
 }
 #[test]
-#[should_panic]
+#[should_panic(expected: ('unauthorized_change',))]
 fn given_normal_conditions_when_revoke_role_on_1_ROLE_ADMIN_panics() {
     let role_store = setup();
 
@@ -52,13 +52,10 @@ fn given_normal_conditions_when_revoke_role_on_1_ROLE_ADMIN_panics() {
     // assert that there is only one role ROLE_ADMIN present
     assert(role_store.get_role_member_count(ROLE_ADMIN) == 1, 'members count != 1');
 
-   
     // Check that the account address has the admin role.
     assert(role_store.has_role(admin(), ROLE_ADMIN), 'Invalid role');
     // Revoke role_admin should panic.
     role_store.revoke_role(admin(), ROLE_ADMIN);
-    
-    
 }
 
 
