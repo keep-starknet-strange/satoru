@@ -54,7 +54,7 @@ struct GetExecutionPriceCache {
 
 /// Handle the collateral changes of the position.
 /// # Returns
-/// (position_utils::DecreasePositionCollateralValues, position_pricing_utils::PositionFees)
+/// The values linked to the process of a decrease of collateral and position fees.
 #[inline(always)]
 fn process_collateral(
     mut params: position_utils::UpdatePositionParams, cache: position_utils::DecreasePositionCache
@@ -131,6 +131,7 @@ fn process_collateral(
 
     // if the pnl is positive, deduct the pnl amount from the pool
     if values.base_pnl_usd > 0 {
+        // use pnl_token_price.max to minimize the tokens paid out
         let deduction_amount_for_pool: u128 = calc::to_unsigned(values.base_pnl_usd)
             / cache.pnl_token_price.max;
 
@@ -486,9 +487,9 @@ fn process_collateral(
     // note that this calculation may not be entirely accurate since it is possible that the priceImpactDiffUsd
     // could have been paid with one of or a combination of collateral / outputAmount / secondaryOutputAmount
     if params.order.initial_collateral_delta_amount > 0 && values.price_impact_diff_usd > 0 {
-        let initial_collateral_delta_amount = params.order.initial_collateral_delta_amount;
+        let initial_collateral_delta_amount: u128 = params.order.initial_collateral_delta_amount;
 
-        let price_impact_diff_amount = values.price_impact_diff_usd
+        let price_impact_diff_amount: u128 = values.price_impact_diff_usd
             / cache.collateral_token_price.min;
         if initial_collateral_delta_amount > price_impact_diff_amount {
             params.order.initial_collateral_delta_amount = initial_collateral_delta_amount
@@ -522,7 +523,7 @@ fn process_collateral(
     }
 
     if params.order.initial_collateral_delta_amount > 0 {
-        values.remaining_collateral_amount = params.order.initial_collateral_delta_amount;
+        values.remaining_collateral_amount -= params.order.initial_collateral_delta_amount;
         values.output.output_amount += params.order.initial_collateral_delta_amount;
     }
 
@@ -780,10 +781,10 @@ fn get_empty_fees(
     // all fees are zeroed even though funding may have been paid
     // the funding fee amount value may not be accurate in the events due to this
     position_pricing_utils::PositionFees {
-        referral: referral,
-        funding: funding,
-        borrowing: borrowing,
-        ui: ui,
+        referral,
+        funding,
+        borrowing,
+        ui,
         collateral_token_price: *fees.collateral_token_price,
         position_fee_factor: 0,
         protocol_fee_amount: 0,
