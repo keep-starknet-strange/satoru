@@ -119,8 +119,9 @@ enum OrderType {
 }
 
 /// To help further differentiate orders.
-#[derive(Drop, Copy, starknet::Store, Serde)]
+#[derive(Drop, starknet::Store, Serde, PartialEq, Copy, Default)]
 enum SecondaryOrderType {
+    #[default]
     None,
     Adl,
 }

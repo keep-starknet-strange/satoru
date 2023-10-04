@@ -63,7 +63,7 @@ fn given_normal_conditions_when_set_position_new_and_override_then_works() {
 
 
 #[test]
-#[should_panic(expected: ('position account cant be 0',))]
+#[should_panic(expected: ('position_account_cant_be_0',))]
 fn given_position_account_0_when_set_position_then_fails() {
     // Setup
     let (caller_address, role_store, data_store) = setup();

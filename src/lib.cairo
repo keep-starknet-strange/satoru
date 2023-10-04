@@ -152,6 +152,7 @@ mod utils {
     mod error_utils;
     mod starknet_utils;
     mod traits;
+    mod default;
 }
 
 // `liquidation` function to help with liquidations.
