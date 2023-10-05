@@ -2458,9 +2458,14 @@ fn get_borrowing_factor_per_second(
         .get_bool(keys::skip_borrowing_fee_for_smaller_side())
         .unwrap();
 
+    let market_snap = @market;
     if (skip_borrowing_fee_for_smaller_side) {
-        let long_open_interest = get_open_interest_for_market_is_long(data_store, @market, true);
-        let short_open_interest = get_open_interest_for_market_is_long(data_store, @market, false);
+        let long_open_interest: u128 = get_open_interest_for_market_is_long(
+            data_store, market_snap, true
+        );
+        let short_open_interest: u128 = get_open_interest_for_market_is_long(
+            data_store, market_snap, false
+        );
 
         // if getting the borrowing factor for longs and if the longOpenInterest
         // is smaller than the shortOpenInterest, then return zero
