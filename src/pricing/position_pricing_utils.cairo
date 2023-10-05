@@ -23,7 +23,8 @@ use satoru::utils::{calc, precision};
 use satoru::pricing::error::PricingError;
 use satoru::referral::referral_utils;
 use satoru::utils::{
-    i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}, error_utils, calc::to_signed
+    i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}, error_utils, calc::to_signed,
+    default::DefaultContractAddress,
 };
 
 use integer::u128_to_felt252;
@@ -76,13 +77,8 @@ struct OpenInterestParams {
     next_short_open_interest: u128,
 }
 
-impl DefaultContractAddress of Default<ContractAddress> {
-    fn default() -> ContractAddress {
-        Zeroable::zero()
-    }
-}
 /// Struct to store position fees data.
-#[derive(Default, Drop, Copy, starknet::Store, Serde)]
+#[derive(Default, Drop, starknet::Store, Serde, Copy)]
 struct PositionFees {
     /// The referral fees.
     referral: PositionReferralFees,
@@ -115,7 +111,7 @@ struct PositionFees {
 }
 
 /// Struct used to store referral parameters useful for fees computation.
-#[derive(Default, Drop, Copy, starknet::Store, Serde)]
+#[derive(Default, Drop, starknet::Store, Serde, Copy)]
 struct PositionReferralFees {
     /// The referral code used.
     referral_code: felt252,
@@ -136,7 +132,7 @@ struct PositionReferralFees {
 }
 
 /// Struct used to store position borrowing fees.
-#[derive(Default, Drop, Copy, starknet::Store, Serde)]
+#[derive(Default, Drop, starknet::Store, Serde, Copy)]
 struct PositionBorrowingFees {
     /// The borrowing fees amount in USD.
     borrowing_fee_usd: u128,
@@ -166,7 +162,7 @@ struct PositionFundingFees {
 }
 
 /// Struct used to store position ui fees
-#[derive(Default, Drop, Copy, starknet::Store, Serde)]
+#[derive(Default, Drop, starknet::Store, Serde, Copy)]
 struct PositionUiFees {
     /// The ui fee receiver address
     ui_fee_receiver: ContractAddress,

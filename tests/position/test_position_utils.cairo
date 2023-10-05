@@ -148,8 +148,8 @@ fn given_empty_market_when_validate_position_then_fails() {
 
 
 #[test]
-#[should_panic(expected: ('minumum position size',))]
-fn given_minumum_position_size_when_validate_position_then_fails() {
+#[should_panic(expected: ('minimum_position_size',))]
+fn given_minimum_position_size_when_validate_position_then_fails() {
     // 
     // Setup  
     //   
