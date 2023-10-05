@@ -3,10 +3,6 @@
 // *************************************************************************
 // Core lib imports.
 use starknet::{ContractAddress, get_caller_address, get_block_timestamp, contract_address_const};
-use result::ResultTrait;
-
-use debug::PrintTrait;
-use zeroable::Zeroable;
 
 // Local imports.
 use satoru::utils::calc::roundup_magnitude_division;
@@ -37,8 +33,6 @@ use integer::u128_to_felt252;
 use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}, error_utils};
 use satoru::utils::precision::{apply_exponent_factor, float_to_wei, mul_div};
 use satoru::data::keys::{skip_borrowing_fee_for_smaller_side, max_swap_path_length};
-// use satoru::utils::arrays::get_u128;
-//use satoru::utils::{calc, precision};
 
 /// Struct to store the prices of tokens of a market.
 /// # Params
@@ -1322,19 +1316,6 @@ fn get_swap_impact_amount_with_cap(
     impact_amount
 }
 
-//Functions Added for libray#3 to compile
-
-/// Get the long and short open interest for a market based on the collateral token used.
-/// # Arguments
-/// * `data_store` - The data store to use.
-/// * `market` - The market to get the open interest for.
-/// * `collateral_token` - The collateral token to check.
-/// * `is_long` - Whether to get the long or short open interest.
-/// * `divisor` - The divisor to use for the open interest.
-fn get_open_interest(data_store: IDataStoreDispatcher, market: Market, is_long: bool,) -> u128 {
-    0
-}
-
 fn get_open_interest_div(
     data_store: IDataStoreDispatcher,
     market: ContractAddress,
@@ -1448,16 +1429,6 @@ fn get_pool_divisor(long_token: ContractAddress, short_token: ContractAddress) -
         1
     }
 }
-
-/// Validates the swap path to ensure each market in the path is valid and the path length does not 
-//  exceed the maximum allowed length.
-/// # Arguments
-/// * `data_store` - The DataStore contract containing platform configuration.
-/// * `swap_path` - A vector of market addresses forming the swap path.
-// fn validate_swap_path(
-//     data_store: IDataStoreDispatcher, token_swap_path: Span32<ContractAddress>
-// ) { //TODO
-// }
 
 /// Update the swap impact pool amount, if it is a positive impact amount
 /// cap the impact amount to the amount available in the swap impact pool
@@ -2039,7 +2010,7 @@ fn get_min_collateral_factor_for_open_interest_multiplier(
 // `is_long` - whether to check the long or short side
 // # Returns
 // The min collateral factor for open interest
-fn _for_open_interest(
+fn get_min_collateral_factor_for_open_interest(
     data_store: IDataStoreDispatcher, market: Market, open_interest_delta: i128, is_long: bool
 ) -> u128 {
     let mut open_interest: u128 = get_open_interest_for_market_is_long(
@@ -2488,8 +2459,8 @@ fn get_borrowing_factor_per_second(
         .unwrap();
 
     if (skip_borrowing_fee_for_smaller_side) {
-        let long_open_interest = get_open_interest(data_store, market, true);
-        let short_open_interest = get_open_interest(data_store, market, false);
+        let long_open_interest = get_open_interest_for_market_is_long(data_store, @market, true);
+        let short_open_interest = get_open_interest_for_market_is_long(data_store, @market, false);
 
         // if getting the borrowing factor for longs and if the longOpenInterest
         // is smaller than the shortOpenInterest, then return zero
@@ -2530,7 +2501,7 @@ fn get_borrowing_factor_per_second(
 fn get_total_pending_borrowing_fees(
     data_store: IDataStoreDispatcher, market: Market, prices: MarketPrices, is_long: bool
 ) -> u128 {
-    let open_interest: u128 = get_open_interest(data_store, market, is_long);
+    let open_interest: u128 = get_open_interest_for_market_is_long(data_store, @market, is_long);
 
     let (next_cumulative_borrowing_factor, _) = get_next_cumulative_borrowing_factor(
         data_store, market, prices, is_long

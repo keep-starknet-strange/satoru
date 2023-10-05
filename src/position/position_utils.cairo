@@ -611,7 +611,7 @@ fn will_position_collateral_be_sufficient(
     // the position's pnl is not factored into the remainingCollateralUsd value, since
     // factoring in a positive pnl may allow the user to manipulate price and bypass this check
     // it may be useful to factor in a negative pnl for this check, this can be added if required
-    let mut min_collateral_factor = market_utils::_for_open_interest(
+    let mut min_collateral_factor = market_utils::get_min_collateral_factor_for_open_interest(
         data_store, market, values.open_interest_delta, is_long
     );
 
