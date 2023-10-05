@@ -31,6 +31,11 @@ fn set_trader_referral_code(
     if (referral_code == 0) {
         return;
     }
+    // skip setting of the referral code if the user already has a referral code
+    if (referral_storage.trader_referral_codes(account) != 0) {
+        return;
+    }
+
     referral_storage.set_trader_referral_code(account, referral_code);
 }
 
@@ -123,8 +128,8 @@ fn claim_affiliate_reward(
     let next_pool_value: u128 = data_store
         .decrement_u128(keys::affiliate_reward_key(market, token), reward_amount);
 
-    //TODO Call this when its implemented
-    // IMarketTokenDispatcher { contract_address: market }.transfer_out(token, receiver, reward_amount);
+    IMarketTokenDispatcher { contract_address: market }
+        .transfer_out(token, receiver, reward_amount);
 
     market_utils::validate_market_token_balance_with_address(data_store, market);
 

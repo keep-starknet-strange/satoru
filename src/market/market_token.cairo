@@ -17,6 +17,9 @@ trait IMarketToken<TState> {
     fn approve(ref self: TState, spender: ContractAddress, amount: u128) -> bool;
     fn mint(ref self: TState, recipient: ContractAddress, amount: u128);
     fn burn(ref self: TState, recipient: ContractAddress, amount: u128);
+    fn transfer_out(
+        ref self: TState, token: ContractAddress, receiver: ContractAddress, amount: u128,
+    );
 }
 
 #[starknet::contract]
@@ -68,11 +71,15 @@ mod MarketToken {
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState, role_store_address: ContractAddress) {
+    fn constructor(
+        ref self: ContractState,
+        role_store_address: ContractAddress,
+        data_store_address: ContractAddress
+    ) {
         self.initializer(NAME, SYMBOL);
-        //Might need to inherit bank. 
-        // let mut bank: Bank::ContractState = Bank::unsafe_new_contract_state();
-        // IBank::initialize(ref bank, data_store_address, role_store_address)
+
+        let mut bank: Bank::ContractState = Bank::unsafe_new_contract_state();
+        IBank::initialize(ref bank, data_store_address, role_store_address);
         self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
     }
 
@@ -143,6 +150,16 @@ mod MarketToken {
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             self._burn(recipient, amount);
         }
+        fn transfer_out(
+            ref self: ContractState,
+            token: ContractAddress,
+            receiver: ContractAddress,
+            amount: u128,
+        ) {
+            let mut bank: Bank::ContractState = Bank::unsafe_new_contract_state();
+            IBank::transfer_out(ref bank, token, receiver, amount);
+        }
+    // TODO implement Bank functions
     }
 
     #[external(v0)]
