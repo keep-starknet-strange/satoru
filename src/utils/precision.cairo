@@ -427,7 +427,7 @@ fn exp(x: u256) -> u256 {
     //check if x is not too big, but it's already checked in exp 2?
     let uLOG2_E = 1_442695040888963407;
     let double_unit_product = x * uLOG2_E;
-    exp2(double_unit_product/1000000000000000000)
+    exp2(double_unit_product / 1000000000000000000)
 }
 
 /// Compute factor from value and divisor with a roundup.

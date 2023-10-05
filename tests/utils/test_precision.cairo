@@ -106,13 +106,11 @@ fn test_exp() {
     let value4: u256 = 0000000000000000000;
     let value5: u256 = 1000000000000000000;
 
-
     let result1 = precision::exp(value1);
     let result2 = precision::exp(value2);
     let result3 = precision::exp(value3);
     let result4 = precision::exp(value4);
     let result5 = precision::exp(value5);
-
 
     assert(result1 == 7389056098930650223, 'should be 7389056098930650223');
     assert(result2 == 12182493960703473424, 'should be 12182493960703473424');
