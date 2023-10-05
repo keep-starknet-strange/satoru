@@ -73,7 +73,7 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
     );
     data_store.set_u128(open_interest_data_store_key, 300);
 
-    let open_interest = market_utils::get_open_interest(
+    let open_interest = market_utils::get_open_interest_div(
         data_store, market_token_deployed_address, collateral_token, is_long, divisor
     );
     // Open interest is 300, so 300 / 3 = 100.

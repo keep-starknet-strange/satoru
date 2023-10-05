@@ -30,6 +30,7 @@ use satoru::withdrawal::{
     error::WithdrawalError, withdrawal::Withdrawal,
     withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait}
 };
+use satoru::market::market_utils::validate_enabled_market_address;
 
 #[derive(Drop, starknet::Store, Serde)]
 struct CreateWithdrawalParams {
@@ -421,7 +422,7 @@ fn execute_withdrawal_(
     market_utils::validate_max_pnl(
         *params.data_store,
         market,
-        @prices,
+        prices,
         keys::max_pnl_factor_for_withdrawals(),
         keys::max_pnl_factor_for_withdrawals()
     );
@@ -484,7 +485,7 @@ fn execute_withdrawal_(
 
     // if the native token was transferred to the receiver in a swap
     // it may be possible to invoke external contracts before the validations are called
-    market_utils::validate_market_token_balance(*params.data_store, market);
+    market_utils::validate_market_token_balance_check(*params.data_store, market);
 
     result
 }
