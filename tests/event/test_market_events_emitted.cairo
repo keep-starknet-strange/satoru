@@ -145,7 +145,7 @@ fn given_normal_conditions_when_emit_position_impact_pool_amount_updated_then_wo
 
     // Create dummy data.
     let market = contract_address_const::<'market'>();
-    let delta: u128 = 1;
+    let delta: i128 = 1;
     let next_value: u128 = 2;
 
     // Create the expected data.
