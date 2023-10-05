@@ -80,8 +80,8 @@ mod DepositVault {
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        role_store_address: ContractAddress,
         data_store_address: ContractAddress,
+        role_store_address: ContractAddress,
     ) {
         self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
         self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
