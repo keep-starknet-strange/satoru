@@ -99,6 +99,29 @@ fn test_exp2() {
 }
 
 #[test]
+fn test_exp() {
+    let value1: u256 = 2000000000000000000;
+    let value2: u256 = 2500000000000000000;
+    let value3: u256 = 7482948646372839484;
+    let value4: u256 = 0000000000000000000;
+    let value5: u256 = 1000000000000000000;
+
+
+    let result1 = precision::exp(value1);
+    let result2 = precision::exp(value2);
+    let result3 = precision::exp(value3);
+    let result4 = precision::exp(value4);
+    let result5 = precision::exp(value5);
+
+
+    assert(result1 == 7389056098930650223, 'should be 7389056098930650223');
+    assert(result2 == 12182493960703473424, 'should be 12182493960703473424');
+    assert(result3 == 1777474199233404337144, 'should_1777474199233404337144');
+    assert(result4 == 1000000000000000000, 'should be 1000000000000000000');
+    assert(result5 == 2718281828459045234, 'should be 2718281828459045234');
+}
+
+#[test]
 fn test_to_factor_roundup() {
     let value: u128 = 450000;
     let divisor: u128 = 20_000_000_000_000_000_000_000_000; //2*10^25

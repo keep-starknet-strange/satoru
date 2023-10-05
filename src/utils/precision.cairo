@@ -175,6 +175,10 @@ fn apply_exponent_factor(float_value: u128, exponent_factor: u128) -> u128 { // 
 use alexandria_math::BitShift;
 
 fn exp2(mut x: u256) -> u256 {
+    let EXP2_MAX_INPUT = 192 * 1000000000000000000 - 1;
+    if x > EXP2_MAX_INPUT {
+        panic("error");
+    }
     x = BitShift::shl(x, 64);
     x = x / 1000000000000000000;
     //what is the cairo equivalent of `unchecked` in solidity?
@@ -417,6 +421,13 @@ fn exp2(mut x: u256) -> u256 {
     result *= 1000000000000000000; //maybe error comes from here?
     result = BitShift::shr(result, 191 - BitShift::shr(x, 64));
     result
+}
+
+fn exp(x: u256) -> u256 {
+    //check if x is not too big, but it's already checked in exp 2?
+    let uLOG2_E = 1_442695040888963407;
+    let double_unit_product = x * uLOG2_E;
+    exp2(double_unit_product/1000000000000000000)
 }
 
 /// Compute factor from value and divisor with a roundup.
