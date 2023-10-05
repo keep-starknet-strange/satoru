@@ -335,7 +335,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
     market_utils::validate_max_pnl(
         *params.data_store,
         *_params.market,
-        @prices,
+        prices,
         if (*_params.token_in == *_params.market.long_token) {
             keys::max_pnl_factor_for_deposits()
         } else {
