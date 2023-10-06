@@ -5,7 +5,7 @@
 // *************************************************************************
 
 // Core lib imports.
-use core::traits::Into;
+use traits::{Into, TryInto};
 use starknet::{ContractAddress, get_contract_address};
 
 // *************************************************************************
@@ -22,8 +22,6 @@ trait IStrictBank<TContractState> {
         data_store_address: ContractAddress,
         role_store_address: ContractAddress,
     );
-
-    fn view_balance(self :@TContractState, address: ContractAddress) -> u128;
 
     /// Transfer tokens from this contract to a receiver.
     /// # Arguments
@@ -52,11 +50,6 @@ trait IStrictBank<TContractState> {
     fn sync_token_balance(ref self: TContractState, token: starknet::ContractAddress) -> u128;
 }
 
-#[starknet::interface]
-trait IERC20<TContractState> {
-    fn balance_of(self: @TContractState, address: starknet::ContractAddress) -> u128; 
-}
-
 #[starknet::contract]
 mod StrictBank {
     // *************************************************************************
@@ -64,17 +57,15 @@ mod StrictBank {
     // *************************************************************************
 
     // Core lib imports.
+    use core::traits::TryInto;
     use starknet::{get_caller_address, get_contract_address, ContractAddress, contract_address_const};
-
     use debug::PrintTrait;
 
     // Local imports.
     use satoru::bank::bank::{Bank, IBank};
     use super::IStrictBank;
-    use super::IERC20DispatcherTrait;
-    use super::IERC20Dispatcher;
+    use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
     use satoru::role::role_module::{RoleModule, IRoleModule};
-
 
     // *************************************************************************
     //                              STORAGE
@@ -100,7 +91,6 @@ mod StrictBank {
         self.initialize(data_store_address, role_store_address);
     }
 
-
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
@@ -115,10 +105,6 @@ mod StrictBank {
             IBank::initialize(ref state, data_store_address, role_store_address);
         }
 
-        fn view_balance(self :@ContractState, address: ContractAddress) -> u128{
-            self.token_balances.read(address)
-        }
-
         fn transfer_out(
             ref self: ContractState,
             token: ContractAddress,
@@ -127,6 +113,7 @@ mod StrictBank {
         ) {
             let mut state: Bank::ContractState = Bank::unsafe_new_contract_state();
             IBank::transfer_out(ref state, token, receiver, amount);
+            self.after_transfer_out_infernal(token);
         }
 
         fn sync_token_balance(ref self: ContractState, token: ContractAddress) -> u128 {
@@ -135,7 +122,7 @@ mod StrictBank {
             role_module.only_controller();
 
             let this_contract = get_contract_address();
-            let next_balance: u128 = IERC20Dispatcher{contract_address: token}.balance_of(this_contract); 
+            let next_balance: u128 = IERC20Dispatcher{contract_address: token}.balance_of(this_contract).try_into().unwrap(); 
             self.token_balances.write(token, next_balance);
             next_balance 
         }
@@ -149,10 +136,6 @@ mod StrictBank {
         }
     }
 
-
-    /////
-    //Internal
-    /////
     #[generate_trait]
     impl PrivateMethods of PrivateMethodsTrait {
         /// Transfer tokens from this contract to a receiver
@@ -160,9 +143,8 @@ mod StrictBank {
         /// * `token` - token the token to transfer
         fn after_transfer_out_infernal(ref self: ContractState, token: starknet::ContractAddress) {
             let this_contract = get_contract_address();
-            let balance: u128 = IERC20Dispatcher{contract_address: token}.balance_of(this_contract);
+            let balance: u128 = IERC20Dispatcher{contract_address: token}.balance_of(this_contract).try_into().unwrap();
             self.token_balances.write(token, balance);
-            return(); 
         }
 
         /// Records a token transfer into the contract
@@ -173,13 +155,8 @@ mod StrictBank {
         fn record_transfer_in_internal(ref self: ContractState, token: starknet::ContractAddress) -> u128 {
             let prev_balance: u128 = self.token_balances.read(token);
             let this_contract = get_contract_address(); 
-
-            let next_balance: u128 = IERC20Dispatcher{contract_address: token}.balance_of(this_contract).into(); 
-
-            assert(next_balance > prev_balance, 'zero transfer');
-
+            let next_balance: u128 = IERC20Dispatcher{contract_address: token}.balance_of(this_contract).try_into().unwrap(); 
             self.token_balances.write(token, next_balance); 
-
             next_balance - prev_balance
         }
     }
