@@ -388,13 +388,3 @@ fn deploy_governable(event_emitter_address: ContractAddress) -> ContractAddress 
     let constructor_calldata = array![event_emitter_address.into()];
     contract.deploy(@constructor_calldata).unwrap()
 }
-
-// *********************************************************************************************
-// *                                     TEARDOWN                                              *
-// *********************************************************************************************
-fn teardown(
-    data_store: IDataStoreDispatcher,
-    event_emitter: IEventEmitterDispatcher,
-    referral_storage: IReferralStorageDispatcher,
-    governable: IGovernableDispatcher
-) {}
