@@ -2,7 +2,6 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use alexandria_math::pow;
 use integer::{
     u128_to_felt252, u256_wide_mul, u512_safe_div_rem_by_u256, BoundedU256, u256_try_as_non_zero
 };
@@ -17,7 +16,7 @@ const FLOAT_PRECISION_SQRT: u128 = 10_000_000_000; // 10^10
 const WEI_PRECISION: u128 = 1_000_000_000_000_000_000; // 10^18
 const BASIS_POINTS_DIVISOR: u128 = 10000;
 
-const FLOAT_TO_WEI_DIVISOR: u128 = 1_000_000_000_000; // 10^12
+const FLOAT_TO_WEI_DIVISOR: u128 = 10_000_000_000_000_000; // 10^16
 
 /// Applies the given factor to the given value and returns the result.
 /// # Arguments
@@ -156,17 +155,6 @@ fn mul_div_roundup(
 /// * `value` - The value to the exponent is applied to.
 /// * `divisor` - The exponent applied.
 fn apply_exponent_factor(float_value: u128, exponent_factor: u128) -> u128 { // TODO
-    // if float_value < FLOAT_PRECISION {
-    //     return 0;
-    // }
-    // if exponent_factor == FLOAT_PRECISION {
-    //     return float_value;
-    // }
-    // let wei_value = float_to_wei(float_value);
-    // let exponent_wei = float_to_wei(exponent_factor);
-    // let wei_result = pow(wei_value, exponent_wei);
-    // let float_result = wei_to_float(wei_result);
-    // float_result
     0
 }
 

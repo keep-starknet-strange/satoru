@@ -80,6 +80,7 @@ mod price {
 mod pricing {
     mod test_position_pricing_utils;
     mod test_swap_pricing_utils;
+    mod test_pricing_utils;
 }
 mod reader {
     mod test_reader;
