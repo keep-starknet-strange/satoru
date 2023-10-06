@@ -60,6 +60,7 @@ mod Governable {
     #[external(v0)]
     impl Governable of super::IGovernable<ContractState> {
         fn initialize(ref self: ContractState, event_emitter_address: ContractAddress) {
+            assert(self.gov.read().is_zero(), MockError::ALREADY_INITIALIZED);
             self
                 .event_emitter
                 .write(IEventEmitterDispatcher { contract_address: event_emitter_address });

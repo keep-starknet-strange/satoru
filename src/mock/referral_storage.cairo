@@ -3,7 +3,6 @@
 // *************************************************************************
 //                                  IMPORTS
 // *************************************************************************
-
 // Core lib imports.
 use starknet::ContractAddress;
 
@@ -11,7 +10,7 @@ use starknet::ContractAddress;
 use satoru::referral::referral_tier::ReferralTier;
 
 // *************************************************************************
-//                  Interface of the `OracleStore` contract.
+//                  Interface of the `ReferralStorage` contract.
 // *************************************************************************
 #[starknet::interface]
 trait IReferralStorage<TContractState> {
@@ -271,7 +270,7 @@ mod ReferralStorage {
         fn get_trader_referral_info(
             self: @ContractState, account: ContractAddress
         ) -> (felt252, ContractAddress) {
-            let mut code: felt252 = self.trader_referral_codes.read(account);
+            let mut code: felt252 = self.trader_referral_codes(account);
             let mut referrer = contract_address_const::<0>();
 
             if (code != 0) {
