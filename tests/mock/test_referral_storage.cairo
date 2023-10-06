@@ -22,7 +22,8 @@ use satoru::tests_lib;
 // *                                      TEST LOGIC                                           *
 // *********************************************************************************************
 #[test]
-fn given_initialize_when_already_intialized_then_works() {
+#[should_panic(expected: ('already_initialized',))]
+fn given_initialize_when_already_intialized_then_fails() {
     let (_, _, data_store, event_emitter, referral_storage, _) = setup();
     referral_storage.initialize(event_emitter.contract_address);
     referral_storage.initialize(event_emitter.contract_address);
