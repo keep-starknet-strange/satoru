@@ -27,7 +27,6 @@ fn given_initialize_when_already_intialized_then_fails() {
     let (_, _, data_store, event_emitter, referral_storage, _) = setup();
     referral_storage.initialize(event_emitter.contract_address);
     referral_storage.initialize(event_emitter.contract_address);
-    referral_storage.initialize(event_emitter.contract_address);
     tests_lib::teardown(data_store.contract_address);
 }
 
