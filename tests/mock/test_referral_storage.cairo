@@ -19,52 +19,42 @@ use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::tests_lib;
 use satoru::utils::span32::{Span32, Array32Trait};
 
-
 // *********************************************************************************************
 // *                                      TEST LOGIC                                           *
 // *********************************************************************************************
 #[test]
 fn given_normal_conditions_when_setting_and_fetching_code_owner_from_storage_then_works() {
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =
-        setup();
+    let (caller_address, _, data_store, event_emitter, referral_storage, governable) = setup();
 
-    //setting the code_owner and fetching it from storage
     let code: felt252 = 'EBDW';
-    let new_account: ContractAddress = contract_address_const::<'new_account'>();
+    referral_storage.gov_set_code_owner(code, caller_address);
 
-    referral_storage.gov_set_code_owner(code, new_account);
     let res: ContractAddress = referral_storage.code_owners(code);
-    assert(res == new_account, 'the address is wrong');
+    assert(res == caller_address, 'address should be set');
 
     teardown(data_store, event_emitter, referral_storage, governable);
 }
 
 #[test]
 fn given_normal_conditions_when_fetching_code_owner_from_storage_before_setting_then_works() {
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =
-        setup();
+    let (_, _, data_store, event_emitter, referral_storage, governable) = setup();
 
-    //fetching the code owner from storage before setting it
     let code: felt252 = 'EBDW';
-    let new_account: ContractAddress = contract_address_const::<'new_account'>();
 
     let res: ContractAddress = referral_storage.code_owners(code);
-    assert(res == contract_address_const::<0>(), 'the address is wrong');
+    assert(res == contract_address_const::<0>(), 'address should not be set');
 
     teardown(data_store, event_emitter, referral_storage, governable);
 }
 
 #[test]
 fn given_normal_conditions_when_setting_and_fetching_referrer_tiers_from_storage_then_works() {
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =
-        setup();
+    let (caller_address, _, data_store, event_emitter, referral_storage, governable) = setup();
 
-    //setting the referrer_id and fetching it from storage
     let tier_id: u128 = 3;
-    let new_account: ContractAddress = contract_address_const::<'new_account'>();
+    referral_storage.set_referrer_tier(caller_address, tier_id);
 
-    referral_storage.set_referrer_tier(new_account, tier_id);
-    let res: u128 = referral_storage.referrer_tiers(new_account);
+    let res: u128 = referral_storage.referrer_tiers(caller_address);
     assert(res == tier_id, 'the tier_id is wrong');
 
     teardown(data_store, event_emitter, referral_storage, governable);
@@ -72,14 +62,11 @@ fn given_normal_conditions_when_setting_and_fetching_referrer_tiers_from_storage
 
 #[test]
 fn given_normal_conditions_when_fetching_referrer_tiers_from_storage_before_setting_then_works() {
-    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =
-        setup();
+    let (caller_address, _, data_store, event_emitter, referral_storage, governable) = setup();
 
-    //fetching the referrer_tier from storage before setting it
     let tier_id: u128 = 3;
-    let new_account: ContractAddress = contract_address_const::<'new_account'>();
 
-    let res: u128 = referral_storage.referrer_tiers(new_account);
+    let res: u128 = referral_storage.referrer_tiers(caller_address);
     assert(res == 0, 'the tier_id is wrong');
 
     teardown(data_store, event_emitter, referral_storage, governable);
@@ -88,6 +75,7 @@ fn given_normal_conditions_when_fetching_referrer_tiers_from_storage_before_sett
 // *********************************************************************************************
 // *                                      SETUP                                                *
 // *********************************************************************************************
+/// Utility function to setup the test environment
 fn setup() -> (
     ContractAddress,
     IRoleStoreDispatcher,
@@ -116,17 +104,20 @@ fn setup() -> (
     return (caller_address, role_store, data_store, event_emitter, referral_storage, governable);
 }
 
+/// Deploy an `EventEmitter` contract and return its dispatcher.
 fn deploy_event_emitter() -> ContractAddress {
     let contract = declare('EventEmitter');
     contract.deploy(@array![]).unwrap()
 }
 
+/// Deploy a `ReferralStorage` contract and return its dispatcher.
 fn deploy_referral_storage(event_emitter_address: ContractAddress) -> ContractAddress {
     let contract = declare('ReferralStorage');
     let constructor_calldata = array![event_emitter_address.into()];
     contract.deploy(@constructor_calldata).unwrap()
 }
 
+/// Deploy a `Governable` contract and return its dispatcher.
 fn deploy_governable(event_emitter_address: ContractAddress) -> ContractAddress {
     let contract = declare('Governable');
     let constructor_calldata = array![event_emitter_address.into()];

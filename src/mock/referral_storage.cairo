@@ -3,7 +3,6 @@
 // *************************************************************************
 //                                  IMPORTS
 // *************************************************************************
-
 // Core lib imports.
 use starknet::ContractAddress;
 
@@ -11,7 +10,7 @@ use starknet::ContractAddress;
 use satoru::referral::referral_tier::ReferralTier;
 
 // *************************************************************************
-//                  Interface of the `OracleStore` contract.
+//                  Interface of the `ReferralStorage` contract.
 // *************************************************************************
 #[starknet::interface]
 trait IReferralStorage<TContractState> {
