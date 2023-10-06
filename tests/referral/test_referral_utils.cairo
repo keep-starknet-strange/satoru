@@ -171,12 +171,12 @@ fn given_normal_conditions_when_trader_referral_codes_then_works() {
     let retrieved_code2 = referral_storage.trader_referral_codes(account);
     assert(retrieved_code2 == referral_code, 'invalid referral code2');
 
-    // Check referral code wont change if it is already assigned
+    // Check referral code will change even if it is assigned
 
     let referral_code3: felt252 = 12345;
     referral_utils::set_trader_referral_code(referral_storage, account, referral_code3);
     let retrieved_code3 = referral_storage.trader_referral_codes(account);
-    assert(retrieved_code3 == referral_code, 'invalid referral code3');
+    assert(retrieved_code3 == referral_code3, 'invalid referral code3');
 
     teardown(data_store.contract_address);
 }

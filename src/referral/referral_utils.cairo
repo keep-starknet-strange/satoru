@@ -31,11 +31,6 @@ fn set_trader_referral_code(
     if (referral_code == 0) {
         return;
     }
-    // skip setting of the referral code if the user already has a referral code
-    if (referral_storage.trader_referral_codes(account) != 0) {
-        return;
-    }
-
     referral_storage.set_trader_referral_code(account, referral_code);
 }
 
