@@ -15,10 +15,8 @@ use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorag
 use satoru::mock::governable::{IGovernableDispatcher, IGovernableDispatcherTrait};
 use satoru::referral::referral_tier::ReferralTier;
 use satoru::referral::referral_utils;
-use satoru::role::role;
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::tests_lib;
-use satoru::utils::span32::{Span32, Array32Trait};
 
 // *********************************************************************************************
 // *                                      TEST LOGIC                                           *
