@@ -215,8 +215,6 @@ mod ReferralStorage {
             self.event_emitter.read().emit_set_referrer_tier(referrer, tier_id);
         }
 
-        // TODO: continue from here!
-
         fn set_referrer_discount_share(ref self: ContractState, discount_share: u128) {
             assert(discount_share <= BASIS_POINTS, MockError::INVALID_DISCOUNT_SHARE);
 
@@ -272,7 +270,7 @@ mod ReferralStorage {
         fn get_trader_referral_info(
             self: @ContractState, account: ContractAddress
         ) -> (felt252, ContractAddress) {
-            let mut code: felt252 = self.trader_referral_codes.read(account);
+            let mut code: felt252 = self.trader_referral_codes(account);
             let mut referrer = contract_address_const::<0>();
 
             if (code != 0) {
