@@ -29,9 +29,9 @@ mod MarketToken {
     use starknet::get_caller_address;
     use zeroable::Zeroable;
 
-    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::role::role;
     use satoru::bank::bank::{Bank, IBank};
+    use satoru::role::role_module::{RoleModule, IRoleModule};
 
     use super::IMarketToken;
 
@@ -41,7 +41,6 @@ mod MarketToken {
 
     #[storage]
     struct Storage {
-        role_store: IRoleStoreDispatcher,
         name: felt252,
         symbol: felt252,
         total_supply: u128,
@@ -80,7 +79,6 @@ mod MarketToken {
 
         let mut bank: Bank::ContractState = Bank::unsafe_new_contract_state();
         IBank::initialize(ref bank, data_store_address, role_store_address);
-        self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
     }
 
     //
@@ -141,13 +139,17 @@ mod MarketToken {
 
         fn mint(ref self: ContractState, recipient: ContractAddress, amount: u128) {
             // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            let mut role_module: RoleModule::ContractState =
+                RoleModule::unsafe_new_contract_state();
+            role_module.only_controller();
             self._mint(recipient, amount);
         }
 
         fn burn(ref self: ContractState, recipient: ContractAddress, amount: u128) {
             // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            let mut role_module: RoleModule::ContractState =
+                RoleModule::unsafe_new_contract_state();
+            role_module.only_controller();
             self._burn(recipient, amount);
         }
         fn transfer_out(
