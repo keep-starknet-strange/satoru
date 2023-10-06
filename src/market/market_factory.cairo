@@ -124,9 +124,11 @@ mod MarketFactory {
                 );
 
             // Deploy the `MarketToken` contract.
-            // Contructor arguments: [role_store_address].
-            let mut constructor_calldata = array![];
-            constructor_calldata.append(self.role_store.read().contract_address.into());
+            // Contructor arguments: [role_store_address, data_store_address].
+            let mut constructor_calldata = array![
+                self.role_store.read().contract_address.into(),
+                self.data_store.read().contract_address.into()
+            ];
             // Deploy the contract with the `deploy_syscall`.
             let (market_token_deployed_address, return_data) = deploy_syscall(
                 self.market_token_class_hash.read(), salt, constructor_calldata.span(), false
