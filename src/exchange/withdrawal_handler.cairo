@@ -176,7 +176,9 @@ mod WithdrawalHandler {
             global_reentrancy_guard::non_reentrant_before(data_store); // Initiates re-entrancy
 
             let starting_gas = starknet_utils::sn_gasleft(array![100]); // Returns 100 for now,
-            let withdrawal = data_store.get_withdrawal(key).unwrap(); // Panics if Option::None
+            let withdrawal = data_store
+                .get_withdrawal(key)
+                .expect('get_withdrawal failed'); // Panics if Option::None
 
             feature_utils::validate_feature(
                 data_store, keys::cancel_withdrawal_feature_disabled_key(get_contract_address())
@@ -243,7 +245,7 @@ mod WithdrawalHandler {
 
             self.execute_withdrawal_keeper(key, oracle_params_copy, get_caller_address());
 
-            oracle_modules::with_oracle_prices_after();
+            oracle_modules::with_oracle_prices_after(self.oracle.read());
 
             global_reentrancy_guard::non_reentrant_after(data_store); // Finalizes re-entrancy
         }

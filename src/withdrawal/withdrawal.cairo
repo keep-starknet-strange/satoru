@@ -41,22 +41,20 @@ struct Withdrawal {
     /// The block at which the withdrawal was last updated.
     updated_at_block: u64,
     /// The execution fee for the withdrawal.
-    execution_fee: u256,
+    execution_fee: u128,
     /// The gas limit for calling the callback contract.
     callback_gas_limit: u128,
-    /// whether to unwrap the native token
-    should_unwrap_native_token: bool,
 }
 
 impl DefaultWithdrawal of Default<Withdrawal> {
     fn default() -> Withdrawal {
         Withdrawal {
             key: 0,
-            account: 0.try_into().unwrap(),
-            receiver: 0.try_into().unwrap(),
-            callback_contract: 0.try_into().unwrap(),
-            ui_fee_receiver: 0.try_into().unwrap(),
-            market: 0.try_into().unwrap(),
+            account: contract_address_const::<0>(),
+            receiver: contract_address_const::<0>(),
+            callback_contract: contract_address_const::<0>(),
+            ui_fee_receiver: contract_address_const::<0>(),
+            market: contract_address_const::<0>(),
             long_token_swap_path: Default::default(),
             short_token_swap_path: Default::default(),
             market_token_amount: 0,
@@ -65,7 +63,6 @@ impl DefaultWithdrawal of Default<Withdrawal> {
             updated_at_block: 0,
             execution_fee: 0,
             callback_gas_limit: 0,
-            should_unwrap_native_token: true,
         }
     }
 }

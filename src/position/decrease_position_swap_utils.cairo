@@ -47,7 +47,6 @@ fn swap_withdrawn_collateral_to_pnl_token(
                     min_output_amount: 0,
                     receiver: params.market.market_token,
                     ui_fee_receiver: params.order.ui_fee_receiver,
-                    should_unwrap_native_token: false
                 }
             );
 
@@ -93,7 +92,6 @@ fn swap_profit_to_collateral_token(
                     min_output_amount: 0,
                     receiver: params.market.market_token,
                     ui_fee_receiver: params.order.ui_fee_receiver,
-                    should_unwrap_native_token: false
                 }
             );
         return (true, swap_output_amount);

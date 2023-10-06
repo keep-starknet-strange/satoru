@@ -18,11 +18,7 @@ trait IWithdrawalVault<TContractState> {
     fn initialize(ref self: TContractState, strict_bank_address: ContractAddress,);
     fn record_transfer_in(ref self: TContractState, token: ContractAddress) -> u128;
     fn transfer_out(
-        ref self: TContractState,
-        token: ContractAddress,
-        receiver: ContractAddress,
-        amount: u128,
-        should_unwrap_native_token: bool
+        ref self: TContractState, token: ContractAddress, receiver: ContractAddress, amount: u128,
     );
     fn sync_token_balance(ref self: TContractState, token: ContractAddress) -> u128;
 }
@@ -59,7 +55,7 @@ mod WithdrawalVault {
     /// # Arguments
     /// * `strict_bank_address` - The address of the strict bank contract.
     #[constructor]
-    fn constructor(ref self: ContractState, strict_bank_address: ContractAddress,) {
+    fn constructor(ref self: ContractState, strict_bank_address: ContractAddress) {
         self.initialize(strict_bank_address);
     }
 
@@ -90,7 +86,6 @@ mod WithdrawalVault {
             token: ContractAddress,
             receiver: ContractAddress,
             amount: u128,
-            should_unwrap_native_token: bool
         ) {}
 
         fn sync_token_balance(ref self: ContractState, token: ContractAddress) -> u128 {

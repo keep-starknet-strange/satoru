@@ -21,13 +21,20 @@ trait IOrderVault<TContractState> {
     fn transfer_out(
         ref self: TContractState, token: ContractAddress, receiver: ContractAddress, amount: u128,
     );
-
     /// Records a token transfer into the contract.
     /// # Arguments
     /// * `token` - The token address to transfer.
     /// # Returns
     /// * The amount of tokens transferred.
-    fn record_transfer_in(ref self: TContractState, token: ContractAddress) -> u256;
+    fn record_transfer_in(ref self: TContractState, token: ContractAddress) -> u128;
+    /// Updates the `token_balances` in case of token burns or similar balance changes.
+    /// The `prev_balance` is not validated to be more than the `next_balance` as this
+    /// could allow someone to block this call by transferring into the contract.
+    /// # Arguments
+    /// * `token` - The token to record the burn for.
+    /// # Returns
+    /// * The new balance.
+    fn sync_token_balance(ref self: TContractState, token: ContractAddress) -> u128;
 }
 
 #[starknet::contract]
@@ -77,12 +84,19 @@ mod OrderVault {
             token: ContractAddress,
             receiver: ContractAddress,
             amount: u128,
-        ) { // TODO
+        ) {
+            let mut state: StrictBank::ContractState = StrictBank::unsafe_new_contract_state();
+            IStrictBank::transfer_out(ref state, token, receiver, amount);
         }
 
-        fn record_transfer_in(ref self: ContractState, token: ContractAddress) -> u256 {
-            // TODO
-            0
+        fn sync_token_balance(ref self: ContractState, token: ContractAddress) -> u128 {
+            let mut state: StrictBank::ContractState = StrictBank::unsafe_new_contract_state();
+            IStrictBank::sync_token_balance(ref state, token)
+        }
+
+        fn record_transfer_in(ref self: ContractState, token: ContractAddress) -> u128 {
+            let mut state: StrictBank::ContractState = StrictBank::unsafe_new_contract_state();
+            IStrictBank::record_transfer_in(ref state, token)
         }
     }
 }
