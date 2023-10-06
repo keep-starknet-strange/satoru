@@ -215,6 +215,8 @@ mod ReferralStorage {
             self.event_emitter.read().emit_set_referrer_tier(referrer, tier_id);
         }
 
+        // TODO: continue from here!
+
         fn set_referrer_discount_share(ref self: ContractState, discount_share: u128) {
             assert(discount_share <= BASIS_POINTS, MockError::INVALID_DISCOUNT_SHARE);
 
