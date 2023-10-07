@@ -27,7 +27,6 @@ use alexandria_data_structures::array_ext::SpanTraitExt;
 fn process_order(params: ExecuteOrderParams) -> event_utils::LogData {
     market_utils::validate_position_market(params.contracts.data_store, params.market.market_token);
 
-
     let (collateral_token, collateral_increment_amount) = swap_utils::swap(
         @swap_utils::SwapParams {
             data_store: params.contracts.data_store,

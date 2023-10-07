@@ -299,7 +299,7 @@ fn execute_deposit_helper(params: @ExecuteDepositParams, _params: @_ExecuteDepos
             *_params.token_in,
             *_params.token_in_price.min,
             'deposit',
-            fees,
+            fees.clone(),
         );
 
     let market_pool_value_info = market_utils::get_pool_value_info(
