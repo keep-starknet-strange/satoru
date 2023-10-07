@@ -1,4 +1,5 @@
 mod MockError {
+    const ALREADY_INITIALIZED: felt252 = 'already_initialized';
     const INVALID_TOTAL_REBATE: felt252 = 'invalid total_rebate';
     const INVALID_DISCOUNT_SHARE: felt252 = 'invalid discount_share';
     const INVALID_CODE: felt252 = 'invalid code';
