@@ -89,11 +89,43 @@ fn given_receiver_is_contract_when_transfer_out_then_fails() {
     teardown(data_store, deposit_vault);
 }
 
-/// TODO: implement the tests when record_transfer_in is implemented
 #[test]
-#[should_panic(expected: ('NOT IMPLEMENTED YET',))]
 fn given_normal_conditions_when_record_transfer_in_then_works() {
-    assert(true == false, 'NOT IMPLEMENTED YET')
+    let (_, _, _, data_store, deposit_vault, erc20) = setup();
+
+    let initial_balance: u128 = u128_from_felt252(INITIAL_TOKENS_MINTED);
+    let tokens_received: u128 = deposit_vault.record_transfer_in(erc20.contract_address);
+    assert(tokens_received == initial_balance, 'should be initial balance');
+
+    teardown(data_store, deposit_vault);
+}
+
+#[test]
+fn given_less_balance_when_record_transfer_in_then_works() {
+    let (_, receiver_address, _, data_store, deposit_vault, erc20) = setup();
+
+    let initial_balance: u128 = u128_from_felt252(INITIAL_TOKENS_MINTED);
+    let tokens_received: u128 = deposit_vault.record_transfer_in(erc20.contract_address);
+    assert(tokens_received == initial_balance, 'should be initial balance');
+
+    let amount_to_throw: u128 = 250;
+    deposit_vault.transfer_out(erc20.contract_address, receiver_address, amount_to_throw);
+
+    let tokens_received: u128 = deposit_vault.record_transfer_in(erc20.contract_address);
+    assert(tokens_received == 0, 'should be zero');
+
+    teardown(data_store, deposit_vault);
+}
+
+#[test]
+#[should_panic(expected: ('unauthorized_access',))]
+fn given_caller_is_not_controller_when_record_transfer_in_then_fails() {
+    let (caller_address, _, role_store, data_store, deposit_vault, erc20) = setup();
+
+    role_store.revoke_role(caller_address, role::CONTROLLER);
+    deposit_vault.record_transfer_in(erc20.contract_address);
+
+    teardown(data_store, deposit_vault);
 }
 
 // *********************************************************************************************
