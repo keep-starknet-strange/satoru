@@ -203,9 +203,7 @@ fn execute_deposit(params: ExecuteDepositParams) {
         };
 
         cache.received_market_tokens += execute_deposit_helper(@params, @_params);
-    }
-
-    else if cache.short_token_amount > 0 {
+    } else if cache.short_token_amount > 0 {
         let _params = _ExecuteDepositParams {
             market: market,
             account: deposit.account,
