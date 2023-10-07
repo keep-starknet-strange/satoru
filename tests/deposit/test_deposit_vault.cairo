@@ -10,7 +10,7 @@ use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
     ClassHash,
 };
-use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
+use snforge_std::{declare, start_prank, stop_prank, start_mock_call, ContractClassTrait};
 use traits::{TryInto, Into};
 
 // Local imports.
@@ -101,7 +101,25 @@ fn given_normal_conditions_when_record_transfer_in_then_works() {
 }
 
 #[test]
-fn given_less_balance_when_record_transfer_in_then_works() {
+fn given_more_balance_when_2nd_record_transfer_in_then_works() {
+    let (_, receiver_address, _, data_store, deposit_vault, erc20) = setup();
+
+    let initial_balance: u128 = u128_from_felt252(INITIAL_TOKENS_MINTED);
+    let tokens_received: u128 = deposit_vault.record_transfer_in(erc20.contract_address);
+    assert(tokens_received == initial_balance, 'should be initial balance');
+
+    let tokens_transfered: u128 = 250;
+    let mock_balance_with_more_tokens: u256 = (initial_balance + tokens_transfered).into();
+    start_mock_call(erc20.contract_address, 'balance_of', mock_balance_with_more_tokens);
+
+    let tokens_received: u128 = deposit_vault.record_transfer_in(erc20.contract_address);
+    assert(tokens_received == tokens_transfered, 'should be zero');
+
+    teardown(data_store, deposit_vault);
+}
+
+#[test]
+fn given_less_balance_when_2nd_record_transfer_in_then_works() {
     let (_, receiver_address, _, data_store, deposit_vault, erc20) = setup();
 
     let initial_balance: u128 = u128_from_felt252(INITIAL_TOKENS_MINTED);
