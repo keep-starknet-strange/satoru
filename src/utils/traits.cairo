@@ -1,8 +1,8 @@
-use starknet::ContractAddress;
+use starknet::{ContractAddress, contract_address_const};
 
 impl ContractAddressDefault of Default<ContractAddress> {
     #[inline(always)]
     fn default() -> ContractAddress {
-        0.try_into().unwrap()
+        contract_address_const::<0>()
     }
 }

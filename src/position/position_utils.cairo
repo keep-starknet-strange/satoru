@@ -4,27 +4,30 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
+use starknet::{ContractAddress, contract_address_const};
 use poseidon::poseidon_hash_span;
 // Local imports.
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::market::{market::Market, market_utils::MarketPrices, market_utils};
-use satoru::data::keys;
 use satoru::position::{position::Position, error::PositionError};
 use satoru::pricing::{
     position_pricing_utils, position_pricing_utils::PositionFees,
     position_pricing_utils::GetPriceImpactUsdParams, position_pricing_utils::GetPositionFeesParams
 };
-use satoru::order::order::{Order, SecondaryOrderType};
+use satoru::order::{
+    order::{Order, SecondaryOrderType}, base_order_utils::ExecuteOrderParamsContracts,
+    order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}
+};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::order::base_order_utils::ExecuteOrderParamsContracts;
 use satoru::price::price::{Price, PriceTrait};
-use satoru::utils::{calc, precision, i128::{I128Store, I128Serde, I128Div, I128Mul}};
+use satoru::utils::{
+    calc, precision, i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default},
+    default::DefaultContractAddress, error_utils
+};
 use satoru::referral::referral_utils;
-use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
 
 /// Struct used in increasePosition and decreasePosition.
 #[derive(Drop, Copy, starknet::Store, Serde)]
@@ -47,16 +50,15 @@ struct UpdatePositionParams {
 
 impl DefaultUpdatePositionParams of Default<UpdatePositionParams> {
     fn default() -> UpdatePositionParams {
+        let contract_address = contract_address_const::<0>();
         UpdatePositionParams {
             contracts: ExecuteOrderParamsContracts {
-                data_store: IDataStoreDispatcher { contract_address: 0.try_into().unwrap() },
-                event_emitter: IEventEmitterDispatcher { contract_address: 0.try_into().unwrap() },
-                order_vault: IOrderVaultDispatcher { contract_address: 0.try_into().unwrap() },
-                oracle: IOracleDispatcher { contract_address: 0.try_into().unwrap() },
-                swap_handler: ISwapHandlerDispatcher { contract_address: 0.try_into().unwrap() },
-                referral_storage: IReferralStorageDispatcher {
-                    contract_address: 0.try_into().unwrap()
-                }
+                data_store: IDataStoreDispatcher { contract_address },
+                event_emitter: IEventEmitterDispatcher { contract_address },
+                order_vault: IOrderVaultDispatcher { contract_address },
+                oracle: IOracleDispatcher { contract_address },
+                swap_handler: ISwapHandlerDispatcher { contract_address },
+                referral_storage: IReferralStorageDispatcher { contract_address }
             },
             market: Default::default(),
             order: Default::default(),
@@ -78,7 +80,7 @@ struct WillPositionCollateralBeSufficientValues {
 }
 
 /// Struct used as decrease_position_collateral output.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Drop, starknet::Store, Serde, Default, Copy)]
 struct DecreasePositionCollateralValuesOutput {
     /// The output token address.
     output_token: ContractAddress,
@@ -91,7 +93,7 @@ struct DecreasePositionCollateralValuesOutput {
 }
 
 /// Struct used to contain the values in process_collateral
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Drop, starknet::Store, Serde, Default, Copy)]
 struct DecreasePositionCollateralValues {
     /// The order execution price.
     execution_price: u128,
@@ -111,7 +113,7 @@ struct DecreasePositionCollateralValues {
     output: DecreasePositionCollateralValuesOutput
 }
 
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Copy, Drop, starknet::Store, Serde)]
 struct DecreasePositionCache {
     /// The prices of the tokens in the market.
     prices: MarketPrices,
@@ -193,8 +195,8 @@ impl DefaultGetPositionPnlUsdCache of Default<GetPositionPnlUsdCache> {
         GetPositionPnlUsdCache {
             position_value: 0,
             total_position_pnl: 0,
-            uncapped_total_position_pnl: 0.try_into().unwrap(),
-            pnl_token: 0.try_into().unwrap(),
+            uncapped_total_position_pnl: 0.try_into().expect('felt252 into i128 failed'),
+            pnl_token: contract_address_const::<0>(),
             pool_token_amount: 0,
             pool_token_price: 0,
             pool_token_usd: 0,
@@ -220,6 +222,23 @@ impl DefaultIsPositionLiquidatableCache of Default<IsPositionLiquidatableCache> 
             min_collateral_usd: 0,
             min_collateral_usd_for_leverage: 0,
             remaining_collateral_usd: 0
+        }
+    }
+}
+
+impl DefaultDecreasePositionCache of Default<DecreasePositionCache> {
+    fn default() -> DecreasePositionCache {
+        DecreasePositionCache {
+            prices: Default::default(),
+            estimated_position_pnl_usd: 0,
+            estimated_realized_pnl_usd: 0,
+            estimated_remaining_pnl_usd: 0,
+            pnl_token: Default::default(),
+            pnl_token_price: Default::default(),
+            collateral_token_price: Default::default(),
+            initial_collateral_amount: Default::default(),
+            next_position_size_in_usd: Default::default(),
+            next_position_borrowing_factor: Default::default(),
         }
     }
 }
@@ -318,6 +337,7 @@ fn get_position_pnl_usd(
                         position.size_in_tokens * size_delta_usd, position.size_in_usd
                     );
         } else {
+            error_utils::check_division_by_zero(position.size_in_usd, 'position.size_in_usd');
             cache.size_delta_in_tokens = position.size_in_tokens
                 * size_delta_usd
                 / position.size_in_usd;
@@ -487,7 +507,7 @@ fn is_position_liquiditable(
         long_token: market.long_token,
         short_token: market.short_token,
         size_delta_usd: position.size_in_usd,
-        ui_fee_receiver: 0.try_into().unwrap(),
+        ui_fee_receiver: contract_address_const::<0>(),
     };
     let fees = position_pricing_utils::get_position_fees(pos_fees_params);
     // the totalCostAmount is in tokens, use collateralTokenPrice.min to calculate the cost in USD

@@ -2,8 +2,8 @@
 //! This is particularly for markets with an index token that is different from
 //! the long token.
 //!
-//! For example, if there is a DOGE / USD perp market with ETH as the long token
-//! it would be possible for the price of DOGE to increase faster than the price of
+//! For example, if there is a STRK / USD perp market with ETH as the long token
+//! it would be possible for the price of STRK to increase faster than the price of
 //! ETH.
 //!
 //! In this scenario, profitable positions should be closed through ADL to ensure
@@ -13,7 +13,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::{get_caller_address, ContractAddress};
+use starknet::{get_caller_address, ContractAddress, contract_address_const};
 use integer::BoundedInt;
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -172,7 +172,7 @@ fn create_adl_order(params: CreateAdlOrderParams) -> felt252 {
         callback_contract: get_saved_callback_contract(
             params.data_store, params.account, params.market
         ),
-        ui_fee_receiver: 0.try_into().unwrap(),
+        ui_fee_receiver: contract_address_const::<0>(),
         market: params.market,
         initial_collateral_token: position.collateral_token,
         swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
@@ -185,7 +185,7 @@ fn create_adl_order(params: CreateAdlOrderParams) -> felt252 {
             .data_store
             .get_felt252(keys::max_callback_gas_limit())
             .try_into()
-            .unwrap(),
+            .expect('get_felt252 into u128 failed'),
         min_output_amount: 0,
         updated_at_block: params.updated_at_block,
         is_long: position.is_long,
@@ -228,7 +228,10 @@ fn validate_adl(
 fn get_latest_adl_block(
     data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
 ) -> u64 {
-    data_store.get_u128(keys::latest_adl_block_key(market, is_long)).try_into().unwrap()
+    data_store
+        .get_u128(keys::latest_adl_block_key(market, is_long))
+        .try_into()
+        .expect('get_u128 into u64 failed')
 }
 
 /// Set the latest block at which the ADL flag was updated.

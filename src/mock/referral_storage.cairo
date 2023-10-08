@@ -3,7 +3,6 @@
 // *************************************************************************
 //                                  IMPORTS
 // *************************************************************************
-
 // Core lib imports.
 use starknet::ContractAddress;
 
@@ -11,7 +10,7 @@ use starknet::ContractAddress;
 use satoru::referral::referral_tier::ReferralTier;
 
 // *************************************************************************
-//                  Interface of the `OracleStore` contract.
+//                  Interface of the `ReferralStorage` contract.
 // *************************************************************************
 #[starknet::interface]
 trait IReferralStorage<TContractState> {
@@ -122,7 +121,7 @@ mod ReferralStorage {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::{get_caller_address, ContractAddress};
+    use starknet::{get_caller_address, ContractAddress, contract_address_const};
     use result::ResultTrait;
 
     // Local imports.
@@ -240,7 +239,8 @@ mod ReferralStorage {
         fn register_code(ref self: ContractState, code: felt252) {
             assert(code != 0, MockError::INVALID_CODE);
             assert(
-                self.code_owners.read(code) == 0.try_into().unwrap(), MockError::CODE_ALREADY_EXISTS
+                self.code_owners.read(code) == contract_address_const::<0>(),
+                MockError::CODE_ALREADY_EXISTS
             );
 
             self.code_owners.write(code, get_caller_address());
@@ -270,8 +270,8 @@ mod ReferralStorage {
         fn get_trader_referral_info(
             self: @ContractState, account: ContractAddress
         ) -> (felt252, ContractAddress) {
-            let mut code: felt252 = self.trader_referral_codes.read(account);
-            let mut referrer: ContractAddress = 0.try_into().unwrap();
+            let mut code: felt252 = self.trader_referral_codes(account);
+            let mut referrer = contract_address_const::<0>();
 
             if (code != 0) {
                 referrer = self.code_owners.read(code);

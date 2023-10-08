@@ -4,7 +4,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use starknet::ContractAddress;
+use starknet::{ContractAddress, contract_address_const};
 use result::ResultTrait;
 
 // Local imports.
@@ -74,7 +74,7 @@ fn get_referral_info(
     referral_storage: IReferralStorageDispatcher, trader: ContractAddress
 ) -> (felt252, ContractAddress, u128, u128) {
     let code: felt252 = referral_storage.trader_referral_codes(trader);
-    let mut affiliate: ContractAddress = 0.try_into().unwrap();
+    let mut affiliate = contract_address_const::<0>();
     let mut total_rebate: u128 = 0;
     let mut discount_share: u128 = 0;
     if (code != 0) {
@@ -123,8 +123,8 @@ fn claim_affiliate_reward(
     let next_pool_value: u128 = data_store
         .decrement_u128(keys::affiliate_reward_key(market, token), reward_amount);
 
-    //TODO Call this when its implemented
-    // IMarketTokenDispatcher { contract_address: market }.transfer_out(token, receiver, reward_amount);
+    IMarketTokenDispatcher { contract_address: market }
+        .transfer_out(token, receiver, reward_amount);
 
     market_utils::validate_market_token_balance_with_address(data_store, market);
 

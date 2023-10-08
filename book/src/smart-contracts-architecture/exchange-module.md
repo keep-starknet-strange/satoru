@@ -1,17 +1,21 @@
-# Exchange module
+# Exchange Module
 
-The exchange module contains main satoru handlers to create and execute actions.
+The Exchange module contains the core functionalities of the Satoru protocol, handling the creation, execution, and cancellation of various actions.
 
-It contains the following smart contracts:
+## Smart Contracts
 
-- [AdlHandler](https://github.com/keep-starknet-strange/satoru/blob/main/src/exchange/adl_handler.cairo): Contract to handle adl.
-- [BaseOrderHandler](https://github.com/keep-starknet-strange/satoru/blob/main/src/exchange/base_order_handler.cairo): Base contract for shared order handler functions.
-- [DepositHandler](https://github.com/keep-starknet-strange/satoru/blob/main/src/exchange/deposit_handler.cairo): Contract to handle creation, execution and cancellation of deposits.
-- [LiquidationHandler](https://github.com/keep-starknet-strange/satoru/blob/main/src/exchange/liquidation_handler.cairo): Contract to handle liquidation.
-- [OrderHandler](https://github.com/keep-starknet-strange/satoru/blob/main/src/exchange/order_handler.cairo): Contract to handle creation, execution and cancellation of orders.
-- [WithdrawalHandler](https://github.com/keep-starknet-strange/satoru/blob/main/src/exchange/withdrawal_handler.cairo): Contract to handle creation, execution and cancellation of withdrawals.
+The module comprises the following smart contracts:
 
-It contains the following Cairo library files:
+- [AdlHandler](https://github.com/keep-starknet-strange/satoru/blob/main/src/exchange/adl_handler.cairo): This contract manages the ADL (Automatic Deleveraging) process.
+- [BaseOrderHandler](https://github.com/keep-starknet-strange/satoru/blob/main/src/exchange/base_order_handler.cairo): A base contract encapsulating shared functionalities for order handling.
+- [DepositHandler](https://github.com/keep-starknet-strange/satoru/blob/main/src/exchange/deposit_handler.cairo): Manages the creation, execution, and cancellation of deposit requests.
+- [LiquidationHandler](https://github.com/keep-starknet-strange/satoru/blob/main/src/exchange/liquidation_handler.cairo): Handles the liquidation process.
+- [OrderHandler](https://github.com/keep-starknet-strange/satoru/blob/main/src/exchange/order_handler.cairo): Manages the creation, execution, and cancellation of orders.
+- [WithdrawalHandler](https://github.com/keep-starknet-strange/satoru/blob/main/src/exchange/withdrawal_handler.cairo): Handles the creation, execution, and cancellation of withdrawal requests.
 
-- [error.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/exchange/error.cairo): Contains the error codes of the module.
-- [exchange_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/exchange/withdrawal_event_utils.cairo): Contains request validation utility function.
+## Libraries
+
+The module also includes the following library files for utility and error handling:
+
+- [error.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/exchange/error.cairo): Contains the module's error codes encapsulated as `ExchangeError`.
+- [exchange_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/exchange/withdrawal_event_utils.cairo): Provides request validation utility functions.

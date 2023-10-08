@@ -17,7 +17,7 @@ fn sn_gasleft(params: Array<felt252>) -> u128 {
 
     let value: felt252 = *params.at(0);
 
-    let result: u128 = value.try_into().unwrap();
+    let result: u128 = value.try_into().expect('felt252 into u128 failed');
 
     result
 }
@@ -32,7 +32,7 @@ fn sn_gasprice(params: Array<felt252>) -> u128 {
 
     let value: felt252 = *params.at(0);
 
-    let result: u128 = value.try_into().unwrap();
+    let result: u128 = value.try_into().expect('felt252 into u128 failed');
 
     result
 }

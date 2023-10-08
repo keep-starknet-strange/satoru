@@ -66,12 +66,12 @@ impl DefaultOrder of Default<Order> {
             key: 0,
             decrease_position_swap_type: DecreasePositionSwapType::NoSwap,
             order_type: OrderType::MarketSwap,
-            account: 0.try_into().unwrap(),
-            receiver: 0.try_into().unwrap(),
-            callback_contract: 0.try_into().unwrap(),
-            ui_fee_receiver: 0.try_into().unwrap(),
-            market: 0.try_into().unwrap(),
-            initial_collateral_token: 0.try_into().unwrap(),
+            account: contract_address_const::<0>(),
+            receiver: contract_address_const::<0>(),
+            callback_contract: contract_address_const::<0>(),
+            ui_fee_receiver: contract_address_const::<0>(),
+            market: contract_address_const::<0>(),
+            initial_collateral_token: contract_address_const::<0>(),
             swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
             size_delta_usd: 0,
             initial_collateral_delta_amount: 0,
@@ -119,8 +119,9 @@ enum OrderType {
 }
 
 /// To help further differentiate orders.
-#[derive(Drop, Copy, starknet::Store, Serde)]
+#[derive(Drop, starknet::Store, Serde, PartialEq, Copy, Default)]
 enum SecondaryOrderType {
+    #[default]
     None,
     Adl,
 }
