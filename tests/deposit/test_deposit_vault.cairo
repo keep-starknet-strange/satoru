@@ -108,12 +108,12 @@ fn given_more_balance_when_2nd_record_transfer_in_then_works() {
     let tokens_received: u128 = deposit_vault.record_transfer_in(erc20.contract_address);
     assert(tokens_received == initial_balance, 'should be initial balance');
 
-    let tokens_transfered: u128 = 250;
-    let mock_balance_with_more_tokens: u256 = (initial_balance + tokens_transfered).into();
+    let tokens_transfered_in: u128 = 250;
+    let mock_balance_with_more_tokens: u256 = (initial_balance + tokens_transfered_in).into();
     start_mock_call(erc20.contract_address, 'balance_of', mock_balance_with_more_tokens);
 
     let tokens_received: u128 = deposit_vault.record_transfer_in(erc20.contract_address);
-    assert(tokens_received == tokens_transfered, 'incorrect received amount');
+    assert(tokens_received == tokens_transfered_in, 'incorrect received amount');
 
     teardown(data_store, deposit_vault);
 }
@@ -126,8 +126,9 @@ fn given_less_balance_when_2nd_record_transfer_in_then_works() {
     let tokens_received: u128 = deposit_vault.record_transfer_in(erc20.contract_address);
     assert(tokens_received == initial_balance, 'should be initial balance');
 
-    let amount_to_throw: u128 = 250;
-    deposit_vault.transfer_out(erc20.contract_address, receiver_address, amount_to_throw);
+    let tokens_transfered_out: u128 = 250;
+    let mock_balance_with_less_tokens: u256 = (initial_balance - tokens_transfered_out).into();
+    start_mock_call(erc20.contract_address, 'balance_of', mock_balance_with_less_tokens);
 
     let tokens_received: u128 = deposit_vault.record_transfer_in(erc20.contract_address);
     assert(tokens_received == 0, 'should be zero');

@@ -7,6 +7,7 @@
 // Core lib imports.
 use traits::{Into, TryInto};
 use starknet::{ContractAddress, get_contract_address};
+use integer::u128_sub;
 
 // *************************************************************************
 //                  Interface of the `StrictBank` contract.
@@ -172,7 +173,11 @@ mod StrictBank {
                 .try_into()
                 .unwrap();
             self.token_balances.write(token, next_balance);
-            next_balance - prev_balance
+            if next_balance >= prev_balance {
+                next_balance - prev_balance
+            } else {
+                0
+            }
         }
     }
 }
