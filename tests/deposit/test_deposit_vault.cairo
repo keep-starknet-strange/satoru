@@ -102,7 +102,7 @@ fn given_normal_conditions_when_record_transfer_in_then_works() {
 
 #[test]
 fn given_more_balance_when_2nd_record_transfer_in_then_works() {
-    let (_, receiver_address, _, data_store, deposit_vault, erc20) = setup();
+    let (_, _, _, data_store, deposit_vault, erc20) = setup();
 
     let initial_balance: u128 = u128_from_felt252(INITIAL_TOKENS_MINTED);
     let tokens_received: u128 = deposit_vault.record_transfer_in(erc20.contract_address);
@@ -121,7 +121,7 @@ fn given_more_balance_when_2nd_record_transfer_in_then_works() {
 #[test]
 #[should_panic(expected: ('u128_sub Overflow',))]
 fn given_less_balance_when_2nd_record_transfer_in_then_fails() {
-    let (_, receiver_address, _, data_store, deposit_vault, erc20) = setup();
+    let (_, _, _, data_store, deposit_vault, erc20) = setup();
 
     let initial_balance: u128 = u128_from_felt252(INITIAL_TOKENS_MINTED);
     let tokens_received: u128 = deposit_vault.record_transfer_in(erc20.contract_address);
