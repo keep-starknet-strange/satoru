@@ -315,9 +315,8 @@ mod ExchangeRouter {
                     panic_with_felt252(RouterError::DEPOSIT_NOT_VALID)
                 }
             };
-
-            if (deposit.account == 0.try_into().unwrap()) {
-                RouterError::EMPTY_DEPOSIT
+            if (deposit.account == contract_address_const::<0>()) {
+                panic_with_felt252(RouterError::EMPTY_DEPOSIT)
             }
 
             if (deposit.account != get_caller_address()) {
@@ -349,7 +348,7 @@ mod ExchangeRouter {
             let withdrawal_result = data_store.get_withdrawal(key);
             let mut withdrawal: Withdrawal = Default::default();
 
-            // Check if the deposit is valid
+            // Check if the withdrawal is valid
             match withdrawal_result {
                 Option::Some(withd) => {
                     withdrawal = withd;
@@ -360,7 +359,7 @@ mod ExchangeRouter {
             };
 
             if (withdrawal.account != get_caller_address()) {
-                RouterError::UNAUTHORIZED(get_caller_address(), "account for cancel_withdrawal")
+                RouterError::UNAUTHORIZED(get_caller_address(), 'account for cancel_withdrawal')
             }
 
             self.withdrawal_handler.read().cancel_withdrawal(key);
@@ -444,7 +443,7 @@ mod ExchangeRouter {
             let order_result = data_store.get_order(key);
             let mut order: Order = Default::default();
 
-            // Check if the deposit is valid
+            // Check if the order is valid
             match order_result {
                 Option::Some(ord) => {
                     order = ord;
@@ -474,7 +473,7 @@ mod ExchangeRouter {
             let order_result = data_store.get_order(key);
             let mut order: Order = Default::default();
 
-            // Check if the deposit is valid
+            // Check if the order is valid
             match order_result {
                 Option::Some(ord) => {
                     order = ord;
@@ -483,9 +482,8 @@ mod ExchangeRouter {
                     panic_with_felt252(RouterError::ORDER_NOT_VALID);
                 }
             };
-
             if (order.account != contract_address_const::<0>()) {
-                RouterError::EMPTY_ORDER
+                panic_with_felt252(RouterError::EMPTY_ORDER)
             }
 
             if (order.account != get_caller_address()) {
