@@ -13,6 +13,9 @@ mod OrderError {
     const PRICE_IMPACT_LARGER_THAN_ORDER_SIZE: felt252 =
         'price_impact_too_large'; // TODO: unshorten value
     const EMPTY_SIZE_DELTA_IN_TOKENS: felt252 = 'empty_size_delta_in_tokens';
+    const INVALID_SIZE_DELTA_FOR_ADL: felt252 = 'invalid_size_delta_for_adl';
+    const POSTION_NOT_VALID: felt252 = 'position_not_valid';
+
 
     fn ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(
         min_oracle_block_numbers: Span<u64>, latest_updated_at_block: u64

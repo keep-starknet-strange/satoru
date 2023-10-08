@@ -19,6 +19,11 @@ use satoru::position::position_utils;
 use satoru::position::position::Position;
 use satoru::swap::swap_utils::{SwapParams};
 use satoru::position::position_utils::UpdatePositionParams;
+use satoru::event::event_utils::LogData;
+use satoru::event::event_utils;
+use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
+use satoru::utils::span32::{Span32, Array32Trait};
+use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 
 
 // This function should return an EventLogData cause the callback_utils
@@ -27,59 +32,50 @@ use satoru::position::position_utils::UpdatePositionParams;
 fn process_order(params: ExecuteOrderParams) { //TODO check with refactor with callback_utils
     let order: Order = params.order;
 
-    // market_utils::validate_position_market(params.contracts.data_store, params.market);
+    market_utils::validate_position_market_check(params.contracts.data_store, params.market);
 
     let position_key: felt252 = position_utils::get_position_key(order.account, order.market, order.initial_collateral_token, order.is_long);
 
     let data_store: IDataStoreDispatcher = params.contracts.data_store;
-    let position: Option<Position> = data_store.get_position(position_key);
+    let position_result = data_store.get_position(position_key);
+    let mut position: Position = Default::default();
 
-    match position {
-        Option::Some(data) => {
-            ();
+    match position_result {
+        Option::Some(pos) => {
+            position = pos;
         },
         Option::None => {
-            //panic;
+            panic_with_felt252(OrderError::POSTION_NOT_VALID);
         }
     }
 
-    let positions: Position = position.unwrap(); //CHANGE UNWRAP TO EXPECT
+    position_utils::validate_non_empty_position(position);
 
-    position_utils::validate_non_empty_position(positions);
+    validate_oracle_block_numbers(params.min_oracle_block_numbers.span(), params.max_oracle_block_numbers.span(), order.order_type, order.updated_at_block, position.increased_at_block, position.decreased_at_block);
 
-    validate_oracle_block_numbers(params.min_oracle_block_numbers, params.max_oracle_block_numbers, order.order_type, order.updated_at_block, positions.increased_at_block, positions.decreased_at_block);
-
-    let update_position_params: UpdatePositionParams = UpdatePositionParams {
+    let mut update_position_params: UpdatePositionParams = UpdatePositionParams {
         contracts: params.contracts,
         market: params.market,
         order: order,
         order_key: params.key,
-        position: positions,
+        position: position,
         position_key,
         secondary_order_type: params.secondary_order_type
     };
 
-    let result: DecreasePositionResult = decrease_position_utils::decrease_position(update_position_params);
+    let mut result: DecreasePositionResult = decrease_position_utils::decrease_position(ref update_position_params);
 
     if (result.secondary_output_amount > 0) {
         validate_output_amount_secondary(params.contracts.oracle,
         result.output_token, result.output_amount, result.secondary_output_token, result.secondary_output_amount, order.min_output_amount);
 
-            // MarketToken(payable(order.market())).transferOut(
-            //     result.outputToken,
-            //     order.receiver(),
-            //     result.outputAmount,
-            //     order.shouldUnwrapNativeToken()
-            // );
+        IMarketTokenDispatcher { contract_address: order.market }
+        .transfer_out(result.output_token, order.receiver, result.output_amount);
 
-            // MarketToken(payable(order.market())).transferOut(
-            //     result.secondaryOutputToken,
-            //     order.receiver(),
-            //     result.secondaryOutputAmount,
-            //     order.shouldUnwrapNativeToken()
-            // );    }
+        IMarketTokenDispatcher { contract_address: order.market }
+        .transfer_out(result.secondary_output_token, order.receiver, result.secondary_output_amount);
 
-        return get_output_event_data(result.output_token, result.output_amount, result.secondary_output_token, result.secondary_output_amount);
+        // return get_output_event_data(result.output_token, result.output_amount, result.secondary_output_token, result.secondary_output_amount);
     }
 
     let swap_param: SwapParams = SwapParams {
@@ -87,25 +83,21 @@ fn process_order(params: ExecuteOrderParams) { //TODO check with refactor with c
         event_emitter: params.contracts.event_emitter,
         oracle: params.contracts.oracle,
         bank: IBankDispatcher { contract_address: order.market },
-                        // Bank(payable(order.market())),
         key: params.key,
         token_in: result.output_token,
         amount_in: result.output_amount,
-        swap_path_markets: params.swap_path_markets,
+        swap_path_markets: params.swap_path_markets.span(),
+        min_output_amount: 0,
         receiver: order.receiver,
         ui_fee_receiver: order.ui_fee_receiver,
     };
 
-    params.contracts.swap_handler.swap(swap_param);
+    let (token_out, swap_output_amount) = params.contracts.swap_handler.swap(swap_param);
 
-    let (token_out, swap_output_amount) = validate_output_amount(params.contracts.oracle, token_out);
+    validate_output_amount(params.contracts.oracle, token_out, swap_output_amount, order.min_output_amount);
 
-    validate_output_amount(params.contracts.oracle, token_out, swap_out_amount, order.min_output_amount);
-
-    return get_output_event_data(token_out, swap_out_amount, try_into().unwrap(), 0);
+    // return get_output_event_data(token_out, swap_output_amount, contract_address_const::<0>(), 0);
     
-    //NEED TO ADD THE CATCH!
-
 }
 
 
@@ -119,8 +111,8 @@ fn process_order(params: ExecuteOrderParams) { //TODO check with refactor with c
 /// * `position_decrease_at_block` - The block at which the position was last decreased.
 #[inline(always)]
 fn validate_oracle_block_numbers(
-    min_oracle_block_numbers: Array<u64>,
-    max_oracle_block_numbers: Array<u64>,
+    min_oracle_block_numbers: Span<u64>,
+    max_oracle_block_numbers: Span<u64>,
     order_type: OrderType,
     order_updated_at_block: u64,
     position_increased_at_block: u64,
@@ -212,8 +204,9 @@ fn handle_swap_error(
     validate_output_amount(
         oracle, result.output_token, result.output_amount, order.min_output_amount
     );
-//TODO Call this when its implemented
-//Need to call transfer_out function when its implemented
+
+    IMarketTokenDispatcher { contract_address: order.market }
+    .transfer_out(result.output_token, order.receiver, result.output_amount);
 }
 
 // This function should return an EventLogData cause the callback_utils
@@ -223,6 +216,25 @@ fn get_output_event_data(
     output_amount: u128,
     secondary_output_token: ContractAddress,
     secondary_output_amount: u128
-) { //TODO check with refactor with callback_utils
-    //ASK BORA
+) -> event_utils::LogData {
+    let address_items: event_utils::AddressItems = Default::default();
+
+    let mut uint_items: event_utils::UintItems = Default::default();
+
+    event_utils::set_item_address_items(address_items, 0, "outputToken", output_token);
+    event_utils::set_item_address_items(address_items, 1, "secondaryOutputToken", secondary_output_token);
+
+    event_utils::set_item_uint_items(uint_items, 0, "outputToken", output_amount);
+    event_utils::set_item_uint_items(uint_items, 1, "secondary_output_amount", secondary_output_amount);
+
+    event_utils::LogData {
+        address_items,
+        uint_items,
+        int_items: Default::default(),
+        bool_items: Default::default(),
+        felt252_items: Default::default(),
+        array_of_felt_items: Default::default(),
+        string_items: Default::default(),
+    }
+
 }
