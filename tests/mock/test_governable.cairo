@@ -118,6 +118,9 @@ fn setup_with_other_address() -> (
 
 //TODO add more tests
 
+// This test checks the 'only_gov' function under normal conditions.
+// It sets up the environment with the correct initial governance, then calls `only_gov`.
+// The test expects the call to succeed without any errors.
 #[test]
 fn given_normal_conditions_when_only_gov_then_works() {
     let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =
@@ -126,6 +129,9 @@ fn given_normal_conditions_when_only_gov_then_works() {
     teardown(data_store.contract_address);
 }
 
+// This test checks the `only_gov` function when the governance condition is not met.
+// It sets up the environment with a different governance, then calls `only_gov`.
+// The test expects the call to panic with the error 'Unauthorized gov caller'.
 #[test]
 #[should_panic(expected: ('Unauthorized gov caller',))]
 fn given_forbidden_when_only_gov_then_fails() {
@@ -135,11 +141,91 @@ fn given_forbidden_when_only_gov_then_fails() {
     teardown(data_store.contract_address);
 }
 
+// This test checks the `transfer_ownership` function under normal conditions.
+// It sets up the environment with the correct initial governance, then calls `transfer_ownership`
+// with a new governance address.
+// The test expects the call to succeed and the ownership to be transferred without any errors.
 #[test]
 fn given_normal_conditions_when_transfer_ownership_then_works() {
     let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =
         setup();
     let new_caller_address: ContractAddress = 0x102.try_into().unwrap();
     governable.transfer_ownership(new_caller_address);
+    teardown(data_store.contract_address);
+}
+
+/// This test case verifies the `transfer_ownership` function behavior when called by an unauthorized address.
+/// The expected outcome is a panic with the error message "Unauthorized gov caller" which corresponds
+/// to the `UNAUTHORIZED_GOV` error in the `MockError` module.
+#[test]
+#[should_panic(expected: ('Unauthorized gov caller',))]
+fn given_unauthorized_caller_when_transfer_ownership_then_fails() {
+    // Setup the environment with a different caller address.
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =
+        setup_with_other_address();
+    
+    // Try to transfer ownership to a new address.
+    let new_uncaller_address: ContractAddress = 0x102.try_into().unwrap();
+    governable.transfer_ownership(new_uncaller_address);
+    teardown(data_store.contract_address);
+}
+
+/// This test checks the `accept_ownership` function under normal conditions.
+/// It sets up the environment with the correct initial governance, then calls `transfer_ownership`
+/// to a new governance address, followed by `accept_ownership` from the new governance address.
+/// The test expects the call to succeed and the ownership to be accepted without any errors.
+#[test]
+fn given_normal_conditions_when_accept_ownership_then_works() {
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =
+        setup();
+    let new_caller_address: ContractAddress = 0x102.try_into().unwrap();
+
+    // Transfer the ownership to the new address.
+    governable.transfer_ownership(new_caller_address);
+
+    // Update the prank context to the new governance address, to simulate the new governor accepting the ownership.
+    start_prank(governable.contract_address, new_caller_address);
+
+    // Now call accept_ownership from the new governance address.
+    governable.accept_ownership();
+    teardown(data_store.contract_address);
+}
+
+/// This test checks the `accept_ownership` function under abnormal conditions.
+/// It sets up the environment with the correct initial governance, then calls `transfer_ownership`
+/// to a new governance address. However, `accept_ownership` is then called from an unauthorized address.
+/// The test expects the call to panic with the error 'Unauthorized pending_gov caller'.
+#[test]
+#[should_panic(expected: ('Unauthorized pending_gov caller',))]
+fn given_abnormal_conditions_when_accept_ownership_then_fails() {
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =
+        setup();
+    let new_caller_address: ContractAddress = 0x102.try_into().unwrap();
+    let unauthorized_address: ContractAddress = 0x103.try_into().unwrap();
+
+    // Transfer the ownership to the new address.
+    governable.transfer_ownership(new_caller_address);
+
+    // Update the prank context to an unauthorized address, to simulate an unauthorized attempt to accept the ownership.
+    start_prank(governable.contract_address, unauthorized_address);
+
+    // Now call accept_ownership from the unauthorized address.
+    governable.accept_ownership();
+    teardown(data_store.contract_address);
+}
+
+#[test]
+#[should_panic(expected: ('already_initialized',))]
+fn given_already_initialized_when_initialize_then_fails() {
+    // Setup the environment.
+    let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =
+        setup();
+
+    // Assume that the contract has been initialized during setup.
+    // Try to initialize it again with the same event emitter address.
+    let event_emitter_address = event_emitter.contract_address;
+
+    // This call should panic with the error 'already_initialized'.
+    governable.initialize(event_emitter_address);
     teardown(data_store.contract_address);
 }
