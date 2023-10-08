@@ -121,7 +121,7 @@ fn get_swap_amount_out(
         // an additional 100 USDC may be sent to the user
         // the swap impact pool is decreased by the used amount
 
-        cache.amount_in = fees.clone().amount_after_fees;
+        cache.amount_in = fees.amount_after_fees;
         //round amount_out down
         error_utils::check_division_by_zero(cache.token_out_price.max, 'token_out_price.max');
         cache.amount_out = cache.amount_in * cache.token_in_price.min / cache.token_out_price.max;

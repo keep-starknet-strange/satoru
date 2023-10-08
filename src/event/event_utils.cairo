@@ -5,8 +5,7 @@ use traits::Default;
 use satoru::utils::traits::ContractAddressDefault;
 
 //TODO Switch the append with a set in the functions when its available
-
-#[derive(Default, Drop, Serde)]
+#[derive(Drop, Serde)]
 struct EventLogData {
     cant_be_empty: u128, // remove 
 // TODO
