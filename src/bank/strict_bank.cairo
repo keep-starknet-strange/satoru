@@ -172,11 +172,7 @@ mod StrictBank {
                 .try_into()
                 .unwrap();
             self.token_balances.write(token, next_balance);
-            if next_balance >= prev_balance {
-                next_balance - prev_balance
-            } else {
-                0
-            }
+            next_balance - prev_balance
         }
     }
 }
