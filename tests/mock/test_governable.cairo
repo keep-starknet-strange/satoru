@@ -163,7 +163,7 @@ fn given_unauthorized_caller_when_transfer_ownership_then_fails() {
     // Setup the environment with a different caller address.
     let (caller_address, role_store, data_store, event_emitter, referral_storage, governable) =
         setup_with_other_address();
-    
+
     // Try to transfer ownership to a new address.
     let new_uncaller_address: ContractAddress = 0x102.try_into().unwrap();
     governable.transfer_ownership(new_uncaller_address);
