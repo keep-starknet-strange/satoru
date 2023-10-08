@@ -131,7 +131,7 @@ fn given_less_balance_when_2nd_record_transfer_in_then_fails() {
     let mock_balance_with_less_tokens: u256 = (initial_balance - tokens_transfered_out).into();
     start_mock_call(erc20.contract_address, 'balance_of', mock_balance_with_less_tokens);
 
-    let tokens_received: u128 = deposit_vault.record_transfer_in(erc20.contract_address);
+    deposit_vault.record_transfer_in(erc20.contract_address);
 
     teardown(data_store, deposit_vault);
 }
