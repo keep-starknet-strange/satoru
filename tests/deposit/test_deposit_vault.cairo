@@ -10,7 +10,7 @@ use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
     ClassHash,
 };
-use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
+use snforge_std::{declare, start_prank, stop_prank, start_mock_call, ContractClassTrait};
 use traits::{TryInto, Into};
 
 // Local imports.
@@ -89,11 +89,62 @@ fn given_receiver_is_contract_when_transfer_out_then_fails() {
     teardown(data_store, deposit_vault);
 }
 
-/// TODO: implement the tests when record_transfer_in is implemented
 #[test]
-#[should_panic(expected: ('NOT IMPLEMENTED YET',))]
 fn given_normal_conditions_when_record_transfer_in_then_works() {
-    assert(true == false, 'NOT IMPLEMENTED YET')
+    let (_, _, _, data_store, deposit_vault, erc20) = setup();
+
+    let initial_balance: u128 = u128_from_felt252(INITIAL_TOKENS_MINTED);
+    let tokens_received: u128 = deposit_vault.record_transfer_in(erc20.contract_address);
+    assert(tokens_received == initial_balance, 'should be initial balance');
+
+    teardown(data_store, deposit_vault);
+}
+
+#[test]
+fn given_more_balance_when_2nd_record_transfer_in_then_works() {
+    let (_, _, _, data_store, deposit_vault, erc20) = setup();
+
+    let initial_balance: u128 = u128_from_felt252(INITIAL_TOKENS_MINTED);
+    let tokens_received: u128 = deposit_vault.record_transfer_in(erc20.contract_address);
+    assert(tokens_received == initial_balance, 'should be initial balance');
+
+    let tokens_transfered_in: u128 = 250;
+    let mock_balance_with_more_tokens: u256 = (initial_balance + tokens_transfered_in).into();
+    start_mock_call(erc20.contract_address, 'balance_of', mock_balance_with_more_tokens);
+
+    let tokens_received: u128 = deposit_vault.record_transfer_in(erc20.contract_address);
+    assert(tokens_received == tokens_transfered_in, 'incorrect received amount');
+
+    teardown(data_store, deposit_vault);
+}
+
+#[test]
+#[should_panic(expected: ('u128_sub Overflow',))]
+fn given_less_balance_when_2nd_record_transfer_in_then_fails() {
+    let (_, _, _, data_store, deposit_vault, erc20) = setup();
+
+    let initial_balance: u128 = u128_from_felt252(INITIAL_TOKENS_MINTED);
+    let tokens_received: u128 = deposit_vault.record_transfer_in(erc20.contract_address);
+    assert(tokens_received == initial_balance, 'should be initial balance');
+
+    let tokens_transfered_out: u128 = 250;
+    let mock_balance_with_less_tokens: u256 = (initial_balance - tokens_transfered_out).into();
+    start_mock_call(erc20.contract_address, 'balance_of', mock_balance_with_less_tokens);
+
+    deposit_vault.record_transfer_in(erc20.contract_address);
+
+    teardown(data_store, deposit_vault);
+}
+
+#[test]
+#[should_panic(expected: ('unauthorized_access',))]
+fn given_caller_is_not_controller_when_record_transfer_in_then_fails() {
+    let (caller_address, _, role_store, data_store, deposit_vault, erc20) = setup();
+
+    role_store.revoke_role(caller_address, role::CONTROLLER);
+    deposit_vault.record_transfer_in(erc20.contract_address);
+
+    teardown(data_store, deposit_vault);
 }
 
 // *********************************************************************************************
