@@ -176,7 +176,9 @@ mod ExchangeRouter {
     // *************************************************************************
 
     // Core lib imports.
-    use starknet::ContractAddress;
+    use starknet::{
+        get_caller_address, ContractAddress, contract_address_const, get_contract_address
+    };
     use core::zeroable::Zeroable;
 
     use debug::PrintTrait;
@@ -194,9 +196,20 @@ mod ExchangeRouter {
 
     use super::IExchangeRouter;
     use satoru::deposit::deposit_utils::CreateDepositParams;
-    use satoru::withdrawal::withdrawal_utils::CreateWithdrawalParams;
+    use satoru::withdrawal::{withdrawal::Withdrawal, withdrawal_utils::CreateWithdrawalParams};
     use satoru::order::base_order_utils::CreateOrderParams;
     use satoru::oracle::oracle_utils::SimulatePricesParams;
+    use satoru::utils::account_utils;
+    use satoru::utils::global_reentrancy_guard;
+    use satoru::router::error::RouterError;
+    use satoru::deposit::deposit::Deposit;
+    use satoru::order::order::Order;
+    use satoru::callback::callback_utils;
+    use satoru::feature::feature_utils;
+    use satoru::market::market_utils;
+    use satoru::data::keys;
+    use satoru::referral::referral_utils;
+    use satoru::fee::fee_utils;
 
     // *************************************************************************
     //                              STORAGE
@@ -267,48 +280,154 @@ mod ExchangeRouter {
     impl ExchangeRouterImpl of super::IExchangeRouter<ContractState> {
         fn send_tokens(
             ref self: ContractState, token: ContractAddress, receiver: ContractAddress, amount: u128
-        ) { //TODO
+        ) {
+            account_utils::validate_receiver(receiver);
+            let account = get_caller_address();
+            self.router.read().plugin_transfer(token, account, receiver, amount);
         }
 
         fn create_deposit(ref self: ContractState, params: CreateDepositParams) -> felt252 {
-            //TODO
-            0
+            let data_store = self.data_store.read();
+            global_reentrancy_guard::non_reentrant_before(data_store);
+
+            let account = get_caller_address();
+
+            let key = self.deposit_handler.read().create_deposit(account, params);
+
+            global_reentrancy_guard::non_reentrant_after(data_store);
+
+            key
         }
 
-        fn cancel_deposit(ref self: ContractState, key: felt252) { //TODO
+        fn cancel_deposit(ref self: ContractState, key: felt252) {
+            let data_store = self.data_store.read();
+            global_reentrancy_guard::non_reentrant_before(data_store);
+
+            let deposit_result = data_store.get_deposit(key);
+            let mut deposit: Deposit = Default::default();
+
+            // Check if the deposit is valid
+            match deposit_result {
+                Option::Some(dep) => {
+                    deposit = dep;
+                },
+                Option::None => {
+                    panic_with_felt252(RouterError::DEPOSIT_NOT_VALID)
+                }
+            };
+
+            if (deposit.account == 0.try_into().unwrap()) {
+                RouterError::EMPTY_DEPOSIT
+            }
+
+            if (deposit.account != get_caller_address()) {
+                RouterError::UNAUTHORIZED(get_caller_address(), 'account for cancel_deposit')
+            }
+
+            self.deposit_handler.read().cancel_deposit(key);
+
+            global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
         fn create_withdrawal(ref self: ContractState, params: CreateWithdrawalParams) -> felt252 {
-            //TODO
-            0
+            let data_store = self.data_store.read();
+            global_reentrancy_guard::non_reentrant_before(data_store);
+
+            let account = get_caller_address();
+
+            let key = self.withdrawal_handler.read().create_withdrawal(account, params);
+
+            global_reentrancy_guard::non_reentrant_after(data_store);
+
+            key
         }
 
-        fn cancel_withdrawal(ref self: ContractState, key: felt252) { //TODO
+        fn cancel_withdrawal(ref self: ContractState, key: felt252) {
+            let data_store = self.data_store.read();
+            global_reentrancy_guard::non_reentrant_before(data_store);
+
+            let withdrawal_result = data_store.get_withdrawal(key);
+            let mut withdrawal: Withdrawal = Default::default();
+
+            // Check if the deposit is valid
+            match withdrawal_result {
+                Option::Some(withd) => {
+                    withdrawal = withd;
+                },
+                Option::None => {
+                    panic_with_felt252(RouterError::WITHDRAWAL_NOT_VALID)
+                }
+            };
+
+            if (withdrawal.account != get_caller_address()) {
+                RouterError::UNAUTHORIZED(get_caller_address(), "account for cancel_withdrawal")
+            }
+
+            self.withdrawal_handler.read().cancel_withdrawal(key);
+
+            global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
         fn create_order(ref self: ContractState, params: CreateOrderParams) -> felt252 {
-            //TODO
-            0
+            let data_store = self.data_store.read();
+            global_reentrancy_guard::non_reentrant_before(data_store);
+
+            let account = get_caller_address();
+
+            let key = self.order_handler.read().create_order(account, params);
+
+            global_reentrancy_guard::non_reentrant_after(data_store);
+
+            key
         }
 
         fn set_saved_callback_contract(
             ref self: ContractState, market: ContractAddress, callback_contract: ContractAddress
-        ) { //TODO
+        ) {
+            let data_store = self.data_store.read();
+            global_reentrancy_guard::non_reentrant_before(data_store);
+
+            callback_utils::set_saved_callback_contract(
+                data_store, get_caller_address(), market, callback_contract
+            );
+
+            global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
         fn simulate_execute_deposit(
             ref self: ContractState, key: felt252, simulated_oracle_params: SimulatePricesParams
-        ) { //TODO
+        ) {
+            let data_store = self.data_store.read();
+            global_reentrancy_guard::non_reentrant_before(data_store);
+
+            self.deposit_handler.read().simulate_execute_deposit(key, simulated_oracle_params);
+
+            global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
         fn simulate_execute_withdrawal(
             ref self: ContractState, key: felt252, simulated_oracle_params: SimulatePricesParams
-        ) { //TODO
+        ) {
+            let data_store = self.data_store.read();
+            global_reentrancy_guard::non_reentrant_before(data_store);
+
+            self
+                .withdrawal_handler
+                .read()
+                .simulate_execute_withdrawal(key, simulated_oracle_params);
+
+            global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
         fn simulate_execute_order(
             ref self: ContractState, key: felt252, simulated_oracle_params: SimulatePricesParams
-        ) { //TODO
+        ) {
+            let data_store = self.data_store.read();
+            global_reentrancy_guard::non_reentrant_before(data_store);
+
+            self.order_handler.read().simulate_execute_order(key, simulated_oracle_params);
+
+            global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
         fn update_order(
@@ -318,10 +437,63 @@ mod ExchangeRouter {
             acceptable_price: u128,
             trigger_price: u128,
             min_output_amout: u128
-        ) { //TODO
+        ) {
+            let data_store = self.data_store.read();
+            global_reentrancy_guard::non_reentrant_before(data_store);
+
+            let order_result = data_store.get_order(key);
+            let mut order: Order = Default::default();
+
+            // Check if the deposit is valid
+            match order_result {
+                Option::Some(ord) => {
+                    order = ord;
+                },
+                Option::None => {
+                    panic_with_felt252(RouterError::ORDER_NOT_VALID)
+                }
+            };
+
+            if (order.account != get_caller_address()) {
+                RouterError::UNAUTHORIZED(get_caller_address(), 'account for update_order')
+            }
+            self
+                .order_handler
+                .read()
+                .update_order(
+                    key, size_delta_usd, acceptable_price, trigger_price, min_output_amout, order
+                );
+
+            global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
-        fn cancel_order(ref self: ContractState, key: felt252) { //TODO
+        fn cancel_order(ref self: ContractState, key: felt252) {
+            let data_store = self.data_store.read();
+            global_reentrancy_guard::non_reentrant_before(data_store);
+
+            let order_result = data_store.get_order(key);
+            let mut order: Order = Default::default();
+
+            // Check if the deposit is valid
+            match order_result {
+                Option::Some(ord) => {
+                    order = ord;
+                },
+                Option::None => {
+                    panic_with_felt252(RouterError::ORDER_NOT_VALID);
+                }
+            };
+
+            if (order.account != contract_address_const::<0>()) {
+                RouterError::EMPTY_ORDER
+            }
+
+            if (order.account != get_caller_address()) {
+                RouterError::UNAUTHORIZED(get_caller_address(), 'account for cancel_order')
+            }
+            self.order_handler.read().cancel_order(key);
+
+            global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
         fn claim_funding_fees(
@@ -330,8 +502,40 @@ mod ExchangeRouter {
             tokens: Array<ContractAddress>,
             receiver: ContractAddress
         ) -> Array<u128> {
-            //TODO
-            ArrayTrait::new()
+            let data_store = self.data_store.read();
+            global_reentrancy_guard::non_reentrant_before(data_store);
+
+            if (markets.len() != tokens.len()) {
+                RouterError::INVALID_CLAIM_FUNDING_FEES_INPUT(markets.len(), tokens.len())
+            }
+
+            feature_utils::validate_feature(
+                data_store, keys::claim_funding_fees_feature_disabled_key(get_contract_address())
+            );
+
+            account_utils::validate_receiver(receiver);
+
+            let account = get_caller_address();
+
+            let mut claimed_amounts: Array<u128> = ArrayTrait::new();
+
+            let mut i = 0;
+            loop {
+                if i == markets.len() {
+                    break;
+                }
+                let market = markets[i];
+                let token = tokens[i];
+                let amount: u128 = market_utils::claim_funding_fees(
+                    data_store, self.event_emitter.read(), *market, *token, account, receiver
+                );
+                claimed_amounts.append(amount);
+                i = i + 1;
+            };
+
+            global_reentrancy_guard::non_reentrant_after(data_store);
+
+            claimed_amounts
         }
 
         fn claim_collateral(
@@ -341,8 +545,49 @@ mod ExchangeRouter {
             time_keys: Array<u128>,
             receiver: ContractAddress
         ) -> Array<u128> {
-            //TODO
-            ArrayTrait::new()
+            let data_store = self.data_store.read();
+            global_reentrancy_guard::non_reentrant_before(data_store);
+
+            if (markets.len() != tokens.len() || tokens.len() != time_keys.len()) {
+                RouterError::INVALID_CLAIM_COLLATERAL_INPUT(
+                    markets.len(), tokens.len(), time_keys.len()
+                )
+            }
+
+            feature_utils::validate_feature(
+                data_store, keys::claim_ui_fees_feature_disabled_key(get_contract_address())
+            );
+
+            account_utils::validate_receiver(receiver);
+
+            let account = get_caller_address();
+
+            let mut claimed_amounts: Array<u128> = ArrayTrait::new();
+
+            let mut i = 0;
+            loop {
+                if i == markets.len() {
+                    break;
+                }
+                let market = markets[i];
+                let token = tokens[i];
+                let time_key = time_keys[i];
+                let amount: u128 = market_utils::claim_collateral(
+                    data_store,
+                    self.event_emitter.read(),
+                    *market,
+                    *token,
+                    *time_key,
+                    account,
+                    receiver
+                );
+                claimed_amounts.append(amount);
+                i = i + 1;
+            };
+
+            global_reentrancy_guard::non_reentrant_after(data_store);
+
+            claimed_amounts
         }
 
         fn claim_affiliate_rewards(
@@ -351,11 +596,50 @@ mod ExchangeRouter {
             tokens: Array<ContractAddress>,
             receiver: ContractAddress
         ) -> Array<u128> {
-            //TODO
-            ArrayTrait::new()
+            let data_store = self.data_store.read();
+            global_reentrancy_guard::non_reentrant_before(data_store);
+
+            if (markets.len() != tokens.len()) {
+                RouterError::INVALID_CLAIM_AFFILIATE_REWARDS_INPUT(markets.len(), tokens.len())
+            }
+
+            feature_utils::validate_feature(
+                data_store, keys::claim_collateral_feature_disabled_key(get_contract_address())
+            );
+
+            let account = get_caller_address();
+
+            let mut claimed_amounts: Array<u128> = ArrayTrait::new();
+
+            let mut i = 0;
+            loop {
+                if i == markets.len() {
+                    break;
+                }
+                let market = markets[i];
+                let token = tokens[i];
+                let amount: u128 = referral_utils::claim_affiliate_reward(
+                    data_store, self.event_emitter.read(), *market, *token, account, receiver
+                );
+                claimed_amounts.append(amount);
+                i = i + 1;
+            };
+
+            global_reentrancy_guard::non_reentrant_after(data_store);
+
+            claimed_amounts
         }
 
-        fn set_ui_fee_factor(ref self: ContractState, ui_fee_factor: u128) { //TODO
+        fn set_ui_fee_factor(ref self: ContractState, ui_fee_factor: u128) {
+            let data_store = self.data_store.read();
+            global_reentrancy_guard::non_reentrant_before(data_store);
+
+            let account = get_caller_address();
+            market_utils::set_ui_fee_factor(
+                data_store, self.event_emitter.read(), account, ui_fee_factor
+            );
+
+            global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
         fn claim_ui_fees(
@@ -364,8 +648,44 @@ mod ExchangeRouter {
             tokens: Array<ContractAddress>,
             receiver: ContractAddress
         ) -> Array<u128> {
-            //TODO
-            ArrayTrait::new()
+            let data_store = self.data_store.read();
+            global_reentrancy_guard::non_reentrant_before(data_store);
+
+            if (markets.len() != tokens.len()) {
+                RouterError::INVALID_CLAIM_UI_FEES_INPUT(markets.len(), tokens.len())
+            }
+
+            feature_utils::validate_feature(
+                data_store,
+                keys::claim_affiliate_rewards_feature_disabled_key(get_contract_address())
+            );
+
+            let ui_fee_receiver = get_caller_address();
+
+            let mut claimed_amounts: Array<u128> = ArrayTrait::new();
+
+            let mut i = 0;
+            loop {
+                if i == markets.len() {
+                    break;
+                }
+                let market = markets[i];
+                let token = tokens[i];
+                let amount: u128 = fee_utils::claim_ui_fees(
+                    data_store,
+                    self.event_emitter.read(),
+                    ui_fee_receiver,
+                    *market,
+                    *token,
+                    receiver
+                );
+                claimed_amounts.append(amount);
+                i = i + 1;
+            };
+
+            global_reentrancy_guard::non_reentrant_after(data_store);
+
+            claimed_amounts
         }
     }
 }
