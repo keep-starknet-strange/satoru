@@ -7,7 +7,6 @@
 // Core lib imports.
 use traits::{Into, TryInto};
 use starknet::{ContractAddress, get_contract_address};
-use integer::u128_sub;
 
 // *************************************************************************
 //                  Interface of the `StrictBank` contract.
