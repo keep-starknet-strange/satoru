@@ -29,4 +29,13 @@ mod SwapError {
         data.append(market.into());
         panic(data)
     }
+
+    fn INVALID_SWAP_OUTPUT_TOKEN(
+        output_token: ContractAddress, expected_output_token: ContractAddress
+    ) {
+        let mut data = array!['invalid swap output token'];
+        data.append(output_token.into());
+        data.append(expected_output_token.into());
+        panic(data)
+    }
 }
