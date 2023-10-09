@@ -214,6 +214,7 @@ mod BaseOrderHandler {
             let address_zero = contract_address_const::<0>();
 
             let mut market = Default::default();
+
             if (order.market != address_zero) {
                 market = market_utils::get_enabled_market(data_store, order.market);
             }
