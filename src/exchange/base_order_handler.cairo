@@ -203,6 +203,7 @@ mod BaseOrderHandler {
                 referral_storage: self.referral_storage.read(),
             };
 
+            /// TODO: get_uncompacted_oracle_block_numbers() isn't implemented yet
             let min_oracle_block_numbers = get_uncompacted_oracle_block_numbers(
                 oracle_params.compacted_min_oracle_block_numbers.span(), oracle_params.tokens.len()
             );
@@ -213,7 +214,6 @@ mod BaseOrderHandler {
             let address_zero = contract_address_const::<0>();
 
             let mut market = Default::default();
-
             if (order.market != address_zero) {
                 market = market_utils::get_enabled_market(data_store, order.market);
             }
