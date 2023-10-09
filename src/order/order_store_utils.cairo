@@ -11,10 +11,9 @@ use satoru::order::error::OrderError;
 /// # Return
 /// Return the corresponding Order object
 fn get(data_store: IDataStoreDispatcher, key: felt252) -> Order {
-    let order_option = data_store.get_order(key);
-    match (order_option) {
+    match data_store.get_order(key) {
         Option::Some(order) => order,
-        Option::None(_) => panic_with_felt252(OrderError::EMPTY_ORDER)
+        Option::None => panic_with_felt252(OrderError::EMPTY_ORDER)
     }
 }
 
@@ -23,5 +22,5 @@ fn get(data_store: IDataStoreDispatcher, key: felt252) -> Order {
 /// * `key` - The key linked to the Order.
 /// * `value` - The snapshot of the Order.
 fn set(data_store: IDataStoreDispatcher, key: felt252, value: @Order) {
-    data_store.set_order(key, *value);
+    data_store.set_order(key, value.clone());
 }
