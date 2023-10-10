@@ -11,6 +11,7 @@ use satoru::order::order::OrderType;
 use satoru::position::{position_utils::DecreasePositionCollateralValues, position::Position,};
 use satoru::price::price::Price;
 use satoru::pricing::position_pricing_utils::PositionFees;
+use satoru::utils::i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default};
 
 /// Struct to store a position increase parameters.
 #[derive(Drop, starknet::Store, Serde)]
@@ -34,11 +35,11 @@ struct PositionIncreaseParams {
     /// The position increase amount in tokens.
     size_delta_in_tokens: u128,
     /// The collateral variation amount in usd.
-    collateral_delta_amount: u128, // TODO i128 when storeable
+    collateral_delta_amount: i128, // TODO i128 when storeable
     /// The position increase price impact in usd.
-    price_impact_usd: u128, // TODO i128 when storeable
+    price_impact_usd: i128, // TODO i128 when storeable
     /// The position increase price impact in tokens.
-    price_impact_amount: u128, // TODO i128 when storeable
+    price_impact_amount: i128, // TODO i128 when storeable
     /// The type of the order.
     order_type: OrderType
 }
