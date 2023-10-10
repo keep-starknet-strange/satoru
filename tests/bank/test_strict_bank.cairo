@@ -185,7 +185,7 @@ fn given_receiver_is_contract_when_transfer_out_then_fails() {
     let (caller_address, receiver_address, role_store, data_store, bank, strict_bank) =
         setup_contracts();
 
-    // deploy erc20 token. Mint to bank since we call transfer out in bank contract which restricts sending to self
+    // deploy erc20 token. Mint to strict_bank 
     let erc20_contract = declare('ERC20');
     let constructor_calldata3 = array![
         'satoru', 'STU', 1000, 0, strict_bank.contract_address.into()
@@ -193,6 +193,7 @@ fn given_receiver_is_contract_when_transfer_out_then_fails() {
     let erc20_contract_address = erc20_contract.deploy(@constructor_calldata3).unwrap();
     let erc20_dispatcher = IERC20Dispatcher { contract_address: erc20_contract_address };
 
+    // transfer out with our strict_bank address as the receiver address
     strict_bank.transfer_out(erc20_contract_address, strict_bank.contract_address, 100_u128);
 
     //teardown
@@ -280,6 +281,7 @@ fn given_normal_conditions_when_sync_token_balance_passes() {
     // send tokens into strict bank 
     erc20_dispatcher.transfer(strict_bank.contract_address, u256_from_felt252(50));
 
+    //update the new balance by calling sync_token_balance
     strict_bank.sync_token_balance(erc20_contract_address);
 
     // teardown
@@ -310,6 +312,7 @@ fn given_caller_has_no_controller_role_when_sync_token_balance_then_fails() {
     // stop prank as caller_address and start prank as receiver_address who has no controller role
     stop_prank(strict_bank.contract_address);
     start_prank(strict_bank.contract_address, receiver_address);
+
     // call the sync_token_balance function with receiver address 
     strict_bank.sync_token_balance(erc20_contract_address);
     // teardown
