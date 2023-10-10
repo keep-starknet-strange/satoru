@@ -129,15 +129,17 @@ fn setup_oracle_and_store() -> (
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
     let data_store_address = deploy_data_store(role_store_address);
     let data_store = IDataStoreDispatcher { contract_address: data_store_address };
-    start_prank(role_store_address, caller_address);
-    role_store.grant_role(caller_address, role::CONTROLLER);
-    start_prank(data_store_address, caller_address);
     let (event_emitter_address, event_emitter) = setup_event_emitter();
     let oracle_store_address = deploy_oracle_store(role_store_address, event_emitter_address);
     let oracle_address = deploy_oracle(
         role_store_address, oracle_store_address, contract_address_const::<'pragma'>()
     );
     let oracle = IOracleDispatcher { contract_address: oracle_address };
+
+    start_prank(role_store_address, caller_address);
+    role_store.grant_role(caller_address, role::CONTROLLER);
+    start_prank(data_store_address, caller_address);
+
     (caller_address, role_store, data_store, event_emitter, oracle)
 }
 

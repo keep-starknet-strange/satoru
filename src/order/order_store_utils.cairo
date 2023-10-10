@@ -11,16 +11,11 @@ use satoru::order::error::OrderError;
 /// # Return
 /// Return the corresponding Order object
 fn get(data_store: IDataStoreDispatcher, key: felt252) -> Order {
-    match data_store.get_order(key) {
-        Option::Some(order) => order,
-        Option::None => panic_with_felt252(OrderError::EMPTY_ORDER)
-    }
+    Default::default()
 }
 
 /// Link an Order with a key
 /// # Arguments
 /// * `key` - The key linked to the Order.
 /// * `value` - The snapshot of the Order.
-fn set(data_store: IDataStoreDispatcher, key: felt252, value: @Order) {
-    data_store.set_order(key, value.clone());
-}
+fn set(data_store: IDataStoreDispatcher, key: felt252, value: @Order) {}
