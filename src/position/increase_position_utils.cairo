@@ -11,8 +11,9 @@ use result::ResultTrait;
 use satoru::position::position_utils::UpdatePositionParams;
 use satoru::pricing::position_pricing_utils::{
     PositionFees, PositionBorrowingFees, PositionFundingFees, PositionReferralFees, PositionUiFees,
+    GetPositionFeesParams, get_position_fees, get_price_impact_usd, GetPriceImpactUsdParams
 };
-use satoru::price::price::Price;
+use satoru::price::price::{Price, PriceTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait},};
 use satoru::market::market_utils;
@@ -22,9 +23,14 @@ use satoru::position::{
 };
 use satoru::position::error::PositionError;
 use satoru::utils::{
-    calc::{to_unsigned, to_signed, sum_return_uint_128},
+    calc::{
+        to_unsigned, to_signed, sum_return_uint_128, roundup_magnitude_division, roundup_division
+    },
     i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}
 };
+use satoru::fee::fee_utils;
+use satoru::data::keys;
+use satoru::order::base_order_utils;
 
 #[derive(Drop, starknet::Store, Serde, Default, Copy)]
 struct IncreasePositionCache {
@@ -264,55 +270,62 @@ fn increase_position(mut params: UpdatePositionParams, collateral_increment_amou
 fn process_collateral(
     params: UpdatePositionParams,
     collateral_token_price: Price,
-    collateral_delta_amount: i128,
+    mut collateral_delta_amount: i128,
     price_impact_usd: i128,
 ) -> (i128, PositionFees) {
-    // TODO
-    let position_referral_fees = PositionReferralFees {
-        referral_code: 0,
-        affiliate: contract_address_const::<0>(),
-        trader: contract_address_const::<0>(),
-        total_rebate_factor: 0,
-        trader_discount_factor: 0,
-        total_rebate_amount: 0,
-        trader_discount_amount: 0,
-        affiliate_reward_amount: 0,
+    let get_position_fees_params: GetPositionFeesParams = GetPositionFeesParams {
+        data_store: params.contracts.data_store,
+        referral_storage: params.contracts.referral_storage,
+        position: params.position,
+        collateral_token_price,
+        for_positive_impact: price_impact_usd > 0,
+        long_token: params.market.long_token,
+        short_token: params.market.short_token,
+        size_delta_usd: params.order.size_delta_usd,
+        ui_fee_receiver: params.order.ui_fee_receiver
     };
-    let position_funding_fees = PositionFundingFees {
-        funding_fee_amount: 0,
-        claimable_long_token_amount: 0,
-        claimable_short_token_amount: 0,
-        latest_funding_fee_amount_per_size: 0,
-        latest_long_token_claimable_funding_amount_per_size: 0,
-        latest_short_token_claimable_funding_amount_per_size: 0,
-    };
-    let position_borrowing_fees = PositionBorrowingFees {
-        borrowing_fee_usd: 0,
-        borrowing_fee_amount: 0,
-        borrowing_fee_receiver_factor: 0,
-        borrowing_fee_amount_for_fee_receiver: 0,
-    };
-    let position_ui_fees = PositionUiFees {
-        ui_fee_receiver: contract_address_const::<0>(), ui_fee_receiver_factor: 0, ui_fee_amount: 0,
-    };
-    let price = Price { min: 0, max: 0, };
-    let position_fees = PositionFees {
-        referral: position_referral_fees,
-        funding: position_funding_fees,
-        borrowing: position_borrowing_fees,
-        ui: position_ui_fees,
-        collateral_token_price: price,
-        position_fee_factor: 0,
-        protocol_fee_amount: 0,
-        position_fee_receiver_factor: 0,
-        fee_receiver_amount: 0,
-        fee_amount_for_pool: 0,
-        position_fee_amount_for_pool: 0,
-        position_fee_amount: 0,
-        total_cost_amount_excluding_funding: 0,
-        total_cost_amount: 0,
-    };
-    (0, position_fees)
+
+    let fees: PositionFees = get_position_fees(get_position_fees_params);
+
+    fee_utils::increment_claimable_fee_amount(
+        params.contracts.data_store,
+        params.contracts.event_emitter,
+        params.market.market_token,
+        params.position.collateral_token,
+        fees.fee_receiver_amount,
+        keys::position_fee_type()
+    );
+
+    fee_utils::increment_claimable_ui_fee_amount(
+        params.contracts.data_store,
+        params.contracts.event_emitter,
+        params.order.ui_fee_receiver,
+        params.market.market_token,
+        params.position.collateral_token,
+        fees.ui.ui_fee_amount,
+        keys::ui_position_fee_type()
+    );
+
+    collateral_delta_amount -= to_signed(fees.total_cost_amount, true);
+
+    market_utils::apply_delta_to_collateral_sum(
+        params.contracts.data_store,
+        params.contracts.event_emitter,
+        params.order.market,
+        params.position.collateral_token,
+        params.order.is_long,
+        collateral_delta_amount
+    );
+
+    market_utils::apply_delta_to_pool_amount(
+        params.contracts.data_store,
+        params.contracts.event_emitter,
+        params.market,
+        params.position.collateral_token,
+        to_signed(fees.fee_amount_for_pool, true)
+    );
+
+    return (collateral_delta_amount, fees);
 }
 
 /// # Returns
@@ -320,6 +333,98 @@ fn process_collateral(
 fn get_execution_price(
     params: UpdatePositionParams, index_token_price: Price
 ) -> (i128, i128, u128, u128) {
-    // TODO
-    (0, 0, 0, 0)
+    // note that the executionPrice is not validated against the order.acceptablePrice value
+    // if the sizeDeltaUsd is zero
+    // for limit orders the order.triggerPrice should still have been validated
+    if (params.order.size_delta_usd == 0) {
+        // increase order:
+        //     - long: use the larger price
+        //     - short: use the smaller price
+        return (0, 0, 0, index_token_price.pick_price(params.position.is_long));
+    }
+
+    let mut price_impact_usd = get_price_impact_usd(
+        GetPriceImpactUsdParams {
+            data_store: params.contracts.data_store,
+            market: params.market,
+            usd_delta: to_signed(params.order.size_delta_usd, true),
+            is_long: params.order.is_long
+        }
+    );
+
+    // cap priceImpactUsd based on the amount available in the position impact pool
+    price_impact_usd =
+        market_utils::get_capped_position_impact_usd(
+            params.contracts.data_store,
+            params.market.market_token,
+            index_token_price,
+            price_impact_usd,
+            params.order.size_delta_usd
+        );
+
+    // for long positions
+    //
+    // if price impact is positive, the sizeDeltaInTokens would be increased by the priceImpactAmount
+    // the priceImpactAmount should be minimized
+    //
+    // if price impact is negative, the sizeDeltaInTokens would be decreased by the priceImpactAmount
+    // the priceImpactAmount should be maximized
+
+    // for short positions
+    //
+    // if price impact is positive, the sizeDeltaInTokens would be decreased by the priceImpactAmount
+    // the priceImpactAmount should be minimized
+    //
+    // if price impact is negative, the sizeDeltaInTokens would be increased by the priceImpactAmount
+    // the priceImpactAmount should be maximized
+
+    let mut price_impact_amount: i128 = 0;
+
+    if (price_impact_usd > 0) {
+        // use indexTokenPrice.max and round down to minimize the priceImpactAmount
+        price_impact_amount = price_impact_usd / to_signed(index_token_price.max, true);
+    } else {
+        // use indexTokenPrice.min and round up to maximize the priceImpactAmount
+        price_impact_amount = roundup_magnitude_division(price_impact_usd, index_token_price.min);
+    }
+
+    let mut base_size_delta_in_tokens: u128 = 0;
+
+    if (params.position.is_long) {
+        // round the number of tokens for long positions down
+        base_size_delta_in_tokens = params.order.size_delta_usd / index_token_price.max;
+    } else {
+        // round the number of tokens for short positions up
+        base_size_delta_in_tokens =
+            roundup_division(params.order.size_delta_usd, index_token_price.min);
+    }
+
+    let mut size_delta_in_tokens: i128 = 0;
+    if (params.position.is_long) {
+        size_delta_in_tokens = to_signed(base_size_delta_in_tokens, true) + price_impact_amount;
+    } else {
+        size_delta_in_tokens = to_signed(base_size_delta_in_tokens, true) - price_impact_amount;
+    }
+
+    if (size_delta_in_tokens < 0) {
+        PositionError::PRICE_IMPACT_LARGER_THAN_ORDER_SIZE(
+            price_impact_usd, params.order.size_delta_usd
+        )
+    }
+
+    // using increase of long positions as an example
+    // if price is $2000, sizeDeltaUsd is $5000, priceImpactUsd is -$1000
+    // priceImpactAmount = -1000 / 2000 = -0.5
+    // baseSizeDeltaInTokens = 5000 / 2000 = 2.5
+    // sizeDeltaInTokens = 2.5 - 0.5 = 2
+    // executionPrice = 5000 / 2 = $2500
+    let execution_price = base_order_utils::get_execution_price_for_increase(
+        params.order.size_delta_usd,
+        to_unsigned(size_delta_in_tokens),
+        params.order.acceptable_price,
+        params.position.is_long
+    );
+    let size_delta_in_tokens_unsigned = to_unsigned(size_delta_in_tokens);
+
+    (price_impact_usd, price_impact_amount, size_delta_in_tokens_unsigned, execution_price)
 }

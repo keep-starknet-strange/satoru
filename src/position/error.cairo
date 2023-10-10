@@ -46,4 +46,9 @@ mod PositionError {
         let mut data = array!['Insufficient collateral usd', remaining_collateral_usd.into()];
         panic(data);
     }
+
+    fn PRICE_IMPACT_LARGER_THAN_ORDER_SIZE(price_impact_usd: i128, size_delta_usd: u128) {
+        let mut data = array!['Price impact larger order size', size_delta_usd.into()];
+        panic(data);
+    }
 }
