@@ -522,13 +522,18 @@ mod ExchangeRouter {
                 if i == markets.len() {
                     break;
                 }
-                let market = markets[i];
-                let token = tokens[i];
-                let amount: u128 = market_utils::claim_funding_fees(
-                    data_store, self.event_emitter.read(), *market, *token, account, receiver
-                );
-                claimed_amounts.append(amount);
-                i = i + 1;
+                claimed_amounts
+                    .append(
+                        market_utils::claim_funding_fees(
+                            data_store,
+                            self.event_emitter.read(),
+                            *markets[i],
+                            *tokens[i],
+                            account,
+                            receiver
+                        )
+                    );
+                i += 1;
             };
 
             global_reentrancy_guard::non_reentrant_after(data_store);
@@ -553,7 +558,7 @@ mod ExchangeRouter {
             }
 
             feature_utils::validate_feature(
-                data_store, keys::claim_ui_fees_feature_disabled_key(get_contract_address())
+                data_store, keys::claim_collateral_feature_disabled_key(get_contract_address())
             );
 
             account_utils::validate_receiver(receiver);
@@ -567,20 +572,19 @@ mod ExchangeRouter {
                 if i == markets.len() {
                     break;
                 }
-                let market = markets[i];
-                let token = tokens[i];
-                let time_key = time_keys[i];
-                let amount: u128 = market_utils::claim_collateral(
-                    data_store,
-                    self.event_emitter.read(),
-                    *market,
-                    *token,
-                    *time_key,
-                    account,
-                    receiver
-                );
-                claimed_amounts.append(amount);
-                i = i + 1;
+                claimed_amounts
+                    .append(
+                        market_utils::claim_collateral(
+                            data_store,
+                            self.event_emitter.read(),
+                            *markets[i],
+                            *tokens[i],
+                            *time_keys[i],
+                            account,
+                            receiver
+                        )
+                    );
+                i += 1;
             };
 
             global_reentrancy_guard::non_reentrant_after(data_store);
@@ -602,7 +606,8 @@ mod ExchangeRouter {
             }
 
             feature_utils::validate_feature(
-                data_store, keys::claim_collateral_feature_disabled_key(get_contract_address())
+                data_store,
+                keys::claim_affiliate_rewards_feature_disabled_key(get_contract_address())
             );
 
             let account = get_caller_address();
@@ -614,12 +619,17 @@ mod ExchangeRouter {
                 if i == markets.len() {
                     break;
                 }
-                let market = markets[i];
-                let token = tokens[i];
-                let amount: u128 = referral_utils::claim_affiliate_reward(
-                    data_store, self.event_emitter.read(), *market, *token, account, receiver
-                );
-                claimed_amounts.append(amount);
+                claimed_amounts
+                    .append(
+                        referral_utils::claim_affiliate_reward(
+                            data_store,
+                            self.event_emitter.read(),
+                            *markets[i],
+                            *tokens[i],
+                            account,
+                            receiver
+                        )
+                    );
                 i = i + 1;
             };
 
@@ -654,8 +664,7 @@ mod ExchangeRouter {
             }
 
             feature_utils::validate_feature(
-                data_store,
-                keys::claim_affiliate_rewards_feature_disabled_key(get_contract_address())
+                data_store, keys::claim_ui_fees_feature_disabled_key(get_contract_address())
             );
 
             let ui_fee_receiver = get_caller_address();
@@ -667,18 +676,18 @@ mod ExchangeRouter {
                 if i == markets.len() {
                     break;
                 }
-                let market = markets[i];
-                let token = tokens[i];
-                let amount: u128 = fee_utils::claim_ui_fees(
-                    data_store,
-                    self.event_emitter.read(),
-                    ui_fee_receiver,
-                    *market,
-                    *token,
-                    receiver
-                );
-                claimed_amounts.append(amount);
-                i = i + 1;
+                claimed_amounts
+                    .append(
+                        fee_utils::claim_ui_fees(
+                            data_store,
+                            self.event_emitter.read(),
+                            ui_fee_receiver,
+                            *markets[i],
+                            *tokens[i],
+                            receiver
+                        )
+                    );
+                i += 1;
             };
 
             global_reentrancy_guard::non_reentrant_after(data_store);
