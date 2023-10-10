@@ -106,7 +106,10 @@ mod utils {
     mod test_i128;
 }
 mod mock {
-    mod test_referral_utils;
     mod test_governable;
     mod test_referral_storage;
+}
+
+mod referral {
+    mod test_referral_utils;
 }
