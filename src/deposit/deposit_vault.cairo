@@ -114,8 +114,8 @@ mod DepositVault {
         }
 
         fn record_transfer_in(ref self: ContractState, token: ContractAddress) -> u128 {
-            // TODO
-            0
+            let mut state: StrictBank::ContractState = StrictBank::unsafe_new_contract_state();
+            IStrictBank::record_transfer_in(ref state, token)
         }
     }
 }

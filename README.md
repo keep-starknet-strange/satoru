@@ -128,6 +128,13 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/ftupas"><img src="https://avatars.githubusercontent.com/u/35031356?v=4?s=100" width="100px;" alt="ftupas"/><br /><sub><b>ftupas</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=ftupas" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/lambda-0x"><img src="https://avatars.githubusercontent.com/u/87354252?v=4?s=100" width="100px;" alt="lambda-0x"/><br /><sub><b>lambda-0x</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=lambda-0x" title="Code">💻</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Tbelleng"><img src="https://avatars.githubusercontent.com/u/117627242?v=4?s=100" width="100px;" alt="Tbelleng"/><br /><sub><b>Tbelleng</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=Tbelleng" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/dic0de"><img src="https://avatars.githubusercontent.com/u/37063500?v=4?s=100" width="100px;" alt="dic0de"/><br /><sub><b>dic0de</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=dic0de" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/akhercha"><img src="https://avatars.githubusercontent.com/u/22559023?v=4?s=100" width="100px;" alt="akhercha"/><br /><sub><b>akhercha</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=akhercha" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/VictorONN"><img src="https://avatars.githubusercontent.com/u/73134512?v=4?s=100" width="100px;" alt="VictorONN"/><br /><sub><b>VictorONN</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=VictorONN" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/kasteph"><img src="https://avatars.githubusercontent.com/u/3408478?v=4?s=100" width="100px;" alt="kasteph"/><br /><sub><b>kasteph</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=kasteph" title="Code">💻</a></td>
+    </tr>
   </tbody>
 </table>
 
