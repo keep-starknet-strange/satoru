@@ -7,26 +7,27 @@
 use starknet::{ContractAddress, contract_address_const};
 use poseidon::poseidon_hash_span;
 // Local imports.
-
-use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::market::{market::Market, market_utils::MarketPrices, market_utils};
-use satoru::data::keys;
 use satoru::position::{position::Position, error::PositionError};
 use satoru::pricing::{
     position_pricing_utils, position_pricing_utils::PositionFees,
     position_pricing_utils::GetPriceImpactUsdParams, position_pricing_utils::GetPositionFeesParams
 };
-use satoru::order::order::{Order, SecondaryOrderType};
+use satoru::order::{
+    order::{Order, SecondaryOrderType}, base_order_utils::ExecuteOrderParamsContracts,
+    order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}
+};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::utils::traits::ContractAddressDefault;
-use satoru::order::base_order_utils::ExecuteOrderParamsContracts;
 use satoru::price::price::{Price, PriceTrait};
-use satoru::utils::{calc, precision, error_utils, i128::{I128Store, I128Serde, I128Div, I128Mul}};
+use satoru::utils::{
+    calc, precision, i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default},
+    default::DefaultContractAddress, error_utils
+};
 use satoru::referral::referral_utils;
-use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
 
 /// Struct used in increasePosition and decreasePosition.
 #[derive(Drop, Copy, starknet::Store, Serde)]
@@ -79,7 +80,7 @@ struct WillPositionCollateralBeSufficientValues {
 }
 
 /// Struct used as decrease_position_collateral output.
-#[derive(Drop, Copy, starknet::Store, Serde)]
+#[derive(Drop, starknet::Store, Serde, Default, Copy)]
 struct DecreasePositionCollateralValuesOutput {
     /// The output token address.
     output_token: ContractAddress,
@@ -92,7 +93,7 @@ struct DecreasePositionCollateralValuesOutput {
 }
 
 /// Struct used to contain the values in process_collateral
-#[derive(Drop, Copy, starknet::Store, Serde)]
+#[derive(Drop, starknet::Store, Serde, Default, Copy)]
 struct DecreasePositionCollateralValues {
     /// The order execution price.
     execution_price: u128,

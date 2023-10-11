@@ -2,8 +2,8 @@
 //! This is particularly for markets with an index token that is different from
 //! the long token.
 //!
-//! For example, if there is a DOGE / USD perp market with ETH as the long token
-//! it would be possible for the price of DOGE to increase faster than the price of
+//! For example, if there is a STRK / USD perp market with ETH as the long token
+//! it would be possible for the price of STRK to increase faster than the price of
 //! ETH.
 //!
 //! In this scenario, profitable positions should be closed through ADL to ensure
