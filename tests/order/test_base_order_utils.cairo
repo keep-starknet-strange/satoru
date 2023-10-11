@@ -150,7 +150,7 @@ fn given_normal_conditions_when_validate_order_trigger_price_then_works() {
 #[should_panic(
     expected: ('invalid_order_price', 100000, 200000, 199999, 6053968548023263173723725853541)
 )]
-fn given_limit_increase_price_higher_than_trigger_when_validate_order_trigger_price_then_works() {
+fn given_limit_increase_price_higher_than_trigger_when_validate_order_trigger_price_then_fails() {
     // Setup
     let (_, _, _, oracle) = setup();
     let index_token = contract_address_const::<'ETH'>();
@@ -168,7 +168,7 @@ fn given_limit_increase_price_higher_than_trigger_when_validate_order_trigger_pr
 #[should_panic(
     expected: ('invalid_order_price', 100000, 200000, 199999, 6053968548022900352478745817957)
 )]
-fn given_limit_decrease_price_lower_than_trigger_when_validate_order_trigger_price_then_works() {
+fn given_limit_decrease_price_lower_than_trigger_when_validate_order_trigger_price_then_fails() {
     // Setup
     let (_, _, _, oracle) = setup();
     let index_token = contract_address_const::<'ETH'>();
@@ -187,7 +187,7 @@ fn given_limit_decrease_price_lower_than_trigger_when_validate_order_trigger_pri
         'invalid_order_price', 100000, 200000, 99999, 110930490330413861099797394456752255845
     )
 )]
-fn given_stop_loss_price_lower_than_trigger_when_validate_order_trigger_price_then_works() {
+fn given_stop_loss_price_lower_than_trigger_when_validate_order_trigger_price_then_fails() {
     // Setup
     let (_, _, _, oracle) = setup();
     let index_token = contract_address_const::<'ETH'>();
@@ -217,7 +217,7 @@ fn given_normal_conditions_when_get_execution_price_for_increase_then_works() {
 
 #[test]
 #[should_panic(expected: ('order_unfulfillable_at_price', 500, 10))]
-fn given_order_not_fullfillable_when_get_execution_price_for_increase_then_works() {
+fn given_order_not_fullfillable_when_get_execution_price_for_increase_then_fails() {
     let price = get_execution_price_for_increase(
         size_delta_usd: 5000, size_delta_in_tokens: 10, acceptable_price: 10, is_long: true,
     );
@@ -269,7 +269,7 @@ fn given_normal_conditions_when_get_execution_price_for_decrease_then_works() {
         1
     )
 )]
-fn given_price_impact_larger_than_order_when_get_execution_price_for_decrease_then_works() {
+fn given_price_impact_larger_than_order_when_get_execution_price_for_decrease_then_fails() {
     let price = get_execution_price_for_decrease(
         index_token_price: Price { min: 1000, max: 1100 },
         position_size_in_usd: 200000000,
@@ -292,7 +292,7 @@ fn given_price_impact_larger_than_order_when_get_execution_price_for_decrease_th
         50000
     )
 )]
-fn given_negative_execution_price_than_order_when_get_execution_price_for_decrease_then_works() {
+fn given_negative_execution_price_than_order_when_get_execution_price_for_decrease_then_fails() {
     let price = get_execution_price_for_decrease(
         index_token_price: Price { min: 1, max: 1 },
         position_size_in_usd: 200000000,
@@ -307,7 +307,7 @@ fn given_negative_execution_price_than_order_when_get_execution_price_for_decrea
 
 #[test]
 #[should_panic(expected: ('order_unfulfillable_at_price', 1002, 10000,))]
-fn given_not_acceptable_price_when_get_execution_price_for_decrease_then_works() {
+fn given_not_acceptable_price_when_get_execution_price_for_decrease_then_fails() {
     let price = get_execution_price_for_decrease(
         index_token_price: Price { min: 1000, max: 1100 },
         position_size_in_usd: 200000000,
