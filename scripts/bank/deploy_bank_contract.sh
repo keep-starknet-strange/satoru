@@ -3,13 +3,10 @@
 # Deployment script for bank.cairo
 
 # Declare the contract and capture the command output
-command_output=$(starkli declare ../target/dev/satoru_Bank.sierra.json)
+command_output=$(starkli declare ../../target/dev/satoru_Bank.sierra.json --network=goerli-1 --compiler-version=2.1.0 --account $1 --keystore $2)
 
-# Define the character to split the command output
-from_char=":"
-
-# Extract the class hash from the command output
-class_hash=$(echo "$command_output" | sed 's/.*'$from_char'//')
+from_string="Class hash declared:"
+class_hash="${command_output#*$from_string}"
 
 # Deploy the contract using the extracted class hash
-starkli deploy $class_hash $1 $2
+starkli deploy $class_hash $3 $4 --network=goerli-1 --account $1 --keystore $2
