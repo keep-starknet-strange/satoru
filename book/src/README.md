@@ -4,6 +4,6 @@ Satoru is a cutting-edge synthetics platform for Starknet, taking inspiration fr
 
 ![Satoru Whats Up](./assets/satoru-whats-up.gif)
 
-Like it's namesake, Satoru is **powerful** and **badass**. It's also a bit of a mystery. We don't know what it's capable of yet, but we're excited to find out.
+Like its namesake, Satoru is **powerful** and **badass**. It's also a bit of a mystery. We don't know what it's capable of yet, but we're excited to find out.
 
-Combine the power of **Starknet** with it's huge computation capacity to the great design of **GMX v2**, and you get Satoru, a synthetics platform that is fast, cheap and scalable.
+Combine the power of **Starknet** with its huge computation capacity with the great design of **GMX v2**, and you get Satoru, a synthetics platform that is fast, cheap and scalable.

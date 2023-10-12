@@ -175,7 +175,7 @@ mod BaseOrderHandler {
     impl InternalImpl of InternalTrait {
         /// Get the BaseOrderUtils.ExecuteOrderParams to execute an order.
         /// # Arguments
-        /// * `key` - The the key of the order to execute.
+        /// * `key` - The key of the order to execute.
         /// * `oracle_params` - The set price parameters for oracle.
         /// * `keeper` - The keeper executing the order.
         /// * `starting_gas` - The starting gas.

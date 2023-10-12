@@ -256,7 +256,7 @@ fn validate_order_trigger_price(
         };
 
         if !ok {
-            panic_invalid_prices(primary_price, trigger_price, order_type);
+            OrderError::INVALID_ORDER_PRICE(primary_price, trigger_price, order_type);
         }
 
         return;
@@ -276,7 +276,7 @@ fn validate_order_trigger_price(
         };
 
         if !ok {
-            panic_invalid_prices(primary_price, trigger_price, order_type);
+            OrderError::INVALID_ORDER_PRICE(primary_price, trigger_price, order_type);
         }
 
         return;
@@ -296,7 +296,7 @@ fn validate_order_trigger_price(
         };
 
         if !ok {
-            panic_invalid_prices(primary_price, trigger_price, order_type);
+            OrderError::INVALID_ORDER_PRICE(primary_price, trigger_price, order_type);
         }
 
         return;
@@ -340,7 +340,7 @@ fn get_execution_price_for_increase(
     // it may also be possible for users to prevent the execution of orders from other users
     // by manipulating the price impact, though this should be costly
 
-    panic_unfulfillable(execution_price, acceptable_price);
+    OrderError::ORDER_NOT_FULFILLABLE_AT_ACCEPTABLE_PRICE(execution_price, acceptable_price);
     0 // doesn't compile otherwise
 }
 
@@ -416,18 +416,11 @@ fn get_execution_price_for_decrease(
 
         if adjusted_price_impact_usd < 0
             && calc::to_unsigned(-adjusted_price_impact_usd) > size_delta_usd {
-            panic(
-                array![
-                    OrderError::PRICE_IMPACT_LARGER_THAN_ORDER_SIZE,
-                    adjusted_price_impact_usd.into(),
-                    size_delta_usd.into()
-                ]
+            OrderError::PRICE_IMPACT_LARGER_THAN_ORDER_SIZE(
+                adjusted_price_impact_usd, size_delta_usd
             );
         }
 
-        // error: Trait has no implementation in context: core::traits::Div::<core::integer::i128>
-        // TODO: uncomment this when i128 division available
-        // let adjustment = precision::mul_div_inum(position_size_in_usd, adjusted_price_impact_usd, position_size_in_tokens) / size_delta_usd.try_into().unwrap();
         let numerator = precision::mul_div_inum(
             position_size_in_usd, adjusted_price_impact_usd, position_size_in_tokens
         );
@@ -436,15 +429,12 @@ fn get_execution_price_for_decrease(
         let _execution_price: i128 = calc::to_signed(price, true) + adjustment;
 
         if _execution_price < 0 {
-            panic(
-                array![
-                    OrderError::NEGATIVE_EXECUTION_PRICE,
-                    _execution_price.into(),
-                    price.into(),
-                    position_size_in_usd.into(),
-                    adjusted_price_impact_usd.into(),
-                    size_delta_usd.into()
-                ]
+            OrderError::NEGATIVE_EXECUTION_PRICE(
+                _execution_price,
+                price,
+                position_size_in_usd,
+                adjusted_price_impact_usd,
+                size_delta_usd
             );
         }
 
@@ -482,7 +472,7 @@ fn get_execution_price_for_decrease(
     //
     // it may also be possible for users to prevent the execution of orders from other users
     // by manipulating the price impact, though this should be costly
-    panic_unfulfillable(execution_price, acceptable_price);
+    OrderError::ORDER_NOT_FULFILLABLE_AT_ACCEPTABLE_PRICE(execution_price, acceptable_price);
     0
 }
 
@@ -495,29 +485,5 @@ fn validate_non_empty_order(order: @Order) {
     assert(
         *order.size_delta_usd != 0 || *order.initial_collateral_delta_amount != 0,
         OrderError::EMPTY_ORDER
-    );
-}
-
-#[inline(always)]
-fn panic_invalid_prices(primary_price: Price, trigger_price: u128, order_type: OrderType) {
-    panic(
-        array![
-            OrderError::INVALID_ORDER_PRICES,
-            primary_price.min.into(),
-            primary_price.max.into(),
-            trigger_price.into(),
-            order_type.into(),
-        ]
-    );
-}
-
-#[inline(always)]
-fn panic_unfulfillable(execution_price: u128, acceptable_price: u128) {
-    panic(
-        array![
-            OrderError::ORDER_NOT_FULFILLABLE_AT_ACCEPTABLE_PRICE,
-            execution_price.into(),
-            acceptable_price.into()
-        ]
     );
 }

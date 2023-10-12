@@ -3,6 +3,7 @@ mod adl {
 }
 mod bank {
     mod test_bank;
+    mod test_strict_bank;
 }
 mod callback {
     mod test_callback_utils;
