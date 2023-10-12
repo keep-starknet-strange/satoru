@@ -29,12 +29,16 @@ use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherT
 // This function should return an EventLogData cause the callback_utils
 // needs it. We need to find a solution for that case.
 #[inline(always)]
-fn process_order(params: ExecuteOrderParams) -> event_utils::LogData { //TODO check with refactor with callback_utils
+fn process_order(
+    params: ExecuteOrderParams
+) -> event_utils::LogData { //TODO check with refactor with callback_utils
     let order: Order = params.order;
 
     market_utils::validate_position_market_check(params.contracts.data_store, params.market);
 
-    let position_key: felt252 = position_utils::get_position_key(order.account, order.market, order.initial_collateral_token, order.is_long);
+    let position_key: felt252 = position_utils::get_position_key(
+        order.account, order.market, order.initial_collateral_token, order.is_long
+    );
 
     let data_store: IDataStoreDispatcher = params.contracts.data_store;
     let position_result = data_store.get_position(position_key);
@@ -51,7 +55,14 @@ fn process_order(params: ExecuteOrderParams) -> event_utils::LogData { //TODO ch
 
     position_utils::validate_non_empty_position(position);
 
-    validate_oracle_block_numbers(params.min_oracle_block_numbers.span(), params.max_oracle_block_numbers.span(), order.order_type, order.updated_at_block, position.increased_at_block, position.decreased_at_block);
+    validate_oracle_block_numbers(
+        params.min_oracle_block_numbers.span(),
+        params.max_oracle_block_numbers.span(),
+        order.order_type,
+        order.updated_at_block,
+        position.increased_at_block,
+        position.decreased_at_block
+    );
 
     let mut update_position_params: UpdatePositionParams = UpdatePositionParams {
         contracts: params.contracts,
@@ -63,19 +74,34 @@ fn process_order(params: ExecuteOrderParams) -> event_utils::LogData { //TODO ch
         secondary_order_type: params.secondary_order_type
     };
 
-    let mut result: DecreasePositionResult = decrease_position_utils::decrease_position(ref update_position_params);
+    let mut result: DecreasePositionResult = decrease_position_utils::decrease_position(
+        ref update_position_params
+    );
 
     if (result.secondary_output_amount > 0) {
-        validate_output_amount_secondary(params.contracts.oracle,
-        result.output_token, result.output_amount, result.secondary_output_token, result.secondary_output_amount, order.min_output_amount);
+        validate_output_amount_secondary(
+            params.contracts.oracle,
+            result.output_token,
+            result.output_amount,
+            result.secondary_output_token,
+            result.secondary_output_amount,
+            order.min_output_amount
+        );
 
         IMarketTokenDispatcher { contract_address: order.market }
-        .transfer_out(result.output_token, order.receiver, result.output_amount);
+            .transfer_out(result.output_token, order.receiver, result.output_amount);
 
         IMarketTokenDispatcher { contract_address: order.market }
-        .transfer_out(result.secondary_output_token, order.receiver, result.secondary_output_amount);
+            .transfer_out(
+                result.secondary_output_token, order.receiver, result.secondary_output_amount
+            );
 
-        return get_output_event_data(result.output_token, result.output_amount, result.secondary_output_token, result.secondary_output_amount);
+        return get_output_event_data(
+            result.output_token,
+            result.output_amount,
+            result.secondary_output_token,
+            result.secondary_output_amount
+        );
     }
 
     let swap_param: SwapParams = SwapParams {
@@ -94,10 +120,11 @@ fn process_order(params: ExecuteOrderParams) -> event_utils::LogData { //TODO ch
 
     let (token_out, swap_output_amount) = params.contracts.swap_handler.swap(swap_param);
 
-    validate_output_amount(params.contracts.oracle, token_out, swap_output_amount, order.min_output_amount);
+    validate_output_amount(
+        params.contracts.oracle, token_out, swap_output_amount, order.min_output_amount
+    );
 
     return get_output_event_data(token_out, swap_output_amount, contract_address_const::<0>(), 0);
-    
 }
 
 
@@ -206,7 +233,7 @@ fn handle_swap_error(
     );
 
     IMarketTokenDispatcher { contract_address: order.market }
-    .transfer_out(result.output_token, order.receiver, result.output_amount);
+        .transfer_out(result.output_token, order.receiver, result.output_amount);
 }
 
 // This function should return an EventLogData cause the callback_utils
@@ -220,11 +247,18 @@ fn get_output_event_data(
     let mut address_items: event_utils::AddressItems = Default::default();
     let mut uint_items: event_utils::UintItems = Default::default();
 
-    address_items = event_utils::set_item_address_items(address_items, 0, "output_token", output_token);
-    address_items = event_utils::set_item_address_items(address_items, 1, "secondary_output_token", secondary_output_token);
+    address_items =
+        event_utils::set_item_address_items(address_items, 0, "output_token", output_token);
+    address_items =
+        event_utils::set_item_address_items(
+            address_items, 1, "secondary_output_token", secondary_output_token
+        );
 
     uint_items = event_utils::set_item_uint_items(uint_items, 0, "output_amount", output_amount);
-    uint_items = event_utils::set_item_uint_items(uint_items, 1, "secondary_output_amount", secondary_output_amount);
+    uint_items =
+        event_utils::set_item_uint_items(
+            uint_items, 1, "secondary_output_amount", secondary_output_amount
+        );
 
     event_utils::LogData {
         address_items,
@@ -235,5 +269,4 @@ fn get_output_event_data(
         array_of_felt_items: Default::default(),
         string_items: Default::default(),
     }
-
 }
