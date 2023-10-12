@@ -560,7 +560,6 @@ trait IEventEmitter<TContractState> {
         next_pool_value: u128
     );
 
-    /// Emits the `UiFeeFactorUpdated` event.
     fn emit_ui_fee_factor_updated(
         ref self: TContractState, account: ContractAddress, ui_fee_factor: u128
     );
@@ -1993,7 +1992,7 @@ mod EventEmitter {
         /// * `market` - The market where fees were collected.
         /// * `collateral_token` - The collateral token.
         /// * `trade_size_usd` - The trade size in usd.
-        /// * `is_increase` - Wether it is an increase.
+        /// * `is_increase` - Whether it is an increase.
         /// * `fees` - The struct storing position fees.
         fn emit_position_fees_collected(
             ref self: ContractState,
@@ -2064,7 +2063,7 @@ mod EventEmitter {
         /// * `market` - The market where fees were collected.
         /// * `collateral_token` - The collateral token.
         /// * `trade_size_usd` - The trade size in usd.
-        /// * `is_increase` - Wether it is an increase.
+        /// * `is_increase` - Whether it is an increase.
         /// * `fees` - The struct storing position fees.
         fn emit_position_fees_info(
             ref self: ContractState,
@@ -2226,7 +2225,7 @@ mod EventEmitter {
         /// # Arguments
         // * `market`- Address of the market for the ADL state update
         // * `is_long`- Indicates the ADL state update is for the long or short side of the market
-        // * `pnl_to_pool_factor`- The the ratio of PnL to pool value
+        // * `pnl_to_pool_factor`- The ratio of PnL to pool value
         // * `max_pnl_factor`- The max PnL factor
         // * `should_enable_adl`- Whether ADL was enabled or disabled
         fn emit_adl_state_updated(

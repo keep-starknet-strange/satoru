@@ -5,6 +5,8 @@ use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::chain::chain::{IChainDispatcher, IChainDispatcherTrait};
+use satoru::data::keys;
+use satoru::market::market::Market;
 use satoru::role::role;
 use satoru::tests_lib;
 use satoru::utils::span32::{Span32, Array32Trait};
@@ -13,6 +15,7 @@ use satoru::deposit::{
     deposit_utils::cancel_deposit,
     deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait}
 };
+
 
 use snforge_std::{declare, start_prank, ContractClassTrait};
 
@@ -27,15 +30,15 @@ fn given_normal_conditions_when_deposit_then_works() {
 // );
 }
 
-
-#[test]
-#[should_panic(expected: ('insufficient_execution_fee',))]
-fn given_unsufficient_fee_token_amount_for_deposit_then_fails() {
-    let (caller_address, data_store, event_emitter, deposit_vault, chain) = setup();
-    let account: ContractAddress = 'account'.try_into().unwrap();
-    let deposit_param = create_dummy_deposit_param();
-    let key = create_deposit(data_store, event_emitter, deposit_vault, account, deposit_param);
-}
+//TODO : Use this test when get_market function is implemented
+// #[test]
+// #[should_panic(expected: ('insufficient_execution_fee',))]
+// fn given_unsufficient_fee_token_amount_for_deposit_then_fails() {
+//     let (caller_address, data_store, event_emitter, deposit_vault, chain, role_store) = setup_role();
+//     let account: ContractAddress = 'account'.try_into().unwrap();
+//     let deposit_param = create_dummy_deposit_param_market(data_store, role_store);
+//     let key = create_deposit(data_store, event_emitter, deposit_vault, account, deposit_param);
+// }
 
 // #[test]
 // #[should_panic(expected: ('empty_deposit_amounts',))]
@@ -94,6 +97,26 @@ fn setup() -> (
     (caller_address, data_store, event_emitter, deposit_vault, chain)
 }
 
+fn setup_role() -> (
+    ContractAddress,
+    IDataStoreDispatcher,
+    IEventEmitterDispatcher,
+    IDepositVaultDispatcher,
+    IChainDispatcher,
+    ContractAddress
+) {
+    let (caller_address, role_store, data_store) = tests_lib::setup();
+    let (_, event_emitter) = tests_lib::setup_event_emitter();
+    let deposit_vault_address = deploy_deposit_vault(
+        data_store.contract_address, role_store.contract_address
+    );
+    let deposit_vault = IDepositVaultDispatcher { contract_address: deposit_vault_address };
+
+    let chain_address = deploy_chain();
+    let chain = IChainDispatcher { contract_address: chain_address };
+    (caller_address, data_store, event_emitter, deposit_vault, chain, role_store.contract_address)
+}
+
 /// Utility function to deploy a `DepositVault` contract and return its dispatcher.
 fn deploy_deposit_vault(
     data_store_address: ContractAddress, role_store_address: ContractAddress
@@ -141,3 +164,61 @@ fn create_dummy_deposit_param() -> CreateDepositParams {
     }
 }
 
+fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
+    let contract = declare('DataStore');
+    let constructor_calldata = array![role_store_address.into()];
+    contract.deploy(@constructor_calldata).unwrap()
+}
+
+fn create_dummy_deposit_param_market(
+    data_store: IDataStoreDispatcher, role_store_address: ContractAddress
+) -> CreateDepositParams {
+    let key: ContractAddress = 12345.try_into().unwrap();
+    let address_zero: ContractAddress = 42.try_into().unwrap();
+    let data_store_address = deploy_data_store(role_store_address);
+    let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
+    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let mut market = Market {
+        market_token: key,
+        index_token: address_zero,
+        long_token: address_zero,
+        short_token: address_zero,
+    };
+    // Test logic
+    // Test set_market function without permission
+    start_prank(role_store_address, caller_address);
+    role_store.grant_role(caller_address, role::MARKET_KEEPER);
+    start_prank(data_store_address, caller_address);
+    data_store.set_market(key, 0, market);
+
+    CreateDepositParams {
+        /// The address to send the market tokens to.
+        receiver: 'receiver'.try_into().unwrap(),
+        /// The callback contract linked to this deposit.
+        callback_contract: 'callback_contract'.try_into().unwrap(),
+        /// The ui fee receiver.
+        ui_fee_receiver: 'ui_fee_receiver'.try_into().unwrap(),
+        /// The market to deposit into.
+        market: market.market_token,
+        /// The initial long token address.
+        initial_long_token: 'initial_long_token'.try_into().unwrap(),
+        /// The initial short token address.
+        initial_short_token: 'initial_short_token'.try_into().unwrap(),
+        /// The swap path into markets for the long token.
+        long_token_swap_path: array![
+            1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
+        ]
+            .span32(),
+        /// The swap path into markets for the short token.
+        short_token_swap_path: array![
+            4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()
+        ]
+            .span32(),
+        /// The minimum acceptable number of liquidity tokens.
+        min_market_tokens: 10,
+        /// The execution fee for keepers.
+        execution_fee: 1,
+        /// The gas limit for the callback_contract.
+        callback_gas_limit: 20
+    }
+}

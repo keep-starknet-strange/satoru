@@ -17,6 +17,9 @@ trait IMarketToken<TState> {
     fn approve(ref self: TState, spender: ContractAddress, amount: u128) -> bool;
     fn mint(ref self: TState, recipient: ContractAddress, amount: u128);
     fn burn(ref self: TState, recipient: ContractAddress, amount: u128);
+    fn transfer_out(
+        ref self: TState, token: ContractAddress, receiver: ContractAddress, amount: u128,
+    );
 }
 
 #[starknet::contract]
@@ -26,9 +29,9 @@ mod MarketToken {
     use starknet::get_caller_address;
     use zeroable::Zeroable;
 
-    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::role::role;
     use satoru::bank::bank::{Bank, IBank};
+    use satoru::role::role_module::{RoleModule, IRoleModule};
 
     use super::IMarketToken;
 
@@ -38,7 +41,6 @@ mod MarketToken {
 
     #[storage]
     struct Storage {
-        role_store: IRoleStoreDispatcher,
         name: felt252,
         symbol: felt252,
         total_supply: u128,
@@ -68,12 +70,15 @@ mod MarketToken {
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState, role_store_address: ContractAddress) {
+    fn constructor(
+        ref self: ContractState,
+        role_store_address: ContractAddress,
+        data_store_address: ContractAddress
+    ) {
         self.initializer(NAME, SYMBOL);
-        //Might need to inherit bank. 
-        // let mut bank: Bank::ContractState = Bank::unsafe_new_contract_state();
-        // IBank::initialize(ref bank, data_store_address, role_store_address)
-        self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
+
+        let mut bank: Bank::ContractState = Bank::unsafe_new_contract_state();
+        IBank::initialize(ref bank, data_store_address, role_store_address);
     }
 
     //
@@ -134,15 +139,29 @@ mod MarketToken {
 
         fn mint(ref self: ContractState, recipient: ContractAddress, amount: u128) {
             // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            let mut role_module: RoleModule::ContractState =
+                RoleModule::unsafe_new_contract_state();
+            role_module.only_controller();
             self._mint(recipient, amount);
         }
 
         fn burn(ref self: ContractState, recipient: ContractAddress, amount: u128) {
             // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
+            let mut role_module: RoleModule::ContractState =
+                RoleModule::unsafe_new_contract_state();
+            role_module.only_controller();
             self._burn(recipient, amount);
         }
+        fn transfer_out(
+            ref self: ContractState,
+            token: ContractAddress,
+            receiver: ContractAddress,
+            amount: u128,
+        ) {
+            let mut bank: Bank::ContractState = Bank::unsafe_new_contract_state();
+            IBank::transfer_out(ref bank, token, receiver, amount);
+        }
+    // TODO implement Bank functions
     }
 
     #[external(v0)]

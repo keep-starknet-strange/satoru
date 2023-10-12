@@ -24,8 +24,8 @@ use alexandria_data_structures::array_ext::SpanTraitExt;
 /// This function should return an EventLogData cause the callback_utils
 /// needs it. We need to find a solution for that case.
 #[inline(always)]
-fn process_order(params: ExecuteOrderParams) -> event_utils::EventLogData {
-    market_utils::validate_position_market(params.contracts.data_store, params.market);
+fn process_order(params: ExecuteOrderParams) -> event_utils::LogData {
+    market_utils::validate_position_market(params.contracts.data_store, params.market.market_token);
 
     let (collateral_token, collateral_increment_amount) = swap_utils::swap(
         @swap_utils::SwapParams {
@@ -88,7 +88,8 @@ fn process_order(params: ExecuteOrderParams) -> event_utils::EventLogData {
         collateral_increment_amount
     );
 
-    event_utils::EventLogData { cant_be_empty: 'todo' } // TODO switch to LogData
+    let log: event_utils::LogData = Default::default(); // TODO
+    log
 }
 
 /// Validate the oracle block numbers used for the prices in the oracle.
