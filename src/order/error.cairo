@@ -37,7 +37,8 @@ mod OrderError {
         let mut data = array!['Insufficient output amount'];
         data.append(output_usd.into());
         data.append(min_output_amount.into());
-        panic(data)
+        panic(data);
+    }
 
     fn INVALID_ORDER_PRICE(primary_price: Price, trigger_price: u128, order_type: OrderType) {
         let mut data: Array<felt252> = array![];

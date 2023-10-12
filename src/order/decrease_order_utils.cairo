@@ -1,5 +1,5 @@
 // Core lib imports.
-use starknet::ContractAddress;
+use starknet::{ContractAddress, contract_address_const};
 
 // Local imports.
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
@@ -29,7 +29,7 @@ use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherT
 // This function should return an EventLogData cause the callback_utils
 // needs it. We need to find a solution for that case.
 #[inline(always)]
-fn process_order(params: ExecuteOrderParams) { //TODO check with refactor with callback_utils
+fn process_order(params: ExecuteOrderParams) -> event_utils::LogData { //TODO check with refactor with callback_utils
     let order: Order = params.order;
 
     market_utils::validate_position_market_check(params.contracts.data_store, params.market);
@@ -75,7 +75,7 @@ fn process_order(params: ExecuteOrderParams) { //TODO check with refactor with c
         IMarketTokenDispatcher { contract_address: order.market }
         .transfer_out(result.secondary_output_token, order.receiver, result.secondary_output_amount);
 
-        // return get_output_event_data(result.output_token, result.output_amount, result.secondary_output_token, result.secondary_output_amount);
+        return get_output_event_data(result.output_token, result.output_amount, result.secondary_output_token, result.secondary_output_amount);
     }
 
     let swap_param: SwapParams = SwapParams {
@@ -96,7 +96,7 @@ fn process_order(params: ExecuteOrderParams) { //TODO check with refactor with c
 
     validate_output_amount(params.contracts.oracle, token_out, swap_output_amount, order.min_output_amount);
 
-    // return get_output_event_data(token_out, swap_output_amount, contract_address_const::<0>(), 0);
+    return get_output_event_data(token_out, swap_output_amount, contract_address_const::<0>(), 0);
     
 }
 
@@ -217,15 +217,14 @@ fn get_output_event_data(
     secondary_output_token: ContractAddress,
     secondary_output_amount: u128
 ) -> event_utils::LogData {
-    let address_items: event_utils::AddressItems = Default::default();
-
+    let mut address_items: event_utils::AddressItems = Default::default();
     let mut uint_items: event_utils::UintItems = Default::default();
 
-    event_utils::set_item_address_items(address_items, 0, "outputToken", output_token);
-    event_utils::set_item_address_items(address_items, 1, "secondaryOutputToken", secondary_output_token);
+    address_items = event_utils::set_item_address_items(address_items, 0, "output_token", output_token);
+    address_items = event_utils::set_item_address_items(address_items, 1, "secondary_output_token", secondary_output_token);
 
-    event_utils::set_item_uint_items(uint_items, 0, "outputToken", output_amount);
-    event_utils::set_item_uint_items(uint_items, 1, "secondary_output_amount", secondary_output_amount);
+    uint_items = event_utils::set_item_uint_items(uint_items, 0, "output_amount", output_amount);
+    uint_items = event_utils::set_item_uint_items(uint_items, 1, "secondary_output_amount", secondary_output_amount);
 
     event_utils::LogData {
         address_items,
