@@ -189,6 +189,7 @@ fn create_adl_order(params: CreateAdlOrderParams) -> felt252 {
         min_output_amount: 0,
         updated_at_block: params.updated_at_block,
         is_long: position.is_long,
+        should_unwrap_native_token: true,
         is_frozen: false,
     };
     params.data_store.set_order(key, order);

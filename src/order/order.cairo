@@ -84,6 +84,7 @@ impl DefaultOrder of Default<Order> {
             min_output_amount: 0,
             updated_at_block: 0,
             is_long: true,
+            should_unwrap_native_token: true,
             is_frozen: true,
         }
     }

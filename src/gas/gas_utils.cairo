@@ -8,6 +8,7 @@ use starknet::ContractAddress;
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::data::keys;
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 use satoru::order::{
     order::{Order, DecreasePositionSwapType},
@@ -57,7 +58,7 @@ fn get_execution_gas(data_store: IDataStoreDispatcher, starting_gas: u128) -> u1
 fn pay_execution_fee(
     data_store: IDataStoreDispatcher,
     event_emitter: IEventEmitterDispatcher,
-    bank: IWithdrawalVaultDispatcher,
+    bank: IBankDispatcher,
     execution_fee: u128,
     starting_gas: u128,
     keeper: ContractAddress,
