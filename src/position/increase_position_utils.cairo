@@ -35,13 +35,13 @@ use satoru::order::base_order_utils;
 #[derive(Drop, starknet::Store, Serde, Default, Copy)]
 struct IncreasePositionCache {
     /// The change in collateral amount.
-    collateral_delta_amount: i128, // TODO replace with i128 when storeable
+    collateral_delta_amount: i128,
     execution_price: u128,
     collateral_token_price: Price,
     /// The price impact of the position increase in USD.
-    price_impact_usd: i128, // TODO replace with i128 when storeable
+    price_impact_usd: i128,
     /// The price impact of the position increase in tokens.
-    price_impact_amount: i128, // TODO replace with i128 when storeable
+    price_impact_amount: i128,
     /// The change in position size in tokens.
     size_delta_in_tokens: u128,
     /// The new position size in USD.
@@ -424,7 +424,6 @@ fn get_execution_price(
         params.order.acceptable_price,
         params.position.is_long
     );
-    let size_delta_in_tokens_unsigned = to_unsigned(size_delta_in_tokens);
 
-    (price_impact_usd, price_impact_amount, size_delta_in_tokens_unsigned, execution_price)
+    (price_impact_usd, price_impact_amount, to_unsigned(size_delta_in_tokens), execution_price)
 }
