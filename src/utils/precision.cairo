@@ -177,7 +177,7 @@ use alexandria_math::BitShift;
 fn exp2(mut x: u256) -> u256 {
     let EXP2_MAX_INPUT = 192 * 1000000000000000000 - 1;
     if x > EXP2_MAX_INPUT {
-        panic("error");
+        panic_with_felt252("error");
     }
     x = BitShift::shl(x, 64);
     x = x / 1000000000000000000;
