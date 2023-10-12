@@ -481,7 +481,7 @@ mod DataStore {
     // Core lib imports.
     use core::option::OptionTrait;
     use core::traits::TryInto;
-    use starknet::{get_caller_address, ContractAddress, contract_address_const,};
+    use starknet::{get_caller_address, ContractAddress, contract_address_const};
     use nullable::NullableTrait;
     use zeroable::Zeroable;
     use alexandria_storage::list::{ListTrait, List};
