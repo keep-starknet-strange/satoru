@@ -56,6 +56,8 @@ struct Order {
     updated_at_block: u64,
     /// Whether the order is for a long or short.
     is_long: bool,
+    // whether to unwrap native tokens before transferring to the user
+    should_unwrap_native_token: bool,
     /// Whether the order is frozen.
     is_frozen: bool,
 }
