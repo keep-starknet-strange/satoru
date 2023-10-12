@@ -3,6 +3,7 @@ mod adl {
 }
 mod bank {
     mod test_bank;
+    mod test_strict_bank;
 }
 mod callback {
     mod test_callback_utils;
@@ -106,7 +107,10 @@ mod utils {
     mod test_i128;
 }
 mod mock {
-    mod test_referral_utils;
     mod test_governable;
     mod test_referral_storage;
+}
+
+mod referral {
+    mod test_referral_utils;
 }

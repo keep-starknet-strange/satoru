@@ -53,7 +53,7 @@ struct PoolParams {
 }
 
 /// Struct to contain swap fee values.
-#[derive(Drop, Clone, starknet::Store, Serde)]
+#[derive(Copy, Drop, starknet::Store, Serde)]
 struct SwapFees {
     /// The fee amount for the fee receiver.
     fee_receiver_amount: u128,

@@ -55,7 +55,7 @@ fn setup() -> (
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
 
     // Deploy the contract.
-    let market_token_address = deploy_market_token(role_store_address);
+    let market_token_address = deploy_market_token(role_store_address, 11111.try_into().unwrap());
     // Create a safe dispatcher to interact with the contract.
     let market_token = IMarketTokenDispatcher { contract_address: market_token_address };
 
@@ -83,10 +83,12 @@ fn teardown(market_token_address: ContractAddress) {
 }
 
 /// Utility function to deploy a market token and return its address.
-fn deploy_market_token(role_store_address: ContractAddress) -> ContractAddress {
+fn deploy_market_token(
+    role_store_address: ContractAddress, data_store_address: ContractAddress
+) -> ContractAddress {
     let contract = declare('MarketToken');
-    let mut constructor_calldata = array![];
-    constructor_calldata.append(role_store_address.into());
+    let mut constructor_calldata = array![role_store_address.into(), data_store_address.into()];
+
     contract.deploy(@constructor_calldata).unwrap()
 }
 

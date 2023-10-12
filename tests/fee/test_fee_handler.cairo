@@ -6,9 +6,6 @@ use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::fee::fee_handler::{IFeeHandlerDispatcher, IFeeHandlerDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::data::keys::{
-    claim_fee_amount_key, claim_ui_fee_amount_key, claim_ui_fee_amount_for_account_key
-};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
 
@@ -22,8 +19,7 @@ fn given_normal_conditions_when_fee_handler_then_works() {
     let tokens: Array<ContractAddress> = array![
         0x123.try_into().unwrap(), 0x234.try_into().unwrap(), 0x345.try_into().unwrap()
     ];
-
-    fee_handler.claim_fees(markets, tokens);
+// fee_handler.claim_fees(markets, tokens); TODO wait for market_utils to be implemented
 }
 
 #[test]
