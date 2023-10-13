@@ -78,6 +78,12 @@ fn process_order(
         ref update_position_params
     );
 
+    // if the pnl_token and the collateral_token are different
+    // and if a swap fails or no swap was requested
+    // then it is possible to receive two separate tokens from decreasing
+    // the position
+    // transfer the two tokens to the user in this case and skip processing
+    // the swap_path
     if (result.secondary_output_amount > 0) {
         validate_output_amount_secondary(
             params.contracts.oracle,
@@ -118,6 +124,7 @@ fn process_order(
         ui_fee_receiver: order.ui_fee_receiver,
     };
 
+    //TODO handle the swap_error when its possible
     let (token_out, swap_output_amount) = params.contracts.swap_handler.swap(swap_param);
 
     validate_output_amount(
@@ -176,8 +183,7 @@ fn validate_oracle_block_numbers(
         }
         return;
     }
-    OrderError::UNSUPPORTED_ORDER_TYPE;
-    return;
+    panic_with_felt252(OrderError::UNSUPPORTED_ORDER_TYPE);
 }
 
 // Note: that min_output_amount is treated as a USD value for this validation
