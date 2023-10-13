@@ -11,7 +11,7 @@ use satoru::event::event_utils;
 use satoru::order::error::OrderError;
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::utils::span32::{Span32, DefaultSpan32};
-use core::clone::Clone;
+use satoru::oracle::error::OracleError;
 
 #[inline(always)]
 fn process_order(params: ExecuteOrderParams) -> event_utils::LogData {
@@ -85,7 +85,9 @@ fn validate_oracle_block_numbers(
     }
     if (order_type == OrderType::LimitSwap) {
         if (!u64_are_gte(min_oracle_block_numbers, order_updated_at_block)) {
-            panic(array![OrderError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED]);
+            OracleError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(
+                min_oracle_block_numbers, order_updated_at_block
+            );
         }
         return;
     }
