@@ -95,7 +95,7 @@ fn given_position_should_be_liquidated_when_decrease_position_then_fails() {
 /// * `IRoleStoreDispatcher` - The role store dispatcher.
 /// * `ISwapHandlerDispatcher` - The swap handler dispatcher.
 fn setup() -> (ContractAddress, ISwapHandlerDispatcher) {
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
 
     let role_store_address = deploy_role_store();
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };

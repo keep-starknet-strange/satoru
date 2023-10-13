@@ -366,22 +366,28 @@ fn setup() -> (
     return (caller_address, role_store, data_store, event_emitter, referral_storage, governable);
 }
 
-/// Deploy an `EventEmitter` contract and return its dispatcher.
 fn deploy_event_emitter() -> ContractAddress {
     let contract = declare('EventEmitter');
-    contract.deploy(@array![]).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'event_emitter'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
-/// Deploy a `ReferralStorage` contract and return its dispatcher.
 fn deploy_referral_storage(event_emitter_address: ContractAddress) -> ContractAddress {
     let contract = declare('ReferralStorage');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'referral_storage'>();
+    start_prank(deployed_contract_address, caller_address);
     let constructor_calldata = array![event_emitter_address.into()];
-    contract.deploy(@constructor_calldata).unwrap()
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
-/// Deploy a `Governable` contract and return its dispatcher.
 fn deploy_governable(event_emitter_address: ContractAddress) -> ContractAddress {
     let contract = declare('Governable');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'governable'>();
+    start_prank(deployed_contract_address, caller_address);
     let constructor_calldata = array![event_emitter_address.into()];
-    contract.deploy(@constructor_calldata).unwrap()
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }

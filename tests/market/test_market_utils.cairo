@@ -1076,7 +1076,7 @@ fn setup_contracts() -> (
     let market_factory = IMarketFactoryDispatcher { contract_address: market_factory_address };
 
     (
-        0x101.try_into().unwrap(),
+        contract_address_const::<'caller'>(),
         market_factory_address,
         role_store_address,
         data_store_address,
@@ -1097,30 +1097,41 @@ fn deploy_market_factory(
     market_token_class_hash: ContractClass,
 ) -> ContractAddress {
     let contract = declare('MarketFactory');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'market_factory'>();
+    start_prank(deployed_contract_address, caller_address);
     let mut constructor_calldata = array![];
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
     constructor_calldata.append(event_emitter_address.into());
     constructor_calldata.append(market_token_class_hash.class_hash.into());
-    contract.deploy(@constructor_calldata).unwrap()
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 
-/// Utility function to deploy a data store contract and return its address.
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('DataStore');
-    let mut constructor_calldata = array![];
-    constructor_calldata.append(role_store_address.into());
-    contract.deploy(@constructor_calldata).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'data_store'>();
+    start_prank(deployed_contract_address, caller_address);
+    let constructor_calldata = array![role_store_address.into()];
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
-/// Utility function to deploy a data store contract and return its address.
-/// Copied from `tests/role/test_role_store.rs`.
-/// TODO: Find a way to share this code.
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
-    let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
-    contract.deploy(constructor_arguments).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'role_store'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
+}
+
+fn deploy_event_emitter() -> ContractAddress {
+    let contract = declare('EventEmitter');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'event_emitter'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
 /// Utility function to deploy a `Chain` contract and return its address.
@@ -1130,9 +1141,3 @@ fn deploy_chain() -> ContractAddress {
     contract.deploy(constructor_arguments).unwrap()
 }
 
-/// Utility function to deploy a `EventEmitter` contract and return its address.
-fn deploy_event_emitter() -> ContractAddress {
-    let contract = declare('EventEmitter');
-    let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
-    contract.deploy(constructor_arguments).unwrap()
-}

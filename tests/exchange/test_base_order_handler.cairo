@@ -95,7 +95,7 @@ fn deploy_event_emitter() -> ContractAddress {
 fn setup() -> (
     ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, IWithdrawalHandlerDispatcher
 ) {
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let order_keeper: ContractAddress = 0x2233.try_into().unwrap();
     let role_store_address = deploy_role_store();
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
