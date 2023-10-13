@@ -79,10 +79,9 @@ fn given_good_params_when_process_collateral_then_succeed() {
     //
     // Execution
     //
-    //TODO add params in process_collateral when function implemented
-    // let result = decrease_position_collateral_utils::process_collateral(
-    //     event_emitter, params, values
-    // );
+    let result = decrease_position_collateral_utils::process_collateral(
+        event_emitter, params, values
+    );
 
     // Checks
     let open_interest = data_store
