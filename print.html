@@ -183,9 +183,19 @@
 <div style="break-before: page; page-break-before: always;"></div><h1 id="getting-started"><a class="header" href="#getting-started">Getting Started</a></h1>
 <p>In this section, we will go through the steps to build and test the smart contracts.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="prerequisites"><a class="header" href="#prerequisites">Prerequisites</a></h1>
+<p>There are several ways to run Satoru:</p>
 <ul>
+<li>Install prerequisites on the local system</li>
+<li>Run in a dev container</li>
+</ul>
+<h2 id="installation-on-the-local-system"><a class="header" href="#installation-on-the-local-system">Installation on the local system</a></h2>
+<ul>
+<li><a href="https://docs.swmansion.com/scarb/download.html">Scarb</a></li>
 <li><a href="https://foundry-rs.github.io/starknet-foundry/">Starknet Foundry</a></li>
 </ul>
+<h2 id="run-in-a-dev-container"><a class="header" href="#run-in-a-dev-container">Run in a dev container</a></h2>
+<p>Dev containers provide a dedicated environment for the project. Since the dev container configuration is stored in the <code>.devcontainer</code> directory, this ensures that the environment is strictly identical from one developer to the next.</p>
+<p>To run inside a dev container, please follow <a href="https://code.visualstudio.com/docs/devcontainers/tutorial">Dev Containers tutorial</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="build-the-contracts"><a class="header" href="#build-the-contracts">Build the contracts</a></h1>
 <p>Open a terminal and run the following command:</p>
 <pre><code class="language-shell">scarb build
