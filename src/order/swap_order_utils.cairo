@@ -39,7 +39,7 @@ fn process_order(params: ExecuteOrderParams) -> event_utils::LogData {
             amount_in: params.order.initial_collateral_delta_amount,
             swap_path_markets: params.swap_path_markets.span(),
             min_output_amount: params.order.min_output_amount,
-            receiver: params.order.market,
+            receiver: params.order.receiver,
             ui_fee_receiver: params.order.ui_fee_receiver,
         }
     );
