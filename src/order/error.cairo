@@ -12,7 +12,8 @@ mod OrderError {
     const CANT_BE_ZERO: felt252 = 'order account cant be 0';
     const EMPTY_SIZE_DELTA_IN_TOKENS: felt252 = 'empty_size_delta_in_tokens';
     const UNEXPECTED_MARKET: felt252 = 'unexpected market';
-    const ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED: felt252 = 'block nb smaller than required';
+    const ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED: felt252 =
+        'block nb smaller than required';
 
     fn INVALID_ORDER_PRICE(primary_price: Price, trigger_price: u128, order_type: OrderType) {
         let mut data: Array<felt252> = array![];

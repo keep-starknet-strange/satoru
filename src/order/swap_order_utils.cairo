@@ -19,7 +19,12 @@ fn process_order(params: ExecuteOrderParams) -> event_utils::LogData {
         panic(array![OrderError::UNEXPECTED_MARKET]);
     }
 
-    validate_oracle_block_numbers(params.min_oracle_block_numbers.span(), params.max_oracle_block_numbers.span(), params.order.order_type, params.order.updated_at_block);
+    validate_oracle_block_numbers(
+        params.min_oracle_block_numbers.span(),
+        params.max_oracle_block_numbers.span(),
+        params.order.order_type,
+        params.order.updated_at_block
+    );
 
     let (output_token, output_amount) = swap_utils::swap(
         @swap_utils::SwapParams {
@@ -39,13 +44,13 @@ fn process_order(params: ExecuteOrderParams) -> event_utils::LogData {
         }
     );
 
-    let address_items: event_utils::AddressItems = Default::default();
-
+    let mut address_items: event_utils::AddressItems = Default::default();
     let mut uint_items: event_utils::UintItems = Default::default();
-    
-    event_utils::set_item_address_items(address_items, 0, "outputToken", output_token);
 
-    event_utils::set_item_uint_items(uint_items, 0, "outputToken", output_amount);
+    address_items =
+        event_utils::set_item_address_items(address_items, 0, "output_token", output_token);
+
+    uint_items = event_utils::set_item_uint_items(uint_items, 0, "output_amount", output_amount);
 
     event_utils::LogData {
         address_items,
@@ -56,7 +61,6 @@ fn process_order(params: ExecuteOrderParams) -> event_utils::LogData {
         array_of_felt_items: Default::default(),
         string_items: Default::default(),
     }
-
 }
 
 
@@ -74,7 +78,9 @@ fn validate_oracle_block_numbers(
     order_updated_at_block: u64
 ) {
     if (order_type == OrderType::MarketSwap) {
-        oracle_utils::validate_block_number_within_range(min_oracle_block_numbers, max_oracle_block_numbers, order_updated_at_block);
+        oracle_utils::validate_block_number_within_range(
+            min_oracle_block_numbers, max_oracle_block_numbers, order_updated_at_block
+        );
         return;
     }
     if (order_type == OrderType::LimitSwap) {
