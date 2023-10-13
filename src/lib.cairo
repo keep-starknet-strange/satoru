@@ -198,6 +198,7 @@ mod order {
     mod order_store_utils;
     mod order_event_utils;
     mod error;
+    mod swap_order_utils;
 }
 
 // `position` contains positions management functions

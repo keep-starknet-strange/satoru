@@ -11,6 +11,7 @@ mod OrderError {
     const ORDER_INDEX_NOT_FOUND: felt252 = 'order_index_not_found';
     const CANT_BE_ZERO: felt252 = 'order account cant be 0';
     const EMPTY_SIZE_DELTA_IN_TOKENS: felt252 = 'empty_size_delta_in_tokens';
+    const UNEXPECTED_MARKET: felt252 = 'unexpected market';
     const INVALID_SIZE_DELTA_FOR_ADL: felt252 = 'invalid_size_delta_for_adl';
     const POSTION_NOT_VALID: felt252 = 'position_not_valid';
 
