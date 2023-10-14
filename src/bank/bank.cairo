@@ -60,7 +60,7 @@ mod Bank {
     #[storage]
     struct Storage {
         /// Interface to interact with the `DataStore` contract.
-        data_store: IDataStoreDispatcher,
+        data_store: IDataStoreDispatcher
     }
 
     // *************************************************************************

@@ -3,7 +3,7 @@ use core::array::ArrayTrait;
 use core::traits::Into;
 
 use snforge_std::{declare, ContractClassTrait, start_prank};
-use satoru::tests_lib::{teardown, deploy_role_store, deploy_swap_handler_address};
+use satoru::tests_lib::{teardown, deploy_role_store, deploy_swap_handler_address, deploy_data_store};
 use satoru::utils::span32::{Span32, Array32Trait};
 
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
@@ -98,7 +98,10 @@ fn setup() -> (ContractAddress, ISwapHandlerDispatcher) {
     let role_store_address = deploy_role_store();
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
 
-    let swap_handler_address = deploy_swap_handler_address(role_store_address);
+    let data_store_address = deploy_data_store(role_store_address);
+    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
+
+    let swap_handler_address = deploy_swap_handler_address(role_store_address, data_store_address);
     let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
 
     start_prank(role_store_address, caller_address);

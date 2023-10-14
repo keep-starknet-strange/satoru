@@ -147,9 +147,9 @@ fn deploy_oracle(
         .unwrap()
 }
 
-fn deploy_swap_handler(role_store_address: ContractAddress) -> ContractAddress {
+fn deploy_swap_handler(role_store_address: ContractAddress, data_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('SwapHandler');
-    contract.deploy(@array![role_store_address.into()]).unwrap()
+    contract.deploy(@array![role_store_address.into(), data_store_address.into()]).unwrap()
 }
 
 fn deploy_referral_storage() -> ContractAddress {
@@ -186,7 +186,7 @@ fn _setup() -> (
     let event_emitter_address = deploy_event_emitter();
     let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
     let order_vault_address = deploy_order_vault(data_store_address, role_store_address);
-    let swap_handler_address = deploy_swap_handler(role_store_address);
+    let swap_handler_address = deploy_swap_handler(role_store_address, data_store_address);
     let oracle_store_address = deploy_oracle_store(role_store_address, event_emitter_address);
     let oracle_address = deploy_oracle(
         role_store_address, oracle_store_address, contract_address_const::<'pragma'>()
