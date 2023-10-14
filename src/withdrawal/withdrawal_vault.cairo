@@ -34,7 +34,7 @@ mod WithdrawalVault {
     use starknet::{ContractAddress};
 
     // Local imports.
-    use satoru::bank::strict_bank::{IStrictBankDispatcher};
+    use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
     use super::IWithdrawalVault;
     use satoru::withdrawal::error::WithdrawalError;
 
@@ -78,7 +78,7 @@ mod WithdrawalVault {
         }
 
         fn record_transfer_in(ref self: ContractState, token: ContractAddress) -> u128 {
-            0
+            self.strict_bank.read().record_transfer_in(token)
         }
 
         fn transfer_out(
@@ -86,10 +86,12 @@ mod WithdrawalVault {
             token: ContractAddress,
             receiver: ContractAddress,
             amount: u128,
-        ) {}
+        ) {
+            self.strict_bank.read().transfer_out(token, receiver, amount)
+        }
 
         fn sync_token_balance(ref self: ContractState, token: ContractAddress) -> u128 {
-            0
+            self.strict_bank.read().sync_token_balance(token)
         }
     }
 }
