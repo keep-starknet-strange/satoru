@@ -18,8 +18,6 @@ use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositio
 use satoru::tests_lib::setup_event_emitter;
 use satoru::utils::span32::{Span32, Array32Trait};
 
-//TODO: OrderCollateralDeltaAmountAutoUpdated must be renamed back to OrderCollateralDeltaAmountAutoUpdated when string will be allowed as event argument
-
 #[test]
 fn given_normal_conditions_when_emit_order_created_then_works() {
     // *********************************************************************************************

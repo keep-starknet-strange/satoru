@@ -22,9 +22,6 @@ use satoru::utils::{
     i128::{I128Div, I128Mul, I128Store, I128Serde}, span32::{Span32, DefaultSpan32}
 };
 
-
-//TODO: ClaimableFundingAmountPerSizeUpdated must be renamed back to ClaimableFundingAmountPerSizeUpdated when string will be allowed as event argument
-
 // *************************************************************************
 //                  Interface of the `EventEmitter` contract.
 // *************************************************************************
