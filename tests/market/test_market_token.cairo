@@ -46,7 +46,7 @@ fn setup() -> (
     IRoleStoreDispatcher, // Interface to interact with the `MarketToken` contract.
     IMarketTokenDispatcher,
 ) {
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
 
     // Deploy the role store contract.
     let role_store_address = deploy_role_store();
@@ -92,11 +92,10 @@ fn deploy_market_token(
     contract.deploy(@constructor_calldata).unwrap()
 }
 
-/// Utility function to deploy a data store contract and return its address.
-/// Copied from `tests/role/test_role_store.rs`.
-/// TODO: Find a way to share this code.
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
-    let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
-    contract.deploy(constructor_arguments).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'role_store'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }

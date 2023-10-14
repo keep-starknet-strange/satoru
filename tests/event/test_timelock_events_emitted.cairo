@@ -6,7 +6,15 @@ use snforge_std::{
 
 use satoru::tests_lib::setup_event_emitter;
 
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::event::event_emitter::{
+    EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait
+};
+
+use satoru::event::event_emitter::EventEmitter::{
+    SignalAddOracleSigner, AddOracleSigner, SignalSetFeeReceiver, SignalRemoveOracleSigner,
+    RemoveOracleSigner, SetFeeReceiver, SignalGrantRole, GrantRole, SignalRevokeRole, RevokeRole,
+    SignalSetPriceFeed, SetPriceFeed, SignalPendingAction, ClearPendingAction
+};
 
 
 #[test]
@@ -25,21 +33,18 @@ fn given_normal_conditions_when_emit_signal_add_oracle_signer_then_works() {
     let action_key = 'SignalAddOracleSigner';
     let account = contract_address_const::<'account'>();
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![action_key, account.into()];
-
     // Emit the event.
     event_emitter.emit_signal_add_oracle_signer(action_key, account);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'SignalAddOracleSigner',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::SignalAddOracleSigner(
+                        SignalAddOracleSigner { action_key: action_key, account: account }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -62,9 +67,6 @@ fn given_normal_conditions_when_emit_add_oracle_signer_then_works() {
     let action_key = 'AddOracleSigner';
     let account = contract_address_const::<'account'>();
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![action_key, account.into()];
-
     // Emit the event.
     event_emitter.emit_add_oracle_signer(action_key, account);
 
@@ -72,12 +74,12 @@ fn given_normal_conditions_when_emit_add_oracle_signer_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'AddOracleSigner',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::AddOracleSigner(
+                        AddOracleSigner { action_key: action_key, account: account }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -100,21 +102,18 @@ fn given_normal_conditions_when_emit_signal_remove_oracle_signer_then_works() {
     let action_key = 'SignalRemoveOracleSigner';
     let account = contract_address_const::<'account'>();
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![action_key, account.into()];
-
     // Emit the event.
     event_emitter.emit_signal_remove_oracle_signer(action_key, account);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'SignalRemoveOracleSigner',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::SignalRemoveOracleSigner(
+                        SignalRemoveOracleSigner { action_key: action_key, account: account }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -137,9 +136,6 @@ fn given_normal_conditions_when_emit_remove_oracle_signer_then_works() {
     let action_key = 'RemoveOracleSigner';
     let account = contract_address_const::<'account'>();
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![action_key, account.into()];
-
     // Emit the event.
     event_emitter.emit_remove_oracle_signer(action_key, account);
 
@@ -147,12 +143,12 @@ fn given_normal_conditions_when_emit_remove_oracle_signer_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'RemoveOracleSigner',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::RemoveOracleSigner(
+                        RemoveOracleSigner { action_key: action_key, account: account }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -175,9 +171,6 @@ fn given_normal_conditions_when_emit_signal_set_fee_receiver_then_works() {
     let action_key = 'SignalSetFeeReceiver';
     let account = contract_address_const::<'account'>();
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![action_key, account.into()];
-
     // Emit the event.
     event_emitter.emit_signal_set_fee_receiver(action_key, account);
 
@@ -185,12 +178,12 @@ fn given_normal_conditions_when_emit_signal_set_fee_receiver_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'SignalSetFeeReceiver',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::SignalSetFeeReceiver(
+                        SignalSetFeeReceiver { action_key: action_key, account: account }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -213,9 +206,6 @@ fn given_normal_conditions_when_emit_set_fee_receiver_then_works() {
     let action_key = 'SetFeeReceiver';
     let account = contract_address_const::<'account'>();
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![action_key, account.into()];
-
     // Emit the event.
     event_emitter.emit_set_fee_receiver(action_key, account);
 
@@ -223,12 +213,12 @@ fn given_normal_conditions_when_emit_set_fee_receiver_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'SetFeeReceiver',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::SetFeeReceiver(
+                        SetFeeReceiver { action_key: action_key, account: account }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -252,9 +242,6 @@ fn given_normal_conditions_when_emit_signal_grant_role_then_works() {
     let account = contract_address_const::<'account'>();
     let role_key = 'Admin';
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![action_key, account.into(), role_key];
-
     // Emit the event.
     event_emitter.emit_signal_grant_role(action_key, account, role_key);
 
@@ -262,12 +249,14 @@ fn given_normal_conditions_when_emit_signal_grant_role_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'SignalGrantRole',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::SignalGrantRole(
+                        SignalGrantRole {
+                            action_key: action_key, account: account, role_key: role_key
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -291,9 +280,6 @@ fn given_normal_conditions_when_emit_grant_role_then_works() {
     let account = contract_address_const::<'account'>();
     let role_key = 'Admin';
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![action_key, account.into(), role_key];
-
     // Emit the event.
     event_emitter.emit_grant_role(action_key, account, role_key);
 
@@ -301,9 +287,12 @@ fn given_normal_conditions_when_emit_grant_role_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address, name: 'GrantRole', keys: array![], data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::GrantRole(
+                        GrantRole { action_key: action_key, account: account, role_key: role_key }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -327,9 +316,6 @@ fn given_normal_conditions_when_emit_signal_revoke_role_then_works() {
     let account = contract_address_const::<'account'>();
     let role_key = 'Admin';
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![action_key, account.into(), role_key];
-
     // Emit the event.
     event_emitter.emit_signal_revoke_role(action_key, account, role_key);
 
@@ -337,12 +323,14 @@ fn given_normal_conditions_when_emit_signal_revoke_role_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'SignalRevokeRole',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::SignalRevokeRole(
+                        SignalRevokeRole {
+                            action_key: action_key, account: account, role_key: role_key
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -366,9 +354,6 @@ fn given_normal_conditions_when_emit_revoke_role_then_works() {
     let account = contract_address_const::<'account'>();
     let role_key = 'Admin';
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![action_key, account.into(), role_key];
-
     // Emit the event.
     event_emitter.emit_revoke_role(action_key, account, role_key);
 
@@ -376,9 +361,12 @@ fn given_normal_conditions_when_emit_revoke_role_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address, name: 'RevokeRole', keys: array![], data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::RevokeRole(
+                        RevokeRole { action_key: action_key, account: account, role_key: role_key }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -405,16 +393,6 @@ fn given_normal_conditions_when_emit_signal_set_price_feed_then_works() {
     let price_feed_heartbeat_duration: u128 = 2;
     let stable_price: u128 = 3;
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        action_key,
-        token.into(),
-        price_feed.into(),
-        price_feed_multiplier.into(),
-        price_feed_heartbeat_duration.into(),
-        stable_price.into()
-    ];
-
     // Emit the event.
     event_emitter
         .emit_signal_set_price_feed(
@@ -430,12 +408,19 @@ fn given_normal_conditions_when_emit_signal_set_price_feed_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'SignalSetPriceFeed',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::SignalSetPriceFeed(
+                        SignalSetPriceFeed {
+                            action_key: action_key,
+                            token: token,
+                            price_feed: price_feed,
+                            price_feed_multiplier: price_feed_multiplier,
+                            price_feed_heartbeat_duration: price_feed_heartbeat_duration,
+                            stable_price: stable_price
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -463,16 +448,6 @@ fn given_normal_conditions_when_emit_set_price_feed_then_works() {
     let price_feed_heartbeat_duration: u128 = 2;
     let stable_price: u128 = 3;
 
-    // Create the expected data.
-    let mut expected_data: Array<felt252> = array![
-        action_key,
-        token.into(),
-        price_feed.into(),
-        price_feed_multiplier.into(),
-        price_feed_heartbeat_duration.into(),
-        stable_price.into()
-    ];
-
     // Emit the event.
     event_emitter
         .emit_set_price_feed(
@@ -488,12 +463,19 @@ fn given_normal_conditions_when_emit_set_price_feed_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'SetPriceFeed',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::SetPriceFeed(
+                        SetPriceFeed {
+                            action_key: action_key,
+                            token: token,
+                            price_feed: price_feed,
+                            price_feed_multiplier: price_feed_multiplier,
+                            price_feed_heartbeat_duration: price_feed_heartbeat_duration,
+                            stable_price: stable_price
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -516,9 +498,6 @@ fn given_normal_conditions_when_emit_signal_pending_action_then_works() {
     let action_key = 'SignalPendingAction';
     let action_label = 'SignalPendingAction';
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![action_key, action_label];
-
     // Emit the event.
     event_emitter.emit_signal_pending_action(action_key, action_label);
 
@@ -526,12 +505,12 @@ fn given_normal_conditions_when_emit_signal_pending_action_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'SignalPendingAction',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::SignalPendingAction(
+                        SignalPendingAction { action_key: action_key, action_label: action_label }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -554,9 +533,6 @@ fn given_normal_conditions_when_emit_clear_pending_action_then_works() {
     let action_key = 'ClearPendingAction';
     let action_label = 'ClearPendingAction';
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![action_key, action_label];
-
     // Emit the event.
     event_emitter.emit_clear_pending_action(action_key, action_label);
 
@@ -564,12 +540,12 @@ fn given_normal_conditions_when_emit_clear_pending_action_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'ClearPendingAction',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::ClearPendingAction(
+                        ClearPendingAction { action_key: action_key, action_label: action_label }
+                    )
+                )
             ]
         );
     // Assert there are no more events.

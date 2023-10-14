@@ -22,12 +22,6 @@ use satoru::utils::{
     i128::{I128Div, I128Mul, I128Store, I128Serde}, span32::{Span32, DefaultSpan32}
 };
 
-
-//TODO: OrderCollatDeltaAmountAutoUpdtd must be renamed back to OrderCollateralDeltaAmountAutoUpdated when string will be allowed as event argument
-//TODO: AfterWithdrawalCancelError must be renamed back to AfterWithdrawalCancellationError when string will be allowed as event argument
-//TODO: CumulativeBorrowingFactorUpdatd must be renamed back to CumulativeBorrowingFactorUpdated when string will be allowed as event argument
-//TODO: ClaimableFundingPerSizeUpdatd must be renamed back to ClaimableFundingAmountPerSizeUpdated when string will be allowed as event argument
-
 // *************************************************************************
 //                  Interface of the `EventEmitter` contract.
 // *************************************************************************
@@ -247,7 +241,7 @@ trait IEventEmitter<TContractState> {
         ref self: TContractState, key: felt252, size_delta_usd: u128, next_size_delta_usd: u128
     );
 
-    /// Emits the `OrderCollatDeltaAmountAutoUpdtd` event.
+    /// Emits the `OrderCollateralDeltaAmountAutoUpdated` event.
     fn emit_order_collateral_delta_amount_auto_updated(
         ref self: TContractState,
         key: felt252,
@@ -300,7 +294,7 @@ trait IEventEmitter<TContractState> {
         ref self: TContractState, key: felt252, withdrawal: Withdrawal
     );
 
-    /// Emits the `AfterWithdrawalCancelError` event.
+    /// Emits the `AfterWithdrawalCancellationError` event.
     fn emit_after_withdrawal_cancellation_error(
         ref self: TContractState, key: felt252, withdrawal: Withdrawal
     );
@@ -508,7 +502,7 @@ trait IEventEmitter<TContractState> {
         next_value: u128
     );
 
-    /// Emits the `CumulativeBorrowingFactorUpdatd` event.
+    /// Emits the `CumulativeBorrowingFactorUpdated` event.
     fn emit_cumulative_borrowing_factor_updated(
         ref self: TContractState,
         market: ContractAddress,
@@ -527,7 +521,7 @@ trait IEventEmitter<TContractState> {
         next_value: u128
     );
 
-    /// Emits the `ClaimableFundingPerSizeUpdatd` event.
+    /// Emits the `ClaimableFundingAmountPerSizeUpdated` event.
     fn emit_claimable_funding_amount_per_size_updated(
         ref self: TContractState,
         market: ContractAddress,
@@ -706,7 +700,7 @@ mod EventEmitter {
         OrderExecuted: OrderExecuted,
         OrderUpdated: OrderUpdated,
         OrderSizeDeltaAutoUpdated: OrderSizeDeltaAutoUpdated,
-        OrderCollatDeltaAmountAutoUpdtd: OrderCollatDeltaAmountAutoUpdtd,
+        OrderCollateralDeltaAmountAutoUpdated: OrderCollateralDeltaAmountAutoUpdated,
         OrderCancelled: OrderCancelled,
         OrderFrozen: OrderFrozen,
         PositionIncrease: PositionIncrease,
@@ -720,7 +714,7 @@ mod EventEmitter {
         AfterDepositExecutionError: AfterDepositExecutionError,
         AfterDepositCancellationError: AfterDepositCancellationError,
         AfterWithdrawalExecutionError: AfterWithdrawalExecutionError,
-        AfterWithdrawalCancelError: AfterWithdrawalCancelError,
+        AfterWithdrawalCancellationError: AfterWithdrawalCancellationError,
         AfterOrderExecutionError: AfterOrderExecutionError,
         AfterOrderCancellationError: AfterOrderCancellationError,
         AfterOrderFrozenError: AfterOrderFrozenError,
@@ -753,9 +747,9 @@ mod EventEmitter {
         VirtualSwapInventoryUpdated: VirtualSwapInventoryUpdated,
         VirtualPositionInventoryUpdated: VirtualPositionInventoryUpdated,
         CollateralSumUpdated: CollateralSumUpdated,
-        CumulativeBorrowingFactorUpdatd: CumulativeBorrowingFactorUpdatd,
+        CumulativeBorrowingFactorUpdated: CumulativeBorrowingFactorUpdated,
         FundingFeeAmountPerSizeUpdated: FundingFeeAmountPerSizeUpdated,
-        ClaimableFundingPerSizeUpdatd: ClaimableFundingPerSizeUpdatd,
+        ClaimableFundingAmountPerSizeUpdated: ClaimableFundingAmountPerSizeUpdated,
         FundingFeesClaimed: FundingFeesClaimed,
         CollateralClaimed: CollateralClaimed,
         UiFeeFactorUpdated: UiFeeFactorUpdated,
@@ -935,7 +929,7 @@ mod EventEmitter {
         size_in_tokens: u128,
         collateral_amount: u128,
         borrowing_factor: u128,
-        funding_fee_amount_per_pize: u128,
+        funding_fee_amount_per_size: u128,
         long_token_claimable_funding_amount_per_size: u128,
         short_token_claimable_funding_amount_per_size: u128,
         execution_price: u128,
@@ -963,7 +957,7 @@ mod EventEmitter {
         size_in_tokens: u128,
         collateral_amount: u128,
         borrowing_factor: u128,
-        funding_fee_amount_per_pize: u128,
+        funding_fee_amount_per_size: u128,
         long_token_claimable_funding_amount_per_size: u128,
         short_token_claimable_funding_amount_per_size: u128,
         execution_price: u128,
@@ -1112,7 +1106,7 @@ mod EventEmitter {
     }
 
     #[derive(Drop, starknet::Event)]
-    struct OrderCollatDeltaAmountAutoUpdtd {
+    struct OrderCollateralDeltaAmountAutoUpdated {
         key: felt252,
         collateral_delta_amount: u128,
         next_collateral_delta_amount: u128
@@ -1171,7 +1165,7 @@ mod EventEmitter {
     }
 
     #[derive(Drop, starknet::Event)]
-    struct AfterWithdrawalCancelError {
+    struct AfterWithdrawalCancellationError {
         key: felt252,
         withdrawal: Withdrawal,
     }
@@ -1406,7 +1400,7 @@ mod EventEmitter {
     }
 
     #[derive(Drop, starknet::Event)]
-    struct CumulativeBorrowingFactorUpdatd {
+    struct CumulativeBorrowingFactorUpdated {
         market: ContractAddress,
         is_long: bool,
         delta: u128,
@@ -1423,7 +1417,7 @@ mod EventEmitter {
     }
 
     #[derive(Drop, starknet::Event)]
-    struct ClaimableFundingPerSizeUpdatd {
+    struct ClaimableFundingAmountPerSizeUpdated {
         market: ContractAddress,
         collateral_token: ContractAddress,
         is_long: bool,
@@ -1802,7 +1796,7 @@ mod EventEmitter {
                         size_in_tokens: params.position.size_in_tokens,
                         collateral_amount: params.position.collateral_amount,
                         borrowing_factor: params.position.borrowing_factor,
-                        funding_fee_amount_per_pize: params.position.funding_fee_amount_per_size,
+                        funding_fee_amount_per_size: params.position.funding_fee_amount_per_size,
                         long_token_claimable_funding_amount_per_size: params
                             .position
                             .long_token_claimable_funding_amount_per_size,
@@ -1861,7 +1855,7 @@ mod EventEmitter {
                         size_in_tokens: position.size_in_tokens,
                         collateral_amount: position.collateral_amount,
                         borrowing_factor: position.borrowing_factor,
-                        funding_fee_amount_per_pize: position.funding_fee_amount_per_size,
+                        funding_fee_amount_per_size: position.funding_fee_amount_per_size,
                         long_token_claimable_funding_amount_per_size: position
                             .long_token_claimable_funding_amount_per_size,
                         short_token_claimable_funding_amount_per_size: position
@@ -1922,7 +1916,7 @@ mod EventEmitter {
             self.emit(OrderSizeDeltaAutoUpdated { key, size_delta_usd, next_size_delta_usd });
         }
 
-        /// Emits the `OrderCollatDeltaAmountAutoUpdtd` event.
+        /// Emits the `OrderCollateralDeltaAmountAutoUpdated` event.
         fn emit_order_collateral_delta_amount_auto_updated(
             ref self: ContractState,
             key: felt252,
@@ -1931,7 +1925,7 @@ mod EventEmitter {
         ) {
             self
                 .emit(
-                    OrderCollatDeltaAmountAutoUpdtd {
+                    OrderCollateralDeltaAmountAutoUpdated {
                         key, collateral_delta_amount, next_collateral_delta_amount
                     }
                 );
@@ -2202,7 +2196,7 @@ mod EventEmitter {
         fn emit_after_withdrawal_cancellation_error(
             ref self: ContractState, key: felt252, withdrawal: Withdrawal
         ) {
-            self.emit(AfterWithdrawalCancelError { key, withdrawal });
+            self.emit(AfterWithdrawalCancellationError { key, withdrawal });
         }
 
         /// Emits the `AfterOrderExecutionError` event.
@@ -2536,7 +2530,7 @@ mod EventEmitter {
                 );
         }
 
-        /// Emits the `CumulativeBorrowingFactorUpdatd` event.
+        /// Emits the `CumulativeBorrowingFactorUpdated` event.
         fn emit_cumulative_borrowing_factor_updated(
             ref self: ContractState,
             market: ContractAddress,
@@ -2544,7 +2538,7 @@ mod EventEmitter {
             delta: u128,
             next_value: u128
         ) {
-            self.emit(CumulativeBorrowingFactorUpdatd { market, is_long, delta, next_value });
+            self.emit(CumulativeBorrowingFactorUpdated { market, is_long, delta, next_value });
         }
 
         /// Emits the `FundingFeeAmountPerSizeUpdated` event.
@@ -2564,7 +2558,7 @@ mod EventEmitter {
                 );
         }
 
-        /// Emits the `ClaimableFundingPerSizeUpdatd` event.
+        /// Emits the `ClaimableFundingAmountPerSizeUpdated` event.
         fn emit_claimable_funding_amount_per_size_updated(
             ref self: ContractState,
             market: ContractAddress,
@@ -2575,7 +2569,7 @@ mod EventEmitter {
         ) {
             self
                 .emit(
-                    ClaimableFundingPerSizeUpdatd {
+                    ClaimableFundingAmountPerSizeUpdated {
                         market, collateral_token, is_long, delta, next_value
                     }
                 );
