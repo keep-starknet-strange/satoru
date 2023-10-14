@@ -89,25 +89,41 @@ fn given_normal_conditions_when_create_execute_liquidation_then_works() {
 
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('DataStore');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'data_store'>();
+    start_prank(deployed_contract_address, caller_address);
     let constructor_calldata = array![role_store_address.into()];
-    contract.deploy(@constructor_calldata).unwrap()
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
-    contract.deploy(@array![]).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'role_store'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
 fn deploy_event_emitter() -> ContractAddress {
     let contract = declare('EventEmitter');
-    contract.deploy(@array![]).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'event_emitter'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
 fn deploy_order_vault(
     data_store_address: ContractAddress, role_store_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare('OrderVault');
-    contract.deploy(@array![data_store_address.into(), role_store_address.into()]).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'order_vault'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract
+        .deploy_at(
+            @array![data_store_address.into(), role_store_address.into()], deployed_contract_address
+        )
+        .unwrap()
 }
 
 fn deploy_liquidation_handler(
@@ -119,8 +135,11 @@ fn deploy_liquidation_handler(
     oracle_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare('LiquidationHandler');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'liquidation_handler'>();
+    start_prank(deployed_contract_address, caller_address);
     contract
-        .deploy(
+        .deploy_at(
             @array![
                 data_store_address.into(),
                 role_store_address.into(),
@@ -129,7 +148,8 @@ fn deploy_liquidation_handler(
                 oracle_address.into(),
                 swap_handler_address.into(),
                 Default::default()
-            ]
+            ],
+            deployed_contract_address
         )
         .unwrap()
 }
@@ -140,33 +160,56 @@ fn deploy_oracle(
     pragma_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare('Oracle');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'oracle'>();
+    start_prank(deployed_contract_address, caller_address);
     contract
-        .deploy(
-            @array![role_store_address.into(), oracle_store_address.into(), pragma_address.into()]
+        .deploy_at(
+            @array![role_store_address.into(), oracle_store_address.into(), pragma_address.into()],
+            deployed_contract_address
         )
         .unwrap()
 }
 
 fn deploy_swap_handler(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('SwapHandler');
-    contract.deploy(@array![role_store_address.into()]).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'swap_handler'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![role_store_address.into()], deployed_contract_address).unwrap()
 }
 
 fn deploy_referral_storage() -> ContractAddress {
     let contract = declare('ReferralStorage');
-    contract.deploy(@array![]).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'referral_storage'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
 fn deploy_oracle_store(
     role_store_address: ContractAddress, event_emitter_address: ContractAddress,
 ) -> ContractAddress {
     let contract = declare('OracleStore');
-    contract.deploy(@array![role_store_address.into(), event_emitter_address.into()]).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'oracle_store'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract
+        .deploy_at(
+            @array![role_store_address.into(), event_emitter_address.into()],
+            deployed_contract_address
+        )
+        .unwrap()
 }
 
 fn deploy_role_module(role_store_address: ContractAddress) -> IRoleModuleDispatcher {
     let contract = declare('RoleModule');
-    let role_module_address = contract.deploy(@array![role_store_address.into()]).unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'role_module'>();
+    start_prank(deployed_contract_address, caller_address);
+    let role_module_address = contract
+        .deploy_at(@array![role_store_address.into()], deployed_contract_address)
+        .unwrap();
     IRoleModuleDispatcher { contract_address: role_module_address }
 }
 
@@ -177,7 +220,7 @@ fn _setup() -> (
     ILiquidationHandlerDispatcher,
     IEventEmitterDispatcher
 ) {
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let liquidation_keeper: ContractAddress = 0x2233.try_into().unwrap();
     let role_store_address = deploy_role_store();
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
