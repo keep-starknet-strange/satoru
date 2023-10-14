@@ -130,10 +130,11 @@ fn deploy_deposit_vault(
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'deposit_vault'>();
     start_prank(deployed_contract_address, caller_address);
-    contract.deploy_at(
-        @array![role_store_address.into(), data_store_address.into()],
-        deployed_contract_address
-    ).unwrap()
+    contract
+        .deploy_at(
+            @array![role_store_address.into(), data_store_address.into()], deployed_contract_address
+        )
+        .unwrap()
 }
 
 fn deploy_deposit_handler(

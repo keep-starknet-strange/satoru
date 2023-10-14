@@ -1,3 +1,11 @@
+// Core lib imports.
+use snforge_std::{declare, ContractClassTrait, start_prank};
+use array::ArrayTrait;
+use core::traits::Into;
+use debug::PrintTrait;
+use starknet::{get_caller_address, ContractAddress, contract_address_const,};
+
+// Local imports.
 use satoru::tests_lib::{teardown};
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -5,13 +13,9 @@ use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use snforge_std::{declare, ContractClassTrait, start_prank};
 use satoru::swap::swap_utils::SwapParams;
-use core::traits::Into;
 use satoru::role::role;
 use satoru::market::market::Market;
-use starknet::{get_caller_address, ContractAddress, contract_address_const,};
-use array::ArrayTrait;
 
 //TODO Tests need to be added after implementation of swap_utils
 
