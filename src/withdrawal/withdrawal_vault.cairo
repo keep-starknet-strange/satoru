@@ -87,7 +87,7 @@ mod WithdrawalVault {
             receiver: ContractAddress,
             amount: u128,
         ) {
-            self.strict_bank.read().transfer_out(token, receiver, amount)
+            self.strict_bank.read().transfer_out(token, receiver, amount);
         }
 
         fn sync_token_balance(ref self: ContractState, token: ContractAddress) -> u128 {
