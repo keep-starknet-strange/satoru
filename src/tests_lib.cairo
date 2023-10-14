@@ -31,9 +31,11 @@ fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
 /// # Returns
 ///
 /// * `ContractAddress` - The address of the deployed data store contract.
-fn deploy_swap_handler_address(role_store_address: ContractAddress) -> ContractAddress {
+fn deploy_swap_handler_address(
+    role_store_address: ContractAddress, data_store_address: ContractAddress
+) -> ContractAddress {
     let contract = declare('SwapHandler');
-    let constructor_calldata = array![role_store_address.into()];
+    let constructor_calldata = array![role_store_address.into(), data_store_address.into()];
     contract.deploy(@constructor_calldata).unwrap()
 }
 
