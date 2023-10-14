@@ -54,6 +54,7 @@ fn given_normal_conditions_when_create_execute_liquidation_then_works() {
             oracle_params: Default::default()
         );
 }
+
 // TODO: uncomment this test after https://github.com/foundry-rs/starknet-foundry/issues/659 is merged
 // #[test]
 // fn given_normal_conditions_when_create_liquidation_order_works() {
