@@ -53,7 +53,11 @@ mod SwapHandler {
 
     /// Constructor of the contract.
     #[constructor]
-    fn constructor(ref self: ContractState, role_store_address: ContractAddress, data_store_address: ContractAddress) {
+    fn constructor(
+        ref self: ContractState,
+        role_store_address: ContractAddress,
+        data_store_address: ContractAddress
+    ) {
         let mut role_module: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
         IRoleModule::initialize(ref role_module, role_store_address);
         self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });

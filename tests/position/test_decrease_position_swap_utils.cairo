@@ -30,7 +30,9 @@ use array::ArrayTrait;
 //TODO Tests need to be added after implementation of decrease_position_swap_utils
 
 /// Utility function to deploy a `SwapHandler` contract and return its dispatcher.
-fn deploy_swap_handler_address(role_store_address: ContractAddress, data_store_address: ContractAddress) -> ContractAddress {
+fn deploy_swap_handler_address(
+    role_store_address: ContractAddress, data_store_address: ContractAddress
+) -> ContractAddress {
     let contract = declare('SwapHandler');
     let constructor_calldata = array![role_store_address.into(), data_store_address.into()];
     contract.deploy(@constructor_calldata).unwrap()

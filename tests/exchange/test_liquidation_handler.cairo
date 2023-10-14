@@ -147,7 +147,9 @@ fn deploy_oracle(
         .unwrap()
 }
 
-fn deploy_swap_handler(role_store_address: ContractAddress, data_store_address: ContractAddress) -> ContractAddress {
+fn deploy_swap_handler(
+    role_store_address: ContractAddress, data_store_address: ContractAddress
+) -> ContractAddress {
     let contract = declare('SwapHandler');
     contract.deploy(@array![role_store_address.into(), data_store_address.into()]).unwrap()
 }

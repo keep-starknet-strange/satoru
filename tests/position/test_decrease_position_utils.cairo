@@ -3,7 +3,9 @@ use core::array::ArrayTrait;
 use core::traits::Into;
 
 use snforge_std::{declare, ContractClassTrait, start_prank};
-use satoru::tests_lib::{teardown, deploy_role_store, deploy_swap_handler_address, deploy_data_store};
+use satoru::tests_lib::{
+    teardown, deploy_role_store, deploy_swap_handler_address, deploy_data_store
+};
 use satoru::utils::span32::{Span32, Array32Trait};
 
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
