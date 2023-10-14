@@ -55,9 +55,11 @@ fn deploy_bank_address(
 
 
 /// Utility function to deploy a `SwapHandler` contract and return its dispatcher.
-fn deploy_swap_handler_address(role_store_address: ContractAddress) -> ContractAddress {
+fn deploy_swap_handler_address(
+    role_store_address: ContractAddress, data_store_address: ContractAddress
+) -> ContractAddress {
     let contract = declare('SwapHandler');
-    let constructor_calldata = array![role_store_address.into()];
+    let constructor_calldata = array![role_store_address.into(), data_store_address.into()];
     contract.deploy(@constructor_calldata).unwrap()
 }
 
@@ -109,7 +111,7 @@ fn setup() -> (
     let bank_address = deploy_bank_address(data_store_address, role_store_address);
     let bank = IBankDispatcher { contract_address: bank_address };
 
-    let swap_handler_address = deploy_swap_handler_address(role_store_address);
+    let swap_handler_address = deploy_swap_handler_address(role_store_address, data_store_address);
     let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
 
     start_prank(role_store_address, caller_address);

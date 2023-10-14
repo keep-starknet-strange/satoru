@@ -9,4 +9,4 @@ from_string="Class hash declared:"
 class_hash="${command_output#*$from_string}"
 
 # Deploy the contract using the extracted class hash
-starkli deploy $class_hash $3 --network=goerli-1 --account $1 --keystore $2
+starkli deploy $class_hash $3 $4 --network=goerli-1 --account $1 --keystore $2

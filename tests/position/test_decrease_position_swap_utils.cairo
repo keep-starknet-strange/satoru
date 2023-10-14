@@ -30,9 +30,11 @@ use array::ArrayTrait;
 //TODO Tests need to be added after implementation of decrease_position_swap_utils
 
 /// Utility function to deploy a `SwapHandler` contract and return its dispatcher.
-fn deploy_swap_handler_address(role_store_address: ContractAddress) -> ContractAddress {
+fn deploy_swap_handler_address(
+    role_store_address: ContractAddress, data_store_address: ContractAddress
+) -> ContractAddress {
     let contract = declare('SwapHandler');
-    let constructor_calldata = array![role_store_address.into()];
+    let constructor_calldata = array![role_store_address.into(), data_store_address.into()];
     contract.deploy(@constructor_calldata).unwrap()
 }
 
@@ -42,6 +44,12 @@ fn deploy_role_store() -> ContractAddress {
     contract.deploy(@array![]).unwrap()
 }
 
+/// Utility function to deploy a `DataStore` contract and return its dispatcher.
+fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
+    let contract = declare('DataStore');
+    let constructor_calldata = array![role_store_address.into()];
+    contract.deploy(@constructor_calldata).unwrap()
+}
 
 /// Utility function to setup the test environment.
 ///
@@ -56,7 +64,10 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, ISwapHandlerDispatcher) {
     let role_store_address = deploy_role_store();
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
 
-    let swap_handler_address = deploy_swap_handler_address(role_store_address);
+    let data_store_address = deploy_data_store(role_store_address);
+    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
+
+    let swap_handler_address = deploy_swap_handler_address(role_store_address, data_store_address);
     let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
 
     start_prank(role_store_address, caller_address);
