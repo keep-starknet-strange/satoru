@@ -940,9 +940,9 @@ mod EventEmitter {
         size_delta_usd: u128,
         size_delta_in_tokens: u128,
         order_type: OrderType,
-        collateral_delta_amount: u128,
-        price_impact_usd: u128,
-        price_impact_amount: u128,
+        collateral_delta_amount: i128,
+        price_impact_usd: i128,
+        price_impact_amount: i128,
         is_long: bool,
         order_key: felt252,
         position_key: felt252
