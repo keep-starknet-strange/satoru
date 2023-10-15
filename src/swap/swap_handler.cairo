@@ -53,14 +53,9 @@ mod SwapHandler {
 
     /// Constructor of the contract.
     #[constructor]
-    fn constructor(
-        ref self: ContractState,
-        role_store_address: ContractAddress,
-        data_store_address: ContractAddress
-    ) {
+    fn constructor(ref self: ContractState, role_store_address: ContractAddress,) {
         let mut role_module: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
         IRoleModule::initialize(ref role_module, role_store_address);
-        self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
     }
 
 
@@ -74,12 +69,13 @@ mod SwapHandler {
                 RoleModule::unsafe_new_contract_state();
             role_module.only_controller();
 
-            let data_store = self.data_store.read();
-            global_reentrancy_guard::non_reentrant_before(data_store);
+            // TODO replace global reentrancy guard with simple one
+            // let data_store = self.data_store.read();
+            // global_reentrancy_guard::non_reentrant_before(data_store);
 
             let (token_out, swap_output_amount) = swap_utils::swap(@params);
 
-            global_reentrancy_guard::non_reentrant_after(data_store);
+            // global_reentrancy_guard::non_reentrant_after(data_store);
 
             (token_out, swap_output_amount)
         }

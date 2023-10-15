@@ -1,3 +1,11 @@
+// Core lib imports.
+use snforge_std::{declare, ContractClassTrait, start_prank};
+use array::ArrayTrait;
+use core::traits::Into;
+use debug::PrintTrait;
+use starknet::{get_caller_address, ContractAddress, contract_address_const,};
+
+// Local imports.
 use satoru::tests_lib::{teardown};
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -5,52 +13,57 @@ use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use snforge_std::{declare, ContractClassTrait, start_prank};
 use satoru::swap::swap_utils::SwapParams;
-use core::traits::Into;
 use satoru::role::role;
 use satoru::market::market::Market;
-use starknet::{get_caller_address, ContractAddress, contract_address_const,};
-use array::ArrayTrait;
 
 //TODO Tests need to be added after implementation of swap_utils
 
-/// Utility function to deploy a `DataStore` contract and return its dispatcher.
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('DataStore');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'data_store'>();
+    start_prank(deployed_contract_address, caller_address);
     let constructor_calldata = array![role_store_address.into()];
-    contract.deploy(@constructor_calldata).unwrap()
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
-/// Utility function to deploy a `EventEmitter` contract and return its dispatcher.
 fn deploy_event_emitter() -> ContractAddress {
     let contract = declare('EventEmitter');
-    contract.deploy(@array![]).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'event_emitter'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
-/// Utility function to deploy a `Oracle` contract and return its dispatcher.
 fn deploy_oracle(
+    oracle_store_address: ContractAddress,
     role_store_address: ContractAddress,
-    oracle_address: ContractAddress,
     pragma_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare('Oracle');
-    let mut constructor_calldata = array![];
-    constructor_calldata.append(role_store_address.into());
-    constructor_calldata.append(oracle_address.into());
-    constructor_calldata.append(pragma_address.into());
-    contract.deploy(@constructor_calldata).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'oracle'>();
+    start_prank(deployed_contract_address, caller_address);
+    let constructor_calldata = array![
+        role_store_address.into(), oracle_store_address.into(), pragma_address.into()
+    ];
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
+
 
 /// Utility function to deploy a `Bank` contract and return its dispatcher.
 fn deploy_bank_address(
     data_store_address: ContractAddress, role_store_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare('Bank');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'bank'>();
+    start_prank(deployed_contract_address, caller_address);
     let mut constructor_calldata = array![];
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
-    contract.deploy(@constructor_calldata).unwrap()
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 
@@ -59,14 +72,19 @@ fn deploy_swap_handler_address(
     role_store_address: ContractAddress, data_store_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare('SwapHandler');
-    let constructor_calldata = array![role_store_address.into(), data_store_address.into()];
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'swap_handler'>();
+    start_prank(deployed_contract_address, caller_address);
+    let constructor_calldata = array![role_store_address.into()];
     contract.deploy(@constructor_calldata).unwrap()
 }
 
-/// Utility function to deploy a `RoleStore` contract and return its dispatcher.
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
-    contract.deploy(@array![]).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'role_store'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
 
@@ -90,7 +108,7 @@ fn setup() -> (
     IRoleStoreDispatcher,
     ISwapHandlerDispatcher
 ) {
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
 
     let role_store_address = deploy_role_store();
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };

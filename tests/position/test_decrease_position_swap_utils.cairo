@@ -34,14 +34,19 @@ fn deploy_swap_handler_address(
     role_store_address: ContractAddress, data_store_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare('SwapHandler');
-    let constructor_calldata = array![role_store_address.into(), data_store_address.into()];
-    contract.deploy(@constructor_calldata).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'swap_handler'>();
+    start_prank(deployed_contract_address, caller_address);
+    let constructor_calldata = array![role_store_address.into()];
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
-/// Utility function to deploy a `RoleStore` contract and return its dispatcher.
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
-    contract.deploy(@array![]).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'role_store'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
 /// Utility function to deploy a `DataStore` contract and return its dispatcher.
@@ -59,7 +64,7 @@ fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
 /// * `IRoleStoreDispatcher` - The role store dispatcher.
 /// * `ISwapHandlerDispatcher` - The swap handler dispatcher.
 fn setup() -> (ContractAddress, IRoleStoreDispatcher, ISwapHandlerDispatcher) {
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
 
     let role_store_address = deploy_role_store();
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };

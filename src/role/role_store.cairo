@@ -78,6 +78,7 @@ mod RoleStore {
     // Core lib imports.
     use core::zeroable::Zeroable;
     use starknet::{ContractAddress, get_caller_address, contract_address_const};
+    use debug::PrintTrait;
 
     // Local imports.
     use satoru::role::{role, error::RoleError};

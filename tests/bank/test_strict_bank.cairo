@@ -59,13 +59,10 @@ fn setup_contracts() -> (
     let strict_bank = IStrictBankDispatcher { contract_address: strict_bank_address };
 
     // start prank and give controller role to caller_address
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let receiver_address: ContractAddress = 0x202.try_into().unwrap();
     start_prank(role_store_address, caller_address);
     role_store.grant_role(caller_address, role::CONTROLLER);
-    start_prank(data_store_address, caller_address);
-    start_prank(strict_bank_address, caller_address);
-
     (caller_address, receiver_address, role_store, data_store, bank, strict_bank)
 }
 
@@ -73,38 +70,51 @@ fn setup_contracts() -> (
 fn deploy_bank(
     data_store_address: ContractAddress, role_store_address: ContractAddress,
 ) -> ContractAddress {
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let bank_address: ContractAddress = contract_address_const::<'bank'>();
     let contract = declare('Bank');
     let mut constructor_calldata = array![];
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
-    contract.deploy(@constructor_calldata).unwrap()
+    start_prank(data_store_address, caller_address);
+    contract.deploy_at(@constructor_calldata, bank_address).unwrap()
 }
 
 /// Utility function to deploy a strict bank contract and return its address.
 fn deploy_strict_bank(
     data_store_address: ContractAddress, role_store_address: ContractAddress,
 ) -> ContractAddress {
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let strict_bank_address: ContractAddress = contract_address_const::<'strict_bank'>();
     let contract = declare('StrictBank');
     let mut constructor_calldata = array![];
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
-    contract.deploy(@constructor_calldata).unwrap()
+    start_prank(strict_bank_address, caller_address);
+    contract.deploy_at(@constructor_calldata, strict_bank_address).unwrap()
 }
 
 /// Utility function to deploy a data store contract and return its address.
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let data_store_address: ContractAddress = contract_address_const::<'data_store'>();
     let contract = declare('DataStore');
     let mut constructor_calldata = array![];
     constructor_calldata.append(role_store_address.into());
-    contract.deploy(@constructor_calldata).unwrap()
+    start_prank(data_store_address, caller_address);
+    contract.deploy_at(@constructor_calldata, data_store_address).unwrap()
 }
 
 /// Utility function to deploy a data store contract and return its address.
 /// Copied from `tests/role/test_role_store.rs`.
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let role_store_address: ContractAddress = contract_address_const::<'role_store'>();
+
     let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
-    contract.deploy(constructor_arguments).unwrap()
+    start_prank(role_store_address, caller_address);
+    contract.deploy_at(constructor_arguments, role_store_address).unwrap()
 }
 
 // *********************************************************************************************
@@ -118,10 +128,9 @@ fn teardown(data_store: IDataStoreDispatcher, strict_bank: IStrictBankDispatcher
 
 #[test]
 #[should_panic(expected: ('already_initialized',))]
-fn test_initialize() {
+fn given_already_initialized_contract_when_initializing_then_fail() {
     let (caller_address, receiver_address, role_store, data_store, bank, strict_bank) =
         setup_contracts();
-
     // try initializing after previously initializing in setup
     strict_bank.initialize(data_store.contract_address, role_store.contract_address);
     teardown(data_store, strict_bank);
@@ -185,7 +194,7 @@ fn given_receiver_is_contract_when_transfer_out_then_fails() {
     let (caller_address, receiver_address, role_store, data_store, bank, strict_bank) =
         setup_contracts();
 
-    // deploy erc20 token. Mint to strict_bank 
+    // deploy erc20 token. Mint to bank since we call transfer out in bank contract which restricts sending to self
     let erc20_contract = declare('ERC20');
     let constructor_calldata3 = array![
         'satoru', 'STU', 1000, 0, strict_bank.contract_address.into()
@@ -193,7 +202,6 @@ fn given_receiver_is_contract_when_transfer_out_then_fails() {
     let erc20_contract_address = erc20_contract.deploy(@constructor_calldata3).unwrap();
     let erc20_dispatcher = IERC20Dispatcher { contract_address: erc20_contract_address };
 
-    // transfer out with our strict_bank address as the receiver address
     strict_bank.transfer_out(erc20_contract_address, strict_bank.contract_address, 100_u128);
 
     //teardown
@@ -281,7 +289,6 @@ fn given_normal_conditions_when_sync_token_balance_passes() {
     // send tokens into strict bank 
     erc20_dispatcher.transfer(strict_bank.contract_address, u256_from_felt252(50));
 
-    //update the new balance by calling sync_token_balance
     strict_bank.sync_token_balance(erc20_contract_address);
 
     // teardown
@@ -312,7 +319,6 @@ fn given_caller_has_no_controller_role_when_sync_token_balance_then_fails() {
     // stop prank as caller_address and start prank as receiver_address who has no controller role
     stop_prank(strict_bank.contract_address);
     start_prank(strict_bank.contract_address, receiver_address);
-
     // call the sync_token_balance function with receiver address 
     strict_bank.sync_token_balance(erc20_contract_address);
     // teardown
