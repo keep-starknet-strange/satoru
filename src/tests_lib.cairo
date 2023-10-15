@@ -1,6 +1,6 @@
 // Core lib imports.
 use starknet::{ContractAddress, Felt252TryIntoContractAddress, contract_address_const};
-use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
+use snforge_std::{declare, start_prank, stop_prank, ContractClass, ContractClassTrait};
 use debug::PrintTrait;
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -8,6 +8,23 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::role::role;
+
+
+/// Utility function to pre-calculate the address of a mock contract & deploy it.
+///
+/// # Arguments
+///
+/// * `contract` - The contract class
+/// * `calldata` - The calldata used for the contract constructor
+///
+/// # Returns
+///
+/// * `ContractAddress` - The pre-calculated address of the deployed contract
+fn deploy_mock_contract(contract: ContractClass, calldata: @Array<felt252>) -> ContractAddress {
+    let future_deployed_address = contract.precalculate_address(calldata);
+    start_prank(future_deployed_address, contract_address_const::<'caller'>());
+    contract.deploy_at(calldata, future_deployed_address).unwrap()
+}
 
 /// Utility function to deploy a data store contract and return its address.
 ///
@@ -21,9 +38,7 @@ use satoru::role::role;
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('DataStore');
     let constructor_calldata = array![role_store_address.into()];
-    let data_store_address = contract_address_const::<'data_store'>();
-    start_prank(data_store_address, contract_address_const::<'caller'>());
-    contract.deploy_at(@constructor_calldata, data_store_address).unwrap()
+    deploy_mock_contract(contract, @constructor_calldata)
 }
 
 /// Utility function to deploy a `SwapHandler` contract and return its dispatcher.
@@ -40,9 +55,7 @@ fn deploy_swap_handler_address(
 ) -> ContractAddress {
     let contract = declare('SwapHandler');
     let constructor_calldata = array![role_store_address.into()];
-    let swap_handler_address = contract_address_const::<'swap_handler'>();
-    start_prank(swap_handler_address, contract_address_const::<'caller'>());
-    contract.deploy_at(@constructor_calldata, swap_handler_address).unwrap()
+    deploy_mock_contract(contract, @constructor_calldata)
 }
 
 /// Utility function to deploy a role store contract and return its address.
@@ -52,17 +65,13 @@ fn deploy_swap_handler_address(
 /// * `ContractAddress` - The address of the deployed role store contract.
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
-    let role_store_address = contract_address_const::<'role_store'>();
-    start_prank(role_store_address, contract_address_const::<'caller'>());
-    contract.deploy_at(@array![], role_store_address).unwrap()
+    deploy_mock_contract(contract, @array![])
 }
 
 /// Utility function to deploy a `EventEmitter` contract and return its dispatcher.
 fn deploy_event_emitter() -> ContractAddress {
     let contract = declare('EventEmitter');
-    let event_emitter_address = contract_address_const::<'event_emitter'>();
-    start_prank(event_emitter_address, contract_address_const::<'caller'>());
-    contract.deploy(@array![]).unwrap()
+    deploy_mock_contract(contract, @array![])
 }
 
 /// Utility function to deploy a `EventEmitter` contract and return its dispatcher.
@@ -73,7 +82,7 @@ fn deploy_oracle_store(
     let oracle_address = contract_address_const::<'oracle_store'>();
     start_prank(role_store_address, contract_address_const::<'caller'>());
     let constructor_calldata = array![role_store_address.into(), event_emitter_address.into()];
-    contract.deploy_at(@constructor_calldata, oracle_address).unwrap()
+    deploy_mock_contract(contract, @constructor_calldata)
 }
 
 /// Utility function to deploy a `EventEmitter` contract and return its dispatcher.
@@ -86,9 +95,7 @@ fn deploy_oracle(
     let constructor_calldata = array![
         role_store_address.into(), oracle_store_address.into(), pragma_address.into()
     ];
-    let oracle_address = contract_address_const::<'oracle'>();
-    start_prank(oracle_address, contract_address_const::<'caller'>());
-    contract.deploy_at(@constructor_calldata, oracle_address).unwrap()
+    deploy_mock_contract(contract, @constructor_calldata)
 }
 
 
@@ -123,7 +130,6 @@ fn setup_event_emitter() -> (ContractAddress, IEventEmitterDispatcher) {
     (event_emitter_address, event_emitter)
 }
 
-
 /// Utility function to setup the test environment.
 ///
 /// # Returns
@@ -157,6 +163,7 @@ fn setup_oracle_and_store() -> (
     (caller_address, role_store, data_store, event_emitter, oracle)
 }
 
+
 /// Utility function to teardown the test environment.
 ///
 /// # Arguments
@@ -165,4 +172,3 @@ fn setup_oracle_and_store() -> (
 fn teardown(data_store_address: ContractAddress) {
     stop_prank(data_store_address);
 }
-
