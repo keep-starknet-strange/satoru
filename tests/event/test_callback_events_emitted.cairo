@@ -6,7 +6,16 @@ use snforge_std::{
 use option::OptionTrait;
 use satoru::tests_lib::setup_event_emitter;
 
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::event::event_emitter::{
+    EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait
+};
+
+use satoru::event::event_emitter::EventEmitter::{
+    AfterDepositExecutionError, AfterDepositCancellationError, AfterWithdrawalExecutionError,
+    AfterWithdrawalCancellationError, AfterOrderExecutionError, AfterOrderCancellationError,
+    AfterOrderFrozenError
+};
+
 use satoru::deposit::deposit::Deposit;
 use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
@@ -28,22 +37,18 @@ fn given_normal_conditions_when_emit_after_deposit_execution_error_then_works() 
     let key = 'deposit_execution_error';
     let deposit_data: Deposit = create_dummy_deposit(key);
 
-    // Create the expected data.
-    let mut expected_data: Array<felt252> = array![key];
-    deposit_data.serialize(ref expected_data);
-
     // Emit the event.
     event_emitter.emit_after_deposit_execution_error(key, deposit_data);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'AfterDepositExecutionError',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::AfterDepositExecutionError(
+                        AfterDepositExecutionError { key: key, deposit: deposit_data }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -66,22 +71,18 @@ fn given_normal_conditions_when_emit_after_deposit_cancellation_error_then_works
     let key = 'deposit_cancellation_error';
     let deposit_data: Deposit = create_dummy_deposit(key);
 
-    // Create the expected data.
-    let mut expected_data: Array<felt252> = array![key];
-    deposit_data.serialize(ref expected_data);
-
     // Emit the event.
     event_emitter.emit_after_deposit_cancellation_error(key, deposit_data);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'AfterDepositCancellationError',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::AfterDepositCancellationError(
+                        AfterDepositCancellationError { key: key, deposit: deposit_data }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -104,22 +105,18 @@ fn given_normal_conditions_when_emit_after_withdrawal_execution_error_then_works
     let key = 'withdrawal_execution_error';
     let withdrawal_data: Withdrawal = create_dummy_withdrawal();
 
-    // Create the expected data.
-    let mut expected_data: Array<felt252> = array![key];
-    withdrawal_data.serialize(ref expected_data);
-
     // Emit the event.
     event_emitter.emit_after_withdrawal_execution_error(key, withdrawal_data);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'AfterWithdrawalExecutionError',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::AfterWithdrawalExecutionError(
+                        AfterWithdrawalExecutionError { key: key, withdrawal: withdrawal_data }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -142,22 +139,18 @@ fn given_normal_conditions_when_emit_after_withdrawal_cancellation_error_then_wo
     let key = 'withdrawal_cancel_error';
     let withdrawal_data: Withdrawal = create_dummy_withdrawal();
 
-    // Create the expected data.
-    let mut expected_data: Array<felt252> = array![key];
-    withdrawal_data.serialize(ref expected_data);
-
     // Emit the event.
     event_emitter.emit_after_withdrawal_cancellation_error(key, withdrawal_data);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'AfterWithdrawalCancelError',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::AfterWithdrawalCancellationError(
+                        AfterWithdrawalCancellationError { key: key, withdrawal: withdrawal_data }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -190,12 +183,12 @@ fn given_normal_conditions_when_emit_after_order_execution_error_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'AfterOrderExecutionError',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::AfterOrderExecutionError(
+                        AfterOrderExecutionError { key: key, order: order_data }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -218,22 +211,18 @@ fn given_normal_conditions_when_emit_after_order_cancellation_error_then_works()
     let key = 'order_cancellation_error';
     let order_data: Order = create_dummy_order(key);
 
-    // Create the expected data.
-    let mut expected_data: Array<felt252> = array![key];
-    order_data.serialize(ref expected_data);
-
     // Emit the event.
     event_emitter.emit_after_order_cancellation_error(key, order_data);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'AfterOrderCancellationError',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::AfterOrderCancellationError(
+                        AfterOrderCancellationError { key: key, order: order_data }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -256,22 +245,18 @@ fn given_normal_conditions_when_emit_after_order_frozen_error_then_works() {
     let key = 'order_frozen_error';
     let order_data: Order = create_dummy_order(key);
 
-    // Create the expected data.
-    let mut expected_data: Array<felt252> = array![key];
-    order_data.serialize(ref expected_data);
-
     // Emit the event.
     event_emitter.emit_after_order_frozen_error(key, order_data);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'AfterOrderFrozenError',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::AfterOrderFrozenError(
+                        AfterOrderFrozenError { key: key, order: order_data }
+                    )
+                )
             ]
         );
     // Assert there are no more events.

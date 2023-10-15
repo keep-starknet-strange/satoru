@@ -148,34 +148,49 @@ fn given_normal_conditions_when_get_position_fees_after_referral_then_works() {
 
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('DataStore');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'data_store'>();
+    start_prank(deployed_contract_address, caller_address);
     let constructor_calldata = array![role_store_address.into()];
-    contract.deploy(@constructor_calldata).unwrap()
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
-    contract.deploy(@array![]).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'role_store'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
 fn deploy_referral_storage(event_emitter_address: ContractAddress) -> ContractAddress {
     let contract = declare('ReferralStorage');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'referral_storage'>();
+    start_prank(deployed_contract_address, caller_address);
     let constructor_calldata = array![event_emitter_address.into()];
-    contract.deploy(@constructor_calldata).unwrap()
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 fn deploy_governable(event_emitter_address: ContractAddress) -> ContractAddress {
     let contract = declare('Governable');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'governable'>();
+    start_prank(deployed_contract_address, caller_address);
     let constructor_calldata = array![event_emitter_address.into()];
-    contract.deploy(@constructor_calldata).unwrap()
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 fn deploy_event_emitter() -> ContractAddress {
     let contract = declare('EventEmitter');
-    contract.deploy(@array![]).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'event_emitter'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
 fn setup() -> (ContractAddress, IDataStoreDispatcher, IReferralStorageDispatcher) {
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
 
     let role_store_address = deploy_role_store();
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
