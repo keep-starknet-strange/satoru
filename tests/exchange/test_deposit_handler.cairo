@@ -68,18 +68,27 @@ fn create_deposit_params() -> CreateDepositParams {
 
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('DataStore');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'data_store'>();
+    start_prank(deployed_contract_address, caller_address);
     let constructor_calldata = array![role_store_address.into()];
-    contract.deploy(@constructor_calldata).unwrap()
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
-    contract.deploy(@array![]).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'role_store'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
 fn deploy_event_emitter() -> ContractAddress {
     let contract = declare('EventEmitter');
-    contract.deploy(@array![]).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'event_emitter'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
 fn deploy_oracle(
@@ -88,9 +97,13 @@ fn deploy_oracle(
     pragma_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare('Oracle');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'oracle'>();
+    start_prank(deployed_contract_address, caller_address);
     contract
-        .deploy(
-            @array![role_store_address.into(), oracle_store_address.into(), pragma_address.into()]
+        .deploy_at(
+            @array![role_store_address.into(), oracle_store_address.into(), pragma_address.into()],
+            deployed_contract_address
         )
         .unwrap()
 }
@@ -99,14 +112,29 @@ fn deploy_oracle_store(
     role_store_address: ContractAddress, event_emitter_address: ContractAddress,
 ) -> ContractAddress {
     let contract = declare('OracleStore');
-    contract.deploy(@array![role_store_address.into(), event_emitter_address.into()]).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'oracle_store'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract
+        .deploy_at(
+            @array![role_store_address.into(), event_emitter_address.into()],
+            deployed_contract_address
+        )
+        .unwrap()
 }
 
 fn deploy_deposit_vault(
     role_store_address: ContractAddress, data_store_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare('DepositVault');
-    contract.deploy(@array![role_store_address.into(), data_store_address.into()]).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'deposit_vault'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract
+        .deploy_at(
+            @array![role_store_address.into(), data_store_address.into()], deployed_contract_address
+        )
+        .unwrap()
 }
 
 fn deploy_deposit_handler(
@@ -117,21 +145,25 @@ fn deploy_deposit_handler(
     oracle_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare('DepositHandler');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'deposit_handler'>();
+    start_prank(deployed_contract_address, caller_address);
     contract
-        .deploy(
+        .deploy_at(
             @array![
                 data_store_address.into(),
                 role_store_address.into(),
                 event_emitter_address.into(),
                 deposit_vault_address.into(),
                 oracle_address.into()
-            ]
+            ],
+            deployed_contract_address
         )
         .unwrap()
 }
 
 fn setup() -> IDepositHandlerDispatcher {
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let role_store_address = deploy_role_store();
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
     let data_store_address = deploy_data_store(role_store_address);

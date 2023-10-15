@@ -3,7 +3,9 @@ use core::array::ArrayTrait;
 use core::traits::Into;
 
 use snforge_std::{declare, ContractClassTrait, start_prank};
-use satoru::tests_lib::{teardown, deploy_role_store, deploy_swap_handler_address};
+use satoru::tests_lib::{
+    teardown, deploy_role_store, deploy_swap_handler_address, deploy_data_store
+};
 use satoru::utils::span32::{Span32, Array32Trait};
 
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
@@ -93,12 +95,15 @@ fn given_position_should_be_liquidated_when_decrease_position_then_fails() {
 /// * `IRoleStoreDispatcher` - The role store dispatcher.
 /// * `ISwapHandlerDispatcher` - The swap handler dispatcher.
 fn setup() -> (ContractAddress, ISwapHandlerDispatcher) {
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
 
     let role_store_address = deploy_role_store();
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
 
-    let swap_handler_address = deploy_swap_handler_address(role_store_address);
+    let data_store_address = deploy_data_store(role_store_address);
+    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
+
+    let swap_handler_address = deploy_swap_handler_address(role_store_address, data_store_address);
     let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
 
     start_prank(role_store_address, caller_address);

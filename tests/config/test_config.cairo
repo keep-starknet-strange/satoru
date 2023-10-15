@@ -244,7 +244,7 @@ fn setup_contracts() -> (
     // Create a safe dispatcher to interact with the contract.
     let config = IConfigDispatcher { contract_address: config_address };
 
-    (0x101.try_into().unwrap(), config, role_store, data_store, event_emitter)
+    (contract_address_const::<'caller'>(), config, role_store, data_store, event_emitter)
 }
 
 /// Utility function to deploy a market factory contract and return its address.
@@ -254,20 +254,26 @@ fn deploy_config(
     event_emitter_address: ContractAddress,
 ) -> ContractAddress {
     let contract = declare('Config');
+    let caller_address = contract_address_const::<'caller'>();
+    let config_address = contract_address_const::<'config'>();
+    start_prank(config_address, caller_address);
     let mut constructor_calldata = array![];
     constructor_calldata.append(role_store_address.into());
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(event_emitter_address.into());
-    contract.deploy(@constructor_calldata).unwrap()
+    contract.deploy_at(@constructor_calldata, config_address).unwrap()
 }
 
 
 /// Utility function to deploy a data store contract and return its address.
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('DataStore');
+    let caller_address = contract_address_const::<'caller'>();
+    let data_store_address = contract_address_const::<'data_store'>();
+    start_prank(data_store_address, caller_address);
     let mut constructor_calldata = array![];
     constructor_calldata.append(role_store_address.into());
-    contract.deploy(@constructor_calldata).unwrap()
+    contract.deploy_at(@constructor_calldata, data_store_address).unwrap()
 }
 
 /// Utility function to deploy a data store contract and return its address.
@@ -275,13 +281,19 @@ fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
 /// TODO: Find a way to share this code.
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
+    let caller_address = contract_address_const::<'caller'>();
+    let role_store_address = contract_address_const::<'role_store'>();
+    start_prank(role_store_address, caller_address);
     let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
-    contract.deploy(constructor_arguments).unwrap()
+    contract.deploy_at(constructor_arguments, role_store_address).unwrap()
 }
 
 /// Utility function to deploy a `EventEmitter` contract and return its address.
 fn deploy_event_emitter() -> ContractAddress {
     let contract = declare('EventEmitter');
+    let caller_address = contract_address_const::<'caller'>();
+    let event_emitter_address = contract_address_const::<'event_emitter'>();
+    start_prank(event_emitter_address, caller_address);
     let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
-    contract.deploy(constructor_arguments).unwrap()
+    contract.deploy_at(constructor_arguments, event_emitter_address).unwrap()
 }

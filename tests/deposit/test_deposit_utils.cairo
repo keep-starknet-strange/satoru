@@ -177,7 +177,7 @@ fn create_dummy_deposit_param_market(
     let address_zero: ContractAddress = 42.try_into().unwrap();
     let data_store_address = deploy_data_store(role_store_address);
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let mut market = Market {
         market_token: key,
         index_token: address_zero,

@@ -57,7 +57,6 @@ mod WithdrawalHandler {
     use starknet::{ContractAddress, get_contract_address, get_caller_address};
     use traits::Default;
     use clone::Clone;
-
     // Local imports.
     use super::IWithdrawalHandler;
     use satoru::role::{role, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait}};

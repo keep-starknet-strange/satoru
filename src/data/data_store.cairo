@@ -428,7 +428,6 @@ trait IDataStore<TContractState> {
     ) -> Array<felt252>;
 
 
-    //TODO: Update u128 to i128 when Serde and Store for i128 implementations are released.
     // *************************************************************************
     //                          int128 related functions.
     // *************************************************************************
@@ -724,7 +723,6 @@ mod DataStore {
         }
 
 
-        //TODO: Update u128 to i128 when Serde and Store for i128 implementations are released.
         // *************************************************************************
         //                      i128 related functions.
         // *************************************************************************

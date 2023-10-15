@@ -9,7 +9,12 @@ use satoru::pricing::position_pricing_utils::{
     PositionFees, PositionUiFees, PositionBorrowingFees, PositionReferralFees, PositionFundingFees
 };
 
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::event::event_emitter::{
+    EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait
+};
+
+use satoru::event::event_emitter::EventEmitter::{SwapReverted};
+
 
 #[test]
 fn given_normal_conditions_when_emit_swap_reverted_then_works() {
@@ -27,11 +32,6 @@ fn given_normal_conditions_when_emit_swap_reverted_then_works() {
     let reason = 'reverted';
     let reason_bytes = array!['0x01'];
 
-    // Create the expected data.
-    let mut expected_data: Array<felt252> = array![reason];
-
-    reason_bytes.serialize(ref expected_data);
-
     // Emit the event.
     event_emitter.emit_swap_reverted(reason, reason_bytes.span());
 
@@ -39,12 +39,12 @@ fn given_normal_conditions_when_emit_swap_reverted_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'SwapReverted',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::SwapReverted(
+                        SwapReverted { reason: reason, reason_bytes: reason_bytes.span() }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
