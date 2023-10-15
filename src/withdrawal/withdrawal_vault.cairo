@@ -14,12 +14,38 @@ use starknet::ContractAddress;
 trait IWithdrawalVault<TContractState> {
     /// Initialize the contract.
     /// # Arguments
-    /// * `strict_bank_address` - The address of the strict bank contract.
-    fn initialize(ref self: TContractState, strict_bank_address: ContractAddress,);
-    fn record_transfer_in(ref self: TContractState, token: ContractAddress) -> u128;
+    /// * `data_store_address` - The address of the data store contract.
+    /// * `role_store_address` - The address of the role store contract.
+    fn initialize(
+        ref self: TContractState,
+        data_store_address: ContractAddress,
+        role_store_address: ContractAddress,
+    );
+
+    /// Transfer tokens from this contract to a receiver.
+    /// # Arguments
+    /// * `token` - The token address to transfer.
+    /// * `receiver` - The address of the receiver.
+    /// * `amount` - The amount of tokens to transfer.
     fn transfer_out(
         ref self: TContractState, token: ContractAddress, receiver: ContractAddress, amount: u128,
     );
+
+    /// Records a token transfer into the contract.
+    /// # Arguments
+    /// * `token` - The token address to transfer.
+    /// # Returns
+    /// * The amount of tokens transferred.
+    fn record_transfer_in(ref self: TContractState, token: ContractAddress) -> u128;
+
+    /// This can be used to update the tokenBalances in case of token burns
+    /// or similar balance changes
+    /// the prevBalance is not validated to be more than the nextBalance as this
+    /// could allow someone to block this call by transferring into the contract    
+    /// # Arguments
+    /// * `token` - The token to record the burn for
+    /// # Return
+    /// * The new balance
     fn sync_token_balance(ref self: TContractState, token: ContractAddress) -> u128;
 }
 
@@ -34,8 +60,9 @@ mod WithdrawalVault {
     use starknet::{ContractAddress};
 
     // Local imports.
-    use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
-    use super::IWithdrawalVault;
+    use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use satoru::bank::strict_bank::{StrictBank, IStrictBank};
     use satoru::withdrawal::error::WithdrawalError;
 
     // *************************************************************************
@@ -44,7 +71,9 @@ mod WithdrawalVault {
     #[storage]
     struct Storage {
         /// Interface to interact with the `DataStore` contract.
-        strict_bank: IStrictBankDispatcher,
+        data_store: IDataStoreDispatcher,
+        /// Interface to interact with the `RoleStore` contract.
+        role_store: IRoleStoreDispatcher,
     }
 
     // *************************************************************************
@@ -53,32 +82,30 @@ mod WithdrawalVault {
 
     /// Constructor of the contract.
     /// # Arguments
-    /// * `strict_bank_address` - The address of the strict bank contract.
+    /// * `role_store_address` - The address of the role store contract.
+    /// * `data_store_address` - The address of the data store contract.
     #[constructor]
-    fn constructor(ref self: ContractState, strict_bank_address: ContractAddress) {
-        self.initialize(strict_bank_address);
+    fn constructor(
+        ref self: ContractState,
+        data_store_address: ContractAddress,
+        role_store_address: ContractAddress,
+    ) {
+        self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
+        self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
     }
-
 
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
     #[external(v0)]
     impl BankImpl of super::IWithdrawalVault<ContractState> {
-        /// Initialize the contract.
-        /// # Arguments
-        /// * `strict_bank_address` - The address of the strict bank contract.
-        fn initialize(ref self: ContractState, strict_bank_address: ContractAddress,) {
-            // Make sure the contract is not already initialized.
-            assert(
-                self.strict_bank.read().contract_address.is_zero(),
-                WithdrawalError::ALREADY_INITIALIZED
-            );
-            self.strict_bank.write(IStrictBankDispatcher { contract_address: strict_bank_address });
-        }
-
-        fn record_transfer_in(ref self: ContractState, token: ContractAddress) -> u128 {
-            self.strict_bank.read().record_transfer_in(token)
+        fn initialize(
+            ref self: ContractState,
+            data_store_address: ContractAddress,
+            role_store_address: ContractAddress,
+        ) {
+            let mut state: StrictBank::ContractState = StrictBank::unsafe_new_contract_state();
+            IStrictBank::initialize(ref state, data_store_address, role_store_address);
         }
 
         fn transfer_out(
@@ -87,11 +114,18 @@ mod WithdrawalVault {
             receiver: ContractAddress,
             amount: u128,
         ) {
-            self.strict_bank.read().transfer_out(token, receiver, amount);
+            let mut state: StrictBank::ContractState = StrictBank::unsafe_new_contract_state();
+            IStrictBank::transfer_out(ref state, token, receiver, amount);
+        }
+
+        fn record_transfer_in(ref self: ContractState, token: ContractAddress) -> u128 {
+            let mut state: StrictBank::ContractState = StrictBank::unsafe_new_contract_state();
+            IStrictBank::record_transfer_in(ref state, token)
         }
 
         fn sync_token_balance(ref self: ContractState, token: ContractAddress) -> u128 {
-            self.strict_bank.read().sync_token_balance(token)
+            let mut state: StrictBank::ContractState = StrictBank::unsafe_new_contract_state();
+            IStrictBank::sync_token_balance(ref state, token)
         }
     }
 }

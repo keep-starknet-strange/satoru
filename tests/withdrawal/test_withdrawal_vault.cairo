@@ -15,7 +15,6 @@ use traits::{TryInto, Into};
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
-use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 use satoru::withdrawal::withdrawal_vault::{
     IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait
 };
@@ -36,16 +35,16 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 #[test]
 #[should_panic(expected: ('already_initialized',))]
 fn given_already_intialized_when_initialize_then_fails() {
-    let (_, _, role_store, data_store, strict_bank_vault, withdrawal_vault, _) = setup();
+    let (_, _, role_store, data_store, withdrawal_vault, _) = setup();
 
-    withdrawal_vault.initialize(strict_bank_vault.contract_address);
+    withdrawal_vault.initialize(data_store.contract_address, role_store.contract_address);
 
     teardown(data_store, withdrawal_vault);
 }
 
 #[test]
 fn given_normal_conditions_when_transfer_out_then_works() {
-    let (caller_address, receiver_address, _, data_store, _, withdrawal_vault, erc20) = setup();
+    let (caller_address, receiver_address, _, data_store, withdrawal_vault, erc20) = setup();
 
     start_prank(withdrawal_vault.contract_address, caller_address);
 
@@ -70,7 +69,7 @@ fn given_normal_conditions_when_transfer_out_then_works() {
 #[test]
 #[should_panic(expected: ('u256_sub Overflow',))]
 fn given_not_enough_token_when_transfer_out_then_fails() {
-    let (_, receiver_address, _, data_store, _, withdrawal_vault, erc20) = setup();
+    let (_, receiver_address, _, data_store, withdrawal_vault, erc20) = setup();
 
     let amount_to_transfer: u128 = u128_from_felt252(INITIAL_TOKENS_MINTED + 1);
     withdrawal_vault.transfer_out(erc20.contract_address, receiver_address, amount_to_transfer);
@@ -81,7 +80,7 @@ fn given_not_enough_token_when_transfer_out_then_fails() {
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
 fn given_caller_has_no_controller_role_when_transfer_out_then_fails() {
-    let (caller_address, receiver_address, _, data_store, _, withdrawal_vault, erc20) = setup();
+    let (caller_address, receiver_address, _, data_store, withdrawal_vault, erc20) = setup();
 
     stop_prank(withdrawal_vault.contract_address);
     start_prank(withdrawal_vault.contract_address, receiver_address);
@@ -93,7 +92,7 @@ fn given_caller_has_no_controller_role_when_transfer_out_then_fails() {
 #[test]
 #[should_panic(expected: ('self_transfer_not_supported',))]
 fn given_receiver_is_contract_when_transfer_out_then_fails() {
-    let (caller_address, receiver_address, _, data_store, _, withdrawal_vault, erc20) = setup();
+    let (caller_address, receiver_address, _, data_store, withdrawal_vault, erc20) = setup();
 
     withdrawal_vault
         .transfer_out(erc20.contract_address, withdrawal_vault.contract_address, 100_u128);
@@ -103,7 +102,7 @@ fn given_receiver_is_contract_when_transfer_out_then_fails() {
 
 #[test]
 fn given_normal_conditions_when_record_transfer_in_then_works() {
-    let (_, _, _, data_store, _, withdrawal_vault, erc20) = setup();
+    let (_, _, _, data_store, withdrawal_vault, erc20) = setup();
 
     let initial_balance: u128 = u128_from_felt252(INITIAL_TOKENS_MINTED);
     let tokens_received: u128 = withdrawal_vault.record_transfer_in(erc20.contract_address);
@@ -114,7 +113,7 @@ fn given_normal_conditions_when_record_transfer_in_then_works() {
 
 #[test]
 fn given_more_balance_when_2nd_record_transfer_in_then_works() {
-    let (_, _, _, data_store, _, withdrawal_vault, erc20) = setup();
+    let (_, _, _, data_store, withdrawal_vault, erc20) = setup();
 
     let initial_balance: u128 = u128_from_felt252(INITIAL_TOKENS_MINTED);
     let tokens_received: u128 = withdrawal_vault.record_transfer_in(erc20.contract_address);
@@ -133,7 +132,7 @@ fn given_more_balance_when_2nd_record_transfer_in_then_works() {
 #[test]
 #[should_panic(expected: ('u128_sub Overflow',))]
 fn given_less_balance_when_2nd_record_transfer_in_then_fails() {
-    let (_, _, _, data_store, _, withdrawal_vault, erc20) = setup();
+    let (_, _, _, data_store, withdrawal_vault, erc20) = setup();
 
     let initial_balance: u128 = u128_from_felt252(INITIAL_TOKENS_MINTED);
     let tokens_received: u128 = withdrawal_vault.record_transfer_in(erc20.contract_address);
@@ -151,7 +150,7 @@ fn given_less_balance_when_2nd_record_transfer_in_then_fails() {
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
 fn given_caller_is_not_controller_when_record_transfer_in_then_fails() {
-    let (caller_address, _, role_store, data_store, _, withdrawal_vault, erc20) = setup();
+    let (caller_address, _, role_store, data_store, withdrawal_vault, erc20) = setup();
 
     role_store.revoke_role(caller_address, role::CONTROLLER);
     withdrawal_vault.record_transfer_in(erc20.contract_address);
@@ -161,7 +160,7 @@ fn given_caller_is_not_controller_when_record_transfer_in_then_fails() {
 
 #[test]
 fn given_more_balance_when_sync_token_balance_then_works() {
-    let (_, _, _, data_store, _, withdrawal_vault, erc20) = setup();
+    let (_, _, _, data_store, withdrawal_vault, erc20) = setup();
 
     let initial_balance: u128 = u128_from_felt252(INITIAL_TOKENS_MINTED);
     let tokens_received: u128 = withdrawal_vault.record_transfer_in(erc20.contract_address);
@@ -179,7 +178,7 @@ fn given_more_balance_when_sync_token_balance_then_works() {
 
 #[test]
 fn given_less_balance_when_sync_token_balance_then_works() {
-    let (_, _, _, data_store, _, withdrawal_vault, erc20) = setup();
+    let (_, _, _, data_store, withdrawal_vault, erc20) = setup();
 
     let initial_balance: u128 = u128_from_felt252(INITIAL_TOKENS_MINTED);
     let tokens_received: u128 = withdrawal_vault.record_transfer_in(erc20.contract_address);
@@ -204,7 +203,6 @@ fn given_less_balance_when_sync_token_balance_then_works() {
 ///     let (
 ///         caller_address, receiver_address,
 ///         role_store, data_store,
-///         strict_bank,
 ///         withdrawal_vault,
 ///         erc20
 ///     ) = setup();
@@ -215,7 +213,6 @@ fn given_less_balance_when_sync_token_balance_then_works() {
 /// * `ContractAddress` - The address of the receiver.
 /// * `IRoleStoreDispatcher` - The role store dispatcher.
 /// * `IDataStoreDispatcher` - The data store dispatcher.
-/// * `IStrictBankDispatcher` - The strict bank dispatcher.
 /// * `IWithdrawalVaultDispatcher` - The withdrawal vault dispatcher.
 /// * `IERC20Dispatcher` - The ERC20 token dispatcher.
 fn setup() -> (
@@ -223,7 +220,6 @@ fn setup() -> (
     ContractAddress,
     IRoleStoreDispatcher,
     IDataStoreDispatcher,
-    IStrictBankDispatcher,
     IWithdrawalVaultDispatcher,
     IERC20Dispatcher
 ) {
@@ -233,14 +229,10 @@ fn setup() -> (
     // get receiver_address
     let receiver_address: ContractAddress = 0x202.try_into().unwrap();
 
-    // deploy strict bank
-    let strict_bank_address = deploy_strict_bank(
+    // deploy withdrawal vault
+    let withdrawal_vault_address = deploy_withdrawal_vault(
         data_store.contract_address, role_store.contract_address
     );
-    let strict_bank = IStrictBankDispatcher { contract_address: strict_bank_address };
-
-    // deploy withdrawal vault
-    let withdrawal_vault_address = deploy_withdrawal_vault(strict_bank_address);
     let withdrawal_vault = IWithdrawalVaultDispatcher {
         contract_address: withdrawal_vault_address
     };
@@ -252,18 +244,10 @@ fn setup() -> (
     // start prank and give controller role to caller_address
     start_prank(withdrawal_vault.contract_address, caller_address);
 
-    return (
-        caller_address,
-        receiver_address,
-        role_store,
-        data_store,
-        strict_bank,
-        withdrawal_vault,
-        erc20
-    );
+    return (caller_address, receiver_address, role_store, data_store, withdrawal_vault, erc20);
 }
 
-/// Utility function to deploy a strict bank contract and return its address.
+/// Utility function to deploy a withdrawal vault.
 ///
 /// # Arguments
 ///
@@ -272,27 +256,12 @@ fn setup() -> (
 ///
 /// # Returns
 ///
-/// * `ContractAddress` - The address of the strict bank.
-fn deploy_strict_bank(
-    data_store_address: ContractAddress, role_store_address: ContractAddress,
-) -> ContractAddress {
-    let strict_bank_contract = declare('StrictBank');
-    let constructor_calldata = array![data_store_address.into(), role_store_address.into()];
-    strict_bank_contract.deploy(@constructor_calldata).unwrap()
-}
-
-/// Utility function to deploy a withdrawal vault.
-///
-/// # Arguments
-///
-/// * `strict_bank_address` - The address of the strict bank contract.
-///
-/// # Returns
-///
 /// * `ContractAddress` - The address of the withdrawal vault.
-fn deploy_withdrawal_vault(strict_bank_address: ContractAddress) -> ContractAddress {
+fn deploy_withdrawal_vault(
+    data_store_address: ContractAddress, role_store_address: ContractAddress
+) -> ContractAddress {
     let withdrawal_vault_contract = declare('WithdrawalVault');
-    let constructor_calldata = array![strict_bank_address.into()];
+    let constructor_calldata = array![data_store_address.into(), role_store_address.into()];
     withdrawal_vault_contract.deploy(@constructor_calldata).unwrap()
 }
 
