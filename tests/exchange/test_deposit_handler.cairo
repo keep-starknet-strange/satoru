@@ -132,7 +132,7 @@ fn deploy_deposit_vault(
     start_prank(deployed_contract_address, caller_address);
     contract
         .deploy_at(
-            @array![role_store_address.into(), data_store_address.into()], deployed_contract_address
+            @array![data_store_address.into(), role_store_address.into()], deployed_contract_address
         )
         .unwrap()
 }
