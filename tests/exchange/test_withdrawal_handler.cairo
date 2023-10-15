@@ -268,21 +268,12 @@ fn deploy_oracle_store(
         .unwrap()
 }
 
-fn deploy_withdrawal_vault(strict_bank_address: ContractAddress) -> ContractAddress {
+fn deploy_withdrawal_vault(
+    data_store_address: ContractAddress, role_store_address: ContractAddress
+) -> ContractAddress {
     let contract = declare('WithdrawalVault');
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'withdrawal_vault'>();
-    start_prank(deployed_contract_address, caller_address);
-    let constructor_calldata = array![strict_bank_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-fn deploy_strict_bank(
-    data_store_address: ContractAddress, role_store_address: ContractAddress
-) -> ContractAddress {
-    let contract = declare('StrictBank');
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'strict_bank'>();
     start_prank(deployed_contract_address, caller_address);
     let constructor_calldata = array![data_store_address.into(), role_store_address.into()];
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
@@ -324,8 +315,7 @@ fn setup() -> (
     let data_store = IDataStoreDispatcher { contract_address: data_store_address };
     let event_emitter_address = deploy_event_emitter();
     let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
-    let strict_bank_address = deploy_strict_bank(data_store_address, role_store_address);
-    let withdrawal_vault_address = deploy_withdrawal_vault(strict_bank_address);
+    let withdrawal_vault_address = deploy_withdrawal_vault(data_store_address, role_store_address);
     let oracle_store_address = deploy_oracle_store(role_store_address, event_emitter_address);
     let oracle_address = deploy_oracle(
         oracle_store_address, role_store_address, contract_address_const::<'pragma'>()
