@@ -1085,7 +1085,7 @@ let next_key: felt252 = nonce_utils::get_next_key(data_store);</code></pre>
 <p>Representing the prices in this way allows for conversions between token amounts
 and fiat values to be simplified, e.g. to calculate the fiat value of a given
 number of tokens the calculation would just be: <code>token amount * oracle price</code>,
-to calculate the token amount for a fiat value it would be: <code>fiat value oracle price</code>.</p>
+to calculate the token amount for a fiat value it would be: <code>fiat value / oracle price</code>.</p>
 <p>The trade-off of this simplicity in calculation is that tokens with a small USD
 price and a lot of decimals may have precision issues it is also possible that
 a token's price changes significantly and results in requiring higher precision.</p>
