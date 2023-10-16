@@ -239,7 +239,7 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to get the value for.
     /// # Returns
     /// The value for the given key.
-    fn get_order(self: @TContractState, key: felt252) -> Option<Order>;
+    fn get_order(self: @TContractState, key: felt252) -> Order;
 
     /// Set a order value for the given key.
     /// # Arguments
@@ -944,13 +944,21 @@ mod DataStore {
         //                      Order related functions.
         // *************************************************************************
 
-        fn get_order(self: @ContractState, key: felt252) -> Option<Order> {
+        fn get_order(self: @ContractState, key: felt252) -> Order {
             let offsetted_index: usize = self.order_indexes.read(key);
             if offsetted_index == 0 {
-                return Option::None;
+                return Default::default();
             }
             let orders: List<Order> = self.orders.read();
-            orders.get(offsetted_index - 1)
+            let order_maybe = orders.get(offsetted_index - 1); 
+            match order_maybe {
+                Option::Some(order) => {
+                    order
+                },
+                Option::None => {
+                    Default::default()
+                }
+            }
         }
 
         fn set_order(ref self: ContractState, key: felt252, order: Order) {

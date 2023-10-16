@@ -511,7 +511,7 @@ mod Reader {
         fn get_order(
             self: @ContractState, data_store: IDataStoreDispatcher, key: felt252
         ) -> Order {
-            data_store.get_order(key).expect('get_order failed')
+            data_store.get_order(key)
         }
 
         fn get_position_pnl_usd(
@@ -620,7 +620,7 @@ mod Reader {
                 if i == length {
                     break;
                 }
-                let order = data_store.get_order(*order_keys.at(i)).expect('get_order failed');
+                let order = data_store.get_order(*order_keys.at(i));
                 orders.append(order);
                 i += 1;
             };

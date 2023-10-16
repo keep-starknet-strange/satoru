@@ -88,8 +88,8 @@ fn given_normal_conditions_when_get_execute_order_params_then_works() {
     let starting_gas = 10000;
     let secondary_order_type = SecondaryOrderType::Adl(());
 
-    let option_mock_order: Option<Order> = Option::Some(Default::<Order>::default());
-    start_mock_call(data_store.contract_address, 'get_order', option_mock_order);
+    let mock_order: Order = Default::<Order>::default();
+    start_mock_call(data_store.contract_address, 'get_order', mock_order);
 
     // test call
     let execute_order_params = BaseOrderHandler::InternalImpl::get_execute_order_params(
@@ -133,9 +133,7 @@ fn given_normal_conditions_when_get_execute_order_params_then_works() {
     tests_lib::teardown(data_store.contract_address);
 }
 
-
 #[test]
-#[should_panic(expected: ('order_not_found',))]
 fn given_non_found_order_when_get_execute_order_params_then_fails() {
     let (
         caller_address,
@@ -155,7 +153,6 @@ fn given_non_found_order_when_get_execute_order_params_then_fails() {
     let starting_gas = 10000;
     let secondary_order_type = SecondaryOrderType::Adl(());
 
-    let option_mock_order: Option<Order> = Option::<Order>::None(());
     let execute_order_params = BaseOrderHandler::InternalImpl::get_execute_order_params(
         ref base_order_handler_state,
         key,
@@ -164,6 +161,8 @@ fn given_non_found_order_when_get_execute_order_params_then_fails() {
         starting_gas,
         secondary_order_type
     );
+
+    assert(execute_order_params.order.account.is_zero(), 'order shouldnt exists');
 
     tests_lib::teardown(data_store.contract_address);
 }
