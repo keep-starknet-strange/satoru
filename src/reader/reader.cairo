@@ -493,7 +493,7 @@ mod Reader {
         fn get_deposit(
             self: @ContractState, data_store: IDataStoreDispatcher, key: felt252
         ) -> Deposit {
-            data_store.get_deposit(key).expect('get_deposit failed')
+            data_store.get_deposit(key)
         }
 
         fn get_withdrawal(

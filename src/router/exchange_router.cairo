@@ -303,18 +303,8 @@ mod ExchangeRouter {
             let data_store = self.data_store.read();
             global_reentrancy_guard::non_reentrant_before(data_store);
 
-            let deposit_result = data_store.get_deposit(key);
-            let mut deposit: Deposit = Default::default();
+            let deposit = data_store.get_deposit(key);
 
-            // Check if the deposit is valid
-            match deposit_result {
-                Option::Some(dep) => {
-                    deposit = dep;
-                },
-                Option::None => {
-                    panic_with_felt252(RouterError::DEPOSIT_NOT_VALID)
-                }
-            };
             if (deposit.account == contract_address_const::<0>()) {
                 panic_with_felt252(RouterError::EMPTY_DEPOSIT)
             }

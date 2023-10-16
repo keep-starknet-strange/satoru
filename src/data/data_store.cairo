@@ -391,7 +391,7 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to get the value for.
     /// # Returns
     /// The value for the given key.
-    fn get_deposit(self: @TContractState, key: felt252) -> Option<Deposit>;
+    fn get_deposit(self: @TContractState, key: felt252) -> Deposit;
 
     /// Set a deposit value for the given key.
     /// # Arguments
@@ -1343,13 +1343,21 @@ mod DataStore {
         //                      Deposit related functions.
         // *************************************************************************
 
-        fn get_deposit(self: @ContractState, key: felt252) -> Option<Deposit> {
+        fn get_deposit(self: @ContractState, key: felt252) -> Deposit {
             let offsetted_index: usize = self.deposit_indexes.read(key);
             if offsetted_index == 0 {
-                return Option::None;
+                return Default::default();
             }
             let deposits: List<Deposit> = self.deposits.read();
-            deposits.get(offsetted_index - 1)
+            let deposit_maybe = deposits.get(offsetted_index - 1);
+            match deposit_maybe {
+                Option::Some(deposit) => {
+                    deposit
+                },
+                Option::None => {
+                    Default::default()
+                }
+            }
         }
 
         fn set_deposit(ref self: ContractState, key: felt252, deposit: Deposit) {
