@@ -13,6 +13,7 @@ use satoru::pricing::position_pricing_utils::{
     PositionFees, PositionBorrowingFees, PositionFundingFees, PositionReferralFees, PositionUiFees,
 };
 use satoru::price::price::Price;
+use satoru::utils::i128::i128;
 
 #[derive(Drop, starknet::Store, Serde)]
 struct IncreasePositionCache {
@@ -94,7 +95,7 @@ fn process_collateral(
         total_cost_amount_excluding_funding: 0,
         total_cost_amount: 0,
     };
-    (0, position_fees)
+    (Zeroable::zero(), position_fees)
 }
 
 /// # Returns
@@ -103,5 +104,5 @@ fn get_execution_price(
     params: UpdatePositionParams, index_token_price: Price
 ) -> (i128, i128, u128, u128) {
     // TODO
-    (0, 0, 0, 0)
+    (Zeroable::zero(), Zeroable::zero(), 0, 0)
 }

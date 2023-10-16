@@ -38,7 +38,7 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}, error_utils};
+use satoru::utils::{i128::i128, error_utils};
 
 #[derive(Default, Drop, starknet::Store, Serde)]
 struct ExecutionPriceResult {
@@ -109,12 +109,12 @@ fn get_swap_amount_out(
     let price_impact_usd: i128 = get_price_impact_usd(param);
 
     let fees: SwapFees = get_swap_fees(
-        data_store, market.market_token, amount_in, price_impact_usd > 0, ui_fee_receiver
+        data_store, market.market_token, amount_in, price_impact_usd > Zeroable::zero(), ui_fee_receiver
     );
 
-    let mut impact_amount: i128 = 0;
+    let mut impact_amount: i128 = Zeroable::zero();
 
-    if (price_impact_usd > 0) {
+    if (price_impact_usd > Zeroable::zero()) {
         // when there is a positive price impact factor, additional tokens from the swap impact pool
         // are withdrawn for the user
         // for example, if 50,000 USDC is swapped out and there is a positive price impact
@@ -182,7 +182,7 @@ fn get_execution_price(
     params.contracts.data_store = data_store;
     params.market = market;
 
-    let size_delta_usd_abs = if size_delta_usd > 0 {
+    let size_delta_usd_abs = if size_delta_usd > Zeroable::zero() {
         size_delta_usd
     } else {
         -size_delta_usd
@@ -190,7 +190,7 @@ fn get_execution_price(
     params.order.size_delta_usd = calc::to_unsigned(size_delta_usd_abs);
     params.order.is_long = is_long;
 
-    let is_increase: bool = size_delta_usd > 0;
+    let is_increase: bool = size_delta_usd > Zeroable::zero();
     let should_execution_price_be_smaller = if is_increase {
         is_long
     } else {
@@ -210,9 +210,9 @@ fn get_execution_price(
     params.position.is_long = is_long;
 
     let mut result: ExecutionPriceResult = ExecutionPriceResult {
-        price_impact_usd: 0, price_impact_diff_usd: 0, execution_price: 0,
+        price_impact_usd: Zeroable::zero(), price_impact_diff_usd: 0, execution_price: 0,
     };
-    if size_delta_usd > 0 {
+    if size_delta_usd > Zeroable::zero() {
         let (price_impact_usd, _, _, execution_price) =
             increase_position_utils::get_execution_price(
             params, index_token_price
@@ -268,8 +268,8 @@ fn get_swap_price_impact(
 
     let price_impact_usd_before_cap: i128 = get_price_impact_usd(param);
 
-    let mut price_impact_amount = 0;
-    if price_impact_usd_before_cap > 0 {
+    let mut price_impact_amount = Zeroable::zero();
+    if price_impact_usd_before_cap > Zeroable::zero() {
         price_impact_amount =
             get_swap_impact_amount_with_cap(
                 data_store,

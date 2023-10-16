@@ -34,7 +34,7 @@ fn given_normal_conditions_when_swap_pricing_utils_functions_then_works() {
         token_b: short_token,
         price_for_token_a: 101,
         price_for_token_b: 99,
-        usd_delta_for_token_a: 5,
+        usd_delta_for_token_a: i128_new(5, false),
         usd_delta_for_token_b: 4,
     };
 
@@ -77,7 +77,7 @@ fn given_normal_conditions_when_get_next_pool_amount_usd_then_works() {
         token_b: short_token,
         price_for_token_a: 101,
         price_for_token_b: 99,
-        usd_delta_for_token_a: 5,
+        usd_delta_for_token_a: i128_new(10, false),
         usd_delta_for_token_b: 4,
     };
 

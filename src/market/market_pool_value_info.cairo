@@ -1,4 +1,4 @@
-use satoru::utils::i128::{I128Store, I128Serde, I128Default};
+use satoru::utils::i128::i128;
 
 /// Struct to store MarketPoolValue infos.
 #[derive(Default, Drop, Copy, starknet::Store, Serde)]

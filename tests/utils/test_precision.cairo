@@ -3,6 +3,7 @@ use satoru::utils::precision;
 use satoru::utils::precision::{
     FLOAT_PRECISION, FLOAT_PRECISION_SQRT, WEI_PRECISION, BASIS_POINTS_DIVISOR, FLOAT_TO_WEI_DIVISOR
 };
+use satoru::utils::i128::i128;
 
 #[test]
 fn test_apply_factor_u128() {
@@ -15,7 +16,7 @@ fn test_apply_factor_u128() {
 #[test]
 fn test_apply_factor_i128() {
     let value: u128 = 10;
-    let factor: i128 = -1_000_000_000_000_000_000_000_000;
+    let factor: i128 = i128_new(1_000_000_000_000_000_000_000_000, true);
     let result = precision::apply_factor_i128(value, factor);
     assert(result == -100000, 'should be -1OOO0O.');
 }
@@ -23,7 +24,7 @@ fn test_apply_factor_i128() {
 #[test]
 fn test_apply_factor_roundup_magnitude_positive() {
     let value: u128 = 15;
-    let factor: i128 = 30_000_000_000_000_000_000;
+    let factor: i128 = i128_new(30_000_000_000_000_000_000, false);
     let roundup_magnitude = true;
     let result = precision::apply_factor_roundup_magnitude(value, factor, roundup_magnitude);
     assert(result == 5, 'should be 5.');
@@ -32,7 +33,7 @@ fn test_apply_factor_roundup_magnitude_positive() {
 #[test]
 fn test_apply_factor_roundup_magnitude_negative() {
     let value: u128 = 15;
-    let factor: i128 = -30_000_000_000_000_000_000;
+    let factor: i128 = i128_new(30_000_000_000_000_000_000, true);
     let roundup_magnitude = true;
     let result = precision::apply_factor_roundup_magnitude(value, factor, roundup_magnitude);
     assert(result == -5, 'should be -5.');
@@ -41,7 +42,7 @@ fn test_apply_factor_roundup_magnitude_negative() {
 #[test]
 fn test_apply_factor_roundup_magnitude_no_rounding() {
     let value: u128 = 15;
-    let factor: i128 = -30_000_000_000_000_000_000;
+    let factor: i128 = i128_new(30_000_000_000_000_000_000, true);
     let roundup_magnitude = false;
     let result = precision::apply_factor_roundup_magnitude(value, factor, roundup_magnitude);
     assert(result == -4, 'should be -4.');

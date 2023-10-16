@@ -24,7 +24,7 @@ use satoru::order::{
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::price::price::{Price, PriceTrait};
 use satoru::utils::{
-    calc, precision, i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default},
+    calc, precision, i128::i128,
     default::DefaultContractAddress, error_utils
 };
 use satoru::referral::referral_utils;
@@ -193,18 +193,18 @@ struct IsPositionLiquidatableCache {
 impl DefaultGetPositionPnlUsdCache of Default<GetPositionPnlUsdCache> {
     fn default() -> GetPositionPnlUsdCache {
         GetPositionPnlUsdCache {
-            position_value: 0,
-            total_position_pnl: 0,
+            position_value: Zeroable::zero(),
+            total_position_pnl: Zeroable::zero(),
             uncapped_total_position_pnl: 0.try_into().expect('felt252 into i128 failed'),
             pnl_token: contract_address_const::<0>(),
             pool_token_amount: 0,
             pool_token_price: 0,
             pool_token_usd: 0,
-            pool_pnl: 0,
-            capped_pool_pnl: 0,
+            pool_pnl: Zeroable::zero(),
+            capped_pool_pnl: Zeroable::zero(),
             size_delta_in_tokens: 0,
-            position_pnl_usd: 0,
-            uncapped_position_pnl_usd: 0,
+            position_pnl_usd: Zeroable::zero(),
+            uncapped_position_pnl_usd: Zeroable::zero(),
         }
     }
 }
@@ -212,16 +212,16 @@ impl DefaultGetPositionPnlUsdCache of Default<GetPositionPnlUsdCache> {
 impl DefaultIsPositionLiquidatableCache of Default<IsPositionLiquidatableCache> {
     fn default() -> IsPositionLiquidatableCache {
         IsPositionLiquidatableCache {
-            position_pnl_usd: 0,
+            position_pnl_usd: Zeroable::zero(),
             min_collateral_factor: 0,
             collateral_token_price: Price { min: 0, max: 0 },
             collateral_usd: 0,
-            usd_delta_for_price_impact: 0,
-            price_impact_usd: 0,
+            usd_delta_for_price_impact: Zeroable::zero(),
+            price_impact_usd: Zeroable::zero(),
             has_positive_impact: false,
-            min_collateral_usd: 0,
-            min_collateral_usd_for_leverage: 0,
-            remaining_collateral_usd: 0
+            min_collateral_usd: Zeroable::zero(),
+            min_collateral_usd_for_leverage: Zeroable::zero(),
+            remaining_collateral_usd: Zeroable::zero()
         }
     }
 }
@@ -230,9 +230,9 @@ impl DefaultDecreasePositionCache of Default<DecreasePositionCache> {
     fn default() -> DecreasePositionCache {
         DecreasePositionCache {
             prices: Default::default(),
-            estimated_position_pnl_usd: 0,
-            estimated_realized_pnl_usd: 0,
-            estimated_remaining_pnl_usd: 0,
+            estimated_position_pnl_usd: Zeroable::zero(),
+            estimated_realized_pnl_usd: Zeroable::zero(),
+            estimated_remaining_pnl_usd: Zeroable::zero(),
             pnl_token: Default::default(),
             pnl_token_price: Default::default(),
             collateral_token_price: Default::default(),
@@ -283,7 +283,7 @@ fn get_position_pnl_usd(
             };
     cache.uncapped_total_position_pnl = cache.total_position_pnl;
 
-    if (cache.total_position_pnl > 0) {
+    if (cache.total_position_pnl > Zeroable::zero()) {
         cache.pnl_token = if position.is_long {
             market.long_token
         } else {
@@ -316,8 +316,8 @@ fn get_position_pnl_usd(
                     keys::max_pnl_factor_for_traders()
                 );
         if (cache.capped_pool_pnl != cache.pool_pnl
-            && cache.capped_pool_pnl > 0
-            && cache.pool_pnl > 0) {
+            && cache.capped_pool_pnl > Zeroable::zero()
+            && cache.pool_pnl > Zeroable::zero()) {
             cache
                 .total_position_pnl =
                     precision::mul_div_inum(
@@ -475,13 +475,13 @@ fn is_position_liquiditable(
                     is_long: position.is_long
                 }
             );
-    cache.has_positive_impact = cache.price_impact_usd > 0;
+    cache.has_positive_impact = cache.price_impact_usd > Zeroable::zero();
     // even if there is a large positive price impact, positions that would be liquidated
     // if the positive price impact is reduced should not be allowed to be created
     // as they would be easily liquidated if the price impact changes
     // cap the priceImpactUsd to zero to prevent these positions from being created
-    if cache.price_impact_usd >= 0 {
-        cache.price_impact_usd = 0;
+    if cache.price_impact_usd >= Zeroable::zero() {
+        cache.price_impact_usd = Zeroable::zero();
     } else {
         let max_price_impact_factor = market_utils::get_max_position_impact_factor_for_liquidations(
             data_store, market.market_token
@@ -531,7 +531,7 @@ fn is_position_liquiditable(
             return (true, 'min collateral');
         }
     }
-    if cache.remaining_collateral_usd <= 0 {
+    if cache.remaining_collateral_usd <= Zeroable::zero() {
         return (true, '0<');
     }
     cache
@@ -598,11 +598,11 @@ fn will_position_collateral_be_sufficient(
         * calc::to_signed(collateral_token_price.min, true);
     // deduct realized pnl if it is negative since this would be paid from
     // the position's collateral
-    if values.realized_pnl_usd < 0 {
+    if values.realized_pnl_usd < Zeroable::zero() {
         remaining_collateral_usd = remaining_collateral_usd + values.realized_pnl_usd;
     }
 
-    if (remaining_collateral_usd < 0) {
+    if (remaining_collateral_usd < Zeroable::zero()) {
         return (false, remaining_collateral_usd);
     }
     // the min collateral factor will increase as the open interest for a market increases
@@ -721,7 +721,7 @@ fn increment_claimable_funding_amount(params: UpdatePositionParams, fees: Positi
 fn update_open_interest(
     params: UpdatePositionParams, size_delta_usd: i128, size_delta_in_tokens: i128,
 ) {
-    if (size_delta_usd != 0) {
+    if (size_delta_usd != Zeroable::zero()) {
         market_utils::apply_delta_to_open_interest(
             params.contracts.data_store,
             params.contracts.event_emitter,

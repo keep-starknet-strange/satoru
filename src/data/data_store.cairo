@@ -10,7 +10,7 @@ use satoru::order::order::Order;
 use satoru::position::position::Position;
 use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::deposit::deposit::Deposit;
-use satoru::utils::i128::{I128Div, I128Mul, I128Store, I128Serde, I128Default};
+use satoru::utils::i128::i128;
 
 // *************************************************************************
 //                  Interface of the `DataStore` contract.
@@ -498,9 +498,8 @@ mod DataStore {
     use satoru::withdrawal::{withdrawal::Withdrawal, error::WithdrawalError};
     use satoru::deposit::{deposit::Deposit, error::DepositError};
     use satoru::utils::calc::{sum_return_uint_128, to_signed, to_unsigned};
-    use integer::i128_to_felt252;
     use satoru::utils::calc;
-    use satoru::utils::i128::{I128Div, I128Mul, I128Store, I128Serde, I128Default};
+    use satoru::utils::i128::i128;
 
     // *************************************************************************
     //                              STORAGE
@@ -677,7 +676,7 @@ mod DataStore {
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
 
             let current_value = self.u128_values.read(key);
-            if value < 0 && calc::to_unsigned(-value) > current_value {
+            if value < Default::default() && calc::to_unsigned(-value) > current_value {
                 panic(array![error]);
             }
 
@@ -714,7 +713,7 @@ mod DataStore {
 
         fn apply_bounded_delta_to_u128(ref self: ContractState, key: felt252, value: i128) -> u128 {
             let uint_value: u128 = self.u128_values.read(key);
-            if (value < 0 && to_unsigned(-value) > uint_value) {
+            if (value < Zeroable::zero() && to_unsigned(-value) > uint_value) {
                 self.u128_values.write(key, 0);
                 return 0;
             }

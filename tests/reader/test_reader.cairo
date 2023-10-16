@@ -16,6 +16,7 @@ use satoru::withdrawal::withdrawal::{Withdrawal};
 use satoru::position::position::{Position};
 use satoru::data::keys;
 use satoru::price::price::{Price, PriceTrait};
+use satoru::utils::i128::{i128, i128_new}
 
 #[test]
 fn given_normal_conditions_when_get_market_then_works() {
@@ -432,7 +433,7 @@ fn given_normal_conditions_when_get_pnl_then_works() {
     let pnl = reader.get_pnl(data_store, market, price, is_long, maximize);
 
     // Perform assertions.
-    assert(pnl == 22250, 'wrong pnl');
+    assert(pnl == i128_new(22250, false), 'wrong pnl');
 
     teardown(data_store.contract_address);
 }

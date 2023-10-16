@@ -26,6 +26,7 @@ use satoru::utils::span32::{Span32, Array32Trait};
 use snforge_std::{declare, ContractClassTrait, start_prank};
 use starknet::{get_caller_address, ContractAddress, contract_address_const};
 use array::ArrayTrait;
+use satoru::utils::i128::{i128, i128_new};
 
 //TODO Tests need to be added after implementation of decrease_position_swap_utils
 
@@ -210,8 +211,8 @@ fn create_new_decrease_position_collateral_values(
     let value = DecreasePositionCollateralValues {
         execution_price: 10,
         remaining_collateral_amount: 1000,
-        base_pnl_usd: 10,
-        uncapped_base_pnl_usd: 10,
+        base_pnl_usd: i128_new(10, false),
+        uncapped_base_pnl_usd: i128_new(10, false),
         size_delta_in_tokens: 1000,
         price_impact_usd: 1000,
         price_impact_diff_usd: 500,

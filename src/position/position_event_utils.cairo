@@ -11,6 +11,7 @@ use satoru::order::order::OrderType;
 use satoru::position::{position_utils::DecreasePositionCollateralValues, position::Position,};
 use satoru::price::price::Price;
 use satoru::pricing::position_pricing_utils::PositionFees;
+use satoru::utils::i128::i128;
 
 /// Struct to store a position increase parameters.
 #[derive(Drop, starknet::Store, Serde)]

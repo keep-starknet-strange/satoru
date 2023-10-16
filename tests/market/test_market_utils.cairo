@@ -26,6 +26,7 @@ use satoru::market::market_utils;
 use satoru::data::keys;
 use satoru::role::role;
 use satoru::price::price::{Price, PriceTrait};
+use satoru::utils::i128::{i128, i128_new};
 
 #[test]
 fn given_normal_conditions_when_get_open_interest_then_works() {
@@ -391,7 +392,7 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
     let market_address = contract_address_const::<'market_address'>();
     let token = contract_address_const::<'token'>();
     let account = contract_address_const::<'account'>();
-    let delta = 50;
+    let delta = i128_new(50, false);
     // The key for the claimable collateral amount for the account.
     // This is the key that will be used to assert the result.
     let claimable_collatoral_amount_for_account_key =
@@ -459,7 +460,7 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
     let market_address = contract_address_const::<'market_address'>();
     let token = contract_address_const::<'token'>();
     let account = contract_address_const::<'account'>();
-    let delta = 50;
+    let delta = i128_new(50, false);
     // The key for the claimable funding amount for the account.
     // This is the key that will be used to assert the result.
     let claimable_funding_amount_for_account_key =
@@ -571,7 +572,7 @@ fn given_normal_conditions_when_get_pnl_then_works() {
     let pnl = market_utils::get_pnl(data_store, @market, @price, is_long, maximize);
 
     // Perform assertions.
-    assert(pnl == 22250, 'wrong pnl');
+    assert(pnl == i128_new(22250, false), 'wrong pnl');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -643,7 +644,7 @@ fn given_zero_open_interest_when_get_pnl_then_returns_zero_pnl() {
     let pnl = market_utils::get_pnl(data_store, @market, @price, is_long, maximize);
 
     // Perform assertions.
-    assert(pnl == 0, 'wrong pnl');
+    assert(pnl == i128_new(0, false), 'wrong pnl');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -715,7 +716,7 @@ fn given_zero_open_interest_in_tokens_when_get_pnl_then_returns_zero_pnl() {
     let pnl = market_utils::get_pnl(data_store, @market, @price, is_long, maximize);
 
     // Perform assertions.
-    assert(pnl == 0, 'wrong pnl');
+    assert(pnl == i128_new(0, false), 'wrong pnl');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -847,7 +848,7 @@ fn given_normal_conditions_when_apply_delta_to_position_impact_pool_then_works()
 
     // Define variables for the test case.
     let market_token_address = contract_address_const::<'market_token'>();
-    let delta = 50;
+    let delta = i128_new(50, false);
 
     // Setup pre conditions.
 
@@ -896,7 +897,7 @@ fn given_normal_conditions_when_apply_delta_to_swap_impact_pool_then_works() {
     // Define variables for the test case.
     let market_token_address = contract_address_const::<'market_token'>();
     let token = contract_address_const::<'token'>();
-    let delta = 50;
+    let delta = i128_new(50, false);
 
     // Setup pre conditions.
 

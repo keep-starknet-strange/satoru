@@ -14,7 +14,7 @@ use satoru::pricing::position_pricing_utils::{
 use satoru::order::order::OrderType;
 use satoru::price::price::Price;
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::utils::i128::{I128Store, I128Serde, I128Div, I128Mul};
+use satoru::utils::i128::{i128, i128_new};
 
 #[test]
 fn given_normal_conditions_when_emit_position_increase_then_works() {
@@ -184,7 +184,7 @@ fn given_normal_conditions_when_emit_insolvent_close_then_works() {
     // Create a dummy data.
     let order_key = 'order_key';
     let position_collateral_amount = 100;
-    let base_pnl_usd = 50;
+    let base_pnl_usd = i128_new(50, false);
     let remaining_cost_usd = 75;
 
     // Create the expected data.
@@ -504,8 +504,8 @@ fn create_dummy_dec_pos_collateral_values() -> DecreasePositionCollateralValues 
     DecreasePositionCollateralValues {
         execution_price: 10,
         remaining_collateral_amount: 10,
-        base_pnl_usd: 10,
-        uncapped_base_pnl_usd: 10,
+        base_pnl_usd: i128_new(10, false),
+        uncapped_base_pnl_usd: i128_new(10, false),
         size_delta_in_tokens: 10,
         price_impact_usd: 10,
         price_impact_diff_usd: 10,

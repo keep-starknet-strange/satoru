@@ -12,7 +12,7 @@ use satoru::pricing::position_pricing_utils;
 use satoru::market::market_utils;
 use satoru::price::price::{Price, PriceTrait};
 use satoru::order::{base_order_utils, order};
-use satoru::utils::{i128::{I128Serde, I128Default, I128Store}, calc, precision};
+use satoru::utils::{i128::i128, calc, precision};
 use satoru::data::{keys, data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::fee::fee_utils;
@@ -118,7 +118,7 @@ fn process_collateral(
         referral_storage: params.contracts.referral_storage,
         position: params.position,
         collateral_token_price: cache.collateral_token_price,
-        for_positive_impact: values.price_impact_usd > 0,
+        for_positive_impact: values.price_impact_usd > Zeroable::zero(),
         long_token: params.market.long_token,
         short_token: params.market.short_token,
         size_delta_usd: params.order.size_delta_usd,
@@ -130,7 +130,7 @@ fn process_collateral(
     );
 
     // if the pnl is positive, deduct the pnl amount from the pool
-    if values.base_pnl_usd > 0 {
+    if values.base_pnl_usd > Zeroable::zero() {
         // use pnl_token_price.max to minimize the tokens paid out
         let deduction_amount_for_pool: u128 = calc::to_unsigned(values.base_pnl_usd)
             / cache.pnl_token_price.max;
@@ -150,7 +150,7 @@ fn process_collateral(
         }
     }
 
-    if values.price_impact_usd > 0 {
+    if values.price_impact_usd > Zeroable::zero() {
         // use indexTokenPrice.min to maximize the position impact pool reduction
         let deduction_amount_for_impact_pool = calc::roundup_division(
             calc::to_unsigned(values.price_impact_usd), cache.prices.index_token_price.min
@@ -266,7 +266,7 @@ fn process_collateral(
     };
 
     // pay for negative pnl
-    if values.base_pnl_usd < 0 {
+    if values.base_pnl_usd < Zeroable::zero() {
         let (values_, result_) = pay_for_cost(
             params,
             values,
@@ -384,7 +384,7 @@ fn process_collateral(
     }
 
     // pay for negative price impact
-    if values.price_impact_usd < 0 {
+    if values.price_impact_usd < Zeroable::zero() {
         let (values_, result_) = pay_for_cost(
             params,
             values,
@@ -547,7 +547,7 @@ fn get_execution_price(
         // decrease order:
         //     - long: use the smaller price
         //     - short: use the larger price
-        return (0, 0, index_token_price.pick_price(!params.position.is_long));
+        return (Zeroable::zero(), 0, index_token_price.pick_price(!params.position.is_long));
     }
 
     let mut cache: GetExecutionPriceCache = Default::default();
@@ -574,7 +574,7 @@ fn get_execution_price(
                 size_delta_usd
             );
 
-    if cache.price_impact_usd < 0 {
+    if cache.price_impact_usd < Zeroable::zero() {
         let max_price_impact_factor: u128 = market_utils::get_max_position_impact_factor(
             params.contracts.data_store, params.market.market_token, false
         );
