@@ -1,4 +1,6 @@
-use snforge_std::{declare, start_prank, stop_prank, start_roll, ContractClassTrait, ContractClass};
+use snforge_std::{
+    declare, start_prank, stop_prank, start_roll, start_mock_call, ContractClassTrait, ContractClass
+};
 use satoru::exchange::liquidation_handler::{
     LiquidationHandler, ILiquidationHandlerDispatcher, ILiquidationHandler,
     ILiquidationHandlerDispatcherTrait
@@ -43,8 +45,10 @@ fn given_normal_conditions_when_create_execute_liquidation_then_works() {
         key, account, market, collateral_token, is_long: true, position_no: 1
     );
 
-    data_store.set_position(key, position);
+    let option_default_order = Option::Some(Default::<Order>::default());
+    start_mock_call(data_store.contract_address, 'get_order', option_default_order);
 
+    data_store.set_position(key, position);
     liquidation_handler_dispatcher
         .execute_liquidation(
             account: contract_address_const::<'account'>(),
