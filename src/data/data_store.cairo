@@ -950,7 +950,7 @@ mod DataStore {
                 return Default::default();
             }
             let orders: List<Order> = self.orders.read();
-            let order_maybe = orders.get(offsetted_index - 1); 
+            let order_maybe = orders.get(offsetted_index - 1);
             match order_maybe {
                 Option::Some(order) => {
                     order
