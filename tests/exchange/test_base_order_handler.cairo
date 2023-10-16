@@ -88,6 +88,9 @@ fn given_normal_conditions_when_get_execute_order_params_then_works() {
     let starting_gas = 10000;
     let secondary_order_type = SecondaryOrderType::Adl(());
 
+    let option_mock_order: Option<Order> = Option::Some(Default::<Order>::default());
+    start_mock_call(data_store.contract_address, 'get_order', option_mock_order);
+
     // test call
     let execute_order_params = BaseOrderHandler::InternalImpl::get_execute_order_params(
         ref base_order_handler_state,
@@ -127,6 +130,41 @@ fn given_normal_conditions_when_get_execute_order_params_then_works() {
     );
 
     // teardown
+    tests_lib::teardown(data_store.contract_address);
+}
+
+
+#[test]
+#[should_panic(expected: ('order_not_found',))]
+fn given_non_found_order_when_get_execute_order_params_then_fails() {
+    let (
+        caller_address,
+        role_store,
+        data_store,
+        event_emitter,
+        order_vault,
+        oracle,
+        swap_handler,
+        referral_storage,
+        mut base_order_handler_state
+    ) =
+        setup_contracts();
+
+    let key: felt252 = mock_key();
+    let set_prices_params = mock_set_prices_params();
+    let starting_gas = 10000;
+    let secondary_order_type = SecondaryOrderType::Adl(());
+
+    let option_mock_order: Option<Order> = Option::<Order>::None(());
+    let execute_order_params = BaseOrderHandler::InternalImpl::get_execute_order_params(
+        ref base_order_handler_state,
+        key,
+        set_prices_params,
+        caller_address,
+        starting_gas,
+        secondary_order_type
+    );
+
     tests_lib::teardown(data_store.contract_address);
 }
 

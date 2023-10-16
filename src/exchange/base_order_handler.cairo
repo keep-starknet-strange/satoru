@@ -44,6 +44,7 @@ mod BaseOrderHandler {
     // *************************************************************************
 
     // Core lib imports.
+    use core::option::OptionTrait;
     use core::zeroable::Zeroable;
     use core::traits::Into;
     use starknet::{get_caller_address, ContractAddress, contract_address_const};
@@ -62,9 +63,9 @@ mod BaseOrderHandler {
         oracle_utils::{SetPricesParams, get_uncompacted_oracle_block_numbers},
     };
     use satoru::order::{
-        order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType},
+        error::OrderError, order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType},
         order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
-        base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}, order_store_utils,
+        base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts},
     };
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use satoru::exchange::error::ExchangeError;
@@ -189,7 +190,8 @@ mod BaseOrderHandler {
         ) -> ExecuteOrderParams {
             let data_store = self.data_store.read();
 
-            let order = order_store_utils::get(data_store, key);
+            let order = data_store.get_order(key).expect(OrderError::ORDER_NOT_FOUND);
+
             let swap_path_markets = market_utils::get_swap_path_markets(
                 data_store, order.swap_path
             );

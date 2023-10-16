@@ -102,6 +102,7 @@ mod OrderHandler {
     // *************************************************************************
 
     // Core lib imports.
+    use core::option::OptionTrait;
     use core::starknet::SyscallResultTrait;
     use core::traits::Into;
     use starknet::ContractAddress;
@@ -116,8 +117,7 @@ mod OrderHandler {
     use satoru::order::{base_order_utils::CreateOrderParams, order_utils, order, base_order_utils};
     use satoru::order::{
         order::{Order, OrderTrait, OrderType, SecondaryOrderType},
-        order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}, order_store_utils,
-        order_event_utils
+        order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}, order_event_utils
     };
     use satoru::market::market::Market;
     use satoru::market::error::MarketError;
@@ -136,6 +136,7 @@ mod OrderHandler {
         InternalTrait as BaseOrderHandleInternalTrait,
     };
     use satoru::feature::feature_utils;
+    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::data::keys;
     use satoru::role::role;
     use satoru::role::role_module::{RoleModule, IRoleModule};
@@ -278,7 +279,7 @@ mod OrderHandler {
 
             base_order_utils::validate_non_empty_order(@updated_order);
 
-            order_store_utils::set(data_store, key, @updated_order);
+            data_store.set_order(key, updated_order);
             order_event_utils::emit_order_updated(
                 base_order_handler_state.event_emitter.read(),
                 key,
@@ -306,7 +307,7 @@ mod OrderHandler {
 
             global_reentrancy_guard::non_reentrant_before(data_store);
 
-            let order = order_store_utils::get(data_store, key);
+            let order = data_store.get_order(key).expect(OrderError::ORDER_NOT_FOUND);
 
             // Validate feature.
             feature_utils::validate_feature(
@@ -447,7 +448,7 @@ mod OrderHandler {
             let mut base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
 
-            let order = order_store_utils::get(data_store, key);
+            let order = data_store.get_order(key).expect(OrderError::ORDER_NOT_FOUND);
             let is_market_order = base_order_utils::is_market_order(order.order_type);
 
             if (oracle_utils::is_oracle_error(error_selector)
