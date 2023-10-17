@@ -863,7 +863,10 @@ mod DataStore {
             self.role_store.read().assert_only_role(get_caller_address(), role::MARKET_KEEPER);
             let offsetted_index: usize = self.market_indexes.read(key);
             let mut markets = self.markets.read();
-            assert(offsetted_index <= markets.len(), MarketError::MARKET_NOT_FOUND);
+            assert(
+                offsetted_index != 0 && offsetted_index <= markets.len(),
+                MarketError::MARKET_NOT_FOUND
+            );
 
             let index = offsetted_index - 1;
             // Replace the value at `index` by the last market in the list.
@@ -984,7 +987,9 @@ mod DataStore {
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             let offsetted_index: usize = self.order_indexes.read(key);
             let mut orders = self.orders.read();
-            assert(offsetted_index <= orders.len(), OrderError::ORDER_NOT_FOUND);
+            assert(
+                offsetted_index != 0 && offsetted_index <= orders.len(), OrderError::ORDER_NOT_FOUND
+            );
 
             let index = offsetted_index - 1;
             // Replace the value at `index` by the last order in the list.
@@ -1115,7 +1120,10 @@ mod DataStore {
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             let offsetted_index: usize = self.position_indexes.read(key);
             let mut positions = self.positions.read();
-            assert(offsetted_index <= positions.len(), PositionError::POSITION_NOT_FOUND);
+            assert(
+                offsetted_index != 0 && offsetted_index <= positions.len(),
+                PositionError::POSITION_NOT_FOUND
+            );
 
             let index = offsetted_index - 1;
             // Replace the value at `index` by the last position in the list.
@@ -1248,7 +1256,10 @@ mod DataStore {
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             let offsetted_index: usize = self.withdrawal_indexes.read(key);
             let mut withdrawals = self.withdrawals.read();
-            assert(offsetted_index <= withdrawals.len(), WithdrawalError::NOT_FOUND);
+            assert(
+                offsetted_index != 0 && offsetted_index <= withdrawals.len(),
+                WithdrawalError::NOT_FOUND
+            );
 
             let index = offsetted_index - 1;
             // Replace the value at `index` by the last withdrawal in the list.
@@ -1374,7 +1385,10 @@ mod DataStore {
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             let offsetted_index: usize = self.deposit_indexes.read(key);
             let mut deposits = self.deposits.read();
-            assert(offsetted_index <= deposits.len(), DepositError::DEPOSIT_NOT_FOUND);
+            assert(
+                offsetted_index != 0 && offsetted_index <= deposits.len(),
+                DepositError::DEPOSIT_NOT_FOUND
+            );
 
             let index = offsetted_index - 1;
             // Replace the value at `index` by the last deposit in the list.
