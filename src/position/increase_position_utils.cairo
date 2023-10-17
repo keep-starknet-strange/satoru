@@ -125,7 +125,7 @@ fn increase_position(mut params: UpdatePositionParams, collateral_increment_amou
     fees = processed_fees;
 
     // check if there is sufficient collateral for the position
-    if (cache.collateral_delta_amount < 0
+    if (cache.collateral_delta_amount < Zeroable::zero()
         && params.position.collateral_amount < to_unsigned(-cache.collateral_delta_amount)) {
         PositionError::INSUFFICIENT_COLLATERAL_AMOUNT(
             params.position.collateral_amount, cache.collateral_delta_amount
@@ -200,8 +200,8 @@ fn increase_position(mut params: UpdatePositionParams, collateral_increment_amou
             WillPositionCollateralBeSufficientValues {
             position_size_in_usd: params.position.size_in_usd,
             position_collateral_amount: params.position.collateral_amount,
-            realized_pnl_usd: 0,
-            open_interest_delta: 0
+            realized_pnl_usd: Zeroable::zero(),
+            open_interest_delta: Zeroable::zero()
         };
 
         let (will_be_sufficient, remaining_collateral_usd) =
@@ -279,7 +279,7 @@ fn process_collateral(
         referral_storage: params.contracts.referral_storage,
         position: params.position,
         collateral_token_price,
-        for_positive_impact: price_impact_usd > 0,
+        for_positive_impact: price_impact_usd > Zeroable::zero(),
         long_token: params.market.long_token,
         short_token: params.market.short_token,
         size_delta_usd: params.order.size_delta_usd,
@@ -341,7 +341,7 @@ fn get_execution_price(
         // increase order:
         //     - long: use the larger price
         //     - short: use the smaller price
-        return (0, 0, 0, index_token_price.pick_price(params.position.is_long));
+        return (Zeroable::zero(), Zeroable::zero(), 0, index_token_price.pick_price(params.position.is_long));
     }
 
     let mut price_impact_usd = get_price_impact_usd(
@@ -379,9 +379,9 @@ fn get_execution_price(
     // if price impact is negative, the sizeDeltaInTokens would be increased by the priceImpactAmount
     // the priceImpactAmount should be maximized
 
-    let mut price_impact_amount: i128 = 0;
+    let mut price_impact_amount: i128 = Zeroable::zero();
 
-    if (price_impact_usd > 0) {
+    if (price_impact_usd > Zeroable::zero()) {
         // use indexTokenPrice.max and round down to minimize the priceImpactAmount
         price_impact_amount = price_impact_usd / to_signed(index_token_price.max, true);
     } else {
@@ -400,14 +400,14 @@ fn get_execution_price(
             roundup_division(params.order.size_delta_usd, index_token_price.min);
     }
 
-    let mut size_delta_in_tokens: i128 = 0;
+    let mut size_delta_in_tokens: i128 = Zeroable::zero();
     if (params.position.is_long) {
         size_delta_in_tokens = to_signed(base_size_delta_in_tokens, true) + price_impact_amount;
     } else {
         size_delta_in_tokens = to_signed(base_size_delta_in_tokens, true) - price_impact_amount;
     }
 
-    if (size_delta_in_tokens < 0) {
+    if (size_delta_in_tokens < Zeroable::zero()) {
         PositionError::PRICE_IMPACT_LARGER_THAN_ORDER_SIZE(
             price_impact_usd, params.order.size_delta_usd
         )

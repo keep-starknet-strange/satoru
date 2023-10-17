@@ -534,9 +534,9 @@ fn create_dummy_position_increase_params(
         execution_price: 100,
         size_delta_usd: 3,
         size_delta_in_tokens: 1,
-        collateral_delta_amount: 2,
-        price_impact_usd: 1,
-        price_impact_amount: 1,
+        collateral_delta_amount: i128_new(2, false),
+        price_impact_usd: i128_new(1, false),
+        price_impact_amount: i128_new(1, false),
         order_type: OrderType::MarketSwap(())
     }
 }

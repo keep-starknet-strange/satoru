@@ -3,7 +3,7 @@
 // *************************************************************************
 // Core lib imports.
 use satoru::utils::error_utils;
-use satoru::utils::i128::i128;
+use satoru::utils::i128::{i128, i128_new};
 
 /// Calculates the result of dividing the first number by the second number 
 /// rounded up to the nearest integer.
@@ -158,11 +158,7 @@ fn bounded_sub(a: i128, b: i128) -> i128 {
 fn to_signed(a: u128, is_positive: bool) -> i128 {
     let a_felt: felt252 = a.into();
     let a_signed = a_felt.try_into().expect('i128 Overflow');
-    if is_positive {
-        a_signed
-    } else {
-        -a_signed
-    }
+    i128_new(a, !is_positive)
 }
 
 /// Converts the given signed integer to an unsigned integer, panics otherwise
@@ -170,8 +166,7 @@ fn to_signed(a: u128, is_positive: bool) -> i128 {
 /// The unsigned integer.
 fn to_unsigned(value: i128) -> u128 {
     assert(value >= Zeroable::zero(), 'to_unsigned: value is negative');
-    let value: felt252 = value.into();
-    value.try_into().expect('i128 into u128 failed')
+    return value.mag;
 }
 
 // TODO use BoundedInt::max() && BoundedInt::mint() when possible
