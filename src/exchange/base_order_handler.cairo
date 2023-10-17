@@ -35,6 +35,8 @@ trait IBaseOrderHandler<TContractState> {
         swap_handler_address: ContractAddress,
         referral_storage_address: ContractAddress
     );
+
+    fn only_liquidation_keeper(self: @TContractState);
 }
 
 #[starknet::contract]
@@ -54,6 +56,10 @@ mod BaseOrderHandler {
     // Local imports.
     use super::IBaseOrderHandler;
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::role::role_module::{
+        IRoleModuleDispatcher, IRoleModuleDispatcherTrait, RoleModule, IRoleModule
+    };
+
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::oracle::{
@@ -154,6 +160,10 @@ mod BaseOrderHandler {
             );
             self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
             self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
+
+            let mut state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
+            IRoleModule::initialize(ref state, role_store_address,);
+
             self
                 .event_emitter
                 .write(IEventEmitterDispatcher { contract_address: event_emitter_address });
@@ -165,6 +175,11 @@ mod BaseOrderHandler {
             self
                 .referral_storage
                 .write(IReferralStorageDispatcher { contract_address: referral_storage_address });
+        }
+
+        fn only_liquidation_keeper(self: @ContractState) {
+            let mut state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
+            IRoleModule::only_liquidation_keeper(@state);
         }
     }
 

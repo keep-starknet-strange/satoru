@@ -41,7 +41,9 @@ mod LiquidationHandler {
 
     // Core lib imports.
     use satoru::exchange::base_order_handler::BaseOrderHandler::{
-        event_emitter::InternalContractMemberStateTrait, data_store::InternalContractMemberStateImpl
+        event_emitter::InternalContractMemberStateTrait,
+        data_store::InternalContractMemberStateImpl,
+        oracle::InternalContractMemberStateTrait as OracleStateTrait,
     };
     use starknet::{ContractAddress, get_caller_address, get_contract_address};
 
@@ -49,6 +51,8 @@ mod LiquidationHandler {
     // Local imports.
     use super::ILiquidationHandler;
     use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
+    use satoru::role::role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait};
+
     use satoru::data::{
         data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait, DataStore},
         keys::execute_order_feature_disabled_key
@@ -72,6 +76,8 @@ mod LiquidationHandler {
     use satoru::feature::feature_utils::validate_feature;
     use satoru::exchange::order_handler::{IOrderHandler, OrderHandler};
     use satoru::utils::starknet_utils;
+    use satoru::utils::global_reentrancy_guard;
+
 
     // *************************************************************************
     //                              STORAGE
@@ -130,9 +136,21 @@ mod LiquidationHandler {
             is_long: bool,
             oracle_params: SetPricesParams
         ) {
-            let starting_gas: u128 = starknet_utils::sn_gasleft(array![100]);
             let mut state_base: BaseOrderHandler::ContractState =
                 BaseOrderHandler::unsafe_new_contract_state(); //retrieve BaseOrderHandler state
+            global_reentrancy_guard::non_reentrant_before(state_base.data_store.read());
+
+            state_base.only_liquidation_keeper();
+
+            with_oracle_prices_before(
+                state_base.oracle.read(),
+                state_base.data_store.read(),
+                state_base.event_emitter.read(),
+                @oracle_params
+            );
+
+            let starting_gas: u128 = starknet_utils::sn_gasleft(array![100]);
+
             let key: felt252 = create_liquidation_order(
                 state_base.data_store.read(),
                 state_base.event_emitter.read(),
@@ -156,6 +174,9 @@ mod LiquidationHandler {
                 execute_order_feature_disabled_key(get_contract_address(), params.order.order_type)
             );
             order_utils::execute_order(params);
+            with_oracle_prices_after(state_base.oracle.read());
+
+            global_reentrancy_guard::non_reentrant_after(state_base.data_store.read());
         }
     }
 }
