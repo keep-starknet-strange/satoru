@@ -187,7 +187,7 @@ fn create_withrawal_params() -> CreateWithdrawalParams {
     }
 }
 
-fn deploy_tokens() -> (ContractAddress,ContractAddress) {
+fn deploy_tokens() -> (ContractAddress, ContractAddress) {
     let contract = declare('ERC20');
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
 
