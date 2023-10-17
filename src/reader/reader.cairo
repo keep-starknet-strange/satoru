@@ -499,7 +499,7 @@ mod Reader {
         fn get_withdrawal(
             self: @ContractState, data_store: IDataStoreDispatcher, key: felt252
         ) -> Withdrawal {
-            data_store.get_withdrawal(key).expect('get_withdrawal failed')
+            data_store.get_withdrawal(key)
         }
 
         fn get_position(

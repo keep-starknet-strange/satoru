@@ -340,7 +340,7 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to get the value for.
     /// # Returns
     /// The value for the given key.
-    fn get_withdrawal(self: @TContractState, key: felt252) -> Option<Withdrawal>;
+    fn get_withdrawal(self: @TContractState, key: felt252) -> Withdrawal;
 
     /// Set a withdrawal value for the given key.
     /// # Arguments
@@ -1214,13 +1214,21 @@ mod DataStore {
         //                      Withdrawal related functions.
         // *************************************************************************
 
-        fn get_withdrawal(self: @ContractState, key: felt252) -> Option<Withdrawal> {
+        fn get_withdrawal(self: @ContractState, key: felt252) -> Withdrawal {
             let offsetted_index: usize = self.withdrawal_indexes.read(key);
             if offsetted_index == 0 {
-                return Option::None;
+                return Default::default();
             }
             let withdrawals: List<Withdrawal> = self.withdrawals.read();
-            withdrawals.get(offsetted_index - 1)
+            let withdrawal_maybe = withdrawals.get(offsetted_index - 1);
+            match withdrawal_maybe {
+                Option::Some(withdrawal) => {
+                    withdrawal
+                },
+                Option::None => {
+                    Default::default()
+                }
+            }
         }
 
         fn set_withdrawal(ref self: ContractState, key: felt252, withdrawal: Withdrawal) {

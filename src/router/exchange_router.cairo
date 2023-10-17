@@ -335,18 +335,7 @@ mod ExchangeRouter {
             let data_store = self.data_store.read();
             global_reentrancy_guard::non_reentrant_before(data_store);
 
-            let withdrawal_result = data_store.get_withdrawal(key);
-            let mut withdrawal: Withdrawal = Default::default();
-
-            // Check if the withdrawal is valid
-            match withdrawal_result {
-                Option::Some(withd) => {
-                    withdrawal = withd;
-                },
-                Option::None => {
-                    panic_with_felt252(RouterError::WITHDRAWAL_NOT_VALID)
-                }
-            };
+            let withdrawal = data_store.get_withdrawal(key);
 
             if (withdrawal.account != get_caller_address()) {
                 RouterError::UNAUTHORIZED(get_caller_address(), 'account for cancel_withdrawal')

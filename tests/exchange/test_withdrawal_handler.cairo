@@ -23,26 +23,10 @@ use traits::Default;
 #[test]
 fn given_normal_conditions_when_create_withdrawal_then_works() {
     let (caller_address, data_store, event_emitter, withdrawal_handler) = setup();
-
-    let account: ContractAddress = 0x123.try_into().unwrap();
-    let receiver: ContractAddress = 0x234.try_into().unwrap();
-    let ui_fee_receiver: ContractAddress = 0x345.try_into().unwrap();
-    let market: ContractAddress = 0x456.try_into().unwrap();
-
     start_prank(withdrawal_handler.contract_address, caller_address);
 
-    let params: CreateWithdrawalParams = CreateWithdrawalParams {
-        receiver,
-        callback_contract: receiver,
-        ui_fee_receiver,
-        market,
-        long_token_swap_path: Default::default(),
-        short_token_swap_path: Default::default(),
-        min_long_token_amount: Default::default(),
-        min_short_token_amount: Default::default(),
-        execution_fee: Default::default(),
-        callback_gas_limit: Default::default(),
-    };
+    let account = contract_address_const::<'account'>();
+    let params = create_withrawal_params();
 
     withdrawal_handler.create_withdrawal(account, params);
 }
@@ -55,71 +39,27 @@ fn given_caller_not_controller_when_create_withdrawal_then_fails() {
     let caller: ContractAddress = 0x847.try_into().unwrap();
     start_prank(withdrawal_handler.contract_address, caller);
 
-    let params: CreateWithdrawalParams = CreateWithdrawalParams {
-        receiver: 0x785.try_into().unwrap(),
-        callback_contract: 0x786.try_into().unwrap(),
-        ui_fee_receiver: 0x345.try_into().unwrap(),
-        market: 0x346.try_into().unwrap(),
-        long_token_swap_path: Default::default(),
-        short_token_swap_path: Default::default(),
-        min_long_token_amount: Default::default(),
-        min_short_token_amount: Default::default(),
-        execution_fee: Default::default(),
-        callback_gas_limit: Default::default(),
-    };
+    let params = create_withrawal_params();
 
     withdrawal_handler.create_withdrawal(caller, params);
 }
 
 #[test]
 fn given_normal_conditions_when_cancel_withdrawal_then_works() {
-    let withdrawal = Withdrawal {
-        key: Default::default(),
-        account: 0x785.try_into().unwrap(),
-        receiver: 0x787.try_into().unwrap(),
-        callback_contract: 0x348.try_into().unwrap(),
-        ui_fee_receiver: 0x345.try_into().unwrap(),
-        market: 0x346.try_into().unwrap(),
-        long_token_swap_path: Default::default(),
-        short_token_swap_path: Default::default(),
-        market_token_amount: Default::default(),
-        min_long_token_amount: Default::default(),
-        min_short_token_amount: Default::default(),
-        updated_at_block: Default::default(),
-        execution_fee: Default::default(),
-        callback_gas_limit: Default::default(),
-    };
-
     let (caller_address, data_store, event_emitter, withdrawal_handler) = setup();
     start_prank(withdrawal_handler.contract_address, caller_address);
 
-    let withdrawal_key = 'SAMPLE_WITHDRAW';
-    data_store.set_withdrawal(withdrawal_key, withdrawal);
+    let account = contract_address_const::<'account'>();
+    let params = create_withrawal_params();
+    let withdrawal_key = withdrawal_handler.create_withdrawal(account, params);
 
     // Key cleaning should be done in withdrawal_utils. We only check call here.
     withdrawal_handler.cancel_withdrawal(withdrawal_key);
 }
 
 #[test]
-#[should_panic(expected: ('get_withdrawal failed',))]
+#[should_panic(expected: ('empty withdrawal',))]
 fn given_unexisting_key_when_cancel_withdrawal_then_fails() {
-    let withdrawal = Withdrawal {
-        key: Default::default(),
-        account: 0x785.try_into().unwrap(),
-        receiver: 0x787.try_into().unwrap(),
-        callback_contract: 0x348.try_into().unwrap(),
-        ui_fee_receiver: 0x345.try_into().unwrap(),
-        market: 0x346.try_into().unwrap(),
-        long_token_swap_path: Default::default(),
-        short_token_swap_path: Default::default(),
-        market_token_amount: Default::default(),
-        min_long_token_amount: Default::default(),
-        min_short_token_amount: Default::default(),
-        updated_at_block: Default::default(),
-        execution_fee: Default::default(),
-        callback_gas_limit: Default::default(),
-    };
-
     let (caller_address, data_store, event_emitter, withdrawal_handler) = setup();
     start_prank(withdrawal_handler.contract_address, caller_address);
 
@@ -198,9 +138,9 @@ fn given_caller_not_controller_when_simulate_execute_withdrawal_then_fails() {
     withdrawal_handler.simulate_execute_withdrawal(withdrawal_key, oracle_params);
 }
 
-// Panics due to the absence of a mocked withdrawal, resulting in Option::None being returned.
+// Panics due to the absence of a mocked withdrawal, resulting in 'empty withdrawal'.
 #[test]
-#[should_panic(expected: ('invalid withdrawal key', 'SAMPLE_WITHDRAW'))]
+#[should_panic(expected: ('empty withdrawal',))]
 fn given_invalid_withdrawal_key_when_simulate_execute_withdrawal_then_fails() {
     let (caller_address, data_store, event_emitter, withdrawal_handler) = setup();
     let oracle_params = SimulatePricesParams {
@@ -214,6 +154,20 @@ fn given_invalid_withdrawal_key_when_simulate_execute_withdrawal_then_fails() {
     withdrawal_handler.simulate_execute_withdrawal(withdrawal_key, oracle_params);
 }
 
+fn create_withrawal_params() -> CreateWithdrawalParams {
+    CreateWithdrawalParams {
+        receiver: contract_address_const::<'receiver'>(),
+        callback_contract: contract_address_const::<'callback_contract'>(),
+        ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
+        market: contract_address_const::<'market'>(),
+        long_token_swap_path: Default::default(),
+        short_token_swap_path: Default::default(),
+        min_long_token_amount: Default::default(),
+        min_short_token_amount: Default::default(),
+        execution_fee: Default::default(),
+        callback_gas_limit: Default::default(),
+    }
+}
 
 fn deploy_withdrawal_handler(
     data_store_address: ContractAddress,
