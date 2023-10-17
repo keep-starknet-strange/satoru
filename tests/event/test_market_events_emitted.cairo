@@ -6,7 +6,19 @@ use snforge_std::{
 
 use satoru::tests_lib::setup_event_emitter;
 
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::event::event_emitter::{
+    EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait
+};
+
+use satoru::event::event_emitter::EventEmitter::{
+    MarketPoolValueInfoEvent, PoolAmountUpdated, SwapImpactPoolAmountUpdated,
+    PositionImpactPoolAmountUpdated, OpenInterestInTokensUpdated, OpenInterestUpdated,
+    VirtualSwapInventoryUpdated, VirtualPositionInventoryUpdated, CollateralSumUpdated,
+    CumulativeBorrowingFactorUpdated, FundingFeeAmountPerSizeUpdated,
+    ClaimableFundingAmountPerSizeUpdated, ClaimableFundingUpdated, FundingFeesClaimed,
+    ClaimableCollateralUpdated, CollateralClaimed, UiFeeFactorUpdated, MarketCreated
+};
+
 use satoru::market::market_pool_value_info::MarketPoolValueInfo;
 use satoru::utils::i128::{i128, i128_new};
 
@@ -27,23 +39,22 @@ fn given_normal_conditions_when_emit_market_pool_value_info_then_works() {
     let market_pool_value_info: MarketPoolValueInfo = create_dummy_market_pool_value_info();
     let market_tokens_supply: u128 = 1;
 
-    // Create the expected data.
-    let mut expected_data: Array<felt252> = array![market.into()];
-    market_pool_value_info.serialize(ref expected_data);
-    expected_data.append(market_tokens_supply.into());
-
     // Emit the event.
     event_emitter.emit_market_pool_value_info(market, market_pool_value_info, market_tokens_supply);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'MarketPoolValueInfoEvent',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::MarketPoolValueInfoEvent(
+                        MarketPoolValueInfoEvent {
+                            market: market,
+                            market_pool_value_info: market_pool_value_info,
+                            market_tokens_supply: market_tokens_supply
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -68,23 +79,20 @@ fn given_normal_conditions_when_emit_pool_amount_updated_then_works() {
     let delta: i128 = i128_new(1, false);
     let next_value: u128 = 2;
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        market.into(), token.into(), delta.into(), next_value.into()
-    ];
-
     // Emit the event.
     event_emitter.emit_pool_amount_updated(market, token, delta, next_value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'PoolAmountUpdated',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::PoolAmountUpdated(
+                        PoolAmountUpdated {
+                            market: market, token: token, delta: delta, next_value: next_value
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -109,23 +117,20 @@ fn given_normal_conditions_when_emit_swap_impact_pool_amount_updated_then_works(
     let delta: i128 = i128_new(1, false);
     let next_value: u128 = 2;
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        market.into(), token.into(), delta.into(), next_value.into()
-    ];
-
     // Emit the event.
     event_emitter.emit_swap_impact_pool_amount_updated(market, token, delta, next_value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'SwapImpactPoolAmountUpdated',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::SwapImpactPoolAmountUpdated(
+                        SwapImpactPoolAmountUpdated {
+                            market: market, token: token, delta: delta, next_value: next_value
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -149,21 +154,20 @@ fn given_normal_conditions_when_emit_position_impact_pool_amount_updated_then_wo
     let delta: i128 = i128_new(1, false);
     let next_value: u128 = 2;
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![market.into(), delta.into(), next_value.into()];
-
     // Emit the event.
     event_emitter.emit_position_impact_pool_amount_updated(market, delta, next_value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'PositionImpactPoolAmountUpdated',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::PositionImpactPoolAmountUpdated(
+                        PositionImpactPoolAmountUpdated {
+                            market: market, delta: delta, next_value: next_value
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -189,11 +193,6 @@ fn given_normal_conditions_when_emit_open_interest_in_tokens_updated_then_works(
     let delta: i128 = i128_new(1, false);
     let next_value: u128 = 2;
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        market.into(), collateral_token.into(), is_long.into(), delta.into(), next_value.into()
-    ];
-
     // Emit the event.
     event_emitter
         .emit_open_interest_in_tokens_updated(market, collateral_token, is_long, delta, next_value);
@@ -201,12 +200,18 @@ fn given_normal_conditions_when_emit_open_interest_in_tokens_updated_then_works(
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'OpenInterestInTokensUpdated',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::OpenInterestInTokensUpdated(
+                        OpenInterestInTokensUpdated {
+                            market: market,
+                            collateral_token: collateral_token,
+                            is_long: is_long,
+                            delta: delta,
+                            next_value: next_value
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -232,23 +237,24 @@ fn given_normal_conditions_when_emit_open_interest_updated_then_works() {
     let delta: i128 = i128_new(1, false);
     let next_value: u128 = 2;
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        market.into(), collateral_token.into(), is_long.into(), delta.into(), next_value.into()
-    ];
-
     // Emit the event.
     event_emitter.emit_open_interest_updated(market, collateral_token, is_long, delta, next_value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'OpenInterestUpdated',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::OpenInterestUpdated(
+                        OpenInterestUpdated {
+                            market: market,
+                            collateral_token: collateral_token,
+                            is_long: is_long,
+                            delta: delta,
+                            next_value: next_value
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -274,11 +280,6 @@ fn given_normal_conditions_when_emit_virtual_swap_inventory_updated_then_works()
     let delta: i128 = i128_new(1, false);
     let next_value: u128 = 2;
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        market.into(), is_long_token.into(), virtual_market_id, delta.into(), next_value.into()
-    ];
-
     // Emit the event.
     event_emitter
         .emit_virtual_swap_inventory_updated(
@@ -288,12 +289,18 @@ fn given_normal_conditions_when_emit_virtual_swap_inventory_updated_then_works()
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'VirtualSwapInventoryUpdated',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::VirtualSwapInventoryUpdated(
+                        VirtualSwapInventoryUpdated {
+                            market: market,
+                            is_long_token: is_long_token,
+                            virtual_market_id: virtual_market_id,
+                            delta: delta,
+                            next_value: next_value
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -318,11 +325,6 @@ fn given_normal_conditions_when_emit_virtual_position_inventory_updated_then_wor
     let delta: i128 = i128_new(1, false);
     let next_value: i128 = i128_new(2, false);
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        token.into(), virtual_token_id, delta.into(), next_value.into()
-    ];
-
     // Emit the event.
     event_emitter
         .emit_virtual_position_inventory_updated(token, virtual_token_id, delta, next_value);
@@ -330,12 +332,17 @@ fn given_normal_conditions_when_emit_virtual_position_inventory_updated_then_wor
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'VirtualPositionInventoryUpdated',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::VirtualPositionInventoryUpdated(
+                        VirtualPositionInventoryUpdated {
+                            token: token,
+                            virtual_token_id: virtual_token_id,
+                            delta: delta,
+                            next_value: next_value,
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -361,23 +368,24 @@ fn given_normal_conditions_when_emit_collateral_sum_updated_then_works() {
     let delta: i128 = i128_new(1, false);
     let next_value: u128 = 2;
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        market.into(), collateral_token.into(), is_long.into(), delta.into(), next_value.into()
-    ];
-
     // Emit the event.
     event_emitter.emit_collateral_sum_updated(market, collateral_token, is_long, delta, next_value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'CollateralSumUpdated',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::CollateralSumUpdated(
+                        CollateralSumUpdated {
+                            market: market,
+                            collateral_token: collateral_token,
+                            is_long: is_long,
+                            delta: delta,
+                            next_value: next_value
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -403,23 +411,20 @@ fn given_normal_conditions_when_emit_cumulative_borrowing_factor_updated_then_wo
     let delta: u128 = 1;
     let next_value: u128 = 2;
 
-    // Create the expected data.
-    let mut expected_data: Array<felt252> = array![
-        market.into(), is_long.into(), delta.into(), next_value.into()
-    ];
-
     // Emit the event.
     event_emitter.emit_cumulative_borrowing_factor_updated(market, is_long, delta, next_value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'CumulativeBorrowingFactorUpdatd',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::CumulativeBorrowingFactorUpdated(
+                        CumulativeBorrowingFactorUpdated {
+                            market: market, is_long: is_long, delta: delta, next_value: next_value
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -446,11 +451,6 @@ fn given_normal_conditions_when_emit_funding_fee_amount_per_size_updated_then_wo
     let delta: u128 = 1;
     let next_value: u128 = 2;
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        market.into(), collateral_token.into(), is_long.into(), delta.into(), next_value.into()
-    ];
-
     // Emit the event.
     event_emitter
         .emit_funding_fee_amount_per_size_updated(
@@ -460,12 +460,18 @@ fn given_normal_conditions_when_emit_funding_fee_amount_per_size_updated_then_wo
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'FundingFeeAmountPerSizeUpdated',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::FundingFeeAmountPerSizeUpdated(
+                        FundingFeeAmountPerSizeUpdated {
+                            market: market,
+                            collateral_token: collateral_token,
+                            is_long: is_long,
+                            delta: delta,
+                            next_value: next_value
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -491,11 +497,6 @@ fn given_normal_conditions_when_emit_claimable_funding_amount_per_size_updated_t
     let delta: u128 = 1;
     let next_value: u128 = 2;
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        market.into(), collateral_token.into(), is_long.into(), delta.into(), next_value.into()
-    ];
-
     // Emit the event.
     event_emitter
         .emit_claimable_funding_amount_per_size_updated(
@@ -505,12 +506,18 @@ fn given_normal_conditions_when_emit_claimable_funding_amount_per_size_updated_t
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'ClaimableFundingPerSizeUpdatd',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::ClaimableFundingAmountPerSizeUpdated(
+                        ClaimableFundingAmountPerSizeUpdated {
+                            market: market,
+                            collateral_token: collateral_token,
+                            is_long: is_long,
+                            delta: delta,
+                            next_value: next_value
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -537,16 +544,6 @@ fn given_normal_conditions_when_emit_claimable_funding_updated_then_works() {
     let next_value: u128 = 2;
     let next_pool_value: u128 = 2;
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        market.into(),
-        token.into(),
-        account.into(),
-        delta.into(),
-        next_value.into(),
-        next_pool_value.into()
-    ];
-
     // Emit the event.
     event_emitter
         .emit_claimable_funding_updated(market, token, account, delta, next_value, next_pool_value);
@@ -554,12 +551,19 @@ fn given_normal_conditions_when_emit_claimable_funding_updated_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'ClaimableFundingUpdated',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::ClaimableFundingUpdated(
+                        ClaimableFundingUpdated {
+                            market: market,
+                            token: token,
+                            account: account,
+                            delta: delta,
+                            next_value: next_value,
+                            next_pool_value: next_pool_value
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -586,16 +590,6 @@ fn given_normal_conditions_when_emit_funding_fees_claimed_then_works() {
     let amount: u128 = 1;
     let next_pool_value: u128 = 2;
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        market.into(),
-        token.into(),
-        account.into(),
-        receiver.into(),
-        amount.into(),
-        next_pool_value.into()
-    ];
-
     // Emit the event.
     event_emitter
         .emit_funding_fees_claimed(market, token, account, receiver, amount, next_pool_value);
@@ -603,12 +597,19 @@ fn given_normal_conditions_when_emit_funding_fees_claimed_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'FundingFeesClaimed',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::FundingFeesClaimed(
+                        FundingFeesClaimed {
+                            market: market,
+                            token: token,
+                            account: account,
+                            receiver: receiver,
+                            amount: amount,
+                            next_pool_value: next_pool_value
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -637,17 +638,6 @@ fn given_normal_conditions_when_emit_claimable_collateral_updated_then_works() {
     let next_value: u128 = 3;
     let next_pool_value: u128 = 4;
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        market.into(),
-        token.into(),
-        account.into(),
-        time_key.into(),
-        delta.into(),
-        next_value.into(),
-        next_pool_value.into()
-    ];
-
     // Emit the event.
     event_emitter
         .emit_claimable_collateral_updated(
@@ -657,12 +647,20 @@ fn given_normal_conditions_when_emit_claimable_collateral_updated_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'ClaimableCollateralUpdated',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::ClaimableCollateralUpdated(
+                        ClaimableCollateralUpdated {
+                            market: market,
+                            token: token,
+                            account: account,
+                            time_key: time_key,
+                            delta: delta,
+                            next_value: next_value,
+                            next_pool_value: next_pool_value
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -691,17 +689,6 @@ fn given_normal_conditions_when_emit_collateral_claimed_then_works() {
     let amount: u128 = 2;
     let next_pool_value: u128 = 3;
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        market.into(),
-        token.into(),
-        account.into(),
-        receiver.into(),
-        time_key.into(),
-        amount.into(),
-        next_pool_value.into()
-    ];
-
     // Emit the event.
     event_emitter
         .emit_collateral_claimed(
@@ -711,12 +698,20 @@ fn given_normal_conditions_when_emit_collateral_claimed_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'CollateralClaimed',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::CollateralClaimed(
+                        CollateralClaimed {
+                            market: market,
+                            token: token,
+                            account: account,
+                            receiver: receiver,
+                            time_key: time_key,
+                            amount: amount,
+                            next_pool_value: next_pool_value
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -739,21 +734,18 @@ fn given_normal_conditions_when_emit_ui_fee_factor_updated_then_works() {
     let account = contract_address_const::<'account'>();
     let ui_fee_factor: u128 = 1;
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![account.into(), ui_fee_factor.into()];
-
     // Emit the event.
     event_emitter.emit_ui_fee_factor_updated(account, ui_fee_factor);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'UiFeeFactorUpdated',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::UiFeeFactorUpdated(
+                        UiFeeFactorUpdated { account: account, ui_fee_factor: ui_fee_factor }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -780,16 +772,6 @@ fn given_normal_conditions_when_emit_market_created_then_works() {
     let short_token = contract_address_const::<'short_token'>();
     let market_type = 'type';
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        creator.into(),
-        market_token.into(),
-        index_token.into(),
-        long_token.into(),
-        short_token.into(),
-        market_type
-    ];
-
     // Emit the event.
     event_emitter
         .emit_market_created(
@@ -799,12 +781,19 @@ fn given_normal_conditions_when_emit_market_created_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'MarketCreated',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::MarketCreated(
+                        MarketCreated {
+                            creator: creator,
+                            market_token: market_token,
+                            index_token: index_token,
+                            long_token: long_token,
+                            short_token: short_token,
+                            market_type: market_type
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.

@@ -6,7 +6,11 @@ use snforge_std::{
 
 use satoru::tests_lib::setup_event_emitter;
 
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::event::event_emitter::{
+    EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait
+};
+
+use satoru::event::event_emitter::EventEmitter::{OraclePriceUpdate, SignerAdded, SignerRemoved};
 
 
 #[test]
@@ -27,23 +31,23 @@ fn given_normal_conditions_when_emit_oracle_price_update_then_works() {
     let max_price: u128 = 2;
     let is_price_feed: bool = true;
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        token.into(), min_price.into(), max_price.into(), is_price_feed.into()
-    ];
-
     // Emit the event.
     event_emitter.emit_oracle_price_update(token, min_price, max_price, is_price_feed);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'OraclePriceUpdate',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::OraclePriceUpdate(
+                        OraclePriceUpdate {
+                            token: token,
+                            min_price: min_price,
+                            max_price: max_price,
+                            is_price_feed: is_price_feed
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -65,18 +69,16 @@ fn given_normal_conditions_when_emit_signer_added_then_works() {
     // Create dummy data.
     let account = contract_address_const::<'account'>();
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![account.into()];
-
     // Emit the event.
     event_emitter.emit_signer_added(account);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address, name: 'SignerAdded', keys: array![], data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::SignerAdded(SignerAdded { account: account })
+                )
             ]
         );
     // Assert there are no more events.
@@ -98,21 +100,16 @@ fn given_normal_conditions_when_emit_signer_removed_then_works() {
     // Create dummy data.
     let account = contract_address_const::<'account'>();
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![account.into()];
-
     // Emit the event.
     event_emitter.emit_signer_removed(account);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'SignerRemoved',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::SignerRemoved(SignerRemoved { account: account })
+                )
             ]
         );
     // Assert there are no more events.

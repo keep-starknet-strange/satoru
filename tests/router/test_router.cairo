@@ -1,6 +1,6 @@
 use result::ResultTrait;
 use traits::{TryInto, Into};
-use starknet::{ContractAddress, get_caller_address};
+use starknet::{ContractAddress, get_caller_address, contract_address_const};
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait, ContractClass};
 use satoru::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
@@ -100,7 +100,7 @@ fn setup(
     IRouterDispatcher, // Interface to interact with the `Router` contract.
     IERC20Dispatcher,
 ) {
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let minter_address: ContractAddress = 0x102.try_into().unwrap();
 
     // Deploy the test token.
@@ -159,16 +159,18 @@ fn deploy_mock_token(minter_address: ContractAddress, initial_amount: u256) -> C
 /// * `role_store_address` - The address of the `RoleStore` contract associated with the `Router`.
 fn deploy_router(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('Router');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'router'>();
+    start_prank(deployed_contract_address, caller_address);
     let mut constructor_calldata: Array::<felt252> = array![];
     constructor_calldata.append(role_store_address.into());
-    contract.deploy(@constructor_calldata).unwrap()
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
-/// Utility function to deploy a data store contract and return its address.
-/// Copied from `tests/role/test_role_store.rs`.
-/// TODO: Find a way to share this code.
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
-    let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
-    contract.deploy(constructor_arguments).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'role_store'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
