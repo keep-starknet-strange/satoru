@@ -316,7 +316,7 @@ fn given_normal_conditions_when_emit_virtual_position_inventory_updated_then_wor
     let token = contract_address_const::<'token'>();
     let virtual_token_id = 'virtual_token_id';
     let delta: i128 = i128_new(1, false);
-    let next_value: i128 = 2;
+    let next_value: i128 = i128_new(2, false);
 
     // Create the expected data.
     let expected_data: Array<felt252> = array![
@@ -814,9 +814,9 @@ fn given_normal_conditions_when_emit_market_created_then_works() {
 fn create_dummy_market_pool_value_info() -> MarketPoolValueInfo {
     MarketPoolValueInfo {
         pool_value: i128_new(1, false),
-        long_pnl: 2,
-        short_pnl: 3,
-        net_pnl: 4,
+        long_pnl: i128_new(2, false),
+        short_pnl: i128_new(3, false),
+        net_pnl: i128_new(4, false),
         long_token_amount: 5,
         short_token_amount: 6,
         long_token_usd: 7,

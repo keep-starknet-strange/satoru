@@ -214,7 +214,7 @@ fn create_new_decrease_position_collateral_values(
         base_pnl_usd: i128_new(10, false),
         uncapped_base_pnl_usd: i128_new(10, false),
         size_delta_in_tokens: 1000,
-        price_impact_usd: 1000,
+        price_impact_usd: i128_new(1000, false),
         price_impact_diff_usd: 500,
         output
     };

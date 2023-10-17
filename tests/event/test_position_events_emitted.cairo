@@ -507,7 +507,7 @@ fn create_dummy_dec_pos_collateral_values() -> DecreasePositionCollateralValues 
         base_pnl_usd: i128_new(10, false),
         uncapped_base_pnl_usd: i128_new(10, false),
         size_delta_in_tokens: 10,
-        price_impact_usd: 10,
+        price_impact_usd: i128_new(10, false),
         price_impact_diff_usd: 10,
         output: dummy_values_output
     }

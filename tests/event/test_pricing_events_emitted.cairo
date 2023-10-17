@@ -33,7 +33,7 @@ fn given_normal_conditions_when_emit_swap_info_then_works() {
     let amount_in_after_fees: u128 = 4;
     let amount_out: u128 = 5;
     let price_impact_usd: i128 = i128_new(6, false);
-    let price_impact_amount: i128 = 7;
+    let price_impact_amount: i128 = i128_new(7, false);
 
     // Create the expected data.
     let expected_data: Array<felt252> = array![

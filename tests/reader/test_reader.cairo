@@ -16,7 +16,7 @@ use satoru::withdrawal::withdrawal::{Withdrawal};
 use satoru::position::position::{Position};
 use satoru::data::keys;
 use satoru::price::price::{Price, PriceTrait};
-use satoru::utils::i128::{i128, i128_new}
+use satoru::utils::i128::{i128, i128_new};
 
 #[test]
 fn given_normal_conditions_when_get_market_then_works() {

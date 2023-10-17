@@ -460,7 +460,7 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
     let market_address = contract_address_const::<'market_address'>();
     let token = contract_address_const::<'token'>();
     let account = contract_address_const::<'account'>();
-    let delta = i128_new(50, false);
+    let delta = 50;
     // The key for the claimable funding amount for the account.
     // This is the key that will be used to assert the result.
     let claimable_funding_amount_for_account_key =
