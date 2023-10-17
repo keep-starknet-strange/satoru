@@ -12,6 +12,7 @@ use satoru::withdrawal::withdrawal_vault::{
 };
 use satoru::fee::fee_handler::{IFeeHandlerDispatcher, IFeeHandlerDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::data::keys;
 use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
@@ -23,26 +24,10 @@ use traits::Default;
 #[test]
 fn given_normal_conditions_when_create_withdrawal_then_works() {
     let (caller_address, data_store, event_emitter, withdrawal_handler) = setup();
-
-    let account: ContractAddress = 0x123.try_into().unwrap();
-    let receiver: ContractAddress = 0x234.try_into().unwrap();
-    let ui_fee_receiver: ContractAddress = 0x345.try_into().unwrap();
-    let market: ContractAddress = 0x456.try_into().unwrap();
-
     start_prank(withdrawal_handler.contract_address, caller_address);
 
-    let params: CreateWithdrawalParams = CreateWithdrawalParams {
-        receiver,
-        callback_contract: receiver,
-        ui_fee_receiver,
-        market,
-        long_token_swap_path: Default::default(),
-        short_token_swap_path: Default::default(),
-        min_long_token_amount: Default::default(),
-        min_short_token_amount: Default::default(),
-        execution_fee: Default::default(),
-        callback_gas_limit: Default::default(),
-    };
+    let account = contract_address_const::<'account'>();
+    let params = create_withrawal_params();
 
     withdrawal_handler.create_withdrawal(account, params);
 }
@@ -55,46 +40,19 @@ fn given_caller_not_controller_when_create_withdrawal_then_fails() {
     let caller: ContractAddress = 0x847.try_into().unwrap();
     start_prank(withdrawal_handler.contract_address, caller);
 
-    let params: CreateWithdrawalParams = CreateWithdrawalParams {
-        receiver: 0x785.try_into().unwrap(),
-        callback_contract: 0x786.try_into().unwrap(),
-        ui_fee_receiver: 0x345.try_into().unwrap(),
-        market: 0x346.try_into().unwrap(),
-        long_token_swap_path: Default::default(),
-        short_token_swap_path: Default::default(),
-        min_long_token_amount: Default::default(),
-        min_short_token_amount: Default::default(),
-        execution_fee: Default::default(),
-        callback_gas_limit: Default::default(),
-    };
+    let params = create_withrawal_params();
 
     withdrawal_handler.create_withdrawal(caller, params);
 }
 
 #[test]
 fn given_normal_conditions_when_cancel_withdrawal_then_works() {
-    let withdrawal = Withdrawal {
-        key: Default::default(),
-        account: 0x785.try_into().unwrap(),
-        receiver: 0x787.try_into().unwrap(),
-        callback_contract: 0x348.try_into().unwrap(),
-        ui_fee_receiver: 0x345.try_into().unwrap(),
-        market: 0x346.try_into().unwrap(),
-        long_token_swap_path: Default::default(),
-        short_token_swap_path: Default::default(),
-        market_token_amount: Default::default(),
-        min_long_token_amount: Default::default(),
-        min_short_token_amount: Default::default(),
-        updated_at_block: Default::default(),
-        execution_fee: Default::default(),
-        callback_gas_limit: Default::default(),
-    };
-
     let (caller_address, data_store, event_emitter, withdrawal_handler) = setup();
     start_prank(withdrawal_handler.contract_address, caller_address);
 
-    let withdrawal_key = 'SAMPLE_WITHDRAW';
-    data_store.set_withdrawal(withdrawal_key, withdrawal);
+    let account = contract_address_const::<'account'>();
+    let params = create_withrawal_params();
+    let withdrawal_key = withdrawal_handler.create_withdrawal(account, params);
 
     // Key cleaning should be done in withdrawal_utils. We only check call here.
     withdrawal_handler.cancel_withdrawal(withdrawal_key);
@@ -214,6 +172,37 @@ fn given_invalid_withdrawal_key_when_simulate_execute_withdrawal_then_fails() {
     withdrawal_handler.simulate_execute_withdrawal(withdrawal_key, oracle_params);
 }
 
+fn create_withrawal_params() -> CreateWithdrawalParams {
+    CreateWithdrawalParams {
+        receiver: contract_address_const::<'receiver'>(),
+        callback_contract: contract_address_const::<'callback_contract'>(),
+        ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
+        market: contract_address_const::<'market_token'>(),
+        long_token_swap_path: Default::default(),
+        short_token_swap_path: Default::default(),
+        min_long_token_amount: Default::default(),
+        min_short_token_amount: Default::default(),
+        execution_fee: Default::default(),
+        callback_gas_limit: Default::default(),
+    }
+}
+
+fn deploy_tokens() -> (ContractAddress,ContractAddress) {
+    let contract = declare('ERC20');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+
+    let fee_token_address = contract_address_const::<'fee_token'>();
+    start_prank(fee_token_address, caller_address);
+    let constructor_calldata = array!['FEE_TOKEN', 'FEE', 1000000, 0, 0x101];
+    contract.deploy_at(@constructor_calldata, fee_token_address).unwrap();
+
+    let market_token_address = contract_address_const::<'market_token'>();
+    start_prank(market_token_address, caller_address);
+    let constructor_calldata = array!['MARKET_TOKEN', 'MKT', 1000000, 0, 0x101];
+    contract.deploy_at(@constructor_calldata, market_token_address).unwrap();
+
+    (fee_token_address, market_token_address)
+}
 
 fn deploy_withdrawal_handler(
     data_store_address: ContractAddress,
@@ -309,6 +298,7 @@ fn setup() -> (
 ) {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let order_keeper: ContractAddress = 0x2233.try_into().unwrap();
+    let (fee_token_address, _) = deploy_tokens();
     let role_store_address = deploy_role_store();
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
     let data_store_address = deploy_data_store(role_store_address);
@@ -336,5 +326,8 @@ fn setup() -> (
     role_store.grant_role(order_keeper, role::ORDER_KEEPER);
     role_store.grant_role(withdrawal_handler_address, role::CONTROLLER);
     start_prank(data_store_address, caller_address);
+
+    data_store.set_address(keys::fee_token(), fee_token_address);
+
     (caller_address, data_store, event_emitter, withdrawal_handler)
 }
