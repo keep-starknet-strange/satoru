@@ -4,7 +4,13 @@ use snforge_std::{
     EventAssertions
 };
 
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::event::event_emitter::{
+    EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait
+};
+
+use satoru::event::event_emitter::EventEmitter::{AffiliateRewardUpdated, AffiliateRewardClaimed};
+
+
 use satoru::tests_lib::setup_event_emitter;
 
 #[test]
@@ -27,16 +33,6 @@ fn given_normal_conditions_when_emit_affiliate_reward_updated_then_works() {
     let next_value: u128 = 200;
     let next_pool_value: u128 = 300;
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        market.into(),
-        token.into(),
-        affiliate.into(),
-        delta.into(),
-        next_value.into(),
-        next_pool_value.into()
-    ];
-
     // Emit the event.
     event_emitter
         .emit_affiliate_reward_updated(
@@ -47,12 +43,19 @@ fn given_normal_conditions_when_emit_affiliate_reward_updated_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'AffiliateRewardUpdated',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::AffiliateRewardUpdated(
+                        AffiliateRewardUpdated {
+                            market: market,
+                            token: token,
+                            affiliate: affiliate,
+                            delta: delta,
+                            next_value: next_value,
+                            next_pool_value: next_pool_value
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -79,16 +82,6 @@ fn given_normal_conditions_when_emit_affiliate_reward_claimed_then_works() {
     let amount: u128 = 100;
     let next_pool_value: u128 = 200;
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        market.into(),
-        token.into(),
-        affiliate.into(),
-        receiver.into(),
-        amount.into(),
-        next_pool_value.into()
-    ];
-
     // Emit the event.
     event_emitter
         .emit_affiliate_reward_claimed(market, token, affiliate, receiver, amount, next_pool_value);
@@ -97,12 +90,19 @@ fn given_normal_conditions_when_emit_affiliate_reward_claimed_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'AffiliateRewardClaimed',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::AffiliateRewardClaimed(
+                        AffiliateRewardClaimed {
+                            market: market,
+                            token: token,
+                            affiliate: affiliate,
+                            receiver: receiver,
+                            amount: amount,
+                            next_pool_value: next_pool_value
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.

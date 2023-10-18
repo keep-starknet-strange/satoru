@@ -10,7 +10,7 @@ use starknet::ContractAddress;
 
 // Local imports.
 use satoru::oracle::oracle_utils::SetPricesParams;
-use satoru::utils::i128::{I128Div, I128Mul, I128Store, I128Serde, I128Default};
+use satoru::utils::i128::i128;
 
 
 // *************************************************************************
@@ -21,7 +21,7 @@ trait IAdlHandler<TContractState> {
     /// Checks the ADL state to update the isAdlEnabled flag.
     /// # Arguments
     /// * `market` - The market to check.
-    /// * `is_long` - Wether to check long or short side.
+    /// * `is_long` - Whether to check long or short side.
     /// * `oracle_params` - The oracle set price parameters used to set price
     /// before performing checks
     fn update_adl_state(
@@ -40,7 +40,7 @@ trait IAdlHandler<TContractState> {
     /// position profit, this is not implemented within the contracts at the moment.
     /// # Arguments
     /// * `market` - The market to check.
-    /// * `is_long` - Wether to check long or short side.
+    /// * `is_long` - Whether to check long or short side.
     /// * `oracle_params` - The oracle set price parameters used to set price
     /// before performing adl.
     fn execute_adl(
@@ -96,7 +96,7 @@ mod AdlHandler {
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use satoru::utils::{store_arrays::StoreU64Array, calc::to_signed};
-    use satoru::utils::i128::{I128Div, I128Mul, I128Store, I128Serde, I128Default};
+    use satoru::utils::i128::i128;
 
 
     /// ExecuteAdlCache struct used in execute_adl.
@@ -110,7 +110,7 @@ mod AdlHandler {
         max_oracle_block_numbers: Array<u64>,
         /// The key of the adl to execute.
         key: felt252,
-        /// Wether adl should be allowed, depending on pnl state.
+        /// Whether adl should be allowed, depending on pnl state.
         should_allow_adl: bool,
         /// The maximum pnl factor to allow adl.
         max_pnl_factor_for_adl: u128,
@@ -211,8 +211,8 @@ mod AdlHandler {
                 key: 0,
                 should_allow_adl: false,
                 max_pnl_factor_for_adl: 0,
-                pnl_to_pool_factor: 0,
-                next_pnl_to_pool_factor: 0,
+                pnl_to_pool_factor: Zeroable::zero(),
+                next_pnl_to_pool_factor: Zeroable::zero(),
                 min_pnl_factor_for_adl: 0
             };
 

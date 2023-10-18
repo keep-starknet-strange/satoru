@@ -6,8 +6,11 @@ use snforge_std::{
 
 use satoru::tests_lib::setup_event_emitter;
 
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::event::event_emitter::{
+    EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait
+};
 
+use satoru::event::event_emitter::EventEmitter::{ExecutionFeeRefund, KeeperExecutionFee};
 
 #[test]
 fn given_normal_conditions_when_emit_execution_fee_refund_then_works() {
@@ -25,21 +28,20 @@ fn given_normal_conditions_when_emit_execution_fee_refund_then_works() {
     let receiver = contract_address_const::<'receiver'>();
     let refund_fee_amount: u128 = 1;
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![receiver.into(), refund_fee_amount.into()];
-
     // Emit the event.
     event_emitter.emit_execution_fee_refund(receiver, refund_fee_amount);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'ExecutionFeeRefund',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::ExecutionFeeRefund(
+                        ExecutionFeeRefund {
+                            receiver: receiver, refund_fee_amount: refund_fee_amount
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -62,21 +64,20 @@ fn given_normal_conditions_when_emit_keeper_execution_fee_then_works() {
     let keeper = contract_address_const::<'keeper'>();
     let execution_fee_amount: u128 = 1;
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![keeper.into(), execution_fee_amount.into()];
-
     // Emit the event.
     event_emitter.emit_keeper_execution_fee(keeper, execution_fee_amount);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'KeeperExecutionFee',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::KeeperExecutionFee(
+                        KeeperExecutionFee {
+                            keeper: keeper, execution_fee_amount: execution_fee_amount
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.

@@ -167,7 +167,7 @@ fn given_normal_conditions_when_get_role_members_then_works() {
 }
 
 fn admin() -> ContractAddress {
-    contract_address_const::<0x101>()
+    contract_address_const::<'caller'>()
 }
 
 fn account_1() -> ContractAddress {
@@ -187,9 +187,11 @@ fn setup() -> IRoleStoreDispatcher {
     IRoleStoreDispatcher { contract_address: deploy_role_store() }
 }
 
-// Utility function to deploy a role store contract and return its address.
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
-    contract.deploy(@ArrayTrait::new()).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'role_store'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 

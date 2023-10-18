@@ -16,6 +16,7 @@ use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatche
 use satoru::oracle::price_feed::PriceFeed;
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
+use satoru::utils::i128::{i128, i128_new};
 
 #[test]
 fn given_normal_conditions_when_is_market_order_then_works() {
@@ -231,7 +232,7 @@ fn given_normal_conditions_when_get_execution_price_for_decrease_then_works() {
         position_size_in_usd: 1000,
         position_size_in_tokens: 100,
         size_delta_usd: 200,
-        price_impact_usd: 1,
+        price_impact_usd: i128_new(1, false),
         acceptable_price: 8,
         is_long: true,
     );
@@ -242,7 +243,7 @@ fn given_normal_conditions_when_get_execution_price_for_decrease_then_works() {
         position_size_in_usd: 200000000,
         position_size_in_tokens: 30000,
         size_delta_usd: 50000,
-        price_impact_usd: 15,
+        price_impact_usd: i128_new(15, false),
         acceptable_price: 1001,
         is_long: true,
     );
@@ -253,7 +254,7 @@ fn given_normal_conditions_when_get_execution_price_for_decrease_then_works() {
         position_size_in_usd: 200000000,
         position_size_in_tokens: 30000,
         size_delta_usd: 50000,
-        price_impact_usd: 15,
+        price_impact_usd: i128_new(15, false),
         acceptable_price: 1100,
         is_long: false,
     );
@@ -275,7 +276,7 @@ fn given_price_impact_larger_than_order_when_get_execution_price_for_decrease_th
         position_size_in_usd: 200000000,
         position_size_in_tokens: 30000,
         size_delta_usd: 1,
-        price_impact_usd: 15,
+        price_impact_usd: i128_new(15, false),
         acceptable_price: 1100,
         is_long: false,
     );
@@ -298,7 +299,7 @@ fn given_negative_execution_price_than_order_when_get_execution_price_for_decrea
         position_size_in_usd: 200000000,
         position_size_in_tokens: 30000,
         size_delta_usd: 50000,
-        price_impact_usd: 15,
+        price_impact_usd: i128_new(15, false),
         acceptable_price: 1100,
         is_long: false,
     );
@@ -313,7 +314,7 @@ fn given_not_acceptable_price_when_get_execution_price_for_decrease_then_fails()
         position_size_in_usd: 200000000,
         position_size_in_tokens: 30000,
         size_delta_usd: 50000,
-        price_impact_usd: 15,
+        price_impact_usd: i128_new(15, false),
         acceptable_price: 10000,
         is_long: true,
     );
@@ -342,7 +343,7 @@ fn given_empty_order_when_validate_non_empty_order_then_fails() {
 // *********************************************************************************************
 
 fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, IOracleDispatcher) {
-    let caller_address = contract_address_const::<0x101>();
+    let caller_address = contract_address_const::<'caller'>();
     let order_keeper = contract_address_const::<0x2233>();
     let role_store_address = deploy_role_store();
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
@@ -367,7 +368,10 @@ fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, I
 
 fn deploy_price_feed() -> ContractAddress {
     let contract = declare('PriceFeed');
-    contract.deploy(@array![]).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'price_feed'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
 fn deploy_oracle(
@@ -376,32 +380,47 @@ fn deploy_oracle(
     pragma_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare('Oracle');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'oracle'>();
+    start_prank(deployed_contract_address, caller_address);
     let constructor_calldata = array![
         role_store_address.into(), oracle_store_address.into(), pragma_address.into()
     ];
-    contract.deploy(@constructor_calldata).unwrap()
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 fn deploy_oracle_store(
     role_store_address: ContractAddress, event_emitter_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare('OracleStore');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'oracle_store'>();
+    start_prank(deployed_contract_address, caller_address);
     let constructor_calldata = array![role_store_address.into(), event_emitter_address.into()];
-    contract.deploy(@constructor_calldata).unwrap()
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('DataStore');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'data_store'>();
+    start_prank(deployed_contract_address, caller_address);
     let constructor_calldata = array![role_store_address.into()];
-    contract.deploy(@constructor_calldata).unwrap()
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
-    contract.deploy(@array![]).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'role_store'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
 fn deploy_event_emitter() -> ContractAddress {
     let contract = declare('EventEmitter');
-    contract.deploy(@array![]).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'event_emitter'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }

@@ -5,7 +5,9 @@ use snforge_std::{
 };
 use option::OptionTrait;
 
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::event::event_emitter::{
+    EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait
+};
 
 use satoru::tests_lib::setup_event_emitter;
 
@@ -28,15 +30,6 @@ fn given_normal_conditions_when_emit_adl_state_updated_then_works() {
     let max_pnl_factor: u128 = 10;
     let should_enable_adl: bool = false;
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        market.into(),
-        is_long.into(),
-        pnl_to_pool_factor,
-        max_pnl_factor.into(),
-        should_enable_adl.into()
-    ];
-
     // Emit the event.
     event_emitter
         .emit_adl_state_updated(
@@ -46,12 +39,18 @@ fn given_normal_conditions_when_emit_adl_state_updated_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'AdlStateUpdated',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::AdlStateUpdated(
+                        EventEmitter::AdlStateUpdated {
+                            market: market.into(),
+                            is_long: is_long.into(),
+                            pnl_to_pool_factor: pnl_to_pool_factor,
+                            max_pnl_factor: max_pnl_factor.into(),
+                            should_enable_adl: should_enable_adl.into()
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.

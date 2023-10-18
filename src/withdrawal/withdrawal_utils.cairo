@@ -576,7 +576,7 @@ fn get_output_amounts(
         false
     );
 
-    if pool_value_info.pool_value <= 0 {
+    if pool_value_info.pool_value <= Zeroable::zero() {
         WithdrawalError::INVALID_POOL_VALUE_FOR_WITHDRAWAL(pool_value_info.pool_value);
     }
 

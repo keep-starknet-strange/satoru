@@ -34,13 +34,19 @@ mod SwapHandler {
     use satoru::swap::swap_utils::SwapParams;
     use satoru::swap::swap_utils;
     use satoru::role::role_module::{RoleModule, IRoleModule};
-    use satoru::utils::i128::{I128Store, I128Serde};
+    use satoru::utils::i128::i128;
+    use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use satoru::utils::global_reentrancy_guard;
+
 
     // *************************************************************************
     //                              STORAGE
     // *************************************************************************
     #[storage]
-    struct Storage {}
+    struct Storage {
+        /// Interface to interact with the `DataStore` contract.
+        data_store: IDataStoreDispatcher
+    }
 
     // *************************************************************************
     //                              CONSTRUCTOR
@@ -48,9 +54,9 @@ mod SwapHandler {
 
     /// Constructor of the contract.
     #[constructor]
-    fn constructor(ref self: ContractState, role_store_address: ContractAddress) {
+    fn constructor(ref self: ContractState, role_store_address: ContractAddress,) {
         let mut role_module: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-        IRoleModule::initialize(ref role_module, role_store_address)
+        IRoleModule::initialize(ref role_module, role_store_address);
     }
 
 
@@ -60,11 +66,19 @@ mod SwapHandler {
     #[external(v0)]
     impl SwapHandler of super::ISwapHandler<ContractState> {
         fn swap(ref self: ContractState, params: SwapParams) -> (ContractAddress, u128) {
-            //TODO nonReentrant when openzeppelin is available
             let mut role_module: RoleModule::ContractState =
                 RoleModule::unsafe_new_contract_state();
             role_module.only_controller();
-            swap_utils::swap(@params)
+
+            // TODO replace global reentrancy guard with simple one
+            // let data_store = self.data_store.read();
+            // global_reentrancy_guard::non_reentrant_before(data_store);
+
+            let (token_out, swap_output_amount) = swap_utils::swap(@params);
+
+            // global_reentrancy_guard::non_reentrant_after(data_store);
+
+            (token_out, swap_output_amount)
         }
     }
 }

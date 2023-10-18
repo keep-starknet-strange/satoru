@@ -7,7 +7,7 @@ The purpose of the oracle module is to validate and store signed values.
 Representing the prices in this way allows for conversions between token amounts
 and fiat values to be simplified, e.g. to calculate the fiat value of a given
 number of tokens the calculation would just be: `token amount * oracle price`,
-to calculate the token amount for a fiat value it would be: `fiat value oracle price`.
+to calculate the token amount for a fiat value it would be: `fiat value / oracle price`.
 
 The trade-off of this simplicity in calculation is that tokens with a small USD
 price and a lot of decimals may have precision issues it is also possible that
