@@ -227,7 +227,9 @@ fn get_position_info(
         referral_storage,
         position: position_info.position,
         collateral_token_price: cache.collateral_token_price,
-        for_positive_impact: position_info.execution_price_result.price_impact_usd > Zeroable::zero(),
+        for_positive_impact: position_info
+            .execution_price_result
+            .price_impact_usd > Zeroable::zero(),
         long_token: cache.market.long_token,
         short_token: cache.market.short_token,
         size_delta_usd,

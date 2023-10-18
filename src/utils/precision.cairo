@@ -4,8 +4,7 @@
 // Core lib imports.
 use alexandria_math::pow;
 use integer::{
-    u128_to_felt252, u256_wide_mul, u512_safe_div_rem_by_u256, BoundedU256,
-    u256_try_as_non_zero
+    u128_to_felt252, u256_wide_mul, u512_safe_div_rem_by_u256, BoundedU256, u256_try_as_non_zero
 };
 use satoru::utils::i128::i128;
 use core::traits::TryInto;

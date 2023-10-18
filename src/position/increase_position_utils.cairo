@@ -126,7 +126,9 @@ fn increase_position(mut params: UpdatePositionParams, collateral_increment_amou
 
     // check if there is sufficient collateral for the position
     if (cache.collateral_delta_amount < Zeroable::zero()
-        && params.position.collateral_amount < to_unsigned(i128_neg(cache.collateral_delta_amount))) {
+        && params
+            .position
+            .collateral_amount < to_unsigned(i128_neg(cache.collateral_delta_amount))) {
         PositionError::INSUFFICIENT_COLLATERAL_AMOUNT(
             params.position.collateral_amount, cache.collateral_delta_amount
         )
@@ -341,7 +343,12 @@ fn get_execution_price(
         // increase order:
         //     - long: use the larger price
         //     - short: use the smaller price
-        return (Zeroable::zero(), Zeroable::zero(), 0, index_token_price.pick_price(params.position.is_long));
+        return (
+            Zeroable::zero(),
+            Zeroable::zero(),
+            0,
+            index_token_price.pick_price(params.position.is_long)
+        );
     }
 
     let mut price_impact_usd = get_price_impact_usd(

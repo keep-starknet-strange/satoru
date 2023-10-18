@@ -318,7 +318,10 @@ fn execute_deposit_helper(params: @ExecuteDepositParams, _params: @_ExecuteDepos
         true,
     );
 
-    assert(market_pool_value_info.pool_value < Zeroable::zero(), DepositError::INVALID_POOL_VALUE_FOR_DEPOSIT);
+    assert(
+        market_pool_value_info.pool_value < Zeroable::zero(),
+        DepositError::INVALID_POOL_VALUE_FOR_DEPOSIT
+    );
 
     let mut mint_amount = 0;
     let pool_value = market_pool_value_info.pool_value;
@@ -327,7 +330,8 @@ fn execute_deposit_helper(params: @ExecuteDepositParams, _params: @_ExecuteDepos
     );
 
     assert(
-        pool_value == Zeroable::zero() && market_tokens_supply > 0, DepositError::INVALID_POOL_VALUE_FOR_DEPOSIT
+        pool_value == Zeroable::zero() && market_tokens_supply > 0,
+        DepositError::INVALID_POOL_VALUE_FOR_DEPOSIT
     );
 
     (*params.event_emitter)

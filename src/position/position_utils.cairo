@@ -23,10 +23,7 @@ use satoru::order::{
 };
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::price::price::{Price, PriceTrait};
-use satoru::utils::{
-    calc, precision, i128::i128,
-    default::DefaultContractAddress, error_utils
-};
+use satoru::utils::{calc, precision, i128::i128, default::DefaultContractAddress, error_utils};
 use satoru::referral::referral_utils;
 
 /// Struct used in increasePosition and decreasePosition.

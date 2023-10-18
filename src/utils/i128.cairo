@@ -241,18 +241,19 @@ impl u128Intoi128 of Into<u128, i128> {
 
 impl Felt252TryIntoI128 of TryInto<felt252, i128> {
     fn try_into(self: felt252) -> Option<i128> {
-        let try_to_u128 : Option<u128> = self.try_into();
+        let try_to_u128: Option<u128> = self.try_into();
 
         match try_to_u128 {
             Option::Some(data) => {
-                return Option::Some(IntegerTrait::<i128>::new(data, false)); //TODO check if the sign might be negative sometimes
+                return Option::Some(
+                    IntegerTrait::<i128>::new(data, false)
+                ); //TODO check if the sign might be negative sometimes
             },
             Option::None => {
                 return Option::None;
             }
         }
     }
-    
 }
 
 
@@ -688,8 +689,6 @@ fn ensure_non_negative_zero(mag: u128, sign: bool) -> i128 {
         IntegerTrait::<i128>::new(mag, sign)
     }
 }
-
-
 // impl I128Store of Store<i128> {
 //     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<i128> {
 //         Result::Ok(
@@ -732,3 +731,5 @@ fn ensure_non_negative_zero(mag: u128, sign: bool) -> i128 {
 //         Option::Some(i128_val)
 //     }
 // }
+
+

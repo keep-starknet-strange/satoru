@@ -17,7 +17,7 @@ use satoru::pricing::error::PricingError;
 use satoru::pricing::pricing_utils;
 use satoru::utils::calc;
 use satoru::utils::precision;
-use satoru::utils::i128::{i128,i128_neg};
+use satoru::utils::i128::{i128, i128_neg};
 
 
 /// Struct used in get_price_impact_usd.

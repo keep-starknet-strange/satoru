@@ -26,6 +26,7 @@ fn roundup_division(a: u128, b: u128) -> u128 {
 /// # Return
 /// The result of dividing the first number by the second number, rounded up to the nearest integer.
 // TODO Update to use i128 division when available
+// TODO function doesn't really do what the comments tell
 fn roundup_magnitude_division(a: i128, b: u128) -> i128 {
     error_utils::check_division_by_zero(b, 'roundup_magnitude_division');
     if (a < Zeroable::zero()) {
@@ -81,7 +82,10 @@ fn diff(a: u128, b: u128) -> u128 {
 /// # Return
 /// the result of adding the two numbers together.
 fn bounded_add(a: i128, b: i128) -> i128 {
-    if (a == Zeroable::zero() || b == Zeroable::zero() || (a < Zeroable::zero() && b > Zeroable::zero()) || (a > Zeroable::zero() && b < Zeroable::zero())) {
+    if (a == Zeroable::zero()
+        || b == Zeroable::zero()
+        || (a < Zeroable::zero() && b > Zeroable::zero())
+        || (a > Zeroable::zero() && b < Zeroable::zero())) {
         return a + b;
     }
 
@@ -107,7 +111,10 @@ fn bounded_add(a: i128, b: i128) -> i128 {
 /// # Return
 /// the bounded result of a - b.
 fn bounded_sub(a: i128, b: i128) -> i128 {
-    if (a == Zeroable::zero() || b == Zeroable::zero() || (a > Zeroable::zero() && b > Zeroable::zero()) || (a < Zeroable::zero() && b < Zeroable::zero())) {
+    if (a == Zeroable::zero()
+        || b == Zeroable::zero()
+        || (a > Zeroable::zero() && b > Zeroable::zero())
+        || (a < Zeroable::zero() && b < Zeroable::zero())) {
         return a - b;
     }
 

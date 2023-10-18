@@ -43,24 +43,25 @@ fn given_division_by_0_when_roundup_division_then_fails() {
 
 #[test]
 fn given_normal_conditions_when_roundup_magnitude_division_then_works() { // TODO Check roundup_magnitude_division function
-
-    assert(roundup_magnitude_division(i128_new(12, false), 3) == i128_new(4, false), '12/3 should be 4');
-    // assert(roundup_magnitude_division(i128_new(12, true), 3) == i128_new(5, true), '-12/3 should be -4');
-    // assert(roundup_magnitude_division(i128_new(13, false), 3) == i128_new(5, false), '13/3 should be 4');
-    // assert(roundup_magnitude_division(i128_new(13, true), 3) == i128_new(5, true), '-13/3 should be -4');
-    // assert(roundup_magnitude_division(i128_new(13, false), 5) == i128_new(3, false), '13/5 should be 3');
-    // assert(roundup_magnitude_division(i128_new(13, true), 5) == i128_new(3, true), '-13/5 should be -2');
-    // assert(roundup_magnitude_division(i128_new(9, false), 9) == i128_new(1, false), '9/9 should be 1');
-    // assert(roundup_magnitude_division(i128_new(9, true), 9) == i128_new(1, true), '-9/9 should be -1');
-    // assert(roundup_magnitude_division(i128_new(9, false), 18) == i128_new(1, false), '9/18 should be 1');
-    // assert(roundup_magnitude_division(i128_new(9, true), 18) == i128_new(0, false), '-9/18 should be 0');
-    // assert(roundup_magnitude_division(i128_new(9, false), 99) == i128_new(1, false), '9/99 should be 1');
-    // assert(roundup_magnitude_division(i128_new(9, true), 99) == i128_new(0, false), '-9/99 should be 0');
-    // assert(roundup_magnitude_division(max_i128(), max_i128_as_u128()) == i128_new(1, false), 'max/max should be 1');
-    // assert(
-    //     roundup_magnitude_division(min_i128() + i128_new(1, false), max_i128_as_u128()) == i128_new(1, true), 'min/max should be -1'
-    // );
-    // assert(roundup_magnitude_division(i128_new(0, false), 12) == i128_new(0, false), '0/12 should be 0');
+    assert(
+        roundup_magnitude_division(i128_new(12, false), 3) == i128_new(4, false), '12/3 should be 4'
+    );
+// assert(roundup_magnitude_division(i128_new(12, true), 3) == i128_new(5, true), '-12/3 should be -4');
+// assert(roundup_magnitude_division(i128_new(13, false), 3) == i128_new(5, false), '13/3 should be 4');
+// assert(roundup_magnitude_division(i128_new(13, true), 3) == i128_new(5, true), '-13/3 should be -4');
+// assert(roundup_magnitude_division(i128_new(13, false), 5) == i128_new(3, false), '13/5 should be 3');
+// assert(roundup_magnitude_division(i128_new(13, true), 5) == i128_new(3, true), '-13/5 should be -2');
+// assert(roundup_magnitude_division(i128_new(9, false), 9) == i128_new(1, false), '9/9 should be 1');
+// assert(roundup_magnitude_division(i128_new(9, true), 9) == i128_new(1, true), '-9/9 should be -1');
+// assert(roundup_magnitude_division(i128_new(9, false), 18) == i128_new(1, false), '9/18 should be 1');
+// assert(roundup_magnitude_division(i128_new(9, true), 18) == i128_new(0, false), '-9/18 should be 0');
+// assert(roundup_magnitude_division(i128_new(9, false), 99) == i128_new(1, false), '9/99 should be 1');
+// assert(roundup_magnitude_division(i128_new(9, true), 99) == i128_new(0, false), '-9/99 should be 0');
+// assert(roundup_magnitude_division(max_i128(), max_i128_as_u128()) == i128_new(1, false), 'max/max should be 1');
+// assert(
+//     roundup_magnitude_division(min_i128() + i128_new(1, false), max_i128_as_u128()) == i128_new(1, true), 'min/max should be -1'
+// );
+// assert(roundup_magnitude_division(i128_new(0, false), 12) == i128_new(0, false), '0/12 should be 0');
 }
 
 #[test]
@@ -81,10 +82,14 @@ fn given_normal_conditions_when_sum_return_uint_128_then_works() {
     assert(sum_return_uint_128(12, i128_new(3, true)) == 9, 'Should be 9');
     assert(sum_return_uint_128(0, i128_new(3, false)) == 3, 'Should be 3');
     assert(sum_return_uint_128(12, i128_new(0, false)) == 12, 'Should be 12');
-    assert(sum_return_uint_128(BoundedInt::max(), i128_new(0, false)) == BoundedInt::max(), 'Should be max');
+    assert(
+        sum_return_uint_128(BoundedInt::max(), i128_new(0, false)) == BoundedInt::max(),
+        'Should be max'
+    );
 
     assert(
-        sum_return_uint_128(BoundedInt::max(), i128_new(1, true)) == BoundedInt::max() - 1, 'Should be max - 1'
+        sum_return_uint_128(BoundedInt::max(), i128_new(1, true)) == BoundedInt::max() - 1,
+        'Should be max - 1'
     );
     // assert(
     //     sum_return_uint_128(BoundedInt::max(), min_i128() + i128_new(1, false)) == max_i128_as_u128() + 1,
@@ -114,12 +119,19 @@ fn given_normal_conditions_when_sum_return_int_128_then_works() {
     assert(sum_return_int_128(0, i128_new(3, true)) == i128_new(3, true), 'Should be -3');
 
     assert(
-        sum_return_int_128(max_i128_as_u128() - 3, i128_new(2, false)) == max_i128() - i128_new(1, false), 'Should be max_i128 -1 (1)'
+        sum_return_int_128(max_i128_as_u128() - 3, i128_new(2, false)) == max_i128()
+            - i128_new(1, false),
+        'Should be max_i128 -1 (1)'
     );
 
-    assert(sum_return_int_128(max_i128_as_u128() - 1, i128_new(1, false)) == max_i128(), 'Should be max_i128');
     assert(
-        sum_return_int_128(max_i128_as_u128(), i128_new(1, true)) == max_i128() - i128_new(1, false), 'Should be max_i128 - 1 (2)'
+        sum_return_int_128(max_i128_as_u128() - 1, i128_new(1, false)) == max_i128(),
+        'Should be max_i128'
+    );
+    assert(
+        sum_return_int_128(max_i128_as_u128(), i128_new(1, true)) == max_i128()
+            - i128_new(1, false),
+        'Should be max_i128 - 1 (2)'
     );
 }
 
@@ -152,12 +164,24 @@ fn given_normal_conditions_when_diff_then_works() {
 #[test]
 fn given_normal_conditions_when_bounded_add_then_works() {
     // This tests the first if 
-    assert(bounded_add(i128_new(0, false), i128_new(3, false)) == i128_new(3, false), 'Should be 3');
-    assert(bounded_add(i128_new(4, false), i128_new(0, false)) == i128_new(4, false), 'Should be 4');
-    assert(bounded_add(i128_new(42, false), i128_new(41, false)) == i128_new(83, false), 'Shoud be 83');
-    assert(bounded_add(i128_new(42, false), i128_new(42, false)) == i128_new(84, false), 'Should be 84');
-    assert(bounded_add(i128_new(10, true), i128_new(12, true)) == i128_new(22, true), 'Should be -22');
-    assert(bounded_add(i128_new(10, true), i128_new(10, true)) == i128_new(20, true), 'Should be -20');
+    assert(
+        bounded_add(i128_new(0, false), i128_new(3, false)) == i128_new(3, false), 'Should be 3'
+    );
+    assert(
+        bounded_add(i128_new(4, false), i128_new(0, false)) == i128_new(4, false), 'Should be 4'
+    );
+    assert(
+        bounded_add(i128_new(42, false), i128_new(41, false)) == i128_new(83, false), 'Shoud be 83'
+    );
+    assert(
+        bounded_add(i128_new(42, false), i128_new(42, false)) == i128_new(84, false), 'Should be 84'
+    );
+    assert(
+        bounded_add(i128_new(10, true), i128_new(12, true)) == i128_new(22, true), 'Should be -22'
+    );
+    assert(
+        bounded_add(i128_new(10, true), i128_new(10, true)) == i128_new(20, true), 'Should be -20'
+    );
 
     let max = max_i128();
     let min = min_i128();
@@ -169,20 +193,40 @@ fn given_normal_conditions_when_bounded_add_then_works() {
     assert(bounded_add(max - i128_new(1, false), i128_new(1, false)) == max, 'Should be max (2)');
 
     // Mixing signing
-    assert(bounded_add(i128_new(10, true), i128_new(10, false)) == i128_new(0, false), 'Should be 0 (1)');
-    assert(bounded_add(i128_new(10, false), i128_new(10, true)) == i128_new(0, false), 'Should be 0 (2)');
-    assert(bounded_add(i128_new(10, true), i128_new(10, true)) == i128_new(20, true), 'Shoud be -20');
+    assert(
+        bounded_add(i128_new(10, true), i128_new(10, false)) == i128_new(0, false),
+        'Should be 0 (1)'
+    );
+    assert(
+        bounded_add(i128_new(10, false), i128_new(10, true)) == i128_new(0, false),
+        'Should be 0 (2)'
+    );
+    assert(
+        bounded_add(i128_new(10, true), i128_new(10, true)) == i128_new(20, true), 'Shoud be -20'
+    );
 }
 
 #[test]
 fn given_normal_conditions_when_bounded_sub_then_works() {
     // This tests the first if 
-    assert(bounded_sub(i128_new(0, false), i128_new(3, false)) == i128_new(3, true), 'Should be -3');
-    assert(bounded_sub(i128_new(3, false), i128_new(0, false),) == i128_new(3, false), 'Should be 3');
-    assert(bounded_sub(i128_new(42, false), i128_new(41, false)) == i128_new(1, false), 'Shoud be 1');
-    assert(bounded_sub(i128_new(41, false), i128_new(42, false)) == i128_new(1, true), 'Should be -1');
-    assert(bounded_sub(i128_new(10, true), i128_new(12, true)) == i128_new(2, false), 'Should be 2');
-    assert(bounded_sub(i128_new(12, true), i128_new(10, true)) == i128_new(2, true), 'Should be -2');
+    assert(
+        bounded_sub(i128_new(0, false), i128_new(3, false)) == i128_new(3, true), 'Should be -3'
+    );
+    assert(
+        bounded_sub(i128_new(3, false), i128_new(0, false),) == i128_new(3, false), 'Should be 3'
+    );
+    assert(
+        bounded_sub(i128_new(42, false), i128_new(41, false)) == i128_new(1, false), 'Shoud be 1'
+    );
+    assert(
+        bounded_sub(i128_new(41, false), i128_new(42, false)) == i128_new(1, true), 'Should be -1'
+    );
+    assert(
+        bounded_sub(i128_new(10, true), i128_new(12, true)) == i128_new(2, false), 'Should be 2'
+    );
+    assert(
+        bounded_sub(i128_new(12, true), i128_new(10, true)) == i128_new(2, true), 'Should be -2'
+    );
 
     let max = max_i128();
     let min = min_i128();
@@ -194,10 +238,16 @@ fn given_normal_conditions_when_bounded_sub_then_works() {
     assert(bounded_sub(min + i128_new(1, false), i128_new(1, false)) == min, 'Should be min (2)');
 
     // Zero test case
-    assert(bounded_sub(i128_new(10, false), i128_new(10, false)) == i128_new(0, false), 'Shoud be 0');
+    assert(
+        bounded_sub(i128_new(10, false), i128_new(10, false)) == i128_new(0, false), 'Shoud be 0'
+    );
     // Mixing signing
-    assert(bounded_sub(i128_new(10, true), i128_new(10, false)) == i128_new(20, true), 'Should be -20');
-    assert(bounded_sub(i128_new(10, false), i128_new(10, true)) == i128_new(20, false), 'Should be 20');
+    assert(
+        bounded_sub(i128_new(10, true), i128_new(10, false)) == i128_new(20, true), 'Should be -20'
+    );
+    assert(
+        bounded_sub(i128_new(10, false), i128_new(10, true)) == i128_new(20, false), 'Should be 20'
+    );
 }
 
 #[test]

@@ -109,7 +109,11 @@ fn get_swap_amount_out(
     let price_impact_usd: i128 = get_price_impact_usd(param);
 
     let fees: SwapFees = get_swap_fees(
-        data_store, market.market_token, amount_in, price_impact_usd > Zeroable::zero(), ui_fee_receiver
+        data_store,
+        market.market_token,
+        amount_in,
+        price_impact_usd > Zeroable::zero(),
+        ui_fee_receiver
     );
 
     let mut impact_amount: i128 = Zeroable::zero();

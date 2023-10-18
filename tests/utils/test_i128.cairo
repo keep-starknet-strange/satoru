@@ -4,27 +4,42 @@ use satoru::utils::i128;
 // Div
 #[test]
 fn test_i128_division() {
-    assert(i128::i128_new(12, false) / i128::i128_new(3, false) == i128::i128_new(4, false), 'should be 4');
+    assert(
+        i128::i128_new(12, false) / i128::i128_new(3, false) == i128::i128_new(4, false),
+        'should be 4'
+    );
 }
 
 #[test]
 fn test_i128_division_lhs_neg() {
-    assert(i128::i128_new(12, true) / i128::i128_new(3, false) == i128::i128_new(4, true), 'should be -4');
+    assert(
+        i128::i128_new(12, true) / i128::i128_new(3, false) == i128::i128_new(4, true),
+        'should be -4'
+    );
 }
 
 #[test]
 fn test_i128_division_rhs_neg() {
-    assert(i128::i128_new(12, false) / i128::i128_new(3, true) == i128::i128_new(4, true), 'should be -4');
+    assert(
+        i128::i128_new(12, false) / i128::i128_new(3, true) == i128::i128_new(4, true),
+        'should be -4'
+    );
 }
 
 #[test]
 fn test_i128_division_both_neg() {
-    assert(i128::i128_new(12, true) / i128::i128_new(3, true) == i128::i128_new(4, false), 'should be 4');
+    assert(
+        i128::i128_new(12, true) / i128::i128_new(3, true) == i128::i128_new(4, false),
+        'should be 4'
+    );
 }
 
 #[test]
 fn test_i128_division_zero() {
-    assert(i128::i128_new(0, false) / i128::i128_new(3, true) == i128::i128_new(0, false), 'should be 0');
+    assert(
+        i128::i128_new(0, false) / i128::i128_new(3, true) == i128::i128_new(0, false),
+        'should be 0'
+    );
 }
 
 #[test]
@@ -36,34 +51,51 @@ fn test_i128_division_by_zero() {
 // Mul 
 #[test]
 fn test_i128_multiplication() {
-    assert(i128::i128_new(12, false) * i128::i128_new(3, false) == i128::i128_new(36, false), 'should be 36');
+    assert(
+        i128::i128_new(12, false) * i128::i128_new(3, false) == i128::i128_new(36, false),
+        'should be 36'
+    );
 }
 
 #[test]
 fn test_i128_multiplication_lhs_neg() {
-    assert(i128::i128_new(12, true) * i128::i128_new(3, false) == i128::i128_new(36, true), 'should be -36');
+    assert(
+        i128::i128_new(12, true) * i128::i128_new(3, false) == i128::i128_new(36, true),
+        'should be -36'
+    );
 }
 
 #[test]
 fn test_i128_multiplication_rhs_neg() {
-    assert(i128::i128_new(12, false) * i128::i128_new(3, true) == i128::i128_new(36, true), 'should be -36');
+    assert(
+        i128::i128_new(12, false) * i128::i128_new(3, true) == i128::i128_new(36, true),
+        'should be -36'
+    );
 }
 
 #[test]
 fn test_i128_multiplication_both_neg() {
-    assert(i128::i128_new(12, true) * i128::i128_new(3, true) == i128::i128_new(36, false), 'should be 36');
+    assert(
+        i128::i128_new(12, true) * i128::i128_new(3, true) == i128::i128_new(36, false),
+        'should be 36'
+    );
 }
 
 #[test]
 fn test_i128_multiplication_zero() {
-    assert(i128::i128_new(0, false) * i128::i128_new(3, true) == i128::i128_new(0, false), 'should be 0');
+    assert(
+        i128::i128_new(0, false) * i128::i128_new(3, true) == i128::i128_new(0, false),
+        'should be 0'
+    );
 }
 
 #[test]
 fn test_i128_multiplication_by_zero() {
-    assert(i128::i128_new(3, true) * i128::i128_new(0, false) == i128::i128_new(0, false), 'should be 0');
+    assert(
+        i128::i128_new(3, true) * i128::i128_new(0, false) == i128::i128_new(0, false),
+        'should be 0'
+    );
 }
-
 // #[starknet::interface]
 // trait ITestI128Storage<TContractState> {
 //     fn set_i128(ref self: TContractState, i128_new_val: i128);
@@ -87,3 +119,5 @@ fn test_i128_multiplication_by_zero() {
 //     dispatcher.set_i128(0);
 //     assert(dispatcher.get_i128() == 0, 'should be back to 0');
 // }
+
+
