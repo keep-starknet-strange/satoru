@@ -153,6 +153,7 @@ mod utils {
     mod starknet_utils;
     mod traits;
     mod default;
+    mod serializable_felt_dict;
 }
 
 // `liquidation` function to help with liquidations.

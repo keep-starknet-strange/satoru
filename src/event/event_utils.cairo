@@ -3,6 +3,7 @@ use array::ArrayTrait;
 use satoru::utils::i128::{I128Serde, I128Default};
 use traits::Default;
 use satoru::utils::traits::ContractAddressDefault;
+use satoru::utils::serializable_felt_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 
 //TODO Switch the append with a set in the functions when its available
 #[derive(Drop, Serde)]
@@ -83,7 +84,7 @@ struct IntArrayKeyValue {
 //bool
 #[derive(Default, Serde, Drop)]
 struct BoolItems {
-    items: Array<BoolKeyValue>,
+    items: SerializableFelt252Dict<BoolKeyValue>,
     array_items: Array<BoolArrayKeyValue>,
 }
 
@@ -218,7 +219,7 @@ fn set_item_array_int_items(
 fn set_item_bool_items(mut items: BoolItems, index: u32, key: felt252, value: bool) -> BoolItems {
     let bool_key_value: BoolKeyValue = BoolKeyValue { key, value };
     let mut address: BoolItems = items;
-    address.items.append(bool_key_value);
+    address.items.add(key, bool_key_value);
     return address;
 }
 
