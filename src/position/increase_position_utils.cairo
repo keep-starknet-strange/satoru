@@ -27,7 +27,7 @@ use satoru::utils::{
     calc::{
         to_unsigned, to_signed, sum_return_uint_128, roundup_magnitude_division, roundup_division
     },
-    i128::i128
+    i128::{i128, i128_neg}
 };
 use satoru::fee::fee_utils;
 use satoru::data::keys;
@@ -126,7 +126,7 @@ fn increase_position(mut params: UpdatePositionParams, collateral_increment_amou
 
     // check if there is sufficient collateral for the position
     if (cache.collateral_delta_amount < Zeroable::zero()
-        && params.position.collateral_amount < to_unsigned(-cache.collateral_delta_amount)) {
+        && params.position.collateral_amount < to_unsigned(i128_neg(cache.collateral_delta_amount))) {
         PositionError::INSUFFICIENT_COLLATERAL_AMOUNT(
             params.position.collateral_amount, cache.collateral_delta_amount
         )

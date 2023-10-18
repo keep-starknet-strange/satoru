@@ -17,7 +17,7 @@ use satoru::pricing::error::PricingError;
 use satoru::pricing::pricing_utils;
 use satoru::utils::calc;
 use satoru::utils::precision;
-use satoru::utils::i128::i128;
+use satoru::utils::i128::{i128,i128_neg};
 
 
 /// Struct used in get_price_impact_usd.
@@ -242,7 +242,7 @@ fn get_next_pool_amount_params(
     let pool_usd_for_token_a = pool_amount_for_token_a * params.price_for_token_a;
     let pool_usd_for_token_b = pool_amount_for_token_b * params.price_for_token_b;
     if params.usd_delta_for_token_a < Zeroable::zero()
-        && calc::to_unsigned(-params.usd_delta_for_token_a) > pool_usd_for_token_a {
+        && calc::to_unsigned(i128_neg(params.usd_delta_for_token_a)) > pool_usd_for_token_a {
         panic(
             array![
                 PricingError::USD_DELTA_EXCEEDS_POOL_VALUE,
@@ -252,7 +252,7 @@ fn get_next_pool_amount_params(
         );
     }
     if params.usd_delta_for_token_b < Zeroable::zero()
-        && calc::to_unsigned(-params.usd_delta_for_token_b) > pool_usd_for_token_b {
+        && calc::to_unsigned(i128_neg(params.usd_delta_for_token_b)) > pool_usd_for_token_b {
         panic(
             array![
                 PricingError::USD_DELTA_EXCEEDS_POOL_VALUE,

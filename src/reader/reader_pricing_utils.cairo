@@ -38,7 +38,7 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::utils::{i128::i128, error_utils};
+use satoru::utils::{i128::{i128, i128_neg}, error_utils};
 
 #[derive(Default, Drop, starknet::Store, Serde)]
 struct ExecutionPriceResult {
@@ -149,7 +149,7 @@ fn get_swap_amount_out(
                 data_store, market.market_token, token_in, cache.token_in_price, price_impact_usd
             );
 
-        cache.amount_in = fees.amount_after_fees - calc::to_unsigned(-impact_amount);
+        cache.amount_in = fees.amount_after_fees - calc::to_unsigned(i128_neg(impact_amount));
         error_utils::check_division_by_zero(cache.token_out_price.max, 'token_out_price.max');
         cache.amount_out = cache.amount_in * cache.token_in_price.min / cache.token_out_price.max;
         cache.pool_amount_out = cache.amount_out;

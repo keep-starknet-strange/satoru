@@ -21,7 +21,7 @@ use satoru::utils::store_arrays::{StoreMarketArray, StoreU64Array, StoreContract
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::utils::span32::Span32;
 use satoru::utils::calc;
-use satoru::utils::i128::i128;
+use satoru::utils::i128::{i128, i128_neg};
 
 #[derive(Drop, starknet::Store, Serde)]
 struct ExecuteOrderParams {
@@ -415,7 +415,7 @@ fn get_execution_price_for_decrease(
         };
 
         if adjusted_price_impact_usd < Zeroable::zero()
-            && calc::to_unsigned(-adjusted_price_impact_usd) > size_delta_usd {
+            && calc::to_unsigned(i128_neg(adjusted_price_impact_usd)) > size_delta_usd {
             OrderError::PRICE_IMPACT_LARGER_THAN_ORDER_SIZE(
                 adjusted_price_impact_usd, size_delta_usd
             );

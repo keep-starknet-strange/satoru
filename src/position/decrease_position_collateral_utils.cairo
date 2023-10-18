@@ -12,7 +12,7 @@ use satoru::pricing::position_pricing_utils;
 use satoru::market::market_utils;
 use satoru::price::price::{Price, PriceTrait};
 use satoru::order::{base_order_utils, order};
-use satoru::utils::{i128::i128, calc, precision};
+use satoru::utils::{i128::{i128, i128_neg}, calc, precision};
 use satoru::data::{keys, data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::fee::fee_utils;
@@ -272,7 +272,7 @@ fn process_collateral(
             values,
             cache.prices,
             cache.collateral_token_price,
-            calc::to_unsigned(-values.base_pnl_usd)
+            calc::to_unsigned(i128_neg(values.base_pnl_usd))
         );
         values = values_;
         collateral_cache.result = result_;
@@ -390,7 +390,7 @@ fn process_collateral(
             values,
             cache.prices,
             cache.collateral_token_price,
-            calc::to_unsigned(-values.price_impact_usd)
+            calc::to_unsigned(i128_neg(values.price_impact_usd))
         );
         values = values_;
         collateral_cache.result = result_;
