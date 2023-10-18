@@ -1,3 +1,10 @@
+// This code uses a portion of the code from the YAS project under the Apache 2.0 license.
+// Here is the link to the original project:
+// https://github.com/lambdaclass/yet-another-swap
+
+// The original source code is subject to the Apache 2.0 license, the terms of which can be found here:
+// http://www.apache.org/licenses/LICENSE-2.0
+
 /// Trait
 ///
 /// new - Constructs a new `signed_integer
