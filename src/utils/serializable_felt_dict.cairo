@@ -6,7 +6,18 @@ use traits::Default;
 use dict::Felt252DictTrait;
 use nullable::{nullable_from_box, match_nullable, FromNullableResult};
 
-/// TODO docs.
+///
+/// SerializableFelt252Dict
+///
+/// Wrapper around the Felt252Dict.
+/// It behaves the same as a regular dict but has also a keys parameter
+/// that keeps track of the keys registered.
+/// This allows us to serialize & deserialize the struct, which is not
+/// possible with a regular Felt252Dict.
+///
+/// * keys: Array<felt252> => the keys currently stored in the dictionnary
+/// * values: Felt252Dict<Nullable<T>> => dictionnary containing the values of type T
+///
 #[derive(Default, Drop)]
 struct SerializableFelt252Dict<T> {
     keys: Array<felt252>,
