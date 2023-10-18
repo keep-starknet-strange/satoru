@@ -112,7 +112,7 @@ impl SerializableFelt252DictSerde<
     }
 
     fn deserialize(ref serialized: Span<felt252>) -> Option<SerializableFelt252Dict<T>> {
-        let mut initial_key: felt252 = '0';
+        let mut current_key: felt252 = 0;
         let mut d: SerializableFelt252Dict<T> = SerializableFelt252Dict {
             keys: array![], values: Default::default()
         };
@@ -121,9 +121,9 @@ impl SerializableFelt252DictSerde<
                 Option::Some(value) => {
                     let value: T = (*value).into();
                     let value = nullable_from_box(BoxTrait::new(value));
-                    d.values.insert(initial_key, value);
-                    d.keys.append(initial_key);
-                    initial_key += 1;
+                    d.values.insert(current_key, value);
+                    d.keys.append(current_key);
+                    current_key += 1;
                 },
                 Option::None => {
                     break;

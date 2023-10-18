@@ -3,7 +3,9 @@ use array::ArrayTrait;
 use satoru::utils::i128::{I128Serde, I128Default};
 use traits::Default;
 use satoru::utils::traits::ContractAddressDefault;
-use satoru::utils::serializable_felt_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
+use satoru::utils::serializable_felt_dict::{
+    SerializableFelt252Dict, SerializableFelt252DictTrait, SerializableFelt252DictSerde
+};
 
 //TODO Switch the append with a set in the functions when its available
 #[derive(Drop, Serde)]
