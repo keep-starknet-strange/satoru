@@ -2,6 +2,7 @@ use starknet::{
     ContractAddress, get_caller_address, get_contract_address, Felt252TryIntoContractAddress,
     contract_address_const
 };
+use starknet::info::get_block_number;
 use snforge_std::{declare, start_prank, stop_prank, start_roll, ContractClassTrait};
 
 use satoru::data::keys;
@@ -19,15 +20,12 @@ fn test_exchange_utils() {
     let expiration_age = 5;
     data_store.set_u128(keys::request_expiration_block_age(), expiration_age);
 
-    let created_at_block = 10;
+    let block_number = get_block_number();
 
-    start_roll(contract_address, 9);
+    let created_at_block = block_number - 5;
     validate_request_cancellation(data_store, created_at_block, 'SOME_REQUEST_TYPE');
 
-    start_roll(contract_address, 10);
-    validate_request_cancellation(data_store, created_at_block, 'SOME_REQUEST_TYPE');
-
-    start_roll(contract_address, 14);
+    let created_at_block = block_number - 6;
     validate_request_cancellation(data_store, created_at_block, 'SOME_REQUEST_TYPE');
 
     // Teardown
@@ -45,8 +43,8 @@ fn test_exchange_utils_fail() {
     let expiration_age = 5;
     data_store.set_u128(keys::request_expiration_block_age(), expiration_age);
 
-    let created_at_block = 10;
+    let block_number = get_block_number();
+    let created_at_block = block_number - 4;
 
-    start_roll(contract_address, 16);
     validate_request_cancellation(data_store, created_at_block, 'SOME_REQUEST_TYPE');
 }
