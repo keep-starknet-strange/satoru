@@ -221,7 +221,8 @@ fn set_item_array_int_items(
 fn set_item_bool_items(mut items: BoolItems, index: u32, key: felt252, value: bool) -> BoolItems {
     let bool_key_value: BoolKeyValue = BoolKeyValue { key, value };
     let mut address: BoolItems = items;
-    address.items.add(key, bool_key_value);
+    let dict: SerializableFelt252Dict<BoolKeyValue> = address.items;
+    dict.add(key, bool_key_value);
     return address;
 }
 
