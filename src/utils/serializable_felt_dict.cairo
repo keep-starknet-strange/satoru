@@ -18,30 +18,23 @@ use nullable::{nullable_from_box, match_nullable, FromNullableResult};
 /// * keys: Array<felt252> => the keys currently stored in the dictionnary
 /// * values: Felt252Dict<Nullable<T>> => dictionnary containing the values of type T
 ///
-#[derive(Default, Drop)]
+#[derive(Default, Destruct)]
 struct SerializableFelt252Dict<T> {
     keys: Array<felt252>,
     values: Felt252Dict<Nullable<T>>,
 }
 
-impl Felt252DictDrop<T, impl TDrop: Drop<T>> of Drop<Felt252Dict<T>>;
-impl Felt252DictCopy<T, impl TCopy: Copy<T>> of Copy<Felt252Dict<T>>;
-
-trait SerializableFelt252DictTrait<T> {
-    /// Creates a new SerializableFelt252Dict object.
-    fn new() -> SerializableFelt252Dict<T>;
-    /// Adds an element.
-    fn add(ref self: SerializableFelt252Dict<T>, key: felt252, value: T);
-    /// Gets an element.
-    fn get<impl TCopy: Copy<T>>(ref self: SerializableFelt252Dict<T>, key: felt252) -> Option<T>;
-    /// Length of the dictionnary.
-    fn len(self: @SerializableFelt252Dict<T>) -> usize;
-    /// Checks if a dictionnary is empty.
-    fn is_empty(self: @SerializableFelt252Dict<T>) -> bool;
+impl DestructSerializableFelt252Dict<
+    T, impl TDrop: Drop<T>
+> of Destruct<SerializableFelt252Dict<T>> {
+    fn destruct(self: SerializableFelt252Dict<T>) nopanic {
+        self.values.squash();
+    }
 }
 
+#[generate_trait]
 impl SerializableFelt252DictImpl<
-    T, impl TDefault: Default<T>, impl TDrop: Drop<T>, impl TCopy: Copy<T>
+    T, impl TDefault: Default<T>, impl TDrop: Drop<T>
 > of SerializableFelt252DictTrait<T> {
     fn new() -> SerializableFelt252Dict<T> {
         SerializableFelt252Dict { keys: array![], values: Default::default() }
@@ -69,19 +62,19 @@ impl SerializableFelt252DictImpl<
 
 /// TODO: Currently only the value is serizalized & we loose the key information.
 impl SerializableFelt252DictSerde<
-    T, impl TDrop: Drop<T>, impl TCopy: Copy<T>, impl TSerde: Serde<T>, impl TInto: Into<felt252, T>
+    T, impl TDrop: Drop<T>, impl TSerde: Serde<T>, impl TInto: Into<felt252, T>
 > of Serde<SerializableFelt252Dict<T>> {
     fn serialize(self: @SerializableFelt252Dict<T>, ref output: Array<felt252>) {
         let mut keys: Span<felt252> = self.keys.span();
         loop {
             match keys.pop_front() {
                 Option::Some(key) => {
-                    let mut values: Felt252Dict<Nullable<T>> = *self.values;
-                    let value = match match_nullable(values.get(*key)) {
+                    let values: Felt252Dict<Nullable<T>> = *(self.values);
+                    let (entry, value) = values.entry(*key);
+                    let value = match match_nullable(value) {
                         FromNullableResult::Null(()) => panic_with_felt252('Serialize key error'),
                         FromNullableResult::NotNull(boxed_value) => boxed_value.unbox(),
                     };
-                    value.serialize(ref output);
                 },
                 Option::None => {
                     break;

@@ -3,9 +3,6 @@ use array::ArrayTrait;
 use satoru::utils::i128::{I128Serde, I128Default};
 use traits::Default;
 use satoru::utils::traits::ContractAddressDefault;
-use satoru::utils::serializable_felt_dict::{
-    SerializableFelt252Dict, SerializableFelt252DictTrait, SerializableFelt252DictSerde
-};
 
 //TODO Switch the append with a set in the functions when its available
 #[derive(Drop, Serde)]
@@ -83,37 +80,26 @@ struct IntArrayKeyValue {
     value: Array<i128>,
 }
 
-
-/// Bool
-
-#[derive(Default, Serde, Drop, Copy, Into)]
+//bool
+#[derive(Default, Serde, Drop)]
 struct BoolItems {
-    items: SerializableFelt252Dict<BoolKeyValue>,
+    items: Array<BoolKeyValue>,
     array_items: Array<BoolArrayKeyValue>,
 }
 
-impl Felt252IntoBoolKeyValue of Into<felt252, BoolKeyValue> {
-    fn into(self: felt252) -> BoolKeyValue {
-        BoolKeyValue { key: 'TODO_placeholder', // TODO: actual implementation
-        value: true }
-    }
-}
-
-#[derive(Default, Serde, Drop, Copy, Into)]
+#[derive(Default, Serde, Drop)]
 struct BoolKeyValue {
     key: felt252,
     value: bool,
 }
 
-#[derive(Default, Serde, Drop, Copy, Into)]
+#[derive(Default, Serde, Drop)]
 struct BoolArrayKeyValue {
     key: felt252,
     value: Array<bool>,
 }
 
-
-/// Felt252 
-
+//Felt252 
 #[derive(Default, Serde, Drop)]
 struct Felt252Items {
     items: Array<Felt252KeyValue>,
@@ -232,7 +218,7 @@ fn set_item_array_int_items(
 fn set_item_bool_items(mut items: BoolItems, index: u32, key: felt252, value: bool) -> BoolItems {
     let bool_key_value: BoolKeyValue = BoolKeyValue { key, value };
     let mut address: BoolItems = items;
-    address.items.add(key, bool_key_value);
+    address.items.append(bool_key_value);
     return address;
 }
 
