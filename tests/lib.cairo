@@ -106,6 +106,9 @@ mod utils {
     mod test_u128_mask;
     mod test_i128;
 }
+mod withdrawal {
+    mod test_withdrawal_vault;
+}
 mod mock {
     mod test_governable;
     mod test_referral_storage;
