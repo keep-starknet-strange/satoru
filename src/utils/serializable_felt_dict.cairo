@@ -41,7 +41,7 @@ trait SerializableFelt252DictTrait<T> {
 }
 
 impl SerializableFelt252DictImpl<
-    T, impl TDefault: Felt252DictValue<T>, impl TDrop: Drop<T>, impl TCopy: Copy<T>
+    T, impl TDefault: Default<T>, impl TDrop: Drop<T>, impl TCopy: Copy<T>
 > of SerializableFelt252DictTrait<T> {
     fn new() -> SerializableFelt252Dict<T> {
         SerializableFelt252Dict { keys: array![], values: Default::default() }

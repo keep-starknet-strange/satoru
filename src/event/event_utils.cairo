@@ -90,7 +90,7 @@ struct BoolItems {
     array_items: Array<BoolArrayKeyValue>,
 }
 
-#[derive(Default, Serde, Drop)]
+#[derive(Default, Serde, Drop, Copy, Into)]
 struct BoolKeyValue {
     key: felt252,
     value: bool,
@@ -221,8 +221,7 @@ fn set_item_array_int_items(
 fn set_item_bool_items(mut items: BoolItems, index: u32, key: felt252, value: bool) -> BoolItems {
     let bool_key_value: BoolKeyValue = BoolKeyValue { key, value };
     let mut address: BoolItems = items;
-    let dict: SerializableFelt252Dict<BoolKeyValue> = address.items;
-    dict.add(key, bool_key_value);
+    address.items.add(key, bool_key_value);
     return address;
 }
 
