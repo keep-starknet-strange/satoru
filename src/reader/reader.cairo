@@ -29,7 +29,7 @@ use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::position::{position_utils, position::Position};
 use satoru::pricing::swap_pricing_utils::SwapFees;
 use satoru::deposit::deposit::Deposit;
-use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul}};
+use satoru::utils::i128::i128;
 
 #[derive(Drop, starknet::Store, Serde)]
 struct VirtualInventory {
@@ -450,7 +450,7 @@ mod Reader {
         market_utils, market_utils::GetNextFundingAmountPerSizeResult, market::Market,
         market_utils::MarketPrices, market_pool_value_info::MarketPoolValueInfo,
     };
-    use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul}};
+    use satoru::utils::i128::i128;
     use satoru::withdrawal::withdrawal::Withdrawal;
     use satoru::position::{position_utils, position::Position};
     use satoru::pricing::swap_pricing_utils::SwapFees;
