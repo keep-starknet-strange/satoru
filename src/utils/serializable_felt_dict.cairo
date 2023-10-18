@@ -33,9 +33,7 @@ trait SerializableFelt252DictTrait<T> {
     /// Adds an element.
     fn add(ref self: SerializableFelt252Dict<T>, key: felt252, value: T);
     /// Gets an element.
-    fn get<impl TCopy: Copy<T>>(ref self: SerializableFelt252Dict<T>, key: felt252) -> T;
-    /// Checks if a key is in the dictionnary.
-    fn contains_key(self: @SerializableFelt252Dict<T>, key: felt252) -> bool;
+    fn get<impl TCopy: Copy<T>>(ref self: SerializableFelt252Dict<T>, key: felt252) -> Option<T>;
     /// Length of the dictionnary.
     fn len(self: @SerializableFelt252Dict<T>) -> usize;
     /// Checks if a dictionnary is empty.
@@ -53,30 +51,11 @@ impl SerializableFelt252DictImpl<
         self.values.insert(0, nullable_from_box(BoxTrait::new(value)));
     }
 
-    fn get<impl TCopy: Copy<T>>(ref self: SerializableFelt252Dict<T>, key: felt252) -> T {
+    fn get<impl TCopy: Copy<T>>(ref self: SerializableFelt252Dict<T>, key: felt252) -> Option<T> {
         match match_nullable(self.values.get(key)) {
-            FromNullableResult::Null(()) => panic_with_felt252('No value found'),
-            FromNullableResult::NotNull(val) => val.unbox(),
+            FromNullableResult::Null(()) => Option::None,
+            FromNullableResult::NotNull(val) => Option::Some(val.unbox()),
         }
-    }
-
-    fn contains_key(self: @SerializableFelt252Dict<T>, key: felt252) -> bool {
-        let mut keys: Span<felt252> = self.keys.span();
-        let mut contains_key: bool = false;
-        loop {
-            match keys.pop_front() {
-                Option::Some(value) => {
-                    if *value == key {
-                        contains_key = true;
-                        break;
-                    }
-                },
-                Option::None => {
-                    break;
-                },
-            };
-        };
-        return contains_key;
     }
 
     fn len(self: @SerializableFelt252Dict<T>) -> usize {
