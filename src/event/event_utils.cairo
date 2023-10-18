@@ -83,11 +83,20 @@ struct IntArrayKeyValue {
     value: Array<i128>,
 }
 
-//bool
-#[derive(Default, Serde, Drop)]
+
+/// Bool
+
+#[derive(Default, Serde, Drop, Copy, Into)]
 struct BoolItems {
     items: SerializableFelt252Dict<BoolKeyValue>,
     array_items: Array<BoolArrayKeyValue>,
+}
+
+impl Felt252IntoBoolKeyValue of Into<felt252, BoolKeyValue> {
+    fn into(self: felt252) -> BoolKeyValue {
+        BoolKeyValue { key: 'TODO_placeholder', // TODO: actual implementation
+        value: true }
+    }
 }
 
 #[derive(Default, Serde, Drop, Copy, Into)]
@@ -96,13 +105,15 @@ struct BoolKeyValue {
     value: bool,
 }
 
-#[derive(Default, Serde, Drop)]
+#[derive(Default, Serde, Drop, Copy, Into)]
 struct BoolArrayKeyValue {
     key: felt252,
     value: Array<bool>,
 }
 
-//Felt252 
+
+/// Felt252 
+
 #[derive(Default, Serde, Drop)]
 struct Felt252Items {
     items: Array<Felt252KeyValue>,
