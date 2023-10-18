@@ -12,6 +12,7 @@ use satoru::withdrawal::withdrawal_vault::{
 };
 use satoru::fee::fee_handler::{IFeeHandlerDispatcher, IFeeHandlerDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::data::keys;
 use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
@@ -159,7 +160,7 @@ fn create_withrawal_params() -> CreateWithdrawalParams {
         receiver: contract_address_const::<'receiver'>(),
         callback_contract: contract_address_const::<'callback_contract'>(),
         ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
-        market: contract_address_const::<'market'>(),
+        market: contract_address_const::<'market_token'>(),
         long_token_swap_path: Default::default(),
         short_token_swap_path: Default::default(),
         min_long_token_amount: Default::default(),
@@ -167,6 +168,23 @@ fn create_withrawal_params() -> CreateWithdrawalParams {
         execution_fee: Default::default(),
         callback_gas_limit: Default::default(),
     }
+}
+
+fn deploy_tokens() -> (ContractAddress, ContractAddress) {
+    let contract = declare('ERC20');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+
+    let fee_token_address = contract_address_const::<'fee_token'>();
+    start_prank(fee_token_address, caller_address);
+    let constructor_calldata = array!['FEE_TOKEN', 'FEE', 1000000, 0, 0x101];
+    contract.deploy_at(@constructor_calldata, fee_token_address).unwrap();
+
+    let market_token_address = contract_address_const::<'market_token'>();
+    start_prank(market_token_address, caller_address);
+    let constructor_calldata = array!['MARKET_TOKEN', 'MKT', 1000000, 0, 0x101];
+    contract.deploy_at(@constructor_calldata, market_token_address).unwrap();
+
+    (fee_token_address, market_token_address)
 }
 
 fn deploy_withdrawal_handler(
@@ -222,21 +240,12 @@ fn deploy_oracle_store(
         .unwrap()
 }
 
-fn deploy_withdrawal_vault(strict_bank_address: ContractAddress) -> ContractAddress {
+fn deploy_withdrawal_vault(
+    data_store_address: ContractAddress, role_store_address: ContractAddress
+) -> ContractAddress {
     let contract = declare('WithdrawalVault');
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'withdrawal_vault'>();
-    start_prank(deployed_contract_address, caller_address);
-    let constructor_calldata = array![strict_bank_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
-}
-
-fn deploy_strict_bank(
-    data_store_address: ContractAddress, role_store_address: ContractAddress
-) -> ContractAddress {
-    let contract = declare('StrictBank');
-    let caller_address: ContractAddress = contract_address_const::<'caller'>();
-    let deployed_contract_address = contract_address_const::<'strict_bank'>();
     start_prank(deployed_contract_address, caller_address);
     let constructor_calldata = array![data_store_address.into(), role_store_address.into()];
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
@@ -272,14 +281,14 @@ fn setup() -> (
 ) {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let order_keeper: ContractAddress = 0x2233.try_into().unwrap();
+    let (fee_token_address, _) = deploy_tokens();
     let role_store_address = deploy_role_store();
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
     let data_store_address = deploy_data_store(role_store_address);
     let data_store = IDataStoreDispatcher { contract_address: data_store_address };
     let event_emitter_address = deploy_event_emitter();
     let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
-    let strict_bank_address = deploy_strict_bank(data_store_address, role_store_address);
-    let withdrawal_vault_address = deploy_withdrawal_vault(strict_bank_address);
+    let withdrawal_vault_address = deploy_withdrawal_vault(data_store_address, role_store_address);
     let oracle_store_address = deploy_oracle_store(role_store_address, event_emitter_address);
     let oracle_address = deploy_oracle(
         oracle_store_address, role_store_address, contract_address_const::<'pragma'>()
@@ -300,5 +309,8 @@ fn setup() -> (
     role_store.grant_role(order_keeper, role::ORDER_KEEPER);
     role_store.grant_role(withdrawal_handler_address, role::CONTROLLER);
     start_prank(data_store_address, caller_address);
+
+    data_store.set_address(keys::fee_token(), fee_token_address);
+
     (caller_address, data_store, event_emitter, withdrawal_handler)
 }
