@@ -13,6 +13,7 @@ use satoru::event::event_emitter::EventEmitter::{SwapInfo, SwapFeesCollected};
 
 
 use satoru::pricing::swap_pricing_utils::SwapFees;
+use satoru::utils::i128::{i128, i128_new};
 
 #[test]
 fn given_normal_conditions_when_emit_swap_info_then_works() {
@@ -37,8 +38,8 @@ fn given_normal_conditions_when_emit_swap_info_then_works() {
     let amount_in: u128 = 3;
     let amount_in_after_fees: u128 = 4;
     let amount_out: u128 = 5;
-    let price_impact_usd: i128 = 6;
-    let price_impact_amount: i128 = 7;
+    let price_impact_usd: i128 = i128_new(6, false);
+    let price_impact_amount: i128 = i128_new(7, false);
 
     // Emit the event.
     event_emitter

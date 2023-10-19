@@ -1,6 +1,7 @@
 mod OrderError {
     use satoru::order::order::OrderType;
     use satoru::price::price::Price;
+    use satoru::utils::i128::i128;
 
     const EMPTY_ORDER: felt252 = 'empty_order';
     const INVALID_ORDER_PRICES: felt252 = 'invalid_order_prices';

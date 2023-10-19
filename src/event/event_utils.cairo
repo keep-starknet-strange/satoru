@@ -1,6 +1,6 @@
 use starknet::{get_caller_address, ContractAddress, contract_address_const};
 use array::ArrayTrait;
-use satoru::utils::i128::{I128Serde, I128Default};
+use satoru::utils::i128::i128;
 use traits::Default;
 use satoru::utils::traits::ContractAddressDefault;
 

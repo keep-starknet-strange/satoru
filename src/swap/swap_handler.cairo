@@ -34,9 +34,10 @@ mod SwapHandler {
     use satoru::swap::swap_utils::SwapParams;
     use satoru::swap::swap_utils;
     use satoru::role::role_module::{RoleModule, IRoleModule};
-    use satoru::utils::i128::{I128Store, I128Serde};
+    use satoru::utils::i128::i128;
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::utils::global_reentrancy_guard;
+
 
     // *************************************************************************
     //                              STORAGE
