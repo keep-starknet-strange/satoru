@@ -480,13 +480,13 @@ mod Reader {
         fn get_market(
             self: @ContractState, data_store: IDataStoreDispatcher, key: ContractAddress
         ) -> Market {
-            data_store.get_market(key).expect('get_market failed')
+            data_store.get_market(key)
         }
 
         fn get_market_by_salt(
             self: @ContractState, data_store: IDataStoreDispatcher, salt: felt252
         ) -> Market {
-            data_store.get_by_salt_market(salt).expect('get_by_salt_market failed')
+            data_store.get_by_salt_market(salt)
         }
 
 
@@ -638,7 +638,7 @@ mod Reader {
                 if i == length {
                     break;
                 }
-                let market = data_store.get_market(*market_keys.at(i)).expect('get_market failed');
+                let market = data_store.get_market(*market_keys.at(i));
                 markets.append(market);
                 i += 1;
             };
@@ -674,7 +674,7 @@ mod Reader {
             prices: MarketPrices,
             market_key: ContractAddress
         ) -> MarketInfo {
-            let market = data_store.get_market(market_key).expect('get_market failed');
+            let market = data_store.get_market(market_key);
             let borrowing_factor_per_second_for_longs =
                 market_utils::get_borrowing_factor_per_second(
                 data_store, market, prices, true
@@ -768,7 +768,7 @@ mod Reader {
             is_long: bool,
             maximize: bool
         ) -> i128 {
-            let market = data_store.get_market(market_address).expect('get_market failed');
+            let market = data_store.get_market(market_address);
             market_utils::get_pnl_to_pool_factor_from_prices(
                 data_store, @market, @prices, is_long, maximize
             )
@@ -816,7 +816,7 @@ mod Reader {
             size_delta_usd: i128,
             is_long: bool
         ) -> ExecutionPriceResult {
-            let market = data_store.get_market(market_key).expect('get_market failed');
+            let market = data_store.get_market(market_key);
             reader_pricing_utils::get_execution_price(
                 data_store,
                 market,
@@ -838,7 +838,7 @@ mod Reader {
             token_in_price: Price,
             token_out_price: Price
         ) -> (i128, i128) {
-            let market = data_store.get_market(market_key).expect('get_market failed');
+            let market = data_store.get_market(market_key);
             reader_pricing_utils::get_swap_price_impact(
                 data_store, market, token_in, token_out, amount_in, token_in_price, token_out_price
             )

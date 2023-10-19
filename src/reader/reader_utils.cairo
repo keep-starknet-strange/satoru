@@ -197,7 +197,7 @@ fn get_position_info(
     let mut cache: GetPositionInfoCache = Default::default();
 
     position_info.position = data_store.get_position(position_key).unwrap();
-    cache.market = data_store.get_market(position_info.position.market).unwrap();
+    cache.market = data_store.get_market(position_info.position.market);
     cache
         .collateral_token_price =
             market_utils::get_cached_token_price(

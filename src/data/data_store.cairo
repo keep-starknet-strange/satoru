@@ -182,7 +182,7 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to get the value for.
     /// # Returns
     /// The value for the given key.
-    fn get_market(self: @TContractState, key: ContractAddress) -> Option<Market>;
+    fn get_market(self: @TContractState, key: ContractAddress) -> Market;
 
     /// Set a market value for the given key.
     /// # Arguments
@@ -194,7 +194,7 @@ trait IDataStore<TContractState> {
     /// * `salt` - The salt to get the value for.
     /// # Returns
     /// The value for the given key.
-    fn get_by_salt_market(self: @TContractState, salt: felt252) -> Option<Market>;
+    fn get_by_salt_market(self: @TContractState, salt: felt252) -> Market;
     fn remove_market(ref self: TContractState, key: ContractAddress);
     /// Get a hash given salt.
     /// # Arguments
@@ -822,13 +822,21 @@ mod DataStore {
         //                      Market related functions.
         // *************************************************************************
 
-        fn get_market(self: @ContractState, key: ContractAddress) -> Option<Market> {
+        fn get_market(self: @ContractState, key: ContractAddress) -> Market {
             let offsetted_index: usize = self.market_indexes.read(key);
             if offsetted_index == 0 {
-                return Option::None;
+                return Default::default();
             }
-            let orders: List<Market> = self.markets.read();
-            orders.get(offsetted_index - 1)
+            let markets: List<Market> = self.markets.read();
+            let market_maybe = markets.get(offsetted_index - 1);
+            match market_maybe {
+                Option::Some(markets) => {
+                    markets
+                },
+                Option::None => {
+                    Default::default()
+                }
+            }
         }
 
         fn set_market(
@@ -921,7 +929,7 @@ mod DataStore {
             self.markets.read().len()
         }
 
-        fn get_by_salt_market(self: @ContractState, salt: felt252) -> Option<Market> {
+        fn get_by_salt_market(self: @ContractState, salt: felt252) -> Market {
             let key = self.get_address(self.get_market_salt_hash(salt));
             self.get_market(key)
         }
