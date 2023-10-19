@@ -4,8 +4,7 @@
 // Core lib imports.
 use alexandria_math::pow;
 use integer::{
-    i128_to_felt252, u128_to_felt252, u256_wide_mul, u512_safe_div_rem_by_u256, BoundedU256,
-    U256TryIntoNonZero
+    u256_wide_mul, u512_safe_div_rem_by_u256, BoundedU256, U256TryIntoNonZero, U128IntoFelt252
 };
 use satoru::utils::i128::i128;
 use satoru::utils::calc::{roundup_division, roundup_magnitude_division};
@@ -206,7 +205,7 @@ fn to_factor_ival(value: i128, divisor: u128) -> i128 {
     let felt252_value: felt252 = value_abs.into();
     let u128_value = felt252_value.try_into().expect('felt252 into u128 failed');
     let result: u128 = to_factor(u128_value, divisor);
-    let felt252_result: felt252 = u128_to_felt252(result);
+    let felt252_result: felt252 = result.into();
     let i128_result: i128 = felt252_result.try_into().expect('felt252 into i128 failed');
     if value > Zeroable::zero() {
         i128_result
