@@ -1,4 +1,3 @@
-use debug::PrintTrait;
 use satoru::data::data_store::IDataStoreDispatcherTrait;
 use satoru::data::keys;
 use satoru::pricing::swap_pricing_utils::{
@@ -81,10 +80,7 @@ fn given_normal_conditions_when_get_price_impact_usd_inner_then_works() {
     };
 
     let impact = get_price_impact_usd_(data_store, market, params);
-    'impact'.print();
-    calc::to_signed(impact, true).print();
-
-    assert(impact == 0, 'foo');
+    assert(impact == Zeroable::zero(), 'fail');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
