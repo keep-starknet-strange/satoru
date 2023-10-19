@@ -10,6 +10,7 @@ use satoru::exchange::withdrawal_handler::{
 use satoru::withdrawal::withdrawal_vault::{
     IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait
 };
+use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use satoru::fee::fee_handler::{IFeeHandlerDispatcher, IFeeHandlerDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::data::keys;
@@ -52,6 +53,13 @@ fn given_normal_conditions_when_cancel_withdrawal_then_works() {
 
     let account = contract_address_const::<'account'>();
     let params = create_withrawal_params();
+
+    // Simulate a witdrawal of 10 MARKET_TOKEN
+    let market_token = IERC20Dispatcher { contract_address: params.market };
+    start_prank(market_token.contract_address, caller_address);
+    market_token.transfer(contract_address_const::<'withdrawal_vault'>(), 10);
+    stop_prank(market_token.contract_address);
+
     let withdrawal_key = withdrawal_handler.create_withdrawal(account, params);
 
     // Key cleaning should be done in withdrawal_utils. We only check call here.
@@ -175,13 +183,11 @@ fn deploy_tokens() -> (ContractAddress, ContractAddress) {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
 
     let fee_token_address = contract_address_const::<'fee_token'>();
-    start_prank(fee_token_address, caller_address);
     let constructor_calldata = array!['FEE_TOKEN', 'FEE', 1000000, 0, 0x101];
     contract.deploy_at(@constructor_calldata, fee_token_address).unwrap();
 
     let market_token_address = contract_address_const::<'market_token'>();
-    start_prank(market_token_address, caller_address);
-    let constructor_calldata = array!['MARKET_TOKEN', 'MKT', 1000000, 0, 0x101];
+    let constructor_calldata = array!['MARKET_TOKEN', 'MKT', 1000000, 0, caller_address.into()];
     contract.deploy_at(@constructor_calldata, market_token_address).unwrap();
 
     (fee_token_address, market_token_address)
