@@ -41,7 +41,7 @@ fn given_normal_conditions_when_swap_pricing_utils_functions_then_works() {
 
     let impact = get_price_impact_usd(params);
     // TODO change to real value when precision::apply_exponent_factor is implemented
-    //assert(impact == i128_new(0, false), 'foo'); // TODO fix i128 assert fail
+    assert(impact == i128_new(0, false), 'foo');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -78,16 +78,15 @@ fn given_normal_conditions_when_get_next_pool_amount_usd_then_works() {
         token_b: short_token,
         price_for_token_a: 101,
         price_for_token_b: 99,
-        usd_delta_for_token_a: i128_new(10, false),
+        usd_delta_for_token_a: i128_new(5, false),
         usd_delta_for_token_b: i128_new(4, false),
     };
 
     let pool_params = get_next_pool_amount_usd(params);
-    // TODO fix i128 assert fail
-    // assert(pool_params.pool_usd_for_token_a == 101000, 'invalid');
-    // assert(pool_params.pool_usd_for_token_b == 99000, 'invalid');
-    // assert(pool_params.next_pool_usd_for_token_a == 101005, 'invalid');
-    // assert(pool_params.next_pool_usd_for_token_b == 99004, 'invalid');
+    assert(pool_params.pool_usd_for_token_a == 101000, 'invalid');
+    assert(pool_params.pool_usd_for_token_b == 99000, 'invalid');
+    assert(pool_params.next_pool_usd_for_token_a == 101005, 'invalid');
+    assert(pool_params.next_pool_usd_for_token_b == 99004, 'invalid');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
