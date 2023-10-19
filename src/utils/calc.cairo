@@ -165,5 +165,5 @@ fn max_i128() -> i128 {
 
 fn min_i128() -> i128 {
     // Comes from https://doc.rust-lang.org/std/i128/constant.MIN.html
-    i128 { mag: 170_141_183_460_469_231_731_687_303_715_884_105_727, sign: true }
+    i128 { mag: 170_141_183_460_469_231_731_687_303_715_884_105_728, sign: true }
 }
