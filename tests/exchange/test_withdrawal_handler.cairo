@@ -139,9 +139,9 @@ fn given_caller_not_controller_when_simulate_execute_withdrawal_then_fails() {
     withdrawal_handler.simulate_execute_withdrawal(withdrawal_key, oracle_params);
 }
 
-// Panics due to the absence of a mocked withdrawal, resulting in 'empty withdrawal'.
+// Panics due to the absence of a mocked withdrawal, resulting in 'withdrawal not found'.
 #[test]
-#[should_panic(expected: ('empty withdrawal',))]
+#[should_panic(expected: ('withdrawal not found',))]
 fn given_invalid_withdrawal_key_when_simulate_execute_withdrawal_then_fails() {
     let (caller_address, data_store, event_emitter, withdrawal_handler) = setup();
     let oracle_params = SimulatePricesParams {
