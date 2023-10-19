@@ -543,8 +543,7 @@ mod Reader {
                 if i == length {
                     break;
                 }
-                let position = data_store
-                    .get_position(*position_keys.at(i));
+                let position = data_store.get_position(*position_keys.at(i));
                 positions.append(position);
                 i += 1;
             };
