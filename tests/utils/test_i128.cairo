@@ -37,15 +37,17 @@ fn test_i128_sum_both_neg() {
 #[test]
 fn test_i128_sum_zero() {
     assert(
-        i128::i128_new(0, false) + i128::i128_new(3, true) == i128::i128_new(3, true),
-        'should be 3'
+        i128::i128_new(0, false) + i128::i128_new(3, true) == i128::i128_new(3, true), 'should be 3'
     );
 }
 
 #[test]
 fn test_i128_sum_limit_max() {
     assert(
-        max_i128() + i128::i128_new(3, true) + i128::i128_new(2, false) == max_i128() - i128::i128_new(1, false),
+        max_i128()
+            + i128::i128_new(3, true)
+            + i128::i128_new(2, false) == max_i128()
+            - i128::i128_new(1, false),
         'should be max - 1'
     );
 }
@@ -53,7 +55,10 @@ fn test_i128_sum_limit_max() {
 #[test]
 fn test_i128_sum_limit_min() {
     assert(
-        min_i128() + i128::i128_new(3, false) + i128::i128_new(2, true) == min_i128() + i128::i128_new(1, false),
+        min_i128()
+            + i128::i128_new(3, false)
+            + i128::i128_new(2, true) == min_i128()
+            + i128::i128_new(1, false),
         'should be min + 1'
     );
 }
@@ -114,7 +119,10 @@ fn test_i128_sub_zero() {
 #[test]
 fn test_i128_sub_limit_max() {
     assert(
-        max_i128() - i128::i128_new(3, false) - i128::i128_new(2, true) == max_i128() - i128::i128_new(1, false),
+        max_i128()
+            - i128::i128_new(3, false)
+            - i128::i128_new(2, true) == max_i128()
+            - i128::i128_new(1, false),
         'should be max - 1'
     );
 }
@@ -122,7 +130,10 @@ fn test_i128_sub_limit_max() {
 #[test]
 fn test_i128_sub_limit_min() {
     assert(
-        min_i128() - i128::i128_new(3, true) - i128::i128_new(2, false) == min_i128() - i128::i128_new(1, true),
+        min_i128()
+            - i128::i128_new(3, true)
+            - i128::i128_new(2, false) == min_i128()
+            - i128::i128_new(1, true),
         'should be min + 1'
     );
 }
