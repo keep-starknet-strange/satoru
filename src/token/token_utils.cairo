@@ -10,8 +10,7 @@ use integer::u256_from_felt252;
 
 
 fn fee_token(data_store: IDataStoreDispatcher) -> ContractAddress {
-    // TODO
-    ContractAddressZeroable::zero()
+    data_store.get_address(keys::fee_token())
 }
 
 // Transfers the specified amount of `token` from the caller to `receiver`.

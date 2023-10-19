@@ -5,7 +5,7 @@ The Data Module serves as the backbone for storing and managing the protocol's d
 ### Smart Contracts
 
 #### [data_store.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/data/data_store.cairo)
-The `DataStore` is the central smart contract of the module, holding the responsibility of maintaining the protocol's data. It manage different entities, including orders, positions, withdrawals, and deposits.
+The `DataStore` is the central smart contract of the module, holding the responsibility of maintaining the protocol's data. It manages different entities, including orders, positions, withdrawals, and deposits.
 
 ##### Key Features & Responsibilities:
 - **Order Management:** Enables the creation, reading, updating, and deletion of orders, each linked to a specific user account. Orders can be retrieved using their unique keys or can be listed per user account.

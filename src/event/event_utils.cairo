@@ -1,6 +1,6 @@
 use starknet::{get_caller_address, ContractAddress, contract_address_const};
 use array::ArrayTrait;
-use satoru::utils::i128::{I128Serde, I128Default};
+use satoru::utils::i128::i128;
 use traits::Default;
 use satoru::utils::traits::ContractAddressDefault;
 
@@ -161,97 +161,134 @@ struct StringArrayKeyValue {
 
 fn set_item_address_items(
     mut items: AddressItems, index: u32, key: felt252, value: ContractAddress
-) {
+) -> AddressItems {
     let address_key_value: AddressKeyValue = AddressKeyValue { key, value };
-    items.items.append(address_key_value);
+    let mut address: AddressItems = items;
+    address.items.append(address_key_value);
+    return address;
 }
 
 fn set_item_array_address_items(
     mut items: AddressItems, index: u32, key: felt252, value: Array<ContractAddress>
-) {
+) -> AddressItems {
     let address_array_key_value: AddressArrayKeyValue = AddressArrayKeyValue { key, value };
-    items.array_items.append(address_array_key_value);
+    let mut array_address: AddressItems = items;
+    array_address.array_items.append(address_array_key_value);
+    return array_address;
 }
 
 // Uint
 
-fn set_item_uint_items(mut items: UintItems, index: u32, key: felt252, value: u128) {
+fn set_item_uint_items(mut items: UintItems, index: u32, key: felt252, value: u128) -> UintItems {
     let uint_key_value: UintKeyValue = UintKeyValue { key, value };
-    items.items.append(uint_key_value);
+    let mut address: UintItems = items;
+    address.items.append(uint_key_value);
+    return address;
 }
 
-fn set_item_array_uint_items(mut items: UintItems, index: u32, key: felt252, value: Array<u128>) {
+fn set_item_array_uint_items(
+    mut items: UintItems, index: u32, key: felt252, value: Array<u128>
+) -> UintItems {
     let uint_array_key_value: UintArrayKeyValue = UintArrayKeyValue { key, value };
-    items.array_items.append(uint_array_key_value);
+    let mut array_address: UintItems = items;
+    array_address.array_items.append(uint_array_key_value);
+    return array_address;
 }
 
 // in128
 
-fn set_item_int_items(mut items: IntItems, index: u32, key: felt252, value: i128) {
+fn set_item_int_items(mut items: IntItems, index: u32, key: felt252, value: i128) -> IntItems {
     let int_key_value: IntKeyValue = IntKeyValue { key, value };
-    // items.items.set(index, int_key_value);
-    items.items.append(int_key_value);
+    let mut address: IntItems = items;
+    address.items.append(int_key_value);
+    return address;
 }
 
-fn set_item_array_int_items(mut items: IntItems, index: u32, key: felt252, value: Array<i128>) {
+fn set_item_array_int_items(
+    mut items: IntItems, index: u32, key: felt252, value: Array<i128>
+) -> IntItems {
     let int_array_key_value: IntArrayKeyValue = IntArrayKeyValue { key, value };
-    items.array_items.append(int_array_key_value);
+    let mut array_address: IntItems = items;
+    array_address.array_items.append(int_array_key_value);
+    return array_address;
 }
 
 // bool
 
-fn set_item_bool_items(mut items: BoolItems, index: u32, key: felt252, value: bool) {
+fn set_item_bool_items(mut items: BoolItems, index: u32, key: felt252, value: bool) -> BoolItems {
     let bool_key_value: BoolKeyValue = BoolKeyValue { key, value };
-    items.items.append(bool_key_value);
+    let mut address: BoolItems = items;
+    address.items.append(bool_key_value);
+    return address;
 }
 
-fn set_item_array_bool_items(mut items: BoolItems, index: u32, key: felt252, value: Array<bool>) {
+fn set_item_array_bool_items(
+    mut items: BoolItems, index: u32, key: felt252, value: Array<bool>
+) -> BoolItems {
     let bool_array_key_value: BoolArrayKeyValue = BoolArrayKeyValue { key, value };
-    items.array_items.append(bool_array_key_value);
+    let mut array_address: BoolItems = items;
+    array_address.array_items.append(bool_array_key_value);
+    return array_address;
 }
 
 // felt252
 
-fn set_item_Felt252_items(mut items: Felt252Items, index: u32, key: felt252, value: felt252) {
-    let Felt252_key_value: Felt252KeyValue = Felt252KeyValue { key, value };
-    items.items.append(Felt252_key_value);
+fn set_item_Felt252_items(
+    mut items: Felt252Items, index: u32, key: felt252, value: felt252
+) -> Felt252Items {
+    let felt252_key_value: Felt252KeyValue = Felt252KeyValue { key, value };
+    let mut address: Felt252Items = items;
+    address.items.append(felt252_key_value);
+    return address;
 }
 
 fn set_item_array_Felt252_items(
     mut items: Felt252Items, index: u32, key: felt252, value: Array<felt252>
-) {
-    let Felt252_array_key_value: Felt252ArrayKeyValue = Felt252ArrayKeyValue { key, value };
-    items.array_items.append(Felt252_array_key_value);
+) -> Felt252Items {
+    let felt252_array_key_value: Felt252ArrayKeyValue = Felt252ArrayKeyValue { key, value };
+    let mut array_address: Felt252Items = items;
+    array_address.array_items.append(felt252_array_key_value);
+    return array_address;
 }
 
 // array of felt
 
 fn set_item_array_of_felt_items_items(
     mut items: ArrayOfFeltItems, index: u32, key: felt252, value: Array<felt252>
-) {
+) -> ArrayOfFeltItems {
     let array_of_felt_items_key_value: ArrayOfFeltKeyValue = ArrayOfFeltKeyValue { key, value };
-    items.items.append(array_of_felt_items_key_value);
+    let mut address: ArrayOfFeltItems = items;
+    address.items.append(array_of_felt_items_key_value);
+    return address;
 }
 
 fn set_item_array_array_of_felt_items(
     mut items: ArrayOfFeltItems, index: u32, key: felt252, value: Array<Array<felt252>>
-) {
+) -> ArrayOfFeltItems {
     let array_of_felt_array_key_value: ArrayOfFeltArrayKeyValue = ArrayOfFeltArrayKeyValue {
         key, value
     };
-    items.array_items.append(array_of_felt_array_key_value);
+    let mut array_address: ArrayOfFeltItems = items;
+    array_address.array_items.append(array_of_felt_array_key_value);
+    return array_address;
 }
 
 // string
 
-fn set_item_string_items(mut items: StringItems, index: u32, key: felt252, value: felt252) {
+fn set_item_string_items(
+    mut items: StringItems, index: u32, key: felt252, value: felt252
+) -> StringItems {
     let string_key_value: StringKeyValue = StringKeyValue { key, value };
-    items.items.append(string_key_value);
+    let mut address: StringItems = items;
+    address.items.append(string_key_value);
+    return address;
 }
 
 fn set_item_array_string_items(
     mut items: StringItems, index: u32, key: felt252, value: Array<felt252>
-) {
+) -> StringItems {
     let string_array_key_value: StringArrayKeyValue = StringArrayKeyValue { key, value };
-    items.array_items.append(string_array_key_value);
+    let mut array_address: StringItems = items;
+    array_address.array_items.append(string_array_key_value);
+    return array_address;
 }

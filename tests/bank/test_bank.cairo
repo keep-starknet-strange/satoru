@@ -1,9 +1,12 @@
 //                                  IMPORTS
 // *************************************************************************
+
+// Core lib imports.
 use starknet::{ContractAddress, contract_address_const};
 use integer::u256_from_felt252;
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait, ContractClass};
-
+use debug::PrintTrait;
+// Local imports.
 use satoru::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
 use satoru::role::role_store::{IRoleStoreDispatcherTrait, IRoleStoreDispatcher};
 use satoru::data::data_store::{IDataStoreDispatcherTrait, IDataStoreDispatcher};
@@ -22,8 +25,13 @@ fn setup() -> (
     IERC20Dispatcher
 ) {
     // deploy role store
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let role_store_contract = declare('RoleStore');
-    let role_store_contract_address = role_store_contract.deploy(@array![]).unwrap();
+    let role_store_address = contract_address_const::<'role_store'>();
+    start_prank(role_store_address, caller_address);
+    let role_store_contract_address = role_store_contract
+        .deploy_at(@array![], role_store_address)
+        .unwrap();
     let role_store_dispatcher = IRoleStoreDispatcher {
         contract_address: role_store_contract_address
     };
@@ -41,7 +49,11 @@ fn setup() -> (
     let constructor_calldata2 = array![
         data_store_contract_address.into(), role_store_contract_address.into()
     ];
-    let bank_contract_address = bank_contract.deploy(@constructor_calldata2).unwrap();
+    let bank_address = contract_address_const::<'bank'>();
+    start_prank(bank_address, caller_address);
+    let bank_contract_address = bank_contract
+        .deploy_at(@constructor_calldata2, bank_address)
+        .unwrap();
     let bank_dispatcher = IBankDispatcher { contract_address: bank_contract_address };
 
     // deploy erc20 token
@@ -51,12 +63,9 @@ fn setup() -> (
     let erc20_dispatcher = IERC20Dispatcher { contract_address: erc20_contract_address };
 
     // start prank and give controller role to caller_address
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
     let receiver_address: ContractAddress = 0x202.try_into().unwrap();
-    start_prank(role_store_contract_address, caller_address);
     role_store_dispatcher.grant_role(caller_address, role::CONTROLLER);
     start_prank(data_store_contract_address, caller_address);
-    start_prank(bank_contract_address, caller_address);
 
     return (
         caller_address,

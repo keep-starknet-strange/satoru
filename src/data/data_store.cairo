@@ -10,7 +10,7 @@ use satoru::order::order::Order;
 use satoru::position::position::Position;
 use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::deposit::deposit::Deposit;
-use satoru::utils::i128::{I128Div, I128Mul, I128Store, I128Serde, I128Default};
+use satoru::utils::i128::i128;
 
 // *************************************************************************
 //                  Interface of the `DataStore` contract.
@@ -428,7 +428,6 @@ trait IDataStore<TContractState> {
     ) -> Array<felt252>;
 
 
-    //TODO: Update u128 to i128 when Serde and Store for i128 implementations are released.
     // *************************************************************************
     //                          int128 related functions.
     // *************************************************************************
@@ -481,7 +480,7 @@ mod DataStore {
     // Core lib imports.
     use core::option::OptionTrait;
     use core::traits::TryInto;
-    use starknet::{get_caller_address, ContractAddress, contract_address_const,};
+    use starknet::{get_caller_address, ContractAddress, contract_address_const};
     use nullable::NullableTrait;
     use zeroable::Zeroable;
     use alexandria_storage::list::{ListTrait, List};
@@ -498,9 +497,8 @@ mod DataStore {
     use satoru::withdrawal::{withdrawal::Withdrawal, error::WithdrawalError};
     use satoru::deposit::{deposit::Deposit, error::DepositError};
     use satoru::utils::calc::{sum_return_uint_128, to_signed, to_unsigned};
-    use integer::i128_to_felt252;
     use satoru::utils::calc;
-    use satoru::utils::i128::{I128Div, I128Mul, I128Store, I128Serde, I128Default};
+    use satoru::utils::i128::{i128, i128_neg};
 
     // *************************************************************************
     //                              STORAGE
@@ -677,7 +675,7 @@ mod DataStore {
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
 
             let current_value = self.u128_values.read(key);
-            if value < 0 && calc::to_unsigned(-value) > current_value {
+            if value < Default::default() && calc::to_unsigned(i128_neg(value)) > current_value {
                 panic(array![error]);
             }
 
@@ -714,7 +712,7 @@ mod DataStore {
 
         fn apply_bounded_delta_to_u128(ref self: ContractState, key: felt252, value: i128) -> u128 {
             let uint_value: u128 = self.u128_values.read(key);
-            if (value < 0 && to_unsigned(-value) > uint_value) {
+            if (value < Zeroable::zero() && to_unsigned(i128_neg(value)) > uint_value) {
                 self.u128_values.write(key, 0);
                 return 0;
             }
@@ -724,7 +722,6 @@ mod DataStore {
         }
 
 
-        //TODO: Update u128 to i128 when Serde and Store for i128 implementations are released.
         // *************************************************************************
         //                      i128 related functions.
         // *************************************************************************
@@ -865,7 +862,10 @@ mod DataStore {
             self.role_store.read().assert_only_role(get_caller_address(), role::MARKET_KEEPER);
             let offsetted_index: usize = self.market_indexes.read(key);
             let mut markets = self.markets.read();
-            assert(offsetted_index <= markets.len(), MarketError::MARKET_NOT_FOUND);
+            assert(
+                offsetted_index != 0 && offsetted_index <= markets.len(),
+                MarketError::MARKET_NOT_FOUND
+            );
 
             let index = offsetted_index - 1;
             // Replace the value at `index` by the last market in the list.
@@ -986,7 +986,9 @@ mod DataStore {
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             let offsetted_index: usize = self.order_indexes.read(key);
             let mut orders = self.orders.read();
-            assert(offsetted_index <= orders.len(), OrderError::ORDER_NOT_FOUND);
+            assert(
+                offsetted_index != 0 && offsetted_index <= orders.len(), OrderError::ORDER_NOT_FOUND
+            );
 
             let index = offsetted_index - 1;
             // Replace the value at `index` by the last order in the list.
@@ -1117,7 +1119,10 @@ mod DataStore {
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             let offsetted_index: usize = self.position_indexes.read(key);
             let mut positions = self.positions.read();
-            assert(offsetted_index <= positions.len(), PositionError::POSITION_NOT_FOUND);
+            assert(
+                offsetted_index != 0 && offsetted_index <= positions.len(),
+                PositionError::POSITION_NOT_FOUND
+            );
 
             let index = offsetted_index - 1;
             // Replace the value at `index` by the last position in the list.
@@ -1250,7 +1255,10 @@ mod DataStore {
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             let offsetted_index: usize = self.withdrawal_indexes.read(key);
             let mut withdrawals = self.withdrawals.read();
-            assert(offsetted_index <= withdrawals.len(), WithdrawalError::NOT_FOUND);
+            assert(
+                offsetted_index != 0 && offsetted_index <= withdrawals.len(),
+                WithdrawalError::NOT_FOUND
+            );
 
             let index = offsetted_index - 1;
             // Replace the value at `index` by the last withdrawal in the list.
@@ -1376,7 +1384,10 @@ mod DataStore {
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             let offsetted_index: usize = self.deposit_indexes.read(key);
             let mut deposits = self.deposits.read();
-            assert(offsetted_index <= deposits.len(), DepositError::DEPOSIT_NOT_FOUND);
+            assert(
+                offsetted_index != 0 && offsetted_index <= deposits.len(),
+                DepositError::DEPOSIT_NOT_FOUND
+            );
 
             let index = offsetted_index - 1;
             // Replace the value at `index` by the last deposit in the list.

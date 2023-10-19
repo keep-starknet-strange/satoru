@@ -23,8 +23,7 @@ use satoru::utils::{calc, precision};
 use satoru::pricing::error::PricingError;
 use satoru::referral::referral_utils;
 use satoru::utils::{
-    i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}, error_utils, calc::to_signed,
-    default::DefaultContractAddress,
+    i128::{i128, i128_neg}, error_utils, calc::to_signed, default::DefaultContractAddress,
 };
 
 use integer::u128_to_felt252;
@@ -193,7 +192,7 @@ fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i128 {
     /// a negative price impact for any trade on either pools and would
     /// disincentivise the balancing of pools
 
-    if (price_impact_usd >= 0) {
+    if (price_impact_usd >= Zeroable::zero()) {
         return price_impact_usd;
     }
 
@@ -321,18 +320,18 @@ fn get_next_open_interest_for_virtual_inventory(
     /// tokens were virtually bought from the pool, so set longOpenInterest
     /// to the virtualInventory value
 
-    if (virtual_inventory > 0) {
+    if (virtual_inventory > Zeroable::zero()) {
         short_open_interest = calc::to_unsigned(virtual_inventory);
     } else {
-        long_open_interest = calc::to_unsigned(-virtual_inventory);
+        long_open_interest = calc::to_unsigned(i128_neg(virtual_inventory));
     }
 
     /// the virtual long and short open interest is adjusted by the usdDelta
     /// to prevent an underflow in getNextOpenInterestParams
     /// price impact depends on the change in USD balance, so offsetting both
     /// values equally should not change the price impact calculation
-    if (params.usd_delta < 0) {
-        let offset = calc::to_unsigned(-params.usd_delta);
+    if (params.usd_delta < Zeroable::zero()) {
+        let offset = calc::to_unsigned(i128_neg(params.usd_delta));
         long_open_interest += offset;
         short_open_interest += offset;
     }
@@ -354,13 +353,15 @@ fn get_next_open_interest_params(
     let mut next_short_open_interest = short_open_interest;
 
     if (params.is_long) {
-        if (params.usd_delta < 0 && calc::to_unsigned(-params.usd_delta) > long_open_interest) {
+        if (params.usd_delta < Zeroable::zero()
+            && calc::to_unsigned(i128_neg(params.usd_delta)) > long_open_interest) {
             PricingError::USD_DELTA_EXCEEDS_LONG_OPEN_INTEREST(params.usd_delta, long_open_interest)
         }
 
         next_long_open_interest = calc::sum_return_uint_128(long_open_interest, params.usd_delta);
     } else {
-        if (params.usd_delta < 0 && calc::to_unsigned(-params.usd_delta) > short_open_interest) {
+        if (params.usd_delta < Zeroable::zero()
+            && calc::to_unsigned(i128_neg(params.usd_delta)) > short_open_interest) {
             PricingError::USD_DELTA_EXCEEDS_SHORT_OPEN_INTEREST(
                 params.usd_delta, short_open_interest
             )

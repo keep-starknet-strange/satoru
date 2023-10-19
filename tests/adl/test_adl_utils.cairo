@@ -1,9 +1,15 @@
+// Core libe imports.
 use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const
 };
+use debug::PrintTrait;
+
+// Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::event::event_emitter::{
+    EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait
+};
 use satoru::role::role;
 use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
 use satoru::tests_lib::{setup, setup_event_emitter, setup_oracle_and_store, teardown};
@@ -14,6 +20,7 @@ use snforge_std::{
     event_name_hash, Event, EventAssertions, start_mock_call
 };
 use satoru::adl::adl_utils;
+use satoru::utils::i128::{i128, i128_new};
 
 
 #[test]
@@ -134,10 +141,9 @@ fn given_normal_conditions_when_emit_adl_state_updated_then_works() {
     let (caller_address, role_store, data_store) = setup();
     let (event_emitter_address, event_emitter) = setup_event_emitter();
     let mut spy = spy_events(SpyOn::One(event_emitter_address));
-
     let market: ContractAddress = 'market'.try_into().unwrap();
     let is_long = true;
-    let pnl_to_pool_factor: i128 = 12345;
+    let pnl_to_pool_factor: i128 = i128_new(12345, false);
     let max_pnl_factor: u128 = 100;
     let should_enable_adl: bool = true;
 
@@ -147,17 +153,26 @@ fn given_normal_conditions_when_emit_adl_state_updated_then_works() {
         event_emitter, market, is_long, pnl_to_pool_factor, max_pnl_factor, should_enable_adl
     );
     stop_prank(event_emitter_address);
-
-    spy.fetch_events();
+    spy.fetch_events(); // This throw error
     assert(spy.events.len() == 1, 'There should be one event');
-    assert(spy.events.at(0).name == @event_name_hash('AdlStateUpdated'), 'Wrong event name');
-    assert(spy.events.at(0).keys.len() == 0, 'There should be no keys');
-    let market_felt = market.into();
-    assert(*spy.events.at(0).data.at(0) == market_felt, 'Invalid data0');
-    assert(*spy.events.at(0).data.at(1) == is_long.into(), 'Invalid data1');
-    assert(*spy.events.at(0).data.at(2) == pnl_to_pool_factor.into(), 'Invalid data2');
-    assert(*spy.events.at(0).data.at(3) == max_pnl_factor.into(), 'Invalid data3');
-    assert(*spy.events.at(0).data.at(4) == should_enable_adl.into(), 'Invalid data4');
+    spy
+        .assert_emitted(
+            @array![
+                (
+                    event_emitter.contract_address,
+                    EventEmitter::Event::AdlStateUpdated(
+                        EventEmitter::AdlStateUpdated {
+                            market: market,
+                            is_long: is_long,
+                            pnl_to_pool_factor: pnl_to_pool_factor.into(),
+                            max_pnl_factor: max_pnl_factor,
+                            should_enable_adl: should_enable_adl
+                        }
+                    )
+                )
+            ]
+        );
+
     teardown(data_store.contract_address);
 }
 

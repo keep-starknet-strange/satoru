@@ -16,7 +16,7 @@ use satoru::pricing::error::PricingError;
 use satoru::pricing::pricing_utils;
 use satoru::utils::calc;
 use satoru::utils::precision;
-use satoru::utils::i128::{I128Store, I128Serde, I128Div, I128Mul};
+use satoru::utils::i128::{i128, i128_neg};
 
 /// Struct used in get_price_impact_usd.
 #[derive(Copy, Drop, starknet::Store, Serde)]
@@ -109,7 +109,7 @@ fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i128 {
     // not skipping the virtual price impact calculation would lead to
     // a negative price impact for any trade on either pools and would
     // disincentivise the balancing of pools
-    if price_impact_usd >= 0 {
+    if price_impact_usd >= Zeroable::zero() {
         return price_impact_usd;
     }
 
@@ -239,8 +239,8 @@ fn get_next_pool_amount_params(
 ) -> PoolParams {
     let pool_usd_for_token_a = pool_amount_for_token_a * params.price_for_token_a;
     let pool_usd_for_token_b = pool_amount_for_token_b * params.price_for_token_b;
-    if params.usd_delta_for_token_a < 0
-        && calc::to_unsigned(-params.usd_delta_for_token_a) > pool_usd_for_token_a {
+    if params.usd_delta_for_token_a < Zeroable::zero()
+        && calc::to_unsigned(i128_neg(params.usd_delta_for_token_a)) > pool_usd_for_token_a {
         panic(
             array![
                 PricingError::USD_DELTA_EXCEEDS_POOL_VALUE,
@@ -249,8 +249,8 @@ fn get_next_pool_amount_params(
             ]
         );
     }
-    if params.usd_delta_for_token_b < 0
-        && calc::to_unsigned(-params.usd_delta_for_token_b) > pool_usd_for_token_b {
+    if params.usd_delta_for_token_b < Zeroable::zero()
+        && calc::to_unsigned(i128_neg(params.usd_delta_for_token_b)) > pool_usd_for_token_b {
         panic(
             array![
                 PricingError::USD_DELTA_EXCEEDS_POOL_VALUE,
