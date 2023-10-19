@@ -31,6 +31,7 @@ use satoru::order::order::{Order, OrderType, DecreasePositionSwapType};
 use satoru::nonce::nonce_utils;
 use satoru::callback::callback_utils::get_saved_callback_contract;
 use satoru::utils::span32::{Span32, Array32Trait};
+use satoru::utils::i128::i128;
 /// CreateAdlOrderParams struct used in createAdlOrder to avoid stack
 #[derive(Drop, Copy, starknet::Store, Serde)]
 struct CreateAdlOrderParams {

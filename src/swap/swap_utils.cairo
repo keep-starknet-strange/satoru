@@ -3,8 +3,6 @@
 // *************************************************************************
 // Core lib imports.
 use starknet::{ContractAddress, contract_address_const};
-use core::integer::I128Neg;
-
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -13,7 +11,7 @@ use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::market::{market::Market, market_utils};
 use satoru::fee::fee_utils;
 use satoru::utils::{calc, store_arrays::StoreMarketSpan, traits::ContractAddressDefault};
-use satoru::utils::i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default};
+use satoru::utils::i128::{i128, i128_neg};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::swap::error::SwapError;
 use satoru::data::keys;
@@ -209,7 +207,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
         *params.data_store,
         *_params.market.market_token,
         *_params.amount_in,
-        price_impact_usd > 0,
+        price_impact_usd > Zeroable::zero(),
         *params.ui_fee_receiver
     );
 
@@ -231,8 +229,8 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
         fees.ui_fee_amount,
         keys::swap_fee_type(),
     );
-    let mut price_impact_amount: i128 = 0;
-    if (price_impact_usd > 0) {
+    let mut price_impact_amount: i128 = Zeroable::zero();
+    if (price_impact_usd > Zeroable::zero()) {
         // when there is a positive price impact factor, additional tokens from the swap impact pool
         // are withdrawn for the user
         // for example, if 50,000 USDC is swapped out and there is a positive price impact
@@ -270,12 +268,12 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
                 price_impact_usd
             );
 
-        if fees.amount_after_fees <= calc::to_unsigned(-price_impact_amount) {
+        if fees.amount_after_fees <= calc::to_unsigned(i128_neg(price_impact_amount)) {
             SwapError::SWAP_PRICE_IMPACT_EXCEEDS_AMOUNT_IN(
                 fees.amount_after_fees, price_impact_amount
             );
         }
-        cache.amount_in = fees.amount_after_fees - calc::to_unsigned(-price_impact_amount);
+        cache.amount_in = fees.amount_after_fees - calc::to_unsigned(i128_neg(price_impact_amount));
         cache.amount_out = cache.amount_in * cache.token_in_price.min / cache.token_out_price.max;
         cache.pool_amount_out = cache.amount_out;
     }
