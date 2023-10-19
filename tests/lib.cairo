@@ -44,6 +44,7 @@ mod exchange {
     mod test_liquidation_handler;
     mod test_withdrawal_handler;
     mod test_deposit_handler;
+    mod test_exchange_utils;
     mod test_base_order_handler;
 }
 mod feature {
