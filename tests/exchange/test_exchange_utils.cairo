@@ -11,7 +11,7 @@ use satoru::exchange::exchange_utils::validate_request_cancellation;
 use satoru::tests_lib::{setup, teardown};
 
 #[test]
-fn test_exchange_utils() {
+fn given_exchange_utils_when_validate_request_cancellation_then_success() {
     // Setup
     let (_, _, data_store) = setup();
     let contract_address = contract_address_const::<0>();
@@ -34,7 +34,7 @@ fn test_exchange_utils() {
 
 #[test]
 #[should_panic(expected: ('request_not_yet_cancellable', 'SOME_REQUEST_TYPE'))]
-fn test_exchange_utils_fail() {
+fn given_exchange_utils_when_validate_request_cancellation_then_fails() {
     // Setup
     let (_, _, data_store) = setup();
     let contract_address = contract_address_const::<0>();
