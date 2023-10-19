@@ -53,8 +53,7 @@ fn process_order(params: ExecuteOrderParams) -> event_utils::LogData {
     let mut position = params
         .contracts
         .data_store
-        .get_position(position_key)
-        .expect(DataError::POSITION_NOT_FOUND);
+        .get_position(position_key);
 
     // Initialize position
     if position.account.is_zero() {

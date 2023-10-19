@@ -505,7 +505,7 @@ mod Reader {
         fn get_position(
             self: @ContractState, data_store: IDataStoreDispatcher, key: felt252
         ) -> Position {
-            data_store.get_position(key).expect('get_position failed')
+            data_store.get_position(key)
         }
 
         fn get_order(
@@ -522,7 +522,7 @@ mod Reader {
             position_key: felt252,
             size_delta_usd: u128
         ) -> (i128, i128, u128) {
-            let position = data_store.get_position(position_key).expect('get_position failed');
+            let position = data_store.get_position(position_key);
             position_utils::get_position_pnl_usd(
                 data_store, market, prices, position, size_delta_usd
             )
@@ -544,8 +544,7 @@ mod Reader {
                     break;
                 }
                 let position = data_store
-                    .get_position(*position_keys.at(i))
-                    .expect('get_position failed');
+                    .get_position(*position_keys.at(i));
                 positions.append(position);
                 i += 1;
             };

@@ -290,7 +290,7 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to get the value for.
     /// # Returns
     /// The value for the given key.
-    fn get_position(self: @TContractState, key: felt252) -> Option<Position>;
+    fn get_position(self: @TContractState, key: felt252) -> Position;
 
     /// Set a position value for the given key.
     /// # Arguments
@@ -1095,13 +1095,21 @@ mod DataStore {
         //                      Position related functions.
         // *************************************************************************
 
-        fn get_position(self: @ContractState, key: felt252) -> Option<Position> {
+        fn get_position(self: @ContractState, key: felt252) -> Position {
             let offsetted_index: usize = self.position_indexes.read(key);
             if offsetted_index == 0 {
-                return Option::None;
+                return Default::default();
             }
             let positions: List<Position> = self.positions.read();
-            positions.get(offsetted_index - 1)
+            let position_maybe = positions.get(offsetted_index - 1);
+            match position_maybe {
+                Option::Some(position) => {
+                    position
+                },
+                Option::None => {
+                    Default::default()
+                }
+            }
         }
 
         fn set_position(ref self: ContractState, key: felt252, position: Position) {
