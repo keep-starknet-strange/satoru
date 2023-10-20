@@ -1566,43 +1566,15 @@ fn get_pnl_to_pool_factor_from_prices(
     return to_factor_ival(pnl, pool_usd);
 }
 
-// Check if the pending pnl exceeds the allowed amount
-// # Arguments
-// * `data_store` - The data_store dispatcher.
-// * `market` - The market to check.
-// * `prices` - The prices of the market tokens.
-// * `is_long` - Whether to check the long or short side.
-// * `pnl_factor_type` - The pnl factor type to check.
-fn is_pnl_factor_exceeded_direct(
-    data_store: IDataStoreDispatcher,
-    market: Market,
-    prices: MarketPrices,
-    is_long: bool,
-    pnl_factor_type: felt252
-) -> (bool, i128, u128) {
-    (true, Zeroable::zero(), 0)
-}
-
-
 /// Validates the token balance for a single market.
 /// # Arguments
 /// * `data_store` - The data_store dispatcher
 /// * `market` - Address of the market to check.
 fn validate_market_token_balance_with_address(
     data_store: IDataStoreDispatcher, market: ContractAddress
-) { //TODO
-}
-
-fn validate_markets_token_balance(data_store: IDataStoreDispatcher, market: Span<Market>) { //TODO
-}
-
-/// Validata that the specified market exists and is enabled
-/// # Arguments
-/// * `data_store` - The data store to use.
-/// * `market` - The market to validate.
-fn validate_enabled_market_address(
-    data_store: @IDataStoreDispatcher, market: ContractAddress
-) { // TODO
+) {
+    let enabled_market: Market = get_enabled_market(data_store, market);
+    validate_market_token_balance_check(data_store, enabled_market);
 }
 
 /// Update the cumulative borrowing factor for a market
@@ -2803,6 +2775,18 @@ fn set_ui_fee_factor(
 }
 
 fn validate_market_token_balance_array(data_store: IDataStoreDispatcher, markets: Array<Market>) {
+    let length: u32 = markets.len();
+    let mut i: u32 = 0;
+    loop {
+        if i == length {
+            break;
+        }
+        validate_market_token_balance_check(data_store, *markets.at(i));
+        i += 1;
+    };
+}
+
+fn validate_market_token_balance_span(data_store: IDataStoreDispatcher, markets: Span<Market>) {
     let length: u32 = markets.len();
     let mut i: u32 = 0;
     loop {

@@ -20,7 +20,7 @@ use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait},};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::market::market_utils::{
-    MarketPrices, get_enabled_market, get_market_prices, is_pnl_factor_exceeded_direct
+    MarketPrices, get_enabled_market, get_market_prices, is_pnl_factor_exceeded_check
 };
 use satoru::adl::error::AdlError;
 use satoru::data::keys;
@@ -100,7 +100,7 @@ fn update_adl_state(
     // it is possible for a pool to be in a state where withdrawals and ADL is not allowed
     // this is similar to the case where there is a large amount of open positions relative
     // to the amount of tokens in the pool
-    let (should_enable_adl, pnl_to_pool_factor, max_pnl_factor) = is_pnl_factor_exceeded_direct(
+    let (should_enable_adl, pnl_to_pool_factor, max_pnl_factor) = is_pnl_factor_exceeded_check(
         data_store, _market, prices, is_long, keys::max_pnl_factor_for_adl()
     );
     set_adl_enabled(data_store, market, is_long, should_enable_adl);

@@ -495,7 +495,7 @@ fn swap(
         SwapError::INVALID_SWAP_OUTPUT_TOKEN(output_token, expected_output_token)
     }
 
-    market_utils::validate_markets_token_balance(*params.data_store, swap_path_markets.span(),);
+    market_utils::validate_market_token_balance_array(*params.data_store, swap_path_markets);
 
     output_amount
 }
