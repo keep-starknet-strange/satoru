@@ -4,12 +4,19 @@ use snforge_std::{
     EventAssertions
 };
 
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::event::event_emitter::{
+    EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait
+};
+
+use satoru::event::event_emitter::EventEmitter::{
+    OrderCreated, OrderExecuted, OrderUpdated, OrderSizeDeltaAutoUpdated,
+    OrderCollateralDeltaAmountAutoUpdated, OrderCancelled, OrderFrozen,
+};
+
+
 use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
 use satoru::tests_lib::setup_event_emitter;
 use satoru::utils::span32::{Span32, Array32Trait};
-
-//TODO: OrderCollatDeltaAmountAutoUpdtd must be renamed back to OrderCollateralDeltaAmountAutoUpdated when string will be allowed as event argument
 
 #[test]
 fn given_normal_conditions_when_emit_order_created_then_works() {
@@ -27,10 +34,6 @@ fn given_normal_conditions_when_emit_order_created_then_works() {
     let key: felt252 = 100;
     let order: Order = create_dummy_order(key);
 
-    // Create the expected data.
-    let mut expected_data: Array<felt252> = array![key];
-    order.serialize(ref expected_data);
-
     // Emit the event.
     event_emitter.emit_order_created(key, order);
 
@@ -38,12 +41,10 @@ fn given_normal_conditions_when_emit_order_created_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'OrderCreated',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::OrderCreated(OrderCreated { key: key, order: order })
+                )
             ]
         );
     // Assert there are no more events.
@@ -66,10 +67,6 @@ fn given_normal_conditions_when_emit_order_executed_then_works() {
     let key: felt252 = 100;
     let secondary_order_type: SecondaryOrderType = SecondaryOrderType::None(());
 
-    // Create the expected data.
-    let mut expected_data: Array<felt252> = array![key];
-    secondary_order_type.serialize(ref expected_data);
-
     // Emit the event.
     event_emitter.emit_order_executed(key, secondary_order_type);
 
@@ -77,12 +74,12 @@ fn given_normal_conditions_when_emit_order_executed_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'OrderExecuted',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::OrderExecuted(
+                        OrderExecuted { key: key, secondary_order_type: secondary_order_type }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -108,15 +105,6 @@ fn given_normal_conditions_when_emit_order_updated_then_works() {
     let trigger_price: u128 = 400;
     let min_output_amount: u128 = 500;
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        key,
-        size_delta_usd.into(),
-        acceptable_price.into(),
-        trigger_price.into(),
-        min_output_amount.into()
-    ];
-
     // Emit the event.
     event_emitter
         .emit_order_updated(
@@ -127,12 +115,18 @@ fn given_normal_conditions_when_emit_order_updated_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'OrderUpdated',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::OrderUpdated(
+                        OrderUpdated {
+                            key: key,
+                            size_delta_usd: size_delta_usd,
+                            acceptable_price: acceptable_price,
+                            trigger_price: trigger_price,
+                            min_output_amount: min_output_amount
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -156,11 +150,6 @@ fn given_normal_conditions_when_emit_order_size_delta_auto_updated_then_works() 
     let size_delta_usd: u128 = 200;
     let next_size_delta_usd: u128 = 300;
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        key, size_delta_usd.into(), next_size_delta_usd.into(),
-    ];
-
     // Emit the event.
     event_emitter.emit_order_size_delta_auto_updated(key, size_delta_usd, next_size_delta_usd);
 
@@ -168,12 +157,16 @@ fn given_normal_conditions_when_emit_order_size_delta_auto_updated_then_works() 
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'OrderSizeDeltaAutoUpdated',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::OrderSizeDeltaAutoUpdated(
+                        OrderSizeDeltaAutoUpdated {
+                            key: key,
+                            size_delta_usd: size_delta_usd,
+                            next_size_delta_usd: next_size_delta_usd,
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -197,11 +190,6 @@ fn given_normal_conditions_when_emit_order_collateral_delta_amount_auto_updated_
     let collateral_delta_amount: u128 = 200;
     let next_collateral_delta_amount: u128 = 300;
 
-    // Create the expected data.
-    let expected_data: Array<felt252> = array![
-        key, collateral_delta_amount.into(), next_collateral_delta_amount.into(),
-    ];
-
     // Emit the event.
     event_emitter
         .emit_order_collateral_delta_amount_auto_updated(
@@ -212,12 +200,16 @@ fn given_normal_conditions_when_emit_order_collateral_delta_amount_auto_updated_
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'OrderCollatDeltaAmountAutoUpdtd',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::OrderCollateralDeltaAmountAutoUpdated(
+                        OrderCollateralDeltaAmountAutoUpdated {
+                            key: key,
+                            collateral_delta_amount: collateral_delta_amount,
+                            next_collateral_delta_amount: next_collateral_delta_amount,
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -241,10 +233,6 @@ fn given_normal_conditions_when_emit_order_cancelled_then_works() {
     let reason = 'none';
     let reason_bytes = array!['0x00', '0x01'];
 
-    // Create the expected data.
-    let mut expected_data: Array<felt252> = array![key, reason.into()];
-    reason_bytes.serialize(ref expected_data);
-
     // Emit the event.
     event_emitter.emit_order_cancelled(key, reason, reason_bytes.span());
 
@@ -252,12 +240,14 @@ fn given_normal_conditions_when_emit_order_cancelled_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'OrderCancelled',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::OrderCancelled(
+                        OrderCancelled {
+                            key: key, reason: reason, reason_bytes: reason_bytes.span(),
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -281,10 +271,6 @@ fn given_normal_conditions_when_emit_order_frozen_then_works() {
     let reason = 'frozen';
     let reason_bytes = array!['0x00', '0x01'];
 
-    // Create the expected data.
-    let mut expected_data: Array<felt252> = array![key, reason.into()];
-    reason_bytes.serialize(ref expected_data);
-
     // Emit the event.
     event_emitter.emit_order_frozen(key, reason, reason_bytes.span());
 
@@ -292,9 +278,12 @@ fn given_normal_conditions_when_emit_order_frozen_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address, name: 'OrderFrozen', keys: array![], data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::OrderFrozen(
+                        OrderFrozen { key: key, reason: reason, reason_bytes: reason_bytes.span(), }
+                    )
+                )
             ]
         );
     // Assert there are no more events.

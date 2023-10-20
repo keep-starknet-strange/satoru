@@ -25,7 +25,7 @@ fn given_normal_conditions_when_only_self_then_works() {
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     start_prank(role_store.contract_address, caller_address);
     start_prank(role_module.contract_address, role_module.contract_address);
 
@@ -48,7 +48,7 @@ fn given_not_self_when_only_self_then_fails() {
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     start_prank(role_store.contract_address, caller_address);
     start_prank(role_module.contract_address, caller_address);
 
@@ -72,7 +72,7 @@ fn given_not_self_when_only_timelock_multisig_then_works() {
     // *********************************************************************************************
 
     // Use the address that has been used to deploy role_store.
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     start_prank(role_store.contract_address, caller_address);
     start_prank(role_module.contract_address, caller_address);
 
@@ -99,7 +99,7 @@ fn given_not_timelock_multisig_when_only_timelock_multisig_then_fails() {
     // *********************************************************************************************
 
     // Use the address that has been used to deploy role_store.
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     start_prank(role_store.contract_address, caller_address);
     start_prank(role_module.contract_address, caller_address);
 
@@ -122,7 +122,7 @@ fn given_normal_conditions_when_only_timelock_admin_then_works() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     start_prank(role_store.contract_address, caller_address);
     start_prank(role_module.contract_address, caller_address);
 
@@ -148,7 +148,7 @@ fn given_not_timelock_admin_when_only_timelock_admin_then_fails() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     start_prank(role_store.contract_address, caller_address);
     start_prank(role_module.contract_address, caller_address);
 
@@ -172,7 +172,7 @@ fn given_normal_conditions_when_only_config_keeper_then_works() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     start_prank(role_store.contract_address, caller_address);
     start_prank(role_module.contract_address, caller_address);
 
@@ -199,7 +199,7 @@ fn given_not_config_keeper_when_only_config_keeper_then_fails() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     start_prank(role_store.contract_address, caller_address);
     start_prank(role_module.contract_address, caller_address);
 
@@ -221,7 +221,7 @@ fn given_normal_conditions_when_only_controller_then_works() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     start_prank(role_store.contract_address, caller_address);
     start_prank(role_module.contract_address, caller_address);
 
@@ -246,7 +246,7 @@ fn given_not_controller_when_only_controller_then_fails() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     start_prank(role_store.contract_address, caller_address);
     start_prank(role_module.contract_address, caller_address);
 
@@ -268,7 +268,7 @@ fn given_normal_conditions_when_only_router_plugin_then_works() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     start_prank(role_store.contract_address, caller_address);
     start_prank(role_module.contract_address, caller_address);
 
@@ -293,7 +293,7 @@ fn given_not_router_plugin_when_only_router_plugin_then_fails() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     start_prank(role_store.contract_address, caller_address);
     start_prank(role_module.contract_address, caller_address);
 
@@ -315,7 +315,7 @@ fn given_normal_conditions_when_only_market_keeper_then_works() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     start_prank(role_store.contract_address, caller_address);
     start_prank(role_module.contract_address, caller_address);
 
@@ -340,7 +340,7 @@ fn given_not_market_keeper_when_only_market_keeper_then_fails() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     start_prank(role_store.contract_address, caller_address);
     start_prank(role_module.contract_address, caller_address);
 
@@ -362,7 +362,7 @@ fn given_normal_conditions_when_only_fee_keeper_then_works() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     start_prank(role_store.contract_address, caller_address);
     start_prank(role_module.contract_address, caller_address);
 
@@ -387,7 +387,7 @@ fn given_not_fee_keeper_when_only_fee_keeper_then_fails() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     start_prank(role_store.contract_address, caller_address);
     start_prank(role_module.contract_address, caller_address);
 
@@ -409,7 +409,7 @@ fn given_normal_conditions_when_only_order_keeper_then_works() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     start_prank(role_store.contract_address, caller_address);
     start_prank(role_module.contract_address, caller_address);
 
@@ -434,7 +434,7 @@ fn given_not_order_keeper_when_only_order_keeper_then_fails() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     start_prank(role_store.contract_address, caller_address);
     start_prank(role_module.contract_address, caller_address);
 
@@ -456,7 +456,7 @@ fn given_normal_conditions_when_only_pricing_keeper_then_works() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     start_prank(role_store.contract_address, caller_address);
     start_prank(role_module.contract_address, caller_address);
 
@@ -481,7 +481,7 @@ fn given_not_pricing_keeper_when_only_pricing_keeper_then_fails() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     start_prank(role_store.contract_address, caller_address);
     start_prank(role_module.contract_address, caller_address);
 
@@ -503,7 +503,7 @@ fn given_normal_conditions_when_only_liquidation_keeper_then_works() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     start_prank(role_store.contract_address, caller_address);
     start_prank(role_module.contract_address, caller_address);
 
@@ -528,7 +528,7 @@ fn given_not_liquidation_keeper_when_only_liquidation_keeper_then_fails() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     start_prank(role_store.contract_address, caller_address);
     start_prank(role_module.contract_address, caller_address);
 
@@ -551,7 +551,7 @@ fn given_normal_conditions_when_only_adl_keeper_then_works() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     start_prank(role_store.contract_address, caller_address);
     start_prank(role_module.contract_address, caller_address);
 
@@ -576,7 +576,7 @@ fn given_not_adl_keeper_when_only_adl_keeper_then_works() {
     // *                              TEST LOGIC                                                   *
     // *********************************************************************************************
 
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     start_prank(role_store.contract_address, caller_address);
     start_prank(role_module.contract_address, caller_address);
 
@@ -604,16 +604,21 @@ fn setup() -> (
 /// Utility function to teardown the test environment.
 fn teardown() {}
 
-// Utility function to deploy a role store contract and return its address.
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
-    contract.deploy(@ArrayTrait::new()).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'role_store'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
 // Utility function to deploy a role module contract and return its address.
 fn deploy_role_module(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('RoleModule');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'role_module'>();
+    start_prank(deployed_contract_address, caller_address);
     let mut constructor_calldata = array![];
     constructor_calldata.append(role_store_address.into());
-    contract.deploy(@constructor_calldata).unwrap()
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }

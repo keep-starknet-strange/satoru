@@ -7,6 +7,7 @@ use satoru::pricing::swap_pricing_utils::{
 use satoru::market::market::Market;
 use satoru::utils::calc;
 use satoru::tests_lib::{setup, teardown};
+use satoru::utils::i128::{i128, i128_new};
 
 #[test]
 fn given_normal_conditions_when_swap_pricing_utils_functions_then_works() {
@@ -34,13 +35,13 @@ fn given_normal_conditions_when_swap_pricing_utils_functions_then_works() {
         token_b: short_token,
         price_for_token_a: 101,
         price_for_token_b: 99,
-        usd_delta_for_token_a: 5,
-        usd_delta_for_token_b: 4,
+        usd_delta_for_token_a: i128_new(5, false),
+        usd_delta_for_token_b: i128_new(4, false),
     };
 
     let impact = get_price_impact_usd(params);
     // TODO change to real value when precision::apply_exponent_factor is implemented
-    assert(impact == 0, 'foo');
+    assert(impact == i128_new(0, false), 'foo');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -77,8 +78,8 @@ fn given_normal_conditions_when_get_next_pool_amount_usd_then_works() {
         token_b: short_token,
         price_for_token_a: 101,
         price_for_token_b: 99,
-        usd_delta_for_token_a: 5,
-        usd_delta_for_token_b: 4,
+        usd_delta_for_token_a: i128_new(5, false),
+        usd_delta_for_token_b: i128_new(4, false),
     };
 
     let pool_params = get_next_pool_amount_usd(params);

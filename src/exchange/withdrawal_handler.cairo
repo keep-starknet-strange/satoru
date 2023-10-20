@@ -57,7 +57,6 @@ mod WithdrawalHandler {
     use starknet::{ContractAddress, get_contract_address, get_caller_address};
     use traits::Default;
     use clone::Clone;
-
     // Local imports.
     use super::IWithdrawalHandler;
     use satoru::role::{role, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait}};
@@ -176,9 +175,7 @@ mod WithdrawalHandler {
             global_reentrancy_guard::non_reentrant_before(data_store); // Initiates re-entrancy
 
             let starting_gas = starknet_utils::sn_gasleft(array![100]); // Returns 100 for now,
-            let withdrawal = data_store
-                .get_withdrawal(key)
-                .expect('get_withdrawal failed'); // Panics if Option::None
+            let withdrawal = data_store.get_withdrawal(key);
 
             feature_utils::validate_feature(
                 data_store, keys::cancel_withdrawal_feature_disabled_key(get_contract_address())

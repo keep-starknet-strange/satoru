@@ -19,7 +19,7 @@ use satoru::market::market::{Market};
 /// * `IRoleStoreDispatcher` - The role store dispatcher.
 /// * `IDataStoreDispatcher` - The data store dispatcher.
 fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let role_store_address = deploy_role_store();
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
     let data_store_address = deploy_data_store(role_store_address);
@@ -42,8 +42,11 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
 /// * `ContractAddress` - The address of the deployed data store contract.
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('DataStore');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address: ContractAddress = contract_address_const::<'data_store'>();
+    start_prank(deployed_contract_address, caller_address);
     let constructor_calldata = array![role_store_address.into()];
-    contract.deploy(@constructor_calldata).unwrap()
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 /// Utility function to deploy a role store contract and return its address.
@@ -53,7 +56,10 @@ fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
 /// * `ContractAddress` - The address of the deployed role store contract.
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
-    contract.deploy(@array![]).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address: ContractAddress = contract_address_const::<'role_store'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
 #[test]
@@ -75,7 +81,7 @@ fn given_normal_conditions_when_set_market_new_and_override_then_works() {
     // Test set_market function with a new key.
     data_store.set_market(key, 0, market);
 
-    let market_by_key = data_store.get_market(key).unwrap();
+    let market_by_key = data_store.get_market(key);
     assert(market_by_key == market, 'Invalid market by key');
 
     // Update the market using the set_market function and then retrieve it to check the update was successful
@@ -83,7 +89,7 @@ fn given_normal_conditions_when_set_market_new_and_override_then_works() {
     market.index_token = address_one;
     data_store.set_market(key, 0, market);
 
-    let market_by_key = data_store.get_market(key).unwrap();
+    let market_by_key = data_store.get_market(key);
     assert(market_by_key == market, 'Invalid market by key');
     assert(market_by_key.index_token == address_one, 'Invalid market value');
 
@@ -110,7 +116,7 @@ fn given_normal_conditions_when_set_market_and_get_by_salt_then_works() {
     // Test set_market function with a new key.
     data_store.set_market(key, salt, market);
 
-    let market_by_key = data_store.get_by_salt_market(salt).unwrap();
+    let market_by_key = data_store.get_by_salt_market(salt);
     assert(market_by_key == market, 'Invalid market by key');
 
     teardown(data_store.contract_address);
@@ -194,7 +200,7 @@ fn given_normal_conditions_when_remove_only_one_market_then_works() {
 
     // Then
     let market_by_key = data_store.get_market(key);
-    assert(market_by_key.is_none(), 'market should be removed');
+    assert(market_by_key.market_token.is_zero(), 'market should be removed');
 
     teardown(data_store.contract_address);
 }
@@ -230,10 +236,10 @@ fn given_normal_conditions_when_remove_1_of_n_market_then_works() {
 
     // Then
     let market_by_key = data_store.get_market(key);
-    assert(market_by_key.is_none(), 'market1 shouldnt be removed');
+    assert(market_by_key.market_token.is_zero(), 'market1 shouldnt be removed');
 
     let market_2_by_key = data_store.get_market(key_2);
-    assert(market_2_by_key.is_some(), 'market2 shouldnt be removed');
+    assert(market_2_by_key.market_token.is_non_zero(), 'market2 shouldnt be removed');
 
     teardown(data_store.contract_address);
 }

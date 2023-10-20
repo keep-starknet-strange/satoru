@@ -4,7 +4,7 @@ use satoru::data::data_store::IDataStoreDispatcherTrait;
 use satoru::role::role_store::IRoleStoreDispatcherTrait;
 use satoru::order::order::{Order, OrderType, OrderTrait};
 use satoru::tests_lib::{setup, teardown};
-use satoru::utils::i128::{I128Div, I128Mul, I128Store, I128Serde, I128Default};
+use satoru::utils::i128::{i128, i128_new};
 
 
 #[test]
@@ -137,26 +137,26 @@ fn given_normal_conditions_when_i128_functions_then_expected_results() {
     // *********************************************************************************************
 
     // Set key 1 to value 42.
-    data_store.set_i128(1, 42);
+    data_store.set_i128(1, i128_new(42, false));
     let value = data_store.get_i128(1);
     // Check that the value read is 42.
-    assert(value == 42, 'Invalid value');
+    assert(value == i128_new(42, false), 'Invalid value');
 
     // Increment key 1 by 5.
-    let new_value = data_store.increment_i128(1, 5);
+    let new_value = data_store.increment_i128(1, i128_new(5, false));
     // Check that the new value is 47.
-    assert(new_value == 47, 'Invalid value');
+    assert(new_value == i128_new(47, false), 'Invalid value');
     let value = data_store.get_i128(1);
     // Check that the value read is 47.
-    assert(value == 47, 'Invalid value');
+    assert(value == i128_new(47, false), 'Invalid value');
 
     // Decrement key 1 by 2.
-    let new_value = data_store.decrement_i128(1, 2);
+    let new_value = data_store.decrement_i128(1, i128_new(2, false));
     // Check that the new value is 45.
-    assert(new_value == 45, 'Invalid value');
+    assert(new_value == i128_new(45, false), 'Invalid value');
     let value = data_store.get_i128(1);
     // Check that the value read is 45.
-    assert(value == 45, 'Invalid value');
+    assert(value == i128_new(45, false), 'Invalid value');
 
     // Remove key 1.
     data_store.remove_i128(1);

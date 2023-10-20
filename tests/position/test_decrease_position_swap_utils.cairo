@@ -26,22 +26,36 @@ use satoru::utils::span32::{Span32, Array32Trait};
 use snforge_std::{declare, ContractClassTrait, start_prank};
 use starknet::{get_caller_address, ContractAddress, contract_address_const};
 use array::ArrayTrait;
+use satoru::utils::i128::{i128, i128_new};
 
 //TODO Tests need to be added after implementation of decrease_position_swap_utils
 
 /// Utility function to deploy a `SwapHandler` contract and return its dispatcher.
-fn deploy_swap_handler_address(role_store_address: ContractAddress) -> ContractAddress {
+fn deploy_swap_handler_address(
+    role_store_address: ContractAddress, data_store_address: ContractAddress
+) -> ContractAddress {
     let contract = declare('SwapHandler');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'swap_handler'>();
+    start_prank(deployed_contract_address, caller_address);
+    let constructor_calldata = array![role_store_address.into()];
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
+}
+
+fn deploy_role_store() -> ContractAddress {
+    let contract = declare('RoleStore');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'role_store'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
+}
+
+/// Utility function to deploy a `DataStore` contract and return its dispatcher.
+fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
+    let contract = declare('DataStore');
     let constructor_calldata = array![role_store_address.into()];
     contract.deploy(@constructor_calldata).unwrap()
 }
-
-/// Utility function to deploy a `RoleStore` contract and return its dispatcher.
-fn deploy_role_store() -> ContractAddress {
-    let contract = declare('RoleStore');
-    contract.deploy(@array![]).unwrap()
-}
-
 
 /// Utility function to setup the test environment.
 ///
@@ -51,12 +65,15 @@ fn deploy_role_store() -> ContractAddress {
 /// * `IRoleStoreDispatcher` - The role store dispatcher.
 /// * `ISwapHandlerDispatcher` - The swap handler dispatcher.
 fn setup() -> (ContractAddress, IRoleStoreDispatcher, ISwapHandlerDispatcher) {
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
 
     let role_store_address = deploy_role_store();
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
 
-    let swap_handler_address = deploy_swap_handler_address(role_store_address);
+    let data_store_address = deploy_data_store(role_store_address);
+    let data_store = IDataStoreDispatcher { contract_address: data_store_address };
+
+    let swap_handler_address = deploy_swap_handler_address(role_store_address, data_store_address);
     let swap_handler = ISwapHandlerDispatcher { contract_address: swap_handler_address };
 
     start_prank(role_store_address, caller_address);
@@ -210,10 +227,10 @@ fn create_new_decrease_position_collateral_values(
     let value = DecreasePositionCollateralValues {
         execution_price: 10,
         remaining_collateral_amount: 1000,
-        base_pnl_usd: 10,
-        uncapped_base_pnl_usd: 10,
+        base_pnl_usd: i128_new(10, false),
+        uncapped_base_pnl_usd: i128_new(10, false),
         size_delta_in_tokens: 1000,
-        price_impact_usd: 1000,
+        price_impact_usd: i128_new(1000, false),
         price_impact_diff_usd: 500,
         output
     };

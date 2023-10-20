@@ -14,6 +14,7 @@ use satoru::pricing::position_pricing_utils::{
 };
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 use satoru::utils::precision::{FLOAT_PRECISION, FLOAT_PRECISION_SQRT};
+use satoru::utils::i128::{i128, i128_new};
 
 // TODO add asserts for each test when possible
 
@@ -39,7 +40,7 @@ fn given_normal_conditions_when_get_next_open_interest_for_virtual_inventory_the
 
     let get_price_impact_params = create_get_price_impact_usd_params(data_store);
     position_pricing_utils::get_next_open_interest_for_virtual_inventory(
-        get_price_impact_params, 50
+        get_price_impact_params, i128_new(50, false)
     );
 }
 
@@ -148,34 +149,49 @@ fn given_normal_conditions_when_get_position_fees_after_referral_then_works() {
 
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('DataStore');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'data_store'>();
+    start_prank(deployed_contract_address, caller_address);
     let constructor_calldata = array![role_store_address.into()];
-    contract.deploy(@constructor_calldata).unwrap()
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
-    contract.deploy(@array![]).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'role_store'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
 fn deploy_referral_storage(event_emitter_address: ContractAddress) -> ContractAddress {
     let contract = declare('ReferralStorage');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'referral_storage'>();
+    start_prank(deployed_contract_address, caller_address);
     let constructor_calldata = array![event_emitter_address.into()];
-    contract.deploy(@constructor_calldata).unwrap()
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 fn deploy_governable(event_emitter_address: ContractAddress) -> ContractAddress {
     let contract = declare('Governable');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'governable'>();
+    start_prank(deployed_contract_address, caller_address);
     let constructor_calldata = array![event_emitter_address.into()];
-    contract.deploy(@constructor_calldata).unwrap()
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 fn deploy_event_emitter() -> ContractAddress {
     let contract = declare('EventEmitter');
-    contract.deploy(@array![]).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'event_emitter'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
 fn setup() -> (ContractAddress, IDataStoreDispatcher, IReferralStorageDispatcher) {
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
 
     let role_store_address = deploy_role_store();
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
@@ -213,5 +229,5 @@ fn create_get_price_impact_usd_params(data_store: IDataStoreDispatcher) -> GetPr
         short_token: contract_address_const::<'short_token'>()
     };
 
-    GetPriceImpactUsdParams { data_store, market, usd_delta: 50, is_long: true }
+    GetPriceImpactUsdParams { data_store, market, usd_delta: i128_new(50, false), is_long: true }
 }

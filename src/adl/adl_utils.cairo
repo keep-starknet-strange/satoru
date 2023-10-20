@@ -20,7 +20,7 @@ use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait},};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::market::market_utils::{
-    MarketPrices, get_enabled_market, get_market_prices, is_pnl_factor_exceeded_direct
+    MarketPrices, get_enabled_market, get_market_prices, is_pnl_factor_exceeded_check
 };
 use satoru::adl::error::AdlError;
 use satoru::data::keys;
@@ -31,6 +31,7 @@ use satoru::order::order::{Order, OrderType, DecreasePositionSwapType};
 use satoru::nonce::nonce_utils;
 use satoru::callback::callback_utils::get_saved_callback_contract;
 use satoru::utils::span32::{Span32, Array32Trait};
+use satoru::utils::i128::i128;
 /// CreateAdlOrderParams struct used in createAdlOrder to avoid stack
 #[derive(Drop, Copy, starknet::Store, Serde)]
 struct CreateAdlOrderParams {
@@ -99,7 +100,7 @@ fn update_adl_state(
     // it is possible for a pool to be in a state where withdrawals and ADL is not allowed
     // this is similar to the case where there is a large amount of open positions relative
     // to the amount of tokens in the pool
-    let (should_enable_adl, pnl_to_pool_factor, max_pnl_factor) = is_pnl_factor_exceeded_direct(
+    let (should_enable_adl, pnl_to_pool_factor, max_pnl_factor) = is_pnl_factor_exceeded_check(
         data_store, _market, prices, is_long, keys::max_pnl_factor_for_adl()
     );
     set_adl_enabled(data_store, market, is_long, should_enable_adl);
@@ -126,19 +127,9 @@ fn create_adl_order(params: CreateAdlOrderParams) -> felt252 {
     let positon_key = position_utils::get_position_key(
         params.account, params.market, params.collateral_token, params.is_long
     );
-    let position_result = params.data_store.get_position(positon_key);
-    let mut position: Position = Default::default();
+    let position = params.data_store.get_position(positon_key);
 
-    // Check if the position is valid
-    match position_result {
-        Option::Some(pos) => {
-            assert(params.size_delta_usd <= pos.size_in_usd, AdlError::INVALID_SIZE_DELTA_FOR_ADL);
-            position = pos;
-        },
-        Option::None => {
-            panic_with_felt252(AdlError::POSTION_NOT_VALID);
-        }
-    }
+    assert(params.size_delta_usd <= position.size_in_usd, AdlError::INVALID_SIZE_DELTA_FOR_ADL);
 
     // no slippage is set for this order, it may be preferrable for ADL orders
     // to be executed, in case of large price impact, the user could be refunded

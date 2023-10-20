@@ -1,4 +1,6 @@
 mod PricingError {
+    use satoru::utils::i128::i128;
+
     fn USD_DELTA_EXCEEDS_LONG_OPEN_INTEREST(usd_delta: i128, long_open_interest: u128) {
         let mut data = array!['usd delta exceeds long interest'];
         data.append(usd_delta.into());

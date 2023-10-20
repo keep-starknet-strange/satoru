@@ -36,7 +36,7 @@ use satoru::pricing::swap_pricing_utils::{
 use satoru::swap::swap_utils;
 use satoru::swap::error::SwapError;
 use satoru::utils::{
-    calc::{to_unsigned, to_signed}, i128::{I128Default}, precision, span32::Span32,
+    calc::{to_unsigned, to_signed}, i128::i128, precision, span32::Span32,
     starknet_utils::{sn_gasleft, sn_gasprice}
 };
 
@@ -107,7 +107,7 @@ fn execute_deposit(params: ExecuteDepositParams) {
     // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
     let starting_gas = params.starting_gas - sn_gasleft(array![]) / 63;
 
-    let deposit = params.data_store.get_deposit(params.key).unwrap();
+    let deposit = params.data_store.get_deposit(params.key);
     params.data_store.remove_deposit(params.key, deposit.account);
 
     let mut cache: ExecuteDepositCache = Default::default();
@@ -318,7 +318,10 @@ fn execute_deposit_helper(params: @ExecuteDepositParams, _params: @_ExecuteDepos
         true,
     );
 
-    assert(market_pool_value_info.pool_value < 0, DepositError::INVALID_POOL_VALUE_FOR_DEPOSIT);
+    assert(
+        market_pool_value_info.pool_value < Zeroable::zero(),
+        DepositError::INVALID_POOL_VALUE_FOR_DEPOSIT
+    );
 
     let mut mint_amount = 0;
     let pool_value = market_pool_value_info.pool_value;
@@ -327,7 +330,8 @@ fn execute_deposit_helper(params: @ExecuteDepositParams, _params: @_ExecuteDepos
     );
 
     assert(
-        pool_value == 0 && market_tokens_supply > 0, DepositError::INVALID_POOL_VALUE_FOR_DEPOSIT
+        pool_value == Zeroable::zero() && market_tokens_supply > 0,
+        DepositError::INVALID_POOL_VALUE_FOR_DEPOSIT
     );
 
     (*params.event_emitter)
@@ -491,7 +495,7 @@ fn swap(
         SwapError::INVALID_SWAP_OUTPUT_TOKEN(output_token, expected_output_token)
     }
 
-    market_utils::validate_markets_token_balance(*params.data_store, swap_path_markets.span(),);
+    market_utils::validate_market_token_balance_array(*params.data_store, swap_path_markets);
 
     output_amount
 }

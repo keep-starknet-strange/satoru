@@ -32,7 +32,7 @@ fn given_normal_conditions_when_set_order_new_and_override_then_works() {
     // Test set_order function with a new key.
     data_store.set_order(key, order);
 
-    let order_by_key = data_store.get_order(key).unwrap();
+    let order_by_key = data_store.get_order(key);
     assert(order_by_key == order, 'Invalid order by key');
 
     let order_count = data_store.get_order_count();
@@ -49,7 +49,7 @@ fn given_normal_conditions_when_set_order_new_and_override_then_works() {
     order.receiver = receiver;
     data_store.set_order(key, order);
 
-    let order_by_key = data_store.get_order(key).unwrap();
+    let order_by_key = data_store.get_order(key);
     assert(order_by_key == order, 'Invalid order by key');
     assert(order_by_key.receiver == receiver, 'Invalid order value');
 
@@ -147,7 +147,7 @@ fn given_caller_not_controller_when_get_order_keys_then_fails() {
 
     // Then
     let order_by_key = data_store.get_order(key);
-    assert(order_by_key.is_none(), 'order should be removed');
+    assert(order_by_key.account.is_zero(), 'order should be removed');
 
     let order_count = data_store.get_order_count();
     assert(order_count == 0, 'Invalid key order count');
@@ -184,7 +184,7 @@ fn given_normal_conditions_when_remove_only_order_then_works() {
 
     // Then
     let order_by_key = data_store.get_order(key);
-    assert(order_by_key.is_none(), 'order should be removed');
+    assert(order_by_key.account.is_zero(), 'order should be removed');
 
     let order_count = data_store.get_order_count();
     assert(order_count == 0, 'Invalid key order count');
@@ -242,10 +242,10 @@ fn given_normal_conditions_when_remove_1_of_n_order_then_works() {
 
     // Then
     let order_1_by_key = data_store.get_order(key_1);
-    assert(order_1_by_key.is_none(), 'order1 shouldnt be removed');
+    assert(order_1_by_key.account.is_zero(), 'order1 shouldnt be removed');
 
     let order_2_by_key = data_store.get_order(key_2);
-    assert(order_2_by_key.is_some(), 'order2 shouldnt be removed');
+    assert(order_2_by_key.account.is_non_zero(), 'order2 shouldnt be removed');
 
     let order_count = data_store.get_order_count();
     assert(order_count == 1, 'order # should be 1');
@@ -286,7 +286,7 @@ fn given_caller_not_controller_when_remove_order_then_fails() {
 
     // Then
     let order_by_key = data_store.get_order(key);
-    assert(order_by_key.is_none(), 'order should be removed');
+    assert(order_by_key.account.is_zero(), 'order should be removed');
     let account_order_count = data_store.get_account_order_count(account);
     assert(account_order_count == 0, 'Acc order # should be 0');
     let account_order_keys = data_store.get_account_order_keys(account, 0, 10);
@@ -354,10 +354,10 @@ fn given_normal_conditions_when_multiple_account_keys_then_works() {
     data_store.set_order(key_3, order_3);
     data_store.set_order(key_4, order_4);
 
-    let order_by_key3 = data_store.get_order(key_3).unwrap();
+    let order_by_key3 = data_store.get_order(key_3);
     assert(order_by_key3 == order_3, 'Invalid order by key3');
 
-    let order_by_key4 = data_store.get_order(key_4).unwrap();
+    let order_by_key4 = data_store.get_order(key_4);
     assert(order_by_key4 == order_4, 'Invalid order by key4');
 
     let order_count = data_store.get_order_count();

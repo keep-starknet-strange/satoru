@@ -157,11 +157,7 @@ fn cancel_deposit(
     starting_gas -= (starknet_utils::sn_gasleft(array![]) / 63);
 
     // get deposit info from data_store
-    let mut deposit = Default::default();
-    match data_store.get_deposit(key) {
-        Option::Some(stored_deposit) => deposit = stored_deposit,
-        Option::None => panic(array![DepositError::EMPTY_DEPOSIT, key])
-    }
+    let deposit = data_store.get_deposit(key);
 
     assert(ContractAddressZeroable::is_non_zero(deposit.account), DepositError::EMPTY_DEPOSIT);
     assert(

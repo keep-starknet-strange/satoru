@@ -29,7 +29,7 @@ use satoru::pricing::position_pricing_utils::PositionReferralFees;
 use satoru::pricing::position_pricing_utils::PositionFundingFees;
 use satoru::pricing::position_pricing_utils::PositionUiFees;
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::utils::{calc, i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}};
+use satoru::utils::{calc, i128::i128};
 
 #[derive(Default, Drop, starknet::Store, Serde)]
 struct PositionInfo {
@@ -196,8 +196,8 @@ fn get_position_info(
     let mut position_info: PositionInfo = Default::default();
     let mut cache: GetPositionInfoCache = Default::default();
 
-    position_info.position = data_store.get_position(position_key).unwrap();
-    cache.market = data_store.get_market(position_info.position.market).unwrap();
+    position_info.position = data_store.get_position(position_key);
+    cache.market = data_store.get_market(position_info.position.market);
     cache
         .collateral_token_price =
             market_utils::get_cached_token_price(
@@ -227,7 +227,9 @@ fn get_position_info(
         referral_storage,
         position: position_info.position,
         collateral_token_price: cache.collateral_token_price,
-        for_positive_impact: position_info.execution_price_result.price_impact_usd > 0,
+        for_positive_impact: position_info
+            .execution_price_result
+            .price_impact_usd > Zeroable::zero(),
         long_token: cache.market.long_token,
         short_token: cache.market.short_token,
         size_delta_usd,

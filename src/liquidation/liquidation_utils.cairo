@@ -32,7 +32,7 @@ fn create_liquidation_order(
     is_long: bool
 ) -> felt252 {
     let key = get_position_key(account, market, collateral_token, is_long);
-    let position = data_store.get_position(key).expect('no position found');
+    let position = data_store.get_position(key);
     let callback_contract = get_saved_callback_contract(data_store, account, market);
     let acceptable_price = if position.is_long {
         0

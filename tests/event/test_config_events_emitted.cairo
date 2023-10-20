@@ -6,8 +6,11 @@ use snforge_std::{
 
 use satoru::tests_lib::setup_event_emitter;
 
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::event::event_emitter::{
+    EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait
+};
 
+use satoru::event::event_emitter::EventEmitter::{SetBool, SetAddress, SetFelt252, SetUint, SetInt};
 
 #[test]
 fn given_normal_conditions_when_emit_set_bool_then_works() {
@@ -26,20 +29,18 @@ fn given_normal_conditions_when_emit_set_bool_then_works() {
     let data = array!['0x01'];
     let value = true;
 
-    // Create the expected data.
-    let mut expected_data: Array<felt252> = array![key];
-    data.serialize(ref expected_data);
-    expected_data.append(value.into());
-
     // Emit the event.
     event_emitter.emit_set_bool(key, data.span(), value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address, name: 'SetBool', keys: array![], data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::SetBool(
+                        SetBool { key: key, data_bytes: data.span(), value: value }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -63,20 +64,18 @@ fn given_normal_conditions_when_emit_set_address_then_works() {
     let data = array!['0x01'];
     let value = contract_address_const::<'dummy_address'>();
 
-    // Create the expected data.
-    let mut expected_data: Array<felt252> = array![key];
-    data.serialize(ref expected_data);
-    expected_data.append(value.into());
-
     // Emit the event.
     event_emitter.emit_set_address(key, data.span(), value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address, name: 'SetAddress', keys: array![], data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::SetAddress(
+                        SetAddress { key: key, data_bytes: data.span(), value: value }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -100,20 +99,18 @@ fn given_normal_conditions_when_emit_set_felt252_then_works() {
     let data = array!['0x01'];
     let value = 'bytes32';
 
-    // Create the expected data.
-    let mut expected_data: Array<felt252> = array![key];
-    data.serialize(ref expected_data);
-    expected_data.append(value.into());
-
     // Emit the event.
     event_emitter.emit_set_felt252(key, data.span(), value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address, name: 'SetFelt252', keys: array![], data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::SetFelt252(
+                        SetFelt252 { key: key, data_bytes: data.span(), value: value }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -137,20 +134,18 @@ fn given_normal_conditions_when_emit_set_uint_then_works() {
     let data = array!['0x01'];
     let value: u128 = 10;
 
-    // Create the expected data.
-    let mut expected_data: Array<felt252> = array![key];
-    data.serialize(ref expected_data);
-    expected_data.append(value.into());
-
     // Emit the event.
     event_emitter.emit_set_uint(key, data.span(), value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address, name: 'SetUint', keys: array![], data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::SetUint(
+                        SetUint { key: key, data_bytes: data.span(), value: value }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -175,20 +170,18 @@ fn given_normal_conditions_when_emit_set_int_then_works() {
     let data = array!['0x01'];
     let value = -10;
 
-    // Create the expected data.
-    let mut expected_data: Array<felt252> = array![key];
-    data.serialize(ref expected_data);
-    expected_data.append(value);
-
     // Emit the event.
     event_emitter.emit_set_int(key, data.span(), value);
     // Assert the event was emitted.
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address, name: 'SetInt', keys: array![], data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::SetInt(
+                        SetInt { key: key, data_bytes: data.span(), value: value }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
