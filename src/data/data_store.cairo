@@ -182,7 +182,7 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to get the value for.
     /// # Returns
     /// The value for the given key.
-    fn get_market(self: @TContractState, key: ContractAddress) -> Option<Market>;
+    fn get_market(self: @TContractState, key: ContractAddress) -> Market;
 
     /// Set a market value for the given key.
     /// # Arguments
@@ -194,7 +194,7 @@ trait IDataStore<TContractState> {
     /// * `salt` - The salt to get the value for.
     /// # Returns
     /// The value for the given key.
-    fn get_by_salt_market(self: @TContractState, salt: felt252) -> Option<Market>;
+    fn get_by_salt_market(self: @TContractState, salt: felt252) -> Market;
     fn remove_market(ref self: TContractState, key: ContractAddress);
     /// Get a hash given salt.
     /// # Arguments
@@ -239,7 +239,7 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to get the value for.
     /// # Returns
     /// The value for the given key.
-    fn get_order(self: @TContractState, key: felt252) -> Option<Order>;
+    fn get_order(self: @TContractState, key: felt252) -> Order;
 
     /// Set a order value for the given key.
     /// # Arguments
@@ -290,7 +290,7 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to get the value for.
     /// # Returns
     /// The value for the given key.
-    fn get_position(self: @TContractState, key: felt252) -> Option<Position>;
+    fn get_position(self: @TContractState, key: felt252) -> Position;
 
     /// Set a position value for the given key.
     /// # Arguments
@@ -340,7 +340,7 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to get the value for.
     /// # Returns
     /// The value for the given key.
-    fn get_withdrawal(self: @TContractState, key: felt252) -> Option<Withdrawal>;
+    fn get_withdrawal(self: @TContractState, key: felt252) -> Withdrawal;
 
     /// Set a withdrawal value for the given key.
     /// # Arguments
@@ -391,7 +391,7 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to get the value for.
     /// # Returns
     /// The value for the given key.
-    fn get_deposit(self: @TContractState, key: felt252) -> Option<Deposit>;
+    fn get_deposit(self: @TContractState, key: felt252) -> Deposit;
 
     /// Set a deposit value for the given key.
     /// # Arguments
@@ -822,13 +822,21 @@ mod DataStore {
         //                      Market related functions.
         // *************************************************************************
 
-        fn get_market(self: @ContractState, key: ContractAddress) -> Option<Market> {
+        fn get_market(self: @ContractState, key: ContractAddress) -> Market {
             let offsetted_index: usize = self.market_indexes.read(key);
             if offsetted_index == 0 {
-                return Option::None;
+                return Default::default();
             }
-            let orders: List<Market> = self.markets.read();
-            orders.get(offsetted_index - 1)
+            let markets: List<Market> = self.markets.read();
+            let market_maybe = markets.get(offsetted_index - 1);
+            match market_maybe {
+                Option::Some(market) => {
+                    market
+                },
+                Option::None => {
+                    Default::default()
+                }
+            }
         }
 
         fn set_market(
@@ -921,7 +929,7 @@ mod DataStore {
             self.markets.read().len()
         }
 
-        fn get_by_salt_market(self: @ContractState, salt: felt252) -> Option<Market> {
+        fn get_by_salt_market(self: @ContractState, salt: felt252) -> Market {
             let key = self.get_address(self.get_market_salt_hash(salt));
             self.get_market(key)
         }
@@ -946,13 +954,21 @@ mod DataStore {
         //                      Order related functions.
         // *************************************************************************
 
-        fn get_order(self: @ContractState, key: felt252) -> Option<Order> {
+        fn get_order(self: @ContractState, key: felt252) -> Order {
             let offsetted_index: usize = self.order_indexes.read(key);
             if offsetted_index == 0 {
-                return Option::None;
+                return Default::default();
             }
             let orders: List<Order> = self.orders.read();
-            orders.get(offsetted_index - 1)
+            let order_maybe = orders.get(offsetted_index - 1);
+            match order_maybe {
+                Option::Some(order) => {
+                    order
+                },
+                Option::None => {
+                    Default::default()
+                }
+            }
         }
 
         fn set_order(ref self: ContractState, key: felt252, order: Order) {
@@ -1079,13 +1095,21 @@ mod DataStore {
         //                      Position related functions.
         // *************************************************************************
 
-        fn get_position(self: @ContractState, key: felt252) -> Option<Position> {
+        fn get_position(self: @ContractState, key: felt252) -> Position {
             let offsetted_index: usize = self.position_indexes.read(key);
             if offsetted_index == 0 {
-                return Option::None;
+                return Default::default();
             }
             let positions: List<Position> = self.positions.read();
-            positions.get(offsetted_index - 1)
+            let position_maybe = positions.get(offsetted_index - 1);
+            match position_maybe {
+                Option::Some(position) => {
+                    position
+                },
+                Option::None => {
+                    Default::default()
+                }
+            }
         }
 
         fn set_position(ref self: ContractState, key: felt252, position: Position) {
@@ -1213,13 +1237,21 @@ mod DataStore {
         //                      Withdrawal related functions.
         // *************************************************************************
 
-        fn get_withdrawal(self: @ContractState, key: felt252) -> Option<Withdrawal> {
+        fn get_withdrawal(self: @ContractState, key: felt252) -> Withdrawal {
             let offsetted_index: usize = self.withdrawal_indexes.read(key);
             if offsetted_index == 0 {
-                return Option::None;
+                return Default::default();
             }
             let withdrawals: List<Withdrawal> = self.withdrawals.read();
-            withdrawals.get(offsetted_index - 1)
+            let withdrawal_maybe = withdrawals.get(offsetted_index - 1);
+            match withdrawal_maybe {
+                Option::Some(withdrawal) => {
+                    withdrawal
+                },
+                Option::None => {
+                    Default::default()
+                }
+            }
         }
 
         fn set_withdrawal(ref self: ContractState, key: felt252, withdrawal: Withdrawal) {
@@ -1345,13 +1377,21 @@ mod DataStore {
         //                      Deposit related functions.
         // *************************************************************************
 
-        fn get_deposit(self: @ContractState, key: felt252) -> Option<Deposit> {
+        fn get_deposit(self: @ContractState, key: felt252) -> Deposit {
             let offsetted_index: usize = self.deposit_indexes.read(key);
             if offsetted_index == 0 {
-                return Option::None;
+                return Default::default();
             }
             let deposits: List<Deposit> = self.deposits.read();
-            deposits.get(offsetted_index - 1)
+            let deposit_maybe = deposits.get(offsetted_index - 1);
+            match deposit_maybe {
+                Option::Some(deposit) => {
+                    deposit
+                },
+                Option::None => {
+                    Default::default()
+                }
+            }
         }
 
         fn set_deposit(ref self: ContractState, key: felt252, deposit: Deposit) {

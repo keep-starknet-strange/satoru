@@ -68,7 +68,7 @@ fn given_normal_conditions_when_set_and_override_new_deposit_then_works() {
     // Test set_deposit function with a new key.
     data_store.set_deposit(key, deposit);
 
-    let deposit_by_key = data_store.get_deposit(key).unwrap();
+    let deposit_by_key = data_store.get_deposit(key);
     assert(deposit_by_key == deposit, 'Invalid deposit by key');
 
     let deposit_count = data_store.get_deposit_count();
@@ -85,7 +85,7 @@ fn given_normal_conditions_when_set_and_override_new_deposit_then_works() {
     deposit.market = market;
     data_store.set_deposit(key, deposit);
 
-    let deposit_by_key = data_store.get_deposit(key).unwrap();
+    let deposit_by_key = data_store.get_deposit(key);
     assert(deposit_by_key == deposit, 'Invalid deposit by key');
 
     let account_deposit_count = data_store.get_account_deposit_count(account);
@@ -168,7 +168,7 @@ fn given_normal_conditions_when_get_deposit_keys_then_works() {
 
     // Then
     let deposit_by_key = data_store.get_deposit(key);
-    assert(deposit_by_key.is_none(), 'deposit should be removed');
+    assert(deposit_by_key.account.is_zero(), 'deposit should be removed');
 
     let deposit_count = data_store.get_deposit_count();
     assert(deposit_count == 0, 'Invalid key deposit count');
@@ -202,7 +202,7 @@ fn given_normal_conditions_when_remove_one_deposit_then_works() {
 
     // Then
     let deposit_by_key = data_store.get_deposit(key);
-    assert(deposit_by_key.is_none(), 'deposit should be removed');
+    assert(deposit_by_key.account.is_zero(), 'deposit should be removed');
 
     let deposit_count = data_store.get_deposit_count();
     assert(deposit_count == 0, 'Invalid key deposit count');
@@ -254,10 +254,10 @@ fn given_normal_conditions_when_remove_1_of_n_deposit_then_works() {
 
     // Then
     let deposit_1_by_key = data_store.get_deposit(key_1);
-    assert(deposit_1_by_key.is_none(), 'deposit1 shouldnt be removed');
+    assert(deposit_1_by_key.account.is_zero(), 'deposit1 should be removed');
 
     let deposit_2_by_key = data_store.get_deposit(key_2);
-    assert(deposit_2_by_key.is_some(), 'deposit2 shouldnt be removed');
+    assert(deposit_2_by_key.account.is_non_zero(), 'deposit2 shouldnt be removed');
 
     let deposit_count = data_store.get_deposit_count();
     assert(deposit_count == 1, 'deposit # should be 1');
@@ -295,7 +295,7 @@ fn given_caller_not_controller_when_remove_deposit_then_fails() {
 
     // Then
     let deposit_by_key = data_store.get_deposit(key);
-    assert(deposit_by_key.is_none(), 'deposit should be removed');
+    assert(deposit_by_key.account.is_zero(), 'deposit should be removed');
     let account_deposit_count = data_store.get_account_deposit_count(account);
     assert(account_deposit_count == 0, 'Acc deposit # should be 0');
     let account_deposit_keys = data_store.get_account_deposit_keys(account, 0, 10);
@@ -349,10 +349,10 @@ fn given_normal_conditions_when_multiple_get_account_deposit_keys_then_works() {
     data_store.set_deposit(key_3, deposit_3);
     data_store.set_deposit(key_4, deposit_4);
 
-    let deposit_by_key3 = data_store.get_deposit(key_3).unwrap();
+    let deposit_by_key3 = data_store.get_deposit(key_3);
     assert(deposit_by_key3 == deposit_3, 'Invalid deposit by key3');
 
-    let deposit_by_key4 = data_store.get_deposit(key_4).unwrap();
+    let deposit_by_key4 = data_store.get_deposit(key_4);
     assert(deposit_by_key4 == deposit_4, 'Invalid deposit by key4');
 
     let deposit_count = data_store.get_deposit_count();

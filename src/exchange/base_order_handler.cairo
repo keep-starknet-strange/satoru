@@ -190,7 +190,7 @@ mod BaseOrderHandler {
         ) -> ExecuteOrderParams {
             let data_store = self.data_store.read();
 
-            let order = data_store.get_order(key).expect(OrderError::ORDER_NOT_FOUND);
+            let order = data_store.get_order(key);
 
             let swap_path_markets = market_utils::get_swap_path_markets(
                 data_store, order.swap_path

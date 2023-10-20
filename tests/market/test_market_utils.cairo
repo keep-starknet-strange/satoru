@@ -63,7 +63,7 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
     // Get the market from the data store.
     // This must not panic, because the market was created in the previous step.
     // Hence the market must exist in the data store and it's safe to unwrap.
-    let market = data_store.get_market(market_token_deployed_address).unwrap();
+    let market = data_store.get_market(market_token_deployed_address);
 
     let collateral_token = contract_address_const::<'collateral_token'>();
     let is_long = true;

@@ -197,7 +197,7 @@ fn given_small_block_number_when_update_adl_state_then_fails() {
 
 
 #[test]
-#[should_panic(expected: ('position_not_valid',))]
+#[should_panic(expected: ('invalid_size_delta_for_adl',))]
 fn given_non_valid_position_when_create_adl_order_then_fails() {
     // Setup
 

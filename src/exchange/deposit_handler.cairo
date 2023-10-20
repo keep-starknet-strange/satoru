@@ -185,7 +185,7 @@ mod DepositHandler {
 
             // let starting_gas = gas_left();
 
-            let deposit = data_store.get_deposit(key).unwrap();
+            let deposit = data_store.get_deposit(key);
 
             feature_utils::validate_feature(
                 data_store, keys::cancel_deposit_feature_disabled_key(get_contract_address())

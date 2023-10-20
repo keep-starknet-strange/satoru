@@ -41,17 +41,7 @@ fn process_order(
     );
 
     let data_store: IDataStoreDispatcher = params.contracts.data_store;
-    let position_result = data_store.get_position(position_key);
-    let mut position: Position = Default::default();
-
-    match position_result {
-        Option::Some(pos) => {
-            position = pos;
-        },
-        Option::None => {
-            panic_with_felt252(OrderError::POSTION_NOT_VALID);
-        }
-    }
+    let position = data_store.get_position(position_key);
 
     position_utils::validate_non_empty_position(position);
 
