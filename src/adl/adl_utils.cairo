@@ -127,19 +127,9 @@ fn create_adl_order(params: CreateAdlOrderParams) -> felt252 {
     let positon_key = position_utils::get_position_key(
         params.account, params.market, params.collateral_token, params.is_long
     );
-    let position_result = params.data_store.get_position(positon_key);
-    let mut position: Position = Default::default();
+    let position = params.data_store.get_position(positon_key);
 
-    // Check if the position is valid
-    match position_result {
-        Option::Some(pos) => {
-            assert(params.size_delta_usd <= pos.size_in_usd, AdlError::INVALID_SIZE_DELTA_FOR_ADL);
-            position = pos;
-        },
-        Option::None => {
-            panic_with_felt252(AdlError::POSTION_NOT_VALID);
-        }
-    }
+    assert(params.size_delta_usd <= position.size_in_usd, AdlError::INVALID_SIZE_DELTA_FOR_ADL);
 
     // no slippage is set for this order, it may be preferrable for ADL orders
     // to be executed, in case of large price impact, the user could be refunded

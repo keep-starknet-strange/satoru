@@ -45,8 +45,8 @@ fn given_normal_conditions_when_create_execute_liquidation_then_works() {
         key, account, market, collateral_token, is_long: true, position_no: 1
     );
 
-    let option_default_order = Option::Some(Default::<Order>::default());
-    start_mock_call(data_store.contract_address, 'get_order', option_default_order);
+    let default_order = Default::<Order>::default();
+    start_mock_call(data_store.contract_address, 'get_order', default_order);
 
     data_store.set_position(key, position);
     liquidation_handler_dispatcher

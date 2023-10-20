@@ -10,6 +10,7 @@ use satoru::exchange::withdrawal_handler::{
 use satoru::withdrawal::withdrawal_vault::{
     IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait
 };
+use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use satoru::fee::fee_handler::{IFeeHandlerDispatcher, IFeeHandlerDispatcherTrait};
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::data::keys;
@@ -85,25 +86,8 @@ fn given_normal_conditions_when_cancel_withdrawal_then_works() {
 }
 
 #[test]
-#[should_panic(expected: ('get_withdrawal failed',))]
+#[should_panic(expected: ('empty withdrawal',))]
 fn given_unexisting_key_when_cancel_withdrawal_then_fails() {
-    let withdrawal = Withdrawal {
-        key: Default::default(),
-        account: 0x785.try_into().unwrap(),
-        receiver: 0x787.try_into().unwrap(),
-        callback_contract: 0x348.try_into().unwrap(),
-        ui_fee_receiver: 0x345.try_into().unwrap(),
-        market: 0x346.try_into().unwrap(),
-        long_token_swap_path: Default::default(),
-        short_token_swap_path: Default::default(),
-        market_token_amount: Default::default(),
-        min_long_token_amount: Default::default(),
-        min_short_token_amount: Default::default(),
-        updated_at_block: Default::default(),
-        execution_fee: Default::default(),
-        callback_gas_limit: Default::default(),
-    };
-
     let (caller_address, data_store, event_emitter, withdrawal_handler) = setup();
     start_prank(withdrawal_handler.contract_address, caller_address);
 
@@ -182,9 +166,9 @@ fn given_caller_not_controller_when_simulate_execute_withdrawal_then_fails() {
     withdrawal_handler.simulate_execute_withdrawal(withdrawal_key, oracle_params);
 }
 
-// Panics due to the absence of a mocked withdrawal, resulting in Option::None being returned.
+// Panics due to the absence of a mocked withdrawal, resulting in 'withdrawal not found'.
 #[test]
-#[should_panic(expected: ('invalid withdrawal key', 'SAMPLE_WITHDRAW'))]
+#[should_panic(expected: ('withdrawal not found',))]
 fn given_invalid_withdrawal_key_when_simulate_execute_withdrawal_then_fails() {
     let (caller_address, data_store, event_emitter, withdrawal_handler) = setup();
     let oracle_params = SimulatePricesParams {
@@ -218,13 +202,11 @@ fn deploy_tokens() -> (ContractAddress, ContractAddress) {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
 
     let fee_token_address = contract_address_const::<'fee_token'>();
-    start_prank(fee_token_address, caller_address);
     let constructor_calldata = array!['FEE_TOKEN', 'FEE', 1000000, 0, 0x101];
     contract.deploy_at(@constructor_calldata, fee_token_address).unwrap();
 
     let market_token_address = contract_address_const::<'market_token'>();
-    start_prank(market_token_address, caller_address);
-    let constructor_calldata = array!['MARKET_TOKEN', 'MKT', 1000000, 0, 0x101];
+    let constructor_calldata = array!['MARKET_TOKEN', 'MKT', 1000000, 0, caller_address.into()];
     contract.deploy_at(@constructor_calldata, market_token_address).unwrap();
 
     (fee_token_address, market_token_address)

@@ -2558,7 +2558,7 @@ fn market_token_amount_to_usd(market_token_amount: u128, pool_value: u128, suppl
 fn validate_enabled_market_check(
     data_store: IDataStoreDispatcher, market_address: ContractAddress
 ) {
-    let market: Market = data_store.get_market(market_address).unwrap();
+    let market: Market = data_store.get_market(market_address);
     validate_enabled_market(data_store, market);
 }
 
@@ -2586,7 +2586,7 @@ fn validate_position_market_check(data_store: IDataStoreDispatcher, market: Mark
 }
 
 fn validate_position_market(data_store: IDataStoreDispatcher, market_add: ContractAddress) {
-    let market: Market = data_store.get_market(market_add).unwrap();
+    let market: Market = data_store.get_market(market_add);
     validate_position_market_check(data_store, market);
 }
 
@@ -2616,13 +2616,13 @@ fn validate_market_collateral_token(market: Market, token: ContractAddress) {
 // `data_store - DataStore
 // `market_add` - the address of the market
 fn get_enabled_market(data_store: IDataStoreDispatcher, market_add: ContractAddress) -> Market {
-    let market: Market = data_store.get_market(market_add).unwrap();
+    let market: Market = data_store.get_market(market_add);
     validate_enabled_market(data_store, market);
     market
 }
 
 fn get_swap_path_market(data_store: IDataStoreDispatcher, market_add: ContractAddress) -> Market {
-    let market: Market = data_store.get_market(market_add).unwrap();
+    let market: Market = data_store.get_market(market_add);
     validate_swap_market(data_store, market);
     market
 }

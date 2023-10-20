@@ -29,7 +29,7 @@ fn given_normal_conditions_when_set_position_new_and_override_then_works() {
     // Test set_position function with a new key.
     data_store.set_position(key, position);
 
-    let position_by_key = data_store.get_position(key).unwrap();
+    let position_by_key = data_store.get_position(key);
     assert(position_by_key == position, 'Invalid position by key');
 
     let position_count = data_store.get_position_count();
@@ -46,7 +46,7 @@ fn given_normal_conditions_when_set_position_new_and_override_then_works() {
     position.market = market;
     data_store.set_position(key, position);
 
-    let position_by_key = data_store.get_position(key).unwrap();
+    let position_by_key = data_store.get_position(key);
     assert(position_by_key == position, 'Invalid position by key');
 
     let account_position_count = data_store.get_account_position_count(account);
@@ -137,7 +137,7 @@ fn given_normal_conditions_when_get_position_keys_then_works() {
 
     // Then
     let position_by_key = data_store.get_position(key);
-    assert(position_by_key.is_none(), 'position should be removed');
+    assert(position_by_key.account.is_zero(), 'position should be removed');
 
     let position_count = data_store.get_position_count();
     assert(position_count == 0, 'Invalid key position count');
@@ -172,7 +172,7 @@ fn given_normal_conditions_when_remove_only_position_then_works() {
 
     // Then
     let position_by_key = data_store.get_position(key);
-    assert(position_by_key.is_none(), 'position should be removed');
+    assert(position_by_key.account.is_zero(), 'position should be removed');
 
     let position_count = data_store.get_position_count();
     assert(position_count == 0, 'Invalid key position count');
@@ -225,10 +225,10 @@ fn given_normal_conditions_when_remove_1_of_n_position_then_works() {
 
     // Then
     let position_1_by_key = data_store.get_position(key_1);
-    assert(position_1_by_key.is_none(), 'position1 shouldnt be removed');
+    assert(position_1_by_key.account.is_zero(), 'position1 should be removed');
 
     let position_2_by_key = data_store.get_position(key_2);
-    assert(position_2_by_key.is_some(), 'position2 shouldnt be removed');
+    assert(position_2_by_key.account.is_non_zero(), 'position2 shouldnt be removed');
 
     let position_count = data_store.get_position_count();
     assert(position_count == 1, 'position # should be 1');
@@ -267,7 +267,7 @@ fn given_caller_not_controller_when_remove_1_of_n_position_then_fails() {
 
     // Then
     let position_by_key = data_store.get_position(key);
-    assert(position_by_key.is_none(), 'position should be removed');
+    assert(position_by_key.account.is_zero(), 'position should be removed');
     let account_position_count = data_store.get_account_position_count(account);
     assert(account_position_count == 0, 'Acc position # should be 0');
     let account_position_keys = data_store.get_account_position_keys(account, 0, 10);
@@ -326,10 +326,10 @@ fn given_caller_not_controller_when_multiple_account_keys_then_fails() {
     data_store.set_position(key_3, position_3);
     data_store.set_position(key_4, position_4);
 
-    let position_by_key3 = data_store.get_position(key_3).unwrap();
+    let position_by_key3 = data_store.get_position(key_3);
     assert(position_by_key3 == position_3, 'Invalid position by key3');
 
-    let position_by_key4 = data_store.get_position(key_4).unwrap();
+    let position_by_key4 = data_store.get_position(key_4);
     assert(position_by_key4 == position_4, 'Invalid position by key4');
 
     let position_count = data_store.get_position_count();
