@@ -296,7 +296,7 @@ fn test_is_position_liquiditable_negative_remaining_collateral_usd() {
     let long_token: ContractAddress = 'long_token'.try_into().unwrap();
     let short_token: ContractAddress = 'short_token'.try_into().unwrap();
 
-     //Create a long position
+    //Create a long position
     let mut position: Position = Default::default();
     position.size_in_usd = 10000;
     position.collateral_amount = 10;
@@ -311,7 +311,7 @@ fn test_is_position_liquiditable_negative_remaining_collateral_usd() {
     // setting long interest greater than te position size in USD...
     let open_interest_key = keys::open_interest_key(market_token, long_token, true);
     data_store.set_u128(open_interest_key, 15000);
-    
+
     // setting cumulative borrowing factor greater than the borrowing factor...
     let cumulative_borrowing_factor_key = keys::cumulative_borrowing_factor_key(market_token, true);
     data_store.set_u128(cumulative_borrowing_factor_key, 1000);
@@ -321,14 +321,18 @@ fn test_is_position_liquiditable_negative_remaining_collateral_usd() {
     let long_token_price = Price { min: 100, max: 110 };
     let index_token_price = Price { min: 100, max: 110 };
     let short_token_price = Price { min: 100, max: 110 };
-    
+
     let prices: MarketPrices = MarketPrices {
-        index_token_price: index_token_price, long_token_price: long_token_price, short_token_price: short_token_price
+        index_token_price: index_token_price,
+        long_token_price: long_token_price,
+        short_token_price: short_token_price
     };
 
     // Test
 
-    let (is_liquiditable, reason) = position_utils::is_position_liquiditable(data_store, referral_storage, position, market, prices, false);
+    let (is_liquiditable, reason) = position_utils::is_position_liquiditable(
+        data_store, referral_storage, position, market, prices, false
+    );
 
     assert(is_liquiditable, 'Invalid position liquidation');
     assert(reason == '0<', 'Invalid liquidation reason');
@@ -353,7 +357,7 @@ fn test_is_position_liquiditable_below_min_collateral() {
     let long_token: ContractAddress = 'long_token'.try_into().unwrap();
     let short_token: ContractAddress = 'short_token'.try_into().unwrap();
 
-     //Create a long position
+    //Create a long position
     let mut position: Position = Default::default();
     position.size_in_usd = 10000;
     position.collateral_amount = 10;
@@ -368,7 +372,7 @@ fn test_is_position_liquiditable_below_min_collateral() {
     // setting long interest greater than te position size in USD...
     let open_interest_key = keys::open_interest_key(market_token, long_token, true);
     data_store.set_u128(open_interest_key, 15000);
-    
+
     // setting cumulative borrowing factor greater than the borrowing factor...
     let cumulative_borrowing_factor_key = keys::cumulative_borrowing_factor_key(market_token, true);
     data_store.set_u128(cumulative_borrowing_factor_key, 1000);
@@ -378,14 +382,18 @@ fn test_is_position_liquiditable_below_min_collateral() {
     let long_token_price = Price { min: 100, max: 110 };
     let index_token_price = Price { min: 100, max: 110 };
     let short_token_price = Price { min: 100, max: 110 };
-    
+
     let prices: MarketPrices = MarketPrices {
-        index_token_price: index_token_price, long_token_price: long_token_price, short_token_price: short_token_price
+        index_token_price: index_token_price,
+        long_token_price: long_token_price,
+        short_token_price: short_token_price
     };
 
     // Test
 
-    let (is_liquiditable, reason) = position_utils::is_position_liquiditable(data_store, referral_storage, position, market, prices, true);
+    let (is_liquiditable, reason) = position_utils::is_position_liquiditable(
+        data_store, referral_storage, position, market, prices, true
+    );
 
     assert(is_liquiditable, 'Invalid position liquidation');
     assert(reason == 'min collateral', 'Invalid liquidation reason');
@@ -409,7 +417,7 @@ fn test_is_position_liquiditable_valid_position() {
     let long_token: ContractAddress = 'long_token'.try_into().unwrap();
     let short_token: ContractAddress = 'short_token'.try_into().unwrap();
 
-     //Create a long position
+    //Create a long position
     let mut position: Position = Default::default();
     position.size_in_usd = 10000;
     position.collateral_amount = 1000;
@@ -424,7 +432,7 @@ fn test_is_position_liquiditable_valid_position() {
     // setting long interest greater than te position size in USD...
     let open_interest_key = keys::open_interest_key(market_token, long_token, true);
     data_store.set_u128(open_interest_key, 15000);
-    
+
     // setting cumulative borrowing factor greater than the borrowing factor...
     let cumulative_borrowing_factor_key = keys::cumulative_borrowing_factor_key(market_token, true);
     data_store.set_u128(cumulative_borrowing_factor_key, 1000);
@@ -434,14 +442,18 @@ fn test_is_position_liquiditable_valid_position() {
     let long_token_price = Price { min: 100, max: 110 };
     let index_token_price = Price { min: 100, max: 110 };
     let short_token_price = Price { min: 100, max: 110 };
-    
+
     let prices: MarketPrices = MarketPrices {
-        index_token_price: index_token_price, long_token_price: long_token_price, short_token_price: short_token_price
+        index_token_price: index_token_price,
+        long_token_price: long_token_price,
+        short_token_price: short_token_price
     };
 
     // Test
 
-    let (is_liquiditable, reason) = position_utils::is_position_liquiditable(data_store, referral_storage, position, market, prices, true);
+    let (is_liquiditable, reason) = position_utils::is_position_liquiditable(
+        data_store, referral_storage, position, market, prices, true
+    );
 
     assert(!is_liquiditable, 'Invalid position liquidation');
     assert(reason == '', 'Invalid liquidation reason');
@@ -465,7 +477,7 @@ fn test_is_position_liquiditable_below_min_collateral_leverage() {
     let long_token: ContractAddress = 'long_token'.try_into().unwrap();
     let short_token: ContractAddress = 'short_token'.try_into().unwrap();
 
-     //Create a long position
+    //Create a long position
     let mut position: Position = Default::default();
     position.size_in_usd = 10000;
     position.collateral_amount = 60;
@@ -480,7 +492,7 @@ fn test_is_position_liquiditable_below_min_collateral_leverage() {
     // setting long interest greater than te position size in USD...
     let open_interest_key = keys::open_interest_key(market_token, long_token, true);
     data_store.set_u128(open_interest_key, 15000);
-    
+
     // setting cumulative borrowing factor greater than the borrowing factor...
     let cumulative_borrowing_factor_key = keys::cumulative_borrowing_factor_key(market_token, true);
     data_store.set_u128(cumulative_borrowing_factor_key, 1000);
@@ -494,14 +506,18 @@ fn test_is_position_liquiditable_below_min_collateral_leverage() {
     let long_token_price = Price { min: 100, max: 110 };
     let index_token_price = Price { min: 100, max: 110 };
     let short_token_price = Price { min: 100, max: 110 };
-    
+
     let prices: MarketPrices = MarketPrices {
-        index_token_price: index_token_price, long_token_price: long_token_price, short_token_price: short_token_price
+        index_token_price: index_token_price,
+        long_token_price: long_token_price,
+        short_token_price: short_token_price
     };
 
     // Test
 
-    let (is_liquiditable, reason) = position_utils::is_position_liquiditable(data_store, referral_storage, position, market, prices, false);
+    let (is_liquiditable, reason) = position_utils::is_position_liquiditable(
+        data_store, referral_storage, position, market, prices, false
+    );
 
     assert(is_liquiditable, 'Invalid position liquidation');
     assert(reason == 'min collateral for leverage', 'Invalid liquidation reason');
@@ -539,7 +555,7 @@ fn test_update_total_borrowing() {
         position: Default::default(),
         position_key: 0,
         secondary_order_type: SecondaryOrderType::None,
-        };
+    };
 
     //Test
 
@@ -547,14 +563,13 @@ fn test_update_total_borrowing() {
     let next_position_size_in_usd: u128 = 1000000000000000;
     let next_position_borrowing_factor: u128 = 20000000;
 
-    
-    position_utils::update_total_borrowing(params, next_position_size_in_usd, next_position_borrowing_factor);
-
+    position_utils::update_total_borrowing(
+        params, next_position_size_in_usd, next_position_borrowing_factor
+    );
 
     let total_borrowing_value: u128 = data_store.get_u128(total_borrowing_key);
-    assert(total_borrowing_value==1200, 'Invalid total borrowing')
- 
-    }
+    assert(total_borrowing_value == 1200, 'Invalid total borrowing')
+}
 
 #[test]
 fn test_update_open_interest() {
@@ -569,10 +584,14 @@ fn test_update_open_interest() {
     let short_token: ContractAddress = 'short_token'.try_into().unwrap();
 
     // Fill required data store keys.
-    let key_open_interest = keys::open_interest_key(market_token, contract_address_const::<0>(), false);
+    let key_open_interest = keys::open_interest_key(
+        market_token, contract_address_const::<0>(), false
+    );
     data_store.set_u128(key_open_interest, 1000);
 
-    let key_open_interest_in_tokens = keys::open_interest_in_tokens_key(market_token, contract_address_const::<0>(), false);
+    let key_open_interest_in_tokens = keys::open_interest_in_tokens_key(
+        market_token, contract_address_const::<0>(), false
+    );
     data_store.set_u128(key_open_interest_in_tokens, 2000);
 
     let mut params: position_utils::UpdatePositionParams = UpdatePositionParams {
@@ -601,11 +620,11 @@ fn test_update_open_interest() {
     position_utils::update_open_interest(params, size_delta_usd, size_delta_in_tokens);
 
     let open_interest = data_store.get_u128(key_open_interest);
-    
+
     let open_interest_in_tokens = data_store.get_u128(key_open_interest_in_tokens);
 
-    assert(open_interest==1010, 'Invalid open interest value');
-    assert(open_interest_in_tokens==2020, 'Invalid open interest value');
+    assert(open_interest == 1010, 'Invalid open interest value');
+    assert(open_interest_in_tokens == 2020, 'Invalid open interest value');
 }
 
 #[test]
@@ -628,9 +647,10 @@ fn test_handle_referral() {
     fees.referral = referral;
 
     // Fill required data store keys.
-    let affiliate_reward_for_account_key = keys::affiliate_reward_for_account_key(market_token, contract_address_const::<0>(), referral.affiliate);
+    let affiliate_reward_for_account_key = keys::affiliate_reward_for_account_key(
+        market_token, contract_address_const::<0>(), referral.affiliate
+    );
     data_store.set_u128(affiliate_reward_for_account_key, 10);
-
 
     let mut params: position_utils::UpdatePositionParams = UpdatePositionParams {
         contracts: ExecuteOrderParamsContracts {
@@ -658,11 +678,8 @@ fn test_handle_referral() {
     position_utils::handle_referral(params, fees);
     let affiliate_reward_value = data_store.get_u128(affiliate_reward_for_account_key);
 
-    assert(affiliate_reward_value==30, 'Invalide affiliate reward value')
-
+    assert(affiliate_reward_value == 30, 'Invalide affiliate reward value')
 }
-
-
 //TODO
 // #[test]
 // fn test_will_position_collateral_be_sufficient() {
@@ -672,4 +689,5 @@ fn test_handle_referral() {
 // #[test]
 // fn test_update_funding_and_borrowing_state() {
 // }
+
 

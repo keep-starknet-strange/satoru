@@ -1959,7 +1959,6 @@ fn get_max_position_impact_factor_for_liquidations(
 // The min collateral factor 
 fn get_min_collateral_factor(data_store: IDataStoreDispatcher, market: ContractAddress) -> u128 {
     data_store.get_u128(keys::min_collateral_factor_key(market))
-
 }
 
 // Get the min collateral factor for open interest multiplier

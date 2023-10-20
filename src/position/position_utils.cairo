@@ -544,7 +544,7 @@ fn is_position_liquiditable(
                 precision::apply_factor_u128(position.size_in_usd, cache.min_collateral_factor),
                 true
             );
-    
+
     if cache.remaining_collateral_usd <= cache.min_collateral_usd_for_leverage {
         return (true, 'min collateral for leverage');
     }
