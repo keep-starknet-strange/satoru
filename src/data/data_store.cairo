@@ -830,8 +830,8 @@ mod DataStore {
             let markets: List<Market> = self.markets.read();
             let market_maybe = markets.get(offsetted_index - 1);
             match market_maybe {
-                Option::Some(markets) => {
-                    markets
+                Option::Some(market) => {
+                    market
                 },
                 Option::None => {
                     Default::default()
