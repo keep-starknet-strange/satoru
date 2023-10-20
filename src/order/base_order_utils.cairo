@@ -46,6 +46,23 @@ struct ExecuteOrderParams {
     secondary_order_type: SecondaryOrderType
 }
 
+impl ExecuteOrderParamsClone of Clone<ExecuteOrderParams> {
+    fn clone(self: @ExecuteOrderParams) -> ExecuteOrderParams {
+        ExecuteOrderParams {
+            contracts: *self.contracts,
+            key: *self.key,
+            order: *self.order,
+            swap_path_markets: self.swap_path_markets.clone(),
+            min_oracle_block_numbers: self.min_oracle_block_numbers.clone(),
+            max_oracle_block_numbers: self.max_oracle_block_numbers.clone(),
+            market: *self.market,
+            keeper: *self.keeper,
+            starting_gas: *self.starting_gas,
+            secondary_order_type: *self.secondary_order_type
+        }
+    }
+}
+
 #[derive(Drop, Copy, starknet::Store, Serde)]
 struct ExecuteOrderParamsContracts {
     /// The dispatcher to interact with the `DataStore` contract

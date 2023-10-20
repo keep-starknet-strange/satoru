@@ -15,6 +15,7 @@ mod OrderError {
     const UNEXPECTED_MARKET: felt252 = 'unexpected market';
     const INVALID_SIZE_DELTA_FOR_ADL: felt252 = 'invalid_size_delta_for_adl';
     const POSTION_NOT_VALID: felt252 = 'position_not_valid';
+    const ORDER_ALREADY_FROZEN: felt252 = 'order_already_frozen';
 
 
     fn ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(

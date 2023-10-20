@@ -3,7 +3,8 @@
 // *************************************************************************
 
 // Core lib imports.
-use starknet::ContractAddress;
+use starknet::{ContractAddress, contract_address_const};
+use clone::Clone;
 
 // Local imports.
 use satoru::order::base_order_utils::{ExecuteOrderParams, CreateOrderParams};
@@ -22,6 +23,7 @@ use satoru::gas::gas_utils;
 use satoru::order::order::Order;
 use satoru::event::event_utils::LogData;
 use satoru::order::error::OrderError;
+use satoru::order::{increase_order_utils, decrease_order_utils, swap_order_utils};
 
 /// Creates an order in the order store.
 /// # Arguments
@@ -142,13 +144,13 @@ fn create_order(
 /// # Arguments
 /// * `params` - The parameters used to execute the order.
 #[inline(always)]
-fn execute_order(params: ExecuteOrderParams) -> LogData {
+fn execute_order(params: ExecuteOrderParams) {
     // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
     // TODO GAS NOT AVAILABLE params.startingGas -= gasleft() / 63;
-
+    let params_process_order = params.clone();
     params.contracts.data_store.remove_order(params.key, params.order.account);
 
-    base_order_utils::validate_non_empty_order(params.order);
+    base_order_utils::validate_non_empty_order(@params.order);
 
     base_order_utils::validate_order_trigger_price(
         params.contracts.oracle,
@@ -158,7 +160,7 @@ fn execute_order(params: ExecuteOrderParams) -> LogData {
         params.order.is_long
     );
 
-    let event_data : LogData = process_order(params);
+    let event_data : LogData = process_order(params_process_order);
 
     // validate that internal state changes are correct before calling
     // external callbacks
@@ -166,9 +168,9 @@ fn execute_order(params: ExecuteOrderParams) -> LogData {
     // it may be possible to invoke external contracts before the validations
     // are called
     if (params.market.market_token != contract_address_const::<0>()) {
-        market_utils::validate_market_token_balance(params.contracts.data_store, params.market);
+        market_utils::validate_market_token_balance_check(params.contracts.data_store, params.market);
     }
-    market_utils::validate_market_token_balance(params.contracts.data_store, params.swap_path_markets);
+    market_utils::validate_market_token_balance_array(params.contracts.data_store, params.swap_path_markets);
 
     params.contracts.event_emitter.emit_order_executed(
         params.key,
@@ -179,7 +181,7 @@ fn execute_order(params: ExecuteOrderParams) -> LogData {
 
     // the order.executionFee for liquidation / adl orders is zero
     // gas costs for liquidations / adl is subsidised by the treasury
-    gas_utils::pay_execution_fee(
+    gas_utils::pay_execution_fee_order(
         params.contracts.data_store,
         params.contracts.event_emitter,
         params.contracts.order_vault,
@@ -196,11 +198,11 @@ fn execute_order(params: ExecuteOrderParams) -> LogData {
 #[inline(always)]
 fn process_order(params: ExecuteOrderParams) -> LogData {
     if (base_order_utils::is_increase_order(params.order.order_type)) {
-        return increase_order_utils.process_order(params);
+        return increase_order_utils::process_order(params);
     }
 
-    if (base_order_utils::isDecreaseOrder(params.order.order_type)) {
-        return decrease_order_utils.process_order(params);
+    if (base_order_utils::is_decrease_order(params.order.order_type)) {
+        return decrease_order_utils::process_order(params);
     }
 
     if (base_order_utils::is_swap_order(params.order.order_type)) {
@@ -234,8 +236,8 @@ fn cancel_order(
     // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
     // starting_gas -= gas_left() / 63;
 
-    let order = data_store.get_order(key).expect('get_order failed');
-    base_order_utils::validate_non_empty_order(order);
+    let order = data_store.get_order(key);
+    base_order_utils::validate_non_empty_order(@order);
 
     data_store.remove_order(key, order.account);
 
@@ -245,17 +247,16 @@ fn cancel_order(
                 order.initial_collateral_token,
                 order.account,
                 order.initial_collateral_delta_amount,
-                order.should_unwrap_native_token
             );
         }
     }
 
-    event_emitter.emit_order_cancelled(event_emitter, key, reason, reason_bytes);
+    event_emitter.emit_order_cancelled(key, reason, reason_bytes.span());
 
     let event_data = Default::default();
     callback_utils::after_order_cancellation(key, order, event_data);
 
-    gas_utils::pay_execution_fee(
+    gas_utils::pay_execution_fee_order(
         data_store,
         event_emitter,
         order_vault,
@@ -286,5 +287,35 @@ fn freeze_order(
     starting_gas: u128,
     reason: felt252,
     reason_bytes: Array<felt252>
-) { //TODO
+) {
+    // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
+    // startingGas -= gas_left() / 63;
+
+    let mut order = data_store.get_order(key);
+    base_order_utils::validate_non_empty_order(@order);
+
+    if (order.is_frozen) {
+        panic_with_felt252(OrderError::ORDER_ALREADY_FROZEN)
+    }
+
+    let execution_fee = order.execution_fee;
+
+    order.execution_fee = 0;
+    order.is_frozen = true;
+    data_store.set_order(key, order);
+
+    event_emitter.emit_order_frozen(key, reason, reason_bytes.span());
+
+    let event_data = Default::default();
+    callback_utils::after_order_frozen(key, order, event_data);
+
+    gas_utils::pay_execution_fee_order(
+        data_store,
+        event_emitter,
+        order_vault,
+        execution_fee,
+        starting_gas,
+        keeper,
+        order.account
+    );
 }
