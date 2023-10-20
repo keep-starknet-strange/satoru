@@ -30,7 +30,7 @@ use satoru::withdrawal::{
     error::WithdrawalError, withdrawal::Withdrawal,
     withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait}
 };
-use satoru::market::market_utils::validate_enabled_market_address;
+use satoru::market::market_utils::validate_enabled_market_check;
 
 #[derive(Drop, starknet::Store, Serde)]
 struct CreateWithdrawalParams {
@@ -141,7 +141,7 @@ fn create_withdrawal(
 
     params.execution_fee = fee_token_amount.into();
 
-    market_utils::validate_enabled_market_address(@data_store, params.market);
+    market_utils::validate_enabled_market_check(data_store, params.market);
 
     market_utils::validate_swap_path(data_store, params.long_token_swap_path);
 
@@ -547,7 +547,7 @@ fn swap(
     let (output_token, output_amount) = swap_utils::swap(cache_swap_params);
 
     // validate that internal state changes are correct before calling external callbacks
-    market_utils::validate_markets_token_balance(
+    market_utils::validate_market_token_balance_span(
         *params.data_store, cache.swap_params.swap_path_markets
     );
 

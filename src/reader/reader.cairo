@@ -854,7 +854,7 @@ mod Reader {
             let latest_adl_block = adl_utils::get_latest_adl_block(data_store, market, is_long);
             let _market = market_utils::get_enabled_market(data_store, market);
             let (should_enabled_ald, pnl_to_pool_factor, max_pnl_factor) =
-                market_utils::is_pnl_factor_exceeded_direct(
+                market_utils::is_pnl_factor_exceeded_check(
                 data_store, _market, prices, is_long, keys::max_pnl_factor_for_adl()
             );
             (latest_adl_block, should_enabled_ald, pnl_to_pool_factor, max_pnl_factor)
