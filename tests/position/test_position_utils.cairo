@@ -30,7 +30,7 @@ use satoru::price::price::{Price, PriceTrait};
 use satoru::position::{position::Position, position_utils::UpdatePositionParams, position_utils};
 use satoru::tests_lib::{setup, setup_event_emitter, teardown};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::pricing::{position_pricing_utils::PositionFees};
+use satoru::pricing::position_pricing_utils::{PositionFees, PositionReferralFees};
 use satoru::order::{
     order::{Order, SecondaryOrderType, OrderType, DecreasePositionSwapType},
     order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}
@@ -326,9 +326,10 @@ fn test_is_position_liquiditable_negative_remaining_collateral_usd() {
         index_token_price: index_token_price, long_token_price: long_token_price, short_token_price: short_token_price
     };
 
+    // Test
+
     let (is_liquiditable, reason) = position_utils::is_position_liquiditable(data_store, referral_storage, position, market, prices, false);
 
-    // Test
     assert(is_liquiditable, 'Invalid position liquidation');
     assert(reason == '0<', 'Invalid liquidation reason');
 }
@@ -382,9 +383,10 @@ fn test_is_position_liquiditable_below_min_collateral() {
         index_token_price: index_token_price, long_token_price: long_token_price, short_token_price: short_token_price
     };
 
+    // Test
+
     let (is_liquiditable, reason) = position_utils::is_position_liquiditable(data_store, referral_storage, position, market, prices, true);
 
-    // Test
     assert(is_liquiditable, 'Invalid position liquidation');
     assert(reason == 'min collateral', 'Invalid liquidation reason');
 }
@@ -437,9 +439,10 @@ fn test_is_position_liquiditable_valid_position() {
         index_token_price: index_token_price, long_token_price: long_token_price, short_token_price: short_token_price
     };
 
+    // Test
+
     let (is_liquiditable, reason) = position_utils::is_position_liquiditable(data_store, referral_storage, position, market, prices, true);
 
-    // Test
     assert(!is_liquiditable, 'Invalid position liquidation');
     assert(reason == '', 'Invalid liquidation reason');
 }
@@ -496,49 +499,14 @@ fn test_is_position_liquiditable_below_min_collateral_leverage() {
         index_token_price: index_token_price, long_token_price: long_token_price, short_token_price: short_token_price
     };
 
+    // Test
+
     let (is_liquiditable, reason) = position_utils::is_position_liquiditable(data_store, referral_storage, position, market, prices, false);
 
-    // Test
     assert(is_liquiditable, 'Invalid position liquidation');
     assert(reason == 'min collateral for leverage', 'Invalid liquidation reason');
 }
 
-//fn test_will_position_collateral_be_sufficient() {
-//}
-
-#[test]
-fn test_update_funding_and_borrowing_state() {
-     // 
-    // Setup  
-    //   
-    let (caller_address, role_store, data_store) = setup();
-    let (event_emitter_address, event_emitter) = setup_event_emitter();
-
-    let market_token: ContractAddress = 'market_token'.try_into().unwrap();
-    let long_token: ContractAddress = 'long_token'.try_into().unwrap();
-    let short_token: ContractAddress = 'short_token'.try_into().unwrap();
-
-    // Fill required data store keys.
-    let total_borrowing_key = keys::total_borrowing_key(market_token, false);
-    data_store.set_u128(total_borrowing_key, 1000);
-
-    let mut params: position_utils::UpdatePositionParams = UpdatePositionParams {
-        contracts: ExecuteOrderParamsContracts {
-            data_store,
-            event_emitter,
-            order_vault: IOrderVaultDispatcher { contract_address: Zeroable::zero() },
-            oracle: IOracleDispatcher { contract_address: Zeroable::zero() },
-            swap_handler: ISwapHandlerDispatcher { contract_address: Zeroable::zero() },
-            referral_storage: IReferralStorageDispatcher { contract_address: Zeroable::zero() },
-        },
-        market: Market { market_token, index_token: long_token, long_token, short_token, },
-        order: Default::default(),
-        order_key: 0,
-        position: Default::default(),
-        position_key: 0,
-        secondary_order_type: SecondaryOrderType::None,
-        };
-}
 
 #[test]
 fn test_update_total_borrowing() {
@@ -573,13 +541,15 @@ fn test_update_total_borrowing() {
         secondary_order_type: SecondaryOrderType::None,
         };
 
+    //Test
+
     //Update total borrowing 
     let next_position_size_in_usd: u128 = 1000000000000000;
     let next_position_borrowing_factor: u128 = 20000000;
 
+    
     position_utils::update_total_borrowing(params, next_position_size_in_usd, next_position_borrowing_factor);
 
-    //Test
 
     let total_borrowing_value: u128 = data_store.get_u128(total_borrowing_key);
     assert(total_borrowing_value==1200, 'Invalid total borrowing')
@@ -626,20 +596,80 @@ fn test_update_open_interest() {
     let size_delta_usd: i128 = 10.try_into().unwrap();
     let size_delta_in_tokens: i128 = 20.try_into().unwrap();
 
+    //Test
+
     position_utils::update_open_interest(params, size_delta_usd, size_delta_in_tokens);
 
     let open_interest = data_store.get_u128(key_open_interest);
     
     let open_interest_in_tokens = data_store.get_u128(key_open_interest_in_tokens);
 
-    //Test
     assert(open_interest==1010, 'Invalid open interest value');
     assert(open_interest_in_tokens==2020, 'Invalid open interest value');
 }
 
-// TODO 
-// Missing libraries
-//fn test_handle_referral() {
-// 
+#[test]
+fn test_handle_referral() {
+    // 
+    // Setup  
+    //   
+    let (caller_address, role_store, data_store) = setup();
+    let (event_emitter_address, event_emitter) = setup_event_emitter();
 
+    let market_token: ContractAddress = 'market_token'.try_into().unwrap();
+    let long_token: ContractAddress = 'long_token'.try_into().unwrap();
+    let short_token: ContractAddress = 'short_token'.try_into().unwrap();
+
+    let mut fees: PositionFees = Default::default();
+    let mut referral: PositionReferralFees = Default::default();
+
+    referral.affiliate = '1'.try_into().unwrap();
+    referral.affiliate_reward_amount = 20;
+    fees.referral = referral;
+
+    // Fill required data store keys.
+    let affiliate_reward_for_account_key = keys::affiliate_reward_for_account_key(market_token, contract_address_const::<0>(), referral.affiliate);
+    data_store.set_u128(affiliate_reward_for_account_key, 10);
+
+
+    let mut params: position_utils::UpdatePositionParams = UpdatePositionParams {
+        contracts: ExecuteOrderParamsContracts {
+            data_store,
+            event_emitter,
+            order_vault: IOrderVaultDispatcher { contract_address: Zeroable::zero() },
+            oracle: IOracleDispatcher { contract_address: Zeroable::zero() },
+            swap_handler: ISwapHandlerDispatcher { contract_address: Zeroable::zero() },
+            referral_storage: IReferralStorageDispatcher { contract_address: Zeroable::zero() },
+        },
+        market: Market { market_token, index_token: long_token, long_token, short_token, },
+        order: Default::default(),
+        order_key: 0,
+        position: Default::default(),
+        position_key: 0,
+        secondary_order_type: SecondaryOrderType::None,
+    };
+
+    //Attribute position.market to the market instance define above
+
+    params.position.market = params.market.market_token;
+
+    //Test 
+
+    position_utils::handle_referral(params, fees);
+    let affiliate_reward_value = data_store.get_u128(affiliate_reward_for_account_key);
+
+    assert(affiliate_reward_value==30, 'Invalide affiliate reward value')
+
+}
+
+
+//TODO
+// #[test]
+// fn test_will_position_collateral_be_sufficient() {
+//}
+
+//TODO
+// #[test]
+// fn test_update_funding_and_borrowing_state() {
+// }
 
