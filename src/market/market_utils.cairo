@@ -1827,6 +1827,7 @@ fn get_borrowing_fees(data_store: IDataStoreDispatcher, position: @Position) -> 
     let cumulative_borrowing_factor: u128 = get_cumulative_borrowing_factor(
         @data_store, *position.market, *position.is_long
     );
+
     if (cumulative_borrowing_factor < *position.borrowing_factor) {
         MarketError::UNEXCEPTED_BORROWING_FACTOR(
             *position.borrowing_factor, cumulative_borrowing_factor
@@ -1986,6 +1987,7 @@ fn get_max_position_impact_factor_for_liquidations(
 // The min collateral factor 
 fn get_min_collateral_factor(data_store: IDataStoreDispatcher, market: ContractAddress) -> u128 {
     data_store.get_u128(keys::min_collateral_factor_key(market))
+
 }
 
 // Get the min collateral factor for open interest multiplier
