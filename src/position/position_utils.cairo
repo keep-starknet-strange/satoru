@@ -25,7 +25,6 @@ use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorag
 use satoru::price::price::{Price, PriceTrait};
 use satoru::utils::{calc, precision, i128::i128, default::DefaultContractAddress, error_utils};
 use satoru::referral::referral_utils;
-use debug::PrintTrait;
 
 /// Struct used in increasePosition and decreasePosition.
 #[derive(Drop, Copy, starknet::Store, Serde)]
@@ -546,8 +545,6 @@ fn is_position_liquiditable(
                 true
             );
     
-    precision::apply_factor_u128(position.size_in_usd, cache.min_collateral_factor);
-
     if cache.remaining_collateral_usd <= cache.min_collateral_usd_for_leverage {
         return (true, 'min collateral for leverage');
     }
