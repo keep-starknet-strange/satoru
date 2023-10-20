@@ -134,7 +134,7 @@ fn given_normal_conditions_when_get_execute_order_params_then_works() {
 }
 
 #[test]
-fn given_non_found_order_when_get_execute_order_params_then_fails() {
+fn given_non_found_order_when_get_execute_order_params_then_returns_empty_order() {
     let (
         caller_address,
         role_store,
