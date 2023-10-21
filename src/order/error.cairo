@@ -85,4 +85,11 @@ mod OrderError {
         data.append(size_delta_usd.into());
         panic(data);
     }
+
+    fn ORDER_TYPE_CANNOT_BE_CREATED(order_type: OrderType,) {
+        let mut data: Array<felt252> = array![];
+        data.append('order_type_cannot_be_created');
+        data.append(order_type.into());
+        panic(data);
+    }
 }

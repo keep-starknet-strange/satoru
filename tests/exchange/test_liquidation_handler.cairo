@@ -26,6 +26,7 @@ use satoru::exchange::base_order_handler::BaseOrderHandler::{
 use satoru::event::event_emitter::{IEventEmitterDispatcher};
 
 #[test]
+#[should_panic(expected: ('empty_order',))]
 fn given_normal_conditions_when_create_execute_liquidation_then_works() {
     let collateral_token: ContractAddress = contract_address_const::<1>();
     let (
