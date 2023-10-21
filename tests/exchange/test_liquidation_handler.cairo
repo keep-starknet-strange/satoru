@@ -27,7 +27,7 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher};
 
 #[test]
 #[should_panic(expected: ('empty_order',))]
-fn given_normal_conditions_when_create_execute_liquidation_then_works() {
+fn given_empty_order_when_create_execute_liquidation_then_fails() {
     let collateral_token: ContractAddress = contract_address_const::<1>();
     let (
         data_store,
