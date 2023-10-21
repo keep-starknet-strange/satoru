@@ -56,7 +56,7 @@ fn given_normal_conditions_when_create_withdrawal_then_works() {
 // The test expects the call to panic with error empty withdrawal amount
 #[test]
 #[should_panic(expected: ('empty withdrawal amount',))]
-fn given_normal_conditions_when_create_withdrawal_then_works() {
+fn given_market_token_amount_equal_zero_when_create_withdrawal_then_fails() {
     let (caller_address, data_store, event_emitter, withdrawal_handler, withdrawal_vault_address) =
         setup();
     start_prank(withdrawal_handler.contract_address, caller_address);
