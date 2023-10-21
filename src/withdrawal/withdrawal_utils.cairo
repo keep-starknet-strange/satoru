@@ -232,7 +232,7 @@ fn execute_withdrawal(
 
     params.event_emitter.emit_withdrawal_executed(params.key);
 
-    gas_utils::pay_execution_fee(
+    gas_utils::pay_execution_fee_withdrawal(
         params.data_store,
         params.event_emitter,
         params.withdrawal_vault,
@@ -279,7 +279,7 @@ fn cancel_withdrawal(
 
     event_emitter.emit_withdrawal_cancelled(key, reason, reason_bytes.span());
 
-    gas_utils::pay_execution_fee(
+    gas_utils::pay_execution_fee_withdrawal(
         data_store,
         event_emitter,
         withdrawal_vault,
