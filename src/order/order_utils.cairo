@@ -147,7 +147,6 @@ fn create_order(
 fn execute_order(params: ExecuteOrderParams) {
     // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
     // TODO GAS NOT AVAILABLE params.startingGas -= gasleft() / 63;
-    let params_process_order = params.clone();
     params.contracts.data_store.remove_order(params.key, params.order.account);
 
     base_order_utils::validate_non_empty_order(@params.order);
@@ -160,7 +159,20 @@ fn execute_order(params: ExecuteOrderParams) {
         params.order.is_long
     );
 
-    let event_data : LogData = process_order(params_process_order);
+    let params_process = ExecuteOrderParams {
+        contracts: params.contracts,
+        key: params.key,
+        order: params.order,
+        swap_path_markets: params.swap_path_markets.clone(),
+        min_oracle_block_numbers: params.min_oracle_block_numbers.clone(),
+        max_oracle_block_numbers: params.max_oracle_block_numbers.clone(),
+        market: params.market,
+        keeper: params.keeper,
+        starting_gas: params.starting_gas,
+        secondary_order_type: params.secondary_order_type
+    };
+
+    let event_data : LogData = process_order(params_process);
 
     // validate that internal state changes are correct before calling
     // external callbacks
