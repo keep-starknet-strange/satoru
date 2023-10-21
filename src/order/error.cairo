@@ -92,4 +92,11 @@ mod OrderError {
         data.append(order_type.into());
         panic(data);
     }
+
+    fn INSUFFICIENT_WNT_AMOUNT_FOR_EXECUTION_FEE(first_amount: u128, secont_amount: u128) {
+        let mut data = array!['Insufficient wnt amount for fee'];
+        data.append(first_amount.into());
+        data.append(secont_amount.into());
+        panic(data);
+    }
 }

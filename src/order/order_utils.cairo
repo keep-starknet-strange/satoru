@@ -41,99 +41,100 @@ fn create_order( //TODO and fix when wnt is implememted
     order_vault: IOrderVaultDispatcher,
     referral_storage: IReferralStorageDispatcher,
     account: ContractAddress,
-    params: CreateOrderParams
+    mut params: CreateOrderParams
 ) -> felt252 {
-    0
-// account_utils::validate_account(account);
-// referral_utils::set_trader_referral_code(referral_storage, account, params.referral_code);
+    account_utils::validate_account(account);
+    referral_utils::set_trader_referral_code(referral_storage, account, params.referral_code);
 
-// let mut initial_collateral_delta_amount = 0;
+    let mut initial_collateral_delta_amount = 0;
 
-// // let wnt = token_utils::wnt(datadata_storeStore); TODO when native token
+    let wnt = token_utils::fee_token(data_store);
 
-// let should_record_separate_execution_fee_transfer = true;
+    let mut should_record_separate_execution_fee_transfer = true;
 
-// if (params.order_type == OrderType::MarketSwap
-//     || params.order_type == OrderType::LimitSwap
-//     || params.order_type == OrderType::MarketIncrease
-//     || params.order_type == OrderType::LimitIncrease) {
-//     // for swaps and increase orders, the initialCollateralDeltaAmount is set based on the amount of tokens
-//     // transferred to the orderVault
-//     initial_collateral_delta_amount = order_vault
-//         .record_transfer_in(params.initial_collateral_token);
-// // if (params.initial_collateral_token == wnt) {
-// //     if (initial_collateral_delta_amount < params.execution_fee) {
-// //         revert Errors.InsufficientWntAmountForExecutionFee(initialCollateralDeltaAmount, params.executionFee);
-// //     }
-// //     initial_collateral_delta_amount -= params.execution_fee;
-// //     should_record_separate_execution_fee_transfer = false;
-// // }
-// } else if (params.order_type == OrderType::MarketDecrease
-//     || params.order_type == OrderType::LimitDecrease
-//     || params.order_type == OrderType::StopLossDecrease) {
-//     // for decrease orders, the initialCollateralDeltaAmount is based on the passed in value
-//     initial_collateral_delta_amount = params.initial_collateral_delta_amount;
-// } else {
-//     OrderError::ORDER_TYPE_CANNOT_BE_CREATED(params.order_type);
-// }
+    if (params.order_type == OrderType::MarketSwap
+        || params.order_type == OrderType::LimitSwap
+        || params.order_type == OrderType::MarketIncrease
+        || params.order_type == OrderType::LimitIncrease) {
+        // for swaps and increase orders, the initialCollateralDeltaAmount is set based on the amount of tokens
+        // transferred to the orderVault
+        initial_collateral_delta_amount = order_vault
+            .record_transfer_in(params.initial_collateral_token);
+        if (params.initial_collateral_token == wnt) {
+            if (initial_collateral_delta_amount < params.execution_fee) {
+                OrderError::INSUFFICIENT_WNT_AMOUNT_FOR_EXECUTION_FEE(
+                    initial_collateral_delta_amount, params.execution_fee
+                );
+            }
+            initial_collateral_delta_amount -= params.execution_fee;
+            should_record_separate_execution_fee_transfer = false;
+        }
+    } else if (params.order_type == OrderType::MarketDecrease
+        || params.order_type == OrderType::LimitDecrease
+        || params.order_type == OrderType::StopLossDecrease) {
+        // for decrease orders, the initialCollateralDeltaAmount is based on the passed in value
+        initial_collateral_delta_amount = params.initial_collateral_delta_amount;
+    } else {
+        OrderError::ORDER_TYPE_CANNOT_BE_CREATED(params.order_type);
+    }
 
-// // if (should_record_separate_execution_fee_transfer) {
-// //     uint256 wnt_amount = order_vault.record_transfer_in(wnt);
-// //     if (wnt_amount < params.execution_fee) {
-// //         revert Errors.InsufficientWntAmountForExecutionFee(wntAmount, params.executionFee);
-// //     }
-// //     params.execution_fee = wnt_amount;
-// // }
+    if (should_record_separate_execution_fee_transfer) {
+        let wnt_amount = order_vault.record_transfer_in(wnt);
+        if (wnt_amount < params.execution_fee) {
+            OrderError::INSUFFICIENT_WNT_AMOUNT_FOR_EXECUTION_FEE(wnt_amount, params.execution_fee);
+        }
+        params.execution_fee = wnt_amount;
+    }
 
-// if (base_order_utils::is_position_order(params.order_type)) {
-//     market_utils::validate_position_market(data_store, params.market);
-// }
+    if (base_order_utils::is_position_order(params.order_type)) {
+        market_utils::validate_position_market(data_store, params.market);
+    }
 
-// // validate swap path markets
-// market_utils::validate_swap_path(data_store, params.swap_path);
+    // validate swap path markets
+    market_utils::validate_swap_path(data_store, params.swap_path);
 
-// let mut order = Order {
-//     key: 0,
-//     order_type: params.order_type,
-//     decrease_position_swap_type: params.decrease_position_swap_type,
-//     account,
-//     receiver: params.receiver,
-//     callback_contract: params.callback_contract,
-//     ui_fee_receiver: params.ui_fee_receiver,
-//     market: params.market,
-//     initial_collateral_token: params.initial_collateral_token,
-//     swap_path: params.swap_path,
-//     size_delta_usd: params.size_delta_usd,
-//     initial_collateral_delta_amount,
-//     trigger_price: params.trigger_price,
-//     acceptable_price: params.acceptable_price,
-//     execution_fee: params.execution_fee,
-//     callback_gas_limit: params.callback_gas_limit,
-//     min_output_amount: params.min_output_amount,
-//     /// The block at which the order was last updated.
-//     updated_at_block: 0,
-//     is_long: params.is_long,
-//     /// Whether the order is frozen.
-//     is_frozen: false,
-// };
+    let mut order = Order {
+        key: 0,
+        order_type: params.order_type,
+        decrease_position_swap_type: params.decrease_position_swap_type,
+        account,
+        receiver: params.receiver,
+        callback_contract: params.callback_contract,
+        ui_fee_receiver: params.ui_fee_receiver,
+        market: params.market,
+        initial_collateral_token: params.initial_collateral_token,
+        swap_path: params.swap_path,
+        size_delta_usd: params.size_delta_usd,
+        initial_collateral_delta_amount,
+        trigger_price: params.trigger_price,
+        acceptable_price: params.acceptable_price,
+        execution_fee: params.execution_fee,
+        callback_gas_limit: params.callback_gas_limit,
+        min_output_amount: params.min_output_amount,
+        /// The block at which the order was last updated.
+        updated_at_block: 0,
+        is_long: params.is_long,
+        /// Whether the order is frozen.
+        is_frozen: false,
+    };
 
-// account_utils::validate_receiver(order.receiver);
+    account_utils::validate_receiver(order.receiver);
 
-// callback_utils::validate_callback_gas_limit(data_store, order.callback_gas_limit);
+    callback_utils::validate_callback_gas_limit(data_store, order.callback_gas_limit);
 
-// let estimated_gas_limit = gas_utils::estimate_execute_order_gas_limit(data_store, @order);
-// gas_utils::validate_execution_fee(data_store, estimated_gas_limit, order.execution_fee);
+    let estimated_gas_limit = gas_utils::estimate_execute_order_gas_limit(data_store, @order);
+    gas_utils::validate_execution_fee(data_store, estimated_gas_limit, order.execution_fee);
 
-// let key = nonce_utils::get_next_key(data_store);
+    let key = nonce_utils::get_next_key(data_store);
 
-// order.touch();
+    order.touch();
 
-// base_order_utils::validate_non_empty_order(@order);
-// data_store.set_order(key, order);
+    base_order_utils::validate_non_empty_order(@order);
+    data_store.set_order(key, order);
 
-// event_emitter.emit_order_created(key, order);
+    event_emitter.emit_order_created(key, order);
 
-// key
+    key
 }
 
 /// Executes an order.
