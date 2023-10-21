@@ -21,7 +21,6 @@ use satoru::swap::swap_utils::{SwapParams};
 use satoru::market::market::Market;
 
 /// Swap the withdrawn collateral from collateral_token to pnl_token if needed.
-#[inline(always)]
 fn swap_withdrawn_collateral_to_pnl_token(
     params: UpdatePositionParams, mut values: DecreasePositionCollateralValues
 ) -> DecreasePositionCollateralValues {
