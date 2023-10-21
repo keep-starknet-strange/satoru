@@ -51,7 +51,7 @@ struct DecreasePositionResult {
 /// Finally, the function returns a DecreasePositionResult object containing
 /// information about the outcome of the decrease operation, including the amount
 /// of collateral removed from the position and any fees that were paid.
-fn decrease_position(ref params: UpdatePositionParams) -> DecreasePositionResult {
+fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult {
     let mut cache: DecreasePositionCache = Default::default();
     cache.prices = market_utils::get_market_prices(params.contracts.oracle, params.market);
     cache
