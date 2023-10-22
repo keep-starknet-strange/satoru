@@ -107,7 +107,7 @@ fn execute_deposit(params: ExecuteDepositParams) {
     // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
     let starting_gas = params.starting_gas - sn_gasleft(array![]) / 63;
 
-    let deposit = params.data_store.get_deposit(params.key).unwrap();
+    let deposit = params.data_store.get_deposit(params.key);
     params.data_store.remove_deposit(params.key, deposit.account);
 
     let mut cache: ExecuteDepositCache = Default::default();
@@ -495,7 +495,7 @@ fn swap(
         SwapError::INVALID_SWAP_OUTPUT_TOKEN(output_token, expected_output_token)
     }
 
-    market_utils::validate_markets_token_balance(*params.data_store, swap_path_markets.span(),);
+    market_utils::validate_market_token_balance_array(*params.data_store, swap_path_markets);
 
     output_amount
 }
