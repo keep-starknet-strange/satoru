@@ -81,7 +81,9 @@ fn create_order( //TODO and fix when fee_token is implememted
     if (should_record_separate_execution_fee_transfer) {
         let fee_token_amount = order_vault.record_transfer_in(fee_token);
         if (fee_token_amount < params.execution_fee) {
-            OrderError::INSUFFICIENT_WNT_AMOUNT_FOR_EXECUTION_FEE(fee_token_amount, params.execution_fee);
+            OrderError::INSUFFICIENT_WNT_AMOUNT_FOR_EXECUTION_FEE(
+                fee_token_amount, params.execution_fee
+            );
         }
         params.execution_fee = fee_token_amount;
     }
