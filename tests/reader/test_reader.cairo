@@ -1,9 +1,16 @@
 use starknet::{ContractAddress, contract_address_const};
+use debug::PrintTrait;
 
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::reader::reader::{IReaderDispatcher, IReaderDispatcherTrait};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 
+use satoru::reader::{
+    reader_utils::PositionInfo, reader_utils::BaseFundingValues,
+    reader_pricing_utils::ExecutionPriceResult,
+};
 use satoru::role::role;
 use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
 use satoru::tests_lib::{setup, teardown};
@@ -17,6 +24,9 @@ use satoru::position::position::{Position};
 use satoru::data::keys;
 use satoru::price::price::{Price, PriceTrait};
 use satoru::utils::i128::{i128, i128_new};
+use satoru::market::market_utils::{get_capped_pnl,MarketPrices};
+
+
 
 #[test]
 fn given_normal_conditions_when_get_market_then_works() {
@@ -203,8 +213,69 @@ fn given_normal_conditions_when_get_order_then_works() {
     teardown(data_store.contract_address);
 }
 
-//TODO missing libraries market_utils::get_capped_pnl not implemented 
-//fn given_normal_conditions_when_get_position_pnl_usd_then_works() 
+ 
+#[test]
+fn given_normal_conditions_when_get_position_pnl_usd_then_works() {
+    //
+    // Setup
+    //
+    let (caller_address, role_store, data_store) = setup();
+    let (reader_address, reader) = setup_reader();
+
+    let key: ContractAddress = 123456789.try_into().unwrap();
+    let account = 'account'.try_into().unwrap();
+    let market = Market {
+        market_token: key,
+        index_token: 12345.try_into().unwrap(),
+        long_token: 56678.try_into().unwrap(),
+        short_token: 8901234.try_into().unwrap(),
+    };
+    let price1 = Price {
+            min: 1,  
+            max: 200
+    };
+    let price2 = Price {
+            min: 1,  
+            max: 300
+    };
+     let price3 = Price {
+            min: 1,  
+            max: 400
+    };
+        //create random prices
+    let prices = MarketPrices {
+        index_token_price: price1,
+        long_token_price: price2,
+        short_token_price: price3
+    };
+      // Create random position
+    let key_1 = 1234311;
+    let mut position: Position = Default::default();
+    position.key = 1234311;
+    position.market = 'market'.try_into().unwrap();
+    position.size_in_usd = 1000000;
+    position.account = account;
+    position.is_long = true;
+    position.size_in_tokens = 10000;
+
+    start_prank(role_store.contract_address, caller_address);
+    role_store.grant_role(caller_address, role::MARKET_KEEPER);
+    stop_prank(role_store.contract_address);
+
+    //test logic
+
+    data_store.set_market(key, 1, market);
+    data_store.set_position(key_1, position);
+
+    let (data1, data2, data3) = reader.get_position_pnl_usd(data_store, market, prices, key_1, 1000000);
+    let data3_felt :felt252 = data3.into();
+
+    assert(data3_felt == 10000, 'Invalid');
+     teardown(data_store.contract_address);
+}
+
+
+
 
 #[test]
 fn given_normal_conditions_when_get_account_positions_then_works() {
@@ -262,7 +333,66 @@ fn given_normal_conditions_when_get_account_positions_then_works() {
 }
 
 //TODO missing libraries reader_utils::get_position_info not implemented 
-//fn given_normal_conditions_when_get_position_info_then_works() 
+#[test]
+fn given_normal_conditions_when_get_position_info_then_works() {
+    let (caller_address, role_store, data_store) = setup();
+    let (reader_address, reader) = setup_reader();
+    let (referral_storage_address, referral) = setup_referral_storage();    
+    //create random position
+    let key_4 :felt252 = 44444444444;
+    let mut position: Position = Default::default();
+    position.key = key_4;
+    position.account = 'account'.try_into().unwrap();
+    position.market = 'market'.try_into().unwrap();
+    position.collateral_token = 'collateral'.try_into().unwrap();
+    position.size_in_usd = 10000;
+    position.size_in_tokens = 100000;
+    position.collateral_amount = 20000000;
+    position.borrowing_factor = 0;
+    position.funding_fee_amount_per_size = 0;
+    position.long_token_claimable_funding_amount_per_size = 22222;
+    position.short_token_claimable_funding_amount_per_size = 23333;
+    position.increased_at_block = 23;
+    position.decreased_at_block = 10;
+    position.is_long = true;
+
+    let key: ContractAddress = 123456789.try_into().unwrap();
+    let ui_fee_receiver : ContractAddress = 5746789.try_into().unwrap();
+    let market = Market {
+        market_token: key,
+        index_token: 12345.try_into().unwrap(),
+        long_token: 56678.try_into().unwrap(),
+        short_token: 8901234.try_into().unwrap(),
+    };
+    let price1 = Price {
+            min: 1,  
+            max: 200
+    };
+    let price2 = Price {
+            min: 1,  
+            max: 300
+    };
+     let price3 = Price {
+            min: 1,  
+            max: 400
+    };
+        //create random prices
+    let prices = MarketPrices {
+        index_token_price: price1,
+        long_token_price: price2,
+        short_token_price: price3
+    };
+    start_prank(role_store.contract_address, caller_address);
+    role_store.grant_role(caller_address, role::MARKET_KEEPER);
+
+    data_store.set_market(key, 1, market);
+    data_store.set_position(key_4, position);
+    stop_prank(role_store.contract_address);
+
+    let size_delta : u128 = 0;
+   let res : PositionInfo = reader.get_position_info(data_store, referral, key_4, prices, position.size_in_usd, ui_fee_receiver, true);
+    teardown(data_store.contract_address);
+}
 
 //TODO missing libraries reader_utils::get_position_info not implemented 
 //fn given_normal_conditions_when_get_account_position_info_list_then_works() 
@@ -468,3 +598,24 @@ fn setup_reader() -> (ContractAddress, IReaderDispatcher) {
     let reader = IReaderDispatcher { contract_address: reader_address };
     (reader_address, reader)
 }
+fn setup_referral_storage() -> (ContractAddress, IReferralStorageDispatcher) {
+    let event_emitter_address = deploy_event_emitter();
+    // Create a safe dispatcher to interact with the contract.
+    let event_emitter = IEventEmitterDispatcher { contract_address: event_emitter_address };
+
+    let contract = declare('ReferralStorage');
+    let referral_storage_address = contract.deploy(@array![event_emitter_address.into()]).unwrap();
+    let referral = IReferralStorageDispatcher { contract_address: referral_storage_address };
+    (referral_storage_address, referral)
+}
+
+fn deploy_event_emitter() -> ContractAddress {
+    let contract = declare('EventEmitter');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'event_emitter'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
+}
+
+
+  
