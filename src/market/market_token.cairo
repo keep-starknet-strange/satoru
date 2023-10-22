@@ -161,7 +161,6 @@ mod MarketToken {
             let mut bank: Bank::ContractState = Bank::unsafe_new_contract_state();
             IBank::transfer_out(ref bank, token, receiver, amount);
         }
-    // TODO implement Bank functions
     }
 
     #[external(v0)]

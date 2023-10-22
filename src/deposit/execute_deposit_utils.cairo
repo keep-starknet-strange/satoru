@@ -180,7 +180,7 @@ fn execute_deposit(params: ExecuteDepositParams) {
                     price_for_token_a: prices.long_token_price.mid_price(),
                     price_for_token_b: prices.short_token_price.mid_price(),
                     usd_delta_for_token_a: to_signed(cache.long_token_usd, true),
-                    usd_delta_for_token_b: to_signed(cache.short_token_usd, false),
+                    usd_delta_for_token_b: to_signed(cache.short_token_usd, true),
                 }
             );
 
@@ -383,15 +383,13 @@ fn execute_deposit_helper(params: @ExecuteDepositParams, _params: @_ExecuteDepos
         // it is possible that the addition of the positive impact amount of tokens into the pool
         // could increase the imbalance of the pool, for most cases this should not be a significant
         // change compared to the improvement of balance from the actual deposit
-        let positive_impact_amount = to_unsigned(
-            market_utils::apply_swap_impact_with_cap(
-                *params.data_store,
-                *params.event_emitter,
-                *_params.market.market_token,
-                *_params.token_out,
-                *_params.token_out_price,
-                to_signed(price_impact_usd, true),
-            )
+        let positive_impact_amount = market_utils::apply_swap_impact_with_cap(
+            *params.data_store,
+            *params.event_emitter,
+            *_params.market.market_token,
+            *_params.token_out,
+            *_params.token_out_price,
+            to_signed(price_impact_usd, true),
         );
 
         // calculate the usd amount using positiveImpactAmount since it may
@@ -406,7 +404,7 @@ fn execute_deposit_helper(params: @ExecuteDepositParams, _params: @_ExecuteDepos
         // to be zero, in that case, the market token price is also treated as 1 USD
         mint_amount =
             market_utils::usd_to_market_token_amount(
-                positive_impact_amount * *_params.token_out_price.max,
+                to_unsigned(positive_impact_amount) * *_params.token_out_price.max,
                 to_unsigned(pool_value),
                 market_tokens_supply,
             );
@@ -416,7 +414,7 @@ fn execute_deposit_helper(params: @ExecuteDepositParams, _params: @_ExecuteDepos
             *params.event_emitter,
             *_params.market,
             *_params.token_out,
-            to_signed(positive_impact_amount, false),
+            positive_impact_amount
         );
 
         market_utils::validate_pool_amount(params.data_store, _params.market, *_params.token_out,);
@@ -452,7 +450,7 @@ fn execute_deposit_helper(params: @ExecuteDepositParams, _params: @_ExecuteDepos
         *params.event_emitter,
         *_params.market,
         *_params.token_out,
-        to_signed(amount_after_fees + fees.fee_amount_for_pool, false),
+        to_signed(amount_after_fees + fees.fee_amount_for_pool, true),
     );
 
     market_utils::validate_pool_amount(params.data_store, _params.market, *_params.token_in);
