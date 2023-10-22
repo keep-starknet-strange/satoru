@@ -284,13 +284,12 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
             .transfer_out(cache.token_out, *_params.receiver, cache.amount_out);
     }
 
-    let mut delta_felt252: felt252 = (cache.amount_in + fees.fee_amount_for_pool).into();
     market_utils::apply_delta_to_pool_amount(
         *params.data_store,
         *params.event_emitter,
         *_params.market,
         *_params.token_in,
-        delta_felt252.try_into().expect('felt252 into u128 faild'),
+        calc::to_signed((cache.amount_in + fees.fee_amount_for_pool), true),
     );
 
     // the poolAmountOut excludes the positive price impact amount

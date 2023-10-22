@@ -208,7 +208,7 @@ fn get_position_info(
         size_delta_usd = position_info.position.size_in_usd;
     }
 
-    let size_delta_usd_int = calc::to_signed(size_delta_usd, true);
+    let size_delta_usd_int = calc::to_signed(size_delta_usd, false);
 
     position_info
         .execution_price_result =
@@ -218,7 +218,7 @@ fn get_position_info(
                 prices.index_token_price,
                 position_info.position.size_in_usd,
                 position_info.position.size_in_tokens,
-                -size_delta_usd_int,
+                size_delta_usd_int,
                 position_info.position.is_long
             );
 
