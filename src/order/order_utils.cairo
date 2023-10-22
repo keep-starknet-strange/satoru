@@ -35,7 +35,7 @@ use satoru::order::{increase_order_utils, decrease_order_utils, swap_order_utils
 /// * `params` - The parameters used to create the order.
 /// # Returns
 /// Return the key of the created order.
-fn create_order( //TODO and fix when wnt is implememted
+fn create_order( //TODO and fix when fee_token is implememted
     data_store: IDataStoreDispatcher,
     event_emitter: IEventEmitterDispatcher,
     order_vault: IOrderVaultDispatcher,
@@ -48,7 +48,7 @@ fn create_order( //TODO and fix when wnt is implememted
 
     let mut initial_collateral_delta_amount = 0;
 
-    let wnt = token_utils::fee_token(data_store);
+    let fee_token = token_utils::fee_token(data_store);
 
     let mut should_record_separate_execution_fee_transfer = true;
 
@@ -60,7 +60,7 @@ fn create_order( //TODO and fix when wnt is implememted
         // transferred to the orderVault
         initial_collateral_delta_amount = order_vault
             .record_transfer_in(params.initial_collateral_token);
-        if (params.initial_collateral_token == wnt) {
+        if (params.initial_collateral_token == fee_token) {
             if (initial_collateral_delta_amount < params.execution_fee) {
                 OrderError::INSUFFICIENT_WNT_AMOUNT_FOR_EXECUTION_FEE(
                     initial_collateral_delta_amount, params.execution_fee
@@ -79,11 +79,11 @@ fn create_order( //TODO and fix when wnt is implememted
     }
 
     if (should_record_separate_execution_fee_transfer) {
-        let wnt_amount = order_vault.record_transfer_in(wnt);
-        if (wnt_amount < params.execution_fee) {
-            OrderError::INSUFFICIENT_WNT_AMOUNT_FOR_EXECUTION_FEE(wnt_amount, params.execution_fee);
+        let fee_token_amount = order_vault.record_transfer_in(fee_token);
+        if (fee_token_amount < params.execution_fee) {
+            OrderError::INSUFFICIENT_WNT_AMOUNT_FOR_EXECUTION_FEE(fee_token_amount, params.execution_fee);
         }
-        params.execution_fee = wnt_amount;
+        params.execution_fee = fee_token_amount;
     }
 
     if (base_order_utils::is_position_order(params.order_type)) {
