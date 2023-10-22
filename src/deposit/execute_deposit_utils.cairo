@@ -383,15 +383,14 @@ fn execute_deposit_helper(params: @ExecuteDepositParams, _params: @_ExecuteDepos
         // it is possible that the addition of the positive impact amount of tokens into the pool
         // could increase the imbalance of the pool, for most cases this should not be a significant
         // change compared to the improvement of balance from the actual deposit
-        let positive_impact_amount = 
-            market_utils::apply_swap_impact_with_cap(
-                *params.data_store,
-                *params.event_emitter,
-                *_params.market.market_token,
-                *_params.token_out,
-                *_params.token_out_price,
-                to_signed(price_impact_usd, true),
-            );
+        let positive_impact_amount = market_utils::apply_swap_impact_with_cap(
+            *params.data_store,
+            *params.event_emitter,
+            *_params.market.market_token,
+            *_params.token_out,
+            *_params.token_out_price,
+            to_signed(price_impact_usd, true),
+        );
 
         // calculate the usd amount using positiveImpactAmount since it may
         // be capped by the max available amount in the impact pool
