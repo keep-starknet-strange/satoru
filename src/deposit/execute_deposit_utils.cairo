@@ -36,7 +36,7 @@ use satoru::pricing::swap_pricing_utils::{
 use satoru::swap::swap_utils;
 use satoru::swap::error::SwapError;
 use satoru::utils::{
-    calc::{to_unsigned, to_signed}, i128::i128, precision, span32::Span32,
+    calc::{to_unsigned, to_signed}, i128::{i128, i128_new}, precision, span32::Span32,
     starknet_utils::{sn_gasleft, sn_gasprice}
 };
 
@@ -86,7 +86,7 @@ struct _ExecuteDepositParams {
     /// `amount` Amount of token_in.
     amount: u128,
     /// `price_impact_usd` Price impact in USD.
-    price_impact_usd: u128
+    price_impact_usd: i128
 }
 
 #[derive(Drop, Default)]
@@ -180,7 +180,7 @@ fn execute_deposit(params: ExecuteDepositParams) {
                     price_for_token_a: prices.long_token_price.mid_price(),
                     price_for_token_b: prices.short_token_price.mid_price(),
                     usd_delta_for_token_a: to_signed(cache.long_token_usd, true),
-                    usd_delta_for_token_b: to_signed(cache.short_token_usd, false),
+                    usd_delta_for_token_b: to_signed(cache.short_token_usd, true),
                 }
             );
 
@@ -195,8 +195,8 @@ fn execute_deposit(params: ExecuteDepositParams) {
             token_in_price: prices.long_token_price,
             token_out_price: prices.short_token_price,
             amount: cache.long_token_amount,
-            price_impact_usd: precision::mul_div(
-                to_unsigned(cache.price_impact_usd),
+            price_impact_usd: precision::mul_div_ival(
+                cache.price_impact_usd,
                 cache.long_token_usd,
                 cache.long_token_usd + cache.short_token_usd
             )
@@ -214,8 +214,8 @@ fn execute_deposit(params: ExecuteDepositParams) {
             token_in_price: prices.short_token_price,
             token_out_price: prices.long_token_price,
             amount: cache.short_token_amount,
-            price_impact_usd: precision::mul_div(
-                to_unsigned(cache.price_impact_usd),
+            price_impact_usd: precision::mul_div_ival(
+                cache.price_impact_usd,
                 cache.short_token_usd,
                 cache.long_token_usd + cache.short_token_usd
             )
@@ -261,14 +261,14 @@ fn execute_deposit(params: ExecuteDepositParams) {
 /// * `params` - @ExecuteDepositParams.
 /// * `_params` - @_ExecuteDepositParams.
 #[inline(always)]
-fn execute_deposit_helper(params: @ExecuteDepositParams, _params: @_ExecuteDepositParams) -> u128 {
+fn execute_deposit_helper(params: @ExecuteDepositParams, mut _params: @_ExecuteDepositParams) -> u128 {
     // for markets where longToken == shortToken, the price impact factor should be set to zero
     // in which case, the priceImpactUsd would always equal zero
     let fees = get_swap_fees(
         *params.data_store,
         *_params.market.market_token,
         *_params.amount,
-        *_params.price_impact_usd > 0,
+        *_params.price_impact_usd > Zeroable::zero(),
         *_params.ui_fee_receiver,
     );
 
@@ -360,15 +360,14 @@ fn execute_deposit_helper(params: @ExecuteDepositParams, _params: @_ExecuteDepos
     // and again when calculating the mint_amount
     //
     // to avoid this, set the price_impact_usd to be zero for this case
-    let mut price_impact_usd = *_params.price_impact_usd;
 
-    if price_impact_usd > 0 && market_tokens_supply == 0 {
-        price_impact_usd = 0;
+    if *_params.price_impact_usd > Zeroable::zero() && market_tokens_supply == Zeroable::zero() {
+        *_params.price_impact_usd = Zeroable::zero();
     }
 
     let mut amount_after_fees = fees.amount_after_fees;
 
-    if price_impact_usd > 0 {
+    if *_params.price_impact_usd > Zeroable::zero() {
         // when there is a positive price impact factor,
         // tokens from the swap impact pool are used to mint additional market tokens for the user
         // for example, if 50,000 USDC is deposited and there is a positive price impact
@@ -390,7 +389,7 @@ fn execute_deposit_helper(params: @ExecuteDepositParams, _params: @_ExecuteDepos
                 *_params.market.market_token,
                 *_params.token_out,
                 *_params.token_out_price,
-                to_signed(price_impact_usd, true),
+                *_params.price_impact_usd,
             )
         );
 
@@ -416,12 +415,12 @@ fn execute_deposit_helper(params: @ExecuteDepositParams, _params: @_ExecuteDepos
             *params.event_emitter,
             *_params.market,
             *_params.token_out,
-            to_signed(positive_impact_amount, false),
+            to_signed(positive_impact_amount, true),
         );
 
         market_utils::validate_pool_amount(params.data_store, _params.market, *_params.token_out,);
 
-        if (price_impact_usd < 0) {
+        if (*_params.price_impact_usd < 0) {
             // when there is a negative price impact factor,
             // less of the deposit amount is used to mint market tokens
             // for example, if 10 ETH is deposited and there is a negative price impact
@@ -433,10 +432,10 @@ fn execute_deposit_helper(params: @ExecuteDepositParams, _params: @_ExecuteDepos
                 *_params.market.market_token,
                 *_params.token_out,
                 *_params.token_out_price,
-                to_signed(price_impact_usd, false),
+                *_params.price_impact_usd,
             );
 
-            amount_after_fees -= to_unsigned((-negative_impact_amount));
+            amount_after_fees -= to_unsigned(i128_neg(negative_impact_amount));
         }
     }
 
