@@ -36,7 +36,7 @@ use satoru::pricing::swap_pricing_utils::{
 use satoru::swap::swap_utils;
 use satoru::swap::error::SwapError;
 use satoru::utils::{
-    calc::{to_unsigned, to_signed}, i128::{i128, i128_new}, precision, span32::Span32,
+    calc::{to_unsigned, to_signed}, i128::{i128, i128_new, i128_neg}, precision, span32::Span32,
     starknet_utils::{sn_gasleft, sn_gasprice}
 };
 
@@ -102,7 +102,6 @@ struct ExecuteDepositCache {
 /// Executes a deposit.
 /// # Arguments
 /// * `params` - ExecuteDepositParams.
-#[inline(always)]
 fn execute_deposit(params: ExecuteDepositParams) {
     // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
     let starting_gas = params.starting_gas - sn_gasleft(array![]) / 63;
@@ -185,7 +184,7 @@ fn execute_deposit(params: ExecuteDepositParams) {
             );
 
     if cache.long_token_amount > 0 {
-        let _params = _ExecuteDepositParams {
+        let mut _params = _ExecuteDepositParams {
             market: market,
             account: deposit.account,
             receiver: deposit.receiver,
@@ -202,9 +201,9 @@ fn execute_deposit(params: ExecuteDepositParams) {
             )
         };
 
-        cache.received_market_tokens += execute_deposit_helper(@params, @_params);
+        cache.received_market_tokens += execute_deposit_helper(@params, ref _params);
     } else if cache.short_token_amount > 0 {
-        let _params = _ExecuteDepositParams {
+        let mut _params = _ExecuteDepositParams {
             market: market,
             account: deposit.account,
             receiver: deposit.receiver,
@@ -221,16 +220,14 @@ fn execute_deposit(params: ExecuteDepositParams) {
             )
         };
 
-        cache.received_market_tokens += execute_deposit_helper(@params, @_params);
+        cache.received_market_tokens += execute_deposit_helper(@params, ref _params);
     }
 
     if cache.received_market_tokens < deposit.min_market_tokens {
         DepositError::MIN_MARKET_TOKENS(cache.received_market_tokens, deposit.min_market_tokens);
     }
 
-    market_utils::validate_market_token_balance_with_address(
-        params.data_store, market.market_token
-    );
+    market_utils::validate_market_token_balance_check(params.data_store, market);
 
     (params.event_emitter)
         .emit_deposit_executed(
@@ -261,22 +258,24 @@ fn execute_deposit(params: ExecuteDepositParams) {
 /// * `params` - @ExecuteDepositParams.
 /// * `_params` - @_ExecuteDepositParams.
 #[inline(always)]
-fn execute_deposit_helper(params: @ExecuteDepositParams, mut _params: @_ExecuteDepositParams) -> u128 {
+fn execute_deposit_helper(
+    params: @ExecuteDepositParams, ref _params: _ExecuteDepositParams
+) -> u128 {
     // for markets where longToken == shortToken, the price impact factor should be set to zero
     // in which case, the priceImpactUsd would always equal zero
     let fees = get_swap_fees(
         *params.data_store,
-        *_params.market.market_token,
-        *_params.amount,
-        *_params.price_impact_usd > Zeroable::zero(),
-        *_params.ui_fee_receiver,
+        _params.market.market_token,
+        _params.amount,
+        _params.price_impact_usd > Zeroable::zero(),
+        _params.ui_fee_receiver,
     );
 
     fee_utils::increment_claimable_fee_amount(
         *params.data_store,
         *params.event_emitter,
-        *_params.market.market_token,
-        *_params.token_in,
+        _params.market.market_token,
+        _params.token_in,
         fees.fee_receiver_amount,
         deposit_fee_type(),
     );
@@ -284,35 +283,35 @@ fn execute_deposit_helper(params: @ExecuteDepositParams, mut _params: @_ExecuteD
     fee_utils::increment_claimable_ui_fee_amount(
         *params.data_store,
         *params.event_emitter,
-        *_params.ui_fee_receiver,
-        *_params.market.market_token,
-        *_params.token_in,
+        _params.ui_fee_receiver,
+        _params.market.market_token,
+        _params.token_in,
         fees.ui_fee_amount,
         ui_deposit_fee_type(),
     );
 
     (*params.event_emitter)
         .emit_swap_fees_collected(
-            *_params.market.market_token,
-            *_params.token_in,
-            *_params.token_in_price.min,
+            _params.market.market_token,
+            _params.token_in,
+            _params.token_in_price.min,
             'deposit',
             fees.clone(),
         );
 
     let market_pool_value_info = market_utils::get_pool_value_info(
         *params.data_store,
-        *_params.market,
-        (*params.oracle).get_primary_price(*_params.market.index_token),
-        if *_params.token_in == *_params.market.long_token {
-            *_params.token_in_price
+        _params.market,
+        (*params.oracle).get_primary_price(_params.market.index_token),
+        if _params.token_in == _params.market.long_token {
+            _params.token_in_price
         } else {
-            *_params.token_out_price
+            _params.token_out_price
         },
-        if *_params.token_in == *_params.market.short_token {
-            *_params.token_in_price
+        if _params.token_in == _params.market.short_token {
+            _params.token_in_price
         } else {
-            *_params.token_out_price
+            _params.token_out_price
         },
         max_pnl_factor_for_deposits(),
         true,
@@ -324,9 +323,9 @@ fn execute_deposit_helper(params: @ExecuteDepositParams, mut _params: @_ExecuteD
     );
 
     let mut mint_amount = 0;
-    let pool_value = market_pool_value_info.pool_value;
+    let pool_value = to_unsigned(market_pool_value_info.pool_value);
     let market_tokens_supply = market_utils::get_market_token_supply(
-        IMarketTokenDispatcher { contract_address: *_params.market.market_token }
+        IMarketTokenDispatcher { contract_address: _params.market.market_token }
     );
 
     assert(
@@ -336,7 +335,7 @@ fn execute_deposit_helper(params: @ExecuteDepositParams, mut _params: @_ExecuteD
 
     (*params.event_emitter)
         .emit_market_pool_value_info(
-            *_params.market.market_token, market_pool_value_info, market_tokens_supply,
+            _params.market.market_token, market_pool_value_info, market_tokens_supply,
         );
 
     // the pool_value and market_tokens_supply is cached for the mint_amount calculation below
@@ -361,13 +360,13 @@ fn execute_deposit_helper(params: @ExecuteDepositParams, mut _params: @_ExecuteD
     //
     // to avoid this, set the price_impact_usd to be zero for this case
 
-    if *_params.price_impact_usd > Zeroable::zero() && market_tokens_supply == Zeroable::zero() {
-        *_params.price_impact_usd = Zeroable::zero();
+    if _params.price_impact_usd > Zeroable::zero() && market_tokens_supply == Zeroable::zero() {
+        _params.price_impact_usd = i128_new(0, false);
     }
 
     let mut amount_after_fees = fees.amount_after_fees;
 
-    if *_params.price_impact_usd > Zeroable::zero() {
+    if _params.price_impact_usd > Zeroable::zero() {
         // when there is a positive price impact factor,
         // tokens from the swap impact pool are used to mint additional market tokens for the user
         // for example, if 50,000 USDC is deposited and there is a positive price impact
@@ -386,10 +385,10 @@ fn execute_deposit_helper(params: @ExecuteDepositParams, mut _params: @_ExecuteD
         let positive_impact_amount = market_utils::apply_swap_impact_with_cap(
             *params.data_store,
             *params.event_emitter,
-            *_params.market.market_token,
-            *_params.token_out,
-            *_params.token_out_price,
-            to_signed(price_impact_usd, true),
+            _params.market.market_token,
+            _params.token_out,
+            _params.token_out_price,
+            _params.price_impact_usd,
         );
 
         // calculate the usd amount using positiveImpactAmount since it may
@@ -404,22 +403,22 @@ fn execute_deposit_helper(params: @ExecuteDepositParams, mut _params: @_ExecuteD
         // to be zero, in that case, the market token price is also treated as 1 USD
         mint_amount =
             market_utils::usd_to_market_token_amount(
-                to_unsigned(positive_impact_amount) * *_params.token_out_price.max,
-                to_unsigned(pool_value),
+                to_unsigned(positive_impact_amount) * _params.token_out_price.max,
+                pool_value,
                 market_tokens_supply,
             );
 
         market_utils::apply_delta_to_pool_amount(
             *params.data_store,
             *params.event_emitter,
-            *_params.market,
-            *_params.token_out,
+            _params.market,
+            _params.token_out,
             positive_impact_amount
         );
 
-        market_utils::validate_pool_amount(params.data_store, _params.market, *_params.token_out,);
+        market_utils::validate_pool_amount(params.data_store, @_params.market, _params.token_out,);
 
-        if (*_params.price_impact_usd < 0) {
+        if (_params.price_impact_usd < Zeroable::zero()) {
             // when there is a negative price impact factor,
             // less of the deposit amount is used to mint market tokens
             // for example, if 10 ETH is deposited and there is a negative price impact
@@ -428,10 +427,10 @@ fn execute_deposit_helper(params: @ExecuteDepositParams, mut _params: @_ExecuteD
             let negative_impact_amount = market_utils::apply_swap_impact_with_cap(
                 *params.data_store,
                 *params.event_emitter,
-                *_params.market.market_token,
-                *_params.token_out,
-                *_params.token_out_price,
-                *_params.price_impact_usd,
+                _params.market.market_token,
+                _params.token_out,
+                _params.token_out_price,
+                _params.price_impact_usd,
             );
 
             amount_after_fees -= to_unsigned(i128_neg(negative_impact_amount));
@@ -440,23 +439,21 @@ fn execute_deposit_helper(params: @ExecuteDepositParams, mut _params: @_ExecuteD
 
     mint_amount +=
         market_utils::usd_to_market_token_amount(
-            amount_after_fees * *_params.token_in_price.min,
-            to_unsigned(pool_value),
-            market_tokens_supply,
+            amount_after_fees * _params.token_in_price.min, pool_value, market_tokens_supply,
         );
 
     market_utils::apply_delta_to_pool_amount(
         *params.data_store,
         *params.event_emitter,
-        *_params.market,
-        *_params.token_out,
+        _params.market,
+        _params.token_out,
         to_signed(amount_after_fees + fees.fee_amount_for_pool, true),
     );
 
-    market_utils::validate_pool_amount(params.data_store, _params.market, *_params.token_in);
+    market_utils::validate_pool_amount(params.data_store, @_params.market, _params.token_in);
 
-    IMarketTokenDispatcher { contract_address: *_params.market.market_token }
-        .mint(*_params.receiver, mint_amount);
+    IMarketTokenDispatcher { contract_address: _params.market.market_token }
+        .mint(_params.receiver, mint_amount);
 
     mint_amount
 }
