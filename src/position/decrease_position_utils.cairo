@@ -140,7 +140,7 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
             estimated_remaining_collateral_usd +=
                 to_signed(
                     params.order.initial_collateral_delta_amount * cache.collateral_token_price.min,
-                    false
+                    true
                 );
 
             params.order.initial_collateral_delta_amount = 0;
@@ -156,7 +156,7 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
         if ((estimated_remaining_collateral_usd
             + cache
                 .estimated_remaining_pnl_usd) < to_signed(
-                    params.contracts.data_store.get_u128(keys::min_collateral_usd()), false
+                    params.contracts.data_store.get_u128(keys::min_collateral_usd()), true
                 )) {
             params
                 .contracts
@@ -275,13 +275,13 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
         params.position.market,
         params.position.collateral_token,
         params.position.is_long,
-        to_signed(cache.initial_collateral_amount - params.position.collateral_amount, true)
+        to_signed(cache.initial_collateral_amount - params.position.collateral_amount, false)
     );
 
     position_utils::update_open_interest(
         params,
-        to_signed(params.order.size_delta_usd, true),
-        to_signed(values.size_delta_in_tokens, true)
+        to_signed(params.order.size_delta_usd, false),
+        to_signed(values.size_delta_in_tokens, false)
     );
 
     // affiliate rewards are still distributed even if the order is a liquidation order
