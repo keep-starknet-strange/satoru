@@ -4,24 +4,71 @@ use starknet::{ContractAddress, get_caller_address, contract_address_const};
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait, ContractClass};
 use satoru::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
-
+use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+use satoru::deposit::deposit_utils::CreateDepositParams;
+use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
+use satoru::tests_lib;
+use satoru::exchange::{
+    deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait},
+    withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait},
+    order_handler::{IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait},
+};
+use satoru::withdrawal::withdrawal_vault::{
+    IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait
+};
+use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
+use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use satoru::router::exchange_router::{IExchangeRouterDispatcher, IExchangeRouterDispatcherTrait};
+use satoru::reader::reader::{IReaderDispatcher, IReaderDispatcherTrait};
+use satoru::utils::span32::{Span32, Array32Trait, DefaultSpan32};
+use satoru::market::market::Market;
 
 #[test]
 fn given_normal_conditions_when_create_deposit_then_works() {
-    let (
-         caller_address,
-         role_store, data_store,
-         deposit_vault,
-     ) = setup();
+    let (caller_address, role_store, data_store, reader, exchange_router, deposit_vault) = setup();
 
     // deploy erc20 token and mint to deposit_vault
     let erc20_contract_address = deploy_erc20_token(deposit_vault.contract_address);
     let erc20 = IERC20Dispatcher { contract_address: erc20_contract_address };
+    
+    // Grant market keeper role to allow adding market to the data store
+    role_store.grant_role(caller_address, role::MARKET_KEEPER);
+    
+    let market_key = contract_address_const::<'market'>();
+    let market = Market {
+        market_token: contract_address_const::<'market_token'>(),
+        index_token: contract_address_const::<'index_token'>(),
+        long_token: contract_address_const::<'long_token'>(),
+        short_token: contract_address_const::<'short_token'>(),
+    };
+    data_store.set_market(market_key, 0, market);
 
+    let deposit_params = CreateDepositParams {
+        receiver: contract_address_const::<'receiver'>(),
+        callback_contract: contract_address_const::<'callback_contract'>(),
+        ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
+        market: market_key,
+        initial_long_token: contract_address_const::<'initial_long_token'>(),
+        initial_short_token: contract_address_const::<'initial_short_token'>(),
+        long_token_swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
+        short_token_swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
+        min_market_tokens: 10,
+        execution_fee: 0,
+        callback_gas_limit: 10,
+    };
+    let deposit_key = exchange_router.create_deposit(deposit_params);
 
+    // let deposit = reader.get_deposit(data_store, deposit_key);
+
+    // assert(deposit.key == deposit_key, 'unexp. deposit key');
+    // assert(deposit.account == caller_address, 'unexp. deposit account');
+    // assert(deposit.receiver == contract_address_const::<'receiver'>(), 'unexp. deposit receiver');
+    // assert(deposit.callback_contract == contract_address_const::<'callback_contract'>(), 'unexp. deposit callback_contract');
 }
+
 // *********************************************************************************************
 // *                                      SETUP                                                *
 // *********************************************************************************************
@@ -32,17 +79,15 @@ fn given_normal_conditions_when_create_deposit_then_works() {
 /// * `ContractAddress` - The address of the caller.
 /// * `IRoleStoreDispatcher` - The role store dispatcher.
 /// * `IDataStoreDispatcher` - The data store dispatcher.
+/// * `IReaderDispatcher` - The reader dispatcher.
+/// * `IExchangeRouterDispatcher` - The exchange router dispatcher.
 /// * `IDepositVaultDispatcher` - The deposit vault dispatcher.
-/// * `IERC20Dispatcher` - The ERC20 token dispatcher.
 fn setup() -> (
-    ContractAddress,
-    IRoleStoreDispatcher,
-    IDataStoreDispatcher,
-    IDepositVaultDispatcher,
-    IERC20Dispatcher
+    ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher,IReaderDispatcher, IExchangeRouterDispatcher,IDepositVaultDispatcher
 ) {
     // Setup Oracle and Store
-    let (caller_address, role_store, data_store, event_emitter, oracle) = tests_lib::setup_oracle_and_store();
+    let (caller_address, role_store, data_store, event_emitter, oracle) =
+        tests_lib::setup_oracle_and_store();
 
     // Deploy deposit vault
     let deposit_vault_address = deploy_deposit_vault(
@@ -52,27 +97,34 @@ fn setup() -> (
 
     // Deploy deposit vault handler
     let deposit_handler_address = deploy_deposit_handler(
-        data_store.contract_address, role_store.contract_address,
+        data_store.contract_address,
+        role_store.contract_address,
         event_emitter.contract_address,
         deposit_vault_address,
         oracle.contract_address
     );
     let deposit_handler = IDepositHandlerDispatcher { contract_address: deposit_handler_address };
+    start_prank(deposit_handler_address, caller_address);
 
     // Deploy withdrawal vault
     let withdrawal_vault_address = deploy_withdrawal_vault(
         data_store.contract_address, role_store.contract_address
     );
-    let withdrawal_vault = IWithdrawalVaultDispatcher { contract_address: withdrawal_vault_address };
+    let withdrawal_vault = IWithdrawalVaultDispatcher {
+        contract_address: withdrawal_vault_address
+    };
 
     // Deploy withdrawal vault handler
     let withdrawal_handler_address = deploy_withdrawal_handler(
-        data_store.contract_address, role_store.contract_address,
+        data_store.contract_address,
+        role_store.contract_address,
         event_emitter.contract_address,
         withdrawal_vault_address,
         oracle.contract_address
     );
-    let withdrawal_handler = IWithdrawalHandlerDispatcher { contract_address: withdrawal_handler_address };
+    let withdrawal_handler = IWithdrawalHandlerDispatcher {
+        contract_address: withdrawal_handler_address
+    };
 
     // Deploy order vault
     let order_vault_address = deploy_order_vault(
@@ -91,7 +143,7 @@ fn setup() -> (
     };
 
     // Deploy order handler
-    let order_handler_state = deploy_order_handler(
+    let order_handler_address = deploy_order_handler(
         data_store.contract_address,
         role_store.contract_address,
         event_emitter.contract_address,
@@ -100,6 +152,7 @@ fn setup() -> (
         swap_handler_address,
         referral_storage_address
     );
+    let order_handler = IOrderHandlerDispatcher { contract_address: order_handler_address };
 
     // Deploy router
     let router_address = deploy_router(role_store.contract_address);
@@ -116,6 +169,11 @@ fn setup() -> (
         order_handler_address
     );
     let exchange_router = IExchangeRouterDispatcher { contract_address: exchange_router_address };
+    start_prank(exchange_router_address, caller_address);
+
+    // Deploy reader
+    let reader_address = deploy_reader();
+    let reader = IReaderDispatcher { contract_address: reader_address };
 
     // // deploy erc20 token
     // let erc20_contract_address = deploy_erc20_token(caller_address);
@@ -124,7 +182,7 @@ fn setup() -> (
     // start prank and give controller role to caller_address
     //start_prank(deposit_vault.contract_address, caller_address);
 
-    return (caller_address, role_store, data_store, deposit_vault, erc20);
+    return (caller_address, role_store, data_store,reader, exchange_router, deposit_vault);
 }
 
 /// Utility function to deploy an exchange router.
@@ -228,7 +286,7 @@ fn deploy_deposit_handler(
         event_emitter_address.into(),
         deposit_vault_address.into(),
         oracle_address.into()
-        ];
+    ];
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
@@ -298,8 +356,8 @@ fn deploy_order_vault(
 ) -> ContractAddress {
     let contract = declare('OrderVault');
     let deployed_contract_address = contract_address_const::<'order_vault'>();
-    let mut constructor_calldata = array![data_store_address.into(),role_store_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address)
+    let mut constructor_calldata = array![data_store_address.into(), role_store_address.into()];
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 /// Utility function to deploy a swap handler.
@@ -315,7 +373,7 @@ fn deploy_swap_handler(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('SwapHandler');
     let deployed_contract_address = contract_address_const::<'swap_handler'>();
     let constructor_calldata = array![role_store_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address)
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 /// Utility function to deploy a referral storage.
@@ -331,7 +389,7 @@ fn deploy_referral_storage(event_emitter_address: ContractAddress) -> ContractAd
     let contract = declare('ReferralStorage');
     let deployed_contract_address = contract_address_const::<'referral_storage'>();
     let constructor_calldata = array![event_emitter_address.into()];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address)
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 /// Utility function to deploy an order handler.
@@ -357,19 +415,33 @@ fn deploy_order_handler(
     oracle_address: ContractAddress,
     swap_handler_address: ContractAddress,
     referral_storage_address: ContractAddress
-) -> BaseOrderHandler::ContractState {
+) -> ContractAddress {
     let contract = declare('OrderHandler');
     let deployed_contract_address = contract_address_const::<'order_handler'>();
     let constructor_calldata = array![
-        data_store_address,
-        role_store_address,
-        event_emitter_address,
-        order_vault_address,
-        oracle_address,
-        swap_handler_address,
-        referral_storage_address
+        data_store_address.into(),
+        role_store_address.into(),
+        event_emitter_address.into(),
+        order_vault_address.into(),
+        oracle_address.into(),
+        swap_handler_address.into(),
+        referral_storage_address.into()
     ];
-    contract.deploy_at(@constructor_calldata, deployed_contract_address)
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
+}
+
+/// Utility function to deploy a record_transfer_in.
+///
+/// # Arguments
+///
+/// # Returns
+///
+/// * `ContractAddress` - The address of the reader.
+fn deploy_reader() -> ContractAddress {
+    let contract = declare('Reader');
+    let deployed_contract_address = contract_address_const::<'reader'>();
+    let constructor_calldata = array![];
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 /// Utility function to deploy an ERC20 token.
@@ -384,8 +456,6 @@ fn deploy_order_handler(
 /// * `ContractAddress` - The address of the ERC20 token.
 fn deploy_erc20_token(mint_address: ContractAddress) -> ContractAddress {
     let erc20_contract = declare('ERC20');
-    let constructor_calldata = array![
-        'satoru', 'STU', 1000, 0, mint_address.into()
-    ];
-    erc20_contract.deploy_at(@constructor_calldata).unwrap()
+    let constructor_calldata = array!['satoru', 'STU', 1000, 0, mint_address.into()];
+    erc20_contract.deploy(@constructor_calldata).unwrap()
 }
