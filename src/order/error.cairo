@@ -15,6 +15,7 @@ mod OrderError {
     const UNEXPECTED_MARKET: felt252 = 'unexpected market';
     const INVALID_SIZE_DELTA_FOR_ADL: felt252 = 'invalid_size_delta_for_adl';
     const POSTION_NOT_VALID: felt252 = 'position_not_valid';
+    const ORDER_ALREADY_FROZEN: felt252 = 'order_already_frozen';
 
 
     fn ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(
@@ -82,6 +83,20 @@ mod OrderError {
         data.append(position_size_in_usd.into());
         data.append(adjusted_price_impact_usd.into());
         data.append(size_delta_usd.into());
+        panic(data);
+    }
+
+    fn ORDER_TYPE_CANNOT_BE_CREATED(order_type: OrderType,) {
+        let mut data: Array<felt252> = array![];
+        data.append('order_type_cannot_be_created');
+        data.append(order_type.into());
+        panic(data);
+    }
+
+    fn INSUFFICIENT_WNT_AMOUNT_FOR_EXECUTION_FEE(first_amount: u128, secont_amount: u128) {
+        let mut data = array!['Insufficient wnt amount for fee'];
+        data.append(first_amount.into());
+        data.append(secont_amount.into());
         panic(data);
     }
 }

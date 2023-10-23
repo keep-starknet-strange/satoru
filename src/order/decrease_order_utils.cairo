@@ -41,17 +41,7 @@ fn process_order(
     );
 
     let data_store: IDataStoreDispatcher = params.contracts.data_store;
-    let position_result = data_store.get_position(position_key);
-    let mut position: Position = Default::default();
-
-    match position_result {
-        Option::Some(pos) => {
-            position = pos;
-        },
-        Option::None => {
-            panic_with_felt252(OrderError::POSTION_NOT_VALID);
-        }
-    }
+    let position = data_store.get_position(position_key);
 
     position_utils::validate_non_empty_position(position);
 
@@ -75,7 +65,7 @@ fn process_order(
     };
 
     let mut result: DecreasePositionResult = decrease_position_utils::decrease_position(
-        ref update_position_params
+        update_position_params
     );
 
     // if the pnl_token and the collateral_token are different
@@ -254,16 +244,16 @@ fn get_output_event_data(
     let mut uint_items: event_utils::UintItems = Default::default();
 
     address_items =
-        event_utils::set_item_address_items(address_items, 0, "output_token", output_token);
+        event_utils::set_item_address_items(address_items, 0, 'output_token', output_token);
     address_items =
         event_utils::set_item_address_items(
-            address_items, 1, "secondary_output_token", secondary_output_token
+            address_items, 1, 'secondary_output_token', secondary_output_token
         );
 
-    uint_items = event_utils::set_item_uint_items(uint_items, 0, "output_amount", output_amount);
+    uint_items = event_utils::set_item_uint_items(uint_items, 0, 'output_amount', output_amount);
     uint_items =
         event_utils::set_item_uint_items(
-            uint_items, 1, "secondary_output_amount", secondary_output_amount
+            uint_items, 1, 'secondary_output_amount', secondary_output_amount
         );
 
     event_utils::LogData {

@@ -50,11 +50,7 @@ fn process_order(params: ExecuteOrderParams) -> event_utils::LogData {
     let position_key = position_utils::get_position_key(
         params.order.account, params.order.market, collateral_token, params.order.is_long,
     );
-    let mut position = params
-        .contracts
-        .data_store
-        .get_position(position_key)
-        .expect(DataError::POSITION_NOT_FOUND);
+    let mut position = params.contracts.data_store.get_position(position_key);
 
     // Initialize position
     if position.account.is_zero() {
