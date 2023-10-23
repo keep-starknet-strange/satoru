@@ -3,6 +3,7 @@ use satoru::utils::precision;
 use satoru::utils::precision::{
     FLOAT_PRECISION, FLOAT_PRECISION_SQRT, WEI_PRECISION, BASIS_POINTS_DIVISOR, FLOAT_TO_WEI_DIVISOR
 };
+use satoru::utils::i128::{i128, i128_new};
 
 #[test]
 fn test_apply_factor_u128() {
@@ -15,72 +16,72 @@ fn test_apply_factor_u128() {
 #[test]
 fn test_apply_factor_i128() {
     let value: u128 = 10;
-    let factor: i128 = -1_000_000_000_000_000_000_000_000;
+    let factor: i128 = i128_new(1_000_000_000_000_000_000_000_000, true);
     let result = precision::apply_factor_i128(value, factor);
-    assert(result == -100000, 'should be -1OOO0O.');
+    assert(result == i128_new(100000, true), 'should be -1OOO0O.');
 }
 
 #[test]
 fn test_apply_factor_roundup_magnitude_positive() {
     let value: u128 = 15;
-    let factor: i128 = 30_000_000_000_000_000_000;
+    let factor: i128 = i128_new(30_000_000_000_000_000_000, false);
     let roundup_magnitude = true;
     let result = precision::apply_factor_roundup_magnitude(value, factor, roundup_magnitude);
-    assert(result == 5, 'should be 5.');
+    assert(result == i128_new(5, false), 'should be 5.');
 }
 
 #[test]
 fn test_apply_factor_roundup_magnitude_negative() {
     let value: u128 = 15;
-    let factor: i128 = -30_000_000_000_000_000_000;
+    let factor: i128 = i128_new(30_000_000_000_000_000_000, true);
     let roundup_magnitude = true;
     let result = precision::apply_factor_roundup_magnitude(value, factor, roundup_magnitude);
-    assert(result == -5, 'should be -5.');
+    assert(result == i128_new(5, true), 'should be -5.');
 }
 
 #[test]
 fn test_apply_factor_roundup_magnitude_no_rounding() {
     let value: u128 = 15;
-    let factor: i128 = -30_000_000_000_000_000_000;
+    let factor: i128 = i128_new(30_000_000_000_000_000_000, true);
     let roundup_magnitude = false;
     let result = precision::apply_factor_roundup_magnitude(value, factor, roundup_magnitude);
-    assert(result == -4, 'should be -4.');
+    assert(result == i128_new(4, true), 'should be -4.');
 }
 
 #[test]
 fn test_mul_div_ival_negative() {
-    let value: i128 = -42;
+    let value: i128 = i128_new(42, true);
     let factor: u128 = 10;
     let denominator = 8;
     let result = precision::mul_div_ival(value, factor, denominator);
-    assert(result == -52, 'should be -52.');
+    assert(result == i128_new(52, true), 'should be -52.');
 }
 
 #[test]
 fn test_mul_div_inum_positive() {
     let value: u128 = 42;
-    let factor: i128 = 10;
+    let factor: i128 = i128_new(10, false);
     let denominator = 8;
     let result = precision::mul_div_inum(value, factor, denominator);
-    assert(result == 52, 'should be 52.');
+    assert(result == i128_new(52, false), 'should be 52.');
 }
 
 #[test]
 fn test_mul_div_inum_roundup_negative() {
     let value: u128 = 42;
-    let factor: i128 = -10;
+    let factor: i128 = i128_new(10, true);
     let denominator = 8;
     let result = precision::mul_div_inum_roundup(value, factor, denominator, true);
-    assert(result == -53, 'should be -53.');
+    assert(result == i128_new(53, true), 'should be -53.');
 }
 
 #[test]
 fn test_mul_div_inum_roundup_positive() {
     let value: u128 = 42;
-    let factor: i128 = 10;
+    let factor: i128 = i128_new(10, false);
     let denominator = 8;
     let result = precision::mul_div_inum_roundup(value, factor, denominator, true);
-    assert(result == 53, 'should be 53.');
+    assert(result == i128_new(53, false), 'should be 53.');
 }
 
 #[test]
@@ -138,18 +139,18 @@ fn test_to_factor() {
 
 #[test]
 fn test_to_factor_ival_positive() {
-    let value: i128 = 450000;
+    let value: i128 = i128_new(450000, false);
     let divisor: u128 = 20_000_000_000_000_000_000_000_000; // 2*10^25
     let result = precision::to_factor_ival(value, divisor);
-    assert(result == 2, 'from positive integer value.');
+    assert(result == i128_new(2, false), 'from positive integer value.');
 }
 
 #[test]
 fn test_to_factor_ival_negative() {
-    let value: i128 = -450000;
+    let value: i128 = i128_new(450000, true);
     let divisor: u128 = 20_000_000_000_000_000_000_000_000; // 2*10^25
     let result = precision::to_factor_ival(value, divisor);
-    assert(result == -2, 'should be -2.');
+    assert(result == i128_new(2, true), 'should be -2.');
 }
 
 #[test]

@@ -4,7 +4,15 @@ use snforge_std::{
     EventAssertions
 };
 
-use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::event::event_emitter::{
+    EventEmitter, IEventEmitterDispatcher, IEventEmitterDispatcherTrait
+};
+
+use satoru::event::event_emitter::EventEmitter::{
+    WithdrawalCreated, WithdrawalExecuted, WithdrawalCancelled
+};
+
+
 use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::tests_lib::setup_event_emitter;
 
@@ -24,21 +32,6 @@ fn given_normal_conditions_when_emit_withdrawal_created_then_works() {
     let key: felt252 = 100;
     let withdrawal: Withdrawal = create_dummy_withdrawal(key);
 
-    // Create the expected data.
-    let mut expected_data: Array<felt252> = array![
-        key,
-        withdrawal.account.into(),
-        withdrawal.receiver.into(),
-        withdrawal.callback_contract.into(),
-        withdrawal.market.into(),
-        withdrawal.market_token_amount.into(),
-        withdrawal.min_long_token_amount.into(),
-        withdrawal.min_short_token_amount.into(),
-        withdrawal.updated_at_block.into(),
-        withdrawal.execution_fee.into(),
-        withdrawal.callback_gas_limit.into(),
-    ];
-
     // Emit the event.
     event_emitter.emit_withdrawal_created(key, withdrawal);
 
@@ -46,12 +39,24 @@ fn given_normal_conditions_when_emit_withdrawal_created_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'WithdrawalCreated',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::WithdrawalCreated(
+                        WithdrawalCreated {
+                            key: key,
+                            account: withdrawal.account,
+                            receiver: withdrawal.receiver,
+                            callback_contract: withdrawal.callback_contract,
+                            market: withdrawal.market,
+                            market_token_amount: withdrawal.market_token_amount,
+                            min_long_token_amount: withdrawal.min_long_token_amount,
+                            min_short_token_amount: withdrawal.min_short_token_amount,
+                            updated_at_block: withdrawal.updated_at_block,
+                            execution_fee: withdrawal.execution_fee,
+                            callback_gas_limit: withdrawal.callback_gas_limit,
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.
@@ -73,9 +78,6 @@ fn given_normal_conditions_when_emit_withdrawal_executed_then_works() {
     // Create dummy data.
     let key: felt252 = 100;
 
-    // Create the expected data.
-    let mut expected_data: Array<felt252> = array![key];
-
     // Emit the event.
     event_emitter.emit_withdrawal_executed(key);
 
@@ -83,12 +85,10 @@ fn given_normal_conditions_when_emit_withdrawal_executed_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'WithdrawalExecuted',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::WithdrawalExecuted(WithdrawalExecuted { key: key, })
+                )
             ]
         );
     // Assert there are no more events.
@@ -112,10 +112,6 @@ fn given_normal_conditions_when_emit_withdrawal_cancelled_then_works() {
     let reason: felt252 = 'cancel';
     let reason_bytes = array!['0x00', '0x01'];
 
-    // Create the expected data.
-    let mut expected_data: Array<felt252> = array![key, reason];
-    reason_bytes.serialize(ref expected_data);
-
     // Emit the event.
     event_emitter.emit_withdrawal_cancelled(key, reason, reason_bytes.span());
 
@@ -123,12 +119,14 @@ fn given_normal_conditions_when_emit_withdrawal_cancelled_then_works() {
     spy
         .assert_emitted(
             @array![
-                Event {
-                    from: contract_address,
-                    name: 'WithdrawalCancelled',
-                    keys: array![],
-                    data: expected_data
-                }
+                (
+                    contract_address,
+                    EventEmitter::Event::WithdrawalCancelled(
+                        WithdrawalCancelled {
+                            key: key, reason: reason, reason_bytes: reason_bytes.span()
+                        }
+                    )
+                )
             ]
         );
     // Assert there are no more events.

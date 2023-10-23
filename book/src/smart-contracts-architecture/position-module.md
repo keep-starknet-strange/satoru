@@ -4,7 +4,7 @@ The purpose of the position module is to help with management of positions.
 
 ## Fees in position
 
-Borrowing fees for position require only a borrowing_factor to track. An example on how this works is if the global cumulative_borrowing_factor is 10020% a position would be opened with borrowingFactor as 10020%. After some time, if the cumulative\_\_borrowing_factor is updated to 10025% the position would owe 5% of the position size as borrowing fees. The total pending borrowing fees of all positions is factored into the calculation of the pool value for LPs. When a position is increased or decreased, the pending borrowing fees for the position is deducted from the position's
+Borrowing fees for position require only a borrowing_factor to track. An example on how this works is if the global cumulative_borrowing_factor is 10020% a position would be opened with borrowingFactor as 10020%. After some time, if the cumulative_borrowing_factor is updated to 10025% the position would owe 5% of the position size as borrowing fees. The total pending borrowing fees of all positions is factored into the calculation of the pool value for LPs. When a position is increased or decreased, the pending borrowing fees for the position is deducted from the position's
 collateral and transferred into the LP pool.
 
 The same borrowing fee factor tracking cannot be applied for funding fees as those calculations consider pending funding fees based on the fiat value of the position sizes.

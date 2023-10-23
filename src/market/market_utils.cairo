@@ -30,7 +30,7 @@ use satoru::utils::precision;
 use satoru::utils::calc::{roundup_division, to_signed, sum_return_int_128, to_unsigned};
 use satoru::position::position::Position;
 use integer::u128_to_felt252;
-use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul, I128Default}, error_utils};
+use satoru::utils::{i128::i128, error_utils};
 use satoru::utils::precision::{apply_exponent_factor, float_to_wei, mul_div};
 use satoru::data::keys::{skip_borrowing_fee_for_smaller_side, max_swap_path_length};
 
@@ -114,8 +114,8 @@ fn get_market_token_price(
         return (calc::to_signed(precision::FLOAT_PRECISION, true), pool_value_info);
     }
 
-    if pool_value_info.pool_value == 0 {
-        return (0, pool_value_info);
+    if pool_value_info.pool_value == Zeroable::zero() {
+        return (Zeroable::zero(), pool_value_info);
     }
 
     let market_token_price = precision::mul_div_inum(
@@ -377,7 +377,7 @@ fn get_capped_pnl(
     pool_usd: u128,
     pnl_factor_type: felt252
 ) -> i128 {
-    if pnl < 0 {
+    if pnl < Zeroable::zero() {
         return pnl;
     }
     let max_pnl_factor = get_max_pnl_factor(data_store, pnl_factor_type, market, is_long);
@@ -425,8 +425,8 @@ fn get_pnl(
         data_store, market, is_long
     );
     // If either the open interest or the open interest in tokens is zero, return zero.
-    if open_interest == 0 || open_interest_in_tokens == 0 {
-        return 0;
+    if open_interest == Zeroable::zero() || open_interest_in_tokens == 0 {
+        return Zeroable::zero();
     }
 
     // Pick the price for PNL.
@@ -780,7 +780,7 @@ fn get_capped_position_impact_usd(
     mut price_impact_usd: i128,
     size_delta_usd: u128
 ) -> i128 {
-    if price_impact_usd < 0 {
+    if price_impact_usd < Zeroable::zero() {
         return price_impact_usd;
     }
 
@@ -931,7 +931,7 @@ fn apply_delta_to_open_interest(
         );
     }
 
-    if (delta > 0) {
+    if (delta > Zeroable::zero()) {
         validate_open_interest(data_store, market, is_long);
     }
     event_emitter
@@ -1294,10 +1294,10 @@ fn get_swap_impact_amount_with_cap(
     token_price: Price,
     price_impact_usd: i128
 ) -> i128 {
-    let mut impact_amount: i128 = 0;
+    let mut impact_amount: i128 = Zeroable::zero();
     // positive impact: minimize impactAmount, use tokenPrice.max
     // negative impact: maximize impactAmount, use tokenPrice.min
-    if price_impact_usd > 0 {
+    if price_impact_usd > Zeroable::zero() {
         // round positive impactAmount down, this will be deducted from the swap impact pool for the user
         let price = to_signed(token_price.max, true);
 
@@ -1560,29 +1560,11 @@ fn get_pnl_to_pool_factor_from_prices(
 ) -> i128 {
     let pool_usd: u128 = get_pool_usd_without_pnl(data_store, market, prices, is_long, !maximize);
     if pool_usd == 0 {
-        return 0;
+        return Zeroable::zero();
     }
     let pnl: i128 = get_pnl(data_store, market, prices.index_token_price, is_long, maximize);
     return to_factor_ival(pnl, pool_usd);
 }
-
-// Check if the pending pnl exceeds the allowed amount
-// # Arguments
-// * `data_store` - The data_store dispatcher.
-// * `market` - The market to check.
-// * `prices` - The prices of the market tokens.
-// * `is_long` - Whether to check the long or short side.
-// * `pnl_factor_type` - The pnl factor type to check.
-fn is_pnl_factor_exceeded_direct(
-    data_store: IDataStoreDispatcher,
-    market: Market,
-    prices: MarketPrices,
-    is_long: bool,
-    pnl_factor_type: felt252
-) -> (bool, i128, u128) {
-    (true, 0, 0)
-}
-
 
 /// Validates the token balance for a single market.
 /// # Arguments
@@ -1590,19 +1572,9 @@ fn is_pnl_factor_exceeded_direct(
 /// * `market` - Address of the market to check.
 fn validate_market_token_balance_with_address(
     data_store: IDataStoreDispatcher, market: ContractAddress
-) { //TODO
-}
-
-fn validate_markets_token_balance(data_store: IDataStoreDispatcher, market: Span<Market>) { //TODO
-}
-
-/// Validata that the specified market exists and is enabled
-/// # Arguments
-/// * `data_store` - The data store to use.
-/// * `market` - The market to validate.
-fn validate_enabled_market_address(
-    data_store: @IDataStoreDispatcher, market: ContractAddress
-) { // TODO
+) {
+    let enabled_market: Market = get_enabled_market(data_store, market);
+    validate_market_token_balance_check(data_store, enabled_market);
 }
 
 /// Update the cumulative borrowing factor for a market
@@ -1645,7 +1617,7 @@ fn get_virtual_inventory_for_positions(
 ) -> (bool, i128) {
     let virtual_token_id: felt252 = data_store.get_felt252(keys::virtual_token_id_key(token));
     if virtual_token_id == u128_to_felt252(0) {
-        return (false, 0);
+        return (false, Zeroable::zero());
     }
     return (true, data_store.get_i128(keys::virtual_inventory_for_positions_key(virtual_token_id)));
 }
@@ -1804,7 +1776,7 @@ fn apply_delta_to_virtual_inventory_for_positions(
 ) -> (bool, i128) {
     let virtual_token_id: felt252 = data_store.get_felt252(keys::virtual_token_id_key(token));
     if (virtual_token_id == 0) {
-        return (false, 0);
+        return (false, Zeroable::zero());
     }
 
     let next_value: i128 = data_store
@@ -2586,7 +2558,7 @@ fn market_token_amount_to_usd(market_token_amount: u128, pool_value: u128, suppl
 fn validate_enabled_market_check(
     data_store: IDataStoreDispatcher, market_address: ContractAddress
 ) {
-    let market: Market = data_store.get_market(market_address).unwrap();
+    let market: Market = data_store.get_market(market_address);
     validate_enabled_market(data_store, market);
 }
 
@@ -2614,7 +2586,7 @@ fn validate_position_market_check(data_store: IDataStoreDispatcher, market: Mark
 }
 
 fn validate_position_market(data_store: IDataStoreDispatcher, market_add: ContractAddress) {
-    let market: Market = data_store.get_market(market_add).unwrap();
+    let market: Market = data_store.get_market(market_add);
     validate_position_market_check(data_store, market);
 }
 
@@ -2644,13 +2616,13 @@ fn validate_market_collateral_token(market: Market, token: ContractAddress) {
 // `data_store - DataStore
 // `market_add` - the address of the market
 fn get_enabled_market(data_store: IDataStoreDispatcher, market_add: ContractAddress) -> Market {
-    let market: Market = data_store.get_market(market_add).unwrap();
+    let market: Market = data_store.get_market(market_add);
     validate_enabled_market(data_store, market);
     market
 }
 
 fn get_swap_path_market(data_store: IDataStoreDispatcher, market_add: ContractAddress) -> Market {
-    let market: Market = data_store.get_market(market_add).unwrap();
+    let market: Market = data_store.get_market(market_add);
     validate_swap_market(data_store, market);
     market
 }
@@ -2768,7 +2740,7 @@ fn is_pnl_factor_exceeded_check(
         data_store, pnl_factor_type, market.market_token, is_long
     );
 
-    let is_exceeded: bool = pnl_to_pool_factor > 0
+    let is_exceeded: bool = pnl_to_pool_factor > Zeroable::zero()
         && to_unsigned(pnl_to_pool_factor) > max_pnl_factor;
 
     (is_exceeded, pnl_to_pool_factor, max_pnl_factor)
@@ -2803,6 +2775,18 @@ fn set_ui_fee_factor(
 }
 
 fn validate_market_token_balance_array(data_store: IDataStoreDispatcher, markets: Array<Market>) {
+    let length: u32 = markets.len();
+    let mut i: u32 = 0;
+    loop {
+        if i == length {
+            break;
+        }
+        validate_market_token_balance_check(data_store, *markets.at(i));
+        i += 1;
+    };
+}
+
+fn validate_market_token_balance_span(data_store: IDataStoreDispatcher, markets: Span<Market>) {
     let length: u32 = markets.len();
     let mut i: u32 = 0;
     loop {

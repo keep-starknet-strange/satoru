@@ -303,18 +303,8 @@ mod ExchangeRouter {
             let data_store = self.data_store.read();
             global_reentrancy_guard::non_reentrant_before(data_store);
 
-            let deposit_result = data_store.get_deposit(key);
-            let mut deposit: Deposit = Default::default();
+            let deposit = data_store.get_deposit(key);
 
-            // Check if the deposit is valid
-            match deposit_result {
-                Option::Some(dep) => {
-                    deposit = dep;
-                },
-                Option::None => {
-                    panic_with_felt252(RouterError::DEPOSIT_NOT_VALID)
-                }
-            };
             if (deposit.account == contract_address_const::<0>()) {
                 panic_with_felt252(RouterError::EMPTY_DEPOSIT)
             }
@@ -345,18 +335,7 @@ mod ExchangeRouter {
             let data_store = self.data_store.read();
             global_reentrancy_guard::non_reentrant_before(data_store);
 
-            let withdrawal_result = data_store.get_withdrawal(key);
-            let mut withdrawal: Withdrawal = Default::default();
-
-            // Check if the withdrawal is valid
-            match withdrawal_result {
-                Option::Some(withd) => {
-                    withdrawal = withd;
-                },
-                Option::None => {
-                    panic_with_felt252(RouterError::WITHDRAWAL_NOT_VALID)
-                }
-            };
+            let withdrawal = data_store.get_withdrawal(key);
 
             if (withdrawal.account != get_caller_address()) {
                 RouterError::UNAUTHORIZED(get_caller_address(), 'account for cancel_withdrawal')
@@ -440,18 +419,7 @@ mod ExchangeRouter {
             let data_store = self.data_store.read();
             global_reentrancy_guard::non_reentrant_before(data_store);
 
-            let order_result = data_store.get_order(key);
-            let mut order: Order = Default::default();
-
-            // Check if the order is valid
-            match order_result {
-                Option::Some(ord) => {
-                    order = ord;
-                },
-                Option::None => {
-                    panic_with_felt252(RouterError::ORDER_NOT_VALID)
-                }
-            };
+            let order = data_store.get_order(key);
 
             if (order.account != get_caller_address()) {
                 RouterError::UNAUTHORIZED(get_caller_address(), 'account for update_order')
@@ -470,21 +438,7 @@ mod ExchangeRouter {
             let data_store = self.data_store.read();
             global_reentrancy_guard::non_reentrant_before(data_store);
 
-            let order_result = data_store.get_order(key);
-            let mut order: Order = Default::default();
-
-            // Check if the order is valid
-            match order_result {
-                Option::Some(ord) => {
-                    order = ord;
-                },
-                Option::None => {
-                    panic_with_felt252(RouterError::ORDER_NOT_VALID);
-                }
-            };
-            if (order.account != contract_address_const::<0>()) {
-                panic_with_felt252(RouterError::EMPTY_ORDER)
-            }
+            let order = data_store.get_order(key);
 
             if (order.account != get_caller_address()) {
                 RouterError::UNAUTHORIZED(get_caller_address(), 'account for cancel_order')

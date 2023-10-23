@@ -26,6 +26,7 @@ use satoru::market::market_utils;
 use satoru::data::keys;
 use satoru::role::role;
 use satoru::price::price::{Price, PriceTrait};
+use satoru::utils::i128::{i128, i128_new};
 
 #[test]
 fn given_normal_conditions_when_get_open_interest_then_works() {
@@ -62,7 +63,7 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
     // Get the market from the data store.
     // This must not panic, because the market was created in the previous step.
     // Hence the market must exist in the data store and it's safe to unwrap.
-    let market = data_store.get_market(market_token_deployed_address).unwrap();
+    let market = data_store.get_market(market_token_deployed_address);
 
     let collateral_token = contract_address_const::<'collateral_token'>();
     let is_long = true;
@@ -391,7 +392,7 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
     let market_address = contract_address_const::<'market_address'>();
     let token = contract_address_const::<'token'>();
     let account = contract_address_const::<'account'>();
-    let delta = 50;
+    let delta = i128_new(50, false);
     // The key for the claimable collateral amount for the account.
     // This is the key that will be used to assert the result.
     let claimable_collatoral_amount_for_account_key =
@@ -571,7 +572,7 @@ fn given_normal_conditions_when_get_pnl_then_works() {
     let pnl = market_utils::get_pnl(data_store, @market, @price, is_long, maximize);
 
     // Perform assertions.
-    assert(pnl == 22250, 'wrong pnl');
+    assert(pnl == i128_new(22250, false), 'wrong pnl');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -643,7 +644,7 @@ fn given_zero_open_interest_when_get_pnl_then_returns_zero_pnl() {
     let pnl = market_utils::get_pnl(data_store, @market, @price, is_long, maximize);
 
     // Perform assertions.
-    assert(pnl == 0, 'wrong pnl');
+    assert(pnl == i128_new(0, false), 'wrong pnl');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -715,7 +716,7 @@ fn given_zero_open_interest_in_tokens_when_get_pnl_then_returns_zero_pnl() {
     let pnl = market_utils::get_pnl(data_store, @market, @price, is_long, maximize);
 
     // Perform assertions.
-    assert(pnl == 0, 'wrong pnl');
+    assert(pnl == i128_new(0, false), 'wrong pnl');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -847,7 +848,7 @@ fn given_normal_conditions_when_apply_delta_to_position_impact_pool_then_works()
 
     // Define variables for the test case.
     let market_token_address = contract_address_const::<'market_token'>();
-    let delta = 50;
+    let delta = i128_new(50, false);
 
     // Setup pre conditions.
 
@@ -896,7 +897,7 @@ fn given_normal_conditions_when_apply_delta_to_swap_impact_pool_then_works() {
     // Define variables for the test case.
     let market_token_address = contract_address_const::<'market_token'>();
     let token = contract_address_const::<'token'>();
-    let delta = 50;
+    let delta = i128_new(50, false);
 
     // Setup pre conditions.
 
@@ -1076,7 +1077,7 @@ fn setup_contracts() -> (
     let market_factory = IMarketFactoryDispatcher { contract_address: market_factory_address };
 
     (
-        0x101.try_into().unwrap(),
+        contract_address_const::<'caller'>(),
         market_factory_address,
         role_store_address,
         data_store_address,
@@ -1097,30 +1098,41 @@ fn deploy_market_factory(
     market_token_class_hash: ContractClass,
 ) -> ContractAddress {
     let contract = declare('MarketFactory');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'market_factory'>();
+    start_prank(deployed_contract_address, caller_address);
     let mut constructor_calldata = array![];
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
     constructor_calldata.append(event_emitter_address.into());
     constructor_calldata.append(market_token_class_hash.class_hash.into());
-    contract.deploy(@constructor_calldata).unwrap()
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 
-/// Utility function to deploy a data store contract and return its address.
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('DataStore');
-    let mut constructor_calldata = array![];
-    constructor_calldata.append(role_store_address.into());
-    contract.deploy(@constructor_calldata).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'data_store'>();
+    start_prank(deployed_contract_address, caller_address);
+    let constructor_calldata = array![role_store_address.into()];
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
-/// Utility function to deploy a data store contract and return its address.
-/// Copied from `tests/role/test_role_store.rs`.
-/// TODO: Find a way to share this code.
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
-    let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
-    contract.deploy(constructor_arguments).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'role_store'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
+}
+
+fn deploy_event_emitter() -> ContractAddress {
+    let contract = declare('EventEmitter');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'event_emitter'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
 /// Utility function to deploy a `Chain` contract and return its address.
@@ -1130,9 +1142,3 @@ fn deploy_chain() -> ContractAddress {
     contract.deploy(constructor_arguments).unwrap()
 }
 
-/// Utility function to deploy a `EventEmitter` contract and return its address.
-fn deploy_event_emitter() -> ContractAddress {
-    let contract = declare('EventEmitter');
-    let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
-    contract.deploy(constructor_arguments).unwrap()
-}

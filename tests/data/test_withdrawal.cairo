@@ -18,7 +18,7 @@ use debug::PrintTrait;
 /// * `IRoleStoreDispatcher` - The role store dispatcher.
 /// * `IDataStoreDispatcher` - The data store dispatcher.
 fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
-    let caller_address: ContractAddress = 0x101.try_into().unwrap();
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let role_store_address = deploy_role_store();
     let role_store = IRoleStoreDispatcher { contract_address: role_store_address };
     let data_store_address = deploy_data_store(role_store_address);
@@ -40,8 +40,11 @@ fn setup() -> (ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher) {
 /// * `ContractAddress` - The address of the deployed data store contract.
 fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
     let contract = declare('DataStore');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address: ContractAddress = contract_address_const::<'data_store'>();
+    start_prank(deployed_contract_address, caller_address);
     let constructor_calldata = array![role_store_address.into()];
-    contract.deploy(@constructor_calldata).unwrap()
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
 /// Utility function to deploy a role store contract and return its address.
@@ -51,7 +54,10 @@ fn deploy_data_store(role_store_address: ContractAddress) -> ContractAddress {
 /// * `ContractAddress` - The address of the deployed role store contract.
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
-    contract.deploy(@array![]).unwrap()
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address: ContractAddress = contract_address_const::<'role_store'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
 #[test]
@@ -92,7 +98,7 @@ fn given_normal_conditions_when_set_withdrawal_new_and_override_then_works() {
     // Test set_withdrawal function with a new key.
     data_store.set_withdrawal(key, withdrawal);
 
-    let withdrawal_by_key = data_store.get_withdrawal(key).unwrap();
+    let withdrawal_by_key = data_store.get_withdrawal(key);
     assert(withdrawal_by_key == withdrawal, 'Invalid withdrawal by key');
 
     let account_withdrawal_count = data_store.get_account_withdrawal_count(account);
@@ -106,7 +112,7 @@ fn given_normal_conditions_when_set_withdrawal_new_and_override_then_works() {
     withdrawal.receiver = receiver;
     data_store.set_withdrawal(key, withdrawal);
 
-    let withdrawal_by_key = data_store.get_withdrawal(key).unwrap();
+    let withdrawal_by_key = data_store.get_withdrawal(key);
     assert(withdrawal_by_key == withdrawal, 'Invalid withdrawal by key');
     assert(withdrawal_by_key.receiver == receiver, 'Invalid withdrawal value');
 
@@ -246,7 +252,7 @@ fn given_caller_not_controller_when_get_withdrawal_keys_then_fails() {
 
     // Then
     let withdrawal_by_key = data_store.get_withdrawal(key);
-    assert(withdrawal_by_key.is_none(), 'withdrawal should be removed');
+    assert(withdrawal_by_key.account.is_zero(), 'withdrawal should be removed');
     let account_withdrawal_count = data_store.get_account_withdrawal_count(account);
     assert(account_withdrawal_count == 0, 'Acc withdrawal # should be 0');
     let account_withdrawal_keys = data_store.get_account_withdrawal_keys(account, 0, 10);
@@ -295,7 +301,7 @@ fn given_normal_conditions_when_remove_only_withdrawal_then_works() {
 
     // Then
     let withdrawal_by_key = data_store.get_withdrawal(key);
-    assert(withdrawal_by_key.is_none(), 'withdrawal should be removed');
+    assert(withdrawal_by_key.account.is_zero(), 'withdrawal should be removed');
 
     let account_withdrawal_count = data_store.get_account_withdrawal_count(account);
     assert(account_withdrawal_count == 0, 'Acc withdrawal # should be 0');
@@ -365,10 +371,10 @@ fn given_normal_conditions_when_remove_1_of_n_withdrawal_then_works() {
 
     // Then
     let withdrawal_1_by_key = data_store.get_withdrawal(key_1);
-    assert(withdrawal_1_by_key.is_none(), 'withdrawal1 shouldnt be removed');
+    assert(withdrawal_1_by_key.account.is_zero(), 'withdrawal1 should be removed');
 
     let withdrawal_2_by_key = data_store.get_withdrawal(key_2);
-    assert(withdrawal_2_by_key.is_some(), 'withdrawal2 shouldnt be removed');
+    assert(withdrawal_2_by_key.account.is_non_zero(), 'withdrawal2 shouldnt be removed');
 
     let account_withdrawal_count = data_store.get_account_withdrawal_count(account);
     assert(account_withdrawal_count == 1, 'Acc withdrawal # should be 1');
@@ -421,7 +427,7 @@ fn given_caller_not_controller_when_remove_withdrawal_then_fails() {
 
     // Then
     let withdrawal_by_key = data_store.get_withdrawal(key);
-    assert(withdrawal_by_key.is_none(), 'withdrawal should be removed');
+    assert(withdrawal_by_key.account.is_zero(), 'withdrawal should be removed');
     let account_withdrawal_count = data_store.get_account_withdrawal_count(account);
     assert(account_withdrawal_count == 0, 'Acc withdrawal # should be 0');
     let account_withdrawal_keys = data_store.get_account_withdrawal_keys(account, 0, 10);

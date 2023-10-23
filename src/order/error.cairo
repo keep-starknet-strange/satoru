@@ -1,6 +1,7 @@
 mod OrderError {
     use satoru::order::order::OrderType;
     use satoru::price::price::Price;
+    use satoru::utils::i128::i128;
 
     const EMPTY_ORDER: felt252 = 'empty_order';
     const INVALID_ORDER_PRICES: felt252 = 'invalid_order_prices';
@@ -11,6 +12,36 @@ mod OrderError {
     const ORDER_INDEX_NOT_FOUND: felt252 = 'order_index_not_found';
     const CANT_BE_ZERO: felt252 = 'order account cant be 0';
     const EMPTY_SIZE_DELTA_IN_TOKENS: felt252 = 'empty_size_delta_in_tokens';
+    const UNEXPECTED_MARKET: felt252 = 'unexpected market';
+    const INVALID_SIZE_DELTA_FOR_ADL: felt252 = 'invalid_size_delta_for_adl';
+    const POSTION_NOT_VALID: felt252 = 'position_not_valid';
+    const ORDER_ALREADY_FROZEN: felt252 = 'order_already_frozen';
+
+
+    fn ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(
+        min_oracle_block_numbers: Span<u64>, latest_updated_at_block: u64
+    ) {
+        let mut data: Array<felt252> = array!['Block nbs smaller than required'];
+        let len: u32 = min_oracle_block_numbers.len();
+        let mut i: u32 = 0;
+        loop {
+            if (i == len) {
+                break;
+            }
+            let value: u64 = *min_oracle_block_numbers.at(i);
+            data.append(value.into());
+            i += 1;
+        };
+        data.append(latest_updated_at_block.into());
+        panic(data)
+    }
+
+    fn INSUFFICIENT_OUTPUT_AMOUNT(output_usd: u128, min_output_amount: u128) {
+        let mut data = array!['Insufficient output amount'];
+        data.append(output_usd.into());
+        data.append(min_output_amount.into());
+        panic(data);
+    }
 
     fn INVALID_ORDER_PRICE(primary_price: Price, trigger_price: u128, order_type: OrderType) {
         let mut data: Array<felt252> = array![];
@@ -52,6 +83,20 @@ mod OrderError {
         data.append(position_size_in_usd.into());
         data.append(adjusted_price_impact_usd.into());
         data.append(size_delta_usd.into());
+        panic(data);
+    }
+
+    fn ORDER_TYPE_CANNOT_BE_CREATED(order_type: OrderType,) {
+        let mut data: Array<felt252> = array![];
+        data.append('order_type_cannot_be_created');
+        data.append(order_type.into());
+        panic(data);
+    }
+
+    fn INSUFFICIENT_WNT_AMOUNT_FOR_EXECUTION_FEE(first_amount: u128, secont_amount: u128) {
+        let mut data = array!['Insufficient wnt amount for fee'];
+        data.append(first_amount.into());
+        data.append(secont_amount.into());
         panic(data);
     }
 }

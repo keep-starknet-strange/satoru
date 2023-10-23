@@ -4,9 +4,9 @@
 // Core lib imports.
 use alexandria_math::pow;
 use integer::{
-    i128_to_felt252, u128_to_felt252, u256_wide_mul, u512_safe_div_rem_by_u256, BoundedU256,
-    u256_try_as_non_zero
+    u128_to_felt252, u256_wide_mul, u512_safe_div_rem_by_u256, BoundedU256, u256_try_as_non_zero
 };
+use satoru::utils::i128::i128;
 use core::traits::TryInto;
 use core::option::Option;
 use satoru::utils::calc::{roundup_division, roundup_magnitude_division};
@@ -81,17 +81,17 @@ fn mul_div_ival(value: i128, numerator: u128, denominator: u128) -> i128 {
 /// * `numerator` - The integer numerator that multiplies value.
 /// * `divisor` - The denominator that divides value.
 fn mul_div_inum(value: u128, numerator: i128, denominator: u128) -> i128 {
-    let numerator_abs = if numerator < 0 {
+    let numerator_abs = if numerator < Zeroable::zero() {
         -numerator
     } else {
         numerator
     };
-    let felt252_numerator: felt252 = i128_to_felt252(numerator_abs);
+    let felt252_numerator: felt252 = numerator_abs.into();
     let u128_numerator = felt252_numerator.try_into().expect('felt252 into u128 failed');
     let result: u128 = mul_div(value, u128_numerator, denominator);
     let felt252_result: felt252 = u128_to_felt252(result);
     let i128_result: i128 = felt252_result.try_into().expect('felt252 into i128 failed');
-    if numerator > 0 {
+    if numerator > Zeroable::zero() {
         return i128_result;
     } else {
         return -i128_result;
@@ -106,17 +106,17 @@ fn mul_div_inum(value: u128, numerator: i128, denominator: u128) -> i128 {
 fn mul_div_inum_roundup(
     value: u128, numerator: i128, denominator: u128, roundup_magnitude: bool
 ) -> i128 {
-    let numerator_abs = if numerator < 0 {
+    let numerator_abs = if numerator < Zeroable::zero() {
         -numerator
     } else {
         numerator
     };
-    let felt252_numerator: felt252 = i128_to_felt252(numerator_abs);
+    let felt252_numerator: felt252 = numerator_abs.into();
     let u128_numerator = felt252_numerator.try_into().expect('felt252 into u128 failed');
     let result: u128 = mul_div_roundup(value, u128_numerator, denominator, roundup_magnitude);
     let felt252_result: felt252 = u128_to_felt252(result);
     let i128_result: i128 = felt252_result.try_into().expect('felt252 into i128 failed');
-    if numerator > 0 {
+    if numerator > Zeroable::zero() {
         return i128_result;
     } else {
         return -i128_result;
@@ -464,17 +464,17 @@ fn to_factor(value: u128, divisor: u128) -> u128 {
 /// # Returns
 /// The factor between value and divisor.
 fn to_factor_ival(value: i128, divisor: u128) -> i128 {
-    let value_abs = if value < 0 {
+    let value_abs = if value < Zeroable::zero() {
         -value
     } else {
         value
     };
-    let felt252_value: felt252 = i128_to_felt252(value_abs);
+    let felt252_value: felt252 = value_abs.into();
     let u128_value = felt252_value.try_into().expect('felt252 into u128 failed');
     let result: u128 = to_factor(u128_value, divisor);
     let felt252_result: felt252 = u128_to_felt252(result);
     let i128_result: i128 = felt252_result.try_into().expect('felt252 into i128 failed');
-    if value > 0 {
+    if value > Zeroable::zero() {
         i128_result
     } else {
         -i128_result

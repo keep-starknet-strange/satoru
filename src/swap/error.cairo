@@ -1,5 +1,6 @@
 mod SwapError {
     use starknet::ContractAddress;
+    use satoru::utils::i128::i128;
 
     const ALREADY_INITIALIZED: felt252 = 'already_initialized';
 
