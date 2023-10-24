@@ -51,10 +51,13 @@ struct EventLogData {
 
 #[derive(Default, Destruct, Serde)]
 struct LogData {
+    // TODO address_items: OrderedDict<ContractAddress>
     uint_items: OrderedDict<u128>,
     int_items: OrderedDict<i128>,
     bool_items: OrderedDict<bool>,
-    felt252_items: OrderedDict<felt252>
+    felt252_items: OrderedDict<felt252>,
+    // TODO? Possible? array_of_felt_items: OrderedDict<Array<felt252>>,
+    string_items: OrderedDict<felt252>
 }
 
 // uint
@@ -114,6 +117,22 @@ fn set_item_Felt252_items(
 }
 
 fn set_item_array_Felt252_items(
+    mut dict: OrderedDict<felt252>, index: u32, key: felt252, values: Array<felt252>
+) -> OrderedDict<felt252> {
+    OrderedDictTraitImpl::add_multiple(ref dict, key, values);
+    dict
+}
+
+
+// string
+fn set_item_string_items(
+    mut dict: OrderedDict<felt252>, index: u32, key: felt252, value: felt252
+) -> OrderedDict<felt252> {
+    OrderedDictTraitImpl::add_single(ref dict, key, value);
+    dict
+}
+
+fn set_item_array_string_items(
     mut dict: OrderedDict<felt252>, index: u32, key: felt252, values: Array<felt252>
 ) -> OrderedDict<felt252> {
     OrderedDictTraitImpl::add_multiple(ref dict, key, values);
