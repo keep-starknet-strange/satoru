@@ -54,6 +54,7 @@ struct LogData {
     uint_items: OrderedDict<u128>,
     int_items: OrderedDict<i128>,
     bool_items: OrderedDict<bool>,
+    felt252_items: OrderedDict<felt252>
 }
 
 // uint
@@ -99,6 +100,22 @@ fn set_item_bool_items(
 fn set_item_array_bool_items(
     mut dict: OrderedDict<bool>, index: u32, key: felt252, values: Array<bool>
 ) -> OrderedDict<bool> {
+    OrderedDictTraitImpl::add_multiple(ref dict, key, values);
+    dict
+}
+
+
+// felt252
+fn set_item_Felt252_items(
+    mut dict: OrderedDict<felt252>, index: u32, key: felt252, value: felt252
+) -> OrderedDict<felt252> {
+    OrderedDictTraitImpl::add_single(ref dict, key, value);
+    dict
+}
+
+fn set_item_array_Felt252_items(
+    mut dict: OrderedDict<felt252>, index: u32, key: felt252, values: Array<felt252>
+) -> OrderedDict<felt252> {
     OrderedDictTraitImpl::add_multiple(ref dict, key, values);
     dict
 }
