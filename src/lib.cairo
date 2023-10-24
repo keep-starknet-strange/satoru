@@ -44,6 +44,7 @@ mod config {
 // `event` is a module event management functions.
 mod event {
     mod event_utils;
+    mod event_utils_sandbox;
     mod event_emitter;
 }
 
@@ -153,7 +154,7 @@ mod utils {
     mod starknet_utils;
     mod traits;
     mod default;
-    mod serializable_felt_dict;
+    mod ordered_dict;
 }
 
 // `liquidation` function to help with liquidations.
