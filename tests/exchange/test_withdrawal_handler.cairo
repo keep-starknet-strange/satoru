@@ -4,7 +4,7 @@ use starknet::{
 use snforge_std::{
     declare, start_prank, stop_prank, start_mock_call, stop_mock_call, ContractClassTrait
 };
-
+use satoru::utils::span32::{Span32, Span32Trait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::exchange::withdrawal_handler::{
     IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait
@@ -23,6 +23,7 @@ use satoru::withdrawal::withdrawal_utils::CreateWithdrawalParams;
 use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::market::market::Market;
 use traits::Default;
+use debug::PrintTrait;
 
 // This tests check withdrawal creation under normal condition
 // It calls withdrawal_handler.create_withdrawal
@@ -48,7 +49,13 @@ fn given_normal_conditions_when_create_withdrawal_then_works() {
 
     data_store.set_market(market_token, 0, market);
     start_mock_call(withdrawal_vault_address, 'record_transfer_in', 1);
-    withdrawal_handler.create_withdrawal(account, params);
+    let key = withdrawal_handler.create_withdrawal(account, params);
+
+    //check withdrawal datas created
+    let withdrawal = data_store.get_withdrawal(key);
+    //withdrawal is actually created with key  = 0
+    assert(withdrawal.key == 0, 'Invalid withdrawal key');
+    assert(withdrawal.account == account, 'Invalid withdrawal account');
 }
 
 // This tests check withdrawal creation when market_token_amount is 0
@@ -136,6 +143,24 @@ fn given_normal_conditions_when_cancel_withdrawal_then_works() {
     );
     // Key cleaning should be done in withdrawal_utils. We only check call here.
     withdrawal_handler.cancel_withdrawal(withdrawal_key);
+
+    //check withdrawal correctly removed
+    let address_zero = contract_address_const::<0>();
+    let withdrawal = data_store.get_withdrawal(withdrawal_key);
+
+    assert(withdrawal.key == 0, 'Invalid key');
+    assert(withdrawal.account == address_zero, 'Invalid account');
+    assert(withdrawal.receiver == address_zero, 'Invalid receiver');
+    assert(withdrawal.callback_contract == address_zero, 'Invalid callback after');
+    assert(withdrawal.ui_fee_receiver == address_zero, 'Invalid ui_fee_receiver');
+    assert(withdrawal.long_token_swap_path.len() == 0, 'Invalid long_swap_path');
+    assert(withdrawal.short_token_swap_path.len() == 0, 'Invalid short_swap_path');
+    assert(withdrawal.market_token_amount == 0, 'Invalid market_token_amount');
+    assert(withdrawal.min_long_token_amount == 0, 'Invalid long_token_amount');
+    assert(withdrawal.min_short_token_amount == 0, 'Invalid short_token_amount');
+    assert(withdrawal.updated_at_block == 0, 'Invalid block');
+    assert(withdrawal.execution_fee == 0, 'Invalid execution_fee');
+    assert(withdrawal.callback_gas_limit == 0, 'Invalid callback_gas_limit');
 }
 
 // This tests check withdrawal cancellation when key doesn't exist in store
@@ -260,7 +285,7 @@ fn given_market_token_equals_zero_when_cancel_withdrawal_then_fails() {
 // The test expects the call to panic with the error 'unauthorized_access'.
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
-fn given_caller_not_controller_when_execute_withdrawal_then_fails() {
+fn given_caller_not_keeper_when_execute_withdrawal_then_fails() {
     let oracle_params = SetPricesParams {
         signer_info: Default::default(),
         tokens: Default::default(),
@@ -284,8 +309,8 @@ fn given_caller_not_controller_when_execute_withdrawal_then_fails() {
 }
 
 // TODO crashes because of gas_left function.
-// #[test]
-// #[should_panic(expected: ('invalid withdrawal key', 'SAMPLE_WITHDRAW'))]
+//  #[test]
+//  #[should_panic(expected: ('invalid withdrawal key', 'SAMPLE_WITHDRAW'))]
 // fn given_invalid_withdrawal_key_when_execute_withdrawal_then_fails() {
 //     let oracle_params = SetPricesParams {
 //         signer_info: Default::default(),
