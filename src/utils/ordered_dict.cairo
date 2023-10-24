@@ -79,7 +79,7 @@ trait OrderedDictTrait<T> {
     /// Adds an array of elements.
     fn add_multiple(ref self: OrderedDict<T>, key: felt252, values: Array<T>);
     /// Gets an element.
-    fn get<impl TCopy: Copy<T>>(ref self: OrderedDict<T>, key: felt252) -> Value<T>;
+    fn get<impl TCopy: Copy<T>>(ref self: OrderedDict<T>, key: felt252) -> Option<Value<T>>;
     /// Checks if a key is in the dictionnary.
     fn contains_key(self: @OrderedDict<T>, key: felt252) -> bool;
     /// Checks if a dictionnary is empty.
@@ -103,10 +103,10 @@ impl OrderedDictTraitImpl<
         self.values.insert(0, nullable_from_box(BoxTrait::new(values)));
     }
 
-    fn get<impl TCopy: Copy<T>>(ref self: OrderedDict<T>, key: felt252) -> Value<T> {
+    fn get<impl TCopy: Copy<T>>(ref self: OrderedDict<T>, key: felt252) -> Option<Value<T>> {
         match match_nullable(self.values.get(key)) {
-            FromNullableResult::Null(()) => panic_with_felt252('No value found'),
-            FromNullableResult::NotNull(val) => val.unbox(),
+            FromNullableResult::Null(()) => Option::None,
+            FromNullableResult::NotNull(val) => Option::Some(val.unbox()),
         }
     }
 
@@ -139,9 +139,8 @@ impl OrderedDictSerde<
     T,
     impl TCopy: Copy<T>,
     impl TDrop: Drop<T>,
-    impl TIntoT: Into<felt252, T>,
+    impl FeltIntoT: Into<felt252, T>,
     impl TIntoFelt: Into<T, felt252>,
-    impl TPartialOrd: PartialOrd<felt252>
 > of Serde<OrderedDict<T>> {
     //
     // Serialization of an OrderedDict
