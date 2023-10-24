@@ -23,7 +23,6 @@ use satoru::withdrawal::withdrawal_utils::CreateWithdrawalParams;
 use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::market::market::Market;
 use traits::Default;
-use debug::PrintTrait;
 
 // This tests check withdrawal creation under normal condition
 // It calls withdrawal_handler.create_withdrawal
@@ -309,8 +308,8 @@ fn given_caller_not_keeper_when_execute_withdrawal_then_fails() {
 }
 
 // TODO crashes because of gas_left function.
-//  #[test]
-//  #[should_panic(expected: ('invalid withdrawal key', 'SAMPLE_WITHDRAW'))]
+// #[test]
+// #[should_panic(expected: ('invalid withdrawal key', 'SAMPLE_WITHDRAW'))]
 // fn given_invalid_withdrawal_key_when_execute_withdrawal_then_fails() {
 //     let oracle_params = SetPricesParams {
 //         signer_info: Default::default(),
