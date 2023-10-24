@@ -13,15 +13,28 @@ use satoru::utils::ordered_dict::{OrderedDict, OrderedDictTraitImpl, OrderedDict
 impl Felt252IntoBool of Into<felt252, bool> {
     #[inline(always)]
     fn into(self: felt252) -> bool {
-        let as_u8: u8 = self.try_into().unwrap();
-        as_u8 > 0
+        let as_u128: u128 = self.try_into().expect('u128 Overflow');
+        as_u128 > 0
     }
 }
 
 impl Felt252IntoU128 of Into<felt252, u128> {
     #[inline(always)]
     fn into(self: felt252) -> u128 {
-        self.try_into().unwrap()
+        self.try_into().expect('u128 Overflow')
+    }
+}
+
+impl Felt252IntoI128 of Into<felt252, i128> {
+    #[inline(always)]
+    fn into(self: felt252) -> i128 {
+        self.try_into().expect('i128 Overflow')
+    }
+}
+impl I128252DictValue of Felt252DictValue<i128> {
+    #[inline(always)]
+    fn zero_default() -> i128 nopanic {
+        0
     }
 }
 
@@ -39,6 +52,7 @@ struct EventLogData {
 #[derive(Default, Destruct, Serde)]
 struct LogData {
     uint_items: OrderedDict<u128>,
+    int_items: OrderedDict<i128>,
     bool_items: OrderedDict<bool>,
 }
 
@@ -53,6 +67,22 @@ fn set_item_uint_items(
 fn set_item_array_uint_items(
     mut dict: OrderedDict<u128>, index: u32, key: felt252, values: Array<u128>
 ) -> OrderedDict<u128> {
+    OrderedDictTraitImpl::add_multiple(ref dict, key, values);
+    dict
+}
+
+
+// int
+fn set_item_int_items(
+    mut dict: OrderedDict<i128>, index: u32, key: felt252, value: i128
+) -> OrderedDict<i128> {
+    OrderedDictTraitImpl::add_single(ref dict, key, value);
+    dict
+}
+
+fn set_item_array_int_items(
+    mut dict: OrderedDict<i128>, index: u32, key: felt252, values: Array<i128>
+) -> OrderedDict<i128> {
     OrderedDictTraitImpl::add_multiple(ref dict, key, values);
     dict
 }
