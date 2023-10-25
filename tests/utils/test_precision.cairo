@@ -156,7 +156,7 @@ fn test_pow_final() {
     //assert(result2 == 5000000000000000000, 'should be 2321928094887362334');
     //assert(result3 == 1000000000000000000, 'should be 2000000000000000000');
     //assert(result5 == 0000000000000000000, 'should be 0000000000000000000');
-    assert(value1==value1, 'In progress')
+    assert(value1 == value1, 'In progress')
 }
 
 #[test]

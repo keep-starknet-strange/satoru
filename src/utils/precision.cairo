@@ -451,7 +451,7 @@ fn msb(mut x: u256) -> u256 {
     let mut result = 0;
     if (x >= pow256(2, 128)) {
         x = BitShift::shr(x, 128);
-        result +=128;
+        result += 128;
     }
     if x >= pow256(2, 64) {
         x = BitShift::shr(x, 64);
@@ -492,7 +492,7 @@ fn log2(x: u256) -> u256 {
     }
 
     // Calculate the integer part of the logarithm.
-    let n: u256 = msb(xUint / 1000000000000000000);  
+    let n: u256 = msb(xUint / 1000000000000000000);
 
     // Calculate the integer part of the logarithm as a fixed-point number.
     let mut resultUint: u256 = n * 1000000000000000000;
@@ -517,13 +517,13 @@ fn log2(x: u256) -> u256 {
             resultUint += delta;
             y = BitShift::shr(y, 1);
         }
-        delta = BitShift::shr(delta, 1);  // Decrement the delta by halving it.
+        delta = BitShift::shr(delta, 1); // Decrement the delta by halving it.
     };
 
     return resultUint;
 }
 
-fn pow_final( x: u256, y : u256) -> u256 {
+fn pow_final(x: u256, y: u256) -> u256 {
     let xUint: u256 = x;
     let yUint: u256 = y;
 
@@ -531,12 +531,10 @@ fn pow_final( x: u256, y : u256) -> u256 {
     if (xUint == 0) {
         if yUint == 0 {
             return 1000000000000000000;
-        }
-        else {
+        } else {
             return 0;
         }
-    }
-    // If x is `UNIT`, the result is always `UNIT`.
+    }// If x is `UNIT`, the result is always `UNIT`.
     else if (xUint == 1000000000000000000) {
         return 1000000000000000000;
     }
@@ -544,8 +542,7 @@ fn pow_final( x: u256, y : u256) -> u256 {
     // If y is zero, the result is always `UNIT`.
     if (yUint == 0) {
         return 1000000000000000000;
-    }
-    // If y is `UNIT`, the result is always x.
+    }// If y is `UNIT`, the result is always x.
     else if (yUint == 1000000000000000000) {
         return x;
     }
@@ -553,8 +550,7 @@ fn pow_final( x: u256, y : u256) -> u256 {
     // If x is greater than `UNIT`, use the standard formula.
     if (xUint > 1000000000000000000) {
         return exp2(log2(x) * y);
-    }
-    // Conversely, if x is less than `UNIT`, use the equivalent formula.
+    }// Conversely, if x is less than `UNIT`, use the equivalent formula.
     else {
         let i = 1000000000000000000000000000000000000 / xUint;
         let w = exp2(log2(i) * y);
