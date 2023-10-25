@@ -279,7 +279,7 @@ fn deploy_referral_storage(event_emitter_address: ContractAddress) -> ContractAd
 
 
 #[test]
-fn test_is_position_liquiditable_negative_remaining_collateral_usd() {
+fn given_negative_remaining_collateral_usd_when_checking_liquidatability_then_invalid_position() {
     // 
     // Setup  
     //   
@@ -340,7 +340,7 @@ fn test_is_position_liquiditable_negative_remaining_collateral_usd() {
 
 
 #[test]
-fn test_is_position_liquiditable_below_min_collateral() {
+fn given_below_minimum_collateral_when_checking_liquidatability_then_invalid_position() {
     // 
     // Setup  
     //   
@@ -400,7 +400,7 @@ fn test_is_position_liquiditable_below_min_collateral() {
 }
 
 #[test]
-fn test_is_position_liquiditable_valid_position() {
+fn given_valid_position_when_checking_liquidatability_then_valid_position() {
     // 
     // Setup  
     //   
@@ -460,7 +460,7 @@ fn test_is_position_liquiditable_valid_position() {
 }
 
 #[test]
-fn test_is_position_liquiditable_below_min_collateral_leverage() {
+fn given_below_min_collateral_leverage_when_checking_liquidatability_then_invalid_position() {
     // 
     // Setup  
     //   
@@ -525,7 +525,7 @@ fn test_is_position_liquiditable_below_min_collateral_leverage() {
 
 
 #[test]
-fn test_update_total_borrowing() {
+fn given_initial_total_borrowing_when_updating_then_correct_total_borrowing() {
     // 
     // Setup  
     //   
@@ -572,7 +572,7 @@ fn test_update_total_borrowing() {
 }
 
 #[test]
-fn test_update_open_interest() {
+fn given_initial_open_interest_when_updating_then_correct_open_interest() {
     // 
     // Setup  
     //   
@@ -628,7 +628,7 @@ fn test_update_open_interest() {
 }
 
 #[test]
-fn test_handle_referral() {
+fn given_valid_referral_when_handling_then_referral_successfully_processed() {
     // 
     // Setup  
     //   
@@ -680,6 +680,7 @@ fn test_handle_referral() {
 
     assert(affiliate_reward_value == 30, 'Invalide affiliate reward value')
 }
+
 //TODO
 // #[test]
 // fn test_will_position_collateral_be_sufficient() {
