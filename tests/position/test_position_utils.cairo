@@ -680,7 +680,6 @@ fn given_valid_referral_when_handling_then_referral_successfully_processed() {
 
     assert(affiliate_reward_value == 30, 'Invalide affiliate reward value')
 }
-
 //TODO
 // #[test]
 // fn test_will_position_collateral_be_sufficient() {
