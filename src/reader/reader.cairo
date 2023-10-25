@@ -29,7 +29,7 @@ use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::position::{position_utils, position::Position};
 use satoru::pricing::swap_pricing_utils::SwapFees;
 use satoru::deposit::deposit::Deposit;
-use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul}};
+use satoru::utils::i128::i128;
 
 #[derive(Drop, starknet::Store, Serde)]
 struct VirtualInventory {
@@ -450,7 +450,7 @@ mod Reader {
         market_utils, market_utils::GetNextFundingAmountPerSizeResult, market::Market,
         market_utils::MarketPrices, market_pool_value_info::MarketPoolValueInfo,
     };
-    use satoru::utils::{i128::{I128Store, I128Serde, I128Div, I128Mul}};
+    use satoru::utils::i128::i128;
     use satoru::withdrawal::withdrawal::Withdrawal;
     use satoru::position::{position_utils, position::Position};
     use satoru::pricing::swap_pricing_utils::SwapFees;
@@ -480,38 +480,38 @@ mod Reader {
         fn get_market(
             self: @ContractState, data_store: IDataStoreDispatcher, key: ContractAddress
         ) -> Market {
-            data_store.get_market(key).expect('get_market failed')
+            data_store.get_market(key)
         }
 
         fn get_market_by_salt(
             self: @ContractState, data_store: IDataStoreDispatcher, salt: felt252
         ) -> Market {
-            data_store.get_by_salt_market(salt).expect('get_by_salt_market failed')
+            data_store.get_by_salt_market(salt)
         }
 
 
         fn get_deposit(
             self: @ContractState, data_store: IDataStoreDispatcher, key: felt252
         ) -> Deposit {
-            data_store.get_deposit(key).expect('get_deposit failed')
+            data_store.get_deposit(key)
         }
 
         fn get_withdrawal(
             self: @ContractState, data_store: IDataStoreDispatcher, key: felt252
         ) -> Withdrawal {
-            data_store.get_withdrawal(key).expect('get_withdrawal failed')
+            data_store.get_withdrawal(key)
         }
 
         fn get_position(
             self: @ContractState, data_store: IDataStoreDispatcher, key: felt252
         ) -> Position {
-            data_store.get_position(key).expect('get_position failed')
+            data_store.get_position(key)
         }
 
         fn get_order(
             self: @ContractState, data_store: IDataStoreDispatcher, key: felt252
         ) -> Order {
-            data_store.get_order(key).expect('get_order failed')
+            data_store.get_order(key)
         }
 
         fn get_position_pnl_usd(
@@ -522,7 +522,7 @@ mod Reader {
             position_key: felt252,
             size_delta_usd: u128
         ) -> (i128, i128, u128) {
-            let position = data_store.get_position(position_key).expect('get_position failed');
+            let position = data_store.get_position(position_key);
             position_utils::get_position_pnl_usd(
                 data_store, market, prices, position, size_delta_usd
             )
@@ -543,9 +543,7 @@ mod Reader {
                 if i == length {
                     break;
                 }
-                let position = data_store
-                    .get_position(*position_keys.at(i))
-                    .expect('get_position failed');
+                let position = data_store.get_position(*position_keys.at(i));
                 positions.append(position);
                 i += 1;
             };
@@ -620,7 +618,7 @@ mod Reader {
                 if i == length {
                     break;
                 }
-                let order = data_store.get_order(*order_keys.at(i)).expect('get_order failed');
+                let order = data_store.get_order(*order_keys.at(i));
                 orders.append(order);
                 i += 1;
             };
@@ -638,7 +636,7 @@ mod Reader {
                 if i == length {
                     break;
                 }
-                let market = data_store.get_market(*market_keys.at(i)).expect('get_market failed');
+                let market = data_store.get_market(*market_keys.at(i));
                 markets.append(market);
                 i += 1;
             };
@@ -674,7 +672,7 @@ mod Reader {
             prices: MarketPrices,
             market_key: ContractAddress
         ) -> MarketInfo {
-            let market = data_store.get_market(market_key).expect('get_market failed');
+            let market = data_store.get_market(market_key);
             let borrowing_factor_per_second_for_longs =
                 market_utils::get_borrowing_factor_per_second(
                 data_store, market, prices, true
@@ -768,7 +766,7 @@ mod Reader {
             is_long: bool,
             maximize: bool
         ) -> i128 {
-            let market = data_store.get_market(market_address).expect('get_market failed');
+            let market = data_store.get_market(market_address);
             market_utils::get_pnl_to_pool_factor_from_prices(
                 data_store, @market, @prices, is_long, maximize
             )
@@ -816,7 +814,7 @@ mod Reader {
             size_delta_usd: i128,
             is_long: bool
         ) -> ExecutionPriceResult {
-            let market = data_store.get_market(market_key).expect('get_market failed');
+            let market = data_store.get_market(market_key);
             reader_pricing_utils::get_execution_price(
                 data_store,
                 market,
@@ -838,7 +836,7 @@ mod Reader {
             token_in_price: Price,
             token_out_price: Price
         ) -> (i128, i128) {
-            let market = data_store.get_market(market_key).expect('get_market failed');
+            let market = data_store.get_market(market_key);
             reader_pricing_utils::get_swap_price_impact(
                 data_store, market, token_in, token_out, amount_in, token_in_price, token_out_price
             )
@@ -854,7 +852,7 @@ mod Reader {
             let latest_adl_block = adl_utils::get_latest_adl_block(data_store, market, is_long);
             let _market = market_utils::get_enabled_market(data_store, market);
             let (should_enabled_ald, pnl_to_pool_factor, max_pnl_factor) =
-                market_utils::is_pnl_factor_exceeded_direct(
+                market_utils::is_pnl_factor_exceeded_check(
                 data_store, _market, prices, is_long, keys::max_pnl_factor_for_adl()
             );
             (latest_adl_block, should_enabled_ald, pnl_to_pool_factor, max_pnl_factor)

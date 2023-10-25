@@ -20,6 +20,7 @@ use snforge_std::{
     event_name_hash, Event, EventAssertions, start_mock_call
 };
 use satoru::adl::adl_utils;
+use satoru::utils::i128::{i128, i128_new};
 
 
 #[test]
@@ -142,7 +143,7 @@ fn given_normal_conditions_when_emit_adl_state_updated_then_works() {
     let mut spy = spy_events(SpyOn::One(event_emitter_address));
     let market: ContractAddress = 'market'.try_into().unwrap();
     let is_long = true;
-    let pnl_to_pool_factor: i128 = 12345;
+    let pnl_to_pool_factor: i128 = i128_new(12345, false);
     let max_pnl_factor: u128 = 100;
     let should_enable_adl: bool = true;
 
@@ -196,7 +197,7 @@ fn given_small_block_number_when_update_adl_state_then_fails() {
 
 
 #[test]
-#[should_panic(expected: ('position_not_valid',))]
+#[should_panic(expected: ('invalid_size_delta_for_adl',))]
 fn given_non_valid_position_when_create_adl_order_then_fails() {
     // Setup
 

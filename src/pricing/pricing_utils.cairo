@@ -4,6 +4,7 @@
 //                                  IMPORTS
 // *************************************************************************
 use satoru::utils::{precision, calc};
+use satoru::utils::i128::i128;
 
 /// Get the price impact USD if there is no crossover in balance
 /// a crossover in balance is for example if the long open interest is larger

@@ -21,7 +21,7 @@ use satoru::utils::store_arrays::{StoreMarketArray, StoreU64Array, StoreContract
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::utils::span32::Span32;
 use satoru::utils::calc;
-use satoru::utils::i128::{I128Div, I128Store, I128Serde};
+use satoru::utils::i128::{i128, i128_neg};
 
 #[derive(Drop, starknet::Store, Serde)]
 struct ExecuteOrderParams {
@@ -46,6 +46,7 @@ struct ExecuteOrderParams {
     secondary_order_type: SecondaryOrderType
 }
 
+
 #[derive(Drop, Copy, starknet::Store, Serde)]
 struct ExecuteOrderParamsContracts {
     /// The dispatcher to interact with the `DataStore` contract
@@ -63,7 +64,7 @@ struct ExecuteOrderParamsContracts {
 }
 
 /// CreateOrderParams struct used in create_order.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Drop, Copy, starknet::Store, Serde)]
 struct CreateOrderParams {
     /// Meant to allow the output of an order to be
     /// received by an address that is different from the position.account
@@ -92,7 +93,7 @@ struct CreateOrderParams {
     /// The acceptable execution price for increase / decrease orders.
     acceptable_price: u128,
     /// The execution fee for keepers.
-    execution_fee: u256,
+    execution_fee: u128,
     /// The gas limit for the callbackContract.
     callback_gas_limit: u128,
     /// The minimum output amount for decrease orders and swaps.
@@ -414,8 +415,8 @@ fn get_execution_price_for_decrease(
             -price_impact_usd
         };
 
-        if adjusted_price_impact_usd < 0
-            && calc::to_unsigned(-adjusted_price_impact_usd) > size_delta_usd {
+        if adjusted_price_impact_usd < Zeroable::zero()
+            && calc::to_unsigned(i128_neg(adjusted_price_impact_usd)) > size_delta_usd {
             OrderError::PRICE_IMPACT_LARGER_THAN_ORDER_SIZE(
                 adjusted_price_impact_usd, size_delta_usd
             );
@@ -428,7 +429,7 @@ fn get_execution_price_for_decrease(
 
         let _execution_price: i128 = calc::to_signed(price, true) + adjustment;
 
-        if _execution_price < 0 {
+        if _execution_price < Zeroable::zero() {
             OrderError::NEGATIVE_EXECUTION_PRICE(
                 _execution_price,
                 price,

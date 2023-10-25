@@ -44,6 +44,7 @@ mod exchange {
     mod test_liquidation_handler;
     mod test_withdrawal_handler;
     mod test_deposit_handler;
+    mod test_exchange_utils;
     mod test_base_order_handler;
 }
 mod feature {
@@ -105,6 +106,9 @@ mod utils {
     mod test_starknet_utils;
     mod test_u128_mask;
     mod test_i128;
+}
+mod withdrawal {
+    mod test_withdrawal_vault;
 }
 mod mock {
     mod test_governable;

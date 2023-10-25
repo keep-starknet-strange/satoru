@@ -56,7 +56,7 @@ fn given_normal_conditions_when_create_market_then_market_is_created() {
     // Get the market from the data store.
     // This must not panic, because the market was created in the previous step.
     // Hence the market must exist in the data store and it's safe to unwrap.
-    let market = data_store.get_market(market_token_deployed_address).unwrap();
+    let market = data_store.get_market(market_token_deployed_address);
 
     // Check the market is as expected.
     assert(market.index_token == index_token, 'bad_market');
