@@ -10,7 +10,7 @@ use starknet::ContractAddress;
 
 // Local imports.
 use satoru::oracle::oracle_utils::SetPricesParams;
-use satoru::utils::i128::{I128Div, I128Mul, I128Store, I128Serde, I128Default};
+use satoru::utils::i128::i128;
 
 
 // *************************************************************************
@@ -96,7 +96,7 @@ mod AdlHandler {
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use satoru::utils::{store_arrays::StoreU64Array, calc::to_signed};
-    use satoru::utils::i128::{I128Div, I128Mul, I128Store, I128Serde, I128Default};
+    use satoru::utils::i128::i128;
 
 
     /// ExecuteAdlCache struct used in execute_adl.
@@ -211,8 +211,8 @@ mod AdlHandler {
                 key: 0,
                 should_allow_adl: false,
                 max_pnl_factor_for_adl: 0,
-                pnl_to_pool_factor: 0,
-                next_pnl_to_pool_factor: 0,
+                pnl_to_pool_factor: Zeroable::zero(),
+                next_pnl_to_pool_factor: Zeroable::zero(),
                 min_pnl_factor_for_adl: 0
             };
 

@@ -18,9 +18,7 @@ use satoru::position::{
 use satoru::price::price::Price;
 use satoru::pricing::position_pricing_utils::PositionFees;
 use satoru::order::order::{Order, SecondaryOrderType, OrderType};
-use satoru::utils::{
-    i128::{I128Div, I128Mul, I128Store, I128Serde}, span32::{Span32, DefaultSpan32}
-};
+use satoru::utils::{i128::i128, span32::{Span32, DefaultSpan32}};
 
 // *************************************************************************
 //                  Interface of the `EventEmitter` contract.
@@ -666,7 +664,7 @@ mod EventEmitter {
     use satoru::pricing::position_pricing_utils::PositionFees;
     use satoru::order::order::{Order, SecondaryOrderType};
     use satoru::utils::span32::{Span32, DefaultSpan32};
-    use satoru::utils::i128::{I128Div, I128Mul, I128Store, I128Serde};
+    use satoru::utils::i128::i128;
 
     // *************************************************************************
     //                              STORAGE

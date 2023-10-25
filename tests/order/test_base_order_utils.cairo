@@ -16,6 +16,7 @@ use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatche
 use satoru::oracle::price_feed::PriceFeed;
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
+use satoru::utils::i128::{i128, i128_new};
 
 #[test]
 fn given_normal_conditions_when_is_market_order_then_works() {
@@ -231,7 +232,7 @@ fn given_normal_conditions_when_get_execution_price_for_decrease_then_works() {
         position_size_in_usd: 1000,
         position_size_in_tokens: 100,
         size_delta_usd: 200,
-        price_impact_usd: 1,
+        price_impact_usd: i128_new(1, false),
         acceptable_price: 8,
         is_long: true,
     );
@@ -242,7 +243,7 @@ fn given_normal_conditions_when_get_execution_price_for_decrease_then_works() {
         position_size_in_usd: 200000000,
         position_size_in_tokens: 30000,
         size_delta_usd: 50000,
-        price_impact_usd: 15,
+        price_impact_usd: i128_new(15, false),
         acceptable_price: 1001,
         is_long: true,
     );
@@ -253,7 +254,7 @@ fn given_normal_conditions_when_get_execution_price_for_decrease_then_works() {
         position_size_in_usd: 200000000,
         position_size_in_tokens: 30000,
         size_delta_usd: 50000,
-        price_impact_usd: 15,
+        price_impact_usd: i128_new(15, false),
         acceptable_price: 1100,
         is_long: false,
     );
@@ -275,7 +276,7 @@ fn given_price_impact_larger_than_order_when_get_execution_price_for_decrease_th
         position_size_in_usd: 200000000,
         position_size_in_tokens: 30000,
         size_delta_usd: 1,
-        price_impact_usd: 15,
+        price_impact_usd: i128_new(15, false),
         acceptable_price: 1100,
         is_long: false,
     );
@@ -298,7 +299,7 @@ fn given_negative_execution_price_than_order_when_get_execution_price_for_decrea
         position_size_in_usd: 200000000,
         position_size_in_tokens: 30000,
         size_delta_usd: 50000,
-        price_impact_usd: 15,
+        price_impact_usd: i128_new(15, false),
         acceptable_price: 1100,
         is_long: false,
     );
@@ -313,7 +314,7 @@ fn given_not_acceptable_price_when_get_execution_price_for_decrease_then_fails()
         position_size_in_usd: 200000000,
         position_size_in_tokens: 30000,
         size_delta_usd: 50000,
-        price_impact_usd: 15,
+        price_impact_usd: i128_new(15, false),
         acceptable_price: 10000,
         is_long: true,
     );
