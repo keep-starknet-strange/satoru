@@ -534,7 +534,7 @@ fn pow_final(x: u256, y: u256) -> u256 {
         } else {
             return 0;
         }
-    }// If x is `UNIT`, the result is always `UNIT`.
+    } // If x is `UNIT`, the result is always `UNIT`.
     else if (xUint == 1000000000000000000) {
         return 1000000000000000000;
     }
@@ -542,7 +542,7 @@ fn pow_final(x: u256, y: u256) -> u256 {
     // If y is zero, the result is always `UNIT`.
     if (yUint == 0) {
         return 1000000000000000000;
-    }// If y is `UNIT`, the result is always x.
+    } // If y is `UNIT`, the result is always x.
     else if (yUint == 1000000000000000000) {
         return x;
     }
@@ -550,7 +550,7 @@ fn pow_final(x: u256, y: u256) -> u256 {
     // If x is greater than `UNIT`, use the standard formula.
     if (xUint > 1000000000000000000) {
         return exp2(log2(x) * y);
-    }// Conversely, if x is less than `UNIT`, use the equivalent formula.
+    } // Conversely, if x is less than `UNIT`, use the equivalent formula.
     else {
         let i = 1000000000000000000000000000000000000 / xUint;
         let w = exp2(log2(i) * y);
