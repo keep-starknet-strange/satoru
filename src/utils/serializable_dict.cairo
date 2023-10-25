@@ -110,7 +110,7 @@ trait SerializableFelt252DictTrait<T> {
     fn contains_key(self: @SerializableFelt252Dict<T>, key: felt252) -> bool;
     /// Checks if a dictionnary is empty.
     fn is_empty(self: @SerializableFelt252Dict<T>) -> bool;
-/// TODO: When Cairo is updated we can use unique() from Alexandria & have fn len()
+/// TODO: When Scarb is updated we can use unique() from Alexandria & have fn len()
 }
 
 impl SerializableFelt252DictTraitImpl<

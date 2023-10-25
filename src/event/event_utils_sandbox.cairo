@@ -3,7 +3,7 @@ use starknet::{
     contract_address_const
 };
 use array::ArrayTrait;
-use satoru::utils::i128::{I128Serde, I128Default};
+use satoru::utils::i128::i128;
 use traits::Default;
 use satoru::utils::traits::ContractAddressDefault;
 
@@ -47,9 +47,10 @@ impl Felt252IntoContractAddress of Into<felt252, ContractAddress> {
 impl I128252DictValue of Felt252DictValue<i128> {
     #[inline(always)]
     fn zero_default() -> i128 nopanic {
-        0
+        i128 { mag: 0, sign: false }
     }
 }
+
 impl ContractAddressDictValue of Felt252DictValue<ContractAddress> {
     #[inline(always)]
     fn zero_default() -> ContractAddress nopanic {
