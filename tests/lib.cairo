@@ -105,6 +105,7 @@ mod utils {
     mod test_starknet_utils;
     mod test_u128_mask;
     mod test_i128;
+    mod test_serializable_dict;
 }
 mod mock {
     mod test_governable;

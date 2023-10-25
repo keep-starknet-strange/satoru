@@ -12,19 +12,43 @@ use alexandria_data_structures::array_ext::ArrayTraitExt;
 #[derive(Drop, Copy)]
 enum Item<T> {
     Single: T,
-    Multiple: Array<T>
+    Array: Array<T>
+}
+
+#[generate_trait]
+impl ItemImpl<T> of ItemTrait<T> {
+    fn is_single(self: @Item<T>) -> bool {
+        match self {
+            Item::Single(v) => true,
+            Item::Array(arr) => false
+        }
+    }
+
+    fn is_array(self: @Item<T>) -> bool {
+        match self {
+            Item::Single(v) => false,
+            Item::Array(arr) => true
+        }
+    }
+
+    fn len(self: @Item<T>) -> usize {
+        match self {
+            Item::Single(v) => 1,
+            Item::Array(arr) => arr.len()
+        }
+    }
 }
 
 #[derive(Default, Copy)]
-struct OrderedDict<T> {
+struct SerializableFelt252Dict<T> {
     keys: Array<felt252>,
     values: Felt252Dict<Nullable<Item<T>>>
 }
 
-impl OrderedDictDestruct<
+impl SerializableFelt252DictDestruct<
     T, impl TDrop: Drop<T>, impl TDefault: Felt252DictValue<T>
-> of Destruct<OrderedDict<T>> {
-    fn destruct(self: OrderedDict<T>) nopanic {
+> of Destruct<SerializableFelt252Dict<T>> {
+    fn destruct(self: SerializableFelt252Dict<T>) nopanic {
         self.values.squash();
         self.keys.destruct();
     }
@@ -71,46 +95,51 @@ impl TArraySerialize<
     }
 }
 
-trait OrderedDictTrait<T> {
-    /// Creates a new OrderedDict object.
-    fn new() -> OrderedDict<T>;
+trait SerializableFelt252DictTrait<T> {
+    /// Creates a new SerializableFelt252Dict object.
+    fn new() -> SerializableFelt252Dict<T>;
     /// Adds an element.
-    fn add_single(ref self: OrderedDict<T>, key: felt252, value: T);
+    fn add_single(ref self: SerializableFelt252Dict<T>, key: felt252, value: T);
     /// Adds an array of elements.
-    fn add_array(ref self: OrderedDict<T>, key: felt252, values: Array<T>);
+    fn add_array(ref self: SerializableFelt252Dict<T>, key: felt252, values: Array<T>);
     /// Gets an element.
-    fn get<impl TCopy: Copy<T>>(ref self: OrderedDict<T>, key: felt252) -> Option<Item<T>>;
+    fn get<impl TCopy: Copy<T>>(
+        ref self: SerializableFelt252Dict<T>, key: felt252
+    ) -> Option<Item<T>>;
     /// Checks if a key is in the dictionnary.
-    fn contains_key(self: @OrderedDict<T>, key: felt252) -> bool;
+    fn contains_key(self: @SerializableFelt252Dict<T>, key: felt252) -> bool;
     /// Checks if a dictionnary is empty.
-    fn is_empty(self: @OrderedDict<T>) -> bool;
+    fn is_empty(self: @SerializableFelt252Dict<T>) -> bool;
+/// TODO: When Cairo is updated we can use unique() from Alexandria & have fn len()
 }
 
-impl OrderedDictTraitImpl<
+impl SerializableFelt252DictTraitImpl<
     T, impl TDefault: Felt252DictValue<T>, impl TDrop: Drop<T>, impl TCopy: Copy<T>
-> of OrderedDictTrait<T> {
-    fn new() -> OrderedDict<T> {
-        OrderedDict { keys: array![], values: Default::default() }
+> of SerializableFelt252DictTrait<T> {
+    fn new() -> SerializableFelt252Dict<T> {
+        SerializableFelt252Dict { keys: array![], values: Default::default() }
     }
 
-    fn add_single(ref self: OrderedDict<T>, key: felt252, value: T) {
+    fn add_single(ref self: SerializableFelt252Dict<T>, key: felt252, value: T) {
         let value = Item::Single(value);
         self.values.insert(0, nullable_from_box(BoxTrait::new(value)));
     }
 
-    fn add_array(ref self: OrderedDict<T>, key: felt252, values: Array<T>) {
-        let values = Item::Multiple(values);
+    fn add_array(ref self: SerializableFelt252Dict<T>, key: felt252, values: Array<T>) {
+        let values = Item::Array(values);
         self.values.insert(0, nullable_from_box(BoxTrait::new(values)));
     }
 
-    fn get<impl TCopy: Copy<T>>(ref self: OrderedDict<T>, key: felt252) -> Option<Item<T>> {
+    fn get<impl TCopy: Copy<T>>(
+        ref self: SerializableFelt252Dict<T>, key: felt252
+    ) -> Option<Item<T>> {
         match match_nullable(self.values.get(key)) {
             FromNullableResult::Null(()) => Option::None,
             FromNullableResult::NotNull(val) => Option::Some(val.unbox()),
         }
     }
 
-    fn contains_key(self: @OrderedDict<T>, key: felt252) -> bool {
+    fn contains_key(self: @SerializableFelt252Dict<T>, key: felt252) -> bool {
         let mut keys: Span<felt252> = self.keys.span();
         let mut contains_key: bool = false;
         loop {
@@ -129,23 +158,23 @@ impl OrderedDictTraitImpl<
         return contains_key;
     }
 
-    fn is_empty(self: @OrderedDict<T>) -> bool {
+    fn is_empty(self: @SerializableFelt252Dict<T>) -> bool {
         self.keys.is_empty()
     }
 }
 
 
-impl OrderedDictSerde<
+impl SerializableFelt252DictSerde<
     T,
     impl TCopy: Copy<T>,
     impl TDrop: Drop<T>,
     impl FeltIntoT: Into<felt252, T>,
     impl TIntoFelt: Into<T, felt252>,
-> of Serde<OrderedDict<T>> {
+> of Serde<SerializableFelt252Dict<T>> {
     //
-    // Serialization of an OrderedDict
+    // Serialization of an SerializableFelt252Dict
     //
-    // An OrderedDict is serialized as follow:
+    // An SerializableFelt252Dict is serialized as follow:
     // [ KEY | NB_ELEMENTS | X | Y | ... | KEY | NB_ELEMENTS | X | ...]
     //
     //
@@ -162,7 +191,7 @@ impl OrderedDictSerde<
     //      | ------ | ----------- |
     //      [0, 1, 1, 1, 3, 1, 2, 3] (Array<felt252>)
     //
-    fn serialize(self: @OrderedDict<T>, ref output: Array<felt252>) {
+    fn serialize(self: @SerializableFelt252Dict<T>, ref output: Array<felt252>) {
         let mut keys: Span<felt252> = self.keys.span();
         let mut included_keys: Array<felt252> = array![];
         loop {
@@ -185,7 +214,7 @@ impl OrderedDictSerde<
                             output.append(1_felt252); // len
                             output.append(v.into()); // value
                         },
-                        Item::Multiple(arr) => {
+                        Item::Array(arr) => {
                             output.append(*key); // key
                             output.append(arr.len().into()); // len
                             let mut arr_as_span: Span<T> = arr.span();
@@ -211,13 +240,15 @@ impl OrderedDictSerde<
     }
 
     //
-    // Deserialization of an OrderedDict
+    // Deserialization of an SerializableFelt252Dict
     //
-    // An OrderedDict is serialized as follow:
+    // An SerializableFelt252Dict is serialized as follow:
     // [ KEY | NB_ELEMENTS | X | Y | ... | KEY | NB_ELEMENTS | X | ...]
     //
-    fn deserialize(ref serialized: Span<felt252>) -> Option<OrderedDict<T>> {
-        let mut d: OrderedDict<T> = OrderedDict { keys: array![], values: Default::default() };
+    fn deserialize(ref serialized: Span<felt252>) -> Option<SerializableFelt252Dict<T>> {
+        let mut d: SerializableFelt252Dict<T> = SerializableFelt252Dict {
+            keys: array![], values: Default::default()
+        };
         loop {
             // Try to retrive the next key
             match serialized.pop_front() {
@@ -244,7 +275,7 @@ impl OrderedDictSerde<
                                 arr_size -= 1;
                             };
                             // ... & insert it
-                            let values: Item<T> = Item::Multiple(arr_values);
+                            let values: Item<T> = Item::Array(arr_values);
                             d.values.insert(*key, nullable_from_box(BoxTrait::new(values)));
                         },
                         Option::None => panic_with_felt252('err getting size')

@@ -7,7 +7,9 @@ use satoru::utils::i128::{I128Serde, I128Default};
 use traits::Default;
 use satoru::utils::traits::ContractAddressDefault;
 
-use satoru::utils::ordered_dict::{OrderedDict, OrderedDictTraitImpl, OrderedDictSerde};
+use satoru::utils::serializable_dict::{
+    SerializableFelt252Dict, SerializableFelt252DictTrait, SerializableFelt252DictSerde
+};
 
 //
 //     NEEDED IMPLEMENTATIONS...
@@ -68,105 +70,107 @@ struct EventLogData {
 
 #[derive(Default, Destruct, Serde)]
 struct LogData {
-    address_items: OrderedDict<ContractAddress>,
-    uint_items: OrderedDict<u128>,
-    int_items: OrderedDict<i128>,
-    bool_items: OrderedDict<bool>,
-    felt252_items: OrderedDict<felt252>,
-    // TODO? Possible? array_of_felt_items: OrderedDict<Array<felt252>>,
-    string_items: OrderedDict<felt252>
+    address_items: SerializableFelt252Dict<ContractAddress>,
+    uint_items: SerializableFelt252Dict<u128>,
+    int_items: SerializableFelt252Dict<i128>,
+    bool_items: SerializableFelt252Dict<bool>,
+    felt252_items: SerializableFelt252Dict<felt252>,
+    // TODO? Possible? array_of_felt_items: SerializableFelt252Dict<Array<felt252>>,
+    string_items: SerializableFelt252Dict<felt252>
 }
 
 // generic ...
 fn set_item<T, T, impl TDefault: Felt252DictValue<T>, impl TDrop: Drop<T>, impl TCopy: Copy<T>>(
-    mut dict: OrderedDict<T>, key: felt252, value: T
-) -> OrderedDict<T> {
-    OrderedDictTraitImpl::add_single(ref dict, key, value);
+    mut dict: SerializableFelt252Dict<T>, key: felt252, value: T
+) -> SerializableFelt252Dict<T> {
+    dict.add_single(key, value);
     dict
 }
 
 fn set_array_item<
     T, T, impl TDefault: Felt252DictValue<T>, impl TDrop: Drop<T>, impl TCopy: Copy<T>
 >(
-    mut dict: OrderedDict<T>, key: felt252, values: Array<T>
-) -> OrderedDict<T> {
-    OrderedDictTraitImpl::add_array(ref dict, key, values);
+    mut dict: SerializableFelt252Dict<T>, key: felt252, values: Array<T>
+) -> SerializableFelt252Dict<T> {
+    dict.add_array(key, values);
     dict
 }
 
 // uint
 fn set_item_uint_items(
-    mut dict: OrderedDict<u128>, key: felt252, value: u128
-) -> OrderedDict<u128> {
-    OrderedDictTraitImpl::add_single(ref dict, key, value);
+    mut dict: SerializableFelt252Dict<u128>, key: felt252, value: u128
+) -> SerializableFelt252Dict<u128> {
+    dict.add_single(key, value);
     dict
 }
 
 fn set_item_array_uint_items(
-    mut dict: OrderedDict<u128>, key: felt252, values: Array<u128>
-) -> OrderedDict<u128> {
-    OrderedDictTraitImpl::add_array(ref dict, key, values);
+    mut dict: SerializableFelt252Dict<u128>, key: felt252, values: Array<u128>
+) -> SerializableFelt252Dict<u128> {
+    dict.add_array(key, values);
     dict
 }
 
 
 // int
-fn set_item_int_items(mut dict: OrderedDict<i128>, key: felt252, value: i128) -> OrderedDict<i128> {
-    OrderedDictTraitImpl::add_single(ref dict, key, value);
+fn set_item_int_items(
+    mut dict: SerializableFelt252Dict<i128>, key: felt252, value: i128
+) -> SerializableFelt252Dict<i128> {
+    dict.add_single(key, value);
     dict
 }
 
 fn set_item_array_int_items(
-    mut dict: OrderedDict<i128>, key: felt252, values: Array<i128>
-) -> OrderedDict<i128> {
-    OrderedDictTraitImpl::add_array(ref dict, key, values);
+    mut dict: SerializableFelt252Dict<i128>, key: felt252, values: Array<i128>
+) -> SerializableFelt252Dict<i128> {
+    dict.add_array(key, values);
     dict
 }
 
 
 // bool
 fn set_item_bool_items(
-    mut dict: OrderedDict<bool>, key: felt252, value: bool
-) -> OrderedDict<bool> {
-    OrderedDictTraitImpl::add_single(ref dict, key, value);
+    mut dict: SerializableFelt252Dict<bool>, key: felt252, value: bool
+) -> SerializableFelt252Dict<bool> {
+    dict.add_single(key, value);
     dict
 }
 
 fn set_item_array_bool_items(
-    mut dict: OrderedDict<bool>, key: felt252, values: Array<bool>
-) -> OrderedDict<bool> {
-    OrderedDictTraitImpl::add_array(ref dict, key, values);
+    mut dict: SerializableFelt252Dict<bool>, key: felt252, values: Array<bool>
+) -> SerializableFelt252Dict<bool> {
+    dict.add_array(key, values);
     dict
 }
 
 
 // felt252
 fn set_item_Felt252_items(
-    mut dict: OrderedDict<felt252>, key: felt252, value: felt252
-) -> OrderedDict<felt252> {
-    OrderedDictTraitImpl::add_single(ref dict, key, value);
+    mut dict: SerializableFelt252Dict<felt252>, key: felt252, value: felt252
+) -> SerializableFelt252Dict<felt252> {
+    dict.add_single(key, value);
     dict
 }
 
 fn set_item_array_Felt252_items(
-    mut dict: OrderedDict<felt252>, key: felt252, values: Array<felt252>
-) -> OrderedDict<felt252> {
-    OrderedDictTraitImpl::add_array(ref dict, key, values);
+    mut dict: SerializableFelt252Dict<felt252>, key: felt252, values: Array<felt252>
+) -> SerializableFelt252Dict<felt252> {
+    dict.add_array(key, values);
     dict
 }
 
 
 // string
 fn set_item_string_items(
-    mut dict: OrderedDict<felt252>, key: felt252, value: felt252
-) -> OrderedDict<felt252> {
-    OrderedDictTraitImpl::add_single(ref dict, key, value); // trigger CI
+    mut dict: SerializableFelt252Dict<felt252>, key: felt252, value: felt252
+) -> SerializableFelt252Dict<felt252> {
+    dict.add_single(key, value); // trigger CI
     dict
 }
 
 fn set_item_array_string_items(
-    mut dict: OrderedDict<felt252>, key: felt252, values: Array<felt252>
-) -> OrderedDict<felt252> {
-    OrderedDictTraitImpl::add_array(ref dict, key, values);
+    mut dict: SerializableFelt252Dict<felt252>, key: felt252, values: Array<felt252>
+) -> SerializableFelt252Dict<felt252> {
+    dict.add_array(key, values);
     dict
 }
