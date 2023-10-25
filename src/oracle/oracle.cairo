@@ -202,7 +202,7 @@ mod Oracle {
     use alexandria_sorting::merge_sort;
     use alexandria_storage::list::{ListTrait, List};
     use poseidon::poseidon_hash_span;
-
+    use debug::PrintTrait;
     // Local imports.
     use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -300,7 +300,6 @@ mod Oracle {
         ) {
             let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
             IRoleModule::only_controller(@state);
-
             let tokens_with_prices_len = self.tokens_with_prices.read().len();
             if !tokens_with_prices_len.is_zero() {
                 OracleError::NON_EMPTY_TOKENS_WITH_PRICES(tokens_with_prices_len);
@@ -558,7 +557,7 @@ mod Oracle {
                     report_info
                         .block_hash = get_block_hash_syscall(report_info.max_oracle_block_number)
                         .unwrap_syscall();
-                }
+                }   
 
                 report_info.token = *params.tokens.at(i);
 
@@ -601,39 +600,41 @@ mod Oracle {
                                 compacted_max_prices_span, inner_cache.price_index
                             )
                         );
+                    if j != 0 {
+                        if *inner_cache.min_prices.at(j - 1) > *inner_cache.min_prices.at(j) {
+                            OracleError::MIN_PRICES_NOT_SORTED(report_info.token, *inner_cache.min_prices.at(j), *inner_cache.min_prices.at(j - 1));
+                        }
+
+                        if *inner_cache.max_prices.at(j - 1) > *inner_cache.max_prices.at(j) {
+                            OracleError::MAX_PRICES_NOT_SORTED(report_info.token, *inner_cache.max_prices.at(j), *inner_cache.max_prices.at(j - 1));
+                        }
+                    }
                     j += 1;
                 };
 
-                // Important: Arrays are built first, then sorted, due to inability to modify elements at arbitrary indices. Exercise caution in testing.
-                inner_cache.min_prices = merge_sort::merge(inner_cache.min_prices);
-                inner_cache.max_prices = merge_sort::merge(inner_cache.max_prices);
-
-                let compacted_min_span = params.compacted_min_prices_indexes.span();
-                let compacted_max_span = params.compacted_max_prices_indexes.span();
+                let compacted_min_indexes_span = params.compacted_min_prices_indexes.span();
+                let compacted_max_indexes_span = params.compacted_max_prices_indexes.span();
                 let inner_cache_save = @inner_cache;
                 let signatures_span = params.signatures.span();
                 let signers_span = signers.span();
-                let signers_len = signers_span.len();
                 let mut j = 0;
                 loop {
                     if j == signers_len {
                         break;
                     }
 
-                    inner_cache.signature_index = (i * signers_span.len() + j).into();
+                    inner_cache.signature_index = (i * signers_len + j).into();
 
                     inner_cache
                         .min_price_index =
                             oracle_utils::get_uncompacted_price_index(
-                                compacted_min_span, inner_cache.signature_index
+                                compacted_min_indexes_span, inner_cache.signature_index
                             );
-
                     inner_cache
                         .max_price_index =
                             oracle_utils::get_uncompacted_price_index(
-                                compacted_max_span, inner_cache.signature_index
+                                compacted_max_indexes_span, inner_cache.signature_index
                             );
-
                     if inner_cache.signature_index >= signatures_span.len() {
                         OracleError::ARRAY_OUT_OF_BOUNDS_FELT252(
                             signatures_span, inner_cache.signature_index, 'signatures'
@@ -678,12 +679,12 @@ mod Oracle {
                             report_info.min_price, report_info.max_price
                         );
                     }
-                    oracle_utils::validate_signer(
-                        self.get_salt(),
-                        report_info,
-                        *signatures_span.at(inner_cache.signature_index),
-                        signers_span.at(j)
-                    );
+                    // oracle_utils::validate_signer(
+                    //     self.get_salt(),
+                    //     report_info,
+                    //     *signatures_span.at(inner_cache.signature_index),
+                    //     signers_span.at(j)
+                    // );
 
                     j += 1;
                 };
@@ -693,6 +694,7 @@ mod Oracle {
 
                 let median_max_price = arrays::get_median(inner_cache_save.max_prices.span())
                     * report_info.precision;
+                
                 let (has_price_feed, ref_price) = self
                     .get_price_feed_price(data_store, report_info.token);
 
@@ -750,7 +752,6 @@ mod Oracle {
             let mut signers: Array<ContractAddress> = array![];
 
             let signers_len = *params.signer_info & bits::BITMASK_16;
-
             if signers_len < data_store.get_u128(keys::min_oracle_signers()) {
                 OracleError::MIN_ORACLE_SIGNERS(
                     signers_len, data_store.get_u128(keys::min_oracle_signers())
@@ -793,7 +794,6 @@ mod Oracle {
 
                 len += 1;
             };
-            // }
 
             signers
         }

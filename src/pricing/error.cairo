@@ -13,5 +13,11 @@ mod PricingError {
         data.append(short_open_interest.into());
         panic(data)
     }
-    const USD_DELTA_EXCEEDS_POOL_VALUE: felt252 = 'usd_delta_exceeds_pool_value';
+
+    fn USD_DELTA_EXCEEDS_POOL_VALUE(usd_delta: felt252, pool_usd_for_token: u128) {
+        let mut data = array!['usd_delta_exceeds_pool_value'];
+        // data.append(usd_delta.into());
+        data.append(pool_usd_for_token.into());
+        panic(data)
+    }
 }
