@@ -160,7 +160,7 @@ fn set_item_array_Felt252_items(
 fn set_item_string_items(
     mut dict: OrderedDict<felt252>, key: felt252, value: felt252
 ) -> OrderedDict<felt252> {
-    OrderedDictTraitImpl::add_single(ref dict, key, value);
+    OrderedDictTraitImpl::add_single(ref dict, key, value); // trigger CI
     dict
 }
 
