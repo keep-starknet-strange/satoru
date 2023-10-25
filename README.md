@@ -49,7 +49,7 @@ snforge
 
 ## 🚀 Deploy
 
-To deploy contracts of the saturo, you first need to setup a smart wallet :
+To deploy the contracts of Satoru, you first need to setup a smart wallet :
 
 - Create a signer by following this tutorial : [Signers](https://book.starkli.rs/signers)
 
