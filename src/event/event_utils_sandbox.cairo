@@ -1,4 +1,7 @@
-use starknet::{get_caller_address, ContractAddress, contract_address_const};
+use starknet::{
+    get_caller_address, ContractAddress, Felt252TryIntoContractAddress, ContractAddressIntoFelt252,
+    contract_address_const
+};
 use array::ArrayTrait;
 use satoru::utils::i128::{I128Serde, I128Default};
 use traits::Default;
@@ -31,10 +34,24 @@ impl Felt252IntoI128 of Into<felt252, i128> {
         self.try_into().expect('i128 Overflow')
     }
 }
+
+impl Felt252IntoContractAddress of Into<felt252, ContractAddress> {
+    #[inline(always)]
+    fn into(self: felt252) -> ContractAddress {
+        Felt252TryIntoContractAddress::try_into(self).expect('felt252 overflow')
+    }
+}
+
 impl I128252DictValue of Felt252DictValue<i128> {
     #[inline(always)]
     fn zero_default() -> i128 nopanic {
         0
+    }
+}
+impl ContractAddressDictValue of Felt252DictValue<ContractAddress> {
+    #[inline(always)]
+    fn zero_default() -> ContractAddress nopanic {
+        contract_address_const::<0>()
     }
 }
 
@@ -51,7 +68,7 @@ struct EventLogData {
 
 #[derive(Default, Destruct, Serde)]
 struct LogData {
-    // TODO address_items: OrderedDict<ContractAddress>
+    address_items: OrderedDict<ContractAddress>,
     uint_items: OrderedDict<u128>,
     int_items: OrderedDict<i128>,
     bool_items: OrderedDict<bool>,
@@ -71,7 +88,7 @@ fn set_item_uint_items(
 fn set_item_array_uint_items(
     mut dict: OrderedDict<u128>, index: u32, key: felt252, values: Array<u128>
 ) -> OrderedDict<u128> {
-    OrderedDictTraitImpl::add_multiple(ref dict, key, values);
+    OrderedDictTraitImpl::add_array(ref dict, key, values);
     dict
 }
 
@@ -87,7 +104,7 @@ fn set_item_int_items(
 fn set_item_array_int_items(
     mut dict: OrderedDict<i128>, index: u32, key: felt252, values: Array<i128>
 ) -> OrderedDict<i128> {
-    OrderedDictTraitImpl::add_multiple(ref dict, key, values);
+    OrderedDictTraitImpl::add_array(ref dict, key, values);
     dict
 }
 
@@ -103,7 +120,7 @@ fn set_item_bool_items(
 fn set_item_array_bool_items(
     mut dict: OrderedDict<bool>, index: u32, key: felt252, values: Array<bool>
 ) -> OrderedDict<bool> {
-    OrderedDictTraitImpl::add_multiple(ref dict, key, values);
+    OrderedDictTraitImpl::add_array(ref dict, key, values);
     dict
 }
 
@@ -119,7 +136,7 @@ fn set_item_Felt252_items(
 fn set_item_array_Felt252_items(
     mut dict: OrderedDict<felt252>, index: u32, key: felt252, values: Array<felt252>
 ) -> OrderedDict<felt252> {
-    OrderedDictTraitImpl::add_multiple(ref dict, key, values);
+    OrderedDictTraitImpl::add_array(ref dict, key, values);
     dict
 }
 
@@ -135,6 +152,6 @@ fn set_item_string_items(
 fn set_item_array_string_items(
     mut dict: OrderedDict<felt252>, index: u32, key: felt252, values: Array<felt252>
 ) -> OrderedDict<felt252> {
-    OrderedDictTraitImpl::add_multiple(ref dict, key, values);
+    OrderedDictTraitImpl::add_array(ref dict, key, values);
     dict
 }

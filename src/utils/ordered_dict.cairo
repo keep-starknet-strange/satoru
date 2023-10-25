@@ -10,7 +10,7 @@ use nullable::{nullable_from_box, match_nullable, FromNullableResult, Nullable};
 use alexandria_data_structures::array_ext::ArrayTraitExt;
 
 #[derive(Drop, Copy)]
-enum Value<T> {
+enum Item<T> {
     Single: T,
     Multiple: Array<T>
 }
@@ -18,7 +18,7 @@ enum Value<T> {
 #[derive(Default, Copy)]
 struct OrderedDict<T> {
     keys: Array<felt252>,
-    values: Felt252Dict<Nullable<Value<T>>>
+    values: Felt252Dict<Nullable<Item<T>>>
 }
 
 impl OrderedDictDestruct<
@@ -31,7 +31,7 @@ impl OrderedDictDestruct<
 }
 
 impl ArrayTCopy<T> of Copy<Array<T>>;
-impl Felt252DictValueTCopy<T> of Copy<Felt252Dict<Nullable<Value<T>>>>;
+impl Felt252DictValueTCopy<T> of Copy<Felt252Dict<Nullable<Item<T>>>>;
 
 impl TArraySerialize<
     T,
@@ -77,9 +77,9 @@ trait OrderedDictTrait<T> {
     /// Adds an element.
     fn add_single(ref self: OrderedDict<T>, key: felt252, value: T);
     /// Adds an array of elements.
-    fn add_multiple(ref self: OrderedDict<T>, key: felt252, values: Array<T>);
+    fn add_array(ref self: OrderedDict<T>, key: felt252, values: Array<T>);
     /// Gets an element.
-    fn get<impl TCopy: Copy<T>>(ref self: OrderedDict<T>, key: felt252) -> Option<Value<T>>;
+    fn get<impl TCopy: Copy<T>>(ref self: OrderedDict<T>, key: felt252) -> Option<Item<T>>;
     /// Checks if a key is in the dictionnary.
     fn contains_key(self: @OrderedDict<T>, key: felt252) -> bool;
     /// Checks if a dictionnary is empty.
@@ -94,16 +94,16 @@ impl OrderedDictTraitImpl<
     }
 
     fn add_single(ref self: OrderedDict<T>, key: felt252, value: T) {
-        let value = Value::Single(value);
+        let value = Item::Single(value);
         self.values.insert(0, nullable_from_box(BoxTrait::new(value)));
     }
 
-    fn add_multiple(ref self: OrderedDict<T>, key: felt252, values: Array<T>) {
-        let values = Value::Multiple(values);
+    fn add_array(ref self: OrderedDict<T>, key: felt252, values: Array<T>) {
+        let values = Item::Multiple(values);
         self.values.insert(0, nullable_from_box(BoxTrait::new(values)));
     }
 
-    fn get<impl TCopy: Copy<T>>(ref self: OrderedDict<T>, key: felt252) -> Option<Value<T>> {
+    fn get<impl TCopy: Copy<T>>(ref self: OrderedDict<T>, key: felt252) -> Option<Item<T>> {
         match match_nullable(self.values.get(key)) {
             FromNullableResult::Null(()) => Option::None,
             FromNullableResult::NotNull(val) => Option::Some(val.unbox()),
@@ -172,20 +172,20 @@ impl OrderedDictSerde<
                         continue;
                     }
                     let mut ordered_dict = (*self);
-                    let nullable_value: Nullable<Value<T>> = ordered_dict.values.get(*key);
-                    let value: Value<T> = match match_nullable(nullable_value) {
+                    let nullable_value: Nullable<Item<T>> = ordered_dict.values.get(*key);
+                    let value: Item<T> = match match_nullable(nullable_value) {
                         FromNullableResult::Null(()) => panic_with_felt252(
                             'key not found (serialize)'
                         ),
                         FromNullableResult::NotNull(boxed_value) => boxed_value.unbox(),
                     };
                     match value {
-                        Value::Single(v) => {
+                        Item::Single(v) => {
                             output.append(*key); // key
                             output.append(1_felt252); // len
                             output.append(v.into()); // value
                         },
-                        Value::Multiple(arr) => {
+                        Item::Multiple(arr) => {
                             output.append(*key); // key
                             output.append(arr.len().into()); // len
                             let mut arr_as_span: Span<T> = arr.span();
@@ -228,7 +228,7 @@ impl OrderedDictSerde<
                             // If only one element, insert it & quit
                             if ((*size) == 1) {
                                 let value: T = get_next_value_from(serialized);
-                                let value: Value<T> = Value::Single(value);
+                                let value: Item<T> = Item::Single(value);
                                 d.values.insert(*key, nullable_from_box(BoxTrait::new(value)));
                                 continue;
                             }
@@ -244,7 +244,7 @@ impl OrderedDictSerde<
                                 arr_size -= 1;
                             };
                             // ... & insert it
-                            let values: Value<T> = Value::Multiple(arr_values);
+                            let values: Item<T> = Item::Multiple(arr_values);
                             d.values.insert(*key, nullable_from_box(BoxTrait::new(values)));
                         },
                         Option::None => panic_with_felt252('err getting size')
