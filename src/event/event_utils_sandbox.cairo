@@ -78,16 +78,18 @@ struct LogData {
 }
 
 // generic ...
-fn set_item<
-    T, T, impl TDefault: Felt252DictValue<T>, impl TDrop: Drop<T>, impl TCopy: Copy<T>
->(mut dict: OrderedDict<T>, key: felt252, value: T) -> OrderedDict<T> {
+fn set_item<T, T, impl TDefault: Felt252DictValue<T>, impl TDrop: Drop<T>, impl TCopy: Copy<T>>(
+    mut dict: OrderedDict<T>, key: felt252, value: T
+) -> OrderedDict<T> {
     OrderedDictTraitImpl::add_single(ref dict, key, value);
     dict
 }
 
 fn set_array_item<
     T, T, impl TDefault: Felt252DictValue<T>, impl TDrop: Drop<T>, impl TCopy: Copy<T>
->(mut dict: OrderedDict<T>, key: felt252, values: Array<T>) -> OrderedDict<T> {
+>(
+    mut dict: OrderedDict<T>, key: felt252, values: Array<T>
+) -> OrderedDict<T> {
     OrderedDictTraitImpl::add_array(ref dict, key, values);
     dict
 }
@@ -109,9 +111,7 @@ fn set_item_array_uint_items(
 
 
 // int
-fn set_item_int_items(
-    mut dict: OrderedDict<i128>, key: felt252, value: i128
-) -> OrderedDict<i128> {
+fn set_item_int_items(mut dict: OrderedDict<i128>, key: felt252, value: i128) -> OrderedDict<i128> {
     OrderedDictTraitImpl::add_single(ref dict, key, value);
     dict
 }
