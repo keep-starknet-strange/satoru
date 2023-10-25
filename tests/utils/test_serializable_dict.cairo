@@ -12,11 +12,10 @@ use array::ArrayTrait;
 use traits::Default;
 
 // Local imports.
-use satoru::utils::i128::{I128Serde, I128Default};
 use satoru::utils::traits::ContractAddressDefault;
 use satoru::utils::serializable_dict::{
     Item, ItemTrait, SerializableFelt252Dict, SerializableFelt252DictTrait,
-    SerializableFelt252DictSerde
+    SerializableFelt252DictTraitImpl
 };
 
 // *********************************************************************************************
@@ -45,6 +44,29 @@ fn test_item_multiple() {
     assert(item.is_single() == false, 'item shouldnt be single');
     assert(item.len() == expected_len, 'incorrect len');
 }
+
 // SerializableDict tests
 
+#[test]
+fn test_serializable_dict_add_single() {
+    let mut dict: SerializableFelt252Dict<felt252> = SerializableFelt252Dict {
+        keys: array![], values: Default::default()
+    };
 
+    let key: felt252 = 'starknet';
+    let expected_value: felt252 = 'cairo';
+
+    dict.add_single(key, expected_value);
+
+    let retrieved_item: Item<felt252> = match dict.get(key) {
+        Option::Some(i) => i,
+        Option::None => panic_with_felt252('err while searching key')
+    };
+
+    let out_value: felt252 = match retrieved_item {
+        Item::Single(v) => v,
+        Item::Array(_) => panic_with_felt252('should not be array')
+    };
+
+    assert(out_value == expected_value, 'wrong value');
+}

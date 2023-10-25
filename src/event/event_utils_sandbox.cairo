@@ -7,13 +7,12 @@ use satoru::utils::i128::i128;
 use traits::Default;
 use satoru::utils::traits::ContractAddressDefault;
 
-use satoru::utils::serializable_dict::{
-    SerializableFelt252Dict, SerializableFelt252DictTrait, SerializableFelt252DictSerde
-};
+use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 
 //
 //     NEEDED IMPLEMENTATIONS...
 //
+/// TODO: move those somewhere else?
 
 impl Felt252IntoBool of Into<felt252, bool> {
     #[inline(always)]
@@ -78,23 +77,6 @@ struct LogData {
     felt252_items: SerializableFelt252Dict<felt252>,
     // TODO? Possible? array_of_felt_items: SerializableFelt252Dict<Array<felt252>>,
     string_items: SerializableFelt252Dict<felt252>
-}
-
-// generic ...
-fn set_item<T, T, impl TDefault: Felt252DictValue<T>, impl TDrop: Drop<T>, impl TCopy: Copy<T>>(
-    mut dict: SerializableFelt252Dict<T>, key: felt252, value: T
-) -> SerializableFelt252Dict<T> {
-    dict.add_single(key, value);
-    dict
-}
-
-fn set_array_item<
-    T, T, impl TDefault: Felt252DictValue<T>, impl TDrop: Drop<T>, impl TCopy: Copy<T>
->(
-    mut dict: SerializableFelt252Dict<T>, key: felt252, values: Array<T>
-) -> SerializableFelt252Dict<T> {
-    dict.add_array(key, values);
-    dict
 }
 
 // uint
@@ -165,7 +147,7 @@ fn set_item_array_Felt252_items(
 fn set_item_string_items(
     mut dict: SerializableFelt252Dict<felt252>, key: felt252, value: felt252
 ) -> SerializableFelt252Dict<felt252> {
-    dict.add_single(key, value); // trigger CI
+    dict.add_single(key, value);
     dict
 }
 
