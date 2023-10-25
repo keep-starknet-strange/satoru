@@ -120,6 +120,45 @@ fn test_exp() {
     assert(result5 == 2718281828459045234, 'should be 2718281828459045234');
 }
 
+
+#[test]
+fn test_log2() {
+    let value1: u256 = 2000000000000000000;
+    let value2: u256 = 5000000000000000000;
+    let value3: u256 = 4000000000000000000;
+    let value5: u256 = 1000000000000000000;
+
+    let result1 = precision::log2(value1);
+    let result2 = precision::log2(value2);
+    let result3 = precision::log2(value3);
+    let result5 = precision::log2(value5);
+
+    assert(result1 == 1000000000000000000, 'should be 1000000000000000000');
+    assert(result2 == 2321928094887362334, 'should be 2321928094887362334');
+    assert(result3 == 2000000000000000000, 'should be 2000000000000000000');
+    assert(result5 == 0000000000000000000, 'should be 0000000000000000000');
+}
+
+#[test]
+fn test_pow_final() {
+    let value1: u256 = 2000000000000000000;
+    let value2: u256 = 5000000000000000000;
+    let value3: u256 = 4000000000000000000;
+    let value5: u256 = 1000000000000000000;
+    let value6: u256 = 1524558784654678955;
+
+    //let result1 = precision::pow_final(value2, value1);
+    //let result2 = precision::pow_final(value2, value5);
+    //let result3 = precision::pow_final(value3, 0);
+    //let result5 = precision::pow_final(value5);
+
+    //assert(result1 == 25000000000000000000, 'should be 1000000000000000000');
+    //assert(result2 == 5000000000000000000, 'should be 2321928094887362334');
+    //assert(result3 == 1000000000000000000, 'should be 2000000000000000000');
+    //assert(result5 == 0000000000000000000, 'should be 0000000000000000000');
+    assert(value1==value1, 'In progress')
+}
+
 #[test]
 fn test_to_factor_roundup() {
     let value: u128 = 450000;

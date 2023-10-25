@@ -430,6 +430,139 @@ fn exp(x: u256) -> u256 {
     exp2(double_unit_product / 1000000000000000000)
 }
 
+/// Raise a number to a power, computes x^n.
+/// * `x` - The number to raise.
+/// * `n` - The exponent.
+/// # Returns
+/// * `u256` - The result of x raised to the power of n.
+fn pow256(x: u256, n: usize) -> u256 {
+    if n == 0 {
+        1
+    } else if n == 1 {
+        x
+    } else if (n & 1) == 1 {
+        x * pow256(x * x, n / 2)
+    } else {
+        pow256(x * x, n / 2)
+    }
+}
+
+fn msb(mut x: u256) -> u256 {
+    let mut result = 0;
+    if (x >= pow256(2, 128)) {
+        x = BitShift::shr(x, 128);
+        result +=128;
+    }
+    if x >= pow256(2, 64) {
+        x = BitShift::shr(x, 64);
+        result += 64;
+    }
+    if x >= pow256(2, 32) {
+        x = BitShift::shr(x, 32);
+        result += 32;
+    }
+    if x >= pow256(2, 16) {
+        x = BitShift::shr(x, 16);
+        result += 16;
+    }
+    if x >= pow256(2, 8) {
+        x = BitShift::shr(x, 8);
+        result += 8;
+    }
+    if x >= pow256(2, 4) {
+        x = BitShift::shr(x, 4);
+        result += 4;
+    }
+    if x >= pow256(2, 2) {
+        x = BitShift::shr(x, 2);
+        result += 2;
+    }
+    if x >= pow256(2, 1) {
+        result += 1;
+    }
+    result
+}
+
+fn log2(x: u256) -> u256 {
+    let xUint: u256 = x;
+
+    // If the input value is smaller than the base unit, error out.
+    if xUint < 1000000000000000000 {
+        panic_with_felt252('error');
+    }
+
+    // Calculate the integer part of the logarithm.
+    let n: u256 = msb(xUint / 1000000000000000000);  
+
+    // Calculate the integer part of the logarithm as a fixed-point number.
+    let mut resultUint: u256 = n * 1000000000000000000;
+
+    // Calculate y = x * 2^{-n}
+    let mut y: u256 = BitShift::shr(xUint, n);
+
+    // If y equals the base unit, the fractional part is zero.
+    if y == 1000000000000000000 {
+        return resultUint;
+    }
+
+    // Calculate the fractional part through iterative approximation.
+    let mut delta: u256 = 500000000000000000;
+    loop {
+        if delta == 0 {
+            break;
+        }
+        y = (y * y) / 1000000000000000000;
+
+        if y >= 2000000000000000000 {
+            resultUint += delta;
+            y = BitShift::shr(y, 1);
+        }
+        delta = BitShift::shr(delta, 1);  // Decrement the delta by halving it.
+    };
+
+    return resultUint;
+}
+
+fn pow_final( x: u256, y : u256) -> u256 {
+    let xUint: u256 = x;
+    let yUint: u256 = y;
+
+    // If both x and y are zero, the result is `UNIT`. If just x is zero, the result is always zero.
+    if (xUint == 0) {
+        if yUint == 0 {
+            return 1000000000000000000;
+        }
+        else {
+            return 0;
+        }
+    }
+    // If x is `UNIT`, the result is always `UNIT`.
+    else if (xUint == 1000000000000000000) {
+        return 1000000000000000000;
+    }
+
+    // If y is zero, the result is always `UNIT`.
+    if (yUint == 0) {
+        return 1000000000000000000;
+    }
+    // If y is `UNIT`, the result is always x.
+    else if (yUint == 1000000000000000000) {
+        return x;
+    }
+
+    // If x is greater than `UNIT`, use the standard formula.
+    if (xUint > 1000000000000000000) {
+        return exp2(log2(x) * y);
+    }
+    // Conversely, if x is less than `UNIT`, use the equivalent formula.
+    else {
+        let i = 1000000000000000000000000000000000000 / xUint;
+        let w = exp2(log2(i) * y);
+        return 1000000000000000000000000000000000000 / w;
+    }
+}
+
+
 /// Compute factor from value and divisor with a roundup.
 /// # Arguments
 /// * `value` - The value to compute the factor.
