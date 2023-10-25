@@ -44,9 +44,9 @@ fn given_normal_conditions_when_get_position_key_then_works() {
     // 
     // Setup  
     //   
-    let account: ContractAddress = 'account'.try_into().unwrap();
-    let market: ContractAddress = 'market'.try_into().unwrap();
-    let token: ContractAddress = 'token'.try_into().unwrap();
+    let account: ContractAddress = contract_address_const::<'account'>();
+    let market: ContractAddress = contract_address_const::<'market'>();
+    let token: ContractAddress = contract_address_const::<'token'>();
     let mut data = array![account.into(), market.into(), token.into(), false.into()];
     let mut data2 = array![account.into(), market.into(), token.into(), true.into()];
     let key_1 = poseidon_hash_span(data.span());
@@ -100,7 +100,7 @@ fn given_invalid_position_size_when_validate_position_then_fails() {
     let (caller_address, role_store, data_store) = setup();
 
     let referral_storage = IReferralStorageDispatcher {
-        contract_address: '12345'.try_into().unwrap()
+        contract_address: contract_address_const::<'12345'>()
     };
 
     let position: Position = Default::default();
@@ -125,7 +125,7 @@ fn given_empty_market_when_validate_position_then_fails() {
     let (caller_address, role_store, data_store) = setup();
 
     let referral_storage = IReferralStorageDispatcher {
-        contract_address: '12345'.try_into().unwrap()
+        contract_address: contract_address_const::<'12345'>()
     };
 
     let mut position: Position = Default::default();
@@ -157,9 +157,9 @@ fn given_minimum_position_size_when_validate_position_then_fails() {
     let (caller_address, role_store, data_store) = setup();
 
     let referral_storage = IReferralStorageDispatcher {
-        contract_address: '12345'.try_into().unwrap()
+        contract_address: contract_address_const::<'12345'>()
     };
-    let token: ContractAddress = 'token'.try_into().unwrap();
+    let token: ContractAddress = contract_address_const::<'token'>();
 
     let mut position: Position = Default::default();
     let mut market: Market = Default::default();
@@ -170,7 +170,7 @@ fn given_minimum_position_size_when_validate_position_then_fails() {
     // Set valid market colleteral tokens  (positon.collateral_token == market.long_token || token == market.short_token;)
     position.collateral_token = token;
     market.long_token = token;
-    market.market_token = 'market_token'.try_into().unwrap();
+    market.market_token = contract_address_const::<'market_token'>();
 
     let price = Price { min: 0, max: 0 };
     let prices: MarketPrices = MarketPrices {
@@ -208,10 +208,10 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
     let (caller_address, role_store, data_store) = setup();
     let (event_emitter_address, event_emitter) = setup_event_emitter();
 
-    let market_token: ContractAddress = 'market_token'.try_into().unwrap();
-    let long_token: ContractAddress = 'long_token'.try_into().unwrap();
-    let short_token: ContractAddress = 'short_token'.try_into().unwrap();
-    let account: ContractAddress = 'account'.try_into().unwrap();
+    let market_token: ContractAddress = contract_address_const::<'market_token'>();
+    let long_token: ContractAddress = contract_address_const::<'long_token'>();
+    let short_token: ContractAddress = contract_address_const::<'short_token'>();
+    let account: ContractAddress = contract_address_const::<'account'>();
     let long_token_amount: u128 = 10000;
     let short_token_amount: u128 = 20000;
 
@@ -292,9 +292,9 @@ fn test_is_position_liquiditable_negative_remaining_collateral_usd() {
         contract_address: referral_storage_address
     };
 
-    let market_token: ContractAddress = 'market_token'.try_into().unwrap();
-    let long_token: ContractAddress = 'long_token'.try_into().unwrap();
-    let short_token: ContractAddress = 'short_token'.try_into().unwrap();
+    let market_token: ContractAddress = contract_address_const::<'market_token'>();
+    let long_token: ContractAddress = contract_address_const::<'long_token'>();
+    let short_token: ContractAddress = contract_address_const::<'short_token'>();
 
     //Create a long position
     let mut position: Position = Default::default();
@@ -353,9 +353,9 @@ fn test_is_position_liquiditable_below_min_collateral() {
         contract_address: referral_storage_address
     };
 
-    let market_token: ContractAddress = 'market_token'.try_into().unwrap();
-    let long_token: ContractAddress = 'long_token'.try_into().unwrap();
-    let short_token: ContractAddress = 'short_token'.try_into().unwrap();
+    let market_token: ContractAddress = contract_address_const::<'market_token'>();
+    let long_token: ContractAddress = contract_address_const::<'long_token'>();
+    let short_token: ContractAddress = contract_address_const::<'short_token'>();
 
     //Create a long position
     let mut position: Position = Default::default();
@@ -413,9 +413,9 @@ fn test_is_position_liquiditable_valid_position() {
         contract_address: referral_storage_address
     };
 
-    let market_token: ContractAddress = 'market_token'.try_into().unwrap();
-    let long_token: ContractAddress = 'long_token'.try_into().unwrap();
-    let short_token: ContractAddress = 'short_token'.try_into().unwrap();
+    let market_token: ContractAddress = contract_address_const::<'market_token'>();
+    let long_token: ContractAddress = contract_address_const::<'long_token'>();
+    let short_token: ContractAddress = contract_address_const::<'short_token'>();
 
     //Create a long position
     let mut position: Position = Default::default();
@@ -473,9 +473,9 @@ fn test_is_position_liquiditable_below_min_collateral_leverage() {
         contract_address: referral_storage_address
     };
 
-    let market_token: ContractAddress = 'market_token'.try_into().unwrap();
-    let long_token: ContractAddress = 'long_token'.try_into().unwrap();
-    let short_token: ContractAddress = 'short_token'.try_into().unwrap();
+    let market_token: ContractAddress = contract_address_const::<'market_token'>();
+    let long_token: ContractAddress = contract_address_const::<'long_token'>();
+    let short_token: ContractAddress = contract_address_const::<'short_token'>();
 
     //Create a long position
     let mut position: Position = Default::default();
@@ -532,9 +532,9 @@ fn test_update_total_borrowing() {
     let (caller_address, role_store, data_store) = setup();
     let (event_emitter_address, event_emitter) = setup_event_emitter();
 
-    let market_token: ContractAddress = 'market_token'.try_into().unwrap();
-    let long_token: ContractAddress = 'long_token'.try_into().unwrap();
-    let short_token: ContractAddress = 'short_token'.try_into().unwrap();
+    let market_token: ContractAddress = contract_address_const::<'market_token'>();
+    let long_token: ContractAddress = contract_address_const::<'long_token'>();
+    let short_token: ContractAddress = contract_address_const::<'short_token'>();
 
     // Fill required data store keys.
     let total_borrowing_key = keys::total_borrowing_key(market_token, false);
@@ -579,9 +579,9 @@ fn test_update_open_interest() {
     let (caller_address, role_store, data_store) = setup();
     let (event_emitter_address, event_emitter) = setup_event_emitter();
 
-    let market_token: ContractAddress = 'market_token'.try_into().unwrap();
-    let long_token: ContractAddress = 'long_token'.try_into().unwrap();
-    let short_token: ContractAddress = 'short_token'.try_into().unwrap();
+    let market_token: ContractAddress = contract_address_const::<'market_token'>();
+    let long_token: ContractAddress = contract_address_const::<'long_token'>();
+    let short_token: ContractAddress = contract_address_const::<'short_token'>();
 
     // Fill required data store keys.
     let key_open_interest = keys::open_interest_key(
@@ -635,14 +635,14 @@ fn test_handle_referral() {
     let (caller_address, role_store, data_store) = setup();
     let (event_emitter_address, event_emitter) = setup_event_emitter();
 
-    let market_token: ContractAddress = 'market_token'.try_into().unwrap();
-    let long_token: ContractAddress = 'long_token'.try_into().unwrap();
-    let short_token: ContractAddress = 'short_token'.try_into().unwrap();
+    let market_token: ContractAddress = contract_address_const::<'market_token'>();
+    let long_token: ContractAddress = contract_address_const::<'long_token'>();
+    let short_token: ContractAddress = contract_address_const::<'short_token'>();
 
     let mut fees: PositionFees = Default::default();
     let mut referral: PositionReferralFees = Default::default();
 
-    referral.affiliate = '1'.try_into().unwrap();
+    referral.affiliate = contract_address_const::<'1'>();
     referral.affiliate_reward_amount = 20;
     fees.referral = referral;
 
