@@ -38,7 +38,7 @@ impl Felt252IntoI128 of Into<felt252, i128> {
 impl Felt252IntoContractAddress of Into<felt252, ContractAddress> {
     #[inline(always)]
     fn into(self: felt252) -> ContractAddress {
-        Felt252TryIntoContractAddress::try_into(self).expect('felt252 overflow')
+        Felt252TryIntoContractAddress::try_into(self).expect('contractaddress overflow')
     }
 }
 
@@ -77,16 +77,31 @@ struct LogData {
     string_items: OrderedDict<felt252>
 }
 
+// generic ...
+fn set_item<
+    T, T, impl TDefault: Felt252DictValue<T>, impl TDrop: Drop<T>, impl TCopy: Copy<T>
+>(mut dict: OrderedDict<T>, key: felt252, value: T) -> OrderedDict<T> {
+    OrderedDictTraitImpl::add_single(ref dict, key, value);
+    dict
+}
+
+fn set_array_item<
+    T, T, impl TDefault: Felt252DictValue<T>, impl TDrop: Drop<T>, impl TCopy: Copy<T>
+>(mut dict: OrderedDict<T>, key: felt252, values: Array<T>) -> OrderedDict<T> {
+    OrderedDictTraitImpl::add_array(ref dict, key, values);
+    dict
+}
+
 // uint
 fn set_item_uint_items(
-    mut dict: OrderedDict<u128>, index: u32, key: felt252, value: u128
+    mut dict: OrderedDict<u128>, key: felt252, value: u128
 ) -> OrderedDict<u128> {
     OrderedDictTraitImpl::add_single(ref dict, key, value);
     dict
 }
 
 fn set_item_array_uint_items(
-    mut dict: OrderedDict<u128>, index: u32, key: felt252, values: Array<u128>
+    mut dict: OrderedDict<u128>, key: felt252, values: Array<u128>
 ) -> OrderedDict<u128> {
     OrderedDictTraitImpl::add_array(ref dict, key, values);
     dict
@@ -95,14 +110,14 @@ fn set_item_array_uint_items(
 
 // int
 fn set_item_int_items(
-    mut dict: OrderedDict<i128>, index: u32, key: felt252, value: i128
+    mut dict: OrderedDict<i128>, key: felt252, value: i128
 ) -> OrderedDict<i128> {
     OrderedDictTraitImpl::add_single(ref dict, key, value);
     dict
 }
 
 fn set_item_array_int_items(
-    mut dict: OrderedDict<i128>, index: u32, key: felt252, values: Array<i128>
+    mut dict: OrderedDict<i128>, key: felt252, values: Array<i128>
 ) -> OrderedDict<i128> {
     OrderedDictTraitImpl::add_array(ref dict, key, values);
     dict
@@ -111,14 +126,14 @@ fn set_item_array_int_items(
 
 // bool
 fn set_item_bool_items(
-    mut dict: OrderedDict<bool>, index: u32, key: felt252, value: bool
+    mut dict: OrderedDict<bool>, key: felt252, value: bool
 ) -> OrderedDict<bool> {
     OrderedDictTraitImpl::add_single(ref dict, key, value);
     dict
 }
 
 fn set_item_array_bool_items(
-    mut dict: OrderedDict<bool>, index: u32, key: felt252, values: Array<bool>
+    mut dict: OrderedDict<bool>, key: felt252, values: Array<bool>
 ) -> OrderedDict<bool> {
     OrderedDictTraitImpl::add_array(ref dict, key, values);
     dict
@@ -127,14 +142,14 @@ fn set_item_array_bool_items(
 
 // felt252
 fn set_item_Felt252_items(
-    mut dict: OrderedDict<felt252>, index: u32, key: felt252, value: felt252
+    mut dict: OrderedDict<felt252>, key: felt252, value: felt252
 ) -> OrderedDict<felt252> {
     OrderedDictTraitImpl::add_single(ref dict, key, value);
     dict
 }
 
 fn set_item_array_Felt252_items(
-    mut dict: OrderedDict<felt252>, index: u32, key: felt252, values: Array<felt252>
+    mut dict: OrderedDict<felt252>, key: felt252, values: Array<felt252>
 ) -> OrderedDict<felt252> {
     OrderedDictTraitImpl::add_array(ref dict, key, values);
     dict
@@ -143,14 +158,14 @@ fn set_item_array_Felt252_items(
 
 // string
 fn set_item_string_items(
-    mut dict: OrderedDict<felt252>, index: u32, key: felt252, value: felt252
+    mut dict: OrderedDict<felt252>, key: felt252, value: felt252
 ) -> OrderedDict<felt252> {
     OrderedDictTraitImpl::add_single(ref dict, key, value);
     dict
 }
 
 fn set_item_array_string_items(
-    mut dict: OrderedDict<felt252>, index: u32, key: felt252, values: Array<felt252>
+    mut dict: OrderedDict<felt252>, key: felt252, values: Array<felt252>
 ) -> OrderedDict<felt252> {
     OrderedDictTraitImpl::add_array(ref dict, key, values);
     dict
