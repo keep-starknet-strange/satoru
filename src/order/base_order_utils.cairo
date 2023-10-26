@@ -412,7 +412,7 @@ fn get_execution_price_for_decrease(
         let adjusted_price_impact_usd = if is_long {
             price_impact_usd
         } else {
-            -price_impact_usd
+            i128_neg(price_impact_usd)
         };
 
         if adjusted_price_impact_usd < Zeroable::zero()

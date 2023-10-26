@@ -30,7 +30,7 @@ use satoru::utils::precision;
 use satoru::utils::calc::{roundup_division, to_signed, sum_return_int_128, to_unsigned};
 use satoru::position::position::Position;
 use integer::u128_to_felt252;
-use satoru::utils::{i128::i128, error_utils};
+use satoru::utils::{i128::{i128, i128_neg}, error_utils};
 use satoru::utils::precision::{apply_exponent_factor, float_to_wei, mul_div};
 use satoru::data::keys::{skip_borrowing_fee_for_smaller_side, max_swap_path_length};
 
@@ -923,7 +923,7 @@ fn apply_delta_to_open_interest(
 
     if is_long {
         apply_delta_to_virtual_inventory_for_positions(
-            data_store, event_emitter, *market.index_token, -delta
+            data_store, event_emitter, *market.index_token, i128_neg(delta)
         );
     } else {
         apply_delta_to_virtual_inventory_for_positions(
@@ -1455,7 +1455,9 @@ fn apply_swap_impact_with_cap(
 
     // if there is a positive impact, the impact pool amount should be reduced
     // if there is a negative impact, the impact pool amount should be increased
-    apply_delta_to_swap_impact_pool(data_store, event_emitter, market, token, -impact_amount);
+    apply_delta_to_swap_impact_pool(
+        data_store, event_emitter, market, token, i128_neg(impact_amount)
+    );
 
     return impact_amount;
 }
