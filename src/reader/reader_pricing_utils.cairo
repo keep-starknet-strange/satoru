@@ -189,7 +189,7 @@ fn get_execution_price(
     let size_delta_usd_abs = if size_delta_usd > Zeroable::zero() {
         size_delta_usd
     } else {
-        -size_delta_usd
+        i128_neg(size_delta_usd)
     };
     params.order.size_delta_usd = calc::to_unsigned(size_delta_usd_abs);
     params.order.is_long = is_long;
