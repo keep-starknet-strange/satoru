@@ -52,8 +52,7 @@ fn given_normal_conditions_when_create_withdrawal_then_works() {
 
     //check withdrawal datas created
     let withdrawal = data_store.get_withdrawal(key);
-    //withdrawal is actually created with key  = 0
-    assert(withdrawal.key == 0, 'Invalid withdrawal key');
+    assert(withdrawal.key == key, 'Invalid withdrawal key');
     assert(withdrawal.account == account, 'Invalid withdrawal account');
 }
 

@@ -183,7 +183,9 @@ fn create_withdrawal(
     gas_utils::validate_execution_fee(data_store, estimated_gas_limit, params.execution_fee);
 
     let key = nonce_utils::get_next_key(data_store);
-
+    // assign generated key to withdrawal
+    withdrawal.key = key;
+    // store withdrawal
     data_store.set_withdrawal(key, withdrawal);
 
     event_emitter.emit_withdrawal_created(key, withdrawal);
