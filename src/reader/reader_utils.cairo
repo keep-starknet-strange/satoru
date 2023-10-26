@@ -218,7 +218,7 @@ fn get_position_info(
                 prices.index_token_price,
                 position_info.position.size_in_usd,
                 position_info.position.size_in_tokens,
-                -size_delta_usd_int,
+                size_delta_usd_int,
                 position_info.position.is_long
             );
 
