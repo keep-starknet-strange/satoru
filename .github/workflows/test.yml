@@ -15,7 +15,7 @@ jobs:
           scarb-version: "0.7.0"
       - uses: foundry-rs/setup-snfoundry@v1
         with:
-          starknet-foundry-version: 0.9.0
+          starknet-foundry-version: 0.8.3
       - name: Run cairo tests
         run: snforge test
       # - name: Set up Scarb
