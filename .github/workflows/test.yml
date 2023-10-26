@@ -17,7 +17,7 @@ jobs:
         with:
           starknet-foundry-version: 0.9.0
       - name: Run cairo tests
-        run: snforge
+        run: snforge test
       # - name: Set up Scarb
       #ses: software-mansion/setup-scarb@v1
       # Install Scarb from a nightly release
