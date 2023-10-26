@@ -250,15 +250,7 @@ fn set_latest_adl_block(
 fn get_adl_enabled(
     data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
 ) -> bool { // TODO
-    let result = data_store.get_bool(keys::is_adl_enabled_key(market, is_long));
-    match result {
-        Option::Some(data) => {
-            return data;
-        },
-        Option::None => {
-            return false;
-        }
-    }
+    data_store.get_bool(keys::is_adl_enabled_key(market, is_long))
 }
 
 /// Set whether ADL is enabled.
