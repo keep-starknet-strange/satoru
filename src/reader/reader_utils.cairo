@@ -208,7 +208,7 @@ fn get_position_info(
         size_delta_usd = position_info.position.size_in_usd;
     }
 
-    let size_delta_usd_int = calc::to_signed(size_delta_usd, true);
+    let size_delta_usd_int = calc::to_signed(size_delta_usd, false);
 
     position_info
         .execution_price_result =
