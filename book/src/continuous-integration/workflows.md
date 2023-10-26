@@ -175,7 +175,7 @@ The "Test" GitHub Actions workflow (`test.yml`) ensures the code's integrity by 
 
 **Environment Variables:**
 - **SCARB_VERSION:** Specifies the Scarb version, currently set to `0.7.0`.
-- **STARKNET_FOUNDRY_VERSION:** Defines the version of Starknet Foundry, currently set to `0.9.0`.
+- **STARKNET_FOUNDRY_VERSION:** Defines the version of Starknet Foundry, currently set to `0.8.3`.
 
 **Jobs:**
 1. **Test & Check Job**:
