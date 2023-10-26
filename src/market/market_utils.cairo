@@ -2570,9 +2570,11 @@ fn validate_enabled_market_check(
 fn validate_enabled_market(data_store: IDataStoreDispatcher, market: Market) {
     assert(market.market_token != 0.try_into().unwrap(), MarketError::EMPTY_MARKET);
 
-    let is_market_disabled: bool = data_store
-        .get_bool(keys::is_market_disabled_key(market.market_token))
-        .unwrap();
+    let is_market_disabled: bool =
+        match data_store.get_bool(keys::is_market_disabled_key(market.market_token)) {
+        Option::Some(value) => value,
+        Option::None => false
+    };
 
     if (is_market_disabled) {
         MarketError::DISABLED_MARKET(is_market_disabled);
