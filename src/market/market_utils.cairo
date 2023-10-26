@@ -2429,8 +2429,7 @@ fn get_borrowing_factor_per_second(
     // if skipBorrowingFeeForSmallerSide is true, and the longOpenInterest is exactly the same as the shortOpenInterest
     // then the borrowing fee would be charged for both sides, this should be very rare
     let skip_borrowing_fee_for_smaller_side: bool = data_store
-        .get_bool(keys::skip_borrowing_fee_for_smaller_side())
-        .unwrap();
+        .get_bool(keys::skip_borrowing_fee_for_smaller_side());
 
     let market_snap = @market;
     if (skip_borrowing_fee_for_smaller_side) {
@@ -2570,11 +2569,8 @@ fn validate_enabled_market_check(
 fn validate_enabled_market(data_store: IDataStoreDispatcher, market: Market) {
     assert(market.market_token != 0.try_into().unwrap(), MarketError::EMPTY_MARKET);
 
-    let is_market_disabled: bool =
-        match data_store.get_bool(keys::is_market_disabled_key(market.market_token)) {
-        Option::Some(value) => value,
-        Option::None => false
-    };
+    let is_market_disabled: bool = data_store
+        .get_bool(keys::is_market_disabled_key(market.market_token));
 
     if (is_market_disabled) {
         MarketError::DISABLED_MARKET(is_market_disabled);
