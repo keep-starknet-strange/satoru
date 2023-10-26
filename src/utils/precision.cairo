@@ -523,7 +523,7 @@ fn log2(x: u256) -> u256 {
     return resultUint;
 }
 
-fn pow_final(x: u256, y: u256) -> u256 {
+fn pow_decimal(x: u256, y: u256) -> u256 {
     let xUint: u256 = x;
     let yUint: u256 = y;
 
@@ -549,7 +549,7 @@ fn pow_final(x: u256, y: u256) -> u256 {
 
     // If x is greater than `UNIT`, use the standard formula.
     if (xUint > 1000000000000000000) {
-        return exp2(log2(x) * y);
+        return exp2(log2(x) * y/1000000000000000000);
     } // Conversely, if x is less than `UNIT`, use the equivalent formula.
     else {
         let i = 1000000000000000000000000000000000000 / xUint;
