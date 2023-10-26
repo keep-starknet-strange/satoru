@@ -388,18 +388,18 @@ on:
       - main
 env:
   SCARB_VERSION: 0.7.0
-  STARKNET_FOUNDRY_VERSION: 0.8.3
 
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: foundry-rs/setup-snfoundry@v1
+        with:
+          starknet-foundry-version: 0.9.0
       - uses: software-mansion/setup-scarb@v1
         with:
           scarb-version: &quot;0.7.0&quot;
-      - name: Install starknet foundry
-        run: curl -L https://raw.githubusercontent.com/foundry-rs/starknet-foundry/master/scripts/install.sh | sh -s -- -v ${STARKNET_FOUNDRY_VERSION}
       - name: Run cairo tests
         run: snforge
 </code></pre>
