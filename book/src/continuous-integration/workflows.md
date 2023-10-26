@@ -175,7 +175,7 @@ The "Test" GitHub Actions workflow (`test.yml`) ensures the code's integrity by 
 
 **Environment Variables:**
 - **SCARB_VERSION:** Specifies the Scarb version, currently set to `0.7.0`.
-- **STARKNET_FOUNDRY_VERSION:** Defines the version of Starknet Foundry, currently set to `0.8.3`.
+- **STARKNET_FOUNDRY_VERSION:** Defines the version of Starknet Foundry, currently set to `0.9.0`.
 
 **Jobs:**
 1. **Test & Check Job**:
@@ -198,18 +198,18 @@ on:
       - main
 env:
   SCARB_VERSION: 0.7.0
-  STARKNET_FOUNDRY_VERSION: 0.8.3
 
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: foundry-rs/setup-snfoundry@v1
+        with:
+          starknet-foundry-version: 0.9.0
       - uses: software-mansion/setup-scarb@v1
         with:
           scarb-version: "0.7.0"
-      - name: Install starknet foundry
-        run: curl -L https://raw.githubusercontent.com/foundry-rs/starknet-foundry/master/scripts/install.sh | sh -s -- -v ${STARKNET_FOUNDRY_VERSION}
       - name: Run cairo tests
         run: snforge
 ```
