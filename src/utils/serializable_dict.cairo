@@ -12,7 +12,7 @@ use alexandria_data_structures::array_ext::ArrayTraitExt;
 #[derive(Drop, Copy)]
 enum Item<T> {
     Single: T,
-    Array: Array<T>
+    Span: Span<T>
 }
 
 #[generate_trait]
@@ -20,21 +20,21 @@ impl ItemImpl<T> of ItemTrait<T> {
     fn is_single(self: @Item<T>) -> bool {
         match self {
             Item::Single(v) => true,
-            Item::Array(arr) => false
+            Item::Span(arr) => false
         }
     }
 
-    fn is_array(self: @Item<T>) -> bool {
+    fn is_span(self: @Item<T>) -> bool {
         match self {
             Item::Single(v) => false,
-            Item::Array(arr) => true
+            Item::Span(arr) => true
         }
     }
 
     fn len(self: @Item<T>) -> usize {
         match self {
             Item::Single(v) => 1,
-            Item::Array(arr) => arr.len()
+            Item::Span(s) => (*s).len()
         }
     }
 }
@@ -101,7 +101,7 @@ trait SerializableFelt252DictTrait<T> {
     /// Adds an element.
     fn add_single(ref self: SerializableFelt252Dict<T>, key: felt252, value: T);
     /// Adds an array of elements.
-    fn add_array(ref self: SerializableFelt252Dict<T>, key: felt252, values: Array<T>);
+    fn add_span(ref self: SerializableFelt252Dict<T>, key: felt252, values: Span<T>);
     /// Gets an element.
     fn get<impl TCopy: Copy<T>>(
         ref self: SerializableFelt252Dict<T>, key: felt252
@@ -122,12 +122,18 @@ impl SerializableFelt252DictTraitImpl<
 
     fn add_single(ref self: SerializableFelt252Dict<T>, key: felt252, value: T) {
         let value = Item::Single(value);
-        self.values.insert(0, nullable_from_box(BoxTrait::new(value)));
+        if !self.keys.contains(key) {
+            self.keys.append(key);
+        }
+        self.values.insert(key, nullable_from_box(BoxTrait::new(value)));
     }
 
-    fn add_array(ref self: SerializableFelt252Dict<T>, key: felt252, values: Array<T>) {
-        let values = Item::Array(values);
-        self.values.insert(0, nullable_from_box(BoxTrait::new(values)));
+    fn add_span(ref self: SerializableFelt252Dict<T>, key: felt252, values: Span<T>) {
+        let values = Item::Span(values);
+        if !self.keys.contains(key) {
+            self.keys.append(key);
+        }
+        self.values.insert(key, nullable_from_box(BoxTrait::new(values)));
     }
 
     fn get<impl TCopy: Copy<T>>(
@@ -193,13 +199,9 @@ impl SerializableFelt252DictSerde<
     //
     fn serialize(self: @SerializableFelt252Dict<T>, ref output: Array<felt252>) {
         let mut keys: Span<felt252> = self.keys.span();
-        let mut included_keys: Array<felt252> = array![];
         loop {
             match keys.pop_back() {
                 Option::Some(key) => {
-                    if (!included_keys.contains(*key)) {
-                        continue;
-                    }
                     let mut ordered_dict = (*self);
                     let nullable_value: Nullable<Item<T>> = ordered_dict.values.get(*key);
                     let value: Item<T> = match match_nullable(nullable_value) {
@@ -214,12 +216,11 @@ impl SerializableFelt252DictSerde<
                             output.append(1_felt252); // len
                             output.append(v.into()); // value
                         },
-                        Item::Array(arr) => {
+                        Item::Span(mut arr) => {
                             output.append(*key); // key
                             output.append(arr.len().into()); // len
-                            let mut arr_as_span: Span<T> = arr.span();
                             loop {
-                                match arr_as_span.pop_front() {
+                                match arr.pop_front() {
                                     Option::Some(v) => {
                                         output.append((*v).into());
                                     },
@@ -230,7 +231,6 @@ impl SerializableFelt252DictSerde<
                             }
                         }
                     };
-                    included_keys.append(*key);
                 },
                 Option::None => {
                     break;
@@ -258,7 +258,7 @@ impl SerializableFelt252DictSerde<
                         Option::Some(size) => {
                             // If only one element, insert it & quit
                             if ((*size) == 1) {
-                                let value: T = get_next_value_from(serialized);
+                                let value: T = pop_front_next(serialized);
                                 let value: Item<T> = Item::Single(value);
                                 d.values.insert(*key, nullable_from_box(BoxTrait::new(value)));
                                 continue;
@@ -270,12 +270,12 @@ impl SerializableFelt252DictSerde<
                                 if (arr_size) == 0 {
                                     break;
                                 };
-                                let value: T = get_next_value_from(serialized);
+                                let value: T = pop_front_next(serialized);
                                 arr_values.append(value);
                                 arr_size -= 1;
                             };
                             // ... & insert it
-                            let values: Item<T> = Item::Array(arr_values);
+                            let values: Item<T> = Item::Span(arr_values.span());
                             d.values.insert(*key, nullable_from_box(BoxTrait::new(values)));
                         },
                         Option::None => panic_with_felt252('err getting size')
@@ -291,7 +291,7 @@ impl SerializableFelt252DictSerde<
 }
 
 
-fn get_next_value_from<T, impl TInto: Into<felt252, T>>(mut serialized: Span<felt252>) -> T {
+fn pop_front_next<T, impl TInto: Into<felt252, T>>(mut serialized: Span<felt252>) -> T {
     let value = match serialized.pop_front() {
         Option::Some(value) => value,
         Option::None => panic_with_felt252('err getting value')
