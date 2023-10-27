@@ -165,11 +165,11 @@ struct SetPricesCache {
 /// Struct used in validate_prices as an inner cache.
 #[derive(Default, Drop)]
 struct SetPricesInnerCache {
-    /// The current price index to retrieve from compactedMinPrices and compactedMaxPrices
-    /// to construct the minPrices and maxPrices array.
-    price_index: u128,
+    /// The current price index to retrieve from compacted_min_prices and compacted_max_prices
+    /// to construct the min_prices and max_prices array.
+    price_index: usize,
     /// The current signature index to retrieve from the signatures array.
-    signature_index: u128,
+    signature_index: usize,
     /// The index of the min price in min_prices for the current signer.
     min_price_index: u128,
     /// The index of the max price in max_prices for the current signer.
@@ -472,8 +472,8 @@ mod Oracle {
                         validated_price.token,
                         Price { min: validated_price.min, max: validated_price.max }
                     );
+                len += 1;
             };
-            len += 1;
         }
 
         /// Validate prices in params.
@@ -637,7 +637,7 @@ mod Oracle {
                                 compacted_max_span, inner_cache.signature_index
                             );
 
-                    if inner_cache.signature_index >= signatures_span.len().into() {
+                    if inner_cache.signature_index >= signatures_span.len() {
                         OracleError::ARRAY_OUT_OF_BOUNDS_FELT252(
                             signatures_span, inner_cache.signature_index, 'signatures'
                         );
@@ -686,10 +686,7 @@ mod Oracle {
                     oracle_utils::validate_signer(
                         self.get_salt(),
                         report_info,
-                        arrays::get_felt252(
-                            signatures_span,
-                            inner_cache.signature_index.try_into().expect('u128 into u32 failed')
-                        ),
+                        *signatures_span.at(inner_cache.signature_index),
                         signers_span.at(j)
                     );
 

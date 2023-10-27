@@ -5,17 +5,26 @@
 use starknet::ContractAddress;
 use result::ResultTrait;
 use traits::Default;
+use hash::LegacyHash;
+use ecdsa::recover_public_key;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::market::market::{Market};
-use satoru::oracle::oracle::{SetPricesCache, SetPricesInnerCache};
-use satoru::oracle::error::OracleError;
+use satoru::oracle::{
+    oracle::{SetPricesCache, SetPricesInnerCache},
+    error::OracleError,
+    interfaces::account::{IAccountDispatcher, IAccountDispatcherTrait}
+};
 use satoru::price::price::{Price};
-use satoru::utils::store_arrays::{
-    StoreContractAddressArray, StorePriceArray, StoreU128Array, StoreFelt252Array
+use satoru::utils::{
+    store_arrays::{
+        StoreContractAddressArray, StorePriceArray, StoreU128Array, StoreFelt252Array
+    },
+    arrays::{are_lte_u64, get_uncompacted_value, get_uncompacted_value_u64},
+    bits::{BITMASK_8, BITMASK_16, BITMASK_32, BITMASK_64}
 };
 
 // External imports.
@@ -48,7 +57,7 @@ struct SetPricesParams {
     compacted_min_prices_indexes: Array<u128>,
     compacted_max_prices: Array<u128>,
     compacted_max_prices_indexes: Array<u128>,
-    signatures: Array<felt252>,
+    signatures: Array<Span<felt252>>,
     price_feed_tokens: Array<ContractAddress>,
 }
 
@@ -82,6 +91,36 @@ struct ReportInfo {
     max_price: u128,
 }
 
+// compacted prices have a length of 32 bits
+const COMPACTED_PRICE_BIT_LENGTH: usize = 32;
+fn COMPACTED_PRICE_BITMASK() -> u128 {
+    BITMASK_32
+}
+
+// compacted precisions have a length of 8 bits
+const COMPACTED_PRECISION_BIT_LENGTH: usize = 8;
+fn COMPACTED_PRECISION_BITMASK() -> u128 {
+    BITMASK_8
+}
+
+// compacted block numbers have a length of 64 bits
+const COMPACTED_BLOCK_NUMBER_BIT_LENGTH: usize = 64;
+fn COMPACTED_BLOCK_NUMBER_BITMASK() -> u64 {
+    BITMASK_64
+}
+
+// compacted timestamps have a length of 64 bits
+const COMPACTED_TIMESTAMP_BIT_LENGTH: usize = 64;
+fn COMPACTED_TIMESTAMP_BITMASK() -> u64 {
+    BITMASK_64
+}
+
+// compacted price indexes have a length of 8 bits
+const COMPACTED_PRICE_INDEX_BIT_LENGTH: usize = 8;
+fn COMPACTED_PRICE_INDEX_BITMASK() -> u128 {
+    BITMASK_8
+}
+
 /// Validates wether a block number is in range.
 /// # Arguments
 /// * `min_oracle_block_numbers` - The oracles block number that should be less than block_number.
@@ -109,9 +148,15 @@ fn validate_block_number_within_range(
 fn is_block_number_within_range(
     min_oracle_block_numbers: Span<u64>, max_oracle_block_numbers: Span<u64>, block_number: u64
 ) -> bool {
-    let lower_bound = min_oracle_block_numbers.max().expect('array max failed');
-    let upper_bound = max_oracle_block_numbers.min().expect('array min failed');
-    lower_bound <= block_number && block_number <= upper_bound
+    if (!are_lte_u64(min_oracle_block_numbers, block_number)) {
+        return false;
+    }
+
+    if (!are_lte_u64(max_oracle_block_numbers, block_number)) {
+        return false;
+    }
+
+    true
 }
 
 /// Get the uncompacted price at the specified index.
@@ -120,9 +165,20 @@ fn is_block_number_within_range(
 /// * `index` - The index to get the decimal at.
 /// # Returns
 /// The price at the specified index.
-fn get_uncompacted_price(compacted_prices: Span<u128>, index: u128) -> u128 {
-    // TODO
-    10
+fn get_uncompacted_price(compacted_prices: Span<u128>, index: usize) -> u128 {
+    let price = get_uncompacted_value(
+        compacted_prices,
+        index,
+        COMPACTED_PRICE_BIT_LENGTH,
+        COMPACTED_PRICE_BITMASK(),
+        'get_uncompacted_price'
+    );
+
+    if (price == 0) {
+        OracleError::EMPTY_COMPACTED_PRICE(index)
+    }
+
+    price
 }
 
 /// Get the uncompacted decimal at the specified index.
@@ -131,9 +187,16 @@ fn get_uncompacted_price(compacted_prices: Span<u128>, index: u128) -> u128 {
 /// * `index` - The index to get the decimal at.
 /// # Returns
 /// The decimal at the specified index.
-fn get_uncompacted_decimal(compacted_decimals: Span<u128>, index: u128) -> u128 {
-    // TODO
-    0
+fn get_uncompacted_decimal(compacted_decimals: Span<u128>, index: usize) -> u128 {
+    let decimal = get_uncompacted_value(
+        compacted_decimals,
+        index,
+        COMPACTED_PRECISION_BIT_LENGTH,
+        COMPACTED_PRECISION_BITMASK(),
+        'get_uncompacted_decimal'
+    );
+
+    decimal
 }
 
 /// Get the uncompacted price index at the specified index.
@@ -142,9 +205,16 @@ fn get_uncompacted_decimal(compacted_decimals: Span<u128>, index: u128) -> u128 
 /// * `index` - The index to get the price index at.
 /// # Returns
 /// The uncompacted price index at the specified index.
-fn get_uncompacted_price_index(compacted_price_indexes: Span<u128>, index: u128) -> u128 {
-    // TODO
-    0
+fn get_uncompacted_price_index(compacted_price_indexes: Span<u128>, index: usize) -> u128 {
+    let price_index = get_uncompacted_value(
+        compacted_price_indexes,
+        index,
+        COMPACTED_PRICE_INDEX_BIT_LENGTH,
+        COMPACTED_PRICE_INDEX_BITMASK(),
+        'get_uncompacted_price_index'
+    );
+
+    price_index
 }
 
 /// Get the uncompacted oracle block numbers.
@@ -156,8 +226,21 @@ fn get_uncompacted_price_index(compacted_price_indexes: Span<u128>, index: u128)
 fn get_uncompacted_oracle_block_numbers(
     compacted_oracle_block_numbers: Span<u64>, length: usize
 ) -> Array<u64> {
-    // TODO
-    ArrayTrait::new()
+    let mut block_numbers = ArrayTrait::new();
+
+    let mut i = 0;
+    loop {
+        if (i == length) {
+            break;
+        }
+
+        block_numbers
+            .append(get_uncompacted_oracle_block_number(compacted_oracle_block_numbers, i));
+
+        i += 1;
+    };
+
+    block_numbers
 }
 
 /// Get the uncompacted oracle block number.
@@ -169,8 +252,15 @@ fn get_uncompacted_oracle_block_numbers(
 fn get_uncompacted_oracle_block_number(
     compacted_oracle_block_numbers: Span<u64>, index: usize
 ) -> u64 {
-    // TODO
-    0
+    let block_number = get_uncompacted_value_u64(
+        compacted_oracle_block_numbers,
+        index,
+        COMPACTED_BLOCK_NUMBER_BIT_LENGTH,
+        COMPACTED_BLOCK_NUMBER_BITMASK(),
+        'get_uncmpctd_oracle_block_numb'
+    );
+
+    block_number
 }
 
 /// Get the uncompacted oracle timestamp.
@@ -180,8 +270,19 @@ fn get_uncompacted_oracle_block_number(
 /// # Returns
 /// The uncompacted oracle timestamp.
 fn get_uncompacted_oracle_timestamp(compacted_oracle_timestamps: Span<u64>, index: usize) -> u64 {
-    // TODO
-    0
+    let timestamp = get_uncompacted_value_u64(
+        compacted_oracle_timestamps,
+        index,
+        COMPACTED_TIMESTAMP_BIT_LENGTH,
+        COMPACTED_TIMESTAMP_BITMASK(),
+        'get_uncmpctd_oracle_timestamp'
+    );
+
+    if (timestamp == 0) {
+        OracleError::EMPTY_COMPACTED_TIMESTAMP(index);
+    }
+
+    timestamp
 }
 
 /// Validate the signer of a price.
@@ -200,8 +301,43 @@ fn get_uncompacted_oracle_timestamp(compacted_oracle_timestamps: Span<u64>, inde
 /// * `signature` - The signer's signature.
 /// * `expected_signer` - The address of the expected signer.
 fn validate_signer(
-    salt: felt252, info: ReportInfo, signature: felt252, expected_signer: @ContractAddress
-) { // TODO
+    salt: felt252, info: ReportInfo, signature: Span<felt252>, expected_signer: @ContractAddress
+) {
+    let signature_r = *signature[0];
+    let signature_s = *signature[1];
+    let mut digest = LegacyHash::<u64>::hash(salt, info.min_oracle_block_number);
+    digest = LegacyHash::<u64>::hash(digest, info.min_oracle_block_number);
+    digest = LegacyHash::<u64>::hash(digest, info.max_oracle_block_number);
+    digest = LegacyHash::<u64>::hash(digest, info.oracle_timestamp);
+    digest = LegacyHash::<felt252>::hash(digest, info.block_hash);
+    digest = LegacyHash::<ContractAddress>::hash(digest, info.token);
+    digest = LegacyHash::<felt252>::hash(digest, info.token_oracle_type);
+    digest = LegacyHash::<u128>::hash(digest, info.precision);
+    digest = LegacyHash::<u128>::hash(digest, info.min_price);
+    digest = LegacyHash::<u128>::hash(digest, info.max_price);
+
+    // We now need to hash message_hash with the size of the array: (change_owner selector, chainid, contract address, old_owner)
+    // https://github.com/starkware-libs/cairo-lang/blob/b614d1867c64f3fb2cf4a4879348cfcf87c3a5a7/src/starkware/cairo/common/hash_state.py#L6
+    digest = LegacyHash::<felt252>::hash(digest, 10);
+
+    // TODO: What should we have as y_parity (?)
+    let recovered_public_key = recover_public_key(digest, signature_r, signature_s, true).unwrap();
+
+    // Get expected public key
+    let account_dispatcher = IAccountDispatcher { contract_address: *expected_signer };
+    let expected_public_key = account_dispatcher.get_owner();
+
+    if (recovered_public_key != expected_public_key) {
+        OracleError::INVALID_SIGNATURE(recovered_public_key, expected_public_key);
+    }
+}
+
+fn revert_oracle_block_number_not_within_range(
+    min_oracle_block_numbers: Span<u64>, max_oracle_block_numbers: Span<u64>, block_number: u64
+) {
+    OracleError::BLOCK_NUMBER_NOT_WITHIN_RANGE(
+        min_oracle_block_numbers, max_oracle_block_numbers, block_number
+    )
 }
 
 /// Check wether `error` is an OracleError.
@@ -210,8 +346,15 @@ fn validate_signer(
 /// # Returns
 /// Wether it's the right error.
 fn is_oracle_error(error_selector: felt252) -> bool {
-    // TODO
-    true
+    if (is_oracle_block_number_error(error_selector)) {
+        return true;
+    }
+
+    if (is_empty_price_error(error_selector)) {
+        return true;
+    }
+
+    return false;
 }
 
 /// Check wether `error` is an EmptyPriceError.
@@ -219,9 +362,13 @@ fn is_oracle_error(error_selector: felt252) -> bool {
 /// * `error` - The error to check.
 /// # Returns
 /// Wether it's the right error.
+const EMPTY_PRIMARY_PRICE_SELECTOR: felt252 = selector!("EMPTY_PRIMARY_PRICE");
 fn is_empty_price_error(error_selector: felt252) -> bool {
-    // TODO
-    true
+    if (error_selector == EMPTY_PRIMARY_PRICE_SELECTOR) {
+        return true;
+    }
+
+    return false;
 }
 
 /// Check wether `error` is an OracleBlockNumberError.
@@ -229,9 +376,19 @@ fn is_empty_price_error(error_selector: felt252) -> bool {
 /// * `error` - The error to check.
 /// # Returns
 /// Wether it's the right error.
+const BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED_SELECTOR: felt252 =
+    selector!("BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED");
+const BLOCK_NUMBER_NOT_WITHIN_RANGE_SELECTOR: felt252 = selector!("BLOCK_NUMBER_NOT_WITHIN_RANGE");
 fn is_oracle_block_number_error(error_selector: felt252) -> bool {
-    // TODO
-    true
+    if (error_selector == BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED_SELECTOR) {
+        return true;
+    }
+
+    if (error_selector == BLOCK_NUMBER_NOT_WITHIN_RANGE_SELECTOR) {
+        return true;
+    }
+
+    return false;
 }
 
 impl DefaultReportInfo of Default<ReportInfo> {

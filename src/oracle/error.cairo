@@ -37,15 +37,10 @@ mod OracleError {
         panic(array!['block number not sorted', data_1.into(), data_2.into()])
     }
 
-    fn ARRAY_OUT_OF_BOUNDS_FELT252(mut data_1: Span<felt252>, data_2: u128, msg: felt252) {
+    fn ARRAY_OUT_OF_BOUNDS_FELT252(mut data_1: Span<Span<felt252>>, data_2: usize, msg: felt252) {
         let mut data: Array<felt252> = array!['array out of bounds felt252'];
         let mut length = data_1.len();
-        loop {
-            if length == 0 {
-                break;
-            }
-            data.append(*data_1.pop_front().expect('array pop_front failed'));
-        };
+        // TODO add data_1 data to error
         data.append(data_2.into());
         data.append(msg);
         panic(data)
@@ -148,6 +143,54 @@ mod OracleError {
         data.append('block numbers too small');
         Serde::serialize(min_oracle_block_numbers.snapshot, ref data);
         data.append(block_number.into());
+        panic(data)
+    }
+
+    fn BLOCK_NUMBER_NOT_WITHIN_RANGE(mut data_1: Span<u64>, mut data_2: Span<u64>, data_3: u64) {
+        let mut data: Array<felt252> = array!['block number not within range'];
+        let mut length = data_1.len();
+        loop {
+            if length == 0 {
+                break;
+            }
+            let el = *data_1.pop_front().unwrap();
+            data.append(el.into());
+        };
+        let mut length_2 = data_2.len();
+        loop {
+            if length_2 == 0 {
+                break;
+            }
+            let el = *data_2.pop_front().unwrap();
+            data.append(el.into());
+        };
+        data.append(data_3.into());
+        panic(data)
+    }
+
+    fn EMPTY_COMPACTED_PRICE(data_1: usize) {
+        panic(array!['empty compacted price', data_1.into()])
+    }
+
+    fn EMPTY_COMPACTED_TIMESTAMP(data_1: usize) {
+        panic(array!['empty compacted timestamp', data_1.into()])
+    }
+
+    fn INVALID_SIGNATURE(data_1: felt252, data_2: felt252) {
+        panic(array!['invalid signature', data_1.into(), data_2.into()])
+    }
+
+    fn BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(mut data_1: Span<u64>, data_2: u64) {
+        let mut data: Array<felt252> = array!['block numbers too small'];
+        let mut length = data_1.len();
+        loop {
+            if length == 0 {
+                break;
+            }
+            let el = *data_1.pop_front().unwrap();
+            data.append(el.into());
+        };
+        data.append(data_2.into());
         panic(data)
     }
 }
