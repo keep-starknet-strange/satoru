@@ -14,10 +14,7 @@ const REENTRANCY_GUARD_STATUS: felt252 = 'REENTRANCY_GUARD_STATUS';
 /// Modifier to avoid reentrancy.
 fn non_reentrant_before(data_store: IDataStoreDispatcher) {
     // Read key from Data Store.
-    let status = match data_store.get_bool(REENTRANCY_GUARD_STATUS) {
-        Option::Some(v) => v,
-        Option::None => false,
-    };
+    let status = data_store.get_bool(REENTRANCY_GUARD_STATUS);
 
     // Check if reentrancy is happening.
     assert(!status, ReentrancyGuardError::REENTRANT_CALL);

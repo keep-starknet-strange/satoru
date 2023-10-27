@@ -134,11 +134,7 @@ fn create_withdrawal(
     account_utils::validate_receiver(params.receiver);
 
     let market_token_amount = withdrawal_vault.record_transfer_in(params.market);
-
-    if market_token_amount.is_zero() {
-        WithdrawalError::EMPTY_WITHDRAWAL_AMOUNT;
-    }
-
+    assert(market_token_amount.is_non_zero(), WithdrawalError::EMPTY_WITHDRAWAL_AMOUNT);
     params.execution_fee = fee_token_amount.into();
 
     market_utils::validate_enabled_market_check(data_store, params.market);
@@ -187,7 +183,9 @@ fn create_withdrawal(
     gas_utils::validate_execution_fee(data_store, estimated_gas_limit, params.execution_fee);
 
     let key = nonce_utils::get_next_key(data_store);
-
+    // assign generated key to withdrawal
+    withdrawal.key = key;
+    // store withdrawal
     data_store.set_withdrawal(key, withdrawal);
 
     event_emitter.emit_withdrawal_created(key, withdrawal);
