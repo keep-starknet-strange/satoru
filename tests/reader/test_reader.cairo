@@ -945,7 +945,7 @@ fn given_normal_conditions_when_get_open_interest_with_pnl_then_works() {
     teardown(data_store.contract_address);
 
 }
-@audit //returns 0x0
+// @audit //returns 0x0
 // TODO missing libraries  'market_utils::get_pnl_to_pool_factor' not implemented 
 #[test]
 fn given_normal_conditions_when_get_pnl_to_pool_factor_then_works() {
@@ -1002,7 +1002,7 @@ fn given_normal_conditions_when_get_pnl_to_pool_factor_then_works() {
 
 }
 
-@audit //panic error, unwrap failed
+// @audit //panic error, unwrap failed
 // TODO missing libraries reader_pricing_utils::get_swap_amount_out  use not implemented functions
 #[test]
 fn given_normal_conditions_when_get_swap_amount_out_then_works() {
@@ -1046,7 +1046,7 @@ fn given_normal_conditions_when_get_swap_amount_out_then_works() {
     teardown(data_store.contract_address);
 }
 
-@audit //returns 0x0
+// @audit //returns 0x0
 // TODO missing libraries 'market_utils::get_virtual_inventory_for_swaps' and 'market_utils::get_virtual_inventory_for_positions' not implemented 
 #[test]
 fn given_normal_conditions_when_get_virtual_inventory_then_works() {
@@ -1069,14 +1069,122 @@ fn given_normal_conditions_when_get_virtual_inventory_then_works() {
     teardown(data_store.contract_address);
 }
 
-// TODO missing libraries 'increase_position_utils::get_execution_price' and 'decrease_position_collateral_utils::get_execution_price' not implemented 
-//fn given_normal_conditions_when_get_execution_price_then_works() {}
 
+#[test]
+fn given_normal_conditions_when_get_execution_price_then_works() {
+    let (caller_address, role_store, data_store) = setup();
+    let (reader_address, reader) = setup_reader();
+    let market_key_1: ContractAddress = 123456789.try_into().unwrap();
+    let market_1 = Market {
+        market_token: market_key_1,
+        index_token: 12345.try_into().unwrap(),
+        long_token: 56678.try_into().unwrap(),
+        short_token: 8901234.try_into().unwrap(),
+    };
+     let price1 = Price {
+            min: 1,  
+            max: 200
+    };
+    let key_2 :felt252 = 3333333333;
+    let mut position2: Position = Default::default();
+    position2.key = key_2;
+    position2.market = 'market2'.try_into().unwrap();
+    position2.size_in_usd = 3000000;
+    position2.account = 'account2'.try_into().unwrap();
+    position2.is_long = true;
+    position2.size_in_tokens = 10000;
+
+    let size : i128 = 20000.try_into().unwrap();
+    let is_long = true;
+
+    start_prank(role_store.contract_address, caller_address);
+    role_store.grant_role(caller_address, role::MARKET_KEEPER);
+    stop_prank(role_store.contract_address);
+
+    data_store.set_market(market_key_1, 1, market_1);
+    data_store.set_position(key_2, position2);
+
+    let res : ExecutionPriceResult = reader.get_execution_price(data_store,market_key_1,price1,position2.size_in_usd,position2.size_in_tokens,size,is_long);
+    assert(res.execution_price == 200, 'incorrect execution_price');
+    teardown(data_store.contract_address);
+}
+
+//@audit
 // TODO missing libraries 'swap_pricing_utils::get_price_impact_usd' and 'market_utils::get_swap_impact_amount_with_cap' not implemented 
-//fn given_normal_conditions_when_get_swap_price_impact_then_works() {
+#[test]
+fn given_normal_conditions_when_get_swap_price_impact_then_works() {
+    let (caller_address, role_store, data_store) = setup();
+    let (reader_address, reader) = setup_reader();
 
+    let market_key_1: ContractAddress = 123456789.try_into().unwrap();
+    let market_1 = Market {
+        market_token: market_key_1,
+        index_token: 12345.try_into().unwrap(),
+        long_token: 56678.try_into().unwrap(),
+        short_token: 8901234.try_into().unwrap(),
+    };
+     let price1 = Price {
+            min: 1,  
+            max: 200
+    };
+    let price2 = Price {
+            min: 1,  
+            max: 400
+    };
+    let amount_in = 3000;
+    let token_in : ContractAddress = contract_address_const::<'token_in'>();
+    let token_out : ContractAddress = contract_address_const::<'token_out'>();
+    
+    start_prank(role_store.contract_address, caller_address);
+    role_store.grant_role(caller_address, role::MARKET_KEEPER);
+    stop_prank(role_store.contract_address);
+
+    data_store.set_market(market_key_1, 1, market_1);
+    let (data1, data2) = reader.get_swap_price_impact(data_store,market_key_1,token_in,token_out,amount_in,price1,price2);
+    let datafel : felt252 = data1.into();
+    datafel.print();
+    teardown(data_store.contract_address);
+}
+
+//@audit
 // TODO missing libraries 'market_utils::is_pnl_factor_exceeded_direct' and 'market_utils::get_enabled_market' not implemented 
-//fn given_normal_conditions_when_get_adl_state_then_works() {
+#[test]
+fn given_normal_conditions_when_get_adl_state_then_works() {
+     let (caller_address, role_store, data_store) = setup();
+    let (reader_address, reader) = setup_reader();
+    let market_token_address = contract_address_const::<'market_token'>();
+    let market = Market {
+        market_token: market_token_address,
+        index_token: contract_address_const::<'index_token'>(),
+        long_token: contract_address_const::<'long_token'>(),
+        short_token: contract_address_const::<'short_token'>(),
+    };
+        let price1 = Price {
+            min: 1,  
+            max: 200
+    };
+    let price2 = Price {
+            min: 1,  
+            max: 300
+    };
+     let price3 = Price {
+            min: 1,  
+            max: 400
+    };
+        //create random prices
+    let prices = MarketPrices {
+        index_token_price: price1,
+        long_token_price: price2,
+        short_token_price: price3
+    };
+    start_prank(role_store.contract_address, caller_address);
+    role_store.grant_role(caller_address, role::MARKET_KEEPER);
+    stop_prank(role_store.contract_address);
+
+    data_store.set_market(market_token_address, 0, market);
+    let (data1, data2, data3, data4) = reader.get_adl_state(data_store,market_token_address,true,prices);
+    teardown(data_store.contract_address);
+}
 
 // *************************************************************************
 //                          SETUP READER
