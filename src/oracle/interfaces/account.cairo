@@ -73,5 +73,4 @@ trait IAccount<TContractState> {
     fn get_name(self: @TContractState) -> felt252;
     fn get_guardian_escape_attempts(self: @TContractState) -> u32;
     fn get_owner_escape_attempts(self: @TContractState) -> u32;
-
 }

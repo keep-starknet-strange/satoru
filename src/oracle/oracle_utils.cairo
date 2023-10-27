@@ -14,15 +14,12 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::market::market::{Market};
 use satoru::oracle::{
-    oracle::{SetPricesCache, SetPricesInnerCache},
-    error::OracleError,
+    oracle::{SetPricesCache, SetPricesInnerCache}, error::OracleError,
     interfaces::account::{IAccountDispatcher, IAccountDispatcherTrait}
 };
 use satoru::price::price::{Price};
 use satoru::utils::{
-    store_arrays::{
-        StoreContractAddressArray, StorePriceArray, StoreU128Array, StoreFelt252Array
-    },
+    store_arrays::{StoreContractAddressArray, StorePriceArray, StoreU128Array, StoreFelt252Array},
     arrays::{are_lte_u64, get_uncompacted_value, get_uncompacted_value_u64},
     bits::{BITMASK_8, BITMASK_16, BITMASK_32, BITMASK_64}
 };
