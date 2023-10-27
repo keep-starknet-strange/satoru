@@ -144,7 +144,7 @@ fn increase_position(mut params: UpdatePositionParams, collateral_increment_amou
         params.contracts.data_store,
         params.contracts.event_emitter,
         params.market.market_token,
-        -cache.price_impact_amount
+        i128_neg(cache.price_impact_amount)
     );
 
     cache.next_position_size_in_usd = params.position.size_in_usd + params.order.size_delta_usd;

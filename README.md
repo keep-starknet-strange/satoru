@@ -150,6 +150,11 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/VictorONN"><img src="https://avatars.githubusercontent.com/u/73134512?v=4?s=100" width="100px;" alt="VictorONN"/><br /><sub><b>VictorONN</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=VictorONN" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/kasteph"><img src="https://avatars.githubusercontent.com/u/3408478?v=4?s=100" width="100px;" alt="kasteph"/><br /><sub><b>kasteph</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=kasteph" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/khaeljy"><img src="https://avatars.githubusercontent.com/u/1810456?v=4?s=100" width="100px;" alt="Khaeljy"/><br /><sub><b>Khaeljy</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=khaeljy" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/JeanWoked"><img src="https://avatars.githubusercontent.com/u/149107619?v=4?s=100" width="100px;" alt="JeanWoked"/><br /><sub><b>JeanWoked</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=JeanWoked" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/vuittont60"><img src="https://avatars.githubusercontent.com/u/81072379?v=4?s=100" width="100px;" alt="vuittont60"/><br /><sub><b>vuittont60</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=vuittont60" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/MavericksFive"><img src="https://avatars.githubusercontent.com/u/95299145?v=4?s=100" width="100px;" alt="Arnaud Berger"/><br /><sub><b>Arnaud Berger</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=MavericksFive" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

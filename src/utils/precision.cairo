@@ -6,7 +6,7 @@ use alexandria_math::pow;
 use integer::{
     u128_to_felt252, u256_wide_mul, u512_safe_div_rem_by_u256, BoundedU256, u256_try_as_non_zero
 };
-use satoru::utils::i128::i128;
+use satoru::utils::i128::{i128, i128_neg};
 use core::traits::TryInto;
 use core::option::Option;
 use satoru::utils::calc::{roundup_division, roundup_magnitude_division};
@@ -82,7 +82,7 @@ fn mul_div_ival(value: i128, numerator: u128, denominator: u128) -> i128 {
 /// * `divisor` - The denominator that divides value.
 fn mul_div_inum(value: u128, numerator: i128, denominator: u128) -> i128 {
     let numerator_abs = if numerator < Zeroable::zero() {
-        -numerator
+        i128_neg(numerator)
     } else {
         numerator
     };
@@ -94,7 +94,7 @@ fn mul_div_inum(value: u128, numerator: i128, denominator: u128) -> i128 {
     if numerator > Zeroable::zero() {
         return i128_result;
     } else {
-        return -i128_result;
+        return i128_neg(i128_result);
     }
 }
 
@@ -107,7 +107,7 @@ fn mul_div_inum_roundup(
     value: u128, numerator: i128, denominator: u128, roundup_magnitude: bool
 ) -> i128 {
     let numerator_abs = if numerator < Zeroable::zero() {
-        -numerator
+        i128_neg(numerator)
     } else {
         numerator
     };
@@ -119,7 +119,7 @@ fn mul_div_inum_roundup(
     if numerator > Zeroable::zero() {
         return i128_result;
     } else {
-        return -i128_result;
+        return i128_neg(i128_result);
     }
 }
 
@@ -205,7 +205,7 @@ fn to_factor(value: u128, divisor: u128) -> u128 {
 /// The factor between value and divisor.
 fn to_factor_ival(value: i128, divisor: u128) -> i128 {
     let value_abs = if value < Zeroable::zero() {
-        -value
+        i128_neg(value)
     } else {
         value
     };
@@ -217,7 +217,7 @@ fn to_factor_ival(value: i128, divisor: u128) -> i128 {
     if value > Zeroable::zero() {
         i128_result
     } else {
-        -i128_result
+        i128_neg(i128_result)
     }
 }
 
