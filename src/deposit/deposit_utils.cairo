@@ -184,7 +184,6 @@ fn cancel_deposit(
 
     event_emitter.emit_deposit_cancelled(key, reason, reason_bytes.span());
 
-    //TODO use log data instead
     let log_data: LogData = Default::default();
     after_deposit_cancellation(key, deposit, log_data);
 

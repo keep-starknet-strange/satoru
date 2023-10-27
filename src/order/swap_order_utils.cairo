@@ -48,9 +48,9 @@ fn process_order(params: ExecuteOrderParams) -> event_utils::LogData {
     let mut uint_items: event_utils::UintItems = Default::default();
 
     address_items =
-        event_utils::set_item_address_items(address_items, 0, "output_token", output_token);
+        event_utils::set_item_address_items(address_items, 0, 'output_token', output_token);
 
-    uint_items = event_utils::set_item_uint_items(uint_items, 0, "output_amount", output_amount);
+    uint_items = event_utils::set_item_uint_items(uint_items, 0, 'output_amount', output_amount);
 
     event_utils::LogData {
         address_items,

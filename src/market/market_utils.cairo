@@ -30,7 +30,7 @@ use satoru::utils::precision;
 use satoru::utils::calc::{roundup_division, to_signed, sum_return_int_128, to_unsigned};
 use satoru::position::position::Position;
 use integer::u128_to_felt252;
-use satoru::utils::{i128::i128, error_utils};
+use satoru::utils::{i128::{i128, i128_neg}, error_utils};
 use satoru::utils::precision::{apply_exponent_factor, float_to_wei, mul_div};
 use satoru::data::keys::{skip_borrowing_fee_for_smaller_side, max_swap_path_length};
 
@@ -923,7 +923,7 @@ fn apply_delta_to_open_interest(
 
     if is_long {
         apply_delta_to_virtual_inventory_for_positions(
-            data_store, event_emitter, *market.index_token, -delta
+            data_store, event_emitter, *market.index_token, i128_neg(delta)
         );
     } else {
         apply_delta_to_virtual_inventory_for_positions(
@@ -1455,7 +1455,9 @@ fn apply_swap_impact_with_cap(
 
     // if there is a positive impact, the impact pool amount should be reduced
     // if there is a negative impact, the impact pool amount should be increased
-    apply_delta_to_swap_impact_pool(data_store, event_emitter, market, token, -impact_amount);
+    apply_delta_to_swap_impact_pool(
+        data_store, event_emitter, market, token, i128_neg(impact_amount)
+    );
 
     return impact_amount;
 }
@@ -2428,8 +2430,7 @@ fn get_borrowing_factor_per_second(
     // if skipBorrowingFeeForSmallerSide is true, and the longOpenInterest is exactly the same as the shortOpenInterest
     // then the borrowing fee would be charged for both sides, this should be very rare
     let skip_borrowing_fee_for_smaller_side: bool = data_store
-        .get_bool(keys::skip_borrowing_fee_for_smaller_side())
-        .unwrap();
+        .get_bool(keys::skip_borrowing_fee_for_smaller_side());
 
     let market_snap = @market;
     if (skip_borrowing_fee_for_smaller_side) {
@@ -2570,8 +2571,7 @@ fn validate_enabled_market(data_store: IDataStoreDispatcher, market: Market) {
     assert(market.market_token != 0.try_into().unwrap(), MarketError::EMPTY_MARKET);
 
     let is_market_disabled: bool = data_store
-        .get_bool(keys::is_market_disabled_key(market.market_token))
-        .unwrap();
+        .get_bool(keys::is_market_disabled_key(market.market_token));
 
     if (is_market_disabled) {
         MarketError::DISABLED_MARKET(is_market_disabled);

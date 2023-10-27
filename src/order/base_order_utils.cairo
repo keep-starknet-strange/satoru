@@ -46,6 +46,7 @@ struct ExecuteOrderParams {
     secondary_order_type: SecondaryOrderType
 }
 
+
 #[derive(Drop, Copy, starknet::Store, Serde)]
 struct ExecuteOrderParamsContracts {
     /// The dispatcher to interact with the `DataStore` contract
@@ -63,7 +64,7 @@ struct ExecuteOrderParamsContracts {
 }
 
 /// CreateOrderParams struct used in create_order.
-#[derive(Drop, starknet::Store, Serde)]
+#[derive(Drop, Copy, starknet::Store, Serde)]
 struct CreateOrderParams {
     /// Meant to allow the output of an order to be
     /// received by an address that is different from the position.account
@@ -92,7 +93,7 @@ struct CreateOrderParams {
     /// The acceptable execution price for increase / decrease orders.
     acceptable_price: u128,
     /// The execution fee for keepers.
-    execution_fee: u256,
+    execution_fee: u128,
     /// The gas limit for the callbackContract.
     callback_gas_limit: u128,
     /// The minimum output amount for decrease orders and swaps.
@@ -411,7 +412,7 @@ fn get_execution_price_for_decrease(
         let adjusted_price_impact_usd = if is_long {
             price_impact_usd
         } else {
-            -price_impact_usd
+            i128_neg(price_impact_usd)
         };
 
         if adjusted_price_impact_usd < Zeroable::zero()
