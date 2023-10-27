@@ -1,7 +1,9 @@
 use result::ResultTrait;
 use traits::{TryInto, Into};
 use starknet::{ContractAddress, get_caller_address, contract_address_const};
-use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait, ContractClass};
+use snforge_std::{
+    declare, start_prank, stop_prank, start_mock_call, ContractClassTrait, ContractClass
+};
 use satoru::router::router::{IRouterDispatcher, IRouterDispatcherTrait};
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use satoru::role::role;
@@ -10,6 +12,7 @@ use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::deposit::deposit_utils::CreateDepositParams;
 use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
 use satoru::tests_lib;
+use satoru::data::keys;
 use satoru::exchange::{
     deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait},
     withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait},
@@ -30,13 +33,9 @@ use satoru::market::market::Market;
 fn given_normal_conditions_when_create_deposit_then_works() {
     let (caller_address, role_store, data_store, reader, exchange_router, deposit_vault) = setup();
 
-    // deploy erc20 token and mint to deposit_vault
-    let erc20_contract_address = deploy_erc20_token(deposit_vault.contract_address);
-    let erc20 = IERC20Dispatcher { contract_address: erc20_contract_address };
-    
     // Grant market keeper role to allow adding market to the data store
     role_store.grant_role(caller_address, role::MARKET_KEEPER);
-    
+
     let market_key = contract_address_const::<'market'>();
     let market = Market {
         market_token: contract_address_const::<'market_token'>(),
@@ -46,27 +45,54 @@ fn given_normal_conditions_when_create_deposit_then_works() {
     };
     data_store.set_market(market_key, 0, market);
 
+    // Mock deposit fee token in deposit vault
+    start_mock_call(deposit_vault.contract_address, 'record_transfer_in', 10);
+
     let deposit_params = CreateDepositParams {
         receiver: contract_address_const::<'receiver'>(),
         callback_contract: contract_address_const::<'callback_contract'>(),
         ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
         market: market_key,
-        initial_long_token: contract_address_const::<'initial_long_token'>(),
-        initial_short_token: contract_address_const::<'initial_short_token'>(),
+        initial_long_token: contract_address_const::<'long_token'>(),
+        initial_short_token: contract_address_const::<'short_token'>(),
         long_token_swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
         short_token_swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
         min_market_tokens: 10,
         execution_fee: 0,
         callback_gas_limit: 10,
     };
+
+    // Create deposit
     let deposit_key = exchange_router.create_deposit(deposit_params);
 
-    // let deposit = reader.get_deposit(data_store, deposit_key);
+    // Check deposit
+    let deposit = reader.get_deposit(data_store, deposit_key);
 
-    // assert(deposit.key == deposit_key, 'unexp. deposit key');
-    // assert(deposit.account == caller_address, 'unexp. deposit account');
-    // assert(deposit.receiver == contract_address_const::<'receiver'>(), 'unexp. deposit receiver');
-    // assert(deposit.callback_contract == contract_address_const::<'callback_contract'>(), 'unexp. deposit callback_contract');
+    assert(deposit.key == deposit_key, 'unexp. key');
+    assert(deposit.account == caller_address, 'unexp. account');
+    assert(deposit.receiver == contract_address_const::<'receiver'>(), 'unexp. receiver');
+    assert(
+        deposit.callback_contract == contract_address_const::<'callback_contract'>(),
+        'unexp. callback_contract'
+    );
+    assert(
+        deposit.ui_fee_receiver == contract_address_const::<'ui_fee_receiver'>(),
+        'unexp. ui_fee_receiver'
+    );
+    assert(deposit.market == market.market_token, 'unexp. market');
+    assert(
+        deposit.initial_long_token == contract_address_const::<'long_token'>(),
+        'unexp. initial_long_token'
+    );
+    assert(
+        deposit.initial_short_token == contract_address_const::<'short_token'>(),
+        'unexp. initial_short_token'
+    );
+    assert(deposit.min_market_tokens == 10, 'unexp. min_market_tokens');
+    assert(
+        deposit.execution_fee == 10, 'unexp. execution_fee'
+    ); // Since mock deposit fee token in deposit vault, execution fee is set to 10
+    assert(deposit.callback_gas_limit == 10, 'unexp. callback_gas_limit');
 }
 
 // *********************************************************************************************
@@ -83,17 +109,32 @@ fn given_normal_conditions_when_create_deposit_then_works() {
 /// * `IExchangeRouterDispatcher` - The exchange router dispatcher.
 /// * `IDepositVaultDispatcher` - The deposit vault dispatcher.
 fn setup() -> (
-    ContractAddress, IRoleStoreDispatcher, IDataStoreDispatcher,IReaderDispatcher, IExchangeRouterDispatcher,IDepositVaultDispatcher
+    ContractAddress,
+    IRoleStoreDispatcher,
+    IDataStoreDispatcher,
+    IReaderDispatcher,
+    IExchangeRouterDispatcher,
+    IDepositVaultDispatcher
 ) {
     // Setup Oracle and Store
     let (caller_address, role_store, data_store, event_emitter, oracle) =
         tests_lib::setup_oracle_and_store();
+
+    // Deploy tokens 
+    deploy_erc20_tokens(caller_address);
+
+    // Set fee token address
+    data_store.set_address(keys::fee_token(), contract_address_const::<'fee_token'>());
+
+    // Set max callback gas limit
+    data_store.set_u128(keys::max_callback_gas_limit(), 100);
 
     // Deploy deposit vault
     let deposit_vault_address = deploy_deposit_vault(
         data_store.contract_address, role_store.contract_address
     );
     let deposit_vault = IDepositVaultDispatcher { contract_address: deposit_vault_address };
+    start_prank(deposit_vault_address, caller_address);
 
     // Deploy deposit vault handler
     let deposit_handler_address = deploy_deposit_handler(
@@ -182,7 +223,7 @@ fn setup() -> (
     // start prank and give controller role to caller_address
     //start_prank(deposit_vault.contract_address, caller_address);
 
-    return (caller_address, role_store, data_store,reader, exchange_router, deposit_vault);
+    return (caller_address, role_store, data_store, reader, exchange_router, deposit_vault);
 }
 
 /// Utility function to deploy an exchange router.
@@ -453,9 +494,20 @@ fn deploy_reader() -> ContractAddress {
 ///
 /// # Returns
 ///
-/// * `ContractAddress` - The address of the ERC20 token.
-fn deploy_erc20_token(mint_address: ContractAddress) -> ContractAddress {
+fn deploy_erc20_tokens(mint_address: ContractAddress) {
     let erc20_contract = declare('ERC20');
-    let constructor_calldata = array!['satoru', 'STU', 1000, 0, mint_address.into()];
-    erc20_contract.deploy(@constructor_calldata).unwrap()
+
+    let deployed_fee_token_address = contract_address_const::<'fee_token'>();
+    let constructor_fee_token_calldata = array!['fee_token', 'FEE', 1000, 0, mint_address.into()];
+    erc20_contract.deploy_at(@constructor_fee_token_calldata, deployed_fee_token_address);
+
+    let deployed_long_token_address = contract_address_const::<'long_token'>();
+    let constructor_long_token_calldata = array!['long_token', 'LNG', 1000, 0, mint_address.into()];
+    erc20_contract.deploy_at(@constructor_long_token_calldata, deployed_long_token_address);
+
+    let deployed_short_token_address = contract_address_const::<'short_token'>();
+    let constructor_short_token_calldata = array![
+        'short_token', 'SRT', 1000, 0, mint_address.into()
+    ];
+    erc20_contract.deploy_at(@constructor_short_token_calldata, deployed_short_token_address);
 }

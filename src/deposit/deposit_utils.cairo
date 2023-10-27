@@ -73,7 +73,6 @@ fn create_deposit(
 ) -> felt252 {
     validate_account(account);
 
-    //let market = data_store.get_market(data_store,params.market);
     let market = market_utils::get_enabled_market(data_store, params.market);
     market_utils::validate_swap_path(data_store, params.long_token_swap_path);
     market_utils::validate_swap_path(data_store, params.short_token_swap_path);

@@ -288,13 +288,13 @@ mod ExchangeRouter {
 
         fn create_deposit(ref self: ContractState, params: CreateDepositParams) -> felt252 {
             let data_store = self.data_store.read();
-            global_reentrancy_guard::non_reentrant_before(data_store);
+            // global_reentrancy_guard::non_reentrant_before(data_store);
 
             let account = get_caller_address();
 
             let key = self.deposit_handler.read().create_deposit(account, params);
 
-            global_reentrancy_guard::non_reentrant_after(data_store);
+            // global_reentrancy_guard::non_reentrant_after(data_store);
 
             key
         }
