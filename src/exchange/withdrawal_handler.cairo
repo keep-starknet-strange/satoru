@@ -174,7 +174,7 @@ mod WithdrawalHandler {
 
             global_reentrancy_guard::non_reentrant_before(data_store); // Initiates re-entrancy
 
-            let starting_gas = starknet_utils::sn_gasleft(array![100]); // Returns 100 for now,
+            let starting_gas = starknet_utils::sn_gasleft(array![200]); // Returns 200 for now,
             let withdrawal = data_store.get_withdrawal(key);
 
             feature_utils::validate_feature(

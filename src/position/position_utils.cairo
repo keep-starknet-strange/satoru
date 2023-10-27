@@ -460,6 +460,7 @@ fn is_position_liquiditable(
             market_utils::get_cached_token_price(position.collateral_token, market, prices);
 
     cache.collateral_usd = position.collateral_amount * cache.collateral_token_price.min;
+
     // calculate the usdDeltaForPriceImpact for fully closing the position
     cache.usd_delta_for_price_impact = calc::to_signed(position.size_in_usd, false);
     cache
@@ -543,6 +544,7 @@ fn is_position_liquiditable(
                 precision::apply_factor_u128(position.size_in_usd, cache.min_collateral_factor),
                 true
             );
+
     if cache.remaining_collateral_usd <= cache.min_collateral_usd_for_leverage {
         return (true, 'min collateral for leverage');
     }
@@ -728,10 +730,10 @@ fn update_open_interest(
             size_delta_usd
         );
 
-        market_utils::apply_delta_to_open_interest(
+        market_utils::apply_delta_to_open_interest_in_tokens(
             params.contracts.data_store,
             params.contracts.event_emitter,
-            @params.market,
+            params.market,
             params.position.collateral_token,
             params.position.is_long,
             size_delta_in_tokens
