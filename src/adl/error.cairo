@@ -3,5 +3,5 @@ mod AdlError {
         'block_no_smaller_than_required';
     const INVALID_SIZE_DELTA_FOR_ADL: felt252 = 'invalid_size_delta_for_adl';
     const ADL_NOT_ENABLED: felt252 = 'adl_not_enabled';
-    const POSTION_NOT_VALID: felt252 = 'position_not_valid';
+    const POSITION_NOT_VALID: felt252 = 'position_not_valid';
 }
