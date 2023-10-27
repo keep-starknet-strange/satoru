@@ -45,7 +45,7 @@ fn given_normal_conditions_when_create_deposit_then_works() {
     };
     data_store.set_market(market_key, 0, market);
 
-    // Mock deposit fee token in deposit vault
+    // Mock deposit tokens in deposit vault (fee_token, long_token and short_token)
     start_mock_call(deposit_vault.contract_address, 'record_transfer_in', 10);
 
     let deposit_params = CreateDepositParams {
@@ -58,7 +58,7 @@ fn given_normal_conditions_when_create_deposit_then_works() {
         long_token_swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
         short_token_swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
         min_market_tokens: 10,
-        execution_fee: 0,
+        execution_fee: 5,
         callback_gas_limit: 10,
     };
 
@@ -89,10 +89,121 @@ fn given_normal_conditions_when_create_deposit_then_works() {
         'unexp. initial_short_token'
     );
     assert(deposit.min_market_tokens == 10, 'unexp. min_market_tokens');
-    assert(
-        deposit.execution_fee == 10, 'unexp. execution_fee'
-    ); // Since mock deposit fee token in deposit vault, execution fee is set to 10
+    // Since mock deposit fee token in deposit vault, execution fee is set to 10
+    assert(deposit.execution_fee == 10, 'unexp. execution_fee');
     assert(deposit.callback_gas_limit == 10, 'unexp. callback_gas_limit');
+}
+
+#[test]
+#[should_panic(expected: ('empty_deposit_amounts',))]
+fn given_no_token_in_deposit_vault_when_create_deposit_then_fail() {
+    let (caller_address, role_store, data_store, reader, exchange_router, deposit_vault) = setup();
+
+    // Grant market keeper role to allow adding market to the data store
+    role_store.grant_role(caller_address, role::MARKET_KEEPER);
+
+    let market_key = contract_address_const::<'market'>();
+    let market = Market {
+        market_token: contract_address_const::<'market_token'>(),
+        index_token: contract_address_const::<'index_token'>(),
+        long_token: contract_address_const::<'long_token'>(),
+        short_token: contract_address_const::<'short_token'>(),
+    };
+    data_store.set_market(market_key, 0, market);
+
+    let deposit_params = CreateDepositParams {
+        receiver: contract_address_const::<'receiver'>(),
+        callback_contract: contract_address_const::<'callback_contract'>(),
+        ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
+        market: market_key,
+        initial_long_token: contract_address_const::<'long_token'>(),
+        initial_short_token: contract_address_const::<'short_token'>(),
+        long_token_swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
+        short_token_swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
+        min_market_tokens: 10,
+        execution_fee: 0,
+        callback_gas_limit: 10,
+    };
+
+    // Create deposit
+    let deposit_key = exchange_router.create_deposit(deposit_params);
+}
+
+
+#[test]
+#[should_panic(expected: ('insufficient_execution_fee',))]
+fn given_insufficient_execution_fee_token_in_deposit_vault_when_create_deposit_then_fail() {
+    let (caller_address, role_store, data_store, reader, exchange_router, deposit_vault) = setup();
+
+    // Grant market keeper role to allow adding market to the data store
+    role_store.grant_role(caller_address, role::MARKET_KEEPER);
+
+    let market_key = contract_address_const::<'market'>();
+    let market = Market {
+        market_token: contract_address_const::<'market_token'>(),
+        index_token: contract_address_const::<'index_token'>(),
+        long_token: contract_address_const::<'long_token'>(),
+        short_token: contract_address_const::<'short_token'>(),
+    };
+    data_store.set_market(market_key, 0, market);
+
+    // Mock deposit tokens in deposit vault (fee_token, long_token and short_token)
+    start_mock_call(deposit_vault.contract_address, 'record_transfer_in', 10);
+
+    let deposit_params = CreateDepositParams {
+        receiver: contract_address_const::<'receiver'>(),
+        callback_contract: contract_address_const::<'callback_contract'>(),
+        ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
+        market: market_key,
+        initial_long_token: contract_address_const::<'long_token'>(),
+        initial_short_token: contract_address_const::<'short_token'>(),
+        long_token_swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
+        short_token_swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
+        min_market_tokens: 10,
+        execution_fee: 50,
+        callback_gas_limit: 10,
+    };
+
+    // Create deposit
+    let deposit_key = exchange_router.create_deposit(deposit_params);
+}
+
+#[test]
+#[should_panic(expected: ('max_callback_gas_limit_exceeded', 101, 100))]
+fn given_callback_gas_limit_exceeded_when_create_deposit_then_fail() {
+    let (caller_address, role_store, data_store, reader, exchange_router, deposit_vault) = setup();
+
+    // Grant market keeper role to allow adding market to the data store
+    role_store.grant_role(caller_address, role::MARKET_KEEPER);
+
+    let market_key = contract_address_const::<'market'>();
+    let market = Market {
+        market_token: contract_address_const::<'market_token'>(),
+        index_token: contract_address_const::<'index_token'>(),
+        long_token: contract_address_const::<'long_token'>(),
+        short_token: contract_address_const::<'short_token'>(),
+    };
+    data_store.set_market(market_key, 0, market);
+
+    // Mock deposit tokens in deposit vault (fee_token, long_token and short_token)
+    start_mock_call(deposit_vault.contract_address, 'record_transfer_in', 10);
+
+    let deposit_params = CreateDepositParams {
+        receiver: contract_address_const::<'receiver'>(),
+        callback_contract: contract_address_const::<'callback_contract'>(),
+        ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
+        market: market_key,
+        initial_long_token: contract_address_const::<'long_token'>(),
+        initial_short_token: contract_address_const::<'short_token'>(),
+        long_token_swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
+        short_token_swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
+        min_market_tokens: 10,
+        execution_fee: 5,
+        callback_gas_limit: 101,
+    };
+
+    // Create deposit
+    let deposit_key = exchange_router.create_deposit(deposit_params);
 }
 
 // *********************************************************************************************
