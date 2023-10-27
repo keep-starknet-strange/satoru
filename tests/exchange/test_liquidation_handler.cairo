@@ -7,7 +7,6 @@ use satoru::exchange::liquidation_handler::{
 };
 use starknet::{ContractAddress, contract_address_const, ClassHash, Felt252TryIntoContractAddress};
 use satoru::position::position_utils::get_position_key;
-use debug::PrintTrait;
 use satoru::mock::referral_storage;
 use traits::Default;
 use satoru::oracle::oracle_utils::SetPricesParams;

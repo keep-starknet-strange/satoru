@@ -456,7 +456,7 @@ mod Oracle {
                 }
 
                 let validated_price = *validated_prices.at(len);
-                if !validated_price.min.is_zero() || !validated_price.max.is_zero() {
+                if !self.primary_prices.read(validated_price.token).is_zero() {
                     OracleError::DUPLICATED_TOKEN_PRICE();
                 }
                 self
@@ -486,7 +486,6 @@ mod Oracle {
             let signers = self.get_signers_(data_store, @params);
 
             let mut cache: SetPricesCache = Default::default();
-
             cache
                 .min_block_confirmations = data_store
                 .get_u128(keys::min_oracle_block_confirmations())
@@ -534,7 +533,6 @@ mod Oracle {
                         oracle_utils::get_uncompacted_oracle_timestamp(
                             params.compacted_oracle_timestamps.span(), i
                         );
-
                 if report_info.min_oracle_block_number > get_block_number() {
                     OracleError::INVALID_BLOCK_NUMBER(
                         report_info.min_oracle_block_number, get_block_number()
@@ -588,7 +586,6 @@ mod Oracle {
                         break;
                     }
                     inner_cache.price_index = (i * signers_len + j).into();
-
                     inner_cache
                         .min_prices
                         .append(
@@ -642,7 +639,6 @@ mod Oracle {
                             signatures_span, inner_cache.signature_index, 'signatures'
                         );
                     }
-
                     if inner_cache.min_price_index >= inner_cache.min_prices.len().into() {
                         OracleError::ARRAY_OUT_OF_BOUNDS_U128(
                             inner_cache.min_prices.span(), inner_cache.min_price_index, 'min_prices'
@@ -682,7 +678,6 @@ mod Oracle {
                             report_info.min_price, report_info.max_price
                         );
                     }
-
                     oracle_utils::validate_signer(
                         self.get_salt(),
                         report_info,
@@ -700,7 +695,7 @@ mod Oracle {
                     * report_info.precision;
                 let (has_price_feed, ref_price) = self
                     .get_price_feed_price(data_store, report_info.token);
-
+                
                 if has_price_feed {
                     self
                         .validate_ref_price(
@@ -887,6 +882,9 @@ mod Oracle {
             self: @ContractState, data_store: IDataStoreDispatcher, token: ContractAddress,
         ) -> (bool, u128) {
             let token_id = data_store.get_token_id(token);
+            if token_id == 0 {
+                return (false, 0);
+            }
             let response = self.price_feed.read().get_data_median(DataType::SpotEntry(token_id));
 
             if response.price <= 0 {

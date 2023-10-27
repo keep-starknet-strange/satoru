@@ -7,7 +7,6 @@ use result::ResultTrait;
 use traits::Default;
 use hash::LegacyHash;
 use ecdsa::recover_public_key;
-
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -20,7 +19,7 @@ use satoru::oracle::{
 use satoru::price::price::{Price};
 use satoru::utils::{
     store_arrays::{StoreContractAddressArray, StorePriceArray, StoreU128Array, StoreFelt252Array},
-    arrays::{are_lte_u64, get_uncompacted_value, get_uncompacted_value_u64},
+    arrays::{are_lte_u64, are_gte_u64, get_uncompacted_value, get_uncompacted_value_u64},
     bits::{BITMASK_8, BITMASK_16, BITMASK_32, BITMASK_64}
 };
 
@@ -149,7 +148,7 @@ fn is_block_number_within_range(
         return false;
     }
 
-    if (!are_lte_u64(max_oracle_block_numbers, block_number)) {
+    if (!are_gte_u64(max_oracle_block_numbers, block_number)) {
         return false;
     }
 

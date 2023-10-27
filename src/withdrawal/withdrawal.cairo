@@ -4,7 +4,6 @@
 
 // Core lib imports.
 use starknet::{ContractAddress, contract_address_const};
-use debug::PrintTrait;
 
 // Local imports.
 use satoru::utils::store_arrays::StoreContractAddressArray;

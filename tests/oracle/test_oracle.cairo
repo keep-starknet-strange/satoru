@@ -12,17 +12,7 @@ use satoru::price::price::Price;
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
 use satoru::utils::precision;
-
-// NOTE: requires oracle_utils to be completed to not panic.
-#[test]
-#[should_panic()]
-fn given_normal_conditions_when_set_prices_then_works() {
-    let (controller, data_store, event_emitter, oracle) = setup();
-    let params = mock_set_prices_params();
-
-    start_prank(oracle.contract_address, controller);
-    oracle.set_prices(data_store, event_emitter, params);
-}
+use satoru::tests_lib;
 
 #[test]
 fn given_normal_conditions_when_set_primary_price_then_works() {
@@ -38,6 +28,8 @@ fn given_normal_conditions_when_set_primary_price_then_works() {
     assert(
         price_from_view.min == price.min && price_from_view.max == price.max, 'wrong primary price'
     );
+    // teardown
+    tests_lib::teardown(data_store.contract_address);
 }
 
 #[test]
@@ -56,6 +48,8 @@ fn given_normal_conditions_when_clear_all_prices_then_works() {
 
     oracle.clear_all_prices();
     assert(oracle.get_tokens_with_prices_count() == 0, 'wrong tokens count');
+    // teardown
+    tests_lib::teardown(data_store.contract_address);
 }
 
 #[test]
@@ -76,6 +70,8 @@ fn given_normal_conditions_when_tokens_with_prices_count_then_works() {
     oracle.set_primary_price(token3, price3);
 
     assert(oracle.get_tokens_with_prices_count() == 3, 'wrong tokens count');
+    // teardown
+    tests_lib::teardown(data_store.contract_address);
 }
 
 #[test]
@@ -115,6 +111,8 @@ fn given_normal_conditions_when_get_tokens_with_prices_then_works() {
     assert(prices == array![token3], 'wrong prices array 2-3');
     let prices = oracle.get_tokens_with_prices(2, 5);
     assert(prices == array![token3], 'wrong prices array 2-5');
+    // teardown
+    tests_lib::teardown(data_store.contract_address);
 }
 
 #[test]
@@ -135,6 +133,8 @@ fn given_normal_conditions_when_get_primary_price_then_works() {
     assert(is_price_eq(oracle.get_primary_price(token1), price1), 'wrong price token-1');
     assert(is_price_eq(oracle.get_primary_price(token2), price2), 'wrong price token-2');
     assert(is_price_eq(oracle.get_primary_price(token3), price3), 'wrong price token-3');
+    // teardown
+    tests_lib::teardown(data_store.contract_address);
 }
 
 #[test]
@@ -144,25 +144,43 @@ fn given_normal_conditions_when_price_feed_multiplier_then_works() {
     let token = contract_address_const::<'ETH'>();
 
     oracle.get_price_feed_multiplier(data_store, token);
+    // teardown
+    tests_lib::teardown(data_store.contract_address);
 }
 
-#[test]
-fn given_normal_conditions_when_validate_prices_then_works() {
-    let (controller, data_store, event_emitter, oracle) = setup();
-    let params: SetPricesParams = mock_set_prices_params();
-    let token1 = contract_address_const::<'ETH'>();
-    let price1 = Price { min: 1700, max: 1701 };
-    let token2 = contract_address_const::<'USDC'>();
-    let price2 = Price { min: 20, max: 22 };
-    let token3 = contract_address_const::<'DAI'>();
-    let price3 = Price { min: 30, max: 33 };
+// TODO for two next tests:
+//  Implement with a real signer that simulate keepers and signs Price Data
 
-    start_prank(oracle.contract_address, controller);
-    oracle.set_primary_price(token1, price1);
-    oracle.set_primary_price(token2, price2);
-    oracle.set_primary_price(token3, price3);
-    let validated_prices = oracle.validate_prices(data_store, params);
-}
+// #[test]
+// fn given_normal_conditions_when_validate_prices_then_works() {
+//     let (controller, data_store, event_emitter, oracle) = setup();
+//     let params: SetPricesParams = mock_set_prices_params();
+//     let token1 = contract_address_const::<'ETH'>();
+//     let price1 = Price { min: 1700, max: 1701 };
+//     let token2 = contract_address_const::<'USDC'>();
+//     let price2 = Price { min: 20, max: 22 };
+//     let token3 = contract_address_const::<'DAI'>();
+//     let price3 = Price { min: 30, max: 33 };
+
+//     start_prank(oracle.contract_address, controller);
+//     oracle.set_primary_price(token1, price1);
+//     oracle.set_primary_price(token2, price2);
+//     oracle.set_primary_price(token3, price3);
+//     let validated_prices = oracle.validate_prices(data_store, params);
+//     // teardown
+//     tests_lib::teardown(data_store.contract_address);
+// }
+
+// #[test]
+// fn given_normal_conditions_when_set_prices_then_works() {
+//     let (controller, data_store, event_emitter, oracle) = setup();
+//     let params = mock_set_prices_params();
+
+//     start_prank(oracle.contract_address, controller);
+//     oracle.set_prices(data_store, event_emitter, params);
+//     // teardown
+//     tests_lib::teardown(data_store.contract_address);
+// }
 
 fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, IOracleDispatcher) {
     let caller_address = contract_address_const::<'caller'>();
@@ -199,9 +217,6 @@ fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, I
             precision::FLOAT_PRECISION
         );
     data_store.set_u128(keys::max_oracle_ref_price_deviation_factor(), precision::FLOAT_PRECISION);
-    data_store.set_token_id(contract_address_const::<'ETH'>(), 'ETH/USD');
-    data_store.set_token_id(contract_address_const::<'USDC'>(), 'USDC/USD');
-    data_store.set_token_id(contract_address_const::<'DAI'>(), 'DAI/USD');
     (caller_address, data_store, event_emitter, oracle)
 }
 
@@ -269,22 +284,17 @@ fn mock_set_prices_params() -> SetPricesParams {
         signer_info: 1,
         tokens: array![
             contract_address_const::<'ETH'>(),
-            contract_address_const::<'USDC'>(),
-            contract_address_const::<'DAI'>()
         ],
-        compacted_min_oracle_block_numbers: array![0, 0, 0],
-        compacted_max_oracle_block_numbers: array![6400, 6400, 6400],
-        compacted_oracle_timestamps: array![0, 0, 0],
+        compacted_min_oracle_block_numbers: array![10],
+        compacted_max_oracle_block_numbers: array![20],
+        compacted_oracle_timestamps: array![1000],
         compacted_decimals: array![18, 18, 18],
-        compacted_min_prices: array![0, 0, 0],
-        compacted_min_prices_indexes: array![1, 2, 3],
-        compacted_max_prices: array![0, 0, 0],
-        compacted_max_prices_indexes: array![1, 2, 3],
-        signatures: array![1, 2, 3],
+        compacted_min_prices: array![99999],
+        compacted_min_prices_indexes: array![0],
+        compacted_max_prices: array![888888],
+        compacted_max_prices_indexes: array![0],
+        signatures: array![array!['signatures1', 'signatures2'].span()],
         price_feed_tokens: array![
-            contract_address_const::<'ETH'>(),
-            contract_address_const::<'USDC'>(),
-            contract_address_const::<'DAI'>()
         ]
     }
 }

@@ -1,4 +1,3 @@
-use debug::PrintTrait;
 use starknet::ContractAddress;
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 

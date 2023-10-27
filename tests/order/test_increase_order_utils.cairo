@@ -13,11 +13,10 @@ use satoru::order::increase_order_utils::{validate_oracle_block_numbers};
 // TODO - Add tests for process_order
 
 #[test]
-#[available_gas(100_000)]
 fn given_normal_conditions_when_validate_oracle_block_numbers_then_works() {
     // Given
-    let min_oracle_block_numbers = array![0, 1, 2, 3, 4].span();
-    let max_oracle_block_numbers = array![6, 7, 8, 9, 10].span();
+    let min_oracle_block_numbers = array![1, 2, 3, 4].span();
+    let max_oracle_block_numbers = array![6, 7, 8, 9].span();
     let order_type = OrderType::MarketIncrease;
     let order_updated_at_block = 5;
 
@@ -28,7 +27,6 @@ fn given_normal_conditions_when_validate_oracle_block_numbers_then_works() {
 }
 
 #[test]
-#[available_gas(100_000)]
 #[should_panic(expected: ('block numbers too small', 5, 0, 1, 2, 3, 4, 2))]
 fn given_smaller_oracle_block_numbers_when_validate_oracle_block_numbers_then_throw_error() {
     // Given
@@ -44,7 +42,6 @@ fn given_smaller_oracle_block_numbers_when_validate_oracle_block_numbers_then_th
 }
 
 #[test]
-#[available_gas(200_000)]
 #[should_panic(expected: ('block number not in range', 5, 0, 1, 2, 3, 4, 5, 4, 5, 6, 7, 8, 5))]
 fn given_not_within_range_block_number_when_validate_oracle_block_numbers_then_throw_error() {
     // Given

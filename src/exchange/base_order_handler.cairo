@@ -49,7 +49,6 @@ mod BaseOrderHandler {
     use core::traits::Into;
     use starknet::{get_caller_address, ContractAddress, contract_address_const};
 
-    use debug::PrintTrait;
     use result::ResultTrait;
 
     // Local imports.

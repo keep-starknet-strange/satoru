@@ -484,7 +484,6 @@ mod DataStore {
     use nullable::NullableTrait;
     use zeroable::Zeroable;
     use alexandria_storage::list::{ListTrait, List};
-    use debug::PrintTrait;
     use poseidon::poseidon_hash_span;
 
     // Local imports.

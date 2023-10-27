@@ -8,7 +8,6 @@
 use starknet::ContractAddress;
 use result::ResultTrait;
 
-use debug::PrintTrait;
 // Local imports.
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::callback::callback_utils::after_deposit_execution;

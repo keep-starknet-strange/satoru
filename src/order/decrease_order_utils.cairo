@@ -155,7 +155,7 @@ fn validate_oracle_block_numbers(
         if (order_updated_at_block > position_increased_at_block) {
             latest_updated_at_block = order_updated_at_block
         }
-        if (!arrays::u64_are_gte(min_oracle_block_numbers, latest_updated_at_block)) {
+        if (!arrays::are_gte_u64(min_oracle_block_numbers, latest_updated_at_block)) {
             OrderError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(
                 min_oracle_block_numbers, latest_updated_at_block
             );
@@ -167,7 +167,7 @@ fn validate_oracle_block_numbers(
         if (position_increased_at_block > position_decreased_at_block) {
             latest_updated_at_block = position_increased_at_block
         }
-        if (!arrays::u64_are_gte(min_oracle_block_numbers, latest_updated_at_block)) {
+        if (!arrays::are_gte_u64(min_oracle_block_numbers, latest_updated_at_block)) {
             OrderError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(
                 min_oracle_block_numbers, latest_updated_at_block
             );

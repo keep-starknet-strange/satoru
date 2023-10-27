@@ -3,7 +3,6 @@
 // *************************************************************************
 // Core lib imports.
 use satoru::utils::{error_utils, calc};
-
 /// Gets the value of the element at the specified index in the given array. If the index is out of bounds, returns 0.
 /// # Arguments
 /// * `arr` - the array to get the element of.
@@ -64,7 +63,7 @@ fn are_gt(mut arr: Span<u128>, value: u128) -> bool {
 /// * `value` - The value to compare the elements to.
 /// # Returns
 /// true if all of the elements in the array are greater than or equal to the specified value, false otherwise.
-fn u64_are_gte(mut arr: Span<u64>, value: u64) -> bool {
+fn are_gte_u64(mut arr: Span<u64>, value: u64) -> bool {
     loop {
         match arr.pop_front() {
             Option::Some(item) => { if *item < value {
@@ -122,6 +121,27 @@ fn are_lte(mut arr: Span<u128>, value: u128) -> bool {
                 break false;
             } },
             Option::None => { break true; },
+        };
+    }
+}
+
+/// Determines whether all of the elements in the given array are less than or equal to the specified value.
+/// # Arguments
+/// * `arr` - the array to check the elements of.
+/// * `value` - The value to compare the elements to.
+/// # Returns
+/// true if all of the elements in the array are less than or equal to the specified value, false otherwise.
+fn are_lte_u64(mut arr: Span<u64>, value: u64) -> bool {
+    loop {
+        match arr.pop_front() {
+            Option::Some(item) => {
+                if *item > value {
+                    break false;
+                }
+            },
+            Option::None => {
+                break true;
+            },
         };
     }
 }
@@ -264,27 +284,6 @@ impl StoreContractAddressSpan of Store<Span<ContractAddress>> {
 
     fn size() -> u8 {
         255 * Store::<felt252>::size()
-    }
-}
-
-/// Determines whether all of the elements in the given array are less than or equal to the specified value.
-/// # Arguments
-/// * `arr` - the array to check the elements of.
-/// * `value` - The value to compare the elements to.
-/// # Returns
-/// true if all of the elements in the array are less than or equal to the specified value, false otherwise.
-fn are_lte_u64(mut arr: Span<u64>, value: u64) -> bool {
-    loop {
-        match arr.pop_front() {
-            Option::Some(item) => {
-                if *item > value {
-                    break false;
-                }
-            },
-            Option::None => {
-                break true;
-            },
-        };
     }
 }
 

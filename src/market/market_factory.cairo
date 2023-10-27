@@ -48,7 +48,6 @@ mod MarketFactory {
     use starknet::syscalls::deploy_syscall;
     use poseidon::poseidon_hash_span;
 
-    use debug::PrintTrait;
 
     // Local imports.
     use satoru::role::role;
