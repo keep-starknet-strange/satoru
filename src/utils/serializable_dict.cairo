@@ -25,16 +25,27 @@ impl ItemImpl<T> of ItemTrait<T> {
     }
 
     fn is_span(self: @Item<T>) -> bool {
-        match self {
-            Item::Single(v) => false,
-            Item::Span(arr) => true
-        }
+        !self.is_single()
     }
 
     fn len(self: @Item<T>) -> usize {
         match self {
             Item::Single(v) => 1,
             Item::Span(s) => (*s).len()
+        }
+    }
+
+    fn unwrap_single<impl TCopy: Copy<T>>(self: @Item<T>) -> T {
+        match self {
+            Item::Single(v) => (*v),
+            Item::Span(arr) => panic_with_felt252('should not be a span')
+        }
+    }
+
+    fn unwrap_span(self: @Item<T>) -> Span<T> {
+        match self {
+            Item::Single(v) => panic_with_felt252('should not be single'),
+            Item::Span(arr) => *arr
         }
     }
 }
@@ -57,44 +68,6 @@ impl SerializableFelt252DictDestruct<
 impl ArrayTCopy<T> of Copy<Array<T>>;
 impl Felt252DictValueTCopy<T> of Copy<Felt252Dict<Nullable<Item<T>>>>;
 
-impl TArraySerialize<
-    T,
-    impl TDrop: Drop<T>,
-    impl TCopy: Copy<T>,
-    impl TIntoT: Into<felt252, T>,
-    impl TIntoFelt: Into<T, felt252>
-> of Serde<Array<T>> {
-    fn serialize(self: @Array<T>, ref output: Array<felt252>) {
-        let mut span_arr = self.span();
-        loop {
-            match span_arr.pop_front() {
-                Option::Some(v) => {
-                    let as_felt: felt252 = (*v).into();
-                    output.append(as_felt);
-                },
-                Option::None => {
-                    break;
-                }
-            };
-        }
-    }
-
-    fn deserialize(ref serialized: Span<felt252>) -> Option<Array<T>> {
-        let mut arr: Array<T> = array![];
-        loop {
-            match serialized.pop_front() {
-                Option::Some(v) => {
-                    arr.append((*v).into());
-                },
-                Option::None => {
-                    break;
-                }
-            };
-        };
-        Option::Some(arr)
-    }
-}
-
 trait SerializableFelt252DictTrait<T> {
     /// Creates a new SerializableFelt252Dict object.
     fn new() -> SerializableFelt252Dict<T>;
@@ -110,7 +83,8 @@ trait SerializableFelt252DictTrait<T> {
     fn contains_key(self: @SerializableFelt252Dict<T>, key: felt252) -> bool;
     /// Checks if a dictionnary is empty.
     fn is_empty(self: @SerializableFelt252Dict<T>) -> bool;
-/// TODO: When Scarb is updated we can use unique() from Alexandria & have fn len()
+    /// Number of keys in the dictionnary.
+    fn len(self: @SerializableFelt252Dict<T>) -> usize;
 }
 
 impl SerializableFelt252DictTraitImpl<
@@ -166,6 +140,10 @@ impl SerializableFelt252DictTraitImpl<
 
     fn is_empty(self: @SerializableFelt252Dict<T>) -> bool {
         self.keys.is_empty()
+    }
+
+    fn len(self: @SerializableFelt252Dict<T>) -> usize {
+        self.keys.len()
     }
 }
 

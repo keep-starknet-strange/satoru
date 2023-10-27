@@ -50,24 +50,16 @@ fn test_item_span() {
 
 #[test]
 fn test_serializable_dict_add_single() {
-    let mut dict: SerializableFelt252Dict<felt252> = SerializableFelt252DictTrait::new();
+    let mut dict: SerializableFelt252Dict<u8> = SerializableFelt252DictTrait::new();
 
     let key: felt252 = 'starknet';
-    let expected_value: felt252 = 'cairo';
+    let expected_value: u8 = 42;
 
     dict.add_single(key, expected_value);
 
-    let retrieved_item = match dict.get(key) {
-        Option::Some(i) => i,
-        Option::None => panic_with_felt252('key should be in dict')
-    };
+    let retrieved_item: Item = dict.get(key).expect('key should be in dict');
+    let out_value: u8 = retrieved_item.unwrap_single();
 
-    let out_value: felt252 = match retrieved_item {
-        Item::Single(v) => v,
-        Item::Span(_) => panic_with_felt252('item should not be a span')
-    };
-
-    assert(dict.keys.contains(key), 'key should be in dict');
     assert(out_value == expected_value, 'wrong value');
 }
 
@@ -80,15 +72,8 @@ fn test_serializable_dict_add_span() {
 
     dict.add_span(key, expected_array.span());
 
-    let retrieved_item = match dict.get(key) {
-        Option::Some(i) => i,
-        Option::None => panic_with_felt252('key should be in dict')
-    };
-
-    let out_span: Span<u8> = match retrieved_item {
-        Item::Single(_) => panic_with_felt252('item should not single'),
-        Item::Span(s) => s
-    };
+    let retrieved_item: Item = dict.get(key).expect('key should be in dict');
+    let out_span: Span<u8> = retrieved_item.unwrap_span();
 
     assert(dict.keys.contains(key), 'key should be in dict');
     assert(out_span.at(0) == expected_array.at(0), 'wrong at idx 0');
