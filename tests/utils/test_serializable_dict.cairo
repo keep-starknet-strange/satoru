@@ -4,6 +4,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
+use serde::Serde;
 use starknet::{
     get_caller_address, ContractAddress, Felt252TryIntoContractAddress, ContractAddressIntoFelt252,
     contract_address_const
@@ -14,6 +15,10 @@ use alexandria_data_structures::array_ext::ArrayTraitExt;
 
 // Local imports.
 use satoru::utils::traits::ContractAddressDefault;
+use satoru::event::event_utils_sandbox::{
+    Felt252IntoBool, Felt252IntoU128, Felt252IntoI128, Felt252IntoContractAddress, I128252DictValue,
+    ContractAddressDictValue
+};
 use satoru::utils::serializable_dict::{
     Item, ItemTrait, SerializableFelt252Dict, SerializableFelt252DictTrait,
     SerializableFelt252DictTraitImpl
@@ -77,6 +82,6 @@ fn test_serializable_dict_add_span() {
 
     assert(dict.keys.contains(key), 'key should be in dict');
     assert(out_span.at(0) == expected_array.at(0), 'wrong at idx 0');
-    assert(out_span.at(1) == expected_array.at(1), 'wrong at idx 0');
-    assert(out_span.at(2) == expected_array.at(2), 'wrong at idx 0');
+    assert(out_span.at(1) == expected_array.at(1), 'wrong at idx 1');
+    assert(out_span.at(2) == expected_array.at(2), 'wrong at idx 2');
 }

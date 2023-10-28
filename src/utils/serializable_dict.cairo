@@ -191,7 +191,7 @@ impl SerializableFelt252DictSerde<
                     match value {
                         Item::Single(v) => {
                             output.append(*key); // key
-                            output.append(1_felt252); // len
+                            output.append(1); // len
                             output.append(v.into()); // value
                         },
                         Item::Span(mut arr) => {
