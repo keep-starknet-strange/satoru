@@ -66,25 +66,25 @@ impl SerializableFelt252DictDestruct<
 }
 
 impl ArrayTCopy<T> of Copy<Array<T>>;
-impl Felt252DictValueTCopy<T> of Copy<Felt252Dict<Nullable<Item<T>>>>;
+impl Felt252DictItemCopy<T> of Copy<Felt252Dict<T>>;
 
 trait SerializableFelt252DictTrait<T> {
     /// Creates a new SerializableFelt252Dict object.
     fn new() -> SerializableFelt252Dict<T>;
     /// Adds an element.
-    fn add_single(ref self: SerializableFelt252Dict<T>, key: felt252, value: T);
+    fn insert_single(ref self: SerializableFelt252Dict<T>, key: felt252, value: T);
     /// Adds an array of elements.
-    fn add_span(ref self: SerializableFelt252Dict<T>, key: felt252, values: Span<T>);
+    fn insert_span(ref self: SerializableFelt252Dict<T>, key: felt252, values: Span<T>);
     /// Gets an element.
     fn get<impl TCopy: Copy<T>>(
         ref self: SerializableFelt252Dict<T>, key: felt252
     ) -> Option<Item<T>>;
     /// Checks if a key is in the dictionnary.
-    fn contains_key(self: @SerializableFelt252Dict<T>, key: felt252) -> bool;
-    /// Checks if a dictionnary is empty.
-    fn is_empty(self: @SerializableFelt252Dict<T>) -> bool;
+    fn contains(self: @SerializableFelt252Dict<T>, key: felt252) -> bool;
     /// Number of keys in the dictionnary.
     fn len(self: @SerializableFelt252Dict<T>) -> usize;
+    /// Checks if a dictionnary is empty.
+    fn is_empty(self: @SerializableFelt252Dict<T>) -> bool;
 }
 
 impl SerializableFelt252DictTraitImpl<
@@ -94,7 +94,7 @@ impl SerializableFelt252DictTraitImpl<
         SerializableFelt252Dict { keys: array![], values: Default::default() }
     }
 
-    fn add_single(ref self: SerializableFelt252Dict<T>, key: felt252, value: T) {
+    fn insert_single(ref self: SerializableFelt252Dict<T>, key: felt252, value: T) {
         let value = Item::Single(value);
         if !self.keys.contains(key) {
             self.keys.append(key);
@@ -102,7 +102,7 @@ impl SerializableFelt252DictTraitImpl<
         self.values.insert(key, nullable_from_box(BoxTrait::new(value)));
     }
 
-    fn add_span(ref self: SerializableFelt252Dict<T>, key: felt252, values: Span<T>) {
+    fn insert_span(ref self: SerializableFelt252Dict<T>, key: felt252, values: Span<T>) {
         let values = Item::Span(values);
         if !self.keys.contains(key) {
             self.keys.append(key);
@@ -119,7 +119,7 @@ impl SerializableFelt252DictTraitImpl<
         }
     }
 
-    fn contains_key(self: @SerializableFelt252Dict<T>, key: felt252) -> bool {
+    fn contains(self: @SerializableFelt252Dict<T>, key: felt252) -> bool {
         let mut keys: Span<felt252> = self.keys.span();
         let mut contains_key: bool = false;
         loop {
@@ -138,12 +138,12 @@ impl SerializableFelt252DictTraitImpl<
         return contains_key;
     }
 
-    fn is_empty(self: @SerializableFelt252Dict<T>) -> bool {
-        self.keys.is_empty()
-    }
-
     fn len(self: @SerializableFelt252Dict<T>) -> usize {
         self.keys.len()
+    }
+
+    fn is_empty(self: @SerializableFelt252Dict<T>) -> bool {
+        self.len() == 0
     }
 }
 
@@ -178,14 +178,12 @@ impl SerializableFelt252DictSerde<
     fn serialize(self: @SerializableFelt252Dict<T>, ref output: Array<felt252>) {
         let mut keys: Span<felt252> = self.keys.span();
         loop {
-            match keys.pop_back() {
+            match keys.pop_front() {
                 Option::Some(key) => {
-                    let mut ordered_dict = (*self);
-                    let nullable_value: Nullable<Item<T>> = ordered_dict.values.get(*key);
+                    let mut d = *self.values;
+                    let nullable_value: Nullable<Item<T>> = d.get(*key);
                     let value: Item<T> = match match_nullable(nullable_value) {
-                        FromNullableResult::Null(()) => panic_with_felt252(
-                            'key not found (serialize)'
-                        ),
+                        FromNullableResult::Null(()) => panic_with_felt252('err getting key'),
                         FromNullableResult::NotNull(boxed_value) => boxed_value.unbox(),
                     };
                     match value {
@@ -197,7 +195,7 @@ impl SerializableFelt252DictSerde<
                         Item::Span(mut arr) => {
                             output.append(*key); // key
                             output.append(arr.len().into()); // len
-                            loop {
+                            loop { // append each values
                                 match arr.pop_front() {
                                     Option::Some(v) => {
                                         output.append((*v).into());
@@ -206,15 +204,15 @@ impl SerializableFelt252DictSerde<
                                         break;
                                     }
                                 };
-                            }
-                        }
+                            };
+                        },
                     };
                 },
                 Option::None => {
                     break;
                 },
             };
-        }
+        };
     }
 
     //
@@ -236,11 +234,14 @@ impl SerializableFelt252DictSerde<
                         Option::Some(size) => {
                             // If only one element, insert it & quit
                             if ((*size) == 1) {
-                                let value: T = pop_front_next(serialized);
+                                let value: T = match serialized.pop_front() {
+                                    Option::Some(value) => (*value).into(),
+                                    Option::None => panic_with_felt252('err getting value')
+                                };
                                 let value: Item<T> = Item::Single(value);
                                 d.values.insert(*key, nullable_from_box(BoxTrait::new(value)));
                                 continue;
-                            }
+                            };
                             // Else append all elements into an array ...
                             let mut arr_size: felt252 = *size;
                             let mut arr_values: Array<T> = array![];
@@ -248,7 +249,10 @@ impl SerializableFelt252DictSerde<
                                 if (arr_size) == 0 {
                                     break;
                                 };
-                                let value: T = pop_front_next(serialized);
+                                let value: T = match serialized.pop_front() {
+                                    Option::Some(value) => (*value).into(),
+                                    Option::None => panic_with_felt252('err getting value')
+                                };
                                 arr_values.append(value);
                                 arr_size -= 1;
                             };
@@ -266,14 +270,4 @@ impl SerializableFelt252DictSerde<
         };
         Option::Some(d)
     }
-}
-
-
-fn pop_front_next<T, impl TInto: Into<felt252, T>>(mut serialized: Span<felt252>) -> T {
-    let value = match serialized.pop_front() {
-        Option::Some(value) => value,
-        Option::None => panic_with_felt252('err getting value')
-    };
-    let value: T = (*value).into();
-    value
 }

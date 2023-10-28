@@ -18,8 +18,8 @@ fn test_log_data_default() {
     let mut log_data: LogData = Default::default();
 
     // try to add things
-    log_data.address_items.add_single('test', contract_address_const::<0>());
-    log_data.uint_items.add_single('test', 12_u128);
+    log_data.address_items.insert_single('test', contract_address_const::<0>());
+    log_data.uint_items.insert_single('test', 12_u128);
 
     // assert results OK
     let addr_item = log_data.address_items.get('test').expect('key not found');
@@ -43,8 +43,8 @@ fn test_log_data_default_each() {
     };
 
     // try to add things
-    log_data.address_items.add_single('test', contract_address_const::<0>());
-    log_data.uint_items.add_single('test', 12_u128);
+    log_data.address_items.insert_single('test', contract_address_const::<0>());
+    log_data.uint_items.insert_single('test', 12_u128);
 
     // assert results OK
     let addr_item = log_data.address_items.get('test').expect('key not found');
@@ -67,8 +67,8 @@ fn test_log_data_multiple_types() {
     ];
 
     // try to add unique
-    log_data.address_items.add_single('test', contract_address_const::<0>());
-    log_data.address_items.add_span('test_arr', arr_to_add.span());
+    log_data.address_items.insert_single('test', contract_address_const::<0>());
+    log_data.address_items.insert_span('test_arr', arr_to_add.span());
 
     // assert results OK
     let addr_item = log_data.address_items.get('test').expect('key not found');
@@ -96,6 +96,6 @@ fn test_log_data_serialization() {
     ];
 
     // try to add unique
-    log_data.address_items.add_single('test', contract_address_const::<0>());
-    log_data.address_items.add_span('test_arr', arr_to_add.span());
+    log_data.address_items.insert_single('test', contract_address_const::<0>());
+    log_data.address_items.insert_span('test_arr', arr_to_add.span());
 }

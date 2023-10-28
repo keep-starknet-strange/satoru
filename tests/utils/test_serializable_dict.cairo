@@ -55,13 +55,13 @@ fn test_item_span() {
 // SerializableDict tests
 
 #[test]
-fn test_serializable_dict_add_single() {
+fn test_serializable_dict_insert_single() {
     let mut dict: SerializableFelt252Dict<u8> = SerializableFelt252DictTrait::new();
 
     let key: felt252 = 'starknet';
     let expected_value: u8 = 42;
 
-    dict.add_single(key, expected_value);
+    dict.insert_single(key, expected_value);
 
     let retrieved_item: Item = dict.get(key).expect('key should be in dict');
     let out_value: u8 = retrieved_item.unwrap_single();
@@ -70,13 +70,13 @@ fn test_serializable_dict_add_single() {
 }
 
 #[test]
-fn test_serializable_dict_add_span() {
+fn test_serializable_dict_insert_span() {
     let mut dict: SerializableFelt252Dict<u8> = SerializableFelt252DictTrait::new();
 
     let key: felt252 = 'starknet';
     let expected_array: Array<u8> = array![1, 2, 3];
 
-    dict.add_span(key, expected_array.span());
+    dict.insert_span(key, expected_array.span());
 
     let retrieved_item: Item = dict.get(key).expect('key should be in dict');
     let out_span: Span<u8> = retrieved_item.unwrap_span();
@@ -91,8 +91,8 @@ fn test_serializable_dict_add_span() {
 fn test_serializable_dict_serialize() {
     let mut dict: SerializableFelt252Dict<u128> = SerializableFelt252DictTrait::new();
 
-    dict.add_single('test', 42_u128);
-    dict.add_span('test_arr', array![1, 2, 3].span());
+    dict.insert_single('test', 42_u128);
+    dict.insert_span('test_arr', array![1, 2, 3].span());
 
     let mut output: Array<felt252> = array![];
 // TODO: this fail

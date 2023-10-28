@@ -83,14 +83,14 @@ struct LogData {
 fn set_item_uint_items(
     mut dict: SerializableFelt252Dict<u128>, key: felt252, value: u128
 ) -> SerializableFelt252Dict<u128> {
-    dict.add_single(key, value);
+    dict.insert_single(key, value);
     dict
 }
 
 fn set_item_array_uint_items(
     mut dict: SerializableFelt252Dict<u128>, key: felt252, values: Array<u128>
 ) -> SerializableFelt252Dict<u128> {
-    dict.add_span(key, values.span());
+    dict.insert_span(key, values.span());
     dict
 }
 
@@ -99,14 +99,14 @@ fn set_item_array_uint_items(
 fn set_item_int_items(
     mut dict: SerializableFelt252Dict<i128>, key: felt252, value: i128
 ) -> SerializableFelt252Dict<i128> {
-    dict.add_single(key, value);
+    dict.insert_single(key, value);
     dict
 }
 
 fn set_item_array_int_items(
     mut dict: SerializableFelt252Dict<i128>, key: felt252, values: Array<i128>
 ) -> SerializableFelt252Dict<i128> {
-    dict.add_span(key, values.span());
+    dict.insert_span(key, values.span());
     dict
 }
 
@@ -115,14 +115,14 @@ fn set_item_array_int_items(
 fn set_item_bool_items(
     mut dict: SerializableFelt252Dict<bool>, key: felt252, value: bool
 ) -> SerializableFelt252Dict<bool> {
-    dict.add_single(key, value);
+    dict.insert_single(key, value);
     dict
 }
 
 fn set_item_array_bool_items(
     mut dict: SerializableFelt252Dict<bool>, key: felt252, values: Array<bool>
 ) -> SerializableFelt252Dict<bool> {
-    dict.add_span(key, values.span());
+    dict.insert_span(key, values.span());
     dict
 }
 
@@ -131,14 +131,14 @@ fn set_item_array_bool_items(
 fn set_item_Felt252_items(
     mut dict: SerializableFelt252Dict<felt252>, key: felt252, value: felt252
 ) -> SerializableFelt252Dict<felt252> {
-    dict.add_single(key, value);
+    dict.insert_single(key, value);
     dict
 }
 
 fn set_item_array_Felt252_items(
     mut dict: SerializableFelt252Dict<felt252>, key: felt252, values: Array<felt252>
 ) -> SerializableFelt252Dict<felt252> {
-    dict.add_span(key, values.span());
+    dict.insert_span(key, values.span());
     dict
 }
 
@@ -147,13 +147,13 @@ fn set_item_array_Felt252_items(
 fn set_item_string_items(
     mut dict: SerializableFelt252Dict<felt252>, key: felt252, value: felt252
 ) -> SerializableFelt252Dict<felt252> {
-    dict.add_single(key, value);
+    dict.insert_single(key, value);
     dict
 }
 
 fn set_item_array_string_items(
     mut dict: SerializableFelt252Dict<felt252>, key: felt252, values: Array<felt252>
 ) -> SerializableFelt252Dict<felt252> {
-    dict.add_span(key, values.span());
+    dict.insert_span(key, values.span());
     dict
 }
