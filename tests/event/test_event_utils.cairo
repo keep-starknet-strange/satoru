@@ -98,7 +98,4 @@ fn test_log_data_serialization() {
     // try to add unique
     log_data.address_items.add_single('test', contract_address_const::<0>());
     log_data.address_items.add_span('test_arr', arr_to_add.span());
-
-    let mut output = array![];
-// log_data.serialize(ref output);  FAIL
 }

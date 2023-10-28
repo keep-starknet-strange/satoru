@@ -10,6 +10,7 @@ use starknet::{
     contract_address_const
 };
 use array::ArrayTrait;
+use array::SpanTrait;
 use traits::Default;
 use alexandria_data_structures::array_ext::ArrayTraitExt;
 
@@ -21,7 +22,7 @@ use satoru::event::event_utils_sandbox::{
 };
 use satoru::utils::serializable_dict::{
     Item, ItemTrait, SerializableFelt252Dict, SerializableFelt252DictTrait,
-    SerializableFelt252DictTraitImpl
+    SerializableFelt252DictTraitImpl, SerializableFelt252DictSerde
 };
 
 // *********************************************************************************************
@@ -84,4 +85,16 @@ fn test_serializable_dict_add_span() {
     assert(out_span.at(0) == expected_array.at(0), 'wrong at idx 0');
     assert(out_span.at(1) == expected_array.at(1), 'wrong at idx 1');
     assert(out_span.at(2) == expected_array.at(2), 'wrong at idx 2');
+}
+
+#[test]
+fn test_serializable_dict_serialize() {
+    let mut dict: SerializableFelt252Dict<u128> = SerializableFelt252DictTrait::new();
+
+    dict.add_single('test', 42_u128);
+    dict.add_span('test_arr', array![1, 2, 3].span());
+
+    let mut output: Array<felt252> = array![];
+// TODO: this fail
+// SerializableFelt252DictSerde::serialize(@dict, ref output);
 }
