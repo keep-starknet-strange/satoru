@@ -9,6 +9,9 @@ use satoru::utils::traits::ContractAddressDefault;
 
 use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 
+use alexandria_data_structures::array_ext::SpanTraitExt;
+
+
 //
 //     NEEDED IMPLEMENTATIONS FOR LOGDATA TYPES
 //
@@ -57,7 +60,7 @@ impl ContractAddressDictValue of Felt252DictValue<ContractAddress> {
 }
 
 //
-//      LOG DATA
+//      LOG DATA IMPLEMENTATION
 //
 
 //TODO Switch the append with a set in the functions when its available
@@ -78,9 +81,16 @@ struct LogData {
     string_dict: SerializableFelt252Dict<felt252>
 }
 
+/// Number of dicts presents in LogData
+const NUMBER_OF_DICTS: usize = 6;
+
+/// When serializing dicts into a unique Array<felt252>, this is the value that will
+/// be used to recognized a separation between two dicts.
+const END_OF_DICT: felt252 = '______';
+
 #[generate_trait]
 impl LogDataImpl of LogDataTrait {
-    /// Serializes all the sub-dicts of LogData & append all the felt252 array together
+    /// Serializes all the sub-dicts of LogData & append all of them into a new felt252 array
     fn serialize(ref self: LogData, ref output: Array<felt252>) {
         let mut serialized_dicts: Array<Array<felt252>> = array![];
         serialized_dicts.append(self.address_dict.serialize_into());
@@ -89,9 +99,31 @@ impl LogDataImpl of LogDataTrait {
         serialized_dicts.append(self.bool_dict.serialize_into());
         serialized_dicts.append(self.felt252_dict.serialize_into());
         serialized_dicts.append(self.string_dict.serialize_into());
-        append_all_arrays_to_output(serialized_dicts, ref output);
+        let mut span_arrays = serialized_dicts.span();
+        loop {
+            match span_arrays.pop_front() {
+                Option::Some(arr) => {
+                    let mut sub_array_span = arr.span();
+                    loop {
+                        match sub_array_span.pop_front() {
+                            Option::Some(v) => {
+                                output.append(*v);
+                            },
+                            Option::None => {
+                                break;
+                            }
+                        };
+                    };
+                    output.append(END_OF_DICT);
+                },
+                Option::None => {
+                    break;
+                }
+            };
+        };
     }
 
+    /// Serializes all the sub-dicts of LogData & return the serialized data
     fn serialize_into(ref self: LogData) -> Array<felt252> {
         let mut serialized_data: Array<felt252> = array![];
         self.serialize(ref serialized_data);
@@ -100,41 +132,71 @@ impl LogDataImpl of LogDataTrait {
 
     /// Deserialize all the sub-dicts serialized into a LogData
     fn deserialize(ref serialized: Span<felt252>) -> Option<LogData> {
-        // TODO + needed?
-        Option::Some(Default::default())
+        let mut log_data: LogData = Default::default();
+
+        // There should be the right amount of dictionnaries serializeds
+        if serialized.occurrences_of(END_OF_DICT) != NUMBER_OF_DICTS {
+            return Option::None(());
+        }
+
+        let mut serialized_dict = retrieve_dict_serialized(ref serialized);
+        log_data
+            .address_dict =
+                SerializableFelt252DictTrait::<ContractAddress>::deserialize(ref serialized_dict)
+            .expect('deserialize err address');
+
+        let mut serialized_dict = retrieve_dict_serialized(ref serialized);
+        log_data
+            .uint_dict = SerializableFelt252DictTrait::<u128>::deserialize(ref serialized_dict)
+            .expect('deserialize err uint');
+
+        let mut serialized_dict = retrieve_dict_serialized(ref serialized);
+        log_data
+            .int_dict = SerializableFelt252DictTrait::<i128>::deserialize(ref serialized_dict)
+            .expect('deserialize err int');
+
+        let mut serialized_dict = retrieve_dict_serialized(ref serialized);
+        log_data
+            .bool_dict = SerializableFelt252DictTrait::<bool>::deserialize(ref serialized_dict)
+            .expect('deserialize err bool');
+
+        let mut serialized_dict = retrieve_dict_serialized(ref serialized);
+        log_data
+            .felt252_dict =
+                SerializableFelt252DictTrait::<felt252>::deserialize(ref serialized_dict)
+            .expect('deserialize err felt252');
+
+        let mut serialized_dict = retrieve_dict_serialized(ref serialized);
+        log_data
+            .string_dict = SerializableFelt252DictTrait::<felt252>::deserialize(ref serialized_dict)
+            .expect('deserialize err string');
+
+        Option::Some(log_data)
     }
 }
 
+
 //
-//      UTILITIES
+//      UTILITY FUNCTION
 //
 
-// When serializing dicts into a unique Array<felt252>, this is the value that will
-// be used to recognized a separation between two dicts.
-const DICT_SEPARATION: felt252 = '______';
-
-fn append_all_arrays_to_output(array_of_arrays: Array<Array<felt252>>, ref output: Array<felt252>) {
-    let mut span_arrays = array_of_arrays.span();
-
+/// Pop every elements from the span until the next occurences of END_OF_DICT or
+/// the end of the Span and return those values in a Span.
+fn retrieve_dict_serialized(ref serialized: Span<felt252>) -> Span<felt252> {
+    let mut dict_data: Array<felt252> = array![];
     loop {
-        match span_arrays.pop_front() {
-            Option::Some(arr) => {
-                let mut sub_array_span = arr.span();
-                loop {
-                    match sub_array_span.pop_front() {
-                        Option::Some(v) => {
-                            output.append(*v);
-                        },
-                        Option::None => {
-                            break;
-                        }
-                    };
-                };
-                output.append(DICT_SEPARATION);
+        match serialized.pop_front() {
+            Option::Some(v) => {
+                if *v == END_OF_DICT {
+                    break;
+                } else {
+                    dict_data.append(*v);
+                }
             },
             Option::None => {
                 break;
             }
         };
-    }
+    };
+    dict_data.span()
 }

@@ -83,8 +83,11 @@ trait SerializableFelt252DictTrait<T> {
     fn len(self: @SerializableFelt252Dict<T>) -> usize;
     /// Checks if a dictionnary is empty.
     fn is_empty(self: @SerializableFelt252Dict<T>) -> bool;
+    /// Serializes the dictionnary & return the result
     fn serialize_into(ref self: SerializableFelt252Dict<T>) -> Array<felt252>;
+    /// Serializes the dictionnary into the provided output array
     fn serialize(ref self: SerializableFelt252Dict<T>, ref output: Array<felt252>);
+    /// Deserializes the serialized array & return the dictionnary
     fn deserialize(ref serialized: Span<felt252>) -> Option<SerializableFelt252Dict<T>>;
 }
 
