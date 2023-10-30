@@ -13,7 +13,7 @@ trait IOrderCallbackReceiver<TContractState> {
     /// * `order` - The order that was executed.
     /// * `log_data` - The log data.
     fn after_order_execution(
-        ref self: TContractState, key: felt252, order: Order, log_data: LogData
+        ref self: TContractState, key: felt252, order: Order, log_data: Array<felt252>
     );
 
     /// Called after an order cancellation.
@@ -22,7 +22,7 @@ trait IOrderCallbackReceiver<TContractState> {
     /// * `order` - The order that was cancelled.
     /// * `log_data` - The log data.
     fn after_order_cancellation(
-        ref self: TContractState, key: felt252, order: Order, log_data: LogData
+        ref self: TContractState, key: felt252, order: Order, log_data: Array<felt252>
     );
 
     /// Called after an order cancellation.
@@ -30,5 +30,7 @@ trait IOrderCallbackReceiver<TContractState> {
     /// * `key` - They key of the order.
     /// * `order` - The order that was frozen.
     /// * `log_data` - The log data.
-    fn after_order_frozen(ref self: TContractState, key: felt252, order: Order, log_data: LogData);
+    fn after_order_frozen(
+        ref self: TContractState, key: felt252, order: Order, log_data: Array<felt252>
+    );
 }

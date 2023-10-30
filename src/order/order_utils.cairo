@@ -21,7 +21,11 @@ use satoru::token::token_utils;
 use satoru::callback::callback_utils;
 use satoru::gas::gas_utils;
 use satoru::order::order::{Order, OrderType, OrderTrait};
-use satoru::event::event_utils::LogData;
+use satoru::event::event_utils::{
+    LogData, LogDataTrait, Felt252IntoU128, Felt252IntoContractAddress, ContractAddressDictValue,
+    I128252DictValue
+};
+use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 use satoru::order::error::OrderError;
 use satoru::order::{increase_order_utils, decrease_order_utils, swap_order_utils};
 
@@ -171,7 +175,7 @@ fn execute_order(params: ExecuteOrderParams) {
         secondary_order_type: params.secondary_order_type
     };
 
-    let event_data: LogData = process_order(params_process);
+    let mut event_data: LogData = process_order(params_process);
 
     // validate that internal state changes are correct before calling
     // external callbacks
@@ -189,7 +193,9 @@ fn execute_order(params: ExecuteOrderParams) {
 
     params.contracts.event_emitter.emit_order_executed(params.key, params.secondary_order_type);
 
-    callback_utils::after_order_execution(params.key, params.order, event_data);
+    let mut serialized_event_data: Array<felt252> = array![];
+    event_data.custom_serialize(ref serialized_event_data);
+    callback_utils::after_order_execution(params.key, params.order, serialized_event_data);
 
     // the order.executionFee for liquidation / adl orders is zero
     // gas costs for liquidations / adl is subsidised by the treasury

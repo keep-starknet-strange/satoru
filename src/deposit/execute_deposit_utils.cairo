@@ -20,7 +20,10 @@ use satoru::deposit::{
     deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait}, error::DepositError
 };
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::event::event_utils::{LogData, set_item_uint_items, UintItems};
+use satoru::event::event_utils::{
+    LogData, LogDataTrait, Felt252IntoU128, ContractAddressDictValue, I128252DictValue
+};
+use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 use satoru::fee::fee_utils;
 use satoru::gas::gas_utils::pay_execution_fee_deposit;
 use satoru::market::{
@@ -237,10 +240,11 @@ fn execute_deposit(params: ExecuteDepositParams) {
             cache.received_market_tokens,
         );
 
-    let event_data: LogData = Default::default();
-    let mut uint_items: UintItems = Default::default();
-    set_item_uint_items(uint_items, 0, 'received_market_tokens', cache.received_market_tokens);
-    after_deposit_execution(params.key, deposit, event_data);
+    let mut event_data: LogData = Default::default();
+    event_data.uint_dict.insert_single('received_market_tokens', cache.received_market_tokens);
+    let mut serialized_event_data: Array<felt252> = array![];
+    event_data.custom_serialize(ref serialized_event_data);
+    after_deposit_execution(params.key, deposit, serialized_event_data);
 
     pay_execution_fee_deposit(
         params.data_store,
