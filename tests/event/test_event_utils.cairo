@@ -18,15 +18,15 @@ fn test_log_data_default() {
     let mut log_data: LogData = Default::default();
 
     // try to add things
-    log_data.address_items.insert_single('test', contract_address_const::<0>());
-    log_data.uint_items.insert_single('test', 12_u128);
+    log_data.address_dict.insert_single('test', contract_address_const::<0>());
+    log_data.uint_dict.insert_single('test', 12_u128);
 
     // assert results OK
-    let addr_item = log_data.address_items.get('test').expect('key not found');
+    let addr_item = log_data.address_dict.get('test').expect('key not found');
     let addr_value = addr_item.unwrap_single();
     assert(addr_value == contract_address_const::<0>(), 'addr value wrong');
 
-    let uint_item = log_data.uint_items.get('test').expect('key not found');
+    let uint_item = log_data.uint_dict.get('test').expect('key not found');
     let uint_value = uint_item.unwrap_single();
     assert(uint_value == 12_u128, 'uint value wrong');
 }
@@ -34,24 +34,24 @@ fn test_log_data_default() {
 #[test]
 fn test_log_data_default_each() {
     let mut log_data: LogData = LogData {
-        address_items: Default::default(),
-        uint_items: Default::default(),
-        int_items: Default::default(),
-        bool_items: Default::default(),
-        felt252_items: Default::default(),
-        string_items: Default::default()
+        address_dict: Default::default(),
+        uint_dict: Default::default(),
+        int_dict: Default::default(),
+        bool_dict: Default::default(),
+        felt252_dict: Default::default(),
+        string_dict: Default::default()
     };
 
     // try to add things
-    log_data.address_items.insert_single('test', contract_address_const::<0>());
-    log_data.uint_items.insert_single('test', 12_u128);
+    log_data.address_dict.insert_single('test', contract_address_const::<0>());
+    log_data.uint_dict.insert_single('test', 12_u128);
 
     // assert results OK
-    let addr_item = log_data.address_items.get('test').expect('key not found');
+    let addr_item = log_data.address_dict.get('test').expect('key not found');
     let addr_value = addr_item.unwrap_single();
     assert(addr_value == contract_address_const::<0>(), 'addr value wrong');
 
-    let uint_item = log_data.uint_items.get('test').expect('key not found');
+    let uint_item = log_data.uint_dict.get('test').expect('key not found');
     let uint_value = uint_item.unwrap_single();
     assert(uint_value == 12_u128, 'uint value wrong');
 }
@@ -67,16 +67,16 @@ fn test_log_data_multiple_types() {
     ];
 
     // try to add unique
-    log_data.address_items.insert_single('test', contract_address_const::<0>());
-    log_data.address_items.insert_span('test_arr', arr_to_add.span());
+    log_data.address_dict.insert_single('test', contract_address_const::<0>());
+    log_data.address_dict.insert_span('test_arr', arr_to_add.span());
 
     // assert results OK
-    let addr_item = log_data.address_items.get('test').expect('key not found');
+    let addr_item = log_data.address_dict.get('test').expect('key not found');
     let addr_value = addr_item.unwrap_single();
     assert(addr_value == contract_address_const::<0>(), 'addr value wrong');
 
     let addr_span_item: Item = log_data
-        .address_items
+        .address_dict
         .get('test_arr')
         .expect('key should be in dict');
     let out_span: Span<ContractAddress> = addr_span_item.unwrap_span();
