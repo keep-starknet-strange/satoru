@@ -2,7 +2,7 @@ use starknet::{
     get_caller_address, ContractAddress, Felt252TryIntoContractAddress, ContractAddressIntoFelt252,
     contract_address_const
 };
-use satoru::event::event_utils_sandbox::{
+use satoru::event::event_utils::{
     Felt252IntoBool, Felt252IntoU128, Felt252IntoI128, Felt252IntoContractAddress, I128252DictValue,
     ContractAddressDictValue, LogData
 };

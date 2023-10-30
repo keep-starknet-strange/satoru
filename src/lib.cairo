@@ -44,7 +44,6 @@ mod config {
 // `event` is a module event management functions.
 mod event {
     mod event_utils;
-    mod event_utils_sandbox;
     mod event_emitter;
 }
 
