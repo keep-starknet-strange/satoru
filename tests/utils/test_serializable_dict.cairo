@@ -81,7 +81,7 @@ fn test_serializable_dict_insert_span() {
     let retrieved_item: Item = dict.get(key).expect('key should be in dict');
     let out_span: Span<u128> = retrieved_item.unwrap_span();
 
-    assert(dict.keys.contains(key), 'key should be in dict');
+    assert(dict.contains(key), 'key should be in dict');
     assert(out_span.at(0) == expected_array.at(0), 'wrong at idx 0');
     assert(out_span.at(1) == expected_array.at(1), 'wrong at idx 1');
     assert(out_span.at(2) == expected_array.at(2), 'wrong at idx 2');
@@ -106,11 +106,11 @@ fn test_serializable_dict_serialize() {
         Option::None => panic_with_felt252('err while recreating d')
     };
 
-    assert(dict.keys.contains('test'), 'key should be in dict');
+    assert(dict.contains('test'), 'key should be in dict');
     let retrieved_item: Item<u128> = dict.get('test').expect('key should be in dict');
     let out_value: u128 = retrieved_item.unwrap_single();
 
-    assert(dict.keys.contains('test_span'), 'key should be in dict');
+    assert(dict.contains('test_span'), 'key should be in dict');
     let retrieved_item: Item<u128> = deserialized_dict
         .get('test_span')
         .expect('key should be in dict');

@@ -50,6 +50,27 @@ impl ItemImpl<T> of ItemTrait<T> {
     }
 }
 
+impl ItemPartialEq<
+    T, impl TCopy: Copy<T>, impl TPartialEq: PartialEq<T>, impl TDrop: Drop<T>
+> of PartialEq<Item<T>> {
+    fn eq(lhs: @Item<T>, rhs: @Item<T>) -> bool {
+        if lhs.is_single() && rhs.is_single() {
+            return lhs.unwrap_single() == rhs.unwrap_single();
+        } else if lhs.is_span() && rhs.is_span() {
+            return lhs.unwrap_span() == rhs.unwrap_span();
+        }
+        return false;
+    }
+    fn ne(lhs: @Item<T>, rhs: @Item<T>) -> bool {
+        if lhs.is_single() && rhs.is_single() {
+            return !(lhs.unwrap_single() == rhs.unwrap_single());
+        } else if lhs.is_span() && rhs.is_span() {
+            return !(lhs.unwrap_span() == rhs.unwrap_span());
+        }
+        return true;
+    }
+}
+
 #[derive(Default, Copy)]
 struct SerializableFelt252Dict<T> {
     keys: Array<felt252>,
@@ -212,6 +233,7 @@ impl SerializableFelt252DictTraitImpl<
                                     Option::None => panic_with_felt252('err getting value')
                                 };
                                 let value: Item<T> = Item::Single(value);
+                                d.keys.append(*key);
                                 d.values.insert(*key, nullable_from_box(BoxTrait::new(value)));
                                 continue;
                             };
@@ -231,6 +253,7 @@ impl SerializableFelt252DictTraitImpl<
                             };
                             // ... & insert it
                             let values: Item<T> = Item::Span(arr_values.span());
+                            d.keys.append(*key);
                             d.values.insert(*key, nullable_from_box(BoxTrait::new(values)));
                         },
                         Option::None => panic_with_felt252('err getting size')
