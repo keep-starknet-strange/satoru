@@ -22,7 +22,7 @@ use satoru::event::event_utils_sandbox::{
 };
 use satoru::utils::serializable_dict::{
     Item, ItemTrait, SerializableFelt252Dict, SerializableFelt252DictTrait,
-    SerializableFelt252DictTraitImpl, SerializableFelt252DictSerde
+    SerializableFelt252DictTraitImpl
 };
 
 // *********************************************************************************************
@@ -33,7 +33,7 @@ use satoru::utils::serializable_dict::{
 
 #[test]
 fn test_item_single() {
-    let item: Item<u8> = Item::Single(8);
+    let item: Item<u128> = Item::Single(8);
 
     assert(item.is_single() == true, 'item should be single');
     assert(item.is_span() == false, 'item shouldnt be a span');
@@ -42,10 +42,10 @@ fn test_item_single() {
 
 #[test]
 fn test_item_span() {
-    let arr: Array<u8> = array![1, 2, 3, 4, 5];
+    let arr: Array<u128> = array![1, 2, 3, 4, 5];
     let expected_len: usize = arr.len();
 
-    let item: Item<u8> = Item::Span(arr.span());
+    let item: Item<u128> = Item::Span(arr.span());
 
     assert(item.is_span() == true, 'item should be a span');
     assert(item.is_single() == false, 'item shouldnt be single');
@@ -56,30 +56,30 @@ fn test_item_span() {
 
 #[test]
 fn test_serializable_dict_insert_single() {
-    let mut dict: SerializableFelt252Dict<u8> = SerializableFelt252DictTrait::new();
+    let mut dict: SerializableFelt252Dict<u128> = SerializableFelt252DictTrait::new();
 
     let key: felt252 = 'starknet';
-    let expected_value: u8 = 42;
+    let expected_value: u128 = 42;
 
     dict.insert_single(key, expected_value);
 
     let retrieved_item: Item = dict.get(key).expect('key should be in dict');
-    let out_value: u8 = retrieved_item.unwrap_single();
+    let out_value: u128 = retrieved_item.unwrap_single();
 
     assert(out_value == expected_value, 'wrong value');
 }
 
 #[test]
 fn test_serializable_dict_insert_span() {
-    let mut dict: SerializableFelt252Dict<u8> = SerializableFelt252DictTrait::new();
+    let mut dict: SerializableFelt252Dict<u128> = SerializableFelt252DictTrait::new();
 
     let key: felt252 = 'starknet';
-    let expected_array: Array<u8> = array![1, 2, 3];
+    let expected_array: Array<u128> = array![1, 2, 3];
 
     dict.insert_span(key, expected_array.span());
 
     let retrieved_item: Item = dict.get(key).expect('key should be in dict');
-    let out_span: Span<u8> = retrieved_item.unwrap_span();
+    let out_span: Span<u128> = retrieved_item.unwrap_span();
 
     assert(dict.keys.contains(key), 'key should be in dict');
     assert(out_span.at(0) == expected_array.at(0), 'wrong at idx 0');
@@ -91,10 +91,32 @@ fn test_serializable_dict_insert_span() {
 fn test_serializable_dict_serialize() {
     let mut dict: SerializableFelt252Dict<u128> = SerializableFelt252DictTrait::new();
 
-    dict.insert_single('test', 42_u128);
-    dict.insert_span('test_arr', array![1, 2, 3].span());
+    let expected_value: u128 = 42;
+    let expected_array: Array<u128> = array![1, 2, 3];
 
-    let mut output: Array<felt252> = array![];
-// TODO: this fail
-// SerializableFelt252DictSerde::serialize(@dict, ref output);
+    dict.insert_single('test', expected_value);
+    dict.insert_span('test_span', expected_array.span());
+
+    let mut serialized: Array<felt252> = array![];
+    dict.custom_serialize(ref serialized);
+
+    let mut span_serialized: Span<felt252> = serialized.span();
+    let mut deserialized_dict: SerializableFelt252Dict<u128> =
+        match SerializableFelt252DictTrait::<u128>::custom_deserialize(ref span_serialized) {
+        Option::Some(d) => d,
+        Option::None => panic_with_felt252('err while recreating d')
+    };
+
+    assert(dict.keys.contains('test'), 'key should be in dict');
+    let retrieved_item: Item<u128> = dict.get('test').expect('key should be in dict');
+    let out_value: u128 = retrieved_item.unwrap_single();
+
+    assert(dict.keys.contains('test_span'), 'key should be in dict');
+    let retrieved_item: Item<u128> = deserialized_dict
+        .get('test_span')
+        .expect('key should be in dict');
+    let out_span: Span<u128> = retrieved_item.unwrap_span();
+    assert(out_span.at(0) == expected_array.at(0), 'wrong at idx 0');
+    assert(out_span.at(1) == expected_array.at(1), 'wrong at idx 1');
+    assert(out_span.at(2) == expected_array.at(2), 'wrong at idx 2');
 }

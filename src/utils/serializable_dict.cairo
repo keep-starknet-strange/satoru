@@ -76,19 +76,24 @@ trait SerializableFelt252DictTrait<T> {
     /// Adds an array of elements.
     fn insert_span(ref self: SerializableFelt252Dict<T>, key: felt252, values: Span<T>);
     /// Gets an element.
-    fn get<impl TCopy: Copy<T>>(
-        ref self: SerializableFelt252Dict<T>, key: felt252
-    ) -> Option<Item<T>>;
+    fn get(ref self: SerializableFelt252Dict<T>, key: felt252) -> Option<Item<T>>;
     /// Checks if a key is in the dictionnary.
     fn contains(self: @SerializableFelt252Dict<T>, key: felt252) -> bool;
     /// Number of keys in the dictionnary.
     fn len(self: @SerializableFelt252Dict<T>) -> usize;
     /// Checks if a dictionnary is empty.
     fn is_empty(self: @SerializableFelt252Dict<T>) -> bool;
+    fn custom_serialize(ref self: SerializableFelt252Dict<T>, ref output: Array<felt252>);
+    fn custom_deserialize(ref serialized: Span<felt252>) -> Option<SerializableFelt252Dict<T>>;
 }
 
 impl SerializableFelt252DictTraitImpl<
-    T, impl TDefault: Felt252DictValue<T>, impl TDrop: Drop<T>, impl TCopy: Copy<T>
+    T,
+    impl TDefault: Felt252DictValue<T>,
+    impl TDrop: Drop<T>,
+    impl TCopy: Copy<T>,
+    impl FeltIntoT: Into<felt252, T>,
+    impl TIntoFelt: Into<T, felt252>,
 > of SerializableFelt252DictTrait<T> {
     fn new() -> SerializableFelt252Dict<T> {
         SerializableFelt252Dict { keys: array![], values: Default::default() }
@@ -110,9 +115,7 @@ impl SerializableFelt252DictTraitImpl<
         self.values.insert(key, nullable_from_box(BoxTrait::new(values)));
     }
 
-    fn get<impl TCopy: Copy<T>>(
-        ref self: SerializableFelt252Dict<T>, key: felt252
-    ) -> Option<Item<T>> {
+    fn get(ref self: SerializableFelt252Dict<T>, key: felt252) -> Option<Item<T>> {
         match match_nullable(self.values.get(key)) {
             FromNullableResult::Null(()) => Option::None,
             FromNullableResult::NotNull(val) => Option::Some(val.unbox()),
@@ -145,47 +148,13 @@ impl SerializableFelt252DictTraitImpl<
     fn is_empty(self: @SerializableFelt252Dict<T>) -> bool {
         self.len() == 0
     }
-}
 
-
-impl SerializableFelt252DictSerde<
-    T,
-    impl TCopy: Copy<T>,
-    impl TDrop: Drop<T>,
-    impl FeltIntoT: Into<felt252, T>,
-    impl TIntoFelt: Into<T, felt252>,
-> of Serde<SerializableFelt252Dict<T>> {
-    //
-    // Serialization of an SerializableFelt252Dict
-    //
-    // An SerializableFelt252Dict is serialized as follow:
-    // [ KEY | NB_ELEMENTS | X | Y | ... | KEY | NB_ELEMENTS | X | ...]
-    //
-    //
-    // e.g. if we try to serialize this Dict:
-    //      keys: [0, 1]
-    //      values: {
-    //          0: 1,
-    //          1: [1, 2, 3]
-    //      }
-    //
-    // will give:
-    //
-    //        key: 0       key: 1
-    //      | ------ | ----------- |
-    //      [0, 1, 1, 1, 3, 1, 2, 3] (Array<felt252>)
-    //
-    fn serialize(self: @SerializableFelt252Dict<T>, ref output: Array<felt252>) {
+    fn custom_serialize(ref self: SerializableFelt252Dict<T>, ref output: Array<felt252>) {
         let mut keys: Span<felt252> = self.keys.span();
         loop {
             match keys.pop_front() {
                 Option::Some(key) => {
-                    let mut d = *self.values;
-                    let nullable_value: Nullable<Item<T>> = d.get(*key);
-                    let value: Item<T> = match match_nullable(nullable_value) {
-                        FromNullableResult::Null(()) => panic_with_felt252('err getting key'),
-                        FromNullableResult::NotNull(boxed_value) => boxed_value.unbox(),
-                    };
+                    let value: Item<T> = self.get(*key).expect('key should exist');
                     match value {
                         Item::Single(v) => {
                             output.append(*key); // key
@@ -215,13 +184,7 @@ impl SerializableFelt252DictSerde<
         };
     }
 
-    //
-    // Deserialization of an SerializableFelt252Dict
-    //
-    // An SerializableFelt252Dict is serialized as follow:
-    // [ KEY | NB_ELEMENTS | X | Y | ... | KEY | NB_ELEMENTS | X | ...]
-    //
-    fn deserialize(ref serialized: Span<felt252>) -> Option<SerializableFelt252Dict<T>> {
+    fn custom_deserialize(ref serialized: Span<felt252>) -> Option<SerializableFelt252Dict<T>> {
         let mut d: SerializableFelt252Dict<T> = SerializableFelt252Dict {
             keys: array![], values: Default::default()
         };

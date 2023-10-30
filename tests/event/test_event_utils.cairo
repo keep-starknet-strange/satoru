@@ -84,18 +84,3 @@ fn test_log_data_multiple_types() {
     assert(out_span.at(1) == arr_to_add.at(1), 'wrong at idx 1');
     assert(out_span.at(2) == arr_to_add.at(2), 'wrong at idx 2');
 }
-
-#[test]
-fn test_log_data_serialization() {
-    let mut log_data: LogData = Default::default();
-
-    let arr_to_add: Array<ContractAddress> = array![
-        contract_address_const::<'cairo'>(),
-        contract_address_const::<'starknet'>(),
-        contract_address_const::<'rust'>()
-    ];
-
-    // try to add unique
-    log_data.address_items.insert_single('test', contract_address_const::<0>());
-    log_data.address_items.insert_span('test_arr', arr_to_add.span());
-}

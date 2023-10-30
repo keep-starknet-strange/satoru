@@ -68,7 +68,7 @@ struct EventLogData {
 // TODO
 }
 
-#[derive(Default, Destruct, Serde)]
+#[derive(Default, Destruct)]
 struct LogData {
     address_items: SerializableFelt252Dict<ContractAddress>,
     uint_items: SerializableFelt252Dict<u128>,
@@ -77,6 +77,14 @@ struct LogData {
     felt252_items: SerializableFelt252Dict<felt252>,
     // TODO? Possible? array_of_felt_items: SerializableFelt252Dict<Array<felt252>>,
     string_items: SerializableFelt252Dict<felt252>
+}
+
+#[generate_trait]
+impl LogDataImpl<T> of LogDataTrait<T> {
+    fn custom_serialize(ref self: LogData, ref output: Array<felt252>) {}
+    fn custom_deserialize(ref serialized: Span<felt252>) -> Option<LogData> {
+        Option::Some(Default::default())
+    }
 }
 
 // uint
