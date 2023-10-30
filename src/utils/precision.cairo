@@ -156,18 +156,17 @@ fn mul_div_roundup(
 /// * `value` - The value to the exponent is applied to.
 /// * `divisor` - The exponent applied.
 fn apply_exponent_factor(float_value: u128, exponent_factor: u128) -> u128 { // TODO
-    // if float_value < FLOAT_PRECISION {
-    //     return 0;
-    // }
-    // if exponent_factor == FLOAT_PRECISION {
-    //     return float_value;
-    // }
-    // let wei_value = float_to_wei(float_value);
-    // let exponent_wei = float_to_wei(exponent_factor);
-    // let wei_result = pow(wei_value, exponent_wei);
-    // let float_result = wei_to_float(wei_result);
-    // float_result
-    0
+    if float_value < FLOAT_PRECISION {
+         return 0;
+     }
+     if exponent_factor == FLOAT_PRECISION {
+         return float_value;
+     }
+    let wei_value = float_to_wei(float_value);
+    let exponent_wei = float_to_wei(exponent_factor);
+    let wei_result = pow_decimal(wei_value.into(), exponent_wei.into());
+    let float_result = wei_to_float(wei_result.try_into());
+    float_result
 }
 
 //use starknet::cairo::common::cairo_builtins::bitwise_and;
@@ -418,7 +417,7 @@ fn exp2(mut x: u256) -> u256 {
     // The underlying logic is based on the relationship $2^{191-ip} = 2^{ip} / 2^{191}$, where $ip$ denotes the,
     // integer part, $2^n$.
 
-    result *= 1000000000000000000; //maybe error comes from here?
+    result *= 1000000000000000000; 
     result = BitShift::shr(result, 191 - BitShift::shr(x, 64));
     result
 }
