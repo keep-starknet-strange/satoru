@@ -81,87 +81,11 @@ struct LogData {
 
 #[generate_trait]
 impl LogDataImpl<T> of LogDataTrait<T> {
+    /// Serializes all the sub-dicts of LogData & append all the felt252 array together
     fn custom_serialize(ref self: LogData, ref output: Array<felt252>) {}
+    /// Deserialize all the sub-dicts serialized into a LogData
     fn custom_deserialize(ref serialized: Span<felt252>) -> Option<LogData> {
+        // TODO + needed?
         Option::Some(Default::default())
     }
-}
-
-// uint
-fn set_item_uint_items(
-    mut dict: SerializableFelt252Dict<u128>, key: felt252, value: u128
-) -> SerializableFelt252Dict<u128> {
-    dict.insert_single(key, value);
-    dict
-}
-
-fn set_item_array_uint_items(
-    mut dict: SerializableFelt252Dict<u128>, key: felt252, values: Array<u128>
-) -> SerializableFelt252Dict<u128> {
-    dict.insert_span(key, values.span());
-    dict
-}
-
-
-// int
-fn set_item_int_items(
-    mut dict: SerializableFelt252Dict<i128>, key: felt252, value: i128
-) -> SerializableFelt252Dict<i128> {
-    dict.insert_single(key, value);
-    dict
-}
-
-fn set_item_array_int_items(
-    mut dict: SerializableFelt252Dict<i128>, key: felt252, values: Array<i128>
-) -> SerializableFelt252Dict<i128> {
-    dict.insert_span(key, values.span());
-    dict
-}
-
-
-// bool
-fn set_item_bool_items(
-    mut dict: SerializableFelt252Dict<bool>, key: felt252, value: bool
-) -> SerializableFelt252Dict<bool> {
-    dict.insert_single(key, value);
-    dict
-}
-
-fn set_item_array_bool_items(
-    mut dict: SerializableFelt252Dict<bool>, key: felt252, values: Array<bool>
-) -> SerializableFelt252Dict<bool> {
-    dict.insert_span(key, values.span());
-    dict
-}
-
-
-// felt252
-fn set_item_Felt252_items(
-    mut dict: SerializableFelt252Dict<felt252>, key: felt252, value: felt252
-) -> SerializableFelt252Dict<felt252> {
-    dict.insert_single(key, value);
-    dict
-}
-
-fn set_item_array_Felt252_items(
-    mut dict: SerializableFelt252Dict<felt252>, key: felt252, values: Array<felt252>
-) -> SerializableFelt252Dict<felt252> {
-    dict.insert_span(key, values.span());
-    dict
-}
-
-
-// string
-fn set_item_string_items(
-    mut dict: SerializableFelt252Dict<felt252>, key: felt252, value: felt252
-) -> SerializableFelt252Dict<felt252> {
-    dict.insert_single(key, value);
-    dict
-}
-
-fn set_item_array_string_items(
-    mut dict: SerializableFelt252Dict<felt252>, key: felt252, values: Array<felt252>
-) -> SerializableFelt252Dict<felt252> {
-    dict.insert_span(key, values.span());
-    dict
 }
