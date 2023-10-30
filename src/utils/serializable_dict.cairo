@@ -83,8 +83,9 @@ trait SerializableFelt252DictTrait<T> {
     fn len(self: @SerializableFelt252Dict<T>) -> usize;
     /// Checks if a dictionnary is empty.
     fn is_empty(self: @SerializableFelt252Dict<T>) -> bool;
-    fn custom_serialize(ref self: SerializableFelt252Dict<T>, ref output: Array<felt252>);
-    fn custom_deserialize(ref serialized: Span<felt252>) -> Option<SerializableFelt252Dict<T>>;
+    fn serialize_into(ref self: SerializableFelt252Dict<T>) -> Array<felt252>;
+    fn serialize(ref self: SerializableFelt252Dict<T>, ref output: Array<felt252>);
+    fn deserialize(ref serialized: Span<felt252>) -> Option<SerializableFelt252Dict<T>>;
 }
 
 impl SerializableFelt252DictTraitImpl<
@@ -149,7 +150,13 @@ impl SerializableFelt252DictTraitImpl<
         self.len() == 0
     }
 
-    fn custom_serialize(ref self: SerializableFelt252Dict<T>, ref output: Array<felt252>) {
+    fn serialize_into(ref self: SerializableFelt252Dict<T>) -> Array<felt252> {
+        let mut serialized_data: Array<felt252> = array![];
+        self.serialize(ref serialized_data);
+        serialized_data
+    }
+
+    fn serialize(ref self: SerializableFelt252Dict<T>, ref output: Array<felt252>) {
         let mut keys: Span<felt252> = self.keys.span();
         loop {
             match keys.pop_front() {
@@ -184,7 +191,7 @@ impl SerializableFelt252DictTraitImpl<
         };
     }
 
-    fn custom_deserialize(ref serialized: Span<felt252>) -> Option<SerializableFelt252Dict<T>> {
+    fn deserialize(ref serialized: Span<felt252>) -> Option<SerializableFelt252Dict<T>> {
         let mut d: SerializableFelt252Dict<T> = SerializableFelt252Dict {
             keys: array![], values: Default::default()
         };

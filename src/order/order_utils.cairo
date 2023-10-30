@@ -193,9 +193,7 @@ fn execute_order(params: ExecuteOrderParams) {
 
     params.contracts.event_emitter.emit_order_executed(params.key, params.secondary_order_type);
 
-    let mut serialized_event_data: Array<felt252> = array![];
-    event_data.custom_serialize(ref serialized_event_data);
-    callback_utils::after_order_execution(params.key, params.order, serialized_event_data);
+    callback_utils::after_order_execution(params.key, params.order, event_data.serialize_into());
 
     // the order.executionFee for liquidation / adl orders is zero
     // gas costs for liquidations / adl is subsidised by the treasury
@@ -272,8 +270,8 @@ fn cancel_order(
 
     event_emitter.emit_order_cancelled(key, reason, reason_bytes.span());
 
-    let event_data = Default::default();
-    callback_utils::after_order_cancellation(key, order, event_data);
+    let mut event_data: LogData = Default::default();
+    callback_utils::after_order_cancellation(key, order, event_data.serialize_into());
 
     gas_utils::pay_execution_fee_order(
         data_store,
@@ -325,8 +323,8 @@ fn freeze_order(
 
     event_emitter.emit_order_frozen(key, reason, reason_bytes.span());
 
-    let event_data = Default::default();
-    callback_utils::after_order_frozen(key, order, event_data);
+    let mut event_data: LogData = Default::default();
+    callback_utils::after_order_frozen(key, order, event_data.serialize_into());
 
     gas_utils::pay_execution_fee_order(
         data_store, event_emitter, order_vault, execution_fee, starting_gas, keeper, order.account

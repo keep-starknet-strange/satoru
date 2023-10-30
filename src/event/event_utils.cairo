@@ -81,37 +81,25 @@ struct LogData {
 #[generate_trait]
 impl LogDataImpl of LogDataTrait {
     /// Serializes all the sub-dicts of LogData & append all the felt252 array together
-    fn custom_serialize(ref self: LogData, ref output: Array<felt252>) {
+    fn serialize(ref self: LogData, ref output: Array<felt252>) {
         let mut serialized_dicts: Array<Array<felt252>> = array![];
-
-        let mut address_dict_serialized: Array<felt252> = array![];
-        self.address_dict.custom_serialize(ref address_dict_serialized);
-        serialized_dicts.append(address_dict_serialized);
-
-        let mut uint_dict_serialized: Array<felt252> = array![];
-        self.uint_dict.custom_serialize(ref uint_dict_serialized);
-        serialized_dicts.append(uint_dict_serialized);
-
-        let mut int_dict_serialized: Array<felt252> = array![];
-        self.int_dict.custom_serialize(ref int_dict_serialized);
-        serialized_dicts.append(int_dict_serialized);
-
-        let mut bool_dict_serialized: Array<felt252> = array![];
-        self.bool_dict.custom_serialize(ref bool_dict_serialized);
-        serialized_dicts.append(bool_dict_serialized);
-
-        let mut felt252_dict_serialized: Array<felt252> = array![];
-        self.felt252_dict.custom_serialize(ref felt252_dict_serialized);
-        serialized_dicts.append(felt252_dict_serialized);
-
-        let mut string_dict_serialized: Array<felt252> = array![];
-        self.string_dict.custom_serialize(ref string_dict_serialized);
-        serialized_dicts.append(string_dict_serialized);
-
+        serialized_dicts.append(self.address_dict.serialize_into());
+        serialized_dicts.append(self.uint_dict.serialize_into());
+        serialized_dicts.append(self.int_dict.serialize_into());
+        serialized_dicts.append(self.bool_dict.serialize_into());
+        serialized_dicts.append(self.felt252_dict.serialize_into());
+        serialized_dicts.append(self.string_dict.serialize_into());
         append_all_arrays_to_output(serialized_dicts, ref output);
     }
+
+    fn serialize_into(ref self: LogData) -> Array<felt252> {
+        let mut serialized_data: Array<felt252> = array![];
+        self.serialize(ref serialized_data);
+        serialized_data
+    }
+
     /// Deserialize all the sub-dicts serialized into a LogData
-    fn custom_deserialize(ref serialized: Span<felt252>) -> Option<LogData> {
+    fn deserialize(ref serialized: Span<felt252>) -> Option<LogData> {
         // TODO + needed?
         Option::Some(Default::default())
     }

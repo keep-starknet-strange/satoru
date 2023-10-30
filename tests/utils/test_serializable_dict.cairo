@@ -97,12 +97,11 @@ fn test_serializable_dict_serialize() {
     dict.insert_single('test', expected_value);
     dict.insert_span('test_span', expected_array.span());
 
-    let mut serialized: Array<felt252> = array![];
-    dict.custom_serialize(ref serialized);
+    let serialized: Array<felt252> = dict.serialize_into();
 
     let mut span_serialized: Span<felt252> = serialized.span();
     let mut deserialized_dict: SerializableFelt252Dict<u128> =
-        match SerializableFelt252DictTrait::<u128>::custom_deserialize(ref span_serialized) {
+        match SerializableFelt252DictTrait::<u128>::deserialize(ref span_serialized) {
         Option::Some(d) => d,
         Option::None => panic_with_felt252('err while recreating d')
     };
