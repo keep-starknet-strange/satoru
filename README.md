@@ -43,7 +43,7 @@ scarb build
 
 You can find the list of Satoru-compatible frontends, all of which have been built on top of the Satoru platform : 
 
-- [Zohal] : https://github.com/Zohal-Starknet/zohal-interface
+- [Zohal](https://github.com/Zohal-Starknet/zohal-interface)
 
 ## 🧪 Test
 
