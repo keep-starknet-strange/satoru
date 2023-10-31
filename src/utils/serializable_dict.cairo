@@ -9,6 +9,13 @@ use nullable::{nullable_from_box, match_nullable, FromNullableResult, Nullable};
 
 use alexandria_data_structures::array_ext::ArrayTraitExt;
 
+///
+/// Item
+///
+/// Enumeration used to store a value in a SerializableDict.
+/// It allows to store either a simple value (Single) or a 
+/// Span & comes with utilities functions.
+///
 #[derive(Drop, Copy)]
 enum Item<T> {
     Single: T,
@@ -71,6 +78,17 @@ impl ItemPartialEq<
     }
 }
 
+///
+/// SerializableFelt252Dict
+///
+/// Wrapper around the Felt252Dict.
+/// It behaves the same as a regular dict but has also a keys parameter
+/// that keeps track of the keys registered.
+/// This allows us to serialize & deserialize the struct, which is not
+/// possible with a regular Felt252Dict.
+/// The values are wrapped around an Item struct that allows to store
+/// different types of data: a simple value or a span.
+///
 #[derive(Default, Copy)]
 struct SerializableFelt252Dict<T> {
     keys: Array<felt252>,
@@ -180,6 +198,26 @@ impl SerializableFelt252DictTraitImpl<
         serialized_data
     }
 
+    //
+    // Serialization of an SerializableFelt252Dict
+    //
+    // An SerializableFelt252Dict is serialized as follow:
+    // [ KEY | NB_ELEMENTS | X | Y | ... | KEY | NB_ELEMENTS | X | ...]
+    //
+    //
+    // e.g. if we try to serialize this Dict:
+    //      keys: [0, 1]
+    //      values: {
+    //          0: 1,
+    //          1: [1, 2, 3]
+    //      }
+    //
+    // will give:
+    //
+    //        key: 0       key: 1
+    //      | ------ | ----------- |
+    //      [0, 1, 1, 1, 3, 1, 2, 3] (Array<felt252>)
+    //
     fn serialize(ref self: SerializableFelt252Dict<T>, ref output: Array<felt252>) {
         let mut keys: Span<felt252> = self.keys.span();
         loop {
@@ -215,6 +253,12 @@ impl SerializableFelt252DictTraitImpl<
         };
     }
 
+    //
+    // Deserialization of an SerializableFelt252Dict
+    //
+    // An SerializableFelt252Dict is serialized as follow:
+    // [ KEY | NB_ELEMENTS | X | Y | ... | KEY | NB_ELEMENTS | X | ...]
+    //
     fn deserialize(ref serialized: Span<felt252>) -> Option<SerializableFelt252Dict<T>> {
         let mut d: SerializableFelt252Dict<T> = SerializableFelt252Dict {
             keys: array![], values: Default::default()
