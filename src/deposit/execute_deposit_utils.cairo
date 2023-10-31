@@ -242,7 +242,7 @@ fn execute_deposit(params: ExecuteDepositParams) {
 
     let mut event_data: LogData = Default::default();
     event_data.uint_dict.insert_single('received_market_tokens', cache.received_market_tokens);
-    after_deposit_execution(params.key, deposit, event_data.serialize_into());
+    after_deposit_execution(params.key, deposit, event_data);
 
     pay_execution_fee_deposit(
         params.data_store,

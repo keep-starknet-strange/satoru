@@ -92,13 +92,14 @@ const END_OF_DICT: felt252 = '______';
 impl LogDataImpl of LogDataTrait {
     /// Serializes all the sub-dicts of LogData & append all of them into a new felt252 array
     fn serialize(ref self: LogData, ref output: Array<felt252>) {
-        let mut serialized_dicts: Array<Array<felt252>> = array![];
-        serialized_dicts.append(self.address_dict.serialize_into());
-        serialized_dicts.append(self.uint_dict.serialize_into());
-        serialized_dicts.append(self.int_dict.serialize_into());
-        serialized_dicts.append(self.bool_dict.serialize_into());
-        serialized_dicts.append(self.felt252_dict.serialize_into());
-        serialized_dicts.append(self.string_dict.serialize_into());
+        let mut serialized_dicts: Array<Array<felt252>> = array![
+            self.address_dict.serialize_into(),
+            self.uint_dict.serialize_into(),
+            self.int_dict.serialize_into(),
+            self.bool_dict.serialize_into(),
+            self.felt252_dict.serialize_into(),
+            self.string_dict.serialize_into()
+        ];
         let mut span_arrays = serialized_dicts.span();
         loop {
             match span_arrays.pop_front() {

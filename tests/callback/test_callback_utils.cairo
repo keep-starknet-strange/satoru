@@ -64,6 +64,6 @@ fn given_normal_conditions_when_callback_contract_functions_then_works() {
     deposit.callback_contract = callback_mock.contract_address;
 
     assert(callback_mock.get_counter() == 1, 'should be 1');
-    after_deposit_execution(42, deposit, log_data.serialize_into());
+    after_deposit_execution(42, deposit, log_data);
     assert(callback_mock.get_counter() == 2, 'should be 2');
 }

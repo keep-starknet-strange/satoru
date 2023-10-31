@@ -184,7 +184,8 @@ fn cancel_deposit(
 
     event_emitter.emit_deposit_cancelled(key, reason, reason_bytes.span());
 
-    after_deposit_cancellation(key, deposit, array![]);
+    let mut log_data: LogData = Default::default();
+    after_deposit_cancellation(key, deposit, log_data);
 
     gas_utils::pay_execution_fee_deposit(
         data_store,
