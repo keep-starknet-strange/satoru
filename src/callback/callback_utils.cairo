@@ -91,7 +91,7 @@ fn get_saved_callback_contract(
 /// # Arguments
 /// * `key` - They key of the deposit.
 /// * `deposit` - The deposit that was executed.
-/// * `log_data.serialize_into()` - The log data.
+/// * `log_data` - The log data.
 fn after_deposit_execution(key: felt252, deposit: Deposit, mut log_data: LogData) {
     if !is_valid_callback_contract(deposit.callback_contract) {
         return;
@@ -106,7 +106,7 @@ fn after_deposit_execution(key: felt252, deposit: Deposit, mut log_data: LogData
 /// # Arguments
 /// * `key` - They key of the deposit.
 /// * `deposit` - The deposit that was cancelled.
-/// * `log_data.serialize_into()` - The log data.
+/// * `log_data` - The log data.
 fn after_deposit_cancellation(key: felt252, deposit: Deposit, mut log_data: LogData) {
     if !is_valid_callback_contract(deposit.callback_contract) {
         return;
@@ -121,7 +121,7 @@ fn after_deposit_cancellation(key: felt252, deposit: Deposit, mut log_data: LogD
 /// # Arguments
 /// * `key` - They key of the withdrawal.
 /// * `withdrawal` - The withdrawal that was executed.
-/// * `log_data.serialize_into()` - The log data.
+/// * `log_data` - The log data.
 fn after_withdrawal_execution(key: felt252, withdrawal: Withdrawal, mut log_data: LogData) {
     if !is_valid_callback_contract(withdrawal.callback_contract) {
         return;
@@ -136,7 +136,7 @@ fn after_withdrawal_execution(key: felt252, withdrawal: Withdrawal, mut log_data
 /// # Arguments
 /// * `key` - They key of the withdrawal.
 /// * `withdrawal` - The withdrawal that was cancelled.
-/// * `log_data.serialize_into()` - The log data.
+/// * `log_data` - The log data.
 fn after_withdrawal_cancellation(key: felt252, withdrawal: Withdrawal, mut log_data: LogData) {
     if !is_valid_callback_contract(withdrawal.callback_contract) {
         return;
@@ -151,7 +151,7 @@ fn after_withdrawal_cancellation(key: felt252, withdrawal: Withdrawal, mut log_d
 /// # Arguments
 /// * `key` - They key of the order.
 /// * `order` - The order that was executed.
-/// * `log_data.serialize_into()` - The log data.
+/// * `log_data` - The log data.
 fn after_order_execution(key: felt252, order: Order, mut log_data: LogData) {
     if !is_valid_callback_contract(order.callback_contract) {
         return;
@@ -164,7 +164,7 @@ fn after_order_execution(key: felt252, order: Order, mut log_data: LogData) {
 /// # Arguments
 /// * `key` - They key of the order.
 /// * `order` - The order that was cancelled.
-/// * `log_data.serialize_into()` - The log data.
+/// * `log_data` - The log data.
 fn after_order_cancellation(key: felt252, order: Order, mut log_data: LogData) {
     if !is_valid_callback_contract(order.callback_contract) {
         return;
@@ -177,7 +177,7 @@ fn after_order_cancellation(key: felt252, order: Order, mut log_data: LogData) {
 /// # Arguments
 /// * `key` - They key of the order.
 /// * `order` - The order that was frozen.
-/// * `log_data.serialize_into()` - The log data.
+/// * `log_data` - The log data.
 fn after_order_frozen(key: felt252, order: Order, mut log_data: LogData) {
     if !is_valid_callback_contract(order.callback_contract) {
         return;
