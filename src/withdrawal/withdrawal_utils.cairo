@@ -30,7 +30,7 @@ use satoru::withdrawal::{
     error::WithdrawalError, withdrawal::Withdrawal,
     withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait}
 };
-use satoru::market::market_utils::validate_enabled_market_address;
+use satoru::market::market_utils::validate_enabled_market_check;
 
 #[derive(Drop, starknet::Store, Serde)]
 struct CreateWithdrawalParams {
@@ -134,14 +134,10 @@ fn create_withdrawal(
     account_utils::validate_receiver(params.receiver);
 
     let market_token_amount = withdrawal_vault.record_transfer_in(params.market);
-
-    if market_token_amount.is_zero() {
-        WithdrawalError::EMPTY_WITHDRAWAL_AMOUNT;
-    }
-
+    assert(market_token_amount.is_non_zero(), WithdrawalError::EMPTY_WITHDRAWAL_AMOUNT);
     params.execution_fee = fee_token_amount.into();
 
-    market_utils::validate_enabled_market_address(@data_store, params.market);
+    market_utils::validate_enabled_market_check(data_store, params.market);
 
     market_utils::validate_swap_path(data_store, params.long_token_swap_path);
 
@@ -187,7 +183,9 @@ fn create_withdrawal(
     gas_utils::validate_execution_fee(data_store, estimated_gas_limit, params.execution_fee);
 
     let key = nonce_utils::get_next_key(data_store);
-
+    // assign generated key to withdrawal
+    withdrawal.key = key;
+    // store withdrawal
     data_store.set_withdrawal(key, withdrawal);
 
     event_emitter.emit_withdrawal_created(key, withdrawal);
@@ -205,54 +203,42 @@ fn execute_withdrawal(
 ) { // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
     // TODO: change the following line once once equivalent function is available in starknet.
     params.starting_gas -= (starknet_utils::sn_gasleft(array![]) / 63);
-    let result = params.data_store.get_withdrawal(params.key);
 
-    match result {
-        Option::Some(withdrawal) => {
-            params.data_store.remove_withdrawal(params.key, withdrawal.account);
-            if withdrawal.account.is_zero() {
-                WithdrawalError::EMPTY_WITHDRAWAL;
-            }
+    let withdrawal = params.data_store.get_withdrawal(params.key);
 
-            if withdrawal.market_token_amount.is_zero() {
-                WithdrawalError::EMPTY_WITHDRAWAL_AMOUNT;
-            }
+    params.data_store.remove_withdrawal(params.key, withdrawal.account);
 
-            oracle_utils::validate_block_number_within_range(
-                params.min_oracle_block_numbers.span(),
-                params.max_oracle_block_numbers.span(),
-                withdrawal.updated_at_block
-            );
+    assert(withdrawal.account.is_non_zero(), WithdrawalError::EMPTY_WITHDRAWAL);
+    assert(withdrawal.market_token_amount.is_non_zero(), WithdrawalError::EMPTY_WITHDRAWAL_AMOUNT);
 
-            let market_token_balance = IMarketTokenDispatcher {
-                contract_address: withdrawal.market
-            }
-                .balance_of(params.withdrawal_vault.contract_address);
+    oracle_utils::validate_block_number_within_range(
+        params.min_oracle_block_numbers.span(),
+        params.max_oracle_block_numbers.span(),
+        withdrawal.updated_at_block
+    );
 
-            if market_token_balance < withdrawal.market_token_amount {
-                WithdrawalError::INSUFFICIENT_MARKET_TOKENS(
-                    market_token_balance, withdrawal.market_token_amount
-                );
-            }
+    let market_token_balance = IMarketTokenDispatcher { contract_address: withdrawal.market }
+        .balance_of(params.withdrawal_vault.contract_address);
 
-            let result = execute_withdrawal_(@params, withdrawal);
-
-            params.event_emitter.emit_withdrawal_executed(params.key);
-
-            gas_utils::pay_execution_fee(
-                params.data_store,
-                params.event_emitter,
-                params.withdrawal_vault,
-                withdrawal.execution_fee,
-                params.starting_gas,
-                params.keeper,
-                withdrawal.account
-            )
-        },
-        Option::None => {
-            WithdrawalError::INVALID_WITHDRAWAL_KEY(params.key);
-        }
+    if market_token_balance < withdrawal.market_token_amount {
+        WithdrawalError::INSUFFICIENT_MARKET_TOKENS(
+            market_token_balance, withdrawal.market_token_amount
+        );
     }
+
+    let result = execute_withdrawal_(@params, withdrawal);
+
+    params.event_emitter.emit_withdrawal_executed(params.key);
+
+    gas_utils::pay_execution_fee_withdrawal(
+        params.data_store,
+        params.event_emitter,
+        params.withdrawal_vault,
+        withdrawal.execution_fee,
+        params.starting_gas,
+        params.keeper,
+        withdrawal.account
+    )
 }
 
 /// Cancel a withdrawal.
@@ -279,15 +265,10 @@ fn cancel_withdrawal(
     // startingGas -= gasleft() / 63;
     starting_gas -= (starknet_utils::sn_gasleft(array![]) / 63);
 
-    let withdrawal = data_store.get_withdrawal(key).expect('get_withdrawal failed');
+    let withdrawal = data_store.get_withdrawal(key);
 
-    if withdrawal.account.is_zero() {
-        WithdrawalError::EMPTY_WITHDRAWAL;
-    }
-
-    if withdrawal.market_token_amount.is_zero() {
-        WithdrawalError::EMPTY_WITHDRAWAL_AMOUNT;
-    }
+    assert(withdrawal.account.is_non_zero(), WithdrawalError::EMPTY_WITHDRAWAL);
+    assert(withdrawal.market_token_amount.is_non_zero(), WithdrawalError::EMPTY_WITHDRAWAL_AMOUNT);
 
     data_store.remove_withdrawal(key, withdrawal.account);
 
@@ -296,7 +277,7 @@ fn cancel_withdrawal(
 
     event_emitter.emit_withdrawal_cancelled(key, reason, reason_bytes.span());
 
-    gas_utils::pay_execution_fee(
+    gas_utils::pay_execution_fee_withdrawal(
         data_store,
         event_emitter,
         withdrawal_vault,
@@ -547,7 +528,7 @@ fn swap(
     let (output_token, output_amount) = swap_utils::swap(cache_swap_params);
 
     // validate that internal state changes are correct before calling external callbacks
-    market_utils::validate_markets_token_balance(
+    market_utils::validate_market_token_balance_span(
         *params.data_store, cache.swap_params.swap_path_markets
     );
 

@@ -307,7 +307,7 @@ mod OrderHandler {
 
             global_reentrancy_guard::non_reentrant_before(data_store);
 
-            let order = data_store.get_order(key).expect(OrderError::ORDER_NOT_FOUND);
+            let order = data_store.get_order(key);
 
             // Validate feature.
             feature_utils::validate_feature(
@@ -448,7 +448,7 @@ mod OrderHandler {
             let mut base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
 
-            let order = data_store.get_order(key).expect(OrderError::ORDER_NOT_FOUND);
+            let order = data_store.get_order(key);
             let is_market_order = base_order_utils::is_market_order(order.order_type);
 
             if (oracle_utils::is_oracle_error(error_selector)

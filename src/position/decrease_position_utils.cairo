@@ -8,6 +8,7 @@ use starknet::{ContractAddress, contract_address_const};
 use result::ResultTrait;
 
 // Local imports
+use satoru::utils::traits::ContractAddressDefault;
 use satoru::position::{
     position_utils, decrease_position_collateral_utils, decrease_position_swap_utils,
     position_utils::{UpdatePositionParams, DecreasePositionCache}
@@ -22,7 +23,7 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 use satoru::position::error::PositionError;
 
 /// Struct used as result for decrease_position_function output.
-#[derive(Drop, Copy, starknet::Store, Serde)]
+#[derive(Drop, Default, Copy, starknet::Store, Serde)]
 struct DecreasePositionResult {
     /// The output token address.
     output_token: ContractAddress,
@@ -51,7 +52,7 @@ struct DecreasePositionResult {
 /// Finally, the function returns a DecreasePositionResult object containing
 /// information about the outcome of the decrease operation, including the amount
 /// of collateral removed from the position and any fees that were paid.
-fn decrease_position(ref params: UpdatePositionParams) -> DecreasePositionResult {
+fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult {
     let mut cache: DecreasePositionCache = Default::default();
     cache.prices = market_utils::get_market_prices(params.contracts.oracle, params.market);
     cache
@@ -139,7 +140,7 @@ fn decrease_position(ref params: UpdatePositionParams) -> DecreasePositionResult
             estimated_remaining_collateral_usd +=
                 to_signed(
                     params.order.initial_collateral_delta_amount * cache.collateral_token_price.min,
-                    false
+                    true
                 );
 
             params.order.initial_collateral_delta_amount = 0;
@@ -155,7 +156,7 @@ fn decrease_position(ref params: UpdatePositionParams) -> DecreasePositionResult
         if ((estimated_remaining_collateral_usd
             + cache
                 .estimated_remaining_pnl_usd) < to_signed(
-                    params.contracts.data_store.get_u128(keys::min_collateral_usd()), false
+                    params.contracts.data_store.get_u128(keys::min_collateral_usd()), true
                 )) {
             params
                 .contracts
@@ -274,13 +275,13 @@ fn decrease_position(ref params: UpdatePositionParams) -> DecreasePositionResult
         params.position.market,
         params.position.collateral_token,
         params.position.is_long,
-        to_signed(cache.initial_collateral_amount - params.position.collateral_amount, true)
+        to_signed(cache.initial_collateral_amount - params.position.collateral_amount, false)
     );
 
     position_utils::update_open_interest(
         params,
-        to_signed(params.order.size_delta_usd, true),
-        to_signed(values.size_delta_in_tokens, true)
+        to_signed(params.order.size_delta_usd, false),
+        to_signed(values.size_delta_in_tokens, false)
     );
 
     // affiliate rewards are still distributed even if the order is a liquidation order

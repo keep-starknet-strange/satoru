@@ -30,7 +30,7 @@ use satoru::utils::precision;
 use satoru::utils::calc::{roundup_division, to_signed, sum_return_int_128, to_unsigned};
 use satoru::position::position::Position;
 use integer::u128_to_felt252;
-use satoru::utils::{i128::i128, error_utils};
+use satoru::utils::{i128::{i128, i128_neg}, error_utils};
 use satoru::utils::precision::{apply_exponent_factor, float_to_wei, mul_div};
 use satoru::data::keys::{skip_borrowing_fee_for_smaller_side, max_swap_path_length};
 
@@ -923,7 +923,7 @@ fn apply_delta_to_open_interest(
 
     if is_long {
         apply_delta_to_virtual_inventory_for_positions(
-            data_store, event_emitter, *market.index_token, -delta
+            data_store, event_emitter, *market.index_token, i128_neg(delta)
         );
     } else {
         apply_delta_to_virtual_inventory_for_positions(
@@ -1455,7 +1455,9 @@ fn apply_swap_impact_with_cap(
 
     // if there is a positive impact, the impact pool amount should be reduced
     // if there is a negative impact, the impact pool amount should be increased
-    apply_delta_to_swap_impact_pool(data_store, event_emitter, market, token, -impact_amount);
+    apply_delta_to_swap_impact_pool(
+        data_store, event_emitter, market, token, i128_neg(impact_amount)
+    );
 
     return impact_amount;
 }
@@ -1566,43 +1568,15 @@ fn get_pnl_to_pool_factor_from_prices(
     return to_factor_ival(pnl, pool_usd);
 }
 
-// Check if the pending pnl exceeds the allowed amount
-// # Arguments
-// * `data_store` - The data_store dispatcher.
-// * `market` - The market to check.
-// * `prices` - The prices of the market tokens.
-// * `is_long` - Whether to check the long or short side.
-// * `pnl_factor_type` - The pnl factor type to check.
-fn is_pnl_factor_exceeded_direct(
-    data_store: IDataStoreDispatcher,
-    market: Market,
-    prices: MarketPrices,
-    is_long: bool,
-    pnl_factor_type: felt252
-) -> (bool, i128, u128) {
-    (true, Zeroable::zero(), 0)
-}
-
-
 /// Validates the token balance for a single market.
 /// # Arguments
 /// * `data_store` - The data_store dispatcher
 /// * `market` - Address of the market to check.
 fn validate_market_token_balance_with_address(
     data_store: IDataStoreDispatcher, market: ContractAddress
-) { //TODO
-}
-
-fn validate_markets_token_balance(data_store: IDataStoreDispatcher, market: Span<Market>) { //TODO
-}
-
-/// Validata that the specified market exists and is enabled
-/// # Arguments
-/// * `data_store` - The data store to use.
-/// * `market` - The market to validate.
-fn validate_enabled_market_address(
-    data_store: @IDataStoreDispatcher, market: ContractAddress
-) { // TODO
+) {
+    let enabled_market: Market = get_enabled_market(data_store, market);
+    validate_market_token_balance_check(data_store, enabled_market);
 }
 
 /// Update the cumulative borrowing factor for a market
@@ -1827,6 +1801,7 @@ fn get_borrowing_fees(data_store: IDataStoreDispatcher, position: @Position) -> 
     let cumulative_borrowing_factor: u128 = get_cumulative_borrowing_factor(
         @data_store, *position.market, *position.is_long
     );
+
     if (cumulative_borrowing_factor < *position.borrowing_factor) {
         MarketError::UNEXCEPTED_BORROWING_FACTOR(
             *position.borrowing_factor, cumulative_borrowing_factor
@@ -2455,8 +2430,7 @@ fn get_borrowing_factor_per_second(
     // if skipBorrowingFeeForSmallerSide is true, and the longOpenInterest is exactly the same as the shortOpenInterest
     // then the borrowing fee would be charged for both sides, this should be very rare
     let skip_borrowing_fee_for_smaller_side: bool = data_store
-        .get_bool(keys::skip_borrowing_fee_for_smaller_side())
-        .unwrap();
+        .get_bool(keys::skip_borrowing_fee_for_smaller_side());
 
     let market_snap = @market;
     if (skip_borrowing_fee_for_smaller_side) {
@@ -2586,7 +2560,7 @@ fn market_token_amount_to_usd(market_token_amount: u128, pool_value: u128, suppl
 fn validate_enabled_market_check(
     data_store: IDataStoreDispatcher, market_address: ContractAddress
 ) {
-    let market: Market = data_store.get_market(market_address).unwrap();
+    let market: Market = data_store.get_market(market_address);
     validate_enabled_market(data_store, market);
 }
 
@@ -2597,8 +2571,7 @@ fn validate_enabled_market(data_store: IDataStoreDispatcher, market: Market) {
     assert(market.market_token != 0.try_into().unwrap(), MarketError::EMPTY_MARKET);
 
     let is_market_disabled: bool = data_store
-        .get_bool(keys::is_market_disabled_key(market.market_token))
-        .unwrap();
+        .get_bool(keys::is_market_disabled_key(market.market_token));
 
     if (is_market_disabled) {
         MarketError::DISABLED_MARKET(is_market_disabled);
@@ -2614,7 +2587,7 @@ fn validate_position_market_check(data_store: IDataStoreDispatcher, market: Mark
 }
 
 fn validate_position_market(data_store: IDataStoreDispatcher, market_add: ContractAddress) {
-    let market: Market = data_store.get_market(market_add).unwrap();
+    let market: Market = data_store.get_market(market_add);
     validate_position_market_check(data_store, market);
 }
 
@@ -2644,13 +2617,13 @@ fn validate_market_collateral_token(market: Market, token: ContractAddress) {
 // `data_store - DataStore
 // `market_add` - the address of the market
 fn get_enabled_market(data_store: IDataStoreDispatcher, market_add: ContractAddress) -> Market {
-    let market: Market = data_store.get_market(market_add).unwrap();
+    let market: Market = data_store.get_market(market_add);
     validate_enabled_market(data_store, market);
     market
 }
 
 fn get_swap_path_market(data_store: IDataStoreDispatcher, market_add: ContractAddress) -> Market {
-    let market: Market = data_store.get_market(market_add).unwrap();
+    let market: Market = data_store.get_market(market_add);
     validate_swap_market(data_store, market);
     market
 }
@@ -2803,6 +2776,18 @@ fn set_ui_fee_factor(
 }
 
 fn validate_market_token_balance_array(data_store: IDataStoreDispatcher, markets: Array<Market>) {
+    let length: u32 = markets.len();
+    let mut i: u32 = 0;
+    loop {
+        if i == length {
+            break;
+        }
+        validate_market_token_balance_check(data_store, *markets.at(i));
+        i += 1;
+    };
+}
+
+fn validate_market_token_balance_span(data_store: IDataStoreDispatcher, markets: Span<Market>) {
     let length: u32 = markets.len();
     let mut i: u32 = 0;
     loop {

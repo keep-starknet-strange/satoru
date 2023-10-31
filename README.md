@@ -49,7 +49,7 @@ snforge
 
 ## 🚀 Deploy
 
-To deploy contracts of the saturo, you first need to setup a smart wallet :
+To deploy the contracts of Satoru, you first need to setup a smart wallet :
 
 - Create a signer by following this tutorial : [Signers](https://book.starkli.rs/signers)
 
@@ -62,6 +62,21 @@ cd scripts
 
 ./deploy_contract.sh
 ```
+
+## Deployed Contracts
+
+- RoleStore: 0x07eacab18c343f30edfa9336b8eacce9bc56303d43c92609a88e8da25177f5b3
+- DataStore: 0x0549539da18f4d574211365b6abd678ef940444b579900efedcb935210c41481
+- OrderVault: 0x01f1252d6d02feb14cfa88beff415e1524d1cebb31870056567aae257104b6fd
+- Router: 0x00dd0912017ee7c8151555394380acd1012a814916d384b12ca64afa0eae2bc5
+- EventEmitter: 0x0284ae712869c0af4f538e9297e6965d3c9ba9110830944047de8d35da7ea447
+- MarketToken: 0x044391e9498f440cc41ace136ea317f6bfa2080311085d1846529e421974a1d3
+- MarketFactory: 0x05766918626a91ca83f52003eb03bbf1f13174aa22e340c8057d8d5d6affbfcf
+- WithdrawalVault: 0x050c83c2bc74cc50676fdd5598b40f9d0d6d5ccf6ea3478a7999e29473da03f1
+- SwapHandler: 0x039aa67b479f4870878ec6d3002f9fa9b8e98d4d3d10c1f32b5d394a456aab28
+- ReferralStorage: 0x0189463034c24b2cb091dcb515287bea13a4767534f09e52692a4cdc30254001
+- DepositVault: 0x07d435e7ab3a5cd4b872e5725b02898833cb9a7c62e2d9a6a9db324d61e2925e
+
 
 ## 📚 Resources
 
@@ -135,6 +150,11 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/VictorONN"><img src="https://avatars.githubusercontent.com/u/73134512?v=4?s=100" width="100px;" alt="VictorONN"/><br /><sub><b>VictorONN</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=VictorONN" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/kasteph"><img src="https://avatars.githubusercontent.com/u/3408478?v=4?s=100" width="100px;" alt="kasteph"/><br /><sub><b>kasteph</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=kasteph" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/khaeljy"><img src="https://avatars.githubusercontent.com/u/1810456?v=4?s=100" width="100px;" alt="Khaeljy"/><br /><sub><b>Khaeljy</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=khaeljy" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/JeanWoked"><img src="https://avatars.githubusercontent.com/u/149107619?v=4?s=100" width="100px;" alt="JeanWoked"/><br /><sub><b>JeanWoked</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=JeanWoked" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/vuittont60"><img src="https://avatars.githubusercontent.com/u/81072379?v=4?s=100" width="100px;" alt="vuittont60"/><br /><sub><b>vuittont60</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=vuittont60" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/MavericksFive"><img src="https://avatars.githubusercontent.com/u/95299145?v=4?s=100" width="100px;" alt="Arnaud Berger"/><br /><sub><b>Arnaud Berger</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=MavericksFive" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

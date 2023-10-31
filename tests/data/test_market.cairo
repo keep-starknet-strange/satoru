@@ -81,7 +81,7 @@ fn given_normal_conditions_when_set_market_new_and_override_then_works() {
     // Test set_market function with a new key.
     data_store.set_market(key, 0, market);
 
-    let market_by_key = data_store.get_market(key).unwrap();
+    let market_by_key = data_store.get_market(key);
     assert(market_by_key == market, 'Invalid market by key');
 
     // Update the market using the set_market function and then retrieve it to check the update was successful
@@ -89,7 +89,7 @@ fn given_normal_conditions_when_set_market_new_and_override_then_works() {
     market.index_token = address_one;
     data_store.set_market(key, 0, market);
 
-    let market_by_key = data_store.get_market(key).unwrap();
+    let market_by_key = data_store.get_market(key);
     assert(market_by_key == market, 'Invalid market by key');
     assert(market_by_key.index_token == address_one, 'Invalid market value');
 
@@ -116,7 +116,7 @@ fn given_normal_conditions_when_set_market_and_get_by_salt_then_works() {
     // Test set_market function with a new key.
     data_store.set_market(key, salt, market);
 
-    let market_by_key = data_store.get_by_salt_market(salt).unwrap();
+    let market_by_key = data_store.get_by_salt_market(salt);
     assert(market_by_key == market, 'Invalid market by key');
 
     teardown(data_store.contract_address);
@@ -200,7 +200,7 @@ fn given_normal_conditions_when_remove_only_one_market_then_works() {
 
     // Then
     let market_by_key = data_store.get_market(key);
-    assert(market_by_key.is_none(), 'market should be removed');
+    assert(market_by_key.market_token.is_zero(), 'market should be removed');
 
     teardown(data_store.contract_address);
 }
@@ -236,10 +236,10 @@ fn given_normal_conditions_when_remove_1_of_n_market_then_works() {
 
     // Then
     let market_by_key = data_store.get_market(key);
-    assert(market_by_key.is_none(), 'market1 shouldnt be removed');
+    assert(market_by_key.market_token.is_zero(), 'market1 shouldnt be removed');
 
     let market_2_by_key = data_store.get_market(key_2);
-    assert(market_2_by_key.is_some(), 'market2 shouldnt be removed');
+    assert(market_2_by_key.market_token.is_non_zero(), 'market2 shouldnt be removed');
 
     teardown(data_store.contract_address);
 }

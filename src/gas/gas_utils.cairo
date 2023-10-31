@@ -8,8 +8,10 @@ use starknet::ContractAddress;
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::data::keys;
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
+use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 use satoru::order::{
+    order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
     order::{Order, DecreasePositionSwapType},
     base_order_utils::{is_increase_order, is_decrease_order, is_swap_order, OrderError}
 };
@@ -57,7 +59,7 @@ fn get_execution_gas(data_store: IDataStoreDispatcher, starting_gas: u128) -> u1
 fn pay_execution_fee(
     data_store: IDataStoreDispatcher,
     event_emitter: IEventEmitterDispatcher,
-    bank: IWithdrawalVaultDispatcher,
+    bank: IBankDispatcher,
     execution_fee: u128,
     starting_gas: u128,
     keeper: ContractAddress,
@@ -97,6 +99,84 @@ fn pay_execution_fee_deposit(
     data_store: IDataStoreDispatcher,
     event_emitter: IEventEmitterDispatcher,
     bank: IDepositVaultDispatcher,
+    execution_fee: u128,
+    starting_gas: u128,
+    keeper: ContractAddress,
+    refund_receiver: ContractAddress
+) {
+    let fee_token: ContractAddress = token_utils::fee_token(data_store);
+
+    // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
+    let reduced_starting_gas = starting_gas - sn_gasleft(array![100]) / 63;
+    let gas_used = reduced_starting_gas - sn_gasleft(array![100]);
+
+    // each external call forwards 63/64 of the remaining gas
+    let mut execution_fee_for_keeper = adjust_gas_usage(data_store, gas_used)
+        * sn_gasprice(array![10]);
+
+    if (execution_fee_for_keeper > execution_fee) {
+        execution_fee_for_keeper = execution_fee;
+    }
+
+    bank.transfer_out(fee_token, keeper, execution_fee_for_keeper);
+
+    event_emitter.emit_keeper_execution_fee(keeper, execution_fee_for_keeper);
+
+    let refund_fee_amount = execution_fee - execution_fee_for_keeper;
+
+    let refund_fee_amount = execution_fee - execution_fee_for_keeper;
+    if (refund_fee_amount == 0) {
+        return;
+    }
+
+    bank.transfer_out(fee_token, refund_receiver, refund_fee_amount);
+
+    event_emitter.emit_execution_fee_refund(refund_receiver, refund_fee_amount);
+}
+
+fn pay_execution_fee_order(
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    bank: IOrderVaultDispatcher,
+    execution_fee: u128,
+    starting_gas: u128,
+    keeper: ContractAddress,
+    refund_receiver: ContractAddress
+) {
+    let fee_token: ContractAddress = token_utils::fee_token(data_store);
+
+    // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
+    let reduced_starting_gas = starting_gas - sn_gasleft(array![100]) / 63;
+    let gas_used = reduced_starting_gas - sn_gasleft(array![100]);
+
+    // each external call forwards 63/64 of the remaining gas
+    let mut execution_fee_for_keeper = adjust_gas_usage(data_store, gas_used)
+        * sn_gasprice(array![10]);
+
+    if (execution_fee_for_keeper > execution_fee) {
+        execution_fee_for_keeper = execution_fee;
+    }
+
+    bank.transfer_out(fee_token, keeper, execution_fee_for_keeper);
+
+    event_emitter.emit_keeper_execution_fee(keeper, execution_fee_for_keeper);
+
+    let refund_fee_amount = execution_fee - execution_fee_for_keeper;
+
+    let refund_fee_amount = execution_fee - execution_fee_for_keeper;
+    if (refund_fee_amount == 0) {
+        return;
+    }
+
+    bank.transfer_out(fee_token, refund_receiver, refund_fee_amount);
+
+    event_emitter.emit_execution_fee_refund(refund_receiver, refund_fee_amount);
+}
+
+fn pay_execution_fee_withdrawal(
+    data_store: IDataStoreDispatcher,
+    event_emitter: IEventEmitterDispatcher,
+    bank: IWithdrawalVaultDispatcher,
     execution_fee: u128,
     starting_gas: u128,
     keeper: ContractAddress,
