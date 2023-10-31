@@ -16,10 +16,7 @@ use satoru::feature::error::FeatureError;
 /// # Returns
 /// whether the feature is disabled.
 fn is_feature_disabled(data_store: IDataStoreDispatcher, key: felt252) -> bool {
-    match data_store.get_bool(key) {
-        Option::Some(value) => value,
-        Option::None => false
-    }
+    data_store.get_bool(key)
 }
 
 /// Validate whether a feature is enabled, reverts if the feature is disabled.

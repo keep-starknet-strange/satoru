@@ -161,7 +161,7 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to get the value for.
     /// # Returns
     /// The value for the given key.
-    fn get_bool(self: @TContractState, key: felt252) -> Option<bool>;
+    fn get_bool(self: @TContractState, key: felt252) -> bool;
 
     /// Set a bool value for the given key.
     /// # Arguments
@@ -511,7 +511,7 @@ mod DataStore {
         u128_values: LegacyMap::<felt252, u128>,
         i128_values: LegacyMap::<felt252, i128>,
         address_values: LegacyMap::<felt252, ContractAddress>,
-        bool_values: LegacyMap::<felt252, Option<bool>>,
+        bool_values: LegacyMap::<felt252, bool>,
         /// Market storage
         market_values: LegacyMap::<ContractAddress, Market>,
         markets: List<Market>,
@@ -800,7 +800,7 @@ mod DataStore {
         // *************************************************************************
         //                      Bool related functions.
         // *************************************************************************
-        fn get_bool(self: @ContractState, key: felt252) -> Option<bool> {
+        fn get_bool(self: @ContractState, key: felt252) -> bool {
             self.bool_values.read(key)
         }
 
@@ -808,14 +808,14 @@ mod DataStore {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             // Set the value.
-            self.bool_values.write(key, Option::Some(value));
+            self.bool_values.write(key, value);
         }
 
         fn remove_bool(ref self: ContractState, key: felt252) {
             // Check that the caller has permission to delete the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             // Delete the value.
-            self.bool_values.write(key, Option::None);
+            self.bool_values.write(key, false);
         }
 
         // *************************************************************************

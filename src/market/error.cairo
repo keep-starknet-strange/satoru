@@ -11,7 +11,6 @@ mod MarketError {
         'empty_addr_market_balance_val';
     const EMPTY_ADDRESS_TOKEN_BALANCE_VAL: felt252 = 'empty_addr_token_balance_val';
     const INVALID_MARKET_TOKEN_BALANCE: felt252 = 'invalid_market_token_balance';
-    const EmptyAddressInMarketTokenBalanceValidation: felt252 = 'EmptyAddressMarketBalanceVal';
     const INVALID_POSITION_MARKET: felt252 = 'invalid_position_market';
     const INVALID_COLLATERAL_TOKEN_FOR_MARKET: felt252 = 'invalid_coll_token_for_market';
     const UNABLE_TO_GET_OPPOSITE_TOKEN: felt252 = 'unable_to_get_opposite_token';
