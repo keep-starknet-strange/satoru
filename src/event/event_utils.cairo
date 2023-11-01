@@ -81,7 +81,7 @@ struct LogData {
 }
 
 /// Number of dicts presents in LogData
-const NUMBER_OF_DICTS: usize = 6;
+const DICTS_IN_LOGDATA: usize = 6;
 
 /// When serializing dicts into a unique Array<felt252>, this is the value that will
 /// be used to recognized a separation between two dicts.
@@ -132,50 +132,42 @@ impl LogDataImpl of LogDataTrait {
 
     /// Deserialize all the sub-dicts serialized into a LogData
     fn deserialize(ref serialized: Span<felt252>) -> Option<LogData> {
-        let mut log_data: LogData = Default::default();
-
-        // There should be the right amount of dictionnaries serializeds
-        if serialized.occurrences_of(END_OF_DICT) != NUMBER_OF_DICTS {
-            return Option::None(());
+        // There should be the right amount of dictionnaries serialized
+        if serialized.occurrences_of(END_OF_DICT) != DICTS_IN_LOGDATA {
+            panic_with_felt252('serialized format error');
         }
 
-        // deserialize address_dict
-        let mut serialized_dict = get_dict_serialized(ref serialized);
-        log_data
-            .address_dict =
-                SerializableFelt252DictTrait::<ContractAddress>::deserialize(ref serialized_dict)
+        // Deserialize all dicts one by one
+        let mut serialized_dict = get_next_dict_serialized(ref serialized);
+        let address_dict = SerializableFelt252DictTrait::<ContractAddress>::deserialize(
+            ref serialized_dict
+        )
             .expect('deserialize err address');
 
-        // deserialize uint_dict
-        let mut serialized_dict = get_dict_serialized(ref serialized);
-        log_data
-            .uint_dict = SerializableFelt252DictTrait::<u128>::deserialize(ref serialized_dict)
+        let mut serialized_dict = get_next_dict_serialized(ref serialized);
+        let uint_dict = SerializableFelt252DictTrait::<u128>::deserialize(ref serialized_dict)
             .expect('deserialize err uint');
 
-        // deserialize int_dict
-        let mut serialized_dict = get_dict_serialized(ref serialized);
-        log_data
-            .int_dict = SerializableFelt252DictTrait::<i128>::deserialize(ref serialized_dict)
+        let mut serialized_dict = get_next_dict_serialized(ref serialized);
+        let int_dict = SerializableFelt252DictTrait::<i128>::deserialize(ref serialized_dict)
             .expect('deserialize err int');
 
-        // deserialize bool_dict
-        let mut serialized_dict = get_dict_serialized(ref serialized);
-        log_data
-            .bool_dict = SerializableFelt252DictTrait::<bool>::deserialize(ref serialized_dict)
+        let mut serialized_dict = get_next_dict_serialized(ref serialized);
+        let bool_dict = SerializableFelt252DictTrait::<bool>::deserialize(ref serialized_dict)
             .expect('deserialize err bool');
 
-        // deserialize felt252_dict
-        let mut serialized_dict = get_dict_serialized(ref serialized);
-        log_data
-            .felt252_dict =
-                SerializableFelt252DictTrait::<felt252>::deserialize(ref serialized_dict)
+        let mut serialized_dict = get_next_dict_serialized(ref serialized);
+        let felt252_dict = SerializableFelt252DictTrait::<felt252>::deserialize(ref serialized_dict)
             .expect('deserialize err felt252');
 
-        // deserialize string_dict
-        let mut serialized_dict = get_dict_serialized(ref serialized);
-        log_data
-            .string_dict = SerializableFelt252DictTrait::<felt252>::deserialize(ref serialized_dict)
+        let mut serialized_dict = get_next_dict_serialized(ref serialized);
+        let string_dict = SerializableFelt252DictTrait::<felt252>::deserialize(ref serialized_dict)
             .expect('deserialize err string');
+
+        // Create the LogData struct with every dicts
+        let log_data: LogData = LogData {
+            address_dict, uint_dict, int_dict, bool_dict, felt252_dict, string_dict
+        };
 
         Option::Some(log_data)
     }
@@ -188,7 +180,7 @@ impl LogDataImpl of LogDataTrait {
 
 /// Pop every elements from the span until the next occurences of END_OF_DICT or
 /// the end of the Span and return those values in a Span.
-fn get_dict_serialized(ref serialized: Span<felt252>) -> Span<felt252> {
+fn get_next_dict_serialized(ref serialized: Span<felt252>) -> Span<felt252> {
     let mut dict_data: Array<felt252> = array![];
     loop {
         match serialized.pop_front() {

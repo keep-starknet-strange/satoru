@@ -32,6 +32,8 @@ It contains the following files:
 
 - [precision.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/precision.cairo): This offers utility functions for detailed math and changing units, helping with accurate calculations and conversions between different measures, like from float to wei, applying factors, and managing rounding in the Satoru Starknet smart contract environment.
 
+- [serializable_dict](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/serializable_dict.cairo): This file defines the SerializableFelt252Dict structure that allows us to use a Felt252Dict and serialize/deserialize it. 
+
 - [span32.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/span32.cairo): Provides utility functions for managing and manipulating fixed-size arrays (span32). A wrapper around Span type with a maximum size of 32. Used to prevent size overflow when storing Span.
 
 - [starknet_utils.cairo](https://github.com/keep-starknet-strange/satoru/blob/main/src/utils/starknet_utils.cairo): This puts in place fake utilities to mimic Starknet environment features, like `gasleft` and `tx.gasprice`, in the Satoru Starknet smart contract environment. These functions give back set values based on the given parameters, allowing a way to mimic Starknet gas actions during testing and development.
