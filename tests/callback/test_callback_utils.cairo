@@ -5,7 +5,7 @@ use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 use satoru::data::data_store::IDataStoreDispatcherTrait;
 use satoru::data::keys;
 use satoru::deposit::deposit::Deposit;
-use satoru::event::event_utils::LogData;
+use satoru::event::event_utils::{LogData, LogDataTrait};
 use satoru::callback::callback_utils::{
     validate_callback_gas_limit, set_saved_callback_contract, get_saved_callback_contract,
     after_deposit_execution
@@ -57,7 +57,7 @@ fn given_normal_conditions_when_callback_contract_functions_then_works() {
     let (_, _, data_store) = setup();
 
     let mut deposit: Deposit = Default::default();
-    let log_data: LogData = Default::default();
+    let mut log_data: LogData = Default::default();
     let (_, event_emitter) = setup_event_emitter();
 
     let callback_mock = deploy_callback_mock();

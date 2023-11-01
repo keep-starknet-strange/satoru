@@ -19,8 +19,11 @@ use satoru::position::position_utils;
 use satoru::position::position::Position;
 use satoru::swap::swap_utils::{SwapParams};
 use satoru::position::position_utils::UpdatePositionParams;
-use satoru::event::event_utils::LogData;
-use satoru::event::event_utils;
+use satoru::event::event_utils::{
+    LogData, LogDataTrait, Felt252IntoU128, Felt252IntoContractAddress, ContractAddressDictValue,
+    I128252DictValue
+};
+use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
 use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
@@ -31,7 +34,7 @@ use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherT
 #[inline(always)]
 fn process_order(
     params: ExecuteOrderParams
-) -> event_utils::LogData { //TODO check with refactor with callback_utils
+) -> LogData { //TODO check with refactor with callback_utils
     let order: Order = params.order;
 
     market_utils::validate_position_market_check(params.contracts.data_store, params.market);
@@ -239,30 +242,14 @@ fn get_output_event_data(
     output_amount: u128,
     secondary_output_token: ContractAddress,
     secondary_output_amount: u128
-) -> event_utils::LogData {
-    let mut address_items: event_utils::AddressItems = Default::default();
-    let mut uint_items: event_utils::UintItems = Default::default();
+) -> LogData {
+    let mut log_data: LogData = Default::default();
 
-    address_items =
-        event_utils::set_item_address_items(address_items, 0, 'output_token', output_token);
-    address_items =
-        event_utils::set_item_address_items(
-            address_items, 1, 'secondary_output_token', secondary_output_token
-        );
+    log_data.address_dict.insert_single('output_token', output_token);
+    log_data.address_dict.insert_single('secondary_output_token', secondary_output_token);
 
-    uint_items = event_utils::set_item_uint_items(uint_items, 0, 'output_amount', output_amount);
-    uint_items =
-        event_utils::set_item_uint_items(
-            uint_items, 1, 'secondary_output_amount', secondary_output_amount
-        );
+    log_data.uint_dict.insert_single('output_amount', output_amount);
+    log_data.uint_dict.insert_single('secondary_output_amount', secondary_output_amount);
 
-    event_utils::LogData {
-        address_items,
-        uint_items,
-        int_items: Default::default(),
-        bool_items: Default::default(),
-        felt252_items: Default::default(),
-        array_of_felt_items: Default::default(),
-        string_items: Default::default(),
-    }
+    log_data
 }

@@ -35,13 +35,13 @@ mod CallbackMock {
     #[external(v0)]
     impl IDepositCallbackReceiverImpl of IDepositCallbackReceiver<ContractState> {
         fn after_deposit_execution(
-            ref self: ContractState, key: felt252, deposit: Deposit, log_data: LogData,
+            ref self: ContractState, key: felt252, deposit: Deposit, log_data: Array<felt252>,
         ) {
             self.counter.write(self.get_counter() + 1);
         }
 
         fn after_deposit_cancellation(
-            ref self: ContractState, key: felt252, deposit: Deposit, log_data: LogData,
+            ref self: ContractState, key: felt252, deposit: Deposit, log_data: Array<felt252>,
         ) {
             self.counter.write(self.get_counter() + 1);
         }
