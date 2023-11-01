@@ -89,7 +89,7 @@ impl ItemPartialEq<
 /// The values are wrapped around an Item struct that allows to store
 /// different types of data: a simple value or a span.
 ///
-#[derive(Default, Copy)]
+#[derive(Default)]
 struct SerializableFelt252Dict<T> {
     keys: Array<felt252>,
     values: Felt252Dict<Nullable<Item<T>>>
@@ -103,9 +103,6 @@ impl SerializableFelt252DictDestruct<
         self.keys.destruct();
     }
 }
-
-impl ArrayTCopy<T> of Copy<Array<T>>;
-impl Felt252DictItemCopy<T> of Copy<Felt252Dict<T>>;
 
 trait SerializableFelt252DictTrait<T> {
     /// Creates a new SerializableFelt252Dict object.
