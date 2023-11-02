@@ -29,7 +29,6 @@ use satoru::oracle::error::OracleError;
 /// * `dataStore` - `DataStore` contract dispatcher
 /// * `eventEmitter` - `EventEmitter` contract dispatcher
 /// * `params` - parameters used to set oracle price
-#[inline(always)]
 fn with_oracle_prices_before(
     oracle: IOracleDispatcher,
     data_store: IDataStoreDispatcher,
@@ -39,7 +38,6 @@ fn with_oracle_prices_before(
     oracle.set_prices(data_store, event_emitter, params.clone());
 }
 
-#[inline(always)]
 fn with_oracle_prices_after(oracle: IOracleDispatcher) {
     oracle.clear_all_prices();
 }
@@ -73,7 +71,6 @@ fn with_simulated_oracle_prices_before(oracle: IOracleDispatcher, params: Simula
     };
 }
 
-#[inline(always)]
 fn with_simulated_oracle_prices_after() {
     OracleError::END_OF_ORACLE_SIMULATION();
 }

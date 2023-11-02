@@ -31,7 +31,6 @@ use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherT
 
 // This function should return an EventLogData cause the callback_utils
 // needs it. We need to find a solution for that case.
-#[inline(always)]
 fn process_order(
     params: ExecuteOrderParams
 ) -> LogData { //TODO check with refactor with callback_utils
@@ -136,7 +135,6 @@ fn process_order(
 /// * `order_updated_at_block` - The block at which the order was last updated.
 /// * `position_increased_at_block` - The block at which the position was last increased.
 /// * `position_decrease_at_block` - The block at which the position was last decreased.
-#[inline(always)]
 fn validate_oracle_block_numbers(
     min_oracle_block_numbers: Span<u64>,
     max_oracle_block_numbers: Span<u64>,
@@ -216,7 +214,6 @@ fn validate_output_amount_secondary(
     }
 }
 
-#[inline(always)]
 fn handle_swap_error(
     oracle: IOracleDispatcher,
     order: Order,

@@ -265,7 +265,6 @@ impl Felt252TryIntoI128 of TryInto<felt252, i128> {
 
 
 impl I128Default of Default<i128> {
-    #[inline(always)]
     fn default() -> i128 {
         Zeroable::zero()
     }
@@ -281,7 +280,6 @@ impl i128Add of Add<i128> {
 
 // Implements the AddEq trait for i128.
 impl i128AddEq of AddEq<i128> {
-    #[inline(always)]
     fn add_eq(ref self: i128, other: i128) {
         self = Add::add(self, other);
     }
@@ -296,7 +294,6 @@ impl i128Sub of Sub<i128> {
 
 // Implements the SubEq trait for i128.
 impl i128SubEq of SubEq<i128> {
-    #[inline(always)]
     fn sub_eq(ref self: i128, other: i128) {
         self = Sub::sub(self, other);
     }
@@ -311,7 +308,6 @@ impl i128Mul of Mul<i128> {
 
 // Implements the MulEq trait for i128.
 impl i128MulEq of MulEq<i128> {
-    #[inline(always)]
     fn mul_eq(ref self: i128, other: i128) {
         self = Mul::mul(self, other);
     }
@@ -326,7 +322,6 @@ impl i128Div of Div<i128> {
 
 // Implements the DivEq trait for i128.
 impl i128DivEq of DivEq<i128> {
-    #[inline(always)]
     fn div_eq(ref self: i128, other: i128) {
         self = Div::div(self, other);
     }
@@ -341,7 +336,6 @@ impl i128Rem of Rem<i128> {
 
 // Implements the RemEq trait for i128.
 impl i128RemEq of RemEq<i128> {
-    #[inline(always)]
     fn rem_eq(ref self: i128, other: i128) {
         self = Rem::rem(self, other);
     }
@@ -386,11 +380,9 @@ impl i128Zeroable of Zeroable<i128> {
     fn zero() -> i128 {
         IntegerTrait::<i128>::new(0, false)
     }
-    #[inline(always)]
     fn is_zero(self: i128) -> bool {
         self == Zeroable::zero()
     }
-    #[inline(always)]
     fn is_non_zero(self: i128) -> bool {
         self != Zeroable::zero()
     }
@@ -702,12 +694,10 @@ fn ensure_non_negative_zero(mag: u128, sign: bool) -> i128 {
 //             Store::<felt252>::read(address_domain, base)?.try_into().expect('I128Store - non i128')
 //         )
 //     }
-//     #[inline(always)]
-//     fn write(address_domain: u32, base: StorageBaseAddress, value: i128) -> SyscallResult<()> {
+// //     fn write(address_domain: u32, base: StorageBaseAddress, value: i128) -> SyscallResult<()> {
 //         Store::<felt252>::write(address_domain, base, value.into())
 //     }
-//     #[inline(always)]
-//     fn read_at_offset(
+// //     fn read_at_offset(
 //         address_domain: u32, base: StorageBaseAddress, offset: u8
 //     ) -> SyscallResult<i128> {
 //         Result::Ok(
@@ -716,14 +706,12 @@ fn ensure_non_negative_zero(mag: u128, sign: bool) -> i128 {
 //                 .expect('I128Store - non i128')
 //         )
 //     }
-//     #[inline(always)]
-//     fn write_at_offset(
+// //     fn write_at_offset(
 //         address_domain: u32, base: StorageBaseAddress, offset: u8, value: i128
 //     ) -> SyscallResult<()> {
 //         Store::<felt252>::write_at_offset(address_domain, base, offset, value.into())
 //     }
-//     #[inline(always)]
-//     fn size() -> u8 {
+// //     fn size() -> u8 {
 //         1_u8
 //     }
 // }

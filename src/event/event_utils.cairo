@@ -17,7 +17,6 @@ use alexandria_data_structures::array_ext::SpanTraitExt;
 //
 
 impl Felt252IntoBool of Into<felt252, bool> {
-    #[inline(always)]
     fn into(self: felt252) -> bool {
         let as_u128: u128 = self.try_into().expect('u128 Overflow');
         as_u128 > 0
@@ -25,35 +24,30 @@ impl Felt252IntoBool of Into<felt252, bool> {
 }
 
 impl Felt252IntoU128 of Into<felt252, u128> {
-    #[inline(always)]
     fn into(self: felt252) -> u128 {
         self.try_into().expect('u128 Overflow')
     }
 }
 
 impl Felt252IntoI128 of Into<felt252, i128> {
-    #[inline(always)]
     fn into(self: felt252) -> i128 {
         self.try_into().expect('i128 Overflow')
     }
 }
 
 impl Felt252IntoContractAddress of Into<felt252, ContractAddress> {
-    #[inline(always)]
     fn into(self: felt252) -> ContractAddress {
         Felt252TryIntoContractAddress::try_into(self).expect('contractaddress overflow')
     }
 }
 
 impl I128252DictValue of Felt252DictValue<i128> {
-    #[inline(always)]
     fn zero_default() -> i128 nopanic {
         i128 { mag: 0, sign: false }
     }
 }
 
 impl ContractAddressDictValue of Felt252DictValue<ContractAddress> {
-    #[inline(always)]
     fn zero_default() -> ContractAddress nopanic {
         contract_address_const::<0>()
     }

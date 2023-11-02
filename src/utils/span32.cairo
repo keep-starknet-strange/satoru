@@ -54,31 +54,24 @@ impl Span32Serde<
 
 #[generate_trait]
 impl Span32Impl<T, impl TSerde: Serde<T>> of Span32Trait<T> {
-    #[inline(always)]
     fn pop_front(ref self: Span32<T>) -> Option<@T> {
         self.snapshot.pop_front()
     }
-    #[inline(always)]
     fn pop_back(ref self: Span32<T>) -> Option<@T> {
         self.snapshot.pop_back()
     }
-    #[inline(always)]
     fn get(self: Span32<T>, index: usize) -> Option<Box<@T>> {
         self.snapshot.get(index)
     }
-    #[inline(always)]
     fn at(self: Span32<T>, index: usize) -> @T {
         self.snapshot.at(index)
     }
-    #[inline(always)]
     fn slice(self: Span32<T>, start: usize, length: usize) -> Span32<T> {
         Span32 { snapshot: self.snapshot.slice(start, length) }
     }
-    #[inline(always)]
     fn len(self: Span32<T>) -> usize {
         self.snapshot.len()
     }
-    #[inline(always)]
     fn is_empty(self: Span32<T>) -> bool {
         self.snapshot.is_empty()
     }
@@ -91,7 +84,6 @@ impl DefaultSpan32<T, impl TDrop: Drop<T>> of Default<Span32<T>> {
 }
 
 impl Span32Index<T> of IndexView<Span32<T>, usize, @T> {
-    #[inline(always)]
     fn index(self: @Span32<T>, index: usize) -> @T {
         self.snapshot.index(index)
     }
@@ -102,7 +94,6 @@ trait Array32Trait<T> {
 }
 
 impl Array32<T> of Array32Trait<T> {
-    #[inline(always)]
     fn span32(self: @Array<T>) -> Span32<T> {
         assert(self.len() <= 32, 'array too big');
         Span32 { snapshot: Span { snapshot: self } }

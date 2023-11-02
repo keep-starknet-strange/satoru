@@ -259,7 +259,6 @@ fn execute_deposit(params: ExecuteDepositParams) {
 /// # Arguments
 /// * `params` - @ExecuteDepositParams.
 /// * `_params` - @_ExecuteDepositParams.
-#[inline(always)]
 fn execute_deposit_helper(
     params: @ExecuteDepositParams, ref _params: _ExecuteDepositParams
 ) -> u128 {
@@ -460,7 +459,6 @@ fn execute_deposit_helper(
     mint_amount
 }
 
-#[inline(always)]
 fn swap(
     params: @ExecuteDepositParams,
     swap_path: Span32<ContractAddress>,

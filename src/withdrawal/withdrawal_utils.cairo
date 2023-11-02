@@ -113,7 +113,6 @@ struct SwapCache {
 /// * `params` - The parameters for creating the withdrawal.
 /// # Returns
 /// The unique identifier of the created withdrawal.
-#[inline(always)]
 fn create_withdrawal(
     data_store: IDataStoreDispatcher,
     event_emitter: IEventEmitterDispatcher,
@@ -197,7 +196,6 @@ fn create_withdrawal(
 /// Executes a withdrawal on the market.
 /// # Arguments
 /// * `params` - The parameters for executing the withdrawal.
-#[inline(always)]
 fn execute_withdrawal(
     mut params: ExecuteWithdrawalParams
 ) { // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
@@ -250,7 +248,6 @@ fn execute_withdrawal(
 /// * `keeper` - The keeper sending the transaction.
 /// * `starting_gas` - The starting gas for the transaction.
 /// * `reason` - The reason for cancelling.
-#[inline(always)]
 fn cancel_withdrawal(
     data_store: IDataStoreDispatcher,
     event_emitter: IEventEmitterDispatcher,
@@ -294,7 +291,6 @@ fn cancel_withdrawal(
 /// * `withdrawal` - The withdrawal to execute.
 /// # Returns
 /// The unique identifier of the created withdrawal.
-#[inline(always)]
 fn execute_withdrawal_(
     params: @ExecuteWithdrawalParams, withdrawal: Withdrawal
 ) -> ExecuteWithdrawalResult {
@@ -482,7 +478,6 @@ fn execute_withdrawal_(
 /// * `ui_fee_receiver` - The ui fee receiver.
 /// # Returns
 /// Output token and its amount.
-#[inline(always)]
 fn swap(
     params: @ExecuteWithdrawalParams,
     market: Market,
@@ -535,7 +530,6 @@ fn swap(
     (cache.output_token, cache.output_amount)
 }
 
-#[inline(always)]
 fn get_output_amounts(
     params: @ExecuteWithdrawalParams,
     market: Market,
