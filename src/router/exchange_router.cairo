@@ -10,7 +10,6 @@ use starknet::ContractAddress;
 use core::zeroable::Zeroable;
 
 
-
 // Local imports.
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};

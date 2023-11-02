@@ -695,7 +695,7 @@ mod Oracle {
                     * report_info.precision;
                 let (has_price_feed, ref_price) = self
                     .get_price_feed_price(data_store, report_info.token);
-                
+
                 if has_price_feed {
                     self
                         .validate_ref_price(
