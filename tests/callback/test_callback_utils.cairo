@@ -51,7 +51,6 @@ fn given_normal_conditions_when_saved_callback_then_works() {
 
     teardown(data_store.contract_address);
 }
-
 // TODO bad syscall_ptr
 // #[test]
 // fn given_normal_conditions_when_callback_contract_functions_then_works() {
@@ -68,3 +67,5 @@ fn given_normal_conditions_when_saved_callback_then_works() {
 //     after_deposit_execution(42, deposit, log_data);
 //     assert(callback_mock.get_counter() == 2, 'should be 2');
 // }
+
+

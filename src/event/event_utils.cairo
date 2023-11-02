@@ -100,19 +100,13 @@ impl LogDataImpl of LogDataTrait {
                     let mut sub_array_span = arr.span();
                     loop {
                         match sub_array_span.pop_front() {
-                            Option::Some(v) => {
-                                output.append(*v);
-                            },
-                            Option::None => {
-                                break;
-                            }
+                            Option::Some(v) => { output.append(*v); },
+                            Option::None => { break; }
                         };
                     };
                     output.append(END_OF_DICT);
                 },
-                Option::None => {
-                    break;
-                }
+                Option::None => { break; }
             };
         };
     }
@@ -133,9 +127,9 @@ impl LogDataImpl of LogDataTrait {
 
         // Deserialize all dicts one by one
         let mut serialized_dict = get_next_dict_serialized(ref serialized);
-        let address_dict = SerializableFelt252DictTrait::<ContractAddress>::deserialize(
-            ref serialized_dict
-        )
+        let address_dict = SerializableFelt252DictTrait::<
+            ContractAddress
+        >::deserialize(ref serialized_dict)
             .expect('deserialize err address');
 
         let mut serialized_dict = get_next_dict_serialized(ref serialized);
@@ -178,16 +172,12 @@ fn get_next_dict_serialized(ref serialized: Span<felt252>) -> Span<felt252> {
     let mut dict_data: Array<felt252> = array![];
     loop {
         match serialized.pop_front() {
-            Option::Some(v) => {
-                if *v == END_OF_DICT {
-                    break;
-                } else {
-                    dict_data.append(*v);
-                }
-            },
-            Option::None => {
+            Option::Some(v) => { if *v == END_OF_DICT {
                 break;
-            }
+            } else {
+                dict_data.append(*v);
+            } },
+            Option::None => { break; }
         };
     };
     dict_data.span()
