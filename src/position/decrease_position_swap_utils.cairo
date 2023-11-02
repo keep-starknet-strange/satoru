@@ -65,7 +65,6 @@ fn swap_withdrawn_collateral_to_pnl_token(
 /// * `pnl_amount` - The amount of profit in usd.
 /// # Returns
 /// DecreasePositionCollateralValues
-#[inline(always)]
 fn swap_profit_to_collateral_token(
     params: UpdatePositionParams, pnl_token: ContractAddress, profit_amount: u128
 ) -> (bool, u128) {

@@ -17,7 +17,6 @@ use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::utils::span32::{Span32, DefaultSpan32};
 use satoru::oracle::error::OracleError;
 
-#[inline(always)]
 fn process_order(params: ExecuteOrderParams) -> LogData {
     if (params.order.market.is_non_zero()) {
         panic(array![OrderError::UNEXPECTED_MARKET]);
@@ -63,7 +62,6 @@ fn process_order(params: ExecuteOrderParams) -> LogData {
 /// * `max_oracle_block_numbers` - The max oracle block numbers.
 /// * `order_type` - The order type.
 /// * `order_updated_at_block` - the block at which the order was last updated.
-#[inline(always)]
 fn validate_oracle_block_numbers(
     min_oracle_block_numbers: Span<u64>,
     max_oracle_block_numbers: Span<u64>,

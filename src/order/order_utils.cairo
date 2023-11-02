@@ -146,7 +146,6 @@ fn create_order( //TODO and fix when fee_token is implememted
 /// Executes an order.
 /// # Arguments
 /// * `params` - The parameters used to execute the order.
-#[inline(always)]
 fn execute_order(params: ExecuteOrderParams) {
     // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
     // TODO GAS NOT AVAILABLE params.startingGas -= gasleft() / 63;

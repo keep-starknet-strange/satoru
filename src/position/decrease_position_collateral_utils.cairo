@@ -55,7 +55,6 @@ struct GetExecutionPriceCache {
 /// Handle the collateral changes of the position.
 /// # Returns
 /// The values linked to the process of a decrease of collateral and position fees.
-#[inline(always)]
 fn process_collateral(
     mut params: position_utils::UpdatePositionParams, cache: position_utils::DecreasePositionCache
 ) -> (position_utils::DecreasePositionCollateralValues, position_pricing_utils::PositionFees) {
