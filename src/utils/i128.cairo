@@ -256,9 +256,7 @@ impl Felt252TryIntoI128 of TryInto<felt252, i128> {
                     IntegerTrait::<i128>::new(data, false)
                 ); //TODO check if the sign might be negative sometimes
             },
-            Option::None => {
-                return Option::None;
-            }
+            Option::None => { return Option::None; }
         }
     }
 }

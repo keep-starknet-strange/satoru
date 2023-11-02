@@ -32,14 +32,10 @@ fn get_u128(arr: @Array<u128>, index: usize) -> u128 {
 fn are_eq(mut arr: Span<u128>, value: u128) -> bool {
     loop {
         match arr.pop_front() {
-            Option::Some(item) => {
-                if *item != value {
-                    break false;
-                }
-            },
-            Option::None => {
-                break true;
-            },
+            Option::Some(item) => { if *item != value {
+                break false;
+            } },
+            Option::None => { break true; },
         };
     }
 }
@@ -53,14 +49,10 @@ fn are_eq(mut arr: Span<u128>, value: u128) -> bool {
 fn are_gt(mut arr: Span<u128>, value: u128) -> bool {
     loop {
         match arr.pop_front() {
-            Option::Some(item) => {
-                if *item <= value {
-                    break false;
-                }
-            },
-            Option::None => {
-                break true;
-            },
+            Option::Some(item) => { if *item <= value {
+                break false;
+            } },
+            Option::None => { break true; },
         };
     }
 }
@@ -74,14 +66,10 @@ fn are_gt(mut arr: Span<u128>, value: u128) -> bool {
 fn u64_are_gte(mut arr: Span<u64>, value: u64) -> bool {
     loop {
         match arr.pop_front() {
-            Option::Some(item) => {
-                if *item < value {
-                    break false;
-                }
-            },
-            Option::None => {
-                break true;
-            },
+            Option::Some(item) => { if *item < value {
+                break false;
+            } },
+            Option::None => { break true; },
         };
     }
 }
@@ -95,14 +83,10 @@ fn u64_are_gte(mut arr: Span<u64>, value: u64) -> bool {
 fn are_gte(mut arr: Span<u128>, value: u128) -> bool {
     loop {
         match arr.pop_front() {
-            Option::Some(item) => {
-                if *item < value {
-                    break false;
-                }
-            },
-            Option::None => {
-                break true;
-            },
+            Option::Some(item) => { if *item < value {
+                break false;
+            } },
+            Option::None => { break true; },
         };
     }
 }
@@ -116,14 +100,10 @@ fn are_gte(mut arr: Span<u128>, value: u128) -> bool {
 fn are_lt(mut arr: Span<u128>, value: u128) -> bool {
     loop {
         match arr.pop_front() {
-            Option::Some(item) => {
-                if *item >= value {
-                    break false;
-                }
-            },
-            Option::None => {
-                break true;
-            },
+            Option::Some(item) => { if *item >= value {
+                break false;
+            } },
+            Option::None => { break true; },
         };
     }
 }
@@ -137,14 +117,10 @@ fn are_lt(mut arr: Span<u128>, value: u128) -> bool {
 fn are_lte(mut arr: Span<u128>, value: u128) -> bool {
     loop {
         match arr.pop_front() {
-            Option::Some(item) => {
-                if *item > value {
-                    break false;
-                }
-            },
-            Option::None => {
-                break true;
-            },
+            Option::Some(item) => { if *item > value {
+                break false;
+            } },
+            Option::None => { break true; },
         };
     }
 }
@@ -275,14 +251,12 @@ impl StoreContractAddressSpan of Store<Span<ContractAddress>> {
         loop {
             match value.pop_front() {
                 Option::Some(element) => {
-                    Store::<ContractAddress>::write_at_offset(
-                        address_domain, base, offset, *element
-                    );
+                    Store::<
+                        ContractAddress
+                    >::write_at_offset(address_domain, base, offset, *element);
                     offset += Store::<felt252>::size();
                 },
-                Option::None(_) => {
-                    break Result::Ok(());
-                }
+                Option::None(_) => { break Result::Ok(()); }
             };
         }
     }

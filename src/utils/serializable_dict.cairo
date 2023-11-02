@@ -167,15 +167,11 @@ impl SerializableFelt252DictTraitImpl<
         let mut contains_key: bool = false;
         loop {
             match keys.pop_front() {
-                Option::Some(value) => {
-                    if *value == key {
-                        contains_key = true;
-                        break;
-                    }
-                },
-                Option::None => {
+                Option::Some(value) => { if *value == key {
+                    contains_key = true;
                     break;
-                },
+                } },
+                Option::None => { break; },
             };
         };
         return contains_key;
@@ -232,20 +228,14 @@ impl SerializableFelt252DictTraitImpl<
                             output.append(arr.len().into()); // len
                             loop { // append each values
                                 match arr.pop_front() {
-                                    Option::Some(v) => {
-                                        output.append((*v).into());
-                                    },
-                                    Option::None => {
-                                        break;
-                                    }
+                                    Option::Some(v) => { output.append((*v).into()); },
+                                    Option::None => { break; }
                                 };
                             };
                         },
                     };
                 },
-                Option::None => {
-                    break;
-                },
+                Option::None => { break; },
             };
         };
     }
@@ -300,9 +290,7 @@ impl SerializableFelt252DictTraitImpl<
                         Option::None => panic_with_felt252('err getting size')
                     }
                 },
-                Option::None => {
-                    break;
-                },
+                Option::None => { break; },
             };
         };
         Option::Some(d)

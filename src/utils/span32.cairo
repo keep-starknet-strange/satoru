@@ -155,14 +155,12 @@ impl StoreContractAddressSpan32 of Store<Span32<ContractAddress>> {
         loop {
             match value.pop_front() {
                 Option::Some(element) => {
-                    Store::<ContractAddress>::write_at_offset(
-                        address_domain, base, offset, *element
-                    );
+                    Store::<
+                        ContractAddress
+                    >::write_at_offset(address_domain, base, offset, *element);
                     offset += Store::<felt252>::size();
                 },
-                Option::None(_) => {
-                    break Result::Ok(());
-                }
+                Option::None(_) => { break Result::Ok(()); }
             };
         }
     }
