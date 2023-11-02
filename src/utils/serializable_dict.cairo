@@ -45,13 +45,13 @@ impl ItemImpl<T> of ItemTrait<T> {
     fn unwrap_single<impl TCopy: Copy<T>>(self: @Item<T>) -> T {
         match self {
             Item::Single(v) => (*v),
-            Item::Span(arr) => panic_with_felt252('should not be a span')
+            Item::Span(arr) => panic_with_felt252('should be single')
         }
     }
 
     fn unwrap_span(self: @Item<T>) -> Span<T> {
         match self {
-            Item::Single(v) => panic_with_felt252('should not be single'),
+            Item::Single(v) => panic_with_felt252('should be a span'),
             Item::Span(arr) => *arr
         }
     }
