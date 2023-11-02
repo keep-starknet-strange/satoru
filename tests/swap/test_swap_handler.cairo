@@ -2,7 +2,6 @@
 use snforge_std::{declare, ContractClassTrait, start_prank};
 use array::ArrayTrait;
 use core::traits::Into;
-use debug::PrintTrait;
 use starknet::{get_caller_address, ContractAddress, contract_address_const,};
 
 // Local imports.

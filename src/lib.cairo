@@ -186,6 +186,9 @@ mod oracle {
     mod oracle_utils;
     mod oracle;
     mod price_feed;
+    mod interfaces {
+        mod account;
+    }
 }
 
 // `order` contains order management functions.

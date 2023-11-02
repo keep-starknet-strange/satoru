@@ -5,7 +5,7 @@ use starknet::ContractAddress;
 use satoru::order::base_order_utils::ExecuteOrderParams;
 use satoru::order::order::OrderType;
 use satoru::oracle::oracle_utils;
-use satoru::utils::arrays::u64_are_gte;
+use satoru::utils::arrays::are_gte_u64;
 use satoru::swap::swap_utils;
 use satoru::event::event_utils::{
     LogData, LogDataTrait, Felt252IntoU128, Felt252IntoContractAddress, ContractAddressDictValue,
@@ -75,7 +75,7 @@ fn validate_oracle_block_numbers(
         return;
     }
     if (order_type == OrderType::LimitSwap) {
-        if (!u64_are_gte(min_oracle_block_numbers, order_updated_at_block)) {
+        if (!are_gte_u64(min_oracle_block_numbers, order_updated_at_block)) {
             OracleError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(
                 min_oracle_block_numbers, order_updated_at_block
             );

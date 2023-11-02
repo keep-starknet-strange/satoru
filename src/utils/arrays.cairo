@@ -2,7 +2,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use satoru::utils::error_utils;
+use satoru::utils::{error_utils, calc};
 /// Gets the value of the element at the specified index in the given array. If the index is out of bounds, returns 0.
 /// # Arguments
 /// * `arr` - the array to get the element of.
@@ -63,7 +63,7 @@ fn are_gt(mut arr: Span<u128>, value: u128) -> bool {
 /// * `value` - The value to compare the elements to.
 /// # Returns
 /// true if all of the elements in the array are greater than or equal to the specified value, false otherwise.
-fn u64_are_gte(mut arr: Span<u64>, value: u64) -> bool {
+fn are_gte_u64(mut arr: Span<u64>, value: u64) -> bool {
     loop {
         match arr.pop_front() {
             Option::Some(item) => { if *item < value {
@@ -115,6 +115,23 @@ fn are_lt(mut arr: Span<u128>, value: u128) -> bool {
 /// # Returns
 /// true if all of the elements in the array are less than or equal to the specified value, false otherwise.
 fn are_lte(mut arr: Span<u128>, value: u128) -> bool {
+    loop {
+        match arr.pop_front() {
+            Option::Some(item) => { if *item > value {
+                break false;
+            } },
+            Option::None => { break true; },
+        };
+    }
+}
+
+/// Determines whether all of the elements in the given array are less than or equal to the specified value.
+/// # Arguments
+/// * `arr` - the array to check the elements of.
+/// * `value` - The value to compare the elements to.
+/// # Returns
+/// true if all of the elements in the array are less than or equal to the specified value, false otherwise.
+fn are_lte_u64(mut arr: Span<u64>, value: u64) -> bool {
     loop {
         match arr.pop_front() {
             Option::Some(item) => { if *item > value {
@@ -242,7 +259,7 @@ impl StoreContractAddressSpan of Store<Span<ContractAddress>> {
         mut offset: u8,
         mut value: Span<ContractAddress>
     ) -> SyscallResult<()> {
-        // // Store the length of the array in the first storage slot.
+        // Store the length of the array in the first storage slot.
         let len: u8 = value.len().try_into().expect('Storage - Span too large');
         Store::<u8>::write_at_offset(address_domain, base, offset, len);
         offset += 1;
@@ -264,4 +281,35 @@ impl StoreContractAddressSpan of Store<Span<ContractAddress>> {
     fn size() -> u8 {
         255 * Store::<felt252>::size()
     }
+}
+
+/// Gets the uncompacted value at the specified index in the given array of compacted values.
+/// # Arguments
+/// * `compacted_values` - the array of compacted values to get the uncompacted value from.
+/// * `index` - the index of the uncompacted value in the array.
+/// * `compacted_value_bit_length` - the length of each compacted value, in bits.
+/// * `bit_mask` - the bitmask to use to extract the uncompacted value from the compacted value.
+/// * `label` - the array of compacted values to get the uncompacted value from.
+/// # Returns
+/// The uncompacted value at the specified index in the array of compacted values.
+fn get_uncompacted_value_u64(
+    compacted_values: Span<u64>,
+    index: usize,
+    compacted_value_bit_length: usize,
+    bit_mask: u64,
+    label: felt252
+) -> u64 {
+    let compacted_values_per_slot = 64 / compacted_value_bit_length;
+
+    let slot_index = index / compacted_values_per_slot;
+    if slot_index >= compacted_values.len() {
+        panic(array!['CompactedArrayOutOfBounds', index.into(), slot_index.into(), label]);
+    }
+
+    let slot_bits = *compacted_values.at(slot_index);
+    let offset = (index - slot_index * compacted_values_per_slot) * compacted_value_bit_length;
+
+    let value = (slot_bits / calc::pow_u64(2, offset)) & bit_mask;
+
+    value
 }
