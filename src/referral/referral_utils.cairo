@@ -24,7 +24,6 @@ use satoru::referral::referral_tier::ReferralTier;
 /// * `referral_storage` - The referral storage instance to use.
 /// * `account` - The account of the trader.
 /// * `referral_code` - The referral code.
-#[inline(always)]
 fn set_trader_referral_code(
     referral_storage: IReferralStorageDispatcher, account: ContractAddress, referral_code: felt252
 ) {

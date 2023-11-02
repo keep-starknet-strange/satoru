@@ -257,12 +257,10 @@ mod RoleStore {
     // *************************************************************************
     #[generate_trait]
     impl InternalFunctions of InternalFunctionsTrait {
-        #[inline(always)]
         fn _has_role(self: @ContractState, account: ContractAddress, role_key: felt252) -> bool {
             self.has_role.read((role_key, account))
         }
 
-        #[inline(always)]
         fn _assert_only_role(self: @ContractState, account: ContractAddress, role_key: felt252) {
             assert(self._has_role(account, role_key), RoleError::UNAUTHORIZED_ACCESS);
         }

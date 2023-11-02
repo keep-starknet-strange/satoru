@@ -23,7 +23,6 @@ use alexandria_data_structures::array_ext::SpanTraitExt;
 /// * `EventLogData` - The event log data.
 /// This function should return an EventLogData cause the callback_utils
 /// needs it. We need to find a solution for that case.
-#[inline(always)]
 fn process_order(params: ExecuteOrderParams) -> event_utils::LogData {
     market_utils::validate_position_market(params.contracts.data_store, params.market.market_token);
 
