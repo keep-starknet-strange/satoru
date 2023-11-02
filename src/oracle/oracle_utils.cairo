@@ -342,15 +342,7 @@ fn revert_oracle_block_number_not_within_range(
 /// # Returns
 /// Wether it's the right error.
 fn is_oracle_error(error_selector: felt252) -> bool {
-    if (is_oracle_block_number_error(error_selector)) {
-        return true;
-    }
-
-    if (is_empty_price_error(error_selector)) {
-        return true;
-    }
-
-    return false;
+    is_oracle_block_number_error(error_selector) || is_empty_price_error(error_selector)
 }
 
 /// Check wether `error` is an EmptyPriceError.
@@ -360,11 +352,7 @@ fn is_oracle_error(error_selector: felt252) -> bool {
 /// Wether it's the right error.
 const EMPTY_PRIMARY_PRICE_SELECTOR: felt252 = selector!("EMPTY_PRIMARY_PRICE");
 fn is_empty_price_error(error_selector: felt252) -> bool {
-    if (error_selector == EMPTY_PRIMARY_PRICE_SELECTOR) {
-        return true;
-    }
-
-    return false;
+    error_selector == EMPTY_PRIMARY_PRICE_SELECTOR
 }
 
 /// Check wether `error` is an OracleBlockNumberError.
@@ -376,15 +364,8 @@ const BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED_SELECTOR: felt252 =
     selector!("BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED");
 const BLOCK_NUMBER_NOT_WITHIN_RANGE_SELECTOR: felt252 = selector!("BLOCK_NUMBER_NOT_WITHIN_RANGE");
 fn is_oracle_block_number_error(error_selector: felt252) -> bool {
-    if (error_selector == BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED_SELECTOR) {
-        return true;
-    }
-
-    if (error_selector == BLOCK_NUMBER_NOT_WITHIN_RANGE_SELECTOR) {
-        return true;
-    }
-
-    return false;
+    error_selector == BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED_SELECTOR
+        || error_selector == BLOCK_NUMBER_NOT_WITHIN_RANGE_SELECTOR
 }
 
 impl DefaultReportInfo of Default<ReportInfo> {

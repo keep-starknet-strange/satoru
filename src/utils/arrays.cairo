@@ -134,14 +134,10 @@ fn are_lte(mut arr: Span<u128>, value: u128) -> bool {
 fn are_lte_u64(mut arr: Span<u64>, value: u64) -> bool {
     loop {
         match arr.pop_front() {
-            Option::Some(item) => {
-                if *item > value {
-                    break false;
-                }
-            },
-            Option::None => {
-                break true;
-            },
+            Option::Some(item) => { if *item > value {
+                break false;
+            } },
+            Option::None => { break true; },
         };
     }
 }
