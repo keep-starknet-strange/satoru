@@ -130,8 +130,7 @@ fn swap(params: @SwapParams) -> (ContractAddress, u128) {
         }
         let market: Market = *params.swap_path_markets[i];
         let flag_exists = (*params.data_store)
-            .get_bool(keys::swap_path_market_flag_key(market.market_token))
-            .expect('get_bool failed');
+            .get_bool(keys::swap_path_market_flag_key(market.market_token));
         if (flag_exists) {
             SwapError::DUPLICATED_MARKET_IN_SWAP_PATH(market.market_token);
         }

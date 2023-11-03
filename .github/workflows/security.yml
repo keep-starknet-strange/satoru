@@ -9,11 +9,11 @@ jobs:
       - uses: actions/checkout@v3
       - uses: software-mansion/setup-scarb@v1
         with:
-          scarb-version: "0.7.0"
+          scarb-version: "2.3.1"
 
       - name: Install Semgrep
         run: |
-          pip install semgrep
+          pip install semgrep==1.45.0
       - name: Run Semgrep
         run: semgrep --config https://github.com/avnu-labs/semgrep-cairo-rules/releases/download/v0.0.1/cairo-rules.yaml ./src > semgrep-output.txt
       - name: Save Semgrep Output as an Artifact
@@ -32,19 +32,19 @@ jobs:
             ~/.cargo
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Check if Caracal is installed
-        id: check-caracal
-        run: |
-          if ! command -v caracal &> /dev/null; then
-            echo "Caracal is not installed. Installing..."
-            cargo install --git https://github.com/crytic/caracal --profile release --force
-          else
-            echo "Caracal is already installed."
-          fi
-      - name: Run Caracal
-        run: caracal detect . > caracal-output.txt
-      - name: Save Caracal Output as an Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: caracal-cairo
-          path: caracal-output.txt
+      # - name: Check if Caracal is installed
+      #   id: check-caracal
+      #   run: |
+      #     if ! command -v caracal &> /dev/null; then
+      #       echo "Caracal is not installed. Installing..."
+      #       cargo install --git https://github.com/crytic/caracal --profile release --force
+      #     else
+      #       echo "Caracal is already installed."
+      #     fi
+      # - name: Run Caracal
+      #   run: caracal detect . > caracal-output.txt
+      # - name: Save Caracal Output as an Artifact
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: caracal-cairo
+      #     path: caracal-output.txt

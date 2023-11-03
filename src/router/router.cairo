@@ -37,7 +37,6 @@ mod Router {
     // Core lib imports.
     use core::zeroable::Zeroable;
 
-    use debug::PrintTrait;
     use starknet::{ContractAddress, get_caller_address};
 
 

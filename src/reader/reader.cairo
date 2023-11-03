@@ -690,8 +690,7 @@ mod Reader {
             let virtual_inventory = self.get_virtual_inventory(data_store, market);
 
             let is_disabled = data_store
-                .get_bool(keys::is_market_disabled_key(market.market_token))
-                .expect('get_bool failed');
+                .get_bool(keys::is_market_disabled_key(market.market_token));
             MarketInfo {
                 market,
                 borrowing_factor_per_second_for_longs,

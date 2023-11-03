@@ -165,11 +165,11 @@ struct SetPricesCache {
 /// Struct used in validate_prices as an inner cache.
 #[derive(Default, Drop)]
 struct SetPricesInnerCache {
-    /// The current price index to retrieve from compactedMinPrices and compactedMaxPrices
-    /// to construct the minPrices and maxPrices array.
-    price_index: u128,
+    /// The current price index to retrieve from compacted_min_prices and compacted_max_prices
+    /// to construct the min_prices and max_prices array.
+    price_index: usize,
     /// The current signature index to retrieve from the signatures array.
-    signature_index: u128,
+    signature_index: usize,
     /// The index of the min price in min_prices for the current signer.
     min_price_index: u128,
     /// The index of the max price in max_prices for the current signer.
@@ -456,7 +456,7 @@ mod Oracle {
                 }
 
                 let validated_price = *validated_prices.at(len);
-                if !validated_price.min.is_zero() || !validated_price.max.is_zero() {
+                if !self.primary_prices.read(validated_price.token).is_zero() {
                     OracleError::DUPLICATED_TOKEN_PRICE();
                 }
                 self
@@ -472,8 +472,8 @@ mod Oracle {
                         validated_price.token,
                         Price { min: validated_price.min, max: validated_price.max }
                     );
+                len += 1;
             };
-            len += 1;
         }
 
         /// Validate prices in params.
@@ -486,7 +486,6 @@ mod Oracle {
             let signers = self.get_signers_(data_store, @params);
 
             let mut cache: SetPricesCache = Default::default();
-
             cache
                 .min_block_confirmations = data_store
                 .get_u128(keys::min_oracle_block_confirmations())
@@ -534,7 +533,6 @@ mod Oracle {
                         oracle_utils::get_uncompacted_oracle_timestamp(
                             params.compacted_oracle_timestamps.span(), i
                         );
-
                 if report_info.min_oracle_block_number > get_block_number() {
                     OracleError::INVALID_BLOCK_NUMBER(
                         report_info.min_oracle_block_number, get_block_number()
@@ -588,7 +586,6 @@ mod Oracle {
                         break;
                     }
                     inner_cache.price_index = (i * signers_len + j).into();
-
                     inner_cache
                         .min_prices
                         .append(
@@ -637,12 +634,11 @@ mod Oracle {
                                 compacted_max_span, inner_cache.signature_index
                             );
 
-                    if inner_cache.signature_index >= signatures_span.len().into() {
+                    if inner_cache.signature_index >= signatures_span.len() {
                         OracleError::ARRAY_OUT_OF_BOUNDS_FELT252(
                             signatures_span, inner_cache.signature_index, 'signatures'
                         );
                     }
-
                     if inner_cache.min_price_index >= inner_cache.min_prices.len().into() {
                         OracleError::ARRAY_OUT_OF_BOUNDS_U128(
                             inner_cache.min_prices.span(), inner_cache.min_price_index, 'min_prices'
@@ -682,14 +678,10 @@ mod Oracle {
                             report_info.min_price, report_info.max_price
                         );
                     }
-
                     oracle_utils::validate_signer(
                         self.get_salt(),
                         report_info,
-                        arrays::get_felt252(
-                            signatures_span,
-                            inner_cache.signature_index.try_into().expect('u128 into u32 failed')
-                        ),
+                        *signatures_span.at(inner_cache.signature_index),
                         signers_span.at(j)
                     );
 
@@ -855,12 +847,8 @@ mod Oracle {
                     // otherwise the new token is appended to the list. This is to avoid the list 
                     // to grow indefinitely.
                     match index_of_zero {
-                        Option::Some(i) => {
-                            tokens_with_prices.set(i, token);
-                        },
-                        Option::None => {
-                            tokens_with_prices.append(token);
-                        }
+                        Option::Some(i) => { tokens_with_prices.set(i, token); },
+                        Option::None => { tokens_with_prices.append(token); }
                     }
                 }
             }
@@ -894,6 +882,9 @@ mod Oracle {
             self: @ContractState, data_store: IDataStoreDispatcher, token: ContractAddress,
         ) -> (bool, u128) {
             let token_id = data_store.get_token_id(token);
+            if token_id == 0 {
+                return (false, 0);
+            }
             let response = self.price_feed.read().get_data_median(DataType::SpotEntry(token_id));
 
             if response.price <= 0 {

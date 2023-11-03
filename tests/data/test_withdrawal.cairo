@@ -8,7 +8,6 @@ use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
 use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::utils::span32::{Span32, Array32Trait};
-use debug::PrintTrait;
 
 /// Utility function to setup the test environment.
 ///

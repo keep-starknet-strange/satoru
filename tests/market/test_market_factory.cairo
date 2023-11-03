@@ -253,10 +253,7 @@ fn setup_contracts() -> (
 
     // Deploy the market factory.
     let market_factory_address = deploy_market_factory(
-        data_store_address,
-        role_store_address,
-        event_emitter_address,
-        market_token_class_hash.clone()
+        data_store_address, role_store_address, event_emitter_address, market_token_class_hash
     );
     // Create a safe dispatcher to interact with the contract.
     let market_factory = IMarketFactoryDispatcher { contract_address: market_factory_address };

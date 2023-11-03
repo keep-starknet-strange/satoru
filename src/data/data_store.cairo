@@ -161,7 +161,7 @@ trait IDataStore<TContractState> {
     /// * `key` - The key to get the value for.
     /// # Returns
     /// The value for the given key.
-    fn get_bool(self: @TContractState, key: felt252) -> Option<bool>;
+    fn get_bool(self: @TContractState, key: felt252) -> bool;
 
     /// Set a bool value for the given key.
     /// # Arguments
@@ -484,7 +484,6 @@ mod DataStore {
     use nullable::NullableTrait;
     use zeroable::Zeroable;
     use alexandria_storage::list::{ListTrait, List};
-    use debug::PrintTrait;
     use poseidon::poseidon_hash_span;
 
     // Local imports.
@@ -511,7 +510,7 @@ mod DataStore {
         u128_values: LegacyMap::<felt252, u128>,
         i128_values: LegacyMap::<felt252, i128>,
         address_values: LegacyMap::<felt252, ContractAddress>,
-        bool_values: LegacyMap::<felt252, Option<bool>>,
+        bool_values: LegacyMap::<felt252, bool>,
         /// Market storage
         market_values: LegacyMap::<ContractAddress, Market>,
         markets: List<Market>,
@@ -800,7 +799,7 @@ mod DataStore {
         // *************************************************************************
         //                      Bool related functions.
         // *************************************************************************
-        fn get_bool(self: @ContractState, key: felt252) -> Option<bool> {
+        fn get_bool(self: @ContractState, key: felt252) -> bool {
             self.bool_values.read(key)
         }
 
@@ -808,14 +807,14 @@ mod DataStore {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             // Set the value.
-            self.bool_values.write(key, Option::Some(value));
+            self.bool_values.write(key, value);
         }
 
         fn remove_bool(ref self: ContractState, key: felt252) {
             // Check that the caller has permission to delete the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             // Delete the value.
-            self.bool_values.write(key, Option::None);
+            self.bool_values.write(key, false);
         }
 
         // *************************************************************************
@@ -830,12 +829,8 @@ mod DataStore {
             let markets: List<Market> = self.markets.read();
             let market_maybe = markets.get(offsetted_index - 1);
             match market_maybe {
-                Option::Some(market) => {
-                    market
-                },
-                Option::None => {
-                    Default::default()
-                }
+                Option::Some(market) => { market },
+                Option::None => { Default::default() }
             }
         }
 
@@ -962,12 +957,8 @@ mod DataStore {
             let orders: List<Order> = self.orders.read();
             let order_maybe = orders.get(offsetted_index - 1);
             match order_maybe {
-                Option::Some(order) => {
-                    order
-                },
-                Option::None => {
-                    Default::default()
-                }
+                Option::Some(order) => { order },
+                Option::None => { Default::default() }
             }
         }
 
@@ -1103,12 +1094,8 @@ mod DataStore {
             let positions: List<Position> = self.positions.read();
             let position_maybe = positions.get(offsetted_index - 1);
             match position_maybe {
-                Option::Some(position) => {
-                    position
-                },
-                Option::None => {
-                    Default::default()
-                }
+                Option::Some(position) => { position },
+                Option::None => { Default::default() }
             }
         }
 
@@ -1245,12 +1232,8 @@ mod DataStore {
             let withdrawals: List<Withdrawal> = self.withdrawals.read();
             let withdrawal_maybe = withdrawals.get(offsetted_index - 1);
             match withdrawal_maybe {
-                Option::Some(withdrawal) => {
-                    withdrawal
-                },
-                Option::None => {
-                    Default::default()
-                }
+                Option::Some(withdrawal) => { withdrawal },
+                Option::None => { Default::default() }
             }
         }
 
@@ -1385,12 +1368,8 @@ mod DataStore {
             let deposits: List<Deposit> = self.deposits.read();
             let deposit_maybe = deposits.get(offsetted_index - 1);
             match deposit_maybe {
-                Option::Some(deposit) => {
-                    deposit
-                },
-                Option::None => {
-                    Default::default()
-                }
+                Option::Some(deposit) => { deposit },
+                Option::None => { Default::default() }
             }
         }
 

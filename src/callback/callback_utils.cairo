@@ -23,7 +23,7 @@ use starknet::ContractAddress;
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::data::keys;
-use satoru::event::event_utils::LogData;
+use satoru::event::event_utils::{LogData, LogDataTrait};
 use satoru::order::order::Order;
 use satoru::deposit::deposit::Deposit;
 use satoru::withdrawal::withdrawal::Withdrawal;
@@ -92,14 +92,14 @@ fn get_saved_callback_contract(
 /// * `key` - They key of the deposit.
 /// * `deposit` - The deposit that was executed.
 /// * `log_data` - The log data.
-fn after_deposit_execution(key: felt252, deposit: Deposit, log_data: LogData) {
+fn after_deposit_execution(key: felt252, deposit: Deposit, mut log_data: LogData) {
     if !is_valid_callback_contract(deposit.callback_contract) {
         return;
     }
     let dispatcher = IDepositCallbackReceiverDispatcher {
         contract_address: deposit.callback_contract
     };
-    dispatcher.after_deposit_execution(key, deposit, log_data)
+    dispatcher.after_deposit_execution(key, deposit, log_data.serialize_into())
 }
 
 /// Called after a deposit cancellation.
@@ -107,14 +107,14 @@ fn after_deposit_execution(key: felt252, deposit: Deposit, log_data: LogData) {
 /// * `key` - They key of the deposit.
 /// * `deposit` - The deposit that was cancelled.
 /// * `log_data` - The log data.
-fn after_deposit_cancellation(key: felt252, deposit: Deposit, log_data: LogData) {
+fn after_deposit_cancellation(key: felt252, deposit: Deposit, mut log_data: LogData) {
     if !is_valid_callback_contract(deposit.callback_contract) {
         return;
     }
     let dispatcher = IDepositCallbackReceiverDispatcher {
         contract_address: deposit.callback_contract
     };
-    dispatcher.after_deposit_cancellation(key, deposit, log_data)
+    dispatcher.after_deposit_cancellation(key, deposit, log_data.serialize_into())
 }
 
 /// Called after a withdrawal execution.
@@ -122,14 +122,14 @@ fn after_deposit_cancellation(key: felt252, deposit: Deposit, log_data: LogData)
 /// * `key` - They key of the withdrawal.
 /// * `withdrawal` - The withdrawal that was executed.
 /// * `log_data` - The log data.
-fn after_withdrawal_execution(key: felt252, withdrawal: Withdrawal, log_data: LogData) {
+fn after_withdrawal_execution(key: felt252, withdrawal: Withdrawal, mut log_data: LogData) {
     if !is_valid_callback_contract(withdrawal.callback_contract) {
         return;
     }
     let dispatcher = IWithdrawalCallbackReceiverDispatcher {
         contract_address: withdrawal.callback_contract
     };
-    dispatcher.after_withdrawal_execution(key, withdrawal, log_data)
+    dispatcher.after_withdrawal_execution(key, withdrawal, log_data.serialize_into())
 }
 
 /// Called after an withdrawal cancellation.
@@ -137,14 +137,14 @@ fn after_withdrawal_execution(key: felt252, withdrawal: Withdrawal, log_data: Lo
 /// * `key` - They key of the withdrawal.
 /// * `withdrawal` - The withdrawal that was cancelled.
 /// * `log_data` - The log data.
-fn after_withdrawal_cancellation(key: felt252, withdrawal: Withdrawal, log_data: LogData) {
+fn after_withdrawal_cancellation(key: felt252, withdrawal: Withdrawal, mut log_data: LogData) {
     if !is_valid_callback_contract(withdrawal.callback_contract) {
         return;
     }
     let dispatcher = IWithdrawalCallbackReceiverDispatcher {
         contract_address: withdrawal.callback_contract
     };
-    dispatcher.after_withdrawal_cancellation(key, withdrawal, log_data)
+    dispatcher.after_withdrawal_cancellation(key, withdrawal, log_data.serialize_into())
 }
 
 /// Called after an order execution.
@@ -152,12 +152,12 @@ fn after_withdrawal_cancellation(key: felt252, withdrawal: Withdrawal, log_data:
 /// * `key` - They key of the order.
 /// * `order` - The order that was executed.
 /// * `log_data` - The log data.
-fn after_order_execution(key: felt252, order: Order, log_data: LogData) {
+fn after_order_execution(key: felt252, order: Order, mut log_data: LogData) {
     if !is_valid_callback_contract(order.callback_contract) {
         return;
     }
     let dispatcher = IOrderCallbackReceiverDispatcher { contract_address: order.callback_contract };
-    dispatcher.after_order_execution(key, order, log_data)
+    dispatcher.after_order_execution(key, order, log_data.serialize_into())
 }
 
 /// Called after an order cancellation.
@@ -165,12 +165,12 @@ fn after_order_execution(key: felt252, order: Order, log_data: LogData) {
 /// * `key` - They key of the order.
 /// * `order` - The order that was cancelled.
 /// * `log_data` - The log data.
-fn after_order_cancellation(key: felt252, order: Order, log_data: LogData) {
+fn after_order_cancellation(key: felt252, order: Order, mut log_data: LogData) {
     if !is_valid_callback_contract(order.callback_contract) {
         return;
     }
     let dispatcher = IOrderCallbackReceiverDispatcher { contract_address: order.callback_contract };
-    dispatcher.after_order_cancellation(key, order, log_data)
+    dispatcher.after_order_cancellation(key, order, log_data.serialize_into())
 }
 
 /// Called after an order cancellation.
@@ -178,12 +178,12 @@ fn after_order_cancellation(key: felt252, order: Order, log_data: LogData) {
 /// * `key` - They key of the order.
 /// * `order` - The order that was frozen.
 /// * `log_data` - The log data.
-fn after_order_frozen(key: felt252, order: Order, log_data: LogData) {
+fn after_order_frozen(key: felt252, order: Order, mut log_data: LogData) {
     if !is_valid_callback_contract(order.callback_contract) {
         return;
     }
     let dispatcher = IOrderCallbackReceiverDispatcher { contract_address: order.callback_contract };
-    dispatcher.after_order_frozen(key, order, log_data)
+    dispatcher.after_order_frozen(key, order, log_data.serialize_into())
 }
 
 /// Validates that the given address is a contract.
