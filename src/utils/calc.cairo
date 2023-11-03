@@ -167,3 +167,20 @@ fn min_i128() -> i128 {
     // Comes from https://doc.rust-lang.org/std/i128/constant.MIN.html
     i128 { mag: 170_141_183_460_469_231_731_687_303_715_884_105_728, sign: true }
 }
+
+/// Raise a number to a power, computes x^n.
+/// * `x` - The number to raise.
+/// * `n` - The exponent.
+/// # Returns
+/// * `u64` - The result of x raised to the power of n.
+fn pow_u64(x: u64, n: usize) -> u64 {
+    if n == 0 {
+        1
+    } else if n == 1 {
+        x
+    } else if (n & 1) == 1 {
+        x * pow_u64(x * x, n / 2)
+    } else {
+        pow_u64(x * x, n / 2)
+    }
+}

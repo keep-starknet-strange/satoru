@@ -24,7 +24,7 @@ use satoru::market::market_utils::{
 };
 use satoru::adl::error::AdlError;
 use satoru::data::keys;
-use satoru::utils::arrays::u64_are_gte;
+use satoru::utils::arrays::are_gte_u64;
 use satoru::position::position_utils;
 use satoru::position::position::Position;
 use satoru::order::order::{Order, OrderType, DecreasePositionSwapType};
@@ -91,7 +91,7 @@ fn update_adl_state(
 ) {
     let latest_adl_block = get_latest_adl_block(data_store, market, is_long);
     assert(
-        u64_are_gte(max_oracle_block_numbers, latest_adl_block),
+        are_gte_u64(max_oracle_block_numbers, latest_adl_block),
         AdlError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED
     );
     let _market = get_enabled_market(data_store, market);
@@ -204,7 +204,7 @@ fn validate_adl(
     assert(is_adl_enabled, AdlError::ADL_NOT_ENABLED);
     let latest_block = get_latest_adl_block(data_store, market, is_long);
     assert(
-        u64_are_gte(max_oracle_block_numbers, latest_block),
+        are_gte_u64(max_oracle_block_numbers, latest_block),
         AdlError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED
     );
 }

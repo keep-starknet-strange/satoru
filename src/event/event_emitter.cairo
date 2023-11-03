@@ -122,7 +122,6 @@ trait IEventEmitter<TContractState> {
     );
 
     /// Emits the `DepositCreated` event.
-    #[inline(always)]
     fn emit_deposit_created(ref self: TContractState, key: felt252, deposit: Deposit);
 
     /// Emits the `DepositExecuted` event.
@@ -140,7 +139,6 @@ trait IEventEmitter<TContractState> {
     );
 
     /// Emits the `WithdrawalCreated` event.
-    #[inline(always)]
     fn emit_withdrawal_created(ref self: TContractState, key: felt252, withdrawal: Withdrawal);
 
     /// Emits the `WithdrawalExecuted` event.
@@ -152,11 +150,9 @@ trait IEventEmitter<TContractState> {
     );
 
     /// Emits the `PositionIncrease` event.
-    #[inline(always)]
     fn emit_position_increase(ref self: TContractState, params: PositionIncreaseParams);
 
     /// Emits the `PositionDecrease` event.
-    #[inline(always)]
     fn emit_position_decrease(
         ref self: TContractState,
         order_key: felt252,
@@ -190,7 +186,6 @@ trait IEventEmitter<TContractState> {
     );
 
     /// Emits the `PositionFeesCollected` event.
-    #[inline(always)]
     fn emit_position_fees_collected(
         ref self: TContractState,
         order_key: felt252,
@@ -203,7 +198,6 @@ trait IEventEmitter<TContractState> {
     );
 
     /// Emits the `PositionFeesInfo` event.
-    #[inline(always)]
     fn emit_position_fees_info(
         ref self: TContractState,
         order_key: felt252,
@@ -216,7 +210,6 @@ trait IEventEmitter<TContractState> {
     );
 
     /// Emits the `OrderCreated` event.
-    #[inline(always)]
     fn emit_order_created(ref self: TContractState, key: felt252, order: Order);
 
     /// Emits the `OrderExecuted` event.
@@ -434,7 +427,6 @@ trait IEventEmitter<TContractState> {
     );
 
     /// Emits the `MarketPoolValueInfo` event.
-    #[inline(always)]
     fn emit_market_pool_value_info(
         ref self: TContractState,
         market: ContractAddress,
@@ -592,7 +584,6 @@ trait IEventEmitter<TContractState> {
     );
 
     /// Emits the `SwapFeesCollected` event.
-    #[inline(always)]
     fn emit_swap_fees_collected(
         ref self: TContractState,
         market: ContractAddress,
@@ -1700,7 +1691,6 @@ mod EventEmitter {
         }
 
         /// Emits the `DepositCreated` event.
-        #[inline(always)]
         fn emit_deposit_created(ref self: ContractState, key: felt252, deposit: Deposit) {
             self
                 .emit(
@@ -1782,7 +1772,6 @@ mod EventEmitter {
         /// Emits the `PositionIncrease` event.
         /// # Arguments
         /// * `params` - The position increase parameters.
-        #[inline(always)]
         fn emit_position_increase(ref self: ContractState, params: PositionIncreaseParams) {
             self
                 .emit(
@@ -1830,7 +1819,6 @@ mod EventEmitter {
         /// * `values` - The parameters linked to the decrease of collateral.
         /// * `index_token_price` - The price of the index token.
         /// * `collateral_token_price` - The price of the collateral token.
-        #[inline(always)]
         fn emit_position_decrease(
             ref self: ContractState,
             order_key: felt252,
@@ -2427,7 +2415,6 @@ mod EventEmitter {
         }
 
         /// Emits the `MarketPoolValueInfo` event.
-        #[inline(always)]
         fn emit_market_pool_value_info(
             ref self: ContractState,
             market: ContractAddress,
@@ -2680,7 +2667,6 @@ mod EventEmitter {
         }
 
         /// Emits the `SwapFeesCollected` event.
-        #[inline(always)]
         fn emit_swap_fees_collected(
             ref self: ContractState,
             market: ContractAddress,

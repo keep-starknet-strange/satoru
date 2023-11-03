@@ -44,7 +44,7 @@ fn given_normal_conditions_when_create_execute_deposit_then_works() {
         compacted_min_prices_indexes: array![1],
         compacted_max_prices: array![5],
         compacted_max_prices_indexes: array![1],
-        signatures: array!['signatures'],
+        signatures: array![array!['signatures'].span()],
         price_feed_tokens: array![price_feed_tokens1],
     };
 // deposit_handler.execute_deposit(key, oracle_params);

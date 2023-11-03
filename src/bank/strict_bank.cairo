@@ -61,7 +61,6 @@ mod StrictBank {
     use starknet::{
         get_caller_address, get_contract_address, ContractAddress, contract_address_const
     };
-    use debug::PrintTrait;
 
     // Local imports.
     use satoru::bank::bank::{Bank, IBank};

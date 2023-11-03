@@ -8,7 +8,6 @@
 use starknet::ContractAddress;
 use result::ResultTrait;
 
-use debug::PrintTrait;
 // Local imports.
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::callback::callback_utils::after_deposit_execution;
@@ -20,7 +19,10 @@ use satoru::deposit::{
     deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait}, error::DepositError
 };
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::event::event_utils::{LogData, set_item_uint_items, UintItems};
+use satoru::event::event_utils::{
+    LogData, LogDataTrait, Felt252IntoU128, ContractAddressDictValue, I128252DictValue
+};
+use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 use satoru::fee::fee_utils;
 use satoru::gas::gas_utils::pay_execution_fee_deposit;
 use satoru::market::{
@@ -237,9 +239,8 @@ fn execute_deposit(params: ExecuteDepositParams) {
             cache.received_market_tokens,
         );
 
-    let event_data: LogData = Default::default();
-    let mut uint_items: UintItems = Default::default();
-    set_item_uint_items(uint_items, 0, 'received_market_tokens', cache.received_market_tokens);
+    let mut event_data: LogData = Default::default();
+    event_data.uint_dict.insert_single('received_market_tokens', cache.received_market_tokens);
     after_deposit_execution(params.key, deposit, event_data);
 
     pay_execution_fee_deposit(
@@ -257,7 +258,6 @@ fn execute_deposit(params: ExecuteDepositParams) {
 /// # Arguments
 /// * `params` - @ExecuteDepositParams.
 /// * `_params` - @_ExecuteDepositParams.
-#[inline(always)]
 fn execute_deposit_helper(
     params: @ExecuteDepositParams, ref _params: _ExecuteDepositParams
 ) -> u128 {
@@ -458,7 +458,6 @@ fn execute_deposit_helper(
     mint_amount
 }
 
-#[inline(always)]
 fn swap(
     params: @ExecuteDepositParams,
     swap_path: Span32<ContractAddress>,

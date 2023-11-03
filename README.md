@@ -39,6 +39,12 @@ To build the project, run:
 scarb build
 ```
 
+## Satoru compatible frontends
+
+You can find the list of Satoru-compatible frontends, all of which have been built on top of the Satoru platform : 
+
+- [Zohal](https://github.com/Zohal-Starknet/zohal-interface)
+
 ## 🧪 Test
 
 To test the project, run:
@@ -155,6 +161,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/vuittont60"><img src="https://avatars.githubusercontent.com/u/81072379?v=4?s=100" width="100px;" alt="vuittont60"/><br /><sub><b>vuittont60</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=vuittont60" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/MavericksFive"><img src="https://avatars.githubusercontent.com/u/95299145?v=4?s=100" width="100px;" alt="Arnaud Berger"/><br /><sub><b>Arnaud Berger</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=MavericksFive" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/faytey"><img src="https://avatars.githubusercontent.com/u/40033608?v=4?s=100" width="100px;" alt="faytey"/><br /><sub><b>faytey</b></sub></a><br /><a href="https://github.com/keep-starknet-strange/satoru/commits?author=faytey" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

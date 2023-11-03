@@ -64,11 +64,9 @@ impl PriceZeroable of Zeroable<Price> {
     fn zero() -> Price {
         Price { min: 0, max: 0 }
     }
-    #[inline(always)]
     fn is_zero(self: Price) -> bool {
         self.min == 0 && self.max == 0
     }
-    #[inline(always)]
     fn is_non_zero(self: Price) -> bool {
         !self.is_zero()
     }
