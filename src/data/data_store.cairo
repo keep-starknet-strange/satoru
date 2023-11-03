@@ -829,12 +829,8 @@ mod DataStore {
             let markets: List<Market> = self.markets.read();
             let market_maybe = markets.get(offsetted_index - 1);
             match market_maybe {
-                Option::Some(market) => {
-                    market
-                },
-                Option::None => {
-                    Default::default()
-                }
+                Option::Some(market) => { market },
+                Option::None => { Default::default() }
             }
         }
 
@@ -961,12 +957,8 @@ mod DataStore {
             let orders: List<Order> = self.orders.read();
             let order_maybe = orders.get(offsetted_index - 1);
             match order_maybe {
-                Option::Some(order) => {
-                    order
-                },
-                Option::None => {
-                    Default::default()
-                }
+                Option::Some(order) => { order },
+                Option::None => { Default::default() }
             }
         }
 
@@ -1102,12 +1094,8 @@ mod DataStore {
             let positions: List<Position> = self.positions.read();
             let position_maybe = positions.get(offsetted_index - 1);
             match position_maybe {
-                Option::Some(position) => {
-                    position
-                },
-                Option::None => {
-                    Default::default()
-                }
+                Option::Some(position) => { position },
+                Option::None => { Default::default() }
             }
         }
 
@@ -1244,12 +1232,8 @@ mod DataStore {
             let withdrawals: List<Withdrawal> = self.withdrawals.read();
             let withdrawal_maybe = withdrawals.get(offsetted_index - 1);
             match withdrawal_maybe {
-                Option::Some(withdrawal) => {
-                    withdrawal
-                },
-                Option::None => {
-                    Default::default()
-                }
+                Option::Some(withdrawal) => { withdrawal },
+                Option::None => { Default::default() }
             }
         }
 
@@ -1384,12 +1368,8 @@ mod DataStore {
             let deposits: List<Deposit> = self.deposits.read();
             let deposit_maybe = deposits.get(offsetted_index - 1);
             match deposit_maybe {
-                Option::Some(deposit) => {
-                    deposit
-                },
-                Option::None => {
-                    Default::default()
-                }
+                Option::Some(deposit) => { deposit },
+                Option::None => { Default::default() }
             }
         }
 

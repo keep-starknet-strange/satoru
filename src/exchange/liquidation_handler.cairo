@@ -120,7 +120,9 @@ mod LiquidationHandler {
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
     #[external(v0)]
-    impl LiquidationHandlerImpl of super::ILiquidationHandler<ContractState> { // executes a position liquidation
+    impl LiquidationHandlerImpl of super::ILiquidationHandler<
+        ContractState
+    > { // executes a position liquidation
         fn execute_liquidation(
             ref self: ContractState,
             account: ContractAddress,
