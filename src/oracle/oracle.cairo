@@ -847,8 +847,12 @@ mod Oracle {
                     // otherwise the new token is appended to the list. This is to avoid the list 
                     // to grow indefinitely.
                     match index_of_zero {
-                        Option::Some(i) => { tokens_with_prices.set(i, token); },
-                        Option::None => { tokens_with_prices.append(token); }
+                        Option::Some(i) => {
+                            tokens_with_prices.set(i, token);
+                        },
+                        Option::None => {
+                            tokens_with_prices.append(token);
+                        }
                     }
                 }
             }

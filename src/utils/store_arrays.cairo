@@ -71,7 +71,9 @@ impl StoreContractAddressArray of Store<Array<ContractAddress>> {
                         .expect('write_at_offset failed');
                     offset += Store::<ContractAddress>::size();
                 },
-                Option::None(_) => { break Result::Ok(()); }
+                Option::None(_) => {
+                    break Result::Ok(());
+                }
             };
         }
     }
@@ -135,7 +137,9 @@ impl StoreMarketArray of Store<Array<Market>> {
                         .expect('write_at_offset failed');
                     offset += Store::<Market>::size();
                 },
-                Option::None(_) => { break Result::Ok(()); }
+                Option::None(_) => {
+                    break Result::Ok(());
+                }
             };
         }
     }
@@ -199,7 +203,9 @@ impl StoreMarketSpan of Store<Span<Market>> {
                         .expect('write_at_offset failed');
                     offset += Store::<Market>::size();
                 },
-                Option::None(_) => { break Result::Ok(()); }
+                Option::None(_) => {
+                    break Result::Ok(());
+                }
             };
         }
     }
@@ -263,7 +269,9 @@ impl StorePriceArray of Store<Array<Price>> {
                         .expect('write_at_offset failed');
                     offset += Store::<Price>::size();
                 },
-                Option::None(_) => { break Result::Ok(()); }
+                Option::None(_) => {
+                    break Result::Ok(());
+                }
             };
         }
     }
@@ -327,7 +335,9 @@ impl StoreU128Array of Store<Array<u128>> {
                         .expect('write_at_offset failed');
                     offset += Store::<u128>::size();
                 },
-                Option::None(_) => { break Result::Ok(()); }
+                Option::None(_) => {
+                    break Result::Ok(());
+                }
             };
         }
     }
@@ -391,7 +401,9 @@ impl StoreU64Array of Store<Array<u64>> {
                         .expect('write_at_offset failed');
                     offset += Store::<u64>::size();
                 },
-                Option::None(_) => { break Result::Ok(()); }
+                Option::None(_) => {
+                    break Result::Ok(());
+                }
             };
         }
     }
@@ -455,7 +467,9 @@ impl StoreFelt252Array of Store<Array<felt252>> {
                         .expect('write_at_offset failed');
                     offset += Store::<felt252>::size();
                 },
-                Option::None(_) => { break Result::Ok(()); }
+                Option::None(_) => {
+                    break Result::Ok(());
+                }
             };
         }
     }
