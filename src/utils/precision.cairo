@@ -157,19 +157,19 @@ fn mul_div_roundup(
 /// * `divisor` - The exponent applied.
 fn apply_exponent_factor(float_value: u128, exponent_factor: u128) -> u128 { // TODO
     if float_value < FLOAT_PRECISION {
-         return 0;
-     }
-     if exponent_factor == FLOAT_PRECISION {
-         return float_value;
-     }
+        return 0;
+    }
+    if exponent_factor == FLOAT_PRECISION {
+        return float_value;
+    }
     let wei_value = float_to_wei(float_value);
     let exponent_wei = float_to_wei(exponent_factor);
     let wei_result = pow_decimal(wei_value.into(), exponent_wei.into());
-    
+
     let wei_u128: u128 = wei_result.try_into().unwrap();
     let float_result = wei_to_float(wei_u128);
     float_result
-    //0
+//0
 }
 
 //use starknet::cairo::common::cairo_builtins::bitwise_and;
@@ -420,7 +420,7 @@ fn exp2(mut x: u256) -> u256 {
     // The underlying logic is based on the relationship $2^{191-ip} = 2^{ip} / 2^{191}$, where $ip$ denotes the,
     // integer part, $2^n$.
 
-    result *= 1000000000000000000; 
+    result *= 1000000000000000000;
     result = BitShift::shr(result, 191 - BitShift::shr(x, 64));
     result
 }
