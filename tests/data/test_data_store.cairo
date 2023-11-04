@@ -67,12 +67,12 @@ fn given_normal_conditions_when_bool_functions_then_expected_results() {
     // Safe to unwrap because we know that the key exists and if it doesn't the test should fail.
     let value = data_store.get_bool(1);
     // Check that the value read is true.
-    assert(value.unwrap() == true, 'Invalid value');
+    assert(value == true, 'Invalid value');
 
     // Remove key 1.
     data_store.remove_bool(1);
     // Check that the key was removed.
-    assert(data_store.get_bool(1) == Option::None, 'Key was not deleted');
+    assert(data_store.get_bool(1) == false, 'Key was not deleted');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *

@@ -7,7 +7,6 @@
 use result::ResultTrait;
 use traits::{TryInto, Into};
 use starknet::{ContractAddress, get_caller_address, contract_address_const, ClassHash,};
-use debug::PrintTrait;
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 
 // Local imports.

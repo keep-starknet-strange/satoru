@@ -48,7 +48,6 @@ mod Config {
     use starknet::{get_caller_address, ContractAddress, contract_address_const,};
     use poseidon::poseidon_hash_span;
 
-    use debug::PrintTrait;
 
     // Local imports.
     use satoru::role::role;

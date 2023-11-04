@@ -8,7 +8,6 @@ use satoru::event::event_emitter::{
 };
 use satoru::event::event_emitter::EventEmitter::{AffiliateRewardUpdated, AffiliateRewardClaimed};
 use satoru::mock::governable::{IGovernableDispatcher, IGovernableDispatcherTrait};
-use debug::PrintTrait;
 use snforge_std::{
     declare, ContractClassTrait, spy_events, SpyOn, EventSpy, EventFetcher, event_name_hash, Event,
     EventAssertions, start_prank, stop_prank

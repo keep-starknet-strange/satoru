@@ -5,16 +5,19 @@ use starknet::ContractAddress;
 use satoru::order::base_order_utils::ExecuteOrderParams;
 use satoru::order::order::OrderType;
 use satoru::oracle::oracle_utils;
-use satoru::utils::arrays::u64_are_gte;
+use satoru::utils::arrays::are_gte_u64;
 use satoru::swap::swap_utils;
-use satoru::event::event_utils;
+use satoru::event::event_utils::{
+    LogData, LogDataTrait, Felt252IntoU128, Felt252IntoContractAddress, ContractAddressDictValue,
+    I128252DictValue
+};
+use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 use satoru::order::error::OrderError;
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::utils::span32::{Span32, DefaultSpan32};
 use satoru::oracle::error::OracleError;
 
-#[inline(always)]
-fn process_order(params: ExecuteOrderParams) -> event_utils::LogData {
+fn process_order(params: ExecuteOrderParams) -> LogData {
     if (params.order.market.is_non_zero()) {
         panic(array![OrderError::UNEXPECTED_MARKET]);
     }
@@ -44,23 +47,12 @@ fn process_order(params: ExecuteOrderParams) -> event_utils::LogData {
         }
     );
 
-    let mut address_items: event_utils::AddressItems = Default::default();
-    let mut uint_items: event_utils::UintItems = Default::default();
+    let mut log_data: LogData = Default::default();
 
-    address_items =
-        event_utils::set_item_address_items(address_items, 0, 'output_token', output_token);
+    log_data.address_dict.insert_single('output_token', output_token);
+    log_data.uint_dict.insert_single('output_amount', output_amount);
 
-    uint_items = event_utils::set_item_uint_items(uint_items, 0, 'output_amount', output_amount);
-
-    event_utils::LogData {
-        address_items,
-        uint_items,
-        int_items: Default::default(),
-        bool_items: Default::default(),
-        felt252_items: Default::default(),
-        array_of_felt_items: Default::default(),
-        string_items: Default::default(),
-    }
+    log_data
 }
 
 
@@ -70,7 +62,6 @@ fn process_order(params: ExecuteOrderParams) -> event_utils::LogData {
 /// * `max_oracle_block_numbers` - The max oracle block numbers.
 /// * `order_type` - The order type.
 /// * `order_updated_at_block` - the block at which the order was last updated.
-#[inline(always)]
 fn validate_oracle_block_numbers(
     min_oracle_block_numbers: Span<u64>,
     max_oracle_block_numbers: Span<u64>,
@@ -84,7 +75,7 @@ fn validate_oracle_block_numbers(
         return;
     }
     if (order_type == OrderType::LimitSwap) {
-        if (!u64_are_gte(min_oracle_block_numbers, order_updated_at_block)) {
+        if (!are_gte_u64(min_oracle_block_numbers, order_updated_at_block)) {
             OracleError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(
                 min_oracle_block_numbers, order_updated_at_block
             );

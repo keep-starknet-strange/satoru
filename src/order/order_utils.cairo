@@ -21,7 +21,11 @@ use satoru::token::token_utils;
 use satoru::callback::callback_utils;
 use satoru::gas::gas_utils;
 use satoru::order::order::{Order, OrderType, OrderTrait};
-use satoru::event::event_utils::LogData;
+use satoru::event::event_utils::{
+    LogData, LogDataTrait, Felt252IntoU128, Felt252IntoContractAddress, ContractAddressDictValue,
+    I128252DictValue
+};
+use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 use satoru::order::error::OrderError;
 use satoru::order::{increase_order_utils, decrease_order_utils, swap_order_utils};
 
@@ -142,7 +146,6 @@ fn create_order( //TODO and fix when fee_token is implememted
 /// Executes an order.
 /// # Arguments
 /// * `params` - The parameters used to execute the order.
-#[inline(always)]
 fn execute_order(params: ExecuteOrderParams) {
     // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
     // TODO GAS NOT AVAILABLE params.startingGas -= gasleft() / 63;
@@ -171,7 +174,7 @@ fn execute_order(params: ExecuteOrderParams) {
         secondary_order_type: params.secondary_order_type
     };
 
-    let event_data: LogData = process_order(params_process);
+    let mut event_data: LogData = process_order(params_process);
 
     // validate that internal state changes are correct before calling
     // external callbacks
@@ -266,7 +269,7 @@ fn cancel_order(
 
     event_emitter.emit_order_cancelled(key, reason, reason_bytes.span());
 
-    let event_data = Default::default();
+    let mut event_data: LogData = Default::default();
     callback_utils::after_order_cancellation(key, order, event_data);
 
     gas_utils::pay_execution_fee_order(
@@ -319,7 +322,7 @@ fn freeze_order(
 
     event_emitter.emit_order_frozen(key, reason, reason_bytes.span());
 
-    let event_data = Default::default();
+    let mut event_data: LogData = Default::default();
     callback_utils::after_order_frozen(key, order, event_data);
 
     gas_utils::pay_execution_fee_order(

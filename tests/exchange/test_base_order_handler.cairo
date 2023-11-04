@@ -12,7 +12,6 @@ use snforge_std::{
 };
 use traits::Default;
 use poseidon::poseidon_hash_span;
-
 // Local imports.
 use satoru::role::role;
 use satoru::tests_lib;
@@ -114,11 +113,11 @@ fn given_normal_conditions_when_get_execute_order_params_then_works() {
     assert(execute_order_params.key == key, 'wrong key');
     assert(execute_order_params.order == Default::default(), 'wrong order');
     assert(
-        execute_order_params.min_oracle_block_numbers == ArrayTrait::new(),
-        'wrong min_oracle_block_numbers'
+        *execute_order_params.min_oracle_block_numbers.at(0) == 6301,
+        'wrong_min_oracle_block_numbers'
     );
     assert(
-        execute_order_params.max_oracle_block_numbers == ArrayTrait::new(),
+        *execute_order_params.max_oracle_block_numbers.at(0) == 6400,
         'wrong max_oracle_block_numbers'
     );
     assert(execute_order_params.market == Default::default(), 'wrong execute_order_params');
@@ -222,15 +221,15 @@ fn mock_set_prices_params() -> SetPricesParams {
             contract_address_const::<'USDC'>(),
             contract_address_const::<'DAI'>()
         ],
-        compacted_min_oracle_block_numbers: array![0, 0, 0],
+        compacted_min_oracle_block_numbers: array![6301, 6301, 6301],
         compacted_max_oracle_block_numbers: array![6400, 6400, 6400],
-        compacted_oracle_timestamps: array![0, 0, 0],
+        compacted_oracle_timestamps: array![101, 101, 103],
         compacted_decimals: array![18, 18, 18],
         compacted_min_prices: array![0, 0, 0],
         compacted_min_prices_indexes: array![1, 2, 3],
         compacted_max_prices: array![0, 0, 0],
         compacted_max_prices_indexes: array![1, 2, 3],
-        signatures: array![1, 2, 3],
+        signatures: array![array!['signatures'].span()],
         price_feed_tokens: array![
             contract_address_const::<'ETH'>(),
             contract_address_const::<'USDC'>(),

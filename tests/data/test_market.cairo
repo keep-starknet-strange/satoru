@@ -3,7 +3,6 @@ use starknet::{
 };
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 use poseidon::poseidon_hash_span;
-use debug::PrintTrait;
 
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};

@@ -153,6 +153,7 @@ mod utils {
     mod starknet_utils;
     mod traits;
     mod default;
+    mod serializable_dict;
 }
 
 // `liquidation` function to help with liquidations.
@@ -185,6 +186,9 @@ mod oracle {
     mod oracle_utils;
     mod oracle;
     mod price_feed;
+    mod interfaces {
+        mod account;
+    }
 }
 
 // `order` contains order management functions.

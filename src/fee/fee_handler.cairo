@@ -44,7 +44,6 @@ mod FeeHandler {
     use core::zeroable::Zeroable;
     use starknet::{get_caller_address, ContractAddress, contract_address_const};
 
-    use debug::PrintTrait;
 
     // Local imports.
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};

@@ -19,8 +19,11 @@ use satoru::position::position_utils;
 use satoru::position::position::Position;
 use satoru::swap::swap_utils::{SwapParams};
 use satoru::position::position_utils::UpdatePositionParams;
-use satoru::event::event_utils::LogData;
-use satoru::event::event_utils;
+use satoru::event::event_utils::{
+    LogData, LogDataTrait, Felt252IntoU128, Felt252IntoContractAddress, ContractAddressDictValue,
+    I128252DictValue
+};
+use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
 use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
@@ -28,10 +31,9 @@ use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherT
 
 // This function should return an EventLogData cause the callback_utils
 // needs it. We need to find a solution for that case.
-#[inline(always)]
 fn process_order(
     params: ExecuteOrderParams
-) -> event_utils::LogData { //TODO check with refactor with callback_utils
+) -> LogData { //TODO check with refactor with callback_utils
     let order: Order = params.order;
 
     market_utils::validate_position_market_check(params.contracts.data_store, params.market);
@@ -133,7 +135,6 @@ fn process_order(
 /// * `order_updated_at_block` - The block at which the order was last updated.
 /// * `position_increased_at_block` - The block at which the position was last increased.
 /// * `position_decrease_at_block` - The block at which the position was last decreased.
-#[inline(always)]
 fn validate_oracle_block_numbers(
     min_oracle_block_numbers: Span<u64>,
     max_oracle_block_numbers: Span<u64>,
@@ -154,7 +155,7 @@ fn validate_oracle_block_numbers(
         if (order_updated_at_block > position_increased_at_block) {
             latest_updated_at_block = order_updated_at_block
         }
-        if (!arrays::u64_are_gte(min_oracle_block_numbers, latest_updated_at_block)) {
+        if (!arrays::are_gte_u64(min_oracle_block_numbers, latest_updated_at_block)) {
             OrderError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(
                 min_oracle_block_numbers, latest_updated_at_block
             );
@@ -166,7 +167,7 @@ fn validate_oracle_block_numbers(
         if (position_increased_at_block > position_decreased_at_block) {
             latest_updated_at_block = position_increased_at_block
         }
-        if (!arrays::u64_are_gte(min_oracle_block_numbers, latest_updated_at_block)) {
+        if (!arrays::are_gte_u64(min_oracle_block_numbers, latest_updated_at_block)) {
             OrderError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(
                 min_oracle_block_numbers, latest_updated_at_block
             );
@@ -213,7 +214,6 @@ fn validate_output_amount_secondary(
     }
 }
 
-#[inline(always)]
 fn handle_swap_error(
     oracle: IOracleDispatcher,
     order: Order,
@@ -239,30 +239,14 @@ fn get_output_event_data(
     output_amount: u128,
     secondary_output_token: ContractAddress,
     secondary_output_amount: u128
-) -> event_utils::LogData {
-    let mut address_items: event_utils::AddressItems = Default::default();
-    let mut uint_items: event_utils::UintItems = Default::default();
+) -> LogData {
+    let mut log_data: LogData = Default::default();
 
-    address_items =
-        event_utils::set_item_address_items(address_items, 0, 'output_token', output_token);
-    address_items =
-        event_utils::set_item_address_items(
-            address_items, 1, 'secondary_output_token', secondary_output_token
-        );
+    log_data.address_dict.insert_single('output_token', output_token);
+    log_data.address_dict.insert_single('secondary_output_token', secondary_output_token);
 
-    uint_items = event_utils::set_item_uint_items(uint_items, 0, 'output_amount', output_amount);
-    uint_items =
-        event_utils::set_item_uint_items(
-            uint_items, 1, 'secondary_output_amount', secondary_output_amount
-        );
+    log_data.uint_dict.insert_single('output_amount', output_amount);
+    log_data.uint_dict.insert_single('secondary_output_amount', secondary_output_amount);
 
-    event_utils::LogData {
-        address_items,
-        uint_items,
-        int_items: Default::default(),
-        bool_items: Default::default(),
-        felt252_items: Default::default(),
-        array_of_felt_items: Default::default(),
-        string_items: Default::default(),
-    }
+    log_data
 }
