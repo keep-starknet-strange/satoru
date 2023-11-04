@@ -119,16 +119,16 @@ fn test_to_factor_ival_negative() {
 
 #[test]
 fn test_float_to_wei() {
-    let float_value: u128 = 1_000_000_000_000_000;
+    let float_value: u128 = 10_000_000_000_000_000_000;
     let result = precision::float_to_wei(float_value);
     assert(result == 1000, 'should be 10^3');
 }
 
 #[test]
 fn test_wei_to_float() {
-    let wei_value: u128 = 10_000_000_000_000_000_000_000_000; //10^25
+    let wei_value: u128 = 10_000_000_000_000_000_000_000; //10^22
     let result = precision::wei_to_float(wei_value);
-    assert(result == 10_000_000_000_000_000_000_000_000_000_000_000_000, 'should be 10^37');
+    assert(result == 100_000_000_000_000_000_000_000_000_000_000_000_000, 'should be 10^38');
 }
 
 #[test]
