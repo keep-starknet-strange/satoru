@@ -165,8 +165,11 @@ fn apply_exponent_factor(float_value: u128, exponent_factor: u128) -> u128 { // 
     let wei_value = float_to_wei(float_value);
     let exponent_wei = float_to_wei(exponent_factor);
     let wei_result = pow_decimal(wei_value.into(), exponent_wei.into());
-    let float_result = wei_to_float(wei_result.try_into());
+    
+    let wei_u128: u128 = wei_result.try_into().unwrap();
+    let float_result = wei_to_float(wei_u128);
     float_result
+    //0
 }
 
 //use starknet::cairo::common::cairo_builtins::bitwise_and;
