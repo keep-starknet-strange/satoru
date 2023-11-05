@@ -25,7 +25,7 @@ mod CallbackMock {
     }
 
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl ICallbackMockImpl of super::ICallbackMock<ContractState> {
         fn get_counter(self: @ContractState) -> u32 {
             self.counter.read()
