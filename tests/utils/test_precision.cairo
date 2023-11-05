@@ -160,6 +160,26 @@ fn test_pow_decimal() {
 }
 
 #[test]
+fn test_apply_exponent_factor() {
+    let value1: u128 = 2000000000000000000000000000000;
+    let value2: u128 = 3000000000000000000000000000000;
+    let value3: u128 = 4000000000000000000000000000000;
+    let value5: u128 = 1000000000000000000000000000000;
+    let value6: u128 = 1524558784654678955000000000000;
+
+    let result1 = precision::apply_exponent_factor(value2, value1);
+    let result2 = precision::apply_exponent_factor(value2, value5);
+    let result3 = precision::apply_exponent_factor(value3, 0);
+    let result4 = precision::apply_exponent_factor(value3, value6);
+    //let result5 = precision::pow_decimal(0, value5);
+
+    assert(result1 == 8999999999999999806000000000000, 'should be ');
+    //assert(result2 == 2999999999999999967, 'should be 2999999999999999967');
+    assert(result3 == 1000000000000000000000000000000, 'should be ');
+    assert(result4 == 8277055145359463000000000000000, 'should be ');
+}
+
+#[test]
 fn test_to_factor_roundup() {
     let value: u128 = 450000;
     let divisor: u128 = 20_000_000_000_000_000_000_000_000; //2*10^25
