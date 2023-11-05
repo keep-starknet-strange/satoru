@@ -107,7 +107,7 @@ mod OracleStore {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl OracleStoreImpl of super::IOracleStore<ContractState> {
         fn initialize(
             ref self: ContractState,

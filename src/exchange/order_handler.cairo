@@ -194,7 +194,7 @@ mod OrderHandler {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl OrderHandlerImpl of super::IOrderHandler<ContractState> {
         fn create_order(
             ref self: ContractState, account: ContractAddress, params: CreateOrderParams

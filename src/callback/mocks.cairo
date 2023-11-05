@@ -25,14 +25,14 @@ mod CallbackMock {
     }
 
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl ICallbackMockImpl of super::ICallbackMock<ContractState> {
         fn get_counter(self: @ContractState) -> u32 {
             self.counter.read()
         }
     }
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl IDepositCallbackReceiverImpl of IDepositCallbackReceiver<ContractState> {
         fn after_deposit_execution(
             ref self: ContractState, key: felt252, deposit: Deposit, log_data: Array<felt252>,

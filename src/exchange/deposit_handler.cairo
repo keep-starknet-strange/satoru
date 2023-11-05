@@ -147,7 +147,7 @@ mod DepositHandler {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl DepositHandlerImpl of super::IDepositHandler<ContractState> {
         fn create_deposit(
             ref self: ContractState, account: ContractAddress, params: CreateDepositParams
