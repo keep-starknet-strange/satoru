@@ -57,9 +57,7 @@ impl ItemImpl<T> of ItemTrait<T> {
     }
 }
 
-impl ItemPartialEq<
-    T, impl TCopy: Copy<T>, impl TPartialEq: PartialEq<T>, impl TDrop: Drop<T>
-> of PartialEq<Item<T>> {
+impl ItemPartialEq<T, +Copy<T>, +PartialEq<T>, +Drop<T>> of PartialEq<Item<T>> {
     fn eq(lhs: @Item<T>, rhs: @Item<T>) -> bool {
         if lhs.is_single() && rhs.is_single() {
             return lhs.unwrap_single() == rhs.unwrap_single();
@@ -96,7 +94,7 @@ struct SerializableFelt252Dict<T> {
 }
 
 impl SerializableFelt252DictDestruct<
-    T, impl TDrop: Drop<T>, impl TDefault: Felt252DictValue<T>
+    T, +Drop<T>, +Felt252DictValue<T>
 > of Destruct<SerializableFelt252Dict<T>> {
     fn destruct(self: SerializableFelt252Dict<T>) nopanic {
         self.values.squash();

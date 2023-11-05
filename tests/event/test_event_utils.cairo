@@ -150,12 +150,12 @@ use debug::PrintTrait;
 
 fn assert_same_single_value_for_dicts<
     T,
-    impl TDefault: Felt252DictValue<T>,
-    impl TDrop: Drop<T>,
-    impl TCopy: Copy<T>,
-    impl FeltIntoT: Into<felt252, T>,
-    impl TIntoFelt: Into<T, felt252>,
-    impl TPartialEq: PartialEq<T>,
+    +Felt252DictValue<T>,
+    +Drop<T>,
+    +Copy<T>,
+    +Into<felt252, T>,
+    +Into<T, felt252>,
+    +PartialEq<T>,
 >(
     ref lhs: SerializableFelt252Dict<T>, ref rhs: SerializableFelt252Dict<T>, key: felt252
 ) {
