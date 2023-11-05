@@ -28,7 +28,7 @@ mod Chain {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl Chain of super::IChain<ContractState> {
         fn get_block_number(self: @ContractState) -> u64 {
             starknet::info::get_block_number()

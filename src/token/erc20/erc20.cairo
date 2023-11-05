@@ -53,7 +53,7 @@ mod ERC20 {
     // External
     //
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl ERC20Impl of IERC20<ContractState> {
         fn name(self: @ContractState) -> felt252 {
             self._name.read()

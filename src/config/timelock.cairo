@@ -45,6 +45,6 @@ mod Timelock {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl TimelockImpl of super::ITimelock<ContractState> {}
 }

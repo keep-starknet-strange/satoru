@@ -63,7 +63,7 @@ mod SwapHandler {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl SwapHandler of super::ISwapHandler<ContractState> {
         fn swap(ref self: ContractState, params: SwapParams) -> (ContractAddress, u128) {
             let mut role_module: RoleModule::ContractState =
