@@ -120,7 +120,7 @@ impl LogDataImpl of LogDataTrait {
 
     /// Deserialize all the sub-dicts serialized into a LogData
     fn deserialize(ref serialized: Span<felt252>) -> Option<LogData> {
-        // There should be the right amount of dictionnaries serialized
+        // There should be the right amount of dictionaries serialized
         if serialized.occurrences_of(END_OF_DICT) != DICTS_IN_LOGDATA {
             panic_with_felt252('serialized format error');
         }
@@ -166,7 +166,7 @@ impl LogDataImpl of LogDataTrait {
 //      UTILITY FUNCTION
 //
 
-/// Pop every elements from the span until the next occurences of END_OF_DICT or
+/// Pop every elements from the span until the next occurrences of END_OF_DICT or
 /// the end of the Span and return those values in a Span.
 fn get_next_dict_serialized(ref serialized: Span<felt252>) -> Span<felt252> {
     let mut dict_data: Array<felt252> = array![];
