@@ -152,9 +152,7 @@ mod OracleStore {
             self.signers.read().get(index).expect('failed to get signer')
         }
 
-        fn get_signers(
-            self: @ContractState, start: u128, end: u128
-        ) -> Array<ContractAddress> {
+        fn get_signers(self: @ContractState, start: u128, end: u128) -> Array<ContractAddress> {
             let mut signers_subset: Array<ContractAddress> = ArrayTrait::new();
             let signers = self.signers.read();
 
