@@ -273,7 +273,7 @@ mod ExchangeRouter {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl ExchangeRouterImpl of super::IExchangeRouter<ContractState> {
         fn send_tokens(
             ref self: ContractState, token: ContractAddress, receiver: ContractAddress, amount: u128

@@ -273,7 +273,7 @@ mod Oracle {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl OracleImpl of super::IOracle<ContractState> {
         fn initialize(
             ref self: ContractState,

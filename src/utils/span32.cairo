@@ -15,7 +15,7 @@ struct Span32<T> {
     snapshot: Span<T>
 }
 
-fn serialize_array_helper<T, impl TSerde: Serde<T>, impl TDrop: Drop<T>>(
+fn serialize_array_helper<T, +Serde<T>, +Drop<T>>(
     mut input: Span32<T>, ref output: Array<felt252>
 ) {
     match input.pop_front() {
@@ -27,19 +27,17 @@ fn serialize_array_helper<T, impl TSerde: Serde<T>, impl TDrop: Drop<T>>(
     }
 }
 
-fn deserialize_array_helper<T, impl TSerde: Serde<T>, impl TDrop: Drop<T>>(
+fn deserialize_array_helper<T, +Serde<T>, +Drop<T>>(
     ref serialized: Span<felt252>, mut curr_output: Array<T>, remaining: felt252
 ) -> Option<Array<T>> {
     if remaining == 0 {
         return Option::Some(curr_output);
     }
-    curr_output.append(TSerde::deserialize(ref serialized)?);
+    curr_output.append(Serde::deserialize(ref serialized)?);
     deserialize_array_helper(ref serialized, curr_output, remaining - 1)
 }
 
-impl Span32Serde<
-    T, impl TSerde: Serde<T>, impl TDrop: Drop<T>, impl TCopy: Copy<T>
-> of Serde<Span32<T>> {
+impl Span32Serde<T, +Serde<T>, +Drop<T>, +Copy<T>> of Serde<Span32<T>> {
     fn serialize(self: @Span32<T>, ref output: Array<felt252>) {
         (*self).len().serialize(ref output);
         serialize_array_helper(*self, ref output)
@@ -53,7 +51,7 @@ impl Span32Serde<
 }
 
 #[generate_trait]
-impl Span32Impl<T, impl TSerde: Serde<T>> of Span32Trait<T> {
+impl Span32Impl<T, +Serde<T>> of Span32Trait<T> {
     fn pop_front(ref self: Span32<T>) -> Option<@T> {
         self.snapshot.pop_front()
     }
@@ -77,7 +75,7 @@ impl Span32Impl<T, impl TSerde: Serde<T>> of Span32Trait<T> {
     }
 }
 
-impl DefaultSpan32<T, impl TDrop: Drop<T>> of Default<Span32<T>> {
+impl DefaultSpan32<T, +Drop<T>> of Default<Span32<T>> {
     fn default() -> Span32<T> {
         Array32Trait::<T>::span32(@ArrayTrait::new())
     }

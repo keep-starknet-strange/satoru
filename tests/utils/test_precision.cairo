@@ -85,6 +85,101 @@ fn test_mul_div_inum_roundup_positive() {
 }
 
 #[test]
+fn test_exp2() {
+    let value1: u256 = 2000000000000000000;
+    let value2: u256 = 2500000000000000000;
+    let value3: u256 = 7482948646372839484;
+
+    let result1 = precision::exp2(value1);
+    let result2 = precision::exp2(value2);
+    let result3 = precision::exp2(value3);
+
+    assert(result1 == 4000000000000000000, 'should be 4000000000000000000');
+    assert(result2 == 5656854249492380195, 'should be 5656854249492380195');
+    assert(result3 == 178892444495791357043, 'should be 178892444495791357043');
+}
+
+#[test]
+fn test_exp() {
+    let value1: u256 = 2000000000000000000;
+    let value2: u256 = 2500000000000000000;
+    let value3: u256 = 7482948646372839484;
+    let value4: u256 = 0000000000000000000;
+    let value5: u256 = 1000000000000000000;
+
+    let result1 = precision::exp(value1);
+    let result2 = precision::exp(value2);
+    let result3 = precision::exp(value3);
+    let result4 = precision::exp(value4);
+    let result5 = precision::exp(value5);
+
+    assert(result1 == 7389056098930650223, 'should be 7389056098930650223');
+    assert(result2 == 12182493960703473424, 'should be 12182493960703473424');
+    assert(result3 == 1777474199233404337144, 'should_1777474199233404337144');
+    assert(result4 == 1000000000000000000, 'should be 1000000000000000000');
+    assert(result5 == 2718281828459045234, 'should be 2718281828459045234');
+}
+
+
+#[test]
+fn test_log2() {
+    let value1: u256 = 2000000000000000000;
+    let value2: u256 = 5000000000000000000;
+    let value3: u256 = 4000000000000000000;
+    let value5: u256 = 1000000000000000000;
+
+    let result1 = precision::log2(value1);
+    let result2 = precision::log2(value2);
+    let result3 = precision::log2(value3);
+    let result5 = precision::log2(value5);
+
+    assert(result1 == 1000000000000000000, 'should be 1000000000000000000');
+    assert(result2 == 2321928094887362334, 'should be 2321928094887362334');
+    assert(result3 == 2000000000000000000, 'should be 2000000000000000000');
+    assert(result5 == 0000000000000000000, 'should be 0000000000000000000');
+}
+
+#[test]
+fn test_pow_decimal() {
+    let value1: u256 = 2000000000000000000;
+    let value2: u256 = 3000000000000000000;
+    let value3: u256 = 4000000000000000000;
+    let value5: u256 = 1000000000000000000;
+    let value6: u256 = 1524558784654678955;
+
+    let result1 = precision::pow_decimal(value2, value1);
+    let result2 = precision::pow_decimal(value2, value5);
+    let result3 = precision::pow_decimal(value3, 0);
+    let result4 = precision::pow_decimal(value3, value6);
+    //let result5 = precision::pow_decimal(0, value5);
+
+    assert(result1 == 8999999999999999806, 'should be 8999999999999999806');
+    //assert(result2 == 2999999999999999967, 'should be 2999999999999999967');
+    assert(result3 == 1000000000000000000, 'should be 2000000000000000000');
+    assert(result4 == 8277055145359463000, 'should be 8277055145359463000');
+}
+
+#[test]
+fn test_apply_exponent_factor() {
+    let value1: u128 = 2000000000000000000000000000000;
+    let value2: u128 = 3000000000000000000000000000000;
+    let value3: u128 = 4000000000000000000000000000000;
+    let value5: u128 = 1000000000000000000000000000000;
+    let value6: u128 = 1524558784654678955000000000000;
+
+    let result1 = precision::apply_exponent_factor(value2, value1);
+    let result2 = precision::apply_exponent_factor(value2, value5);
+    let result3 = precision::apply_exponent_factor(value3, 0);
+    let result4 = precision::apply_exponent_factor(value3, value6);
+    //let result5 = precision::pow_decimal(0, value5);
+
+    assert(result1 == 8999999999999999806000000000000, 'should be ');
+    //assert(result2 == 2999999999999999967, 'should be 2999999999999999967');
+    assert(result3 == 1000000000000000000000000000000, 'should be ');
+    assert(result4 == 8277055145359463000000000000000, 'should be ');
+}
+
+#[test]
 fn test_to_factor_roundup() {
     let value: u128 = 450000;
     let divisor: u128 = 20_000_000_000_000_000_000_000_000; //2*10^25

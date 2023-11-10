@@ -155,7 +155,7 @@ mod ReferralStorage {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl ReferralStorageImpl of super::IReferralStorage<ContractState> {
         fn initialize(ref self: ContractState, event_emitter_address: ContractAddress) {
             let mut gov_state = Governable::unsafe_new_contract_state();

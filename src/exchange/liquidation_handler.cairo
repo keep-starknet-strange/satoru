@@ -125,7 +125,7 @@ mod LiquidationHandler {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl LiquidationHandlerImpl of super::ILiquidationHandler<
         ContractState
     > { // executes a position liquidation

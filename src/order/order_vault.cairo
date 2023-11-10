@@ -75,7 +75,7 @@ mod OrderVault {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl OrderVaultImpl of super::IOrderVault<ContractState> {
         fn transfer_out(
             ref self: ContractState,

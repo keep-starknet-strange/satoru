@@ -58,7 +58,7 @@ mod RoleModule {
     // *************************************************************************
     // EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl RoleModule of super::IRoleModule<ContractState> {
         fn initialize(ref self: ContractState, role_store_address: ContractAddress) {
             self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
