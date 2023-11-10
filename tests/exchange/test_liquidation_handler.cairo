@@ -31,6 +31,10 @@ use satoru::oracle::oracle::{Oracle, IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::utils::precision;
 use satoru::price::price::Price;
 use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
+use satoru::oracle::{interfaces::account::{IAccount, IAccountDispatcher, IAccountDispatcherTrait}};
+use satoru::market::market::{Market};
+
+const max_u128: u128 = 340282366920938463463374607431768211455;
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
@@ -45,6 +49,8 @@ fn given_unauthorized_access_when_create_execute_liquidation_then_fails() {
         liquidation_handler_dispatcher,
         _,
         role_store,
+        _,
+        _,
         _
     ) =
         _setup();
@@ -62,7 +68,7 @@ fn given_unauthorized_access_when_create_execute_liquidation_then_fails() {
 }
 
 #[test]
-#[should_panic(expected: ('empty price feed multiplier',))]
+#[should_panic(expected: ('empty price feed', 'ETH'))]
 fn given_empty_price_feed_multiplier_when_create_execute_liquidation_then_fails() {
     // Setup
     let collateral_token: ContractAddress = contract_address_const::<1>();
@@ -73,6 +79,8 @@ fn given_empty_price_feed_multiplier_when_create_execute_liquidation_then_fails(
         liquidation_handler_dispatcher,
         _,
         role_store,
+        _,
+        _,
         _
     ) =
         _setup();
@@ -85,8 +93,9 @@ fn given_empty_price_feed_multiplier_when_create_execute_liquidation_then_fails(
     let token1 = contract_address_const::<'ETH'>();
     let price_feed_tokens1 = contract_address_const::<'price_feed_tokens'>();
 
-    let oracle_params = mock_set_prices_params(token1);
-    // Check that execute_liquidation calls with_oracle_prices_before and fails
+    let mut  oracle_params = mock_set_prices_params(token1);
+    oracle_params.price_feed_tokens= array![token1];
+    // Check that execute_liquidation calls 'with_oracle_prices_before' and fails
 
     liquidation_handler_dispatcher
         .execute_liquidation(
@@ -102,7 +111,7 @@ fn given_empty_price_feed_multiplier_when_create_execute_liquidation_then_fails(
 fn given_normal_conditions_when_create_execute_liquidation_then_works() {
     // Setup
 
-    let collateral_token: ContractAddress = contract_address_const::<1>();
+    let collateral_token: ContractAddress = contract_address_const::<'USDC'>();
     let (
         data_store,
         liquidation_keeper,
@@ -110,10 +119,14 @@ fn given_normal_conditions_when_create_execute_liquidation_then_works() {
         liquidation_handler_dispatcher,
         event_emitter,
         role_store,
-        oracle
+        oracle,
+        signer1,
+        signer2
     ) =
         _setup();
-
+    let account =contract_address_const::<'account'>();
+    
+    // Grant LIQUIDATION_KEEPER role
     start_prank(role_store.contract_address, admin());
     role_store.grant_role(liquidation_keeper, role::LIQUIDATION_KEEPER);
     stop_prank(role_store.contract_address);
@@ -122,29 +135,44 @@ fn given_normal_conditions_when_create_execute_liquidation_then_works() {
     let token1 = contract_address_const::<'ETH'>();
     let token2 = contract_address_const::<'BTC'>();
 
+    // Use mock account to mattch keys                                                          
+    signer1.change_owner(1221698997303567203808303576674742997327105320284925779268978961645745386877, 0, 0);
+    signer2.change_owner(1221698997303567203808303576674742997327105320284925779268978961645745386877, 0, 0);
+
+    data_store.set_token_id(token1, 1);
+    data_store.set_token_id(token2, 2);
+
     // Set price feed multiplier
     data_store.set_u128(keys::price_feed_multiplier_key(token1), precision::FLOAT_PRECISION);
     data_store.set_u128(keys::price_feed_multiplier_key(token2), precision::FLOAT_PRECISION);
-    data_store.set_u128(keys::max_oracle_ref_price_deviation_factor(), precision::FLOAT_PRECISION);
+    data_store.set_u128(keys::max_oracle_ref_price_deviation_factor(),max_u128 );
 
-    let oracle_params2 = mock_set_prices_params(token2);
-    'set_prices'.print();
-    start_prank(oracle.contract_address, admin());
-    oracle.set_prices(data_store, event_emitter, oracle_params2);
-    stop_prank(oracle.contract_address);
+    // 
+    let mut market = Market {
+        market_token: contract_address_const::<'market'>(),
+        index_token:  collateral_token,
+        long_token:  token1,
+        short_token:  token1,
+    };
+    data_store.set_market(market.market_token, 0, market);
 
-    'get_primary_price'.print();
-    let price = oracle.get_primary_price(token2);
-    price.min.print();
-    price.max.print();
+    // Get position key 
+    'setpos-------'.print();
+
+    let pos_key=get_position_key(account, market.market_token, collateral_token, true);
+    let mut position:Position= Default::default();
+    position.account=account;
+    position.size_in_usd=precision::FLOAT_PRECISION_SQRT;
+    position.collateral_token=collateral_token;
+    position.is_long=true;
+    data_store.set_position(pos_key, position);
 
     let oracle_params = mock_set_prices_params(token1);
-    'execute_liquidation'.print();
 
     liquidation_handler_dispatcher
         .execute_liquidation(
-            account: contract_address_const::<'account'>(),
-            market: contract_address_const::<'market'>(),
+            account:account,
+            market: market.market_token,
             collateral_token: collateral_token,
             is_long: true,
             oracle_params: oracle_params
@@ -169,8 +197,8 @@ fn mock_set_prices_params(token: ContractAddress) -> SetPricesParams {
         compacted_min_prices_indexes: array![0,],
         compacted_max_prices: array![1750],
         compacted_max_prices_indexes: array![0,],
-        signatures: array![1, 2, 3],
-        price_feed_tokens: array![token]
+        signatures: array![array!['signature1', 'signature2'].span()],
+        price_feed_tokens:  Default::default()
     }
 }
 
@@ -305,6 +333,17 @@ fn deploy_price_feed() -> ContractAddress {
     contract.deploy_at(@array![], deployed_contract_address).unwrap()
 }
 
+fn deploy_signers(
+    signer1: ContractAddress, signer2: ContractAddress
+) -> (ContractAddress, ContractAddress) {
+    let contract = declare('MockAccount');
+    (
+        contract.deploy_at(@array![], signer1).unwrap(),
+        contract.deploy_at(@array![], signer2).unwrap()
+    )
+}
+
+
 fn _setup() -> (
     IDataStoreDispatcher,
     ContractAddress,
@@ -312,7 +351,9 @@ fn _setup() -> (
     ILiquidationHandlerDispatcher,
     IEventEmitterDispatcher,
     IRoleStoreDispatcher,
-    IOracleDispatcher
+    IOracleDispatcher,
+    IAccountDispatcher,
+    IAccountDispatcher
 ) {
     let liquidation_keeper: ContractAddress = 0x2233.try_into().unwrap();
     let role_store_address = deploy_role_store();
@@ -341,12 +382,18 @@ fn _setup() -> (
     };
 
     let oracle_store = IOracleStoreDispatcher { contract_address: oracle_store_address };
+
+    let (signer1, signer2) = deploy_signers(
+        contract_address_const::<'signer1'>(), contract_address_const::<'signer2'>()
+    );
     start_prank(oracle_store_address, admin());
-    oracle_store.add_signer(contract_address_const::<'signer'>());
+    oracle_store.add_signer(signer1);
+    oracle_store.add_signer(signer2);
     stop_prank(oracle_store_address);
 
     start_prank(role_store.contract_address, admin());
     role_store.grant_role(liquidation_handler_address, role::CONTROLLER);
+    role_store.grant_role( admin(), role::MARKET_KEEPER);
     role_store.grant_role(admin(), role::CONTROLLER);
     stop_prank(role_store.contract_address);
 
@@ -359,6 +406,8 @@ fn _setup() -> (
         liquidation_handler_dispatcher,
         event_emitter,
         role_store,
-        IOracleDispatcher { contract_address: oracle_address }
+        IOracleDispatcher { contract_address: oracle_address },
+        IAccountDispatcher { contract_address: signer1 },
+        IAccountDispatcher { contract_address: signer2 },
     )
 }
