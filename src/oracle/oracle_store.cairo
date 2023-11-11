@@ -83,7 +83,8 @@ mod OracleStore {
         /// Interface to interact with the `EventEmitter` contract.
         event_emitter: IEventEmitterDispatcher,
         // NOTE: temporarily implemented to complete oracle tests.
-        signers: List<ContractAddress>
+        signers: List<ContractAddress>,
+        signers_indexes: LegacyMap<ContractAddress, u32>
     }
 
     // *************************************************************************
@@ -125,10 +126,11 @@ mod OracleStore {
             self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
         }
 
-        fn add_signer(ref self: ContractState, account: ContractAddress) { // TODO
-            // NOTE: temporarily implemented to complete oracle tests.
+        fn add_signer(ref self: ContractState, account: ContractAddress) {
             let mut signers = self.signers.read();
+            let index = signers.len();
             signers.append(account);
+            self.signers_indexes.write(account, index);
         }
 
         fn remove_signer(ref self: ContractState, account: ContractAddress) { // TODO
@@ -146,10 +148,28 @@ mod OracleStore {
             return signer;
         }
 
-        fn get_signers(
-            self: @ContractState, start: u128, end: u128
-        ) -> Array<ContractAddress> { // TODO
-            ArrayTrait::new()
+        fn get_signer_count(self: @ContractState) -> u128 {
+            self.signers.read().len().into()
+        }
+
+        fn get_signer(self: @ContractState, index: usize) -> ContractAddress {
+            // NOTE: temporarily implemented to complete oracle tests.
+            self.signers.read().get(index).expect('failed to get signer')
+        }
+
+        fn get_signers(self: @ContractState, start: u128, end: u128) -> Array<ContractAddress> {
+            let mut signers_subset: Array<ContractAddress> = ArrayTrait::new();
+            let signers = self.signers.read();
+
+            let mut index: u32 = start.try_into().expect('failed convertion u32 to u128');
+            loop {
+                if start == end {
+                    break;
+                }
+                signers_subset.append(signers.get(index).expect('out of bound signer index'))
+            };
+
+            signers_subset
         }
     }
 }
