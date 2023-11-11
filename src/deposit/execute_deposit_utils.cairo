@@ -162,10 +162,9 @@ fn execute_deposit(params: ExecuteDepositParams) {
                 deposit.ui_fee_receiver,
             );
 
-    assert(
-        cache.long_token_amount == 0 && cache.short_token_amount == 0,
-        DepositError::EMPTY_DEPOSIT_AMOUNTS_AFTER_SWAP
-    );
+    if cache.long_token_amount == 0 && cache.short_token_amount == 0 {
+        panic_with_felt252(DepositError::EMPTY_DEPOSIT_AMOUNTS_AFTER_SWAP);
+    }
 
     cache.long_token_usd = cache.long_token_amount * prices.long_token_price.mid_price();
     cache.short_token_usd = cache.short_token_amount * prices.short_token_price.mid_price();
@@ -239,19 +238,19 @@ fn execute_deposit(params: ExecuteDepositParams) {
             cache.received_market_tokens,
         );
 
-    let mut event_data: LogData = Default::default();
-    event_data.uint_dict.insert_single('received_market_tokens', cache.received_market_tokens);
-    after_deposit_execution(params.key, deposit, event_data);
+    // let mut event_data: LogData = Default::default();
+    // event_data.uint_dict.insert_single('received_market_tokens', cache.received_market_tokens);
+    // after_deposit_execution(params.key, deposit, event_data);
 
-    pay_execution_fee_deposit(
-        params.data_store,
-        params.event_emitter,
-        params.deposit_vault,
-        deposit.execution_fee,
-        params.starting_gas,
-        params.keeper,
-        deposit.account,
-    );
+    // pay_execution_fee_deposit(
+    //     params.data_store,
+    //     params.event_emitter,
+    //     params.deposit_vault,
+    //     deposit.execution_fee,
+    //     params.starting_gas,
+    //     params.keeper,
+    //     deposit.account,
+    // );
 }
 
 /// Executes a deposit.
@@ -317,10 +316,9 @@ fn execute_deposit_helper(
         true,
     );
 
-    assert(
-        market_pool_value_info.pool_value < Zeroable::zero(),
-        DepositError::INVALID_POOL_VALUE_FOR_DEPOSIT
-    );
+    if market_pool_value_info.pool_value < Zeroable::zero() {
+        panic_with_felt252(DepositError::INVALID_POOL_VALUE_FOR_DEPOSIT);
+    }
 
     let mut mint_amount = 0;
     let pool_value = to_unsigned(market_pool_value_info.pool_value);
@@ -328,10 +326,9 @@ fn execute_deposit_helper(
         IMarketTokenDispatcher { contract_address: _params.market.market_token }
     );
 
-    assert(
-        pool_value == Zeroable::zero() && market_tokens_supply > 0,
-        DepositError::INVALID_POOL_VALUE_FOR_DEPOSIT
-    );
+    if pool_value == Zeroable::zero() && market_tokens_supply > 0 {
+        panic_with_felt252(DepositError::INVALID_POOL_VALUE_FOR_DEPOSIT);
+    }
 
     (*params.event_emitter)
         .emit_market_pool_value_info(

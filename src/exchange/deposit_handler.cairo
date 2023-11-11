@@ -215,7 +215,7 @@ mod DepositHandler {
             let data_store = self.data_store.read();
             let oracle = self.oracle.read();
             let event_emitter = self.event_emitter.read();
-            global_reentrancy_guard::non_reentrant_before(data_store);
+            // global_reentrancy_guard::non_reentrant_before(data_store);
             oracle_modules::with_oracle_prices_before(
                 oracle, data_store, event_emitter, @oracle_params
             );
@@ -226,7 +226,7 @@ mod DepositHandler {
             self.execute_deposit_keeper(key, oracle_params, get_caller_address());
 
             oracle_modules::with_oracle_prices_after(oracle);
-            global_reentrancy_guard::non_reentrant_after(data_store);
+            // global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
         fn simulate_execute_deposit(

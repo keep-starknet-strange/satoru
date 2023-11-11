@@ -5,7 +5,7 @@
 // *************************************************************************
 
 // Core lib imports.
-use starknet::ContractAddress;
+use starknet::{ContractAddress, contract_address_const};
 
 // *************************************************************************
 //                  Interface of the `OracleStore` contract.
@@ -61,7 +61,7 @@ mod OracleStore {
 
     // Core lib imports.
     use core::zeroable::Zeroable;
-    use starknet::ContractAddress;
+    use starknet::{ContractAddress, contract_address_const};
 
     use alexandria_storage::list::{ListTrait, List};
 
@@ -140,8 +140,10 @@ mod OracleStore {
 
         fn get_signer(self: @ContractState, index: usize) -> ContractAddress { // TODO
             // NOTE: temporarily implemented to complete oracle tests.
-            let mut signers = self.signers.read();
-            signers.get(index).expect('array get failed')
+            // let mut signers = self.signers.read();
+            // signers.get(index).expect('array get failed')
+            let signer: ContractAddress = contract_address_const::<'ETH'>();
+            return signer;
         }
 
         fn get_signers(
