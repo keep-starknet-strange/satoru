@@ -206,7 +206,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: foundry-rs/setup-snfoundry@v1
         with:
-          starknet-foundry-version: 0.9.1
+          starknet-foundry-version: 0.10.1
       - uses: software-mansion/setup-scarb@v1
         with:
           scarb-version: "0.7.0"
