@@ -10,8 +10,6 @@ use starknet::ContractAddress;
 use core::zeroable::Zeroable;
 
 
-use debug::PrintTrait;
-
 // Local imports.
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -181,7 +179,6 @@ mod ExchangeRouter {
     };
     use core::zeroable::Zeroable;
 
-    use debug::PrintTrait;
 
     // Local imports.
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
@@ -276,7 +273,7 @@ mod ExchangeRouter {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl ExchangeRouterImpl of super::IExchangeRouter<ContractState> {
         fn send_tokens(
             ref self: ContractState, token: ContractAddress, receiver: ContractAddress, amount: u128

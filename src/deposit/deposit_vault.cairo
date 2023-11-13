@@ -60,7 +60,6 @@ mod DepositVault {
     use core::zeroable::Zeroable;
     use starknet::{get_caller_address, ContractAddress, contract_address_const};
 
-    use debug::PrintTrait;
 
     // Local imports.
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
@@ -101,7 +100,7 @@ mod DepositVault {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl DepositVaultImpl of super::IDepositVault<ContractState> {
         fn initialize(
             ref self: ContractState,

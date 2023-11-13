@@ -37,7 +37,6 @@ mod Router {
     // Core lib imports.
     use core::zeroable::Zeroable;
 
-    use debug::PrintTrait;
     use starknet::{ContractAddress, get_caller_address};
 
 
@@ -71,7 +70,7 @@ mod Router {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl RouterImpl of super::IRouter<ContractState> {
         fn plugin_transfer(
             ref self: ContractState,

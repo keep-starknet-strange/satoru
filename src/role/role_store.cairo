@@ -78,7 +78,6 @@ mod RoleStore {
     // Core lib imports.
     use core::zeroable::Zeroable;
     use starknet::{ContractAddress, get_caller_address, contract_address_const};
-    use debug::PrintTrait;
 
     // Local imports.
     use satoru::role::{role, error::RoleError};
@@ -150,7 +149,7 @@ mod RoleStore {
     // *************************************************************************
     // EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl RoleStore of super::IRoleStore<ContractState> {
         fn has_role(self: @ContractState, account: ContractAddress, role_key: felt252) -> bool {
             self._has_role(account, role_key)
@@ -257,12 +256,10 @@ mod RoleStore {
     // *************************************************************************
     #[generate_trait]
     impl InternalFunctions of InternalFunctionsTrait {
-        #[inline(always)]
         fn _has_role(self: @ContractState, account: ContractAddress, role_key: felt252) -> bool {
             self.has_role.read((role_key, account))
         }
 
-        #[inline(always)]
         fn _assert_only_role(self: @ContractState, account: ContractAddress, role_key: felt252) {
             assert(self._has_role(account, role_key), RoleError::UNAUTHORIZED_ACCESS);
         }

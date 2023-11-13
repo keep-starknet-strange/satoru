@@ -48,7 +48,6 @@ mod Config {
     use starknet::{get_caller_address, ContractAddress, contract_address_const,};
     use poseidon::poseidon_hash_span;
 
-    use debug::PrintTrait;
 
     // Local imports.
     use satoru::role::role;
@@ -98,7 +97,7 @@ mod Config {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl ConfigImpl of super::IConfig<ContractState> {
         fn set_bool(
             ref self: ContractState, base_key: felt252, data: Array<felt252>, value: bool,

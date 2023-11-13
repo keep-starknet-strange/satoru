@@ -15,7 +15,7 @@ struct Span32<T> {
     snapshot: Span<T>
 }
 
-fn serialize_array_helper<T, impl TSerde: Serde<T>, impl TDrop: Drop<T>>(
+fn serialize_array_helper<T, +Serde<T>, +Drop<T>>(
     mut input: Span32<T>, ref output: Array<felt252>
 ) {
     match input.pop_front() {
@@ -27,19 +27,17 @@ fn serialize_array_helper<T, impl TSerde: Serde<T>, impl TDrop: Drop<T>>(
     }
 }
 
-fn deserialize_array_helper<T, impl TSerde: Serde<T>, impl TDrop: Drop<T>>(
+fn deserialize_array_helper<T, +Serde<T>, +Drop<T>>(
     ref serialized: Span<felt252>, mut curr_output: Array<T>, remaining: felt252
 ) -> Option<Array<T>> {
     if remaining == 0 {
         return Option::Some(curr_output);
     }
-    curr_output.append(TSerde::deserialize(ref serialized)?);
+    curr_output.append(Serde::deserialize(ref serialized)?);
     deserialize_array_helper(ref serialized, curr_output, remaining - 1)
 }
 
-impl Span32Serde<
-    T, impl TSerde: Serde<T>, impl TDrop: Drop<T>, impl TCopy: Copy<T>
-> of Serde<Span32<T>> {
+impl Span32Serde<T, +Serde<T>, +Drop<T>, +Copy<T>> of Serde<Span32<T>> {
     fn serialize(self: @Span32<T>, ref output: Array<felt252>) {
         (*self).len().serialize(ref output);
         serialize_array_helper(*self, ref output)
@@ -53,45 +51,37 @@ impl Span32Serde<
 }
 
 #[generate_trait]
-impl Span32Impl<T, impl TSerde: Serde<T>> of Span32Trait<T> {
-    #[inline(always)]
+impl Span32Impl<T, +Serde<T>> of Span32Trait<T> {
     fn pop_front(ref self: Span32<T>) -> Option<@T> {
         self.snapshot.pop_front()
     }
-    #[inline(always)]
     fn pop_back(ref self: Span32<T>) -> Option<@T> {
         self.snapshot.pop_back()
     }
-    #[inline(always)]
     fn get(self: Span32<T>, index: usize) -> Option<Box<@T>> {
         self.snapshot.get(index)
     }
-    #[inline(always)]
     fn at(self: Span32<T>, index: usize) -> @T {
         self.snapshot.at(index)
     }
-    #[inline(always)]
     fn slice(self: Span32<T>, start: usize, length: usize) -> Span32<T> {
         Span32 { snapshot: self.snapshot.slice(start, length) }
     }
-    #[inline(always)]
     fn len(self: Span32<T>) -> usize {
         self.snapshot.len()
     }
-    #[inline(always)]
     fn is_empty(self: Span32<T>) -> bool {
         self.snapshot.is_empty()
     }
 }
 
-impl DefaultSpan32<T, impl TDrop: Drop<T>> of Default<Span32<T>> {
+impl DefaultSpan32<T, +Drop<T>> of Default<Span32<T>> {
     fn default() -> Span32<T> {
         Array32Trait::<T>::span32(@ArrayTrait::new())
     }
 }
 
 impl Span32Index<T> of IndexView<Span32<T>, usize, @T> {
-    #[inline(always)]
     fn index(self: @Span32<T>, index: usize) -> @T {
         self.snapshot.index(index)
     }
@@ -102,7 +92,6 @@ trait Array32Trait<T> {
 }
 
 impl Array32<T> of Array32Trait<T> {
-    #[inline(always)]
     fn span32(self: @Array<T>) -> Span32<T> {
         assert(self.len() <= 32, 'array too big');
         Span32 { snapshot: Span { snapshot: self } }
@@ -164,14 +153,12 @@ impl StoreContractAddressSpan32 of Store<Span32<ContractAddress>> {
         loop {
             match value.pop_front() {
                 Option::Some(element) => {
-                    Store::<ContractAddress>::write_at_offset(
-                        address_domain, base, offset, *element
-                    );
+                    Store::<
+                        ContractAddress
+                    >::write_at_offset(address_domain, base, offset, *element);
                     offset += Store::<felt252>::size();
                 },
-                Option::None(_) => {
-                    break Result::Ok(());
-                }
+                Option::None(_) => { break Result::Ok(()); }
             };
         }
     }

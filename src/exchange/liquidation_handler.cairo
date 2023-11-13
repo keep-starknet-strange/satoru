@@ -68,7 +68,6 @@ mod LiquidationHandler {
     use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
     use satoru::liquidation::liquidation_utils::create_liquidation_order;
     use satoru::exchange::order_handler;
-    use debug::PrintTrait;
     use satoru::feature::feature_utils::validate_feature;
     use satoru::exchange::order_handler::{IOrderHandler, OrderHandler};
     use satoru::utils::starknet_utils;
@@ -120,8 +119,10 @@ mod LiquidationHandler {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
-    impl LiquidationHandlerImpl of super::ILiquidationHandler<ContractState> { // executes a position liquidation
+    #[abi(embed_v0)]
+    impl LiquidationHandlerImpl of super::ILiquidationHandler<
+        ContractState
+    > { // executes a position liquidation
         fn execute_liquidation(
             ref self: ContractState,
             account: ContractAddress,

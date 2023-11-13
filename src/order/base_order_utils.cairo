@@ -144,7 +144,6 @@ struct GetExecutionPriceCache {
 /// * `order_type` - The order type.
 /// # Return
 /// Return whether an order_type is a market order
-#[inline(always)]
 fn is_market_order(order_type: OrderType) -> bool {
     // a liquidation order is not considered as a market order
     order_type == OrderType::MarketSwap
@@ -157,7 +156,6 @@ fn is_market_order(order_type: OrderType) -> bool {
 /// * `order_type` - The order type.
 /// # Return
 /// Return whether an order_type is a limit order
-#[inline(always)]
 fn is_limit_order(order_type: OrderType) -> bool {
     order_type == OrderType::LimitSwap
         || order_type == OrderType::LimitIncrease
@@ -169,7 +167,6 @@ fn is_limit_order(order_type: OrderType) -> bool {
 /// * `order_type` - The order type.
 /// # Return
 /// Return whether an order_type is a swap order
-#[inline(always)]
 fn is_swap_order(order_type: OrderType) -> bool {
     order_type == OrderType::MarketSwap || order_type == OrderType::LimitSwap
 }
@@ -179,7 +176,6 @@ fn is_swap_order(order_type: OrderType) -> bool {
 /// * `order_type` - The order type.
 /// # Return
 /// Return whether an order_type is a position order
-#[inline(always)]
 fn is_position_order(order_type: OrderType) -> bool {
     is_increase_order(order_type) || is_decrease_order(order_type)
 }
@@ -189,7 +185,6 @@ fn is_position_order(order_type: OrderType) -> bool {
 /// * `order_type` - The order type.
 /// # Return
 /// Return whether an order_type is an increase order
-#[inline(always)]
 fn is_increase_order(order_type: OrderType) -> bool {
     order_type == OrderType::MarketIncrease || order_type == OrderType::LimitIncrease
 }
@@ -199,7 +194,6 @@ fn is_increase_order(order_type: OrderType) -> bool {
 /// * `order_type` - The order type.
 /// # Return
 /// Return whether an order_type is a decrease order
-#[inline(always)]
 fn is_decrease_order(order_type: OrderType) -> bool {
     order_type == OrderType::MarketDecrease
         || order_type == OrderType::LimitDecrease
@@ -212,7 +206,6 @@ fn is_decrease_order(order_type: OrderType) -> bool {
 /// * `order_type` - The order type.
 /// # Return
 /// Return whether an order_type is a liquidation order
-#[inline(always)]
 fn is_liquidation_order(order_type: OrderType) -> bool {
     order_type == OrderType::Liquidation
 }
@@ -227,7 +220,6 @@ fn is_liquidation_order(order_type: OrderType) -> bool {
 /// * `order_type` - The order type.
 /// * `trigger_price` - the order's trigger_price.
 /// * `is_long` - Whether the order is for a long or short.
-#[inline(always)]
 fn validate_order_trigger_price(
     oracle: IOracleDispatcher,
     index_token: ContractAddress,
@@ -345,7 +337,6 @@ fn get_execution_price_for_increase(
     0 // doesn't compile otherwise
 }
 
-#[inline(always)]
 fn get_execution_price_for_decrease(
     index_token_price: Price,
     position_size_in_usd: u128,
@@ -480,7 +471,6 @@ fn get_execution_price_for_decrease(
 /// Validates that an order exists.
 /// # Arguments
 /// * `order` - The order to check.
-#[inline(always)]
 fn validate_non_empty_order(order: @Order) {
     assert((*order.account).is_non_zero(), OrderError::EMPTY_ORDER);
     assert(

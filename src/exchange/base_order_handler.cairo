@@ -49,7 +49,6 @@ mod BaseOrderHandler {
     use core::traits::Into;
     use starknet::{get_caller_address, ContractAddress, contract_address_const};
 
-    use debug::PrintTrait;
     use result::ResultTrait;
 
     // Local imports.
@@ -136,7 +135,7 @@ mod BaseOrderHandler {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl BaseOrderHandlerImpl of super::IBaseOrderHandler<ContractState> {
         fn initialize(
             ref self: ContractState,

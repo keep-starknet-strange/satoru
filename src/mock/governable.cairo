@@ -57,7 +57,7 @@ mod Governable {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl Governable of super::IGovernable<ContractState> {
         fn initialize(ref self: ContractState, event_emitter_address: ContractAddress) {
             assert(self.gov.read().is_zero(), MockError::ALREADY_INITIALIZED);

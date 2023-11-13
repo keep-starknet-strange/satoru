@@ -24,7 +24,6 @@ mod Timelock {
     use core::zeroable::Zeroable;
     use starknet::{get_caller_address, ContractAddress, contract_address_const};
 
-    use debug::PrintTrait;
 
     // Local imports.
 
@@ -46,6 +45,6 @@ mod Timelock {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl TimelockImpl of super::ITimelock<ContractState> {}
 }

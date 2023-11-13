@@ -475,7 +475,7 @@ mod Reader {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl Reader of super::IReader<ContractState> {
         fn get_market(
             self: @ContractState, data_store: IDataStoreDispatcher, key: ContractAddress

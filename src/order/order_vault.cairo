@@ -46,8 +46,6 @@ mod OrderVault {
     // Core lib imports.
     use starknet::{get_caller_address, ContractAddress, contract_address_const};
 
-    use debug::PrintTrait;
-
     // Local imports.
     use satoru::bank::strict_bank::{StrictBank, IStrictBank};
 
@@ -77,7 +75,7 @@ mod OrderVault {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl OrderVaultImpl of super::IOrderVault<ContractState> {
         fn transfer_out(
             ref self: ContractState,

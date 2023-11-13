@@ -170,7 +170,7 @@ mod AdlHandler {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl AdlHandlerImpl of super::IAdlHandler<ContractState> {
         fn update_adl_state(
             ref self: ContractState,

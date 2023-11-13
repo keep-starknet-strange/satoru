@@ -45,8 +45,6 @@ mod Bank {
         get_caller_address, get_contract_address, ContractAddress, contract_address_const
     };
 
-    use debug::PrintTrait;
-
     // Local imports.
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use super::IBank;
@@ -84,7 +82,7 @@ mod Bank {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl BankImpl of super::IBank<ContractState> {
         fn initialize(
             ref self: ContractState,

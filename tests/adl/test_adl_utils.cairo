@@ -2,7 +2,6 @@
 use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const
 };
-use debug::PrintTrait;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -21,7 +20,9 @@ use snforge_std::{
 };
 use satoru::adl::adl_utils;
 use satoru::utils::i128::{i128, i128_new};
-
+use satoru::market::market::{Market};
+use satoru::price::price::{Price, PriceTrait};
+use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 
 #[test]
 fn given_normal_conditions_when_set_latest_adl_block_then_works() {
@@ -221,18 +222,71 @@ fn given_non_valid_position_when_create_adl_order_then_fails() {
 
 #[test]
 fn given_normal_conditions_when_create_adl_order_then_works() { // Setup
-    //let (caller_address, role_store, data_store, event_emitter, oracle) = setup_oracle_and_store();
+    let (caller_address, role_store, data_store, event_emitter, oracle) = setup_oracle_and_store();
     // TODO 
     // For testing "position_utils::get_position_key",  ".data_store.get_position" should be implmented
-    assert(true, 'e');
+    let account1 = 'account1'.try_into().unwrap();
+    let market = 'market'.try_into().unwrap();
+    let collateral_token = 'token'.try_into().unwrap();
+    let params = adl_utils::CreateAdlOrderParams {
+        data_store: data_store,
+        event_emitter: event_emitter,
+        account: account1,
+        market: market,
+        collateral_token: collateral_token,
+        is_long: true,
+        size_delta_usd: 0,
+        updated_at_block: 100
+    };
+    let key = adl_utils::create_adl_order(params);
+    // Assertions
+    let order = data_store.get_order(key);
+    assert(order.account == account1, 'wrong order');
+    assert(order.order_type == OrderType::MarketDecrease(()), 'wrong type');
+    assert(order.updated_at_block == 100, 'wrong updated');
 }
 
 
 #[test]
 fn given_normal_conditions_when_update_adl_state_then_works() {
     // Setup
-    //let (caller_address, role_store, data_store, event_emitter, oracle) = setup_oracle_and_store();
+    let (caller_address, role_store, data_store, event_emitter, oracle) = setup_oracle_and_store();
     // TODO 
     // For testing "get_enabled_market",  "get_market_prices" and "is_pnl_factor_exceeded_direct" should be implmented
-    assert(true, 'e');
+    let is_long = false;
+    let market_token_address = contract_address_const::<'market_token'>();
+    let index_token_address = contract_address_const::<'index_token'>();
+    let long_token_address = contract_address_const::<'long_token'>();
+    let short_token_address = contract_address_const::<'short_token'>();
+    let mut market = Market {
+        market_token: market_token_address,
+        index_token: index_token_address,
+        long_token: long_token_address,
+        short_token: short_token_address,
+    };
+
+    start_prank(role_store.contract_address, caller_address);
+    role_store.grant_role(caller_address, role::MARKET_KEEPER);
+
+    let price = Price { min: 1, max: 200 };
+
+    stop_prank(role_store.contract_address);
+    data_store.set_market(market_token_address, 0, market);
+
+    oracle.set_primary_price(index_token_address, price);
+    oracle.set_primary_price(long_token_address, price);
+    oracle.set_primary_price(short_token_address, price);
+
+    let block_value = 1_u64;
+    let set_block = adl_utils::set_latest_adl_block(
+        data_store, market_token_address, is_long, block_value
+    );
+    let block_numbers = array![1_u64, 2_u64];
+
+    adl_utils::update_adl_state(
+        data_store, event_emitter, oracle, market_token_address, is_long, block_numbers.span()
+    );
+
+    teardown(data_store.contract_address);
 }
+

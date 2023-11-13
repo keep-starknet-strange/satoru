@@ -5,7 +5,6 @@
 use starknet::{ContractAddress, contract_address_const};
 use integer::u256_from_felt252;
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait, ContractClass};
-use debug::PrintTrait;
 // Local imports.
 use satoru::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
 use satoru::role::role_store::{IRoleStoreDispatcherTrait, IRoleStoreDispatcher};

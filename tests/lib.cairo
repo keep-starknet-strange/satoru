@@ -39,6 +39,7 @@ mod event {
     mod test_swap_events_emitted;
     mod test_timelock_events_emitted;
     mod test_withdrawal_events_emitted;
+    mod test_event_utils;
 }
 mod exchange {
     mod test_liquidation_handler;
@@ -107,6 +108,7 @@ mod utils {
     mod test_starknet_utils;
     mod test_u128_mask;
     mod test_i128;
+    mod test_serializable_dict;
 }
 mod withdrawal {
     mod test_withdrawal_vault;

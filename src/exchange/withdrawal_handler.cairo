@@ -135,7 +135,7 @@ mod WithdrawalHandler {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl WithdrawalHandlerImpl of super::IWithdrawalHandler<ContractState> {
         fn create_withdrawal(
             ref self: ContractState, account: ContractAddress, params: CreateWithdrawalParams

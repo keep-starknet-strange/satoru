@@ -48,7 +48,6 @@ mod MarketFactory {
     use starknet::syscalls::deploy_syscall;
     use poseidon::poseidon_hash_span;
 
-    use debug::PrintTrait;
 
     // Local imports.
     use satoru::role::role;
@@ -103,7 +102,7 @@ mod MarketFactory {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl MarketFactory of super::IMarketFactory<ContractState> {
         fn create_market(
             ref self: ContractState,

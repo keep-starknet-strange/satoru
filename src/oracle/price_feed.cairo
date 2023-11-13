@@ -35,10 +35,7 @@ mod PriceFeed {
     #[storage]
     struct Storage {}
 
-    #[construct]
-    fn constructor() {}
-
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl PriceFeedImpl of super::IPriceFeed<ContractState> {
         fn get_data_median(self: @ContractState, data_type: DataType) -> PragmaPricesResponse {
             PragmaPricesResponse {
