@@ -298,7 +298,7 @@ mod ExchangeRouter {
 
         fn cancel_deposit(ref self: ContractState, key: felt252) {
             let data_store = self.data_store.read();
-            global_reentrancy_guard::non_reentrant_before(data_store);
+            // global_reentrancy_guard::non_reentrant_before(data_store);
 
             let deposit = data_store.get_deposit(key);
 
@@ -312,7 +312,7 @@ mod ExchangeRouter {
 
             self.deposit_handler.read().cancel_deposit(key);
 
-            global_reentrancy_guard::non_reentrant_after(data_store);
+            // global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
         fn create_withdrawal(ref self: ContractState, params: CreateWithdrawalParams) -> felt252 {
