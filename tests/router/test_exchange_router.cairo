@@ -226,11 +226,10 @@ fn given_normal_conditions_when_cancel_deposit_then_works() {
     };
     data_store.set_market(market_key, 0, market);
 
-    // Mock deposit tokens in deposit vault (fee_token, long_token and short_token)
-    //start_mock_call(deposit_vault.contract_address, 'record_transfer_in', 10);
-    
     let fee_token = IERC20Dispatcher { contract_address: contract_address_const::<'fee_token'>() };
-    let long_token = IERC20Dispatcher { contract_address: contract_address_const::<'long_token'>() };
+    let long_token = IERC20Dispatcher {
+        contract_address: contract_address_const::<'long_token'>()
+    };
 
     start_prank(fee_token.contract_address, caller_address);
     fee_token.transfer(deposit_vault.contract_address, 10);
@@ -262,6 +261,64 @@ fn given_normal_conditions_when_cancel_deposit_then_works() {
     let deposit = reader.get_deposit(data_store, deposit_key);
 
     assert(deposit.account.is_zero(), 'deposit should be canceled');
+}
+
+#[test]
+#[should_panic(expected: ('empty_deposit',))]
+fn given_not_exists_deposit_key_when_cancel_deposit_then_fails() {
+    let (_, _, _, _, exchange_router, _) = setup();
+
+    // Cancel deposit
+    exchange_router.cancel_deposit(0x12345);
+}
+
+#[test]
+#[should_panic(expected: ('empty_deposit_amounts',))]
+fn given_empty_deposit_amounts_when_cancel_deposit_then_fails() {
+    let (caller_address, role_store, data_store, reader, exchange_router, deposit_vault) = setup();
+
+    // Deploy callback mock
+    let callback_mock = deploy_callback_mock();
+
+    // Grant market keeper role to allow adding market to the data store
+    role_store.grant_role(caller_address, role::MARKET_KEEPER);
+
+    let market_key = contract_address_const::<'market'>();
+    let market = Market {
+        market_token: contract_address_const::<'market_token'>(),
+        index_token: contract_address_const::<'index_token'>(),
+        long_token: contract_address_const::<'long_token'>(),
+        short_token: contract_address_const::<'short_token'>(),
+    };
+    data_store.set_market(market_key, 0, market);
+
+    let fee_token = IERC20Dispatcher { contract_address: contract_address_const::<'fee_token'>() };
+    let long_token = IERC20Dispatcher {
+        contract_address: contract_address_const::<'long_token'>()
+    };
+
+    start_prank(fee_token.contract_address, caller_address);
+    fee_token.transfer(deposit_vault.contract_address, 10);
+
+    let deposit_params = CreateDepositParams {
+        receiver: contract_address_const::<'receiver'>(),
+        callback_contract: callback_mock.contract_address,
+        ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
+        market: market_key,
+        initial_long_token: contract_address_const::<'long_token'>(),
+        initial_short_token: contract_address_const::<'short_token'>(),
+        long_token_swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
+        short_token_swap_path: Array32Trait::<ContractAddress>::span32(@ArrayTrait::new()),
+        min_market_tokens: 10,
+        execution_fee: 5,
+        callback_gas_limit: 10,
+    };
+
+    // Create deposit
+    let deposit_key = exchange_router.create_deposit(deposit_params);
+
+    // Cancel deposit
+    exchange_router.cancel_deposit(deposit_key);
 }
 
 

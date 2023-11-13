@@ -311,8 +311,7 @@ mod ExchangeRouter {
             }
 
             self.deposit_handler.read().cancel_deposit(key);
-
-            // global_reentrancy_guard::non_reentrant_after(data_store);
+        // global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
         fn create_withdrawal(ref self: ContractState, params: CreateWithdrawalParams) -> felt252 {
