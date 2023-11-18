@@ -282,13 +282,10 @@ mod OrderHandler {
             base_order_utils::validate_non_empty_order(@updated_order);
 
             data_store.set_order(key, updated_order);
-            event_emitter.emit_order_updated(
-                key,
-                size_delta_usd,
-                acceptable_price,
-                trigger_price,
-                min_output_amount
-            );
+            event_emitter
+                .emit_order_updated(
+                    key, size_delta_usd, acceptable_price, trigger_price, min_output_amount
+                );
 
             global_reentrancy_guard::non_reentrant_after(data_store);
 
