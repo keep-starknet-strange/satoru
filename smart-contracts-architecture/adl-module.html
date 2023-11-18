@@ -205,7 +205,7 @@
 <p>Validates if the requested ADL can be executed by checking the ADL enabled state and ensuring the oracle block numbers are recent enough.</p>
 <h3 id="get_latest_adl_block-set_latest_adl_block"><a class="header" href="#get_latest_adl_block-set_latest_adl_block"><code>get_latest_adl_block</code>, <code>set_latest_adl_block</code></a></h3>
 <p>These functions interact with the <code>data_store</code> to retrieve and update the latest ADL block number respectively. <code>get_latest_adl_block</code> returns the latest block number at which the ADL flag was updated, and <code>set_latest_adl_block</code> sets the latest block number to a new value.</p>
-<h3 id="get_adl_enabled-set_adl_enabled"><a class="header" href="#get_adl_enabled-set_adl_enabled"><code>get_adl_enabled</code>, <code>set_adl_enabled</code></a></h3>
+<h3 id="get_is_adl_enabled-set_adl_enabled"><a class="header" href="#get_is_adl_enabled-set_adl_enabled"><code>get_is_adl_enabled</code>, <code>set_adl_enabled</code></a></h3>
 <p>Interact with the <code>data_store</code> to get and set the ADL enabled state for a specified market and position type (long/short).</p>
 <h3 id="emit_adl_state_updated"><a class="header" href="#emit_adl_state_updated"><code>emit_adl_state_updated</code></a></h3>
 <p>Emits ADL state update events to notify about changes in the ADL state, including the market, position type, PnL to pool factor, max PnL factor, and whether ADL was enabled or disabled.</p>
