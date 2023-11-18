@@ -39,7 +39,7 @@ Validates if the requested ADL can be executed by checking the ADL enabled state
 
 These functions interact with the `data_store` to retrieve and update the latest ADL block number respectively. `get_latest_adl_block` returns the latest block number at which the ADL flag was updated, and `set_latest_adl_block` sets the latest block number to a new value.
 
-### `get_adl_enabled`, `set_adl_enabled`
+### `get_is_adl_enabled`, `set_adl_enabled`
 
 Interact with the `data_store` to get and set the ADL enabled state for a specified market and position type (long/short).
 
