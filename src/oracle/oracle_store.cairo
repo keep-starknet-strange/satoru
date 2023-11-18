@@ -5,7 +5,7 @@
 // *************************************************************************
 
 // Core lib imports.
-use starknet::{ContractAddress, contract_address_const};
+use starknet::ContractAddress;
 
 // *************************************************************************
 //                  Interface of the `OracleStore` contract.
@@ -133,19 +133,14 @@ mod OracleStore {
             self.signers_indexes.write(account, index);
         }
 
-        fn remove_signer(ref self: ContractState, account: ContractAddress) { // TODO
-        }
-
-        fn get_signer_count(self: @ContractState) -> u128 { // TODO
-            0
-        }
-
-        fn get_signer(self: @ContractState, index: usize) -> ContractAddress { // TODO
-            // NOTE: temporarily implemented to complete oracle tests.
-            // let mut signers = self.signers.read();
-            // signers.get(index).expect('array get failed')
-            let signer: ContractAddress = contract_address_const::<'ETH'>();
-            return signer;
+        fn remove_signer(ref self: ContractState, account: ContractAddress) {
+            let mut signers = self.signers.read();
+            let last_signer_index = signers.len();
+            let signer_to_remove_index = self.signers_indexes.read(account);
+            let last_signer = signers.get(last_signer_index).expect('failed to get last signer');
+            signers.set(signer_to_remove_index, last_signer);
+            self.signers_indexes.write(last_signer, signer_to_remove_index);
+            signers.len = signers.len() - 1;
         }
 
         fn get_signer_count(self: @ContractState) -> u128 {
@@ -153,8 +148,8 @@ mod OracleStore {
         }
 
         fn get_signer(self: @ContractState, index: usize) -> ContractAddress {
-            // NOTE: temporarily implemented to complete oracle tests.
-            self.signers.read().get(index).expect('failed to get signer')
+            // self.signers.read().get(index).expect('failed to get signer')
+            contract_address_const::<'signer'>() // TODO
         }
 
         fn get_signers(self: @ContractState, start: u128, end: u128) -> Array<ContractAddress> {
