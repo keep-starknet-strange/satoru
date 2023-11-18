@@ -25,7 +25,6 @@ fn roundup_division(a: u128, b: u128) -> u128 {
 /// * `b` - the divisor.
 /// # Return
 /// The result of dividing the first number by the second number, rounded up to the nearest integer.
-// TODO Update to use i128 division when available
 // TODO function doesn't really do what the comments tell
 fn roundup_magnitude_division(a: i128, b: u128) -> i128 {
     error_utils::check_division_by_zero(b, 'roundup_magnitude_division');

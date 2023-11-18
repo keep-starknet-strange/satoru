@@ -155,7 +155,7 @@ fn mul_div_roundup(
 /// # Arguments
 /// * `value` - The value to the exponent is applied to.
 /// * `divisor` - The exponent applied.
-fn apply_exponent_factor(float_value: u128, exponent_factor: u128) -> u128 { // TODO
+fn apply_exponent_factor(float_value: u128, exponent_factor: u128) -> u128 {
     if float_value < FLOAT_PRECISION {
         return 0;
     }
