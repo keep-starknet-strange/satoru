@@ -200,7 +200,6 @@ mod order {
     mod increase_order_utils;
     mod order_vault;
     mod order;
-    mod order_event_utils;
     mod error;
     mod swap_order_utils;
 }

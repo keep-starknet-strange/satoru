@@ -36,11 +36,11 @@ struct PositionIncreaseParams {
     /// The position increase amount in tokens.
     size_delta_in_tokens: u128,
     /// The collateral variation amount in usd.
-    collateral_delta_amount: i128, // TODO i128 when storeable
+    collateral_delta_amount: i128,
     /// The position increase price impact in usd.
-    price_impact_usd: i128, // TODO i128 when storeable
+    price_impact_usd: i128,
     /// The position increase price impact in tokens.
-    price_impact_amount: i128, // TODO i128 when storeable
+    price_impact_amount: i128,
     /// The type of the order.
     order_type: OrderType
 }
