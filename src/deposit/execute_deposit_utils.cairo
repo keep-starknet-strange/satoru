@@ -318,6 +318,7 @@ fn execute_deposit_helper(
         true,
     );
 
+    //TODO add the pool_value_info.pool in the error message
     if pool_value_info.pool_value < Zeroable::zero() {
         panic_with_felt252(DepositError::INVALID_POOL_VALUE_FOR_DEPOSIT)
     }
