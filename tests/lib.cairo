@@ -92,6 +92,7 @@ mod role {
 }
 mod router {
     mod test_router;
+    mod test_exchange_router;
 }
 mod swap {
     mod test_swap_handler;

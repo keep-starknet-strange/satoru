@@ -107,8 +107,8 @@ fn pay_execution_fee_deposit(
     let fee_token: ContractAddress = token_utils::fee_token(data_store);
 
     // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
-    let reduced_starting_gas = starting_gas - sn_gasleft(array![100]) / 63;
-    let gas_used = reduced_starting_gas - sn_gasleft(array![100]);
+    let reduced_starting_gas = starting_gas - sn_gasleft(array![]) / 63;
+    let gas_used = reduced_starting_gas - sn_gasleft(array![]);
 
     // each external call forwards 63/64 of the remaining gas
     let mut execution_fee_for_keeper = adjust_gas_usage(data_store, gas_used)

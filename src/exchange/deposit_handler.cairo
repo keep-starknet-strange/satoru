@@ -93,7 +93,7 @@ mod DepositHandler {
     use satoru::exchange::exchange_utils;
     use satoru::deposit::execute_deposit_utils;
     use satoru::oracle::oracle_utils;
-    use satoru::utils::global_reentrancy_guard;
+    use satoru::utils::{global_reentrancy_guard, starknet_utils};
 
     // *************************************************************************
     //                              STORAGE
@@ -183,7 +183,7 @@ mod DepositHandler {
             let data_store = self.data_store.read();
             global_reentrancy_guard::non_reentrant_before(data_store);
 
-            // let starting_gas = gas_left();
+            let starting_gas = starknet_utils::sn_gasleft(array![]);
 
             let deposit = data_store.get_deposit(key);
 
@@ -200,7 +200,7 @@ mod DepositHandler {
                 self.deposit_vault.read(),
                 key,
                 deposit.account,
-                0, //starting_gas
+                starting_gas,
                 keys::user_initiated_cancel(),
                 array!['Cancel Deposit'] //TODO should be empty string
             );
@@ -254,7 +254,7 @@ mod DepositHandler {
             oracle_params: SetPricesParams,
             keeper: ContractAddress
         ) {
-            // let starting_gas = gas_left();
+            let starting_gas = starknet_utils::sn_gasleft(array![]);
             let data_store = self.data_store.read();
             feature_utils::validate_feature(
                 data_store, keys::execute_deposit_feature_disabled_key(get_contract_address())
@@ -276,7 +276,7 @@ mod DepositHandler {
                 min_oracle_block_numbers,
                 max_oracle_block_numbers,
                 keeper,
-                starting_gas: 0 // TODO starting_gas
+                starting_gas
             };
 
             execute_deposit_utils::execute_deposit(params);
