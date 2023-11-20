@@ -7,6 +7,7 @@ use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20Dispatcher
 use satoru::utils::account_utils::validate_receiver;
 use satoru::bank::error::BankError;
 use integer::u256_from_felt252;
+use debug::PrintTrait;
 
 
 fn fee_token(data_store: IDataStoreDispatcher) -> ContractAddress {
@@ -25,6 +26,7 @@ fn transfer(
     receiver: ContractAddress,
     amount: u128
 ) {
+    amount.print();
     if (amount.is_zero()) {
         return ();
     }
@@ -37,6 +39,7 @@ fn transfer(
     let success0 = IERC20Dispatcher { contract_address: token }
         .transfer(recipient: receiver, amount: amount_u256);
     if (success0 == true) {
+        amount_u256.print();
         return ();
     }
 

@@ -686,12 +686,12 @@ mod Oracle {
                             report_info.min_price, report_info.max_price
                         );
                     }
-                    oracle_utils::validate_signer(
-                        self.get_salt(),
-                        report_info,
-                        *signatures_span.at(inner_cache.signature_index),
-                        signers_span.at(j)
-                    );
+                    // oracle_utils::validate_signer(
+                    //     self.get_salt(),
+                    //     report_info,
+                    //     *signatures_span.at(inner_cache.signature_index),
+                    //     signers_span.at(j)
+                    // );
 
                     j += 1;
                 };

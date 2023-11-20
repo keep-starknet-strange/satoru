@@ -239,20 +239,19 @@ fn execute_deposit(params: ExecuteDepositParams) {
             cache.short_token_amount,
             cache.received_market_tokens,
         );
+// let mut event_data: LogData = Default::default();
+// event_data.uint_dict.insert_single('received_market_tokens', cache.received_market_tokens);
+// after_deposit_execution(params.key, deposit, event_data);
 
-    let mut event_data: LogData = Default::default();
-    event_data.uint_dict.insert_single('received_market_tokens', cache.received_market_tokens);
-    after_deposit_execution(params.key, deposit, event_data);
-
-    pay_execution_fee_deposit(
-        params.data_store,
-        params.event_emitter,
-        params.deposit_vault,
-        deposit.execution_fee,
-        params.starting_gas,
-        params.keeper,
-        deposit.account,
-    );
+// pay_execution_fee_deposit(
+//     params.data_store,
+//     params.event_emitter,
+//     params.deposit_vault,
+//     deposit.execution_fee,
+//     params.starting_gas,
+//     params.keeper,
+//     deposit.account,
+// );
 }
 
 /// Executes a deposit.
