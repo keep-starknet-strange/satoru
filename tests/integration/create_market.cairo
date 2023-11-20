@@ -74,7 +74,7 @@ fn given_normal_conditions_when_create_market_and_add_liquidity_then_market_is_c
     let user1: ContractAddress = contract_address_const::<'user1'>();
     let user2: ContractAddress = contract_address_const::<'user2'>();
 
-    let addresss_zero : ContractAddress = 0.try_into().unwrap();
+    let addresss_zero: ContractAddress = 0.try_into().unwrap();
 
     let params = CreateDepositParams {
         receiver: user1,
@@ -89,8 +89,10 @@ fn given_normal_conditions_when_create_market_and_add_liquidity_then_market_is_c
         execution_fee: 0,
         callback_gas_limit: 0,
     };
-    IERC20Dispatcher{ contract_address: market.long_token }.mint(deposit_vault.contract_address, 1000000000000000000);
-    IERC20Dispatcher{ contract_address: market.short_token }.mint(deposit_vault.contract_address, 50000000000);
+    IERC20Dispatcher { contract_address: market.long_token }
+        .mint(deposit_vault.contract_address, 1000000000000000000);
+    IERC20Dispatcher { contract_address: market.short_token }
+        .mint(deposit_vault.contract_address, 50000000000);
     start_roll(deposit_handler.contract_address, 1910);
     let key = deposit_handler.create_deposit(caller_address, params);
     let first_deposit = data_store.get_deposit(key);
@@ -98,8 +100,13 @@ fn given_normal_conditions_when_create_market_and_add_liquidity_then_market_is_c
     assert(first_deposit.account == caller_address, 'Wrong account depositer');
     assert(first_deposit.receiver == user1, 'Wrong account receiver');
     assert(first_deposit.initial_long_token == market.long_token, 'Wrong initial long token');
-    assert(first_deposit.initial_long_token_amount == 1000000000000000000, 'Wrong initial long token amount');
-    assert(first_deposit.initial_short_token_amount == 50000000000, 'Wrong init short token amount');
+    assert(
+        first_deposit.initial_long_token_amount == 1000000000000000000,
+        'Wrong initial long token amount'
+    );
+    assert(
+        first_deposit.initial_short_token_amount == 50000000000, 'Wrong init short token amount'
+    );
 
     let price_params = SetPricesParams {
         signer_info: 1,
@@ -112,11 +119,13 @@ fn given_normal_conditions_when_create_market_and_add_liquidity_then_market_is_c
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![4294967346000000], // 50000000, 1000000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
+        signatures: array![
+            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
+        ],
         price_feed_tokens: array![]
     };
 
-    start_roll(deposit_handler.contract_address, 1915);    
+    start_roll(deposit_handler.contract_address, 1915);
     deposit_handler.execute_deposit(key, price_params);
 
     // *********************************************************************************************
@@ -160,7 +169,7 @@ fn test_deposit_market_integration() {
     let user1: ContractAddress = contract_address_const::<'user1'>();
     let user2: ContractAddress = contract_address_const::<'user2'>();
 
-    let addresss_zero : ContractAddress = 0.try_into().unwrap();
+    let addresss_zero: ContractAddress = 0.try_into().unwrap();
 
     let params = CreateDepositParams {
         receiver: user1,
@@ -175,8 +184,10 @@ fn test_deposit_market_integration() {
         execution_fee: 0,
         callback_gas_limit: 0,
     };
-    IERC20Dispatcher{ contract_address: market.long_token }.mint(deposit_vault.contract_address, 10000000000);
-    IERC20Dispatcher{ contract_address: market.short_token }.mint(deposit_vault.contract_address, 45);
+    IERC20Dispatcher { contract_address: market.long_token }
+        .mint(deposit_vault.contract_address, 10000000000);
+    IERC20Dispatcher { contract_address: market.short_token }
+        .mint(deposit_vault.contract_address, 45);
     start_roll(deposit_handler.contract_address, 1910);
     let key = deposit_handler.create_deposit(caller_address, params);
     let first_deposit = data_store.get_deposit(key);
@@ -184,7 +195,9 @@ fn test_deposit_market_integration() {
     assert(first_deposit.account == caller_address, 'Wrong account depositer');
     assert(first_deposit.receiver == user1, 'Wrong account receiver');
     assert(first_deposit.initial_long_token == market.long_token, 'Wrong initial long token');
-    assert(first_deposit.initial_long_token_amount == 10000000000, 'Wrong initial long token amount');
+    assert(
+        first_deposit.initial_long_token_amount == 10000000000, 'Wrong initial long token amount'
+    );
     assert(first_deposit.initial_short_token_amount == 45, 'Wrong init short token amount');
 
     let price_params = SetPricesParams {
@@ -198,7 +211,9 @@ fn test_deposit_market_integration() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![4294967346000000], // 50000000, 1000000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
+        signatures: array![
+            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
+        ],
         price_feed_tokens: array![]
     };
 
@@ -240,8 +255,7 @@ fn create_market(market_factory: IMarketFactoryDispatcher) -> ContractAddress {
     let market_type = 'market_type';
 
     // Index token is the same as long token here.
-    market_factory
-        .create_market(index_token, index_token, short_token, market_type)
+    market_factory.create_market(index_token, index_token, short_token, market_type)
 }
 
 /// Utility functions to deploy tokens for a market.
@@ -422,7 +436,7 @@ fn setup_contracts() -> (
         role_store_address, oracle_store_address, contract_address_const::<'pragma'>()
     );
 
-    let oracle = IOracleDispatcher {contract_address: oracle_address};
+    let oracle = IOracleDispatcher { contract_address: oracle_address };
 
     let deposit_vault_address = deploy_deposit_vault(role_store_address, data_store_address);
 
@@ -470,7 +484,7 @@ fn setup_contracts() -> (
         order_handler_address
     );
     let exchange_router = IExchangeRouterDispatcher { contract_address: exchange_router_address };
-    
+
     let bank_address = deploy_bank(data_store_address, role_store_address);
 
     //Create a safe dispatcher to interact with the Bank contract.
