@@ -3,6 +3,7 @@
 // *************************************************************************
 // Core lib imports.
 use satoru::utils::{error_utils, calc};
+
 /// Gets the value of the element at the specified index in the given array. If the index is out of bounds, returns 0.
 /// # Arguments
 /// * `arr` - the array to get the element of.
@@ -178,20 +179,22 @@ fn get_uncompacted_value(
     error_utils::check_division_by_zero(
         compacted_value_bit_length.into(), 'compacted_value_bit_length'
     );
-    let compacted_values_per_slot = 128 / compacted_value_bit_length;
+    let compacted_values_per_slot = 128 / compacted_value_bit_length; // 128 / 32 = 4
 
     error_utils::check_division_by_zero(
         compacted_values_per_slot.into(), 'compacted_values_per_slot'
     );
-    let slot_index = index / compacted_values_per_slot;
+    let slot_index = index / compacted_values_per_slot; // 1 / 4 = 0
     if slot_index >= compacted_values.len() {
         panic(array!['CompactedArrayOutOfBounds', index.into(), slot_index.into(), label]);
     }
 
-    let slot_bits = *compacted_values.at(slot_index);
-    let offset = (index - slot_index * compacted_values_per_slot) * compacted_value_bit_length;
+    let slot_bits = *compacted_values.at(slot_index); // 4294967346000000
+    let offset = (index - slot_index * compacted_values_per_slot)
+        * compacted_value_bit_length; // = 32
 
-    let value = (slot_bits / pow(2, offset)) & bit_mask;
+    let value = (slot_bits / pow(2, offset))
+        & bit_mask; // 4294967346000000 / 2^32 = 1000000 & bit_mask
 
     value
 }

@@ -4,7 +4,6 @@
 // Core lib imports.
 use integer::BoundedInt;
 use starknet::ContractAddress;
-
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};

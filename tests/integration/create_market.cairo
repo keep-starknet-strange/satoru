@@ -38,6 +38,7 @@ use satoru::data::keys;
 
 const INITIAL_TOKENS_MINTED: felt252 = 1000;
 
+
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
 fn given_normal_conditions_when_create_market_and_add_liquidity_then_market_is_created() {
@@ -226,6 +227,7 @@ fn test_deposit_market_integration() {
     // let balance = IERC20Dispatcher{ contract_address: market.market_token }.balance_of(caller_address);
 
     // IERC20Dispatcher{ contract_address: market.demarket_token }.balance_of(caller_address).print();
+
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -425,7 +427,6 @@ fn setup_contracts() -> (
     let deposit_vault_address = deploy_deposit_vault(role_store_address, data_store_address);
 
     let deposit_vault = IDepositVaultDispatcher { contract_address: deposit_vault_address };
-
     let deposit_handler_address = deploy_deposit_handler(
         data_store_address,
         role_store_address,

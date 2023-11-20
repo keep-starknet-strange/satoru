@@ -3,7 +3,6 @@
 // *************************************************************************
 // Core lib imports.
 use starknet::{ContractAddress, get_caller_address, get_block_timestamp, contract_address_const};
-
 // Local imports.
 use satoru::utils::calc::roundup_magnitude_division;
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
@@ -159,7 +158,7 @@ fn get_opposite_token(input_token: ContractAddress, market: @Market) -> Contract
 fn validate_swap_market_with_address(
     data_store: IDataStoreDispatcher, market_address: ContractAddress
 ) {
-    let market = market_store_utils::get(data_store, market_address);
+    let market = data_store.get_market(market_address);
     validate_swap_market(data_store, market);
 }
 
