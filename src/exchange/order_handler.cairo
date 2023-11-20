@@ -117,7 +117,7 @@ mod OrderHandler {
     use satoru::order::{base_order_utils::CreateOrderParams, order_utils, order, base_order_utils};
     use satoru::order::{
         order::{Order, OrderTrait, OrderType, SecondaryOrderType},
-        order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}, order_event_utils
+        order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}
     };
     use satoru::market::market::Market;
     use satoru::market::error::MarketError;
@@ -137,6 +137,7 @@ mod OrderHandler {
     };
     use satoru::feature::feature_utils;
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::data::keys;
     use satoru::role::role;
     use satoru::role::role_module::{RoleModule, IRoleModule};
@@ -244,6 +245,7 @@ mod OrderHandler {
             // Fetch data store.
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
+            let event_emitter = base_order_handler_state.event_emitter.read();
 
             global_reentrancy_guard::non_reentrant_before(data_store);
 
@@ -280,14 +282,10 @@ mod OrderHandler {
             base_order_utils::validate_non_empty_order(@updated_order);
 
             data_store.set_order(key, updated_order);
-            order_event_utils::emit_order_updated(
-                base_order_handler_state.event_emitter.read(),
-                key,
-                size_delta_usd,
-                acceptable_price,
-                trigger_price,
-                min_output_amount,
-            );
+            event_emitter
+                .emit_order_updated(
+                    key, size_delta_usd, acceptable_price, trigger_price, min_output_amount
+                );
 
             global_reentrancy_guard::non_reentrant_after(data_store);
 

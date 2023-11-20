@@ -260,7 +260,6 @@ trait IDataStore<TContractState> {
     /// * `end` - Start index
     fn get_order_keys(self: @TContractState, start: usize, end: usize) -> Array<felt252>;
 
-    // TODO checkk
     /// Return total order count
     fn get_order_count(self: @TContractState) -> u32;
 
@@ -311,7 +310,6 @@ trait IDataStore<TContractState> {
     /// * `end` - Start index
     fn get_position_keys(self: @TContractState, start: usize, end: usize) -> Array<felt252>;
 
-    // TODO checkk
     /// Return total position count
     fn get_position_count(self: @TContractState) -> u32;
 
