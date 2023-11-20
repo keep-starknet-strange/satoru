@@ -8,7 +8,8 @@ use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const
 };
 use snforge_std::{
-    declare, start_prank, stop_prank, start_mock_call, test_address, ContractClassTrait, ContractClass, start_roll
+    declare, start_prank, stop_prank, start_mock_call, test_address, ContractClassTrait,
+    ContractClass, start_roll
 };
 use traits::Default;
 use poseidon::poseidon_hash_span;
@@ -34,7 +35,9 @@ use satoru::market::{
     market::{Market, UniqueIdMarketImpl},
     market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait}
 };
-use satoru::exchange::order_handler::{OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait};
+use satoru::exchange::order_handler::{
+    OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait
+};
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 
 // *********************************************************************************************
@@ -64,15 +67,15 @@ fn given_right_swap_order_params_when_execute_order_then_success() {
     // Transfer tokens in the order_vault in order for initial_collateral_delta_amount to be non zero.
     start_prank(contract_address_const::<'ETH'>(), caller_address);
     start_prank(contract_address_const::<'USDC'>(), caller_address);
-    IERC20Dispatcher {contract_address: contract_address_const::<'ETH'>()}
+    IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .transfer(order_vault.contract_address, 5000000000000000000000000000000);
     // IERC20Dispatcher {contract_address: contract_address_const::<'USDC'>()}
     //     .transfer(order_vault.contract_address, 5000000000000000000000000000000);
 
     // Fill the pool.
-    IERC20Dispatcher {contract_address: contract_address_const::<'ETH'>()}
+    IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .transfer(market.market_token, 100000000000000000000000000000);
-    IERC20Dispatcher {contract_address: contract_address_const::<'USDC'>()}
+    IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
         .transfer(market.market_token, 300000000000000000000000000000000);
 
     // Set pool amount in data_store.
@@ -80,16 +83,18 @@ fn given_right_swap_order_params_when_execute_order_then_success() {
     data_store.set_u128(key, 100000000000000000000000000000);
     key = keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>());
     data_store.set_u128(key, 300000000000000000000000000000000);
-    
+
     // Set max pool amount.
-    data_store.set_u128(keys::max_pool_amount_key(
-        market.market_token, contract_address_const::<'USDC'>()),
-        5000000000000000000000000000000000000
-    );
-    data_store.set_u128(keys::max_pool_amount_key(
-        market.market_token, contract_address_const::<'ETH'>()),
-        5000000000000000000000000000000000000
-    );
+    data_store
+        .set_u128(
+            keys::max_pool_amount_key(market.market_token, contract_address_const::<'USDC'>()),
+            5000000000000000000000000000000000000
+        );
+    data_store
+        .set_u128(
+            keys::max_pool_amount_key(market.market_token, contract_address_const::<'ETH'>()),
+            5000000000000000000000000000000000000
+        );
     // Set params in data_store.
     data_store.set_address(keys::fee_token(), market.index_token);
     data_store.set_u128(keys::max_swap_path_length(), 5);
@@ -133,7 +138,9 @@ fn given_right_swap_order_params_when_execute_order_then_success() {
         compacted_min_prices_indexes: array![0],
         compacted_max_prices: array![2147483648010000], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
-        signatures: array![array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()],
+        signatures: array![
+            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
+        ],
         price_feed_tokens: array![]
     };
     start_prank(order_handler.contract_address, caller_address);
@@ -187,9 +194,7 @@ fn setup_contracts() -> (
         swap_handler_address,
         referral_storage_address
     );
-    let order_handler = IOrderHandlerDispatcher {
-        contract_address: order_handler_address
-    };
+    let order_handler = IOrderHandlerDispatcher { contract_address: order_handler_address };
 
     let market_token_class_hash = declare_market_token();
     let market_factory_address = deploy_market_factory(
@@ -225,8 +230,7 @@ fn create_market(market_factory: IMarketFactoryDispatcher) -> ContractAddress {
     let market_type = 'market_type';
 
     // Index token is the same as long token here.
-    market_factory
-        .create_market(index_token, index_token, short_token, market_type)
+    market_factory.create_market(index_token, index_token, short_token, market_type)
 }
 
 /// Utility function to deploy an `OrderVault` contract and return its address.
@@ -247,11 +251,15 @@ fn deploy_tokens() -> (ContractAddress, ContractAddress) {
 
     let eth_address = contract_address_const::<'ETH'>();
 
-    let constructor_calldata = array!['Ethereum', 'ETH', 50000000000000000000000000000000000000, 0, caller_address.into()];
+    let constructor_calldata = array![
+        'Ethereum', 'ETH', 50000000000000000000000000000000000000, 0, caller_address.into()
+    ];
     contract.deploy_at(@constructor_calldata, eth_address).unwrap();
 
     let usdc_address = contract_address_const::<'USDC'>();
-    let constructor_calldata = array!['usdc', 'USDC', 50000000000000000000000000000000000000, 0, caller_address.into()];
+    let constructor_calldata = array![
+        'usdc', 'USDC', 50000000000000000000000000000000000000, 0, caller_address.into()
+    ];
     contract.deploy_at(@constructor_calldata, usdc_address).unwrap();
     (eth_address, usdc_address)
 }

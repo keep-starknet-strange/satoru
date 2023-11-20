@@ -190,9 +190,11 @@ fn get_uncompacted_value(
     }
 
     let slot_bits = *compacted_values.at(slot_index); // 4294967346000000
-    let offset = (index - slot_index * compacted_values_per_slot) * compacted_value_bit_length; // = 32
+    let offset = (index - slot_index * compacted_values_per_slot)
+        * compacted_value_bit_length; // = 32
 
-    let value = (slot_bits / pow(2, offset)) & bit_mask; // 4294967346000000 / 2^32 = 1000000 & bit_mask
+    let value = (slot_bits / pow(2, offset))
+        & bit_mask; // 4294967346000000 / 2^32 = 1000000 & bit_mask
 
     value
 }

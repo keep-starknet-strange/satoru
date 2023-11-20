@@ -193,9 +193,7 @@ mod OracleError {
         data.append(data_2.into());
     }
 
-    fn MIN_PRICES_NOT_SORTED(
-        token: ContractAddress, min_price: u128, min_price_prev: u128
-    ) {
+    fn MIN_PRICES_NOT_SORTED(token: ContractAddress, min_price: u128, min_price_prev: u128) {
         let mut data: Array<felt252> = array![];
         data.append('min prices not sorted');
         data.append(token.into());
@@ -204,9 +202,7 @@ mod OracleError {
         panic(data)
     }
 
-    fn MAX_PRICES_NOT_SORTED(
-        token: ContractAddress, max_price: u128, max_price_prev: u128
-    ) {
+    fn MAX_PRICES_NOT_SORTED(token: ContractAddress, max_price: u128, max_price_prev: u128) {
         let mut data: Array<felt252> = array![];
         data.append('max prices not sorted');
         data.append(token.into());

@@ -205,7 +205,6 @@ fn execute_order(params: ExecuteOrderParams) {
         params.keeper,
         params.order.account
     );
-
 }
 
 /// Process an order execution.

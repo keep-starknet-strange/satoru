@@ -557,7 +557,7 @@ mod Oracle {
                     report_info
                         .block_hash = get_block_hash_syscall(report_info.max_oracle_block_number)
                         .unwrap_syscall();
-                }   
+                }
 
                 report_info.token = *params.tokens.at(i);
 
@@ -602,11 +602,19 @@ mod Oracle {
                         );
                     if j != 0 {
                         if *inner_cache.min_prices.at(j - 1) > *inner_cache.min_prices.at(j) {
-                            OracleError::MIN_PRICES_NOT_SORTED(report_info.token, *inner_cache.min_prices.at(j), *inner_cache.min_prices.at(j - 1));
+                            OracleError::MIN_PRICES_NOT_SORTED(
+                                report_info.token,
+                                *inner_cache.min_prices.at(j),
+                                *inner_cache.min_prices.at(j - 1)
+                            );
                         }
 
                         if *inner_cache.max_prices.at(j - 1) > *inner_cache.max_prices.at(j) {
-                            OracleError::MAX_PRICES_NOT_SORTED(report_info.token, *inner_cache.max_prices.at(j), *inner_cache.max_prices.at(j - 1));
+                            OracleError::MAX_PRICES_NOT_SORTED(
+                                report_info.token,
+                                *inner_cache.max_prices.at(j),
+                                *inner_cache.max_prices.at(j - 1)
+                            );
                         }
                     }
                     j += 1;
@@ -694,7 +702,7 @@ mod Oracle {
 
                 let median_max_price = arrays::get_median(inner_cache_save.max_prices.span())
                     * report_info.precision;
-                
+
                 let (has_price_feed, ref_price) = self
                     .get_price_feed_price(data_store, report_info.token);
 

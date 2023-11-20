@@ -155,7 +155,6 @@ fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i128 {
     } else {
         price_impact_usd
     }
-
 }
 
 /// Called by get_price_impact_usd().
@@ -245,15 +244,13 @@ fn get_next_pool_amount_params(
     if params.usd_delta_for_token_a < Zeroable::zero()
         && calc::to_unsigned(i128_neg(params.usd_delta_for_token_a)) > pool_usd_for_token_a {
         PricingError::USD_DELTA_EXCEEDS_POOL_VALUE(
-                params.usd_delta_for_token_a.into(),
-                pool_usd_for_token_a.into()
+            params.usd_delta_for_token_a.into(), pool_usd_for_token_a.into()
         );
     }
     if params.usd_delta_for_token_b < Zeroable::zero()
         && calc::to_unsigned(i128_neg(params.usd_delta_for_token_b)) > pool_usd_for_token_b {
         PricingError::USD_DELTA_EXCEEDS_POOL_VALUE(
-                params.usd_delta_for_token_b.into(),
-                pool_usd_for_token_b.into()
+            params.usd_delta_for_token_b.into(), pool_usd_for_token_b.into()
         );
     }
 
