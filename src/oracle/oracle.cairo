@@ -202,7 +202,6 @@ mod Oracle {
     use alexandria_sorting::merge_sort;
     use alexandria_storage::list::{ListTrait, List};
     use poseidon::poseidon_hash_span;
-    use debug::PrintTrait;
     // Local imports.
     use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
@@ -687,12 +686,12 @@ mod Oracle {
                             report_info.min_price, report_info.max_price
                         );
                     }
-                    // oracle_utils::validate_signer(
-                    //     self.get_salt(),
-                    //     report_info,
-                    //     *signatures_span.at(inner_cache.signature_index),
-                    //     signers_span.at(j)
-                    // );
+                    oracle_utils::validate_signer(
+                        self.get_salt(),
+                        report_info,
+                        *signatures_span.at(inner_cache.signature_index),
+                        signers_span.at(j)
+                    );
 
                     j += 1;
                 };

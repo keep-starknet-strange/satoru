@@ -107,7 +107,6 @@ mod OrderHandler {
     use starknet::ContractAddress;
     use starknet::{get_caller_address, get_contract_address};
     use array::ArrayTrait;
-    use debug::PrintTrait;
 
     // Local imports.
     use super::IOrderHandler;

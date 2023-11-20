@@ -63,7 +63,7 @@ impl DefaultSwapParams of Default<SwapParams> {
         }
     }
 }
-use debug::PrintTrait;
+
 #[derive(Drop, Copy, starknet::Store, Serde)]
 struct _SwapParams {
     /// The market in which the swap should be executed.

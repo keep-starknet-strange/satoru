@@ -16,6 +16,7 @@ mod PricingError {
 
     fn USD_DELTA_EXCEEDS_POOL_VALUE(usd_delta: felt252, pool_usd_for_token: u128) {
         let mut data = array!['usd_delta_exceeds_pool_value'];
+        // TODO adding this crash on swap test
         // data.append(usd_delta.into());
         data.append(pool_usd_for_token.into());
         panic(data)

@@ -3,7 +3,6 @@
 // *************************************************************************
 // Core lib imports.
 use starknet::{ContractAddress, get_caller_address, get_block_timestamp, contract_address_const};
-use debug::PrintTrait;
 // Local imports.
 use satoru::utils::calc::roundup_magnitude_division;
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};

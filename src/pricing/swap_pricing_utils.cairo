@@ -81,7 +81,7 @@ impl DefaultSwapFees of Default<SwapFees> {
         }
     }
 }
-use debug::PrintTrait;
+
 /// Get the price impact in USD
 ///
 /// Note that there will be some difference between the pool amounts used for

@@ -117,7 +117,6 @@ fn COMPACTED_PRICE_INDEX_BITMASK() -> u128 {
     BITMASK_8
 }
 
-use debug::PrintTrait;
 /// Validates wether a block number is in range.
 /// # Arguments
 /// * `min_oracle_block_numbers` - The oracles block number that should be less than block_number.

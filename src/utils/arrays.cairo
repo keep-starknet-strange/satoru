@@ -159,7 +159,7 @@ fn get_median(arr: Span<u128>) -> u128 {
         (left + right) / 2
     }
 }
-use debug::PrintTrait;
+
 /// Gets the uncompacted value at the specified index in the given array of compacted values.
 /// # Arguments
 /// * `compacted_values` - the array of compacted values to get the uncompacted value from.

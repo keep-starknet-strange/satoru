@@ -17,7 +17,6 @@ use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::utils::span32::{Span32, DefaultSpan32};
 use satoru::oracle::error::OracleError;
 
-use debug::PrintTrait;
 fn process_order(params: ExecuteOrderParams) -> LogData {
     if (params.order.market.is_non_zero()) {
         panic(array![OrderError::UNEXPECTED_MARKET]);
