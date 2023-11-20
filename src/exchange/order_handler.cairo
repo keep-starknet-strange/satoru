@@ -7,7 +7,6 @@
 // Core lib imports.
 use core::traits::Into;
 use starknet::ContractAddress;
-
 // Local imports.
 use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
 use satoru::order::{base_order_utils::CreateOrderParams, order::Order};
@@ -337,7 +336,6 @@ mod OrderHandler {
             // Check only order keeper.
             let role_module_state = RoleModule::unsafe_new_contract_state();
             role_module_state.only_order_keeper();
-
             // Fetch data store.
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
@@ -352,7 +350,6 @@ mod OrderHandler {
 
             // TODO: Did not implement starting gas and try / catch logic as not available in Cairo
             self._execute_order(key, oracle_params, get_contract_address());
-
             oracle_modules::with_oracle_prices_after(base_order_handler_state.oracle.read());
             global_reentrancy_guard::non_reentrant_after(data_store);
         }

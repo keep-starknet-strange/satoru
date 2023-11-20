@@ -107,8 +107,8 @@ fn swap(params: @SwapParams) -> (ContractAddress, u128) {
     if (*params.amount_in == 0) {
         return (*params.token_in, *params.amount_in);
     }
-    let array_length = (*params.swap_path_markets).len();
-    if (array_length == 0) {
+    let swap_path_array_length = (*params.swap_path_markets).len();
+    if (swap_path_array_length == 0) {
         if (*params.amount_in < *params.min_output_amount) {
             SwapError::INSUFFICIENT_OUTPUT_AMOUNT(*params.amount_in, *params.min_output_amount);
         }
@@ -117,31 +117,38 @@ fn swap(params: @SwapParams) -> (ContractAddress, u128) {
         }
         return (*params.token_in, *params.amount_in);
     }
+
     let first_path: Market = *params.swap_path_markets[0];
     if (params.bank.contract_address != @first_path.market_token) {
         (*params.bank).transfer_out(*params.token_in, first_path.market_token, *params.amount_in);
     }
+
     let mut token_out = *params.token_in;
     let mut output_amount = *params.amount_in;
+
     let mut i = 0;
     loop {
-        if (i >= array_length) {
+        if (i >= swap_path_array_length) {
             break;
         }
+
         let market: Market = *params.swap_path_markets[i];
         let flag_exists = (*params.data_store)
             .get_bool(keys::swap_path_market_flag_key(market.market_token));
         if (flag_exists) {
             SwapError::DUPLICATED_MARKET_IN_SWAP_PATH(market.market_token);
         }
+
         (*params.data_store).set_bool(keys::swap_path_market_flag_key(market.market_token), true);
         let next_index = i + 1;
-        let path: Market = *params.swap_path_markets[next_index];
-        let receiver = if (next_index < array_length) {
-            path.market_token
+        let mut receiver: ContractAddress = Default::default();
+        if next_index < (*params.swap_path_markets).len() {
+            let market: Market = *params.swap_path_markets[next_index];
+            receiver = market.market_token;
         } else {
-            *params.receiver
-        };
+            receiver = *params.receiver;
+        }
+
         let _params = _SwapParams {
             market: market, token_in: token_out, amount_in: output_amount, receiver: receiver,
         };
@@ -150,9 +157,10 @@ fn swap(params: @SwapParams) -> (ContractAddress, u128) {
         output_amount = _output_amount_res;
         i += 1;
     };
+
     i = 0;
     loop {
-        if (i >= array_length) {
+        if (i >= swap_path_array_length) {
             break;
         }
         let market: Market = *params.swap_path_markets[i];
@@ -189,6 +197,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
         .into();
 
     let usd_delta = *_params.amount_in * cache.token_out_price.mid_price();
+
     let price_impact_usd = swap_pricing_utils::get_price_impact_usd(
         swap_pricing_utils::GetPriceImpactUsdParams {
             data_store: *params.data_store,
@@ -228,6 +237,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
         fees.ui_fee_amount,
         keys::swap_fee_type(),
     );
+
     let mut price_impact_amount: i128 = Zeroable::zero();
     if (price_impact_usd > Zeroable::zero()) {
         // when there is a positive price impact factor, additional tokens from the swap impact pool
@@ -290,7 +300,6 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
         *_params.token_in,
         calc::to_signed((cache.amount_in + fees.fee_amount_for_pool), true),
     );
-
     // the poolAmountOut excludes the positive price impact amount
     // as that is deducted from the swap impact pool instead
     market_utils::apply_delta_to_pool_amount(

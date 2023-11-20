@@ -147,7 +147,6 @@ fn is_block_number_within_range(
     if (!are_lte_u64(min_oracle_block_numbers, block_number)) {
         return false;
     }
-
     if (!are_gte_u64(max_oracle_block_numbers, block_number)) {
         return false;
     }

@@ -191,6 +191,23 @@ mod OracleError {
             data.append(el.into());
         };
         data.append(data_2.into());
+    }
+
+    fn MIN_PRICES_NOT_SORTED(token: ContractAddress, min_price: u128, min_price_prev: u128) {
+        let mut data: Array<felt252> = array![];
+        data.append('min prices not sorted');
+        data.append(token.into());
+        data.append(min_price.into());
+        data.append(min_price_prev.into());
+        panic(data)
+    }
+
+    fn MAX_PRICES_NOT_SORTED(token: ContractAddress, max_price: u128, max_price_prev: u128) {
+        let mut data: Array<felt252> = array![];
+        data.append('max prices not sorted');
+        data.append(token.into());
+        data.append(max_price.into());
+        data.append(max_price_prev.into());
         panic(data)
     }
 }

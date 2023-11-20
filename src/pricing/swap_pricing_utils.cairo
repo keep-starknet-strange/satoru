@@ -99,7 +99,6 @@ impl DefaultSwapFees of Default<SwapFees> {
 /// New pool amount.
 fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i128 {
     let pool_params = get_next_pool_amount_usd(params);
-
     let price_impact_usd = get_price_impact_usd_(params.data_store, params.market, pool_params);
 
     // the virtual price impact calculation is skipped if the price impact
@@ -222,6 +221,7 @@ fn get_next_pool_amount_usd(params: GetPriceImpactUsdParams) -> PoolParams {
     let pool_amount_for_token_a = market_utils::get_pool_amount(
         params.data_store, @params.market, params.token_a
     );
+
     let pool_amount_for_token_b = market_utils::get_pool_amount(
         params.data_store, @params.market, params.token_b
     );
@@ -243,24 +243,17 @@ fn get_next_pool_amount_params(
     let pool_usd_for_token_b = pool_amount_for_token_b * params.price_for_token_b;
     if params.usd_delta_for_token_a < Zeroable::zero()
         && calc::to_unsigned(i128_neg(params.usd_delta_for_token_a)) > pool_usd_for_token_a {
-        panic(
-            array![
-                PricingError::USD_DELTA_EXCEEDS_POOL_VALUE,
-                params.usd_delta_for_token_a.into(),
-                pool_usd_for_token_a.into()
-            ]
+        PricingError::USD_DELTA_EXCEEDS_POOL_VALUE(
+            params.usd_delta_for_token_a.into(), pool_usd_for_token_a.into()
         );
     }
     if params.usd_delta_for_token_b < Zeroable::zero()
         && calc::to_unsigned(i128_neg(params.usd_delta_for_token_b)) > pool_usd_for_token_b {
-        panic(
-            array![
-                PricingError::USD_DELTA_EXCEEDS_POOL_VALUE,
-                params.usd_delta_for_token_b.into(),
-                pool_usd_for_token_b.into()
-            ]
+        PricingError::USD_DELTA_EXCEEDS_POOL_VALUE(
+            params.usd_delta_for_token_b.into(), pool_usd_for_token_b.into()
         );
     }
+
     let next_pool_usd_for_token_a = calc::sum_return_uint_128(
         pool_usd_for_token_a, params.usd_delta_for_token_a
     );
