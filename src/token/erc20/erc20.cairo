@@ -104,6 +104,10 @@ mod ERC20 {
             self._approve(caller, spender, amount);
             true
         }
+
+        fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
+            self._mint(recipient, amount);
+        }
     }
 
     #[external(v0)]
