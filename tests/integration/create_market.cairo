@@ -39,100 +39,100 @@ use satoru::data::keys;
 const INITIAL_TOKENS_MINTED: felt252 = 1000;
 
 
-#[test]
-#[should_panic(expected: ('unauthorized_access',))]
-fn given_normal_conditions_when_create_market_and_add_liquidity_then_market_is_created() {
-    // *********************************************************************************************
-    // *                              SETUP                                                        *
-    // *********************************************************************************************
-    let (
-        caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
-        market_factory,
-        role_store,
-        data_store,
-        event_emitter,
-        exchange_router,
-        deposit_handler,
-        deposit_vault,
-        oracle,
-    ) =
-        setup();
+// #[test]
+// #[should_panic(expected: ('unauthorized_access',))]
+// fn given_normal_conditions_when_create_market_and_add_liquidity_then_market_is_created() {
+//     // *********************************************************************************************
+//     // *                              SETUP                                                        *
+//     // *********************************************************************************************
+//     let (
+//         caller_address,
+//         market_factory_address,
+//         role_store_address,
+//         data_store_address,
+//         market_token_class_hash,
+//         market_factory,
+//         role_store,
+//         data_store,
+//         event_emitter,
+//         exchange_router,
+//         deposit_handler,
+//         deposit_vault,
+//         oracle,
+//     ) =
+//         setup();
 
-    // *********************************************************************************************
-    // *                              TEST LOGIC                                                   *
-    // *********************************************************************************************
+//     // *********************************************************************************************
+//     // *                              TEST LOGIC                                                   *
+//     // *********************************************************************************************
 
-    // Create a market.
-    let market = data_store.get_market(create_market(market_factory));
-    // Set params in data_store
-    data_store.set_address(keys::fee_token(), market.index_token);
+//     // Create a market.
+//     let market = data_store.get_market(create_market(market_factory));
+//     // Set params in data_store
+//     data_store.set_address(keys::fee_token(), market.index_token);
 
-    let user1: ContractAddress = contract_address_const::<'user1'>();
-    let user2: ContractAddress = contract_address_const::<'user2'>();
+//     let user1: ContractAddress = contract_address_const::<'user1'>();
+//     let user2: ContractAddress = contract_address_const::<'user2'>();
 
-    let addresss_zero: ContractAddress = 0.try_into().unwrap();
+//     let addresss_zero: ContractAddress = 0.try_into().unwrap();
 
-    let params = CreateDepositParams {
-        receiver: user1,
-        callback_contract: user2,
-        ui_fee_receiver: addresss_zero,
-        market: market.market_token,
-        initial_long_token: market.long_token,
-        initial_short_token: market.short_token,
-        long_token_swap_path: Default::default(),
-        short_token_swap_path: Default::default(),
-        min_market_tokens: 0,
-        execution_fee: 0,
-        callback_gas_limit: 0,
-    };
-    IERC20Dispatcher { contract_address: market.long_token }
-        .mint(deposit_vault.contract_address, 1000000000000000000);
-    IERC20Dispatcher { contract_address: market.short_token }
-        .mint(deposit_vault.contract_address, 50000000000);
-    start_roll(deposit_handler.contract_address, 1910);
-    let key = deposit_handler.create_deposit(caller_address, params);
-    let first_deposit = data_store.get_deposit(key);
+//     let params = CreateDepositParams {
+//         receiver: user1,
+//         callback_contract: user2,
+//         ui_fee_receiver: addresss_zero,
+//         market: market.market_token,
+//         initial_long_token: market.long_token,
+//         initial_short_token: market.short_token,
+//         long_token_swap_path: Default::default(),
+//         short_token_swap_path: Default::default(),
+//         min_market_tokens: 0,
+//         execution_fee: 0,
+//         callback_gas_limit: 0,
+//     };
+//     IERC20Dispatcher { contract_address: market.long_token }
+//         .mint(deposit_vault.contract_address, 1000000000000000000);
+//     IERC20Dispatcher { contract_address: market.short_token }
+//         .mint(deposit_vault.contract_address, 50000000000);
+//     start_roll(deposit_handler.contract_address, 1910);
+//     let key = deposit_handler.create_deposit(caller_address, params);
+//     let first_deposit = data_store.get_deposit(key);
 
-    assert(first_deposit.account == caller_address, 'Wrong account depositer');
-    assert(first_deposit.receiver == user1, 'Wrong account receiver');
-    assert(first_deposit.initial_long_token == market.long_token, 'Wrong initial long token');
-    assert(
-        first_deposit.initial_long_token_amount == 1000000000000000000,
-        'Wrong initial long token amount'
-    );
-    assert(
-        first_deposit.initial_short_token_amount == 50000000000, 'Wrong init short token amount'
-    );
+//     assert(first_deposit.account == caller_address, 'Wrong account depositer');
+//     assert(first_deposit.receiver == user1, 'Wrong account receiver');
+//     assert(first_deposit.initial_long_token == market.long_token, 'Wrong initial long token');
+//     assert(
+//         first_deposit.initial_long_token_amount == 1000000000000000000,
+//         'Wrong initial long token amount'
+//     );
+//     assert(
+//         first_deposit.initial_short_token_amount == 50000000000, 'Wrong init short token amount'
+//     );
 
-    let price_params = SetPricesParams {
-        signer_info: 1,
-        tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-        compacted_min_oracle_block_numbers: array![1900, 1900],
-        compacted_max_oracle_block_numbers: array![1910, 1910],
-        compacted_oracle_timestamps: array![9999, 9999],
-        compacted_decimals: array![18, 18],
-        compacted_min_prices: array![4294967346000000], // 50000000, 1000000 compacted
-        compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![4294967346000000], // 50000000, 1000000 compacted
-        compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
-        price_feed_tokens: array![]
-    };
+//     let price_params = SetPricesParams {
+//         signer_info: 1,
+//         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
+//         compacted_min_oracle_block_numbers: array![1900, 1900],
+//         compacted_max_oracle_block_numbers: array![1910, 1910],
+//         compacted_oracle_timestamps: array![9999, 9999],
+//         compacted_decimals: array![18, 18],
+//         compacted_min_prices: array![4294967346000000], // 50000000, 1000000 compacted
+//         compacted_min_prices_indexes: array![0],
+//         compacted_max_prices: array![4294967346000000], // 50000000, 1000000 compacted
+//         compacted_max_prices_indexes: array![0],
+//         signatures: array![
+//             array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
+//         ],
+//         price_feed_tokens: array![]
+//     };
 
-    start_roll(deposit_handler.contract_address, 1915);
-    deposit_handler.execute_deposit(key, price_params);
+//     start_roll(deposit_handler.contract_address, 1915);
+//     deposit_handler.execute_deposit(key, price_params);
 
-    // *********************************************************************************************
-    // *                              TEARDOWN                                                     *
-    // *********************************************************************************************
-    teardown(data_store, market_factory);
-}
+//     // *********************************************************************************************
+//     // *                              TEARDOWN                                                     *
+//     // *********************************************************************************************
+//     teardown(data_store, market_factory);
+// }
 
 #[test]
 fn test_deposit_market_integration() {

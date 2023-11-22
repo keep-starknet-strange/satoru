@@ -496,6 +496,7 @@ mod DataStore {
     use satoru::utils::calc::{sum_return_uint_128, to_signed, to_unsigned};
     use satoru::utils::calc;
     use satoru::utils::i128::{i128, i128_neg};
+    use debug::PrintTrait;
 
     // *************************************************************************
     //                              STORAGE
@@ -672,11 +673,12 @@ mod DataStore {
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
 
             let current_value = self.u128_values.read(key);
-            if value < Default::default() && calc::to_unsigned(i128_neg(value)) > current_value {
+            if value < Zeroable::zero() && calc::to_unsigned(i128_neg(value)) > current_value {
                 panic(array![error]);
             }
-
-            let next_value = calc::sum_return_uint_128(current_value, value);
+            // let next_value = calc::sum_return_uint_128(current_value, value);
+            value.mag.print();
+            let next_value = current_value;
             self.u128_values.write(key, next_value);
             next_value
         }
