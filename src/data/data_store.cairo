@@ -676,9 +676,7 @@ mod DataStore {
             if value < Zeroable::zero() && calc::to_unsigned(i128_neg(value)) > current_value {
                 panic(array![error]);
             }
-            // let next_value = calc::sum_return_uint_128(current_value, value);
-            value.mag.print();
-            let next_value = current_value;
+            let next_value = calc::sum_return_uint_128(current_value, value);
             self.u128_values.write(key, next_value);
             next_value
         }

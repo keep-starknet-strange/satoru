@@ -41,7 +41,7 @@ use satoru::utils::{
     calc::{to_unsigned, to_signed}, i128::{i128, i128_new, i128_neg}, precision, span32::Span32,
     starknet_utils::{sn_gasleft, sn_gasprice}
 };
-
+use debug::PrintTrait;
 
 /// Struct used in executeDeposit to avoid stack too deep errors
 #[derive(Drop, Serde)]
@@ -438,6 +438,8 @@ fn execute_deposit_helper(
         market_utils::usd_to_market_token_amount(
             fees.amount_after_fees * _params.token_in_price.min, pool_value, market_tokens_supply,
         );
+
+    fees.amount_after_fees.print();
 
     market_utils::apply_delta_to_pool_amount(
         *params.data_store,
