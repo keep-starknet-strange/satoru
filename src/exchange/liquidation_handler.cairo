@@ -40,18 +40,14 @@ mod LiquidationHandler {
     // *************************************************************************
 
     // Core lib imports.
-    use satoru::exchange::base_order_handler::BaseOrderHandler::{
-        event_emitter::InternalContractMemberStateTrait,
-        data_store::InternalContractMemberStateImpl,
-        oracle::InternalContractMemberStateTrait as OracleStateTrait,
-    };
+
     use starknet::{ContractAddress, get_caller_address, get_contract_address};
 
 
     // Local imports.
     use super::ILiquidationHandler;
     use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
-    use satoru::role::role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait};
+    use satoru::role::role_module::{RoleModule, IRoleModule};
 
     use satoru::data::{
         data_store::{IDataStoreSafeDispatcher, IDataStoreSafeDispatcherTrait, DataStore},
@@ -69,14 +65,20 @@ mod LiquidationHandler {
     };
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use satoru::market::market::Market;
-    use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
-    use satoru::liquidation::liquidation_utils::create_liquidation_order;
-    use satoru::exchange::order_handler;
-    use satoru::feature::feature_utils::validate_feature;
-    use satoru::exchange::order_handler::{IOrderHandler, OrderHandler};
-    use satoru::utils::starknet_utils;
-    use satoru::utils::global_reentrancy_guard;
+    use satoru::exchange::{
+        order_handler::{IOrderHandler, OrderHandler},
+        base_order_handler::{IBaseOrderHandler, BaseOrderHandler}
+    };
 
+
+    use satoru::liquidation::liquidation_utils::create_liquidation_order;
+    use satoru::feature::feature_utils::validate_feature;
+    use satoru::utils::{starknet_utils, global_reentrancy_guard};
+    use satoru::exchange::base_order_handler::BaseOrderHandler::{
+        event_emitter::InternalContractMemberStateTrait,
+        data_store::InternalContractMemberStateImpl,
+        oracle::InternalContractMemberStateTrait as OracleStateTrait,
+    };
 
     // *************************************************************************
     //                              STORAGE
@@ -119,6 +121,9 @@ mod LiquidationHandler {
             swap_handler_address,
             referral_storage_address
         );
+
+        let mut state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
+        IRoleModule::initialize(ref state, role_store_address,);
     }
 
 
@@ -141,7 +146,8 @@ mod LiquidationHandler {
                 BaseOrderHandler::unsafe_new_contract_state(); //retrieve BaseOrderHandler state
             global_reentrancy_guard::non_reentrant_before(state_base.data_store.read());
 
-            state_base.only_liquidation_keeper();
+            let mut role_state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
+            IRoleModule::only_liquidation_keeper(@role_state);
 
             with_oracle_prices_before(
                 state_base.oracle.read(),

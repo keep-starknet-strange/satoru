@@ -10,28 +10,36 @@ use starknet::{
     ContractAddress, contract_address_const, contract_address_to_felt252, ClassHash,
     Felt252TryIntoContractAddress
 };
-use satoru::position::position_utils::get_position_key;
 use satoru::mock::referral_storage;
 use traits::Default;
-use satoru::oracle::oracle_utils::SetPricesParams;
-use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
-use satoru::role::role;
-use satoru::role::role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait};
+
+use satoru::role::{
+    role, role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait},
+    role_module::{IRoleModuleDispatcher, IRoleModuleDispatcherTrait}
+};
+
 use satoru::order::order::{Order, OrderType, OrderTrait, DecreasePositionSwapType};
 use satoru::utils::span32::{Span32, Array32Trait};
-use satoru::position::position::Position;
+use satoru::position::{position::Position, position_utils::get_position_key};
 use satoru::liquidation::liquidation_utils::create_liquidation_order;
-use satoru::exchange::base_order_handler::{IBaseOrderHandler, BaseOrderHandler};
-use satoru::exchange::base_order_handler::BaseOrderHandler::{
-    event_emitter::InternalContractMemberStateTrait, data_store::InternalContractMemberStateImpl
+use satoru::exchange::base_order_handler::{
+    IBaseOrderHandler,
+    BaseOrderHandler::{
+        event_emitter::InternalContractMemberStateTrait, data_store::InternalContractMemberStateImpl
+    }
 };
+
 use satoru::event::event_emitter::{IEventEmitterDispatcher};
 use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
-use satoru::oracle::oracle::{Oracle, IOracleDispatcher, IOracleDispatcherTrait};
+use satoru::oracle::{
+    oracle::{Oracle, IOracleDispatcher, IOracleDispatcherTrait},
+    oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait},
+    interfaces::account::{IAccount, IAccountDispatcher, IAccountDispatcherTrait},
+    oracle_utils::SetPricesParams
+};
+
 use satoru::utils::precision;
 use satoru::price::price::Price;
-use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
-use satoru::oracle::{interfaces::account::{IAccount, IAccountDispatcher, IAccountDispatcherTrait}};
 use satoru::market::market::{Market};
 use satoru::nonce::nonce_utils;
 const max_u128: u128 = 340282366920938463463374607431768211455;
