@@ -13,7 +13,6 @@ use snforge_std::{
 };
 use traits::Default;
 use poseidon::poseidon_hash_span;
-use debug::PrintTrait;
 // Local imports.
 use satoru::role::role;
 use satoru::tests_lib;

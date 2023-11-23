@@ -1,5 +1,5 @@
 use snforge_std::{
-    declare, start_prank, stop_prank, start_roll, ContractClassTrait, ContractClass, PrintTrait
+    declare, start_prank, stop_prank, start_roll, ContractClassTrait, ContractClass
 };
 
 use satoru::exchange::liquidation_handler::{

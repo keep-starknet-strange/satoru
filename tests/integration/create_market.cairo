@@ -5,7 +5,6 @@
 // Core lib imports.
 
 use result::ResultTrait;
-use debug::PrintTrait;
 use traits::{TryInto, Into};
 use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
@@ -240,8 +239,6 @@ fn test_deposit_market_integration() {
     deposit_handler.execute_deposit(key, price_params);
 
     // let balance = IERC20Dispatcher{ contract_address: market.market_token }.balance_of(caller_address);
-
-    // IERC20Dispatcher{ contract_address: market.demarket_token }.balance_of(caller_address).print();
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
