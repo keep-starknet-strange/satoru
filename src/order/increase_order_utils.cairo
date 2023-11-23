@@ -83,7 +83,7 @@ fn process_order(params: ExecuteOrderParams) -> event_utils::LogData {
         collateral_increment_amount
     );
 
-    let log: event_utils::LogData = Default::default(); // TODO
+    let log: event_utils::LogData = Default::default();
     log
 }
 

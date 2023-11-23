@@ -26,7 +26,10 @@ use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatche
 use satoru::data::keys;
 use satoru::role::role;
 use satoru::price::price::{Price, PriceTrait};
-use satoru::position::{position::Position, position_utils::UpdatePositionParams, position_utils};
+use satoru::position::{
+    position::Position, position_utils::UpdatePositionParams,
+    position_utils::WillPositionCollateralBeSufficientValues, position_utils
+};
 use satoru::tests_lib::{setup, setup_event_emitter, teardown};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::pricing::position_pricing_utils::{PositionFees, PositionReferralFees};
@@ -37,7 +40,7 @@ use satoru::order::{
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::order::base_order_utils::ExecuteOrderParamsContracts;
-use satoru::utils::i128::{i128};
+use satoru::utils::i128::{i128, i128_new};
 #[test]
 fn given_normal_conditions_when_get_position_key_then_works() {
     // 
@@ -679,11 +682,69 @@ fn given_valid_referral_when_handling_then_referral_successfully_processed() {
 
     assert(affiliate_reward_value == 30, 'Invalide affiliate reward value')
 }
-//TODO
-// #[test]
-// fn test_will_position_collateral_be_sufficient() {
-//}
 
+
+#[test]
+fn test_will_position_collateral_be_sufficient() {
+    // Setup
+    let (caller_address, role_store, data_store) = setup();
+
+    let market_token: ContractAddress = contract_address_const::<'market_token'>();
+    let long_token: ContractAddress = contract_address_const::<'long_token'>();
+    let short_token: ContractAddress = contract_address_const::<'short_token'>();
+    let market: Market = Market { market_token, index_token: long_token, long_token, short_token };
+
+    let long_token_price = Price { min: 100, max: 110 };
+    let index_token_price = Price { min: 100, max: 110 };
+    let short_token_price = Price { min: 100, max: 110 };
+
+    // setting long interest greater than te position size in USD...
+    let open_interest_key = keys::open_interest_key(market_token, long_token, true);
+    data_store.set_u128(open_interest_key, 15000);
+
+    // setting a min collateral factor for the market
+    let min_collateral_factor_key = keys::min_collateral_factor_key(market_token);
+    data_store.set_u128(min_collateral_factor_key, 10_000_000_000_000_000_000);
+
+    let prices: MarketPrices = MarketPrices {
+        index_token_price: index_token_price,
+        long_token_price: long_token_price,
+        short_token_price: short_token_price
+    };
+
+    let values: WillPositionCollateralBeSufficientValues =
+        WillPositionCollateralBeSufficientValues {
+        position_size_in_usd: 1000,
+        position_collateral_amount: 50,
+        realized_pnl_usd: i128_new(10, true),
+        open_interest_delta: i128_new(5, true),
+    };
+
+    // invoke the function with scenario where collateral will be sufficient
+    let (will_be_sufficient, remaining_collateral_usd) =
+        position_utils::will_position_collateral_be_sufficient(
+        data_store, market, prices, long_token, true, values
+    );
+    assert(will_be_sufficient, 'collateral supposed sufficient');
+    assert(remaining_collateral_usd == i128_new(4990, false), 'eq 4990');
+
+    let values: WillPositionCollateralBeSufficientValues =
+        WillPositionCollateralBeSufficientValues {
+        position_size_in_usd: 1000,
+        position_collateral_amount: 5,
+        realized_pnl_usd: i128_new(410, true),
+        open_interest_delta: i128_new(5, true),
+    };
+
+    // invoke the function with scenario where collateral will be insufficient
+    let (will_be_sufficient, remaining_collateral_usd) =
+        position_utils::will_position_collateral_be_sufficient(
+        data_store, market, prices, long_token, true, values
+    );
+    // assert that the function returns that the collateral is not sufficient
+    assert(!will_be_sufficient, 'collateral should insufficient');
+    assert(remaining_collateral_usd == i128_new(90, false), 'eq 90');
+}
 //TODO
 // #[test]
 // fn test_update_funding_and_borrowing_state() {

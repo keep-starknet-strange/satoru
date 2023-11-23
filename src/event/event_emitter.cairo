@@ -1549,7 +1549,7 @@ mod EventEmitter {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl EventEmitterImpl of super::IEventEmitter<ContractState> {
         /// Emits the `ClaimableCollateralUpdated` event.
         fn emit_claimable_collateral_updated(

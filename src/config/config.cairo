@@ -97,7 +97,7 @@ mod Config {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl ConfigImpl of super::IConfig<ContractState> {
         fn set_bool(
             ref self: ContractState, base_key: felt252, data: Array<felt252>, value: bool,

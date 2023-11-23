@@ -84,8 +84,7 @@ mod MarketToken {
     //
     // External
     //
-
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl MarketTokenImpl of IMarketToken<ContractState> {
         fn name(self: @ContractState) -> felt252 {
             self.name.read()

@@ -149,7 +149,7 @@ mod RoleStore {
     // *************************************************************************
     // EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl RoleStore of super::IRoleStore<ContractState> {
         fn has_role(self: @ContractState, account: ContractAddress, role_key: felt252) -> bool {
             self._has_role(account, role_key)

@@ -743,8 +743,7 @@ fn claimable_ui_fee_amount_for_account_key(
 fn deposit_gas_limit_key(single_token: bool) -> felt252 {
     let mut data = array![];
     data.append(deposit_gas_limit());
-    // TODO: Replace by `single_token.into()` once upgrading to next version of Cairo.
-    data.append(bool_to_felt252(single_token));
+    data.append(single_token.into());
     poseidon_hash_span(data.span())
 }
 

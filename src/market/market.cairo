@@ -39,7 +39,7 @@ use zeroable::Zeroable;
 use satoru::market::error::MarketError;
 use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
 
-/// Deriving the `storage_access::StorageAccess` trait
+/// Deriving the `storage_access::Store` trait
 /// allows us to store the `Market` struct in a contract's storage.
 /// We use `Copy` but this is inneficient.
 /// TODO: Optimize this.

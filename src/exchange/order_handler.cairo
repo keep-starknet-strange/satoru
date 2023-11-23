@@ -7,7 +7,6 @@
 // Core lib imports.
 use core::traits::Into;
 use starknet::ContractAddress;
-
 // Local imports.
 use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
 use satoru::order::{base_order_utils::CreateOrderParams, order::Order};
@@ -117,7 +116,7 @@ mod OrderHandler {
     use satoru::order::{base_order_utils::CreateOrderParams, order_utils, order, base_order_utils};
     use satoru::order::{
         order::{Order, OrderTrait, OrderType, SecondaryOrderType},
-        order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}, order_event_utils
+        order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}
     };
     use satoru::market::market::Market;
     use satoru::market::error::MarketError;
@@ -137,6 +136,7 @@ mod OrderHandler {
     };
     use satoru::feature::feature_utils;
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
+    use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::data::keys;
     use satoru::role::role;
     use satoru::role::role_module::{RoleModule, IRoleModule};
@@ -194,7 +194,7 @@ mod OrderHandler {
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl OrderHandlerImpl of super::IOrderHandler<ContractState> {
         fn create_order(
             ref self: ContractState, account: ContractAddress, params: CreateOrderParams
@@ -244,6 +244,7 @@ mod OrderHandler {
             // Fetch data store.
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
+            let event_emitter = base_order_handler_state.event_emitter.read();
 
             global_reentrancy_guard::non_reentrant_before(data_store);
 
@@ -280,14 +281,10 @@ mod OrderHandler {
             base_order_utils::validate_non_empty_order(@updated_order);
 
             data_store.set_order(key, updated_order);
-            order_event_utils::emit_order_updated(
-                base_order_handler_state.event_emitter.read(),
-                key,
-                size_delta_usd,
-                acceptable_price,
-                trigger_price,
-                min_output_amount,
-            );
+            event_emitter
+                .emit_order_updated(
+                    key, size_delta_usd, acceptable_price, trigger_price, min_output_amount
+                );
 
             global_reentrancy_guard::non_reentrant_after(data_store);
 
@@ -339,7 +336,6 @@ mod OrderHandler {
             // Check only order keeper.
             let role_module_state = RoleModule::unsafe_new_contract_state();
             role_module_state.only_order_keeper();
-
             // Fetch data store.
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
@@ -354,7 +350,6 @@ mod OrderHandler {
 
             // TODO: Did not implement starting gas and try / catch logic as not available in Cairo
             self._execute_order(key, oracle_params, get_contract_address());
-
             oracle_modules::with_oracle_prices_after(base_order_handler_state.oracle.read());
             global_reentrancy_guard::non_reentrant_after(data_store);
         }

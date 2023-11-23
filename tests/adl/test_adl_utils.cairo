@@ -68,13 +68,13 @@ fn given_normal_conditions_when_set_adl_enabled_then_works() {
 
     // Test logic
     // Default should return false
-    let is_enabled = adl_utils::get_adl_enabled(data_store, market, is_long);
+    let is_enabled = adl_utils::get_is_adl_enabled(data_store, market, is_long);
     assert(!is_enabled, 'Invalid enabled result');
 
     let enabled_value = true;
     adl_utils::set_adl_enabled(data_store, market, is_long, enabled_value);
 
-    let is_enabled_after = adl_utils::get_adl_enabled(data_store, market, is_long);
+    let is_enabled_after = adl_utils::get_is_adl_enabled(data_store, market, is_long);
     assert(is_enabled_after == enabled_value, 'Invalid enabled result2');
 
     teardown(data_store.contract_address);

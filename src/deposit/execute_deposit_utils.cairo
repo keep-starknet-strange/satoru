@@ -162,10 +162,9 @@ fn execute_deposit(params: ExecuteDepositParams) {
                 deposit.ui_fee_receiver,
             );
 
-    assert(
-        cache.long_token_amount == 0 && cache.short_token_amount == 0,
-        DepositError::EMPTY_DEPOSIT_AMOUNTS_AFTER_SWAP
-    );
+    if cache.long_token_amount == 0 && cache.short_token_amount == 0 {
+        panic_with_felt252(DepositError::EMPTY_DEPOSIT_AMOUNTS_AFTER_SWAP)
+    }
 
     cache.long_token_usd = cache.long_token_amount * prices.long_token_price.mid_price();
     cache.short_token_usd = cache.short_token_amount * prices.short_token_price.mid_price();
@@ -204,7 +203,9 @@ fn execute_deposit(params: ExecuteDepositParams) {
         };
 
         cache.received_market_tokens += execute_deposit_helper(@params, ref _params);
-    } else if cache.short_token_amount > 0 {
+    }
+
+    if cache.short_token_amount > 0 {
         let mut _params = _ExecuteDepositParams {
             market: market,
             account: deposit.account,
@@ -238,20 +239,19 @@ fn execute_deposit(params: ExecuteDepositParams) {
             cache.short_token_amount,
             cache.received_market_tokens,
         );
+// let mut event_data: LogData = Default::default();
+// event_data.uint_dict.insert_single('received_market_tokens', cache.received_market_tokens);
+// after_deposit_execution(params.key, deposit, event_data);
 
-    let mut event_data: LogData = Default::default();
-    event_data.uint_dict.insert_single('received_market_tokens', cache.received_market_tokens);
-    after_deposit_execution(params.key, deposit, event_data);
-
-    pay_execution_fee_deposit(
-        params.data_store,
-        params.event_emitter,
-        params.deposit_vault,
-        deposit.execution_fee,
-        params.starting_gas,
-        params.keeper,
-        deposit.account,
-    );
+// pay_execution_fee_deposit(
+//     params.data_store,
+//     params.event_emitter,
+//     params.deposit_vault,
+//     deposit.execution_fee,
+//     params.starting_gas,
+//     params.keeper,
+//     deposit.account,
+// );
 }
 
 /// Executes a deposit.
@@ -263,7 +263,7 @@ fn execute_deposit_helper(
 ) -> u128 {
     // for markets where longToken == shortToken, the price impact factor should be set to zero
     // in which case, the priceImpactUsd would always equal zero
-    let fees = get_swap_fees(
+    let mut fees = get_swap_fees(
         *params.data_store,
         _params.market.market_token,
         _params.amount,
@@ -299,7 +299,7 @@ fn execute_deposit_helper(
             fees.clone(),
         );
 
-    let market_pool_value_info = market_utils::get_pool_value_info(
+    let pool_value_info = market_utils::get_pool_value_info(
         *params.data_store,
         _params.market,
         (*params.oracle).get_primary_price(_params.market.index_token),
@@ -317,25 +317,24 @@ fn execute_deposit_helper(
         true,
     );
 
-    assert(
-        market_pool_value_info.pool_value < Zeroable::zero(),
-        DepositError::INVALID_POOL_VALUE_FOR_DEPOSIT
-    );
+    //TODO add the pool_value_info.pool in the error message
+    if pool_value_info.pool_value < Zeroable::zero() {
+        panic_with_felt252(DepositError::INVALID_POOL_VALUE_FOR_DEPOSIT)
+    }
 
     let mut mint_amount = 0;
-    let pool_value = to_unsigned(market_pool_value_info.pool_value);
+    let pool_value = to_unsigned(pool_value_info.pool_value);
     let market_tokens_supply = market_utils::get_market_token_supply(
         IMarketTokenDispatcher { contract_address: _params.market.market_token }
     );
 
-    assert(
-        pool_value == Zeroable::zero() && market_tokens_supply > 0,
-        DepositError::INVALID_POOL_VALUE_FOR_DEPOSIT
-    );
+    if pool_value == Zeroable::zero() && market_tokens_supply > 0 {
+        panic_with_felt252(DepositError::INVALID_POOL_VALUE_FOR_DEPOSIT)
+    }
 
     (*params.event_emitter)
         .emit_market_pool_value_info(
-            _params.market.market_token, market_pool_value_info, market_tokens_supply,
+            _params.market.market_token, pool_value_info, market_tokens_supply,
         );
 
     // the pool_value and market_tokens_supply is cached for the mint_amount calculation below
@@ -363,8 +362,6 @@ fn execute_deposit_helper(
     if _params.price_impact_usd > Zeroable::zero() && market_tokens_supply == Zeroable::zero() {
         _params.price_impact_usd = i128_new(0, false);
     }
-
-    let mut amount_after_fees = fees.amount_after_fees;
 
     if _params.price_impact_usd > Zeroable::zero() {
         // when there is a positive price impact factor,
@@ -401,7 +398,7 @@ fn execute_deposit_helper(
         //
         // it is possible for the pool value to be more than zero and the token supply
         // to be zero, in that case, the market token price is also treated as 1 USD
-        mint_amount =
+        mint_amount +=
             market_utils::usd_to_market_token_amount(
                 to_unsigned(positive_impact_amount) * _params.token_out_price.max,
                 pool_value,
@@ -416,38 +413,38 @@ fn execute_deposit_helper(
             positive_impact_amount
         );
 
-        market_utils::validate_pool_amount(params.data_store, @_params.market, _params.token_out,);
+        market_utils::validate_pool_amount(params.data_store, @_params.market, _params.token_out);
+    }
 
-        if (_params.price_impact_usd < Zeroable::zero()) {
-            // when there is a negative price impact factor,
-            // less of the deposit amount is used to mint market tokens
-            // for example, if 10 ETH is deposited and there is a negative price impact
-            // only 9.995 ETH may be used to mint market tokens
-            // the remaining 0.005 ETH will be stored in the swap impact pool
-            let negative_impact_amount = market_utils::apply_swap_impact_with_cap(
-                *params.data_store,
-                *params.event_emitter,
-                _params.market.market_token,
-                _params.token_out,
-                _params.token_out_price,
-                _params.price_impact_usd,
-            );
+    if (_params.price_impact_usd < Zeroable::zero()) {
+        // when there is a negative price impact factor,
+        // less of the deposit amount is used to mint market tokens
+        // for example, if 10 ETH is deposited and there is a negative price impact
+        // only 9.995 ETH may be used to mint market tokens
+        // the remaining 0.005 ETH will be stored in the swap impact pool
+        let negative_impact_amount = market_utils::apply_swap_impact_with_cap(
+            *params.data_store,
+            *params.event_emitter,
+            _params.market.market_token,
+            _params.token_in,
+            _params.token_in_price,
+            _params.price_impact_usd,
+        );
 
-            amount_after_fees -= to_unsigned(i128_neg(negative_impact_amount));
-        }
+        fees.amount_after_fees -= to_unsigned(i128_neg(negative_impact_amount));
     }
 
     mint_amount +=
         market_utils::usd_to_market_token_amount(
-            amount_after_fees * _params.token_in_price.min, pool_value, market_tokens_supply,
+            fees.amount_after_fees * _params.token_in_price.min, pool_value, market_tokens_supply,
         );
 
     market_utils::apply_delta_to_pool_amount(
         *params.data_store,
         *params.event_emitter,
         _params.market,
-        _params.token_out,
-        to_signed(amount_after_fees + fees.fee_amount_for_pool, true),
+        _params.token_in,
+        to_signed(fees.amount_after_fees + fees.fee_amount_for_pool, true),
     );
 
     market_utils::validate_pool_amount(params.data_store, @_params.market, _params.token_in);
@@ -467,7 +464,7 @@ fn swap(
     expected_output_token: ContractAddress,
     ui_fee_receiver: ContractAddress
 ) -> u128 {
-    let swap_path_markets = market_utils::get_swap_path_markets(*params.data_store, swap_path,);
+    let swap_path_markets = market_utils::get_swap_path_markets(*params.data_store, swap_path);
 
     let (output_token, output_amount) = swap_utils::swap(
         @swap_utils::SwapParams {

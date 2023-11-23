@@ -5,7 +5,6 @@
 // Core lib imports.
 use starknet::{ContractAddress, contract_address_const};
 use clone::Clone;
-
 // Local imports.
 use satoru::order::base_order_utils::{ExecuteOrderParams, CreateOrderParams};
 use satoru::order::base_order_utils;
@@ -175,7 +174,6 @@ fn execute_order(params: ExecuteOrderParams) {
     };
 
     let mut event_data: LogData = process_order(params_process);
-
     // validate that internal state changes are correct before calling
     // external callbacks
     // if the native token was transferred to the receiver in a swap
@@ -196,6 +194,7 @@ fn execute_order(params: ExecuteOrderParams) {
 
     // the order.executionFee for liquidation / adl orders is zero
     // gas costs for liquidations / adl is subsidised by the treasury
+    // TODO crashing
     gas_utils::pay_execution_fee_order(
         params.contracts.data_store,
         params.contracts.event_emitter,

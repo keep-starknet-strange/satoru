@@ -200,7 +200,7 @@ fn validate_adl(
     is_long: bool,
     max_oracle_block_numbers: Span<u64>
 ) {
-    let is_adl_enabled = get_adl_enabled(data_store, market, is_long);
+    let is_adl_enabled = get_is_adl_enabled(data_store, market, is_long);
     assert(is_adl_enabled, AdlError::ADL_NOT_ENABLED);
     let latest_block = get_latest_adl_block(data_store, market, is_long);
     assert(
@@ -247,9 +247,9 @@ fn set_latest_adl_block(
 /// * `is_long` - Indicates whether to check the long or short side of the market.
 /// # Returns
 /// Return whether ADL is enabled.
-fn get_adl_enabled(
+fn get_is_adl_enabled(
     data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
-) -> bool { // TODO
+) -> bool {
     data_store.get_bool(keys::is_adl_enabled_key(market, is_long))
 }
 

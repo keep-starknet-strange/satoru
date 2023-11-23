@@ -19,11 +19,11 @@ sierra-replace-ids = true
 
 [dependencies]
 starknet = ">=2.3.1"
-alexandria_data_structures = { git = "https://github.com/keep-starknet-strange/alexandria.git", rev = "ae1d514" }
-alexandria_math = { git = "https://github.com/keep-starknet-strange/alexandria.git", rev = "ae1d514" }
-alexandria_storage = { git = "https://github.com/keep-starknet-strange/alexandria.git", rev = "ae1d514" }
-alexandria_sorting = { git = "https://github.com/keep-starknet-strange/alexandria.git", rev = "ae1d514" }
-snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.9.1" }
+alexandria_data_structures = { git = "https://github.com/keep-starknet-strange/alexandria.git", tag = "cairo-v2.3.0-rc0" }
+alexandria_math = { git = "https://github.com/keep-starknet-strange/alexandria.git", tag = "cairo-v2.3.0-rc0" }
+alexandria_storage = { git = "https://github.com/keep-starknet-strange/alexandria.git", tag = "cairo-v2.3.0-rc0" }
+alexandria_sorting = { git = "https://github.com/keep-starknet-strange/alexandria.git", tag = "cairo-v2.3.0-rc0" }
+snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.10.1" }
 
 
 [tool.snforge]

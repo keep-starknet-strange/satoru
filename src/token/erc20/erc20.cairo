@@ -53,7 +53,7 @@ mod ERC20 {
     // External
     //
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl ERC20Impl of IERC20<ContractState> {
         fn name(self: @ContractState) -> felt252 {
             self._name.read()
@@ -103,6 +103,10 @@ mod ERC20 {
             let caller = get_caller_address();
             self._approve(caller, spender, amount);
             true
+        }
+
+        fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
+            self._mint(recipient, amount);
         }
     }
 
