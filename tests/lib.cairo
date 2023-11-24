@@ -120,5 +120,6 @@ mod referral {
     mod test_referral_utils;
 }
 mod integration {
+    mod create_market;
     mod test_create_and_execute_swap;
 }

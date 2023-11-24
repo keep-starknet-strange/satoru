@@ -56,7 +56,7 @@ mod MarketError {
     }
 
     fn INVALID_MARKET_TOKEN_BALANCE_FOR_COLLATERAL_AMOUNT(balance: u128, collateral_amount: u128) {
-        panic(array!['invalid_market_token_balance', balance.into(), collateral_amount.into()])
+        panic(array!['invalid_mrkt_tkn_balance_col', balance.into(), collateral_amount.into()])
     }
 
     fn INVALID_MARKET_TOKEN_BALANCE_FOR_CLAIMABLE_FUNDING(
@@ -64,7 +64,7 @@ mod MarketError {
     ) {
         panic(
             array![
-                'invalid_market_token_balance', balance.into(), claimable_funding_fee_amount.into()
+                'invalid_mrkt_tkn_balance_clm', balance.into(), claimable_funding_fee_amount.into()
             ]
         )
     }
