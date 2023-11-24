@@ -90,7 +90,7 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 //         callback_gas_limit: 0,
 //     };
 //     IERC20Dispatcher { contract_address: market.long_token }
-//         .mint(deposit_vault.contract_address, 1000000000000000000);
+//         .mint(deposit_vault.contract_address, 100000000000000);
 //     IERC20Dispatcher { contract_address: market.short_token }
 //         .mint(deposit_vault.contract_address, 50000000000);
 //     start_roll(deposit_handler.contract_address, 1910);
@@ -165,6 +165,14 @@ fn test_deposit_market_integration() {
     // Set params in data_store
     data_store.set_address(keys::fee_token(), market.index_token);
     data_store.set_u128(keys::max_swap_path_length(), 0);
+    data_store.set_u128(keys::max_pool_amount_key(market.market_token, market.long_token), 10000000000000);
+    data_store.set_u128(keys::max_pool_amount_key(market.market_token, market.short_token), 10000000000000);
+
+    IERC20Dispatcher { contract_address: market.long_token }
+        .mint(market.market_token, 1000000);
+
+    IERC20Dispatcher { contract_address: market.short_token }
+        .mint(market.market_token, 1000000);
 
     let user1: ContractAddress = contract_address_const::<'user1'>();
     let user2: ContractAddress = contract_address_const::<'user2'>();
@@ -185,9 +193,9 @@ fn test_deposit_market_integration() {
         callback_gas_limit: 0,
     };
     IERC20Dispatcher { contract_address: market.long_token }
-        .mint(deposit_vault.contract_address, 10000000000);
+        .mint(deposit_vault.contract_address, 1000000);
     IERC20Dispatcher { contract_address: market.short_token }
-        .mint(deposit_vault.contract_address, 45);
+        .mint(deposit_vault.contract_address, 1000000);
     start_roll(deposit_handler.contract_address, 1910);
     let key = deposit_handler.create_deposit(caller_address, params);
     let first_deposit = data_store.get_deposit(key);
@@ -196,9 +204,9 @@ fn test_deposit_market_integration() {
     assert(first_deposit.receiver == user1, 'Wrong account receiver');
     assert(first_deposit.initial_long_token == market.long_token, 'Wrong initial long token');
     assert(
-        first_deposit.initial_long_token_amount == 10000000000, 'Wrong initial long token amount'
+        first_deposit.initial_long_token_amount == 1000000, 'Wrong initial long token amount'
     );
-    assert(first_deposit.initial_short_token_amount == 45, 'Wrong init short token amount');
+    assert(first_deposit.initial_short_token_amount == 1000000, 'Wrong init short token amount');
 
     let price_params = SetPricesParams {
         signer_info: 1,
@@ -239,9 +247,7 @@ fn test_deposit_market_integration() {
     start_roll(deposit_handler.contract_address, 1915);
     deposit_handler.execute_deposit(key, price_params);
 
-    // let balance = IERC20Dispatcher{ contract_address: market.market_token }.balance_of(caller_address);
-
-    // IERC20Dispatcher{ contract_address: market.demarket_token }.balance_of(caller_address).print();
+    // IERC20Dispatcher{ contract_address: market.market_token }.balance_of(caller_address);
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *

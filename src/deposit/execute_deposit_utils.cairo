@@ -439,8 +439,6 @@ fn execute_deposit_helper(
             fees.amount_after_fees * _params.token_in_price.min, pool_value, market_tokens_supply,
         );
 
-    fees.amount_after_fees.print();
-
     market_utils::apply_delta_to_pool_amount(
         *params.data_store,
         *params.event_emitter,

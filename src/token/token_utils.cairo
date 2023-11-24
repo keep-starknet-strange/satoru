@@ -26,7 +26,6 @@ fn transfer(
     receiver: ContractAddress,
     amount: u128
 ) {
-    amount.print();
     if (amount.is_zero()) {
         return ();
     }
@@ -39,7 +38,6 @@ fn transfer(
     let success0 = IERC20Dispatcher { contract_address: token }
         .transfer(recipient: receiver, amount: amount_u256);
     if (success0 == true) {
-        amount_u256.print();
         return ();
     }
 
