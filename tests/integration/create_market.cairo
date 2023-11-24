@@ -165,14 +165,18 @@ fn test_deposit_market_integration() {
     // Set params in data_store
     data_store.set_address(keys::fee_token(), market.index_token);
     data_store.set_u128(keys::max_swap_path_length(), 0);
-    data_store.set_u128(keys::max_pool_amount_key(market.market_token, market.long_token), 10000000000000);
-    data_store.set_u128(keys::max_pool_amount_key(market.market_token, market.short_token), 10000000000000);
+    data_store
+        .set_u128(
+            keys::max_pool_amount_key(market.market_token, market.long_token), 10000000000000
+        );
+    data_store
+        .set_u128(
+            keys::max_pool_amount_key(market.market_token, market.short_token), 10000000000000
+        );
 
-    IERC20Dispatcher { contract_address: market.long_token }
-        .mint(market.market_token, 1000000);
+    IERC20Dispatcher { contract_address: market.long_token }.mint(market.market_token, 1000000);
 
-    IERC20Dispatcher { contract_address: market.short_token }
-        .mint(market.market_token, 1000000);
+    IERC20Dispatcher { contract_address: market.short_token }.mint(market.market_token, 1000000);
 
     let user1: ContractAddress = contract_address_const::<'user1'>();
     let user2: ContractAddress = contract_address_const::<'user2'>();
@@ -203,9 +207,7 @@ fn test_deposit_market_integration() {
     assert(first_deposit.account == caller_address, 'Wrong account depositer');
     assert(first_deposit.receiver == user1, 'Wrong account receiver');
     assert(first_deposit.initial_long_token == market.long_token, 'Wrong initial long token');
-    assert(
-        first_deposit.initial_long_token_amount == 1000000, 'Wrong initial long token amount'
-    );
+    assert(first_deposit.initial_long_token_amount == 1000000, 'Wrong initial long token amount');
     assert(first_deposit.initial_short_token_amount == 1000000, 'Wrong init short token amount');
 
     let price_params = SetPricesParams {
