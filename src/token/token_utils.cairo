@@ -7,8 +7,6 @@ use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20Dispatcher
 use satoru::utils::account_utils::validate_receiver;
 use satoru::bank::error::BankError;
 use integer::u256_from_felt252;
-use debug::PrintTrait;
-
 
 fn fee_token(data_store: IDataStoreDispatcher) -> ContractAddress {
     data_store.get_address(keys::fee_token())
