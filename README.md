@@ -45,6 +45,12 @@ You can find the list of Satoru-compatible frontends, all of which have been bui
 
 - [Zohal](https://github.com/Zohal-Starknet/zohal-interface)
 
+## 🏛️ Infrastructure
+
+<p align="center">
+  <img src="book/src/asset/satoru-infra.png" height="256">
+</p>
+
 ## 🧪 Test
 
 To test the project, run:
