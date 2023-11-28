@@ -48,7 +48,7 @@ You can find the list of Satoru-compatible frontends, all of which have been bui
 ## 🏛️ Infrastructure
 
 <p align="center">
-  <img src="book/src/assets/satoru-infra.png" height="256">
+  <img src="book/src/assets/satoru-infra.png" height="500">
 </p>
 
 ## 🧪 Test
