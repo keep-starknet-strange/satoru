@@ -32,6 +32,7 @@ use integer::u128_to_felt252;
 use satoru::utils::{i128::{i128, i128_neg}, error_utils};
 use satoru::utils::precision::{apply_exponent_factor, float_to_wei, mul_div};
 use satoru::data::keys::{skip_borrowing_fee_for_smaller_side, max_swap_path_length};
+use debug::PrintTrait;
 
 /// Struct to store the prices of tokens of a market.
 /// # Params

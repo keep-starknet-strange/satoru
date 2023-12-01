@@ -3,6 +3,11 @@
 ![Schema](../assets/satoru-diagram.png)
 Satoru high-level modules overview.
 
+# Protocol Infrastructure Overview
+
+![Schema](../assets/satoru-infra.png)
+Satoru infrastucture overview.
+
 ## Two steps actions in Satoru
 
 Satoru employs a two-step approach for critical actions like Deposit, Withdrawal, and Order execution. This method ensures enhanced security and guards against front-running risks.
