@@ -319,8 +319,8 @@ fn execute_deposit_helper(
 
     //TODO add the pool_value_info.pool in the error message
     if pool_value_info.pool_value < Zeroable::zero() {
-        panic_with_felt252(DepositError::INVALID_POOL_VALUE_FOR_DEPOSIT)
-    }
+    panic_with_felt252(DepositError::INVALID_POOL_VALUE_FOR_DEPOSIT(pool_value_info.pool_value));
+}
 
     let mut mint_amount = 0;
     let pool_value = to_unsigned(pool_value_info.pool_value);
