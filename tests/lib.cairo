@@ -29,6 +29,7 @@ mod event {
     mod test_adl_events_emitted;
     mod test_callback_events_emitted;
     mod test_config_events_emitted;
+    mod test_deposit_events_emitted;
     mod test_gas_events_emitted;
     mod test_market_events_emitted;
     mod test_oracle_events_emitted;
