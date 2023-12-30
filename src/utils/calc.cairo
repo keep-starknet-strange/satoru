@@ -134,8 +134,8 @@ fn bounded_sub(a: i128, b: i128) -> i128 {
 
 /// Converts the given unsigned integer to a signed integer.
 /// # Arguments
-/// * `a` - first number.
-/// * `b` - second number.
+/// * `a` - Number.
+/// * `is_positive` - true if the number is positive.
 /// # Return
 /// The signed integer.
 fn to_signed(a: u128, mut is_positive: bool) -> i128 {
@@ -164,7 +164,7 @@ fn max_i128() -> i128 {
 
 fn min_i128() -> i128 {
     // Comes from https://doc.rust-lang.org/std/i128/constant.MIN.html
-    i128 { mag: 170_141_183_460_469_231_731_687_303_715_884_105_728, sign: true }
+    i128 { mag: 170_141_183_460_469_231_731_687_303_715_884_105_727, sign: true }
 }
 
 /// Raise a number to a power, computes x^n.
