@@ -54,6 +54,10 @@ mod BaseOrderHandler {
     // Local imports.
     use super::IBaseOrderHandler;
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+    use satoru::role::role_module::{
+        IRoleModuleDispatcher, IRoleModuleDispatcherTrait, RoleModule, IRoleModule
+    };
+
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::oracle::{
@@ -154,6 +158,7 @@ mod BaseOrderHandler {
             );
             self.data_store.write(IDataStoreDispatcher { contract_address: data_store_address });
             self.role_store.write(IRoleStoreDispatcher { contract_address: role_store_address });
+
             self
                 .event_emitter
                 .write(IEventEmitterDispatcher { contract_address: event_emitter_address });
