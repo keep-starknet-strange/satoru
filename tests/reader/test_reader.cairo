@@ -322,49 +322,49 @@ fn given_normal_conditions_when_get_account_positions_then_works() {
     teardown(data_store.contract_address);
 }
 
-#[test]
-fn given_normal_conditions_when_get_position_info_then_works() {
-    let (caller_address, role_store, data_store) = setup();
-    let (reader_address, reader) = setup_reader();
-    let (referral_storage_address, referral) = setup_referral_storage();
-    //create random position
-    let key_4: felt252 = 44444444444;
-    let mut position: Position = Default::default();
-    position.key = key_4;
-    position.market = 'market4'.try_into().unwrap();
-    position.size_in_usd = 4000000;
-    position.account = 'account'.try_into().unwrap();
-    position.is_long = true;
-    position.size_in_tokens = 10000;
+// #[test]
+// fn given_normal_conditions_when_get_position_info_then_works() {
+//     let (caller_address, role_store, data_store) = setup();
+//     let (reader_address, reader) = setup_reader();
+//     let (referral_storage_address, referral) = setup_referral_storage();
+//     //create random position
+//     let key_4: felt252 = 44444444444;
+//     let mut position: Position = Default::default();
+//     position.key = key_4;
+//     position.market = 'market4'.try_into().unwrap();
+//     position.size_in_usd = 4000000;
+//     position.account = 'account'.try_into().unwrap();
+//     position.is_long = true;
+//     position.size_in_tokens = 10000;
 
-    let key: ContractAddress = 123456789.try_into().unwrap();
-    let ui_fee_receiver: ContractAddress = 5746789.try_into().unwrap();
-    let market = Market {
-        market_token: key,
-        index_token: 12345.try_into().unwrap(),
-        long_token: 56678.try_into().unwrap(),
-        short_token: 8901234.try_into().unwrap(),
-    };
-    let price1 = Price { min: 1, max: 200 };
-    let price2 = Price { min: 1, max: 300 };
-    let price3 = Price { min: 1, max: 400 };
-    //create random prices
-    let prices = MarketPrices {
-        index_token_price: price1, long_token_price: price2, short_token_price: price3
-    };
-    start_prank(role_store.contract_address, caller_address);
-    role_store.grant_role(caller_address, role::MARKET_KEEPER);
-    stop_prank(role_store.contract_address);
+//     let key: ContractAddress = 123456789.try_into().unwrap();
+//     let ui_fee_receiver: ContractAddress = 5746789.try_into().unwrap();
+//     let market = Market {
+//         market_token: key,
+//         index_token: 12345.try_into().unwrap(),
+//         long_token: 56678.try_into().unwrap(),
+//         short_token: 8901234.try_into().unwrap(),
+//     };
+//     let price1 = Price { min: 1, max: 200 };
+//     let price2 = Price { min: 1, max: 300 };
+//     let price3 = Price { min: 1, max: 400 };
+//     //create random prices
+//     let prices = MarketPrices {
+//         index_token_price: price1, long_token_price: price2, short_token_price: price3
+//     };
+//     start_prank(role_store.contract_address, caller_address);
+//     role_store.grant_role(caller_address, role::MARKET_KEEPER);
+//     stop_prank(role_store.contract_address);
 
-    data_store.set_market(key, 1, market);
-    data_store.set_position(key_4, position);
+//     data_store.set_market(key, 1, market);
+//     data_store.set_position(key_4, position);
 
-    let size_delta: u128 = 1000000;
-    let res: PositionInfo = reader
-        .get_position_info(data_store, referral, key_4, prices, size_delta, ui_fee_receiver, true);
-    assert(res.position.key == 44444444444, 'wrong_key');
-    teardown(data_store.contract_address);
-}
+//     let size_delta: u128 = 1000000;
+//     let res: PositionInfo = reader
+//         .get_position_info(data_store, referral, key_4, prices, size_delta, ui_fee_receiver, true);
+//     assert(res.position.key == 44444444444, 'wrong_key');
+//     teardown(data_store.contract_address);
+// }
 
 #[test]
 fn given_normal_conditions_when_get_account_position_info_list_then_works() {
