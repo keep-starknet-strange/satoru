@@ -5,7 +5,6 @@
 // *************************************************************************
 // Core lib imports.
 use starknet::ContractAddress;
-use result::ResultTrait;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -18,7 +17,6 @@ use satoru::pricing::pricing_utils;
 use satoru::utils::calc;
 use satoru::utils::precision;
 use satoru::utils::i128::{i128, i128_neg};
-
 
 /// Struct used in get_price_impact_usd.
 #[derive(Copy, Drop, starknet::Store, Serde)]

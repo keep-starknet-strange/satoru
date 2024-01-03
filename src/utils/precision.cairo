@@ -4,18 +4,16 @@
 // Core lib imports.
 use alexandria_math::pow;
 use integer::{
-    u128_to_felt252, u256_wide_mul, u512_safe_div_rem_by_u256, BoundedU256, u256_try_as_non_zero
+    u256_wide_mul, u512_safe_div_rem_by_u256, BoundedU256, U256TryIntoNonZero, U128IntoFelt252
 };
 use satoru::utils::i128::{i128, i128_neg};
-use core::traits::TryInto;
-use core::option::Option;
 use satoru::utils::calc::{roundup_division, roundup_magnitude_division};
 
 const FLOAT_PRECISION: u128 = 100_000_000_000_000_000_000; // 10^20
 const FLOAT_PRECISION_SQRT: u128 = 10_000_000_000; // 10^10
 
 const WEI_PRECISION: u128 = 1_000_000_000_000_000_000; // 10^18
-const BASIS_POINTS_DIVISOR: u128 = 10000;
+const BASIS_POINTS_DIVISOR: u128 = 10_000;
 
 const FLOAT_TO_WEI_DIVISOR: u128 = 1_000_000_000_000; // 10^12
 
@@ -26,7 +24,7 @@ const FLOAT_TO_WEI_DIVISOR: u128 = 1_000_000_000_000; // 10^12
 /// # Returns
 /// The result of applying the factor to the value.
 fn apply_factor_u128(value: u128, factor: u128) -> u128 {
-    return mul_div(value, factor, FLOAT_PRECISION);
+    mul_div(value, factor, FLOAT_PRECISION)
 }
 
 /// Applies the given factor to the given value and returns the result.
@@ -36,7 +34,7 @@ fn apply_factor_u128(value: u128, factor: u128) -> u128 {
 /// # Returns
 /// The result of applying the factor to the value.
 fn apply_factor_i128(value: u128, factor: i128) -> i128 {
-    return mul_div_inum(value, factor, FLOAT_PRECISION);
+    mul_div_inum(value, factor, FLOAT_PRECISION)
 }
 
 /// Applies the given factor to the given value and returns the result.
@@ -46,7 +44,7 @@ fn apply_factor_i128(value: u128, factor: i128) -> i128 {
 /// # Returns
 /// The result of applying the factor to the value.
 fn apply_factor_roundup_magnitude(value: u128, factor: i128, roundup_magnitude: bool) -> i128 {
-    return mul_div_inum_roundup(value, factor, FLOAT_PRECISION, roundup_magnitude);
+    mul_div_inum_roundup(value, factor, FLOAT_PRECISION, roundup_magnitude)
 }
 
 /// Apply multiplication then division to value.
@@ -55,13 +53,10 @@ fn apply_factor_roundup_magnitude(value: u128, factor: i128, roundup_magnitude: 
 /// * `numerator` - The numerator that multiplies value.
 /// * `divisor` - The denominator that divides value.
 fn mul_div(value: u128, numerator: u128, denominator: u128) -> u128 {
-    let value = u256 { low: value, high: 0 };
-    let numerator = u256 { low: numerator, high: 0 };
-    let denominator = u256 { low: denominator, high: 0 };
-    let product = u256_wide_mul(value, numerator);
-    let (q, _) = u512_safe_div_rem_by_u256(
-        product, u256_try_as_non_zero(denominator).expect('MulDivByZero')
-    );
+    let product = u256_wide_mul(value.into(), numerator.into());
+    let denominator: u256 = denominator.into();
+    let non_zero_denominator = denominator.try_into().expect('MulDivByZero');
+    let (q, _) = u512_safe_div_rem_by_u256(product, non_zero_denominator);
     assert(q.limb1 == 0 && q.limb2 == 0 && q.limb3 == 0, 'MulDivOverflow');
     q.limb0
 }
@@ -72,7 +67,7 @@ fn mul_div(value: u128, numerator: u128, denominator: u128) -> u128 {
 /// * `numerator` - The numerator that multiplies value.
 /// * `divisor` - The denominator that divides value.
 fn mul_div_ival(value: i128, numerator: u128, denominator: u128) -> i128 {
-    return mul_div_inum(numerator, value, denominator);
+    mul_div_inum(numerator, value, denominator)
 }
 
 /// Apply multiplication then division to value.
@@ -89,12 +84,12 @@ fn mul_div_inum(value: u128, numerator: i128, denominator: u128) -> i128 {
     let felt252_numerator: felt252 = numerator_abs.into();
     let u128_numerator = felt252_numerator.try_into().expect('felt252 into u128 failed');
     let result: u128 = mul_div(value, u128_numerator, denominator);
-    let felt252_result: felt252 = u128_to_felt252(result);
+    let felt252_result: felt252 = result.into();
     let i128_result: i128 = felt252_result.try_into().expect('felt252 into i128 failed');
     if numerator > Zeroable::zero() {
-        return i128_result;
+        i128_result
     } else {
-        return i128_neg(i128_result);
+        i128_neg(i128_result)
     }
 }
 
@@ -114,12 +109,12 @@ fn mul_div_inum_roundup(
     let felt252_numerator: felt252 = numerator_abs.into();
     let u128_numerator = felt252_numerator.try_into().expect('felt252 into u128 failed');
     let result: u128 = mul_div_roundup(value, u128_numerator, denominator, roundup_magnitude);
-    let felt252_result: felt252 = u128_to_felt252(result);
+    let felt252_result: felt252 = result.into();
     let i128_result: i128 = felt252_result.try_into().expect('felt252 into i128 failed');
     if numerator > Zeroable::zero() {
-        return i128_result;
+        i128_result
     } else {
-        return i128_neg(i128_result);
+        i128_neg(i128_result)
     }
 }
 
@@ -131,13 +126,10 @@ fn mul_div_inum_roundup(
 fn mul_div_roundup(
     value: u128, numerator: u128, denominator: u128, roundup_magnitude: bool
 ) -> u128 {
-    let value = u256 { low: value, high: 0 };
-    let numerator = u256 { low: numerator, high: 0 };
-    let denominator = u256 { low: denominator, high: 0 };
-    let product = u256_wide_mul(value, numerator);
-    let (q, r) = u512_safe_div_rem_by_u256(
-        product, u256_try_as_non_zero(denominator).expect('MulDivByZero')
-    );
+    let product = u256_wide_mul(value.into(), numerator.into());
+    let denominator: u256 = denominator.into();
+    let non_zero_denominator = denominator.try_into().expect('MulDivByZero');
+    let (q, r) = u512_safe_div_rem_by_u256(product, non_zero_denominator);
     if roundup_magnitude && r > 0 {
         let result = u256 { low: q.limb0, high: q.limb1 };
         assert(
@@ -573,9 +565,10 @@ fn to_factor_roundup(value: u128, divisor: u128, roundup_magnitude: bool) -> u12
     }
 
     if (roundup_magnitude) {
-        return mul_div_roundup(value, FLOAT_PRECISION, divisor, roundup_magnitude);
+        mul_div_roundup(value, FLOAT_PRECISION, divisor, roundup_magnitude)
+    } else {
+        mul_div(value, FLOAT_PRECISION, divisor)
     }
-    return mul_div(value, FLOAT_PRECISION, divisor);
 }
 
 /// Compute factor from value and divisor.
@@ -585,7 +578,7 @@ fn to_factor_roundup(value: u128, divisor: u128, roundup_magnitude: bool) -> u12
 /// # Returns
 /// The factor between value and divisor.
 fn to_factor(value: u128, divisor: u128) -> u128 {
-    return to_factor_roundup(value, divisor, false);
+    to_factor_roundup(value, divisor, false)
 }
 
 /// Compute factor from integer value and divisor.
@@ -603,7 +596,7 @@ fn to_factor_ival(value: i128, divisor: u128) -> i128 {
     let felt252_value: felt252 = value_abs.into();
     let u128_value = felt252_value.try_into().expect('felt252 into u128 failed');
     let result: u128 = to_factor(u128_value, divisor);
-    let felt252_result: felt252 = u128_to_felt252(result);
+    let felt252_result: felt252 = result.into();
     let i128_result: i128 = felt252_result.try_into().expect('felt252 into i128 failed');
     if value > Zeroable::zero() {
         i128_result
@@ -618,7 +611,7 @@ fn to_factor_ival(value: i128, divisor: u128) -> i128 {
 /// # Returns
 /// The wei value.
 fn float_to_wei(value: u128) -> u128 {
-    return value / FLOAT_TO_WEI_DIVISOR;
+    value / FLOAT_TO_WEI_DIVISOR
 }
 
 /// Converts the given value from wei to float.
@@ -627,7 +620,7 @@ fn float_to_wei(value: u128) -> u128 {
 /// # Returns
 /// The float value.
 fn wei_to_float(value: u128) -> u128 {
-    return value * FLOAT_TO_WEI_DIVISOR;
+    value * FLOAT_TO_WEI_DIVISOR
 }
 
 /// Converts the given value basis point to float.
@@ -636,5 +629,5 @@ fn wei_to_float(value: u128) -> u128 {
 /// # Returns
 /// The float value.
 fn basis_points_to_float(basis_point: u128) -> u128 {
-    return basis_point * FLOAT_PRECISION / BASIS_POINTS_DIVISOR;
+    basis_point * FLOAT_PRECISION / BASIS_POINTS_DIVISOR
 }
