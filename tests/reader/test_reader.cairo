@@ -322,6 +322,7 @@ fn given_normal_conditions_when_get_account_positions_then_works() {
     teardown(data_store.contract_address);
 }
 
+// error `Option::unwrap()` on a `None` value
 // #[test]
 // fn given_normal_conditions_when_get_position_info_then_works() {
 //     let (caller_address, role_store, data_store) = setup();
@@ -362,7 +363,7 @@ fn given_normal_conditions_when_get_account_positions_then_works() {
 //     let size_delta: u128 = 1000000;
 //     let res: PositionInfo = reader
 //         .get_position_info(data_store, referral, key_4, prices, size_delta, ui_fee_receiver, true);
-//     assert(res.position.key == 44444444444, 'wrong_key');
+//     // assert(res.position.key == 44444444444, 'wrong_key');
 //     teardown(data_store.contract_address);
 // }
 
@@ -574,109 +575,108 @@ fn given_normal_conditions_when_get_markets_then_works() {
     teardown(data_store.contract_address);
 }
 
-// #[test]
-// fn given_normal_conditions_when_get_market_info_then_works() {
-//     //
-//     // Setup
-//     //
-//     let (caller_address, role_store, data_store) = setup();
-//     let (reader_address, reader) = setup_reader();
+#[test]
+fn given_normal_conditions_when_get_market_info_then_works() {
+    //
+    // Setup
+    //
+    let (caller_address, role_store, data_store) = setup();
+    let (reader_address, reader) = setup_reader();
 
-//     let key: ContractAddress = 123456789.try_into().unwrap();
+    let key: ContractAddress = 123456789.try_into().unwrap();
 
-//     let market = Market {
-//         market_token: key,
-//         index_token: 12345.try_into().unwrap(),
-//         long_token: 56678.try_into().unwrap(),
-//         short_token: 8901234.try_into().unwrap(),
-//     };
-//     let price1 = Price { min: 1, max: 200 };
-//     let price2 = Price { min: 1, max: 300 };
-//     let price3 = Price { min: 1, max: 400 };
-//     //create random prices
-//     let prices = MarketPrices {
-//         index_token_price: price1, long_token_price: price2, short_token_price: price3
-//     };
+    let market = Market {
+        market_token: key,
+        index_token: 12345.try_into().unwrap(),
+        long_token: 56678.try_into().unwrap(),
+        short_token: 8901234.try_into().unwrap(),
+    };
+    let price1 = Price { min: 1, max: 200 };
+    let price2 = Price { min: 1, max: 300 };
+    let price3 = Price { min: 1, max: 400 };
+    //create random prices
+    let prices = MarketPrices {
+        index_token_price: price1, long_token_price: price2, short_token_price: price3
+    };
 
-//     start_prank(role_store.contract_address, caller_address);
-//     role_store.grant_role(caller_address, role::MARKET_KEEPER);
-//     stop_prank(role_store.contract_address);
+    start_prank(role_store.contract_address, caller_address);
+    role_store.grant_role(caller_address, role::MARKET_KEEPER);
+    stop_prank(role_store.contract_address);
 
-//     data_store.set_market(key, 1, market);
-//     data_store.set_bool(keys::is_market_disabled_key(key), true);
+    data_store.set_market(key, 1, market);
+    data_store.set_bool(keys::is_market_disabled_key(key), true);
 
-//     let res: MarketInfo = reader.get_market_info(data_store, prices, key);
-//     assert(res.market.market_token == key, 'invalid_info');
-//     teardown(data_store.contract_address);
-// }
+    let res: MarketInfo = reader.get_market_info(data_store, prices, key);
+    assert(res.market.market_token == key, 'invalid_info');
+    teardown(data_store.contract_address);
+}
 
-// #[test]
-// fn given_normal_conditions_when_get_market_info_list_then_works() {
-//     let (caller_address, role_store, data_store) = setup();
-//     let (reader_address, reader) = setup_reader();
+#[test]
+fn given_normal_conditions_when_get_market_info_list_then_works() {
+    let (caller_address, role_store, data_store) = setup();
+    let (reader_address, reader) = setup_reader();
 
-//     let market_key_1: ContractAddress = 123456789.try_into().unwrap();
-//     let market_1 = Market {
-//         market_token: market_key_1,
-//         index_token: 12345.try_into().unwrap(),
-//         long_token: 56678.try_into().unwrap(),
-//         short_token: 8901234.try_into().unwrap(),
-//     };
-//     let market_key_2: ContractAddress = 67545356789.try_into().unwrap();
-//     let market_2 = Market {
-//         market_token: market_key_2,
-//         index_token: 122145.try_into().unwrap(),
-//         long_token: 236678.try_into().unwrap(),
-//         short_token: 34201234.try_into().unwrap(),
-//     };
-//     let market_key_3: ContractAddress = 67545356789.try_into().unwrap();
-//     let market_3 = Market {
-//         market_token: market_key_3,
-//         index_token: 222145.try_into().unwrap(),
-//         long_token: 536678.try_into().unwrap(),
-//         short_token: 671234.try_into().unwrap(),
-//     };
+    let market_key_1: ContractAddress = 123456789.try_into().unwrap();
+    let market_1 = Market {
+        market_token: market_key_1,
+        index_token: 12345.try_into().unwrap(),
+        long_token: 56678.try_into().unwrap(),
+        short_token: 8901234.try_into().unwrap(),
+    };
+    let market_key_2: ContractAddress = 67545356789.try_into().unwrap();
+    let market_2 = Market {
+        market_token: market_key_2,
+        index_token: 122145.try_into().unwrap(),
+        long_token: 236678.try_into().unwrap(),
+        short_token: 34201234.try_into().unwrap(),
+    };
+    let market_key_3: ContractAddress = 67545356789.try_into().unwrap();
+    let market_3 = Market {
+        market_token: market_key_3,
+        index_token: 222145.try_into().unwrap(),
+        long_token: 536678.try_into().unwrap(),
+        short_token: 671234.try_into().unwrap(),
+    };
 
-//     let price1 = Price { min: 1, max: 200 };
-//     let price2 = Price { min: 1, max: 300 };
-//     let price3 = Price { min: 1, max: 400 };
-//     //create random prices
-//     let prices_1 = MarketPrices {
-//         index_token_price: price1, long_token_price: price2, short_token_price: price3
-//     };
-//     let prices_2 = MarketPrices {
-//         index_token_price: price3, long_token_price: price2, short_token_price: price1
-//     };
+    let price1 = Price { min: 1, max: 200 };
+    let price2 = Price { min: 1, max: 300 };
+    let price3 = Price { min: 1, max: 400 };
+    //create random prices
+    let prices_1 = MarketPrices {
+        index_token_price: price1, long_token_price: price2, short_token_price: price3
+    };
+    let prices_2 = MarketPrices {
+        index_token_price: price3, long_token_price: price2, short_token_price: price1
+    };
 
-//     let prices_3 = MarketPrices {
-//         index_token_price: price2, long_token_price: price1, short_token_price: price3
-//     };
+    let prices_3 = MarketPrices {
+        index_token_price: price2, long_token_price: price1, short_token_price: price3
+    };
 
-//     start_prank(role_store.contract_address, caller_address);
-//     role_store.grant_role(caller_address, role::MARKET_KEEPER);
-//     stop_prank(role_store.contract_address);
+    start_prank(role_store.contract_address, caller_address);
+    role_store.grant_role(caller_address, role::MARKET_KEEPER);
+    stop_prank(role_store.contract_address);
 
-//     data_store.set_market(market_key_1, 0, market_1);
-//     data_store.set_market(market_key_2, 1, market_2);
-//     data_store.set_market(market_key_3, 2, market_3);
+    data_store.set_market(market_key_1, 0, market_1);
+    data_store.set_market(market_key_2, 1, market_2);
+    data_store.set_market(market_key_3, 2, market_3);
 
-//     let mut prices_arr = ArrayTrait::<MarketPrices>::new();
-//     prices_arr.append(prices_1);
-//     prices_arr.append(prices_2);
-//     prices_arr.append(prices_3);
+    let mut prices_arr = ArrayTrait::<MarketPrices>::new();
+    prices_arr.append(prices_1);
+    prices_arr.append(prices_2);
+    prices_arr.append(prices_3);
 
-//     data_store.set_bool(keys::is_market_disabled_key(market_key_1), true);
-//     data_store.set_bool(keys::is_market_disabled_key(market_key_2), true);
-//     data_store.set_bool(keys::is_market_disabled_key(market_key_3), true);
+    data_store.set_bool(keys::is_market_disabled_key(market_key_1), true);
+    data_store.set_bool(keys::is_market_disabled_key(market_key_2), true);
+    data_store.set_bool(keys::is_market_disabled_key(market_key_3), true);
 
-//     let start: usize = 0;
-//     let end: usize = 2;
-//     let res: Array<MarketInfo> = reader.get_market_info_list(data_store, prices_arr, start, end);
-//     assert(*res.at(0).market.market_token == market_key_1, 'wrong_key');
-//     assert(*res.at(1).market.market_token == market_key_2, 'wrong_key');
-//     teardown(data_store.contract_address);
-// }
-
+    let start: usize = 0;
+    let end: usize = 2;
+    let res: Array<MarketInfo> = reader.get_market_info_list(data_store, prices_arr, start, end);
+    assert(*res.at(0).market.market_token == market_key_1, 'wrong_key');
+    assert(*res.at(1).market.market_token == market_key_2, 'wrong_key');
+    teardown(data_store.contract_address);
+}
 
 #[test]
 fn given_normal_conditions_when_get_market_token_price_then_works() {
