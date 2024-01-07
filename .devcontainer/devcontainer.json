@@ -6,5 +6,6 @@
       "extensions": ["starkware.cairo1"]
     }
   },
+  "runArgs": ["--memory=10g"],
   "postCreateCommand": "curl --proto '=https' --tlsv1.2 -sSf https://docs.swmansion.com/scarb/install.sh | sh && curl -L https://raw.githubusercontent.com/foundry-rs/starknet-foundry/master/scripts/install.sh | sh -s -- -v 0.8.3"
 }
