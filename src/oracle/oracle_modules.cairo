@@ -60,7 +60,7 @@ fn with_simulated_oracle_prices_before(oracle: IOracleDispatcher, params: Simula
             params.primary_tokens.len(), params.primary_prices.len()
         );
     }
-    let cur_idx = 0;
+    let mut cur_idx = 0;
     loop {
         if (cur_idx == params.primary_tokens.len()) {
             break ();
