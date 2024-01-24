@@ -401,7 +401,7 @@ fn i128_check_sign_zero(x: i128) {
 /// Cf: IntegerTrait::new docstring
 fn i128_new(mag: u128, sign: bool) -> i128 {
     if sign == true {
-        assert(mag <= 170141183460469231731687303715884105728_u128, 'i128 Overflow');
+        assert(mag <= 170141183460469231731687303715884105727_u128, 'i128 Overflow');
     } else {
         assert(mag <= 170141183460469231731687303715884105727_u128, 'i128 Overflow');
     }
