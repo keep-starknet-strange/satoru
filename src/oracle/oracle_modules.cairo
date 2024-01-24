@@ -68,6 +68,7 @@ fn with_simulated_oracle_prices_before(oracle: IOracleDispatcher, params: Simula
         let token: ContractAddress = *params.primary_tokens.at(cur_idx);
         let price: Price = *params.primary_prices.at(cur_idx);
         oracle.set_primary_price(token, price);
+        cur_idx = cur_idx + 1;
     };
 }
 
