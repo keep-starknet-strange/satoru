@@ -379,6 +379,78 @@ fn given_normal_conditions_when_remove_1_of_n_withdrawal_then_works() {
     teardown(data_store.contract_address);
 }
 
+#[test]
+fn given_normal_conditions_when_remove_last_withdrawal_then_works() {
+    // Setup
+    let (caller_address, role_store, data_store) = setup();
+    let account = 'account'.try_into().unwrap();
+    let long_token_swap_path: Span32<ContractAddress> = array![
+        1.try_into().unwrap(), 2.try_into().unwrap(), 3.try_into().unwrap()
+    ]
+        .span32();
+    let short_token_swap_path: Span32<ContractAddress> = array![
+        4.try_into().unwrap(), 5.try_into().unwrap(), 6.try_into().unwrap()
+    ]
+        .span32();
+
+    let key_1: felt252 = 123456789;
+    let mut withdrawal_1 = Withdrawal {
+        key: key_1,
+        account,
+        receiver: account,
+        callback_contract: 1.try_into().unwrap(),
+        ui_fee_receiver: 1.try_into().unwrap(),
+        market: 1.try_into().unwrap(),
+        long_token_swap_path,
+        short_token_swap_path,
+        market_token_amount: 1,
+        min_long_token_amount: 1,
+        min_short_token_amount: 1,
+        updated_at_block: 1,
+        execution_fee: 1,
+        callback_gas_limit: 1,
+    };
+
+    let key_2: felt252 = 987654321;
+    let mut withdrawal_2 = Withdrawal {
+        key: key_2,
+        account,
+        receiver: account,
+        callback_contract: 1.try_into().unwrap(),
+        ui_fee_receiver: 1.try_into().unwrap(),
+        market: 1.try_into().unwrap(),
+        long_token_swap_path,
+        short_token_swap_path,
+        market_token_amount: 1,
+        min_long_token_amount: 1,
+        min_short_token_amount: 1,
+        updated_at_block: 1,
+        execution_fee: 1,
+        callback_gas_limit: 1,
+    };
+
+    data_store.set_withdrawal(key_1, withdrawal_1);
+    data_store.set_withdrawal(key_2, withdrawal_2);
+
+    // Given
+    data_store.remove_withdrawal(key_2, account);
+
+    // Then
+    let withdrawal_1_by_key = data_store.get_withdrawal(key_1);
+    assert(withdrawal_1_by_key.account.is_non_zero(), 'withdrawal1 shouldnt be removed');
+
+    let withdrawal_2_by_key = data_store.get_withdrawal(key_2);
+    assert(withdrawal_2_by_key.account.is_zero(), 'withdrawal2 should be removed');
+
+    let account_withdrawal_count = data_store.get_account_withdrawal_count(account);
+    assert(account_withdrawal_count == 1, 'Acc withdrawal # should be 1');
+
+    let account_withdrawal_keys = data_store.get_account_withdrawal_keys(account, 0, 10);
+    assert(account_withdrawal_keys.len() == 1, 'Acc withdraw # not 1');
+
+    teardown(data_store.contract_address);
+}
+
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]

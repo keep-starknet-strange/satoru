@@ -242,10 +242,70 @@ fn given_normal_conditions_when_remove_1_of_n_order_then_works() {
 
     // Then
     let order_1_by_key = data_store.get_order(key_1);
-    assert(order_1_by_key.account.is_zero(), 'order1 shouldnt be removed');
+    assert(order_1_by_key.account.is_zero(), 'order1 should be removed');
 
     let order_2_by_key = data_store.get_order(key_2);
     assert(order_2_by_key.account.is_non_zero(), 'order2 shouldnt be removed');
+
+    let order_count = data_store.get_order_count();
+    assert(order_count == 1, 'order # should be 1');
+
+    let account_order_count = data_store.get_account_order_count(account);
+    assert(account_order_count == 1, 'Acc order # should be 1');
+
+    let account_order_keys = data_store.get_account_order_keys(account, 0, 10);
+    assert(account_order_keys.len() == 1, 'Acc withdraw # not 1');
+
+    teardown(data_store.contract_address);
+}
+
+#[test]
+fn given_normal_conditions_when_remove_last_order_then_works() {
+    // Setup
+    let (caller_address, role_store, data_store) = setup();
+    let key_1: felt252 = 123456789;
+    let account = 'account'.try_into().unwrap();
+    let mut order_1: Order = create_new_order(
+        key_1,
+        account,
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        contract_address_const::<'token1'>(),
+        is_long: false,
+        is_frozen: false,
+        order_no: 1
+    );
+
+    let key_2: felt252 = 22222222222;
+
+    let mut order_2: Order = create_new_order(
+        key_2,
+        account,
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        contract_address_const::<'token1'>(),
+        is_long: false,
+        is_frozen: false,
+        order_no: 1
+    );
+
+    data_store.set_order(key_1, order_1);
+    data_store.set_order(key_2, order_2);
+
+    let order_count = data_store.get_order_count();
+    assert(order_count == 2, 'Invalid key order count');
+
+    let account_order_count = data_store.get_account_order_count(account);
+    assert(account_order_count == 2, 'Acc order # should be 2');
+    // Given
+    data_store.remove_order(key_2, account);
+
+    // Then
+    let order_1_by_key = data_store.get_order(key_1);
+    assert(order_1_by_key.account.is_non_zero(), 'order1 shouldnt be removed');
+
+    let order_2_by_key = data_store.get_order(key_2);
+    assert(order_2_by_key.account.is_zero(), 'order2 should be removed');
 
     let order_count = data_store.get_order_count();
     assert(order_count == 1, 'order # should be 1');

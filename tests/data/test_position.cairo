@@ -242,6 +242,61 @@ fn given_normal_conditions_when_remove_1_of_n_position_then_works() {
     teardown(data_store.contract_address);
 }
 
+#[test]
+fn given_normal_conditions_when_remove_last_position_then_works() {
+    // Setup
+    let (caller_address, role_store, data_store) = setup();
+    let key_1: felt252 = 123456789;
+    let account = 'account'.try_into().unwrap();
+    let mut position_1: Position = create_new_position(
+        key_1,
+        account,
+        contract_address_const::<'market1'>(),
+        contract_address_const::<'token1'>(),
+        is_long: false,
+        position_no: 1
+    );
+
+    let key_2: felt252 = 22222222222;
+    let mut position_2: Position = create_new_position(
+        key_2,
+        account,
+        contract_address_const::<'market1'>(),
+        contract_address_const::<'token1'>(),
+        is_long: false,
+        position_no: 1
+    );
+
+    data_store.set_position(key_1, position_1);
+    data_store.set_position(key_2, position_2);
+
+    let position_count = data_store.get_position_count();
+    assert(position_count == 2, 'Invalid key position count');
+
+    let account_position_count = data_store.get_account_position_count(account);
+    assert(account_position_count == 2, 'Acc position # should be 2');
+    // Given
+    data_store.remove_position(key_2, account);
+
+    // Then
+    let position_1_by_key = data_store.get_position(key_1);
+    assert(position_1_by_key.account.is_non_zero(), 'position1 shouldnt be removed');
+
+    let position_2_by_key = data_store.get_position(key_2);
+    assert(position_2_by_key.account.is_zero(), 'position2 should be removed');
+
+    let position_count = data_store.get_position_count();
+    assert(position_count == 1, 'position # should be 1');
+
+    let account_position_count = data_store.get_account_position_count(account);
+    assert(account_position_count == 1, 'Acc position # should be 1');
+
+    let account_position_keys = data_store.get_account_position_keys(account, 0, 10);
+    assert(account_position_keys.len() == 1, 'Acc position # not 1');
+
+    teardown(data_store.contract_address);
+}
+
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]
