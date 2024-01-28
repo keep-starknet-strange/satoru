@@ -15,7 +15,7 @@ jobs:
         run: |
           pip install semgrep==1.45.0
       - name: Run Semgrep
-        run: semgrep --config https://github.com/avnu-labs/semgrep-cairo-rules/releases/download/v0.0.1/cairo-rules.yaml ./src > semgrep-output.txt
+        run: semgrep --config .github/semgrep-cairo-rules.yaml ./src > semgrep-output.txt
       - name: Save Semgrep Output as an Artifact
         uses: actions/upload-artifact@v3
         with:
