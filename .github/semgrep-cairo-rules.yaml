@@ -13,3 +13,34 @@ rules:
     - pattern-regex: $Y / $X
     - pattern-not-regex: error_utils::check_division_by_zero
     
+- id: reentrancy
+  message: |
+    Value mutated after call to external contract
+  severity: ERROR
+  mode: join
+  join:
+    rules:
+      - id: external-contract-declaration
+        languages: [cairo]
+        pattern: |
+          trait $SOME_CONTRACT {}
+      - id: external-call
+        languages: [cairo]
+        pattern: |
+          $SOME_CONTRACT::transfer(...);
+          ...;
+          $X::write(...);
+    on:
+      - 'external-contract-declaration.$SOME_CONTRACT == external-call.$SOME_CONTRACT'
+      
+- id: unsafe-arithmetic
+  message: Call unsafe math operators on $X
+  languages: [cairo]
+  severity: ERROR
+  pattern-either:
+  - pattern: $X + $Y
+  - pattern: $X += ...
+  - pattern: $X - $Y
+  - pattern: $X -= ...
+  - pattern: $X * $Y
+  - pattern: $X *= ...

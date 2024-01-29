@@ -271,6 +271,60 @@ fn given_normal_conditions_when_remove_1_of_n_deposit_then_works() {
     teardown(data_store.contract_address);
 }
 
+#[test]
+fn given_normal_conditions_when_remove_last_deposit_then_works() {
+    // Setup
+    let (caller_address, role_store, data_store) = setup();
+    let key_1: felt252 = 123456789;
+    let account = 'account'.try_into().unwrap();
+    let mut deposit_1: Deposit = create_new_deposit(
+        key_1,
+        account,
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        deposit_no: 1
+    );
+
+    let key_2: felt252 = 22222222222;
+
+    let mut deposit_2: Deposit = create_new_deposit(
+        key_2,
+        account,
+        contract_address_const::<'receiver1'>(),
+        contract_address_const::<'market1'>(),
+        deposit_no: 1
+    );
+
+    data_store.set_deposit(key_1, deposit_1);
+    data_store.set_deposit(key_2, deposit_2);
+
+    let deposit_count = data_store.get_deposit_count();
+    assert(deposit_count == 2, 'Invalid key deposit count');
+
+    let account_deposit_count = data_store.get_account_deposit_count(account);
+    assert(account_deposit_count == 2, 'Acc deposit # should be 2');
+    // Given
+    data_store.remove_deposit(key_2, account);
+
+    // Then
+    let deposit_1_by_key = data_store.get_deposit(key_1);
+    assert(deposit_1_by_key.account.is_non_zero(), 'deposit1 shouldnt be removed');
+
+    let deposit_2_by_key = data_store.get_deposit(key_2);
+    assert(deposit_2_by_key.account.is_zero(), 'deposit2 should be removed');
+
+    let deposit_count = data_store.get_deposit_count();
+    assert(deposit_count == 1, 'deposit # should be 1');
+
+    let account_deposit_count = data_store.get_account_deposit_count(account);
+    assert(account_deposit_count == 1, 'Acc deposit # should be 1');
+
+    let account_deposit_keys = data_store.get_account_deposit_keys(account, 0, 10);
+    assert(account_deposit_keys.len() == 1, 'Acc withdraw # not 1');
+
+    teardown(data_store.contract_address);
+}
+
 
 #[test]
 #[should_panic(expected: ('unauthorized_access',))]

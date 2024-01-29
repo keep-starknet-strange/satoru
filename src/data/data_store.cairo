@@ -1512,6 +1512,9 @@ mod DataStore {
                             if account_withdrawals.len() == 0 {
                                 break;
                             }
+                            if last_key == withdrawal_key {
+                                break;
+                            }
                             account_withdrawals.set(i, last_key);
                         },
                         Option::None => {
@@ -1539,6 +1542,9 @@ mod DataStore {
                         Option::Some(last_key) => {
                             // If the list is empty, then there's no need to replace an existing key
                             if account_orders.len() == 0 {
+                                break;
+                            }
+                            if last_key == order_key {
                                 break;
                             }
                             account_orders.set(i, last_key);
@@ -1572,6 +1578,9 @@ mod DataStore {
                             if account_deposits.len() == 0 {
                                 break;
                             }
+                            if last_key == deposit_key {
+                                break;
+                            }
                             account_deposits.set(i, last_key);
                         },
                         Option::None => {
@@ -1601,6 +1610,9 @@ mod DataStore {
                         Option::Some(last_key) => {
                             // If the list is empty, then there's no need to replace an existing key
                             if account_positions.len() == 0 {
+                                break;
+                            }
+                            if last_key == position_key {
                                 break;
                             }
                             account_positions.set(i, last_key);
