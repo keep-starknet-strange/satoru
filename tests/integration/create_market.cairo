@@ -46,9 +46,7 @@ use satoru::order::base_order_utils::{CreateOrderParams};
 use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::market::{
-    market::{UniqueIdMarketImpl},
-};
+use satoru::market::{market::{UniqueIdMarketImpl},};
 use satoru::exchange::order_handler::{
     OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait
 };
@@ -197,8 +195,8 @@ fn test_deposit_market_integration() {
 
     // Fill the pool.
     IERC20Dispatcher { contract_address: market.long_token }.mint(market.market_token, 50000000000);
-    IERC20Dispatcher { contract_address: market.short_token }.mint(market.market_token, 50000000000);
-
+    IERC20Dispatcher { contract_address: market.short_token }
+        .mint(market.market_token, 50000000000);
     // TODO Check why we don't need to set pool_amount_key
     // // Set pool amount in data_store.
     // let mut key = keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>());
@@ -211,7 +209,6 @@ fn test_deposit_market_integration() {
         .mint(deposit_vault.contract_address, 50000000000);
     IERC20Dispatcher { contract_address: market.short_token }
         .mint(deposit_vault.contract_address, 50000000000);
-
 
     let balance_deposit_vault_before = IERC20Dispatcher { contract_address: market.short_token }
         .balance_of(deposit_vault.contract_address);
@@ -244,8 +241,12 @@ fn test_deposit_market_integration() {
     assert(first_deposit.account == caller_address, 'Wrong account depositer');
     assert(first_deposit.receiver == user1, 'Wrong account receiver');
     assert(first_deposit.initial_long_token == market.long_token, 'Wrong initial long token');
-    assert(first_deposit.initial_long_token_amount == 50000000000, 'Wrong initial long token amount');
-    assert(first_deposit.initial_short_token_amount == 50000000000, 'Wrong init short token amount');
+    assert(
+        first_deposit.initial_long_token_amount == 50000000000, 'Wrong initial long token amount'
+    );
+    assert(
+        first_deposit.initial_short_token_amount == 50000000000, 'Wrong init short token amount'
+    );
 
     let price_params = SetPricesParams { // TODO
         signer_info: 1,
@@ -278,19 +279,9 @@ fn test_deposit_market_integration() {
     let pool_value_info = market_utils::get_pool_value_info(
         data_store,
         market,
-        Price {
-            min: 1999,
-            max: 2000,
-        }
-        ,
-        Price {
-            min: 1999,
-            max: 2000,
-        },
-        Price {
-            min: 1999,
-            max: 2000,
-        },
+        Price { min: 1999, max: 2000 },
+        Price { min: 1999, max: 2000 },
+        Price { min: 1999, max: 2000 },
         keys::max_pnl_factor_for_deposits(),
         true,
     );
@@ -299,13 +290,12 @@ fn test_deposit_market_integration() {
     assert(pool_value_info.long_token_amount == 50000000000, 'wrong long token amount');
     assert(pool_value_info.short_token_amount == 50000000000, 'wrong short token amount');
 
-
     let not_deposit = data_store.get_deposit(key);
-    let default_deposit : Deposit = Default::default();
+    let default_deposit: Deposit = Default::default();
     assert(not_deposit == default_deposit, 'Still existing deposit');
 
     // let market_token_dispatcher = IMarketTokenDispatcher { contract_address: market.market_token };
-    
+
     // let balance = market_token_dispatcher.balance_of(user1);
 
     let balance_deposit_vault = IERC20Dispatcher { contract_address: market.short_token }
@@ -350,7 +340,7 @@ fn test_deposit_market_integration() {
     // Send token to order_vault in multicall with create_order
     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .transfer(order_vault.contract_address, 1000);
-    
+
     'alorslqwe3'.print();
 
     // Create order_params Struct
