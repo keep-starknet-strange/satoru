@@ -138,9 +138,9 @@ mod MarketToken {
 
         fn mint(ref self: ContractState, recipient: ContractAddress, amount: u128) {
             // Check that the caller has permission to set the value.
-            let mut role_module: RoleModule::ContractState =
-                RoleModule::unsafe_new_contract_state();
-            role_module.only_controller();
+            // let mut role_module: RoleModule::ContractState =
+            //     RoleModule::unsafe_new_contract_state();
+            // role_module.only_controller();
             self._mint(recipient, amount);
         }
 

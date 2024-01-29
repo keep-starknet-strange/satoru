@@ -4,6 +4,7 @@ mod ERC20 {
     use starknet::ContractAddress;
     use starknet::get_caller_address;
     use zeroable::Zeroable;
+    use debug::PrintTrait;
 
     use satoru::token::erc20::interface::IERC20;
 

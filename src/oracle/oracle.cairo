@@ -197,6 +197,7 @@ mod Oracle {
     use starknet::syscalls::get_block_hash_syscall;
     use starknet::SyscallResultTrait;
     use starknet::storage_access::storage_base_address_from_felt252;
+    use debug::PrintTrait;
 
     use alexandria_math::BitShift;
     use alexandria_sorting::merge_sort;
@@ -303,15 +304,16 @@ mod Oracle {
             if !tokens_with_prices_len.is_zero() {
                 OracleError::NON_EMPTY_TOKENS_WITH_PRICES(tokens_with_prices_len);
             };
-
+            'before set_prices_from_feeds'.print();
             self.set_prices_from_price_feeds(data_store, event_emitter, @params.price_feed_tokens);
             // it is possible for transactions to be executed using just params.priceFeedTokens
             // in this case if params.tokens is empty, the function can return
             if params.tokens.len().is_zero() {
                 return;
             }
-
+            'before set_prices_'.print();
             self.set_prices_(data_store, event_emitter, params);
+            'after set_prices_'.print();
         }
 
         // Set the primary price
@@ -327,15 +329,16 @@ mod Oracle {
         fn clear_all_prices(ref self: ContractState) {
             let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
             IRoleModule::only_controller(@state);
-            let mut len = 0;
             loop {
-                if len == self.tokens_with_prices.read().len() {
+                if self.tokens_with_prices.read().len() == Zeroable::zero() {
                     break;
                 }
-                let token = self.tokens_with_prices.read().get(len).expect('array get failed');
+                let token = self.tokens_with_prices.read().get(0).expect('array get failed');
                 self.remove_primary_price(token);
-                len += 1;
-            }
+            };
+            'le prix ci dessous'.print();
+            self.tokens_with_prices.read().len().print();
+            'fin du prix'.print();
         }
 
 
@@ -866,15 +869,9 @@ mod Oracle {
         /// * `token` - The token to set the price for.
         fn remove_primary_price(ref self: ContractState, token: ContractAddress) {
             self.primary_prices.write(token, Zeroable::zero());
-
-            let token_index = self.get_token_with_price_index(token);
-            match token_index {
-                Option::Some(i) => {
-                    let mut tokens_with_prices = self.tokens_with_prices.read();
-                    tokens_with_prices.set(i, Zeroable::zero());
-                },
-                Option::None => (),
-            }
+            let mut tokens_prices = self.tokens_with_prices.read();
+            tokens_prices.pop_front();
+            self.tokens_with_prices.write(tokens_prices);
         }
 
         /// Get the price feed prices.

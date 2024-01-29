@@ -1,5 +1,6 @@
 // Core lib imports.
 use starknet::ContractAddress;
+use debug::PrintTrait;
 
 // Local imports.
 use satoru::order::base_order_utils::ExecuteOrderParams;
@@ -18,6 +19,7 @@ use satoru::utils::span32::{Span32, DefaultSpan32};
 use satoru::oracle::error::OracleError;
 
 fn process_order(params: ExecuteOrderParams) -> LogData {
+    'ICIIIII'.print();
     if (params.order.market.is_non_zero()) {
         panic(array![OrderError::UNEXPECTED_MARKET]);
     }

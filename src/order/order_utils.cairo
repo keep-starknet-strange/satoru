@@ -5,6 +5,7 @@
 // Core lib imports.
 use starknet::{ContractAddress, contract_address_const};
 use clone::Clone;
+use debug::PrintTrait;
 // Local imports.
 use satoru::order::base_order_utils::{ExecuteOrderParams, CreateOrderParams};
 use satoru::order::base_order_utils;
@@ -46,6 +47,7 @@ fn create_order( //TODO and fix when fee_token is implememted
     account: ContractAddress,
     mut params: CreateOrderParams
 ) -> felt252 {
+    'debut'.print();
     account_utils::validate_account(account);
     referral_utils::set_trader_referral_code(referral_storage, account, params.referral_code);
 
@@ -80,7 +82,7 @@ fn create_order( //TODO and fix when fee_token is implememted
     } else {
         OrderError::ORDER_TYPE_CANNOT_BE_CREATED(params.order_type);
     }
-
+    'second'.print();
     if (should_record_separate_execution_fee_transfer) {
         let fee_token_amount = order_vault.record_transfer_in(fee_token);
         if (fee_token_amount < params.execution_fee) {
@@ -97,7 +99,7 @@ fn create_order( //TODO and fix when fee_token is implememted
 
     // validate swap path markets
     market_utils::validate_swap_path(data_store, params.swap_path);
-
+    'third'.print();
     let mut order = Order {
         key: 0,
         order_type: params.order_type,
@@ -149,7 +151,7 @@ fn execute_order(params: ExecuteOrderParams) {
     // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
     // TODO GAS NOT AVAILABLE params.startingGas -= gasleft() / 63;
     params.contracts.data_store.remove_order(params.key, params.order.account);
-
+    'exeeecutre'.print();
     base_order_utils::validate_non_empty_order(@params.order);
 
     base_order_utils::validate_order_trigger_price(
