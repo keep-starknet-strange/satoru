@@ -394,8 +394,9 @@ fn test_deposit_market_integration() {
     start_prank(order_handler.contract_address, caller_address);
     start_roll(order_handler.contract_address, 1925);
     // TODO add real signatures check on Oracle Account
-    //order_handler.execute_order(key, set_price_params);
+    order_handler.execute_order(key, set_price_params);
 
+    'executed'.print();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************

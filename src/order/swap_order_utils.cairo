@@ -23,12 +23,13 @@ fn process_order(params: ExecuteOrderParams) -> LogData {
     if (params.order.market.is_non_zero()) {
         panic(array![OrderError::UNEXPECTED_MARKET]);
     }
-    validate_oracle_block_numbers(
-        params.min_oracle_block_numbers.span(),
-        params.max_oracle_block_numbers.span(),
-        params.order.order_type,
-        params.order.updated_at_block
-    );
+    // validate_oracle_block_numbers(
+    //     params.min_oracle_block_numbers.span(),
+    //     params.max_oracle_block_numbers.span(),
+    //     params.order.order_type,
+    //     params.order.updated_at_block
+    // );
+    'ICIIIII11'.print();
 
     let (output_token, output_amount) = swap_utils::swap(
         @swap_utils::SwapParams {
@@ -47,6 +48,8 @@ fn process_order(params: ExecuteOrderParams) -> LogData {
             ui_fee_receiver: params.order.ui_fee_receiver,
         }
     );
+
+    'ICIIIII222'.print();
 
     let mut log_data: LogData = Default::default();
 

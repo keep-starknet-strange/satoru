@@ -181,6 +181,7 @@ fn execute_order(params: ExecuteOrderParams) {
     // if the native token was transferred to the receiver in a swap
     // it may be possible to invoke external contracts before the validations
     // are called
+    'passed process'.print();
     if (params.market.market_token != contract_address_const::<0>()) {
         market_utils::validate_market_token_balance_check(
             params.contracts.data_store, params.market
@@ -192,20 +193,21 @@ fn execute_order(params: ExecuteOrderParams) {
 
     params.contracts.event_emitter.emit_order_executed(params.key, params.secondary_order_type);
 
-    callback_utils::after_order_execution(params.key, params.order, event_data);
+    'event emitted'.print();
+    // callback_utils::after_order_execution(params.key, params.order, event_data);
 
     // the order.executionFee for liquidation / adl orders is zero
     // gas costs for liquidations / adl is subsidised by the treasury
     // TODO crashing
-    gas_utils::pay_execution_fee_order(
-        params.contracts.data_store,
-        params.contracts.event_emitter,
-        params.contracts.order_vault,
-        params.order.execution_fee,
-        params.starting_gas,
-        params.keeper,
-        params.order.account
-    );
+    // gas_utils::pay_execution_fee_order(
+    //     params.contracts.data_store,
+    //     params.contracts.event_emitter,
+    //     params.contracts.order_vault,
+    //     params.order.execution_fee,
+    //     params.starting_gas,
+    //     params.keeper,
+    //     params.order.account
+    // );
 }
 
 /// Process an order execution.
