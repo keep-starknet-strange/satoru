@@ -42,6 +42,7 @@ use satoru::utils::{
     starknet_utils::{sn_gasleft, sn_gasprice}
 };
 use debug::PrintTrait;
+use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
 
 /// Struct used in executeDeposit to avoid stack too deep errors
 #[derive(Drop, Serde)]
@@ -449,8 +450,8 @@ fn execute_deposit_helper(
 
     market_utils::validate_pool_amount(params.data_store, @_params.market, _params.token_in);
 
-    // IMarketTokenDispatcher { contract_address: _params.market.market_token }
-    //     .mint(_params.receiver, mint_amount);
+    IMarketTokenDispatcher { contract_address: _params.market.market_token }
+        .mint(_params.receiver, mint_amount);
 
     mint_amount
 }
