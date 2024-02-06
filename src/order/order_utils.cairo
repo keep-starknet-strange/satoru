@@ -199,15 +199,16 @@ fn execute_order(params: ExecuteOrderParams) {
     // the order.executionFee for liquidation / adl orders is zero
     // gas costs for liquidations / adl is subsidised by the treasury
     // TODO crashing
-    // gas_utils::pay_execution_fee_order(
-    //     params.contracts.data_store,
-    //     params.contracts.event_emitter,
-    //     params.contracts.order_vault,
-    //     params.order.execution_fee,
-    //     params.starting_gas,
-    //     params.keeper,
-    //     params.order.account
-    // );
+    (params.order.execution_fee).print();
+    gas_utils::pay_execution_fee_order(
+        params.contracts.data_store,
+        params.contracts.event_emitter,
+        params.contracts.order_vault,
+        params.order.execution_fee,
+        params.starting_gas,
+        params.keeper,
+        params.order.account
+    );
 }
 
 /// Process an order execution.

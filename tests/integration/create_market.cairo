@@ -343,6 +343,15 @@ fn test_deposit_market_integration() {
 
     'alorslqwe3'.print();
 
+    let balance_ETH_before = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
+        .balance_of(caller_address);
+    let balance_USDC_before = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
+        .balance_of(caller_address);
+    'balance ETH: '.print();
+    balance_ETH_before.print();
+    'balance USDC: '.print();
+    balance_USDC_before.print();
+    'end first balances'.print();
     // Create order_params Struct
     let contract_address = contract_address_const::<0>();
     start_prank(market.long_token, caller_address);
@@ -397,6 +406,15 @@ fn test_deposit_market_integration() {
     order_handler.execute_order(key, set_price_params);
 
     'executed'.print();
+    let balance_ETH_after = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
+        .balance_of(caller_address);
+    let balance_USDC_after = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
+        .balance_of(caller_address);
+    'balance ETH: '.print();
+    balance_ETH_after.print();
+    'balance USDC: '.print();
+    balance_USDC_after.print();
+    'end first balances'.print();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
