@@ -139,10 +139,9 @@ mod RoleStore {
     // CONSTRUCTOR
     // *************************************************************************
     #[constructor]
-    fn constructor(ref self: ContractState) {
-        let caller = get_caller_address();
+    fn constructor(ref self: ContractState, admin: ContractAddress) {
         // Grant the caller admin role.
-        self._grant_role(caller, role::ROLE_ADMIN);
+        self._grant_role(admin, role::ROLE_ADMIN);
     // Initialize the role_count to 1 due to the line just above.
     }
 

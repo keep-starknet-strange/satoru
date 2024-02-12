@@ -111,7 +111,7 @@ fn deploy_role_store() -> ContractAddress {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let role_store_address: ContractAddress = contract_address_const::<'role_store'>();
 
-    let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
+    let constructor_arguments: @Array::<felt252> = @array![caller_address.into()];
     start_prank(role_store_address, caller_address);
     contract.deploy_at(constructor_arguments, role_store_address).unwrap()
 }

@@ -29,7 +29,7 @@ fn setup() -> (
     let role_store_address = contract_address_const::<'role_store'>();
     start_prank(role_store_address, caller_address);
     let role_store_contract_address = role_store_contract
-        .deploy_at(@array![], role_store_address)
+        .deploy_at(@array![caller_address.into()], role_store_address)
         .unwrap();
     let role_store_dispatcher = IRoleStoreDispatcher {
         contract_address: role_store_contract_address

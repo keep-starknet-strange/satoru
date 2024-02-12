@@ -551,7 +551,7 @@ fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
     let deployed_contract_address: ContractAddress = contract_address_const::<'role_store'>();
     start_prank(deployed_contract_address, admin());
-    contract.deploy_at(@array![], deployed_contract_address).unwrap()
+    contract.deploy_at(@array![admin().into()], deployed_contract_address).unwrap()
 }
 
 fn deploy_price_feed() -> ContractAddress {
