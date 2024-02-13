@@ -182,7 +182,7 @@
                         <h1 id="github-workflows-documentation"><a class="header" href="#github-workflows-documentation">Github Workflows Documentation</a></h1>
 <h2 id="satoru-book-workflow-documentation"><a class="header" href="#satoru-book-workflow-documentation">Satoru Book Workflow Documentation</a></h2>
 <h3 id="overview"><a class="header" href="#overview">Overview:</a></h3>
-<p>The &quot;Satoru Book&quot; GitHub Actions workflow (<code>book.yml</code>) is specifically designed for the automated build and deployment of the Satoru book's latest version.</p>
+<p>The "Satoru Book" GitHub Actions workflow (<code>book.yml</code>) is specifically designed for the automated build and deployment of the Satoru book's latest version.</p>
 <h3 id="workflow-details"><a class="header" href="#workflow-details">Workflow Details:</a></h3>
 <p><strong>Workflow Name:</strong> Satoru Book</p>
 <p><strong>Trigger Conditions:</strong></p>
@@ -240,7 +240,7 @@ jobs:
 </code></pre>
 <h2 id="build-workflow-documentation"><a class="header" href="#build-workflow-documentation">Build Workflow Documentation</a></h2>
 <h3 id="overview-1"><a class="header" href="#overview-1">Overview:</a></h3>
-<p>The &quot;Build&quot; GitHub Actions workflow (<code>build.yml</code>) is made for building Cairo files using Scarb and checking their format.</p>
+<p>The "Build" GitHub Actions workflow (<code>build.yml</code>) is made for building Cairo files using Scarb and checking their format.</p>
 <h3 id="workflow-details-1"><a class="header" href="#workflow-details-1">Workflow Details:</a></h3>
 <p><strong>Workflow Name:</strong> Build</p>
 <p><strong>Trigger Conditions:</strong></p>
@@ -290,7 +290,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: software-mansion/setup-scarb@v1
         with:
-          scarb-version: &quot;0.7.0&quot;
+          scarb-version: "0.7.0"
       - name: Check cairo format
         run: scarb fmt --check
       - name: Build cairo programs
@@ -298,7 +298,7 @@ jobs:
 </code></pre>
 <h2 id="security-workflow-documentation"><a class="header" href="#security-workflow-documentation">Security Workflow Documentation</a></h2>
 <h3 id="overview-2"><a class="header" href="#overview-2">Overview:</a></h3>
-<p>The &quot;Security&quot; GitHub Actions workflow (<code>security.yml</code>) is designed to enforce security standards and conduct safety checks on the codebase. It ensures that code modifications follow best security practices and identifies potential vulnerabilities.</p>
+<p>The "Security" GitHub Actions workflow (<code>security.yml</code>) is designed to enforce security standards and conduct safety checks on the codebase. It ensures that code modifications follow best security practices and identifies potential vulnerabilities.</p>
 <h3 id="workflow-details-2"><a class="header" href="#workflow-details-2">Workflow Details:</a></h3>
 <p><strong>Workflow Name:</strong> Security</p>
 <p><strong>Trigger Conditions:</strong></p>
@@ -350,7 +350,7 @@ jobs:
 </code></pre>
 <h2 id="test-workflow-documentation"><a class="header" href="#test-workflow-documentation">Test Workflow Documentation</a></h2>
 <h3 id="overview-3"><a class="header" href="#overview-3">Overview:</a></h3>
-<p>The &quot;Test&quot; GitHub Actions workflow (<code>test.yml</code>) ensures the code's integrity by validating its functionality. It aims to detect any potential issues introduced by new code modifications, guaranteeing that they do not impact the existing codebase.</p>
+<p>The "Test" GitHub Actions workflow (<code>test.yml</code>) ensures the code's integrity by validating its functionality. It aims to detect any potential issues introduced by new code modifications, guaranteeing that they do not impact the existing codebase.</p>
 <h3 id="workflow-details-3"><a class="header" href="#workflow-details-3">Workflow Details:</a></h3>
 <p><strong>Workflow Name:</strong> Test</p>
 <p><strong>Trigger Conditions:</strong></p>
@@ -401,7 +401,7 @@ jobs:
           starknet-foundry-version: 0.10.1
       - uses: software-mansion/setup-scarb@v1
         with:
-          scarb-version: &quot;0.7.0&quot;
+          scarb-version: "0.7.0"
       - name: Run cairo tests
         run: snforge
 </code></pre>
