@@ -1,15 +1,17 @@
 import { Account, hash, Contract, json, Calldata, CallData, RpcProvider, shortString } from "starknet"
 import fs from 'fs'
 import dotenv from 'dotenv'
+
 dotenv.config()
 
 async function deploy() {
     // connect provider
-    const provider = new RpcProvider({ nodeUrl: process.env.PROVIDER_URL })
+    const providerUrl = process.env.PROVIDER_URL
+    const provider = new RpcProvider({ nodeUrl: providerUrl! })
     // connect your account. To adapt to your own account :
     const privateKey0: string = process.env.ACCOUNT_PRIVATE as string
     const account0Address: string = process.env.ACCOUNT_PUBLIC as string
-    const account0 = new Account(provider, account0Address, privateKey0)
+    const account0 = new Account(provider, account0Address!, privateKey0!)
     console.log("Deploying with Account: " + account0Address)
     
     console.log("Deploying RoleStore...")
