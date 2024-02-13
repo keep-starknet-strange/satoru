@@ -5,7 +5,6 @@
 // *************************************************************************
 
 // Core lib imports.
-use core::traits::Into;
 use starknet::ContractAddress;
 // Local imports.
 use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
@@ -101,9 +100,7 @@ mod OrderHandler {
     // *************************************************************************
 
     // Core lib imports.
-    use core::option::OptionTrait;
     use core::starknet::SyscallResultTrait;
-    use core::traits::Into;
     use starknet::ContractAddress;
     use starknet::{get_caller_address, get_contract_address};
     use array::ArrayTrait;
@@ -113,12 +110,11 @@ mod OrderHandler {
     use satoru::oracle::{
         oracle_modules, oracle_utils, oracle_utils::{SetPricesParams, SimulatePricesParams}
     };
-    use satoru::order::{base_order_utils::CreateOrderParams, order_utils, order, base_order_utils};
     use satoru::order::{
+        base_order_utils::CreateOrderParams, order_utils, order, base_order_utils,
         order::{Order, OrderTrait, OrderType, SecondaryOrderType},
         order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}
     };
-    use satoru::market::market::Market;
     use satoru::market::error::MarketError;
     use satoru::position::error::PositionError;
     use satoru::feature::error::FeatureError;
@@ -143,7 +139,6 @@ mod OrderHandler {
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::token::token_utils;
     use satoru::gas::gas_utils;
-    use satoru::chain::chain::Chain;
     use satoru::utils::global_reentrancy_guard;
     use satoru::utils::error_utils;
 
