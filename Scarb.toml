@@ -17,6 +17,9 @@ allowed-libfuncs-list.name = "experimental"
 [cairo]
 sierra-replace-ids = true
 
+[scripts]
+test = "snforge test"
+
 [dependencies]
 starknet = ">=2.3.1"
 alexandria_data_structures = { git = "https://github.com/keep-starknet-strange/alexandria.git", tag = "cairo-v2.3.0-rc0" }
