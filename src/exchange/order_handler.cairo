@@ -200,11 +200,13 @@ mod OrderHandler {
         fn create_order(
             ref self: ContractState, account: ContractAddress, params: CreateOrderParams
         ) -> felt252 {
+
+            'passe ici'.print();
             // Check only controller.
             let role_module_state = RoleModule::unsafe_new_contract_state();
             role_module_state.only_controller();
-            'heeereeeee'.print();
             // Fetch data store.
+            'gooooood'.print();
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
 
@@ -341,7 +343,6 @@ mod OrderHandler {
             'firsttter'.print();
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
-            'seeeecccooooorrr'.print();
             global_reentrancy_guard::non_reentrant_before(data_store);
             // oracle_modules::with_oracle_prices_before(
             //     base_order_handler_state.oracle.read(),

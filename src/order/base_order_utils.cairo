@@ -21,6 +21,8 @@ use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorag
 use satoru::utils::span32::Span32;
 use satoru::utils::calc;
 use satoru::utils::i128::{i128, i128_neg};
+use debug::PrintTrait;
+
 
 #[derive(Drop, starknet::Store, Serde)]
 struct ExecuteOrderParams {
@@ -303,12 +305,14 @@ fn get_execution_price_for_increase(
     assert(size_delta_in_tokens != 0, OrderError::EMPTY_SIZE_DELTA_IN_TOKENS);
 
     let execution_price = size_delta_usd / size_delta_in_tokens;
+    'ok hre'.print();
 
     // increase order:
     //     - long: executionPrice should be smaller than acceptablePrice
     //     - short: executionPrice should be larger than acceptablePrice
     if (is_long && execution_price <= acceptable_price)
         || (!is_long && execution_price >= acceptable_price) {
+        'should enter here'.print();
         return execution_price;
     }
 

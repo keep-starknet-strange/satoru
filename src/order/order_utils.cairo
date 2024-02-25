@@ -28,6 +28,7 @@ use satoru::event::event_utils::{
 use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 use satoru::order::error::OrderError;
 use satoru::order::{increase_order_utils, decrease_order_utils, swap_order_utils};
+use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 
 /// Creates an order in the order store.
 /// # Arguments
@@ -82,6 +83,7 @@ fn create_order( //TODO and fix when fee_token is implememted
     } else {
         OrderError::ORDER_TYPE_CANNOT_BE_CREATED(params.order_type);
     }
+
     'second'.print();
     if (should_record_separate_execution_fee_transfer) {
         let fee_token_amount = order_vault.record_transfer_in(fee_token);
@@ -99,6 +101,7 @@ fn create_order( //TODO and fix when fee_token is implememted
 
     // validate swap path markets
     market_utils::validate_swap_path(data_store, params.swap_path);
+
     'third'.print();
     let mut order = Order {
         key: 0,
@@ -151,6 +154,7 @@ fn execute_order(params: ExecuteOrderParams) {
     // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
     // TODO GAS NOT AVAILABLE params.startingGas -= gasleft() / 63;
     params.contracts.data_store.remove_order(params.key, params.order.account);
+
     'exeeecutre'.print();
     base_order_utils::validate_non_empty_order(@params.order);
 
@@ -181,7 +185,12 @@ fn execute_order(params: ExecuteOrderParams) {
     // if the native token was transferred to the receiver in a swap
     // it may be possible to invoke external contracts before the validations
     // are called
-    'passed process'.print();
+
+    let balance_ETH_after = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
+        .balance_of(contract_address_const::<'caller'>());
+    'HEEEERREEEEEEEEEEE'.print();
+    balance_ETH_after.print();
+
     if (params.market.market_token != contract_address_const::<0>()) {
         market_utils::validate_market_token_balance_check(
             params.contracts.data_store, params.market
@@ -194,6 +203,7 @@ fn execute_order(params: ExecuteOrderParams) {
     params.contracts.event_emitter.emit_order_executed(params.key, params.secondary_order_type);
 
     'event emitted'.print();
+
     // callback_utils::after_order_execution(params.key, params.order, event_data);
 
     // the order.executionFee for liquidation / adl orders is zero

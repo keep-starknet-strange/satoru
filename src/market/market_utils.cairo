@@ -907,11 +907,12 @@ fn apply_delta_to_open_interest(
         (*market.index_token).is_non_zero(),
         MarketError::OPEN_INTEREST_CANNOT_BE_UPDATED_FOR_SWAP_ONLY_MARKET
     );
-
+    'pass assert'.print();
     // Increment the open interest by the delta.
     let key = keys::open_interest_key(*market.market_token, collateral_token, is_long);
+    'got key'.print();
     let next_value = data_store.apply_delta_to_u128(key, delta, 'negative open interest');
-
+    'got next value'.print();
     // If the open interest for longs is increased then tokens were virtually bought from the pool
     // so the virtual inventory should be decreased.
     // If the open interest for longs is decreased then tokens were virtually sold to the pool
@@ -922,6 +923,7 @@ fn apply_delta_to_open_interest(
     // so the virtual inventory should be decreased.
 
     if is_long {
+        'goes here'.print();
         apply_delta_to_virtual_inventory_for_positions(
             data_store, event_emitter, *market.index_token, i128_neg(delta)
         );
@@ -932,6 +934,7 @@ fn apply_delta_to_open_interest(
     }
 
     if (delta > Zeroable::zero()) {
+        'validates ?'.print();
         validate_open_interest(data_store, market, is_long);
     }
     event_emitter
@@ -1508,12 +1511,14 @@ fn validate_reserve(
 fn validate_open_interest(data_store: IDataStoreDispatcher, market: @Market, is_long: bool) {
     // Get the open interest.
     let open_interest = get_open_interest_for_market_is_long(data_store, market, is_long);
-
+    'pass get int for long'.print();
     // Get the maximum open interest.
     let max_open_interest = get_max_open_interest(data_store, *market.market_token, is_long);
+    'pass get int second'.print();
 
     // Check that the open interest is not greater than the maximum open interest.
     if (open_interest > max_open_interest) {
+        'goes here'.print();
         MarketError::MAX_OPEN_INTEREST_EXCEDEED(open_interest, max_open_interest);
     }
 }

@@ -305,6 +305,7 @@ mod Oracle {
             if !tokens_with_prices_len.is_zero() {
                 OracleError::NON_EMPTY_TOKENS_WITH_PRICES(tokens_with_prices_len);
             };
+
             'before set_prices_from_feeds'.print();
             self.set_prices_from_price_feeds(data_store, event_emitter, @params.price_feed_tokens);
             // it is possible for transactions to be executed using just params.priceFeedTokens
@@ -312,6 +313,7 @@ mod Oracle {
             if params.tokens.len().is_zero() {
                 return;
             }
+
             'before set_prices_'.print();
             self.set_prices_(data_store, event_emitter, params);
             'after set_prices_'.print();
@@ -390,10 +392,10 @@ mod Oracle {
             }
             let price = self.primary_prices.read(token);
             if token == contract_address_const::<'ETH'>() {
-                return Price {min: 500000, max: 500000 };
+                return Price {min: 5000, max: 5000 };
             }
             if token == contract_address_const::<'USDC'>() {
-                return Price {min: 10000, max: 10000 };
+                return Price {min: 1, max: 1 };
             }
             if price.is_zero() {
                 OracleError::EMPTY_PRIMARY_PRICE();
@@ -456,6 +458,7 @@ mod Oracle {
             params: SetPricesParams,
         ) {
             let validated_prices = self.validate_prices(data_store, params);
+
             'validetedPrices'.print();
             let mut len = 0;
             loop {
@@ -644,7 +647,9 @@ mod Oracle {
                     }
 
                     inner_cache.signature_index = (i * signers_len + j).into();
+
                     'maybe here'.print();
+
                     inner_cache
                         .min_price_index =
                             oracle_utils::get_uncompacted_price_index(
@@ -685,11 +690,13 @@ mod Oracle {
                         ref inner_cache.min_price_index_mask, inner_cache.min_price_index
                     );
 
+
                     'maybe here 7'.print();
 
                     validate_unique_and_set_index(
                         ref inner_cache.max_price_index_mask, inner_cache.max_price_index
                     );
+
                     'maybe here 8'.print();
                     report_info
                         .min_price = *inner_cache

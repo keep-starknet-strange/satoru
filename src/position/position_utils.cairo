@@ -25,6 +25,7 @@ use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorag
 use satoru::price::price::{Price, PriceTrait};
 use satoru::utils::{calc, precision, i128::i128, default::DefaultContractAddress, error_utils};
 use satoru::referral::referral_utils;
+use debug::PrintTrait;
 
 /// Struct used in increasePosition and decreasePosition.
 #[derive(Drop, Copy, starknet::Store, Serde)]
@@ -729,7 +730,7 @@ fn update_open_interest(
             params.position.is_long,
             size_delta_usd
         );
-
+        'enter apply delta'.print();
         market_utils::apply_delta_to_open_interest_in_tokens(
             params.contracts.data_store,
             params.contracts.event_emitter,
