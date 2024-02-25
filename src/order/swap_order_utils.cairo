@@ -1,5 +1,5 @@
 // Core lib imports.
-use starknet::ContractAddress;
+use starknet::{ContractAddress, contract_address_const};
 use debug::PrintTrait;
 
 // Local imports.
@@ -17,9 +17,9 @@ use satoru::order::error::OrderError;
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::utils::span32::{Span32, DefaultSpan32};
 use satoru::oracle::error::OracleError;
+use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 
 fn process_order(params: ExecuteOrderParams) -> LogData {
-    'ICIIIII'.print();
     if (params.order.market.is_non_zero()) {
         panic(array![OrderError::UNEXPECTED_MARKET]);
     }
@@ -29,7 +29,10 @@ fn process_order(params: ExecuteOrderParams) -> LogData {
     //     params.order.order_type,
     //     params.order.updated_at_block
     // );
-    'ICIIIII11'.print();
+    let balance_ETH_after = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
+        .balance_of(contract_address_const::<'caller'>());
+    'SWAPP BEFOOREE'.print();
+    balance_ETH_after.print();
 
     let (output_token, output_amount) = swap_utils::swap(
         @swap_utils::SwapParams {
@@ -49,7 +52,6 @@ fn process_order(params: ExecuteOrderParams) -> LogData {
         }
     );
 
-    'ICIIIII222'.print();
 
     let mut log_data: LogData = Default::default();
 

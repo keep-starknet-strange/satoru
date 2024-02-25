@@ -12,6 +12,7 @@ use satoru::swap::swap_utils;
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::position::{position_utils, error::PositionError, increase_position_utils};
 use satoru::event::event_utils;
+use debug::PrintTrait;
 
 // External imports.
 use alexandria_data_structures::array_ext::SpanTraitExt;
@@ -44,32 +45,34 @@ fn process_order(params: ExecuteOrderParams) -> event_utils::LogData {
         }
     );
 
+    'swap made done'.print();
     market_utils::validate_market_collateral_token(params.market, collateral_token);
-
+    'AFTER VALIDATE'.print();
     let position_key = position_utils::get_position_key(
         params.order.account, params.order.market, collateral_token, params.order.is_long,
     );
+    'AFTER VALIDATE1'.print();
     let mut position = params.contracts.data_store.get_position(position_key);
-
+    'AFTER VALIDATE2'.print();
     // Initialize position
     if position.account.is_zero() {
         position.account = params.order.account;
         if !position.market.is_zero() || !position.collateral_token.is_zero() {
             panic_with_felt252(PositionError::UNEXPECTED_POSITION_STATE);
         }
-
+        'AFTER VALIDATE3'.print();
         position.market = params.order.market;
         position.collateral_token = collateral_token;
         position.is_long = params.order.is_long;
     };
-
-    validate_oracle_block_numbers(
-        params.min_oracle_block_numbers.span(),
-        params.max_oracle_block_numbers.span(),
-        params.order.order_type,
-        params.order.updated_at_block
-    );
-
+    'AFTER VALIDATE4'.print();
+    // validate_oracle_block_numbers(
+    //     params.min_oracle_block_numbers.span(),
+    //     params.max_oracle_block_numbers.span(),
+    //     params.order.order_type,
+    //     params.order.updated_at_block
+    // );
+    'AFTER VALIDATE5'.print();
     increase_position_utils::increase_position(
         position_utils::UpdatePositionParams {
             contracts: params.contracts,
@@ -82,6 +85,7 @@ fn process_order(params: ExecuteOrderParams) -> event_utils::LogData {
         },
         collateral_increment_amount
     );
+    'AFTER VALIDATE6'.print();
 
     let log: event_utils::LogData = Default::default();
     log

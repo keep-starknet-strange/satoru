@@ -18,6 +18,7 @@ use satoru::data::keys;
 use satoru::pricing::swap_pricing_utils;
 use satoru::price::price::{Price, PriceTrait, PriceDefault};
 use debug::PrintTrait;
+use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 
 /// Parameters to execute a swap.
 #[derive(Drop, Copy, starknet::Store, Serde)]
@@ -108,6 +109,12 @@ fn swap(params: @SwapParams) -> (ContractAddress, u128) {
     if (*params.amount_in == 0) {
         return (*params.token_in, *params.amount_in);
     }
+
+    let balance_ETH_loop = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
+        .balance_of(contract_address_const::<'caller'>());
+    'SWAPP BREFORE EVER'.print();
+    balance_ETH_loop.print();
+
     let swap_path_array_length = (*params.swap_path_markets).len();
     if (swap_path_array_length == 0) {
         if (*params.amount_in < *params.min_output_amount) {
@@ -119,10 +126,21 @@ fn swap(params: @SwapParams) -> (ContractAddress, u128) {
         return (*params.token_in, *params.amount_in);
     }
 
+    let balance_ETH_loop_aff = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
+        .balance_of(contract_address_const::<'caller'>());
+    'SWAPP VER AFF'.print();
+    balance_ETH_loop_aff.print();
+
+    //TODO
     let first_path: Market = *params.swap_path_markets[0];
     if (params.bank.contract_address != @first_path.market_token) {
         (*params.bank).transfer_out(*params.token_in, first_path.market_token, *params.amount_in);
     }
+
+    let balance_ETH_loop_hope = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
+        .balance_of(contract_address_const::<'caller'>());
+    'SWAPP HOOPE'.print();
+    balance_ETH_loop_hope.print();
 
     let mut token_out = *params.token_in;
     let mut output_amount = *params.amount_in;
@@ -158,7 +176,12 @@ fn swap(params: @SwapParams) -> (ContractAddress, u128) {
         output_amount = _output_amount_res;
         i += 1;
     };
-
+    
+    let balance_ETH_after = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
+        .balance_of(contract_address_const::<'caller'>());
+    'SWAPP IN LAST'.print();
+    balance_ETH_after.print();
+    
     i = 0;
     loop {
         if (i >= swap_path_array_length) {
@@ -168,6 +191,7 @@ fn swap(params: @SwapParams) -> (ContractAddress, u128) {
         (*params.data_store).set_bool(keys::swap_path_market_flag_key(market.market_token), false);
         i += 1;
     };
+    'after loop here man'.print();
     if (output_amount < *params.min_output_amount) {
         SwapError::INSUFFICIENT_OUTPUT_AMOUNT(output_amount, *params.min_output_amount);
     }
@@ -192,13 +216,11 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
     cache.token_out = market_utils::get_opposite_token(*_params.token_in, _params.market);
     cache.token_in_price = (*params.oracle).get_primary_price(*_params.token_in);
     cache.token_out_price = (*params.oracle).get_primary_price(cache.token_out);
-    'SWAP'.print();
     let usd_delta_for_token_felt252: felt252 = (*_params.amount_in
         * cache.token_out_price.mid_price())
         .into();
 
     let usd_delta = *_params.amount_in * cache.token_out_price.mid_price();
-    'SWAP1'.print();
     let price_impact_usd = swap_pricing_utils::get_price_impact_usd(
         swap_pricing_utils::GetPriceImpactUsdParams {
             data_store: *params.data_store,
@@ -211,7 +233,6 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
             usd_delta_for_token_b: calc::to_signed(usd_delta, false),
         }
     );
-    'SWAP2'.print();
     let fees = swap_pricing_utils::get_swap_fees(
         *params.data_store,
         *_params.market.market_token,
@@ -228,7 +249,6 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
         fees.fee_receiver_amount,
         keys::swap_fee_type(),
     );
-    'SWAP3'.print();
     fee_utils::increment_claimable_ui_fee_amount(
         *params.data_store,
         *params.event_emitter,
@@ -238,7 +258,6 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
         fees.ui_fee_amount,
         keys::swap_fee_type(),
     );
-    'SWAP4'.print();
 
     let mut price_impact_amount: i128 = Zeroable::zero();
     if (price_impact_usd > Zeroable::zero()) {
@@ -263,7 +282,6 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
             );
 
         cache.amount_out += calc::to_unsigned(price_impact_amount);
-        'SWAP5'.print();
 
     } else {
         // when there is a negative price impact factor,
@@ -280,27 +298,26 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
                 cache.token_in_price,
                 price_impact_usd
             );
-        'SWAP6'.print();
 
         if fees.amount_after_fees <= calc::to_unsigned(i128_neg(price_impact_amount)) {
             SwapError::SWAP_PRICE_IMPACT_EXCEEDS_AMOUNT_IN(
                 fees.amount_after_fees, price_impact_amount
             );
         }
-        'SWAP6test'.print();
 
         cache.amount_in = fees.amount_after_fees - calc::to_unsigned(i128_neg(price_impact_amount));
         cache.amount_out = cache.amount_in * cache.token_in_price.min / cache.token_out_price.max;
         cache.pool_amount_out = cache.amount_out;
     }
-    'SWAP6bank dispatcherbefore'.print();
 
     // the amountOut value includes the positive price impact amount
     if (_params.receiver != _params.market.market_token) {
+        'passe ici'.print();
+        cache.amount_out.print();
+        'fini ici'.print();
         IBankDispatcher { contract_address: *_params.market.market_token }
             .transfer_out(cache.token_out, *_params.receiver, cache.amount_out);
     }
-    'SWAP7'.print();
 
     market_utils::apply_delta_to_pool_amount(
         *params.data_store,
@@ -318,7 +335,6 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
         cache.token_out,
         calc::to_signed(cache.pool_amount_out, false),
     );
-    'SWAP8'.print();
 
     let prices = market_utils::MarketPrices {
         index_token_price: (*params.oracle).get_primary_price(*_params.market.index_token),
@@ -333,7 +349,6 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
             cache.token_out_price
         },
     };
-    'SWAP9'.print();
 
     market_utils::validate_pool_amount(params.data_store, _params.market, *_params.token_in);
     market_utils::validate_reserve(
@@ -347,7 +362,6 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
     } else {
         (keys::max_pnl_factor_for_withdrawals(), keys::max_pnl_factor_for_deposits())
     };
-    'SWAP10'.print();
 
     market_utils::validate_max_pnl(
         *params.data_store,
@@ -364,7 +378,6 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u128) 
             keys::max_pnl_factor_for_deposits()
         }
     );
-    'SWAP11'.print();
 
     (*params.event_emitter)
         .emit_swap_info(

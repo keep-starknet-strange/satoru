@@ -200,11 +200,13 @@ mod OrderHandler {
         fn create_order(
             ref self: ContractState, account: ContractAddress, params: CreateOrderParams
         ) -> felt252 {
+
+            'passe ici'.print();
             // Check only controller.
             let role_module_state = RoleModule::unsafe_new_contract_state();
             role_module_state.only_controller();
-            'heeereeeee'.print();
             // Fetch data store.
+            'gooooood'.print();
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
 
@@ -338,10 +340,8 @@ mod OrderHandler {
             let role_module_state = RoleModule::unsafe_new_contract_state();
             role_module_state.only_order_keeper();
             // Fetch data store.
-            'firsttter'.print();
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
-            'seeeecccooooorrr'.print();
             global_reentrancy_guard::non_reentrant_before(data_store);
             // oracle_modules::with_oracle_prices_before(
             //     base_order_handler_state.oracle.read(),
@@ -349,10 +349,8 @@ mod OrderHandler {
             //     base_order_handler_state.event_emitter.read(),
             //     @oracle_params
             // );
-            'in handlerr'.print();
             // TODO: Did not implement starting gas and try / catch logic as not available in Cairo
             self._execute_order(key, oracle_params, get_contract_address());
-            'finish execution'.print();
             // oracle_modules::with_oracle_prices_after(base_order_handler_state.oracle.read());
             global_reentrancy_guard::non_reentrant_after(data_store);
         }
