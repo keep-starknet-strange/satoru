@@ -40,6 +40,7 @@ use satoru::market::market_utils;
 use satoru::price::price::{Price, PriceTrait};
 use satoru::position::position_utils;
 
+
 use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
 use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
 use satoru::order::base_order_utils::{CreateOrderParams};
@@ -213,6 +214,8 @@ fn test_deposit_market_integration() {
     let balance_deposit_vault_before = IERC20Dispatcher { contract_address: market.short_token }
         .balance_of(deposit_vault.contract_address);
 
+    // balance_deposit_vault_before.print();
+
     // Create Deposit
     let user1: ContractAddress = contract_address_const::<'user1'>();
     let user2: ContractAddress = contract_address_const::<'user2'>();
@@ -352,6 +355,7 @@ fn test_deposit_market_integration() {
     // Create order_params Struct
     let contract_address = contract_address_const::<0>();
     start_prank(market.long_token, caller_address); //change to switch swap
+
     let order_params = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -373,6 +377,8 @@ fn test_deposit_market_integration() {
     };
     // Create the swap order.
     start_roll(order_handler.contract_address, 1920);
+
+    'okbon'.print();
     let key = order_handler.create_order(caller_address, order_params);
 
     let got_order = data_store.get_order(key);
@@ -576,6 +582,7 @@ fn test_deposit_market_integration() {
     //             data_store, market, market_prices, first_position, 5000
     //         );
     // position_pnl_usd.mag.print();
+
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
