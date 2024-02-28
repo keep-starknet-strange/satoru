@@ -202,21 +202,21 @@ fn setup() -> (ContractAddress, IDataStoreDispatcher, IEventEmitterDispatcher, I
     oracle_store.add_signer(contract_address_const::<'signer'>());
     start_prank(data_store_address, caller_address);
     data_store
-        .set_u128(
+        .set_u256(
             keys::price_feed_multiplier_key(contract_address_const::<'ETH'>()),
             precision::FLOAT_PRECISION
         );
     data_store
-        .set_u128(
+        .set_u256(
             keys::price_feed_multiplier_key(contract_address_const::<'USDC'>()),
             precision::FLOAT_PRECISION
         );
     data_store
-        .set_u128(
+        .set_u256(
             keys::price_feed_multiplier_key(contract_address_const::<'DAI'>()),
             precision::FLOAT_PRECISION
         );
-    data_store.set_u128(keys::max_oracle_ref_price_deviation_factor(), precision::FLOAT_PRECISION);
+    data_store.set_u256(keys::max_oracle_ref_price_deviation_factor(), precision::FLOAT_PRECISION);
     (caller_address, data_store, event_emitter, oracle)
 }
 

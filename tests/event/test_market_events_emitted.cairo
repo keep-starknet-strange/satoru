@@ -20,7 +20,7 @@ use satoru::event::event_emitter::EventEmitter::{
 };
 
 use satoru::market::market_pool_value_info::MarketPoolValueInfo;
-use satoru::utils::i128::{i128, i128_new};
+use satoru::utils::i256::{i256, i256_new};
 
 #[test]
 fn given_normal_conditions_when_emit_market_pool_value_info_then_works() {
@@ -37,7 +37,7 @@ fn given_normal_conditions_when_emit_market_pool_value_info_then_works() {
     // Create dummy data.
     let market = contract_address_const::<'market'>();
     let market_pool_value_info: MarketPoolValueInfo = create_dummy_market_pool_value_info();
-    let market_tokens_supply: u128 = 1;
+    let market_tokens_supply: u256 = 1;
 
     // Emit the event.
     event_emitter.emit_market_pool_value_info(market, market_pool_value_info, market_tokens_supply);
@@ -76,8 +76,8 @@ fn given_normal_conditions_when_emit_pool_amount_updated_then_works() {
     // Create dummy data.
     let market = contract_address_const::<'market'>();
     let token = contract_address_const::<'token'>();
-    let delta: i128 = i128_new(1, false);
-    let next_value: u128 = 2;
+    let delta: i256 = i256_new(1, false);
+    let next_value: u256 = 2;
 
     // Emit the event.
     event_emitter.emit_pool_amount_updated(market, token, delta, next_value);
@@ -114,8 +114,8 @@ fn given_normal_conditions_when_emit_swap_impact_pool_amount_updated_then_works(
     // Create dummy data.
     let market = contract_address_const::<'market'>();
     let token = contract_address_const::<'token'>();
-    let delta: i128 = i128_new(1, false);
-    let next_value: u128 = 2;
+    let delta: i256 = i256_new(1, false);
+    let next_value: u256 = 2;
 
     // Emit the event.
     event_emitter.emit_swap_impact_pool_amount_updated(market, token, delta, next_value);
@@ -151,8 +151,8 @@ fn given_normal_conditions_when_emit_position_impact_pool_amount_updated_then_wo
 
     // Create dummy data.
     let market = contract_address_const::<'market'>();
-    let delta: i128 = i128_new(1, false);
-    let next_value: u128 = 2;
+    let delta: i256 = i256_new(1, false);
+    let next_value: u256 = 2;
 
     // Emit the event.
     event_emitter.emit_position_impact_pool_amount_updated(market, delta, next_value);
@@ -190,8 +190,8 @@ fn given_normal_conditions_when_emit_open_interest_in_tokens_updated_then_works(
     let market = contract_address_const::<'market'>();
     let collateral_token = contract_address_const::<'collateral_token'>();
     let is_long: bool = true;
-    let delta: i128 = i128_new(1, false);
-    let next_value: u128 = 2;
+    let delta: i256 = i256_new(1, false);
+    let next_value: u256 = 2;
 
     // Emit the event.
     event_emitter
@@ -234,8 +234,8 @@ fn given_normal_conditions_when_emit_open_interest_updated_then_works() {
     let market = contract_address_const::<'market'>();
     let collateral_token = contract_address_const::<'collateral_token'>();
     let is_long: bool = true;
-    let delta: i128 = i128_new(1, false);
-    let next_value: u128 = 2;
+    let delta: i256 = i256_new(1, false);
+    let next_value: u256 = 2;
 
     // Emit the event.
     event_emitter.emit_open_interest_updated(market, collateral_token, is_long, delta, next_value);
@@ -277,8 +277,8 @@ fn given_normal_conditions_when_emit_virtual_swap_inventory_updated_then_works()
     let market = contract_address_const::<'market'>();
     let is_long_token: bool = true;
     let virtual_market_id = 'virtual_market_id';
-    let delta: i128 = i128_new(1, false);
-    let next_value: u128 = 2;
+    let delta: i256 = i256_new(1, false);
+    let next_value: u256 = 2;
 
     // Emit the event.
     event_emitter
@@ -322,8 +322,8 @@ fn given_normal_conditions_when_emit_virtual_position_inventory_updated_then_wor
     // Create dummy data.
     let token = contract_address_const::<'token'>();
     let virtual_token_id = 'virtual_token_id';
-    let delta: i128 = i128_new(1, false);
-    let next_value: i128 = i128_new(2, false);
+    let delta: i256 = i256_new(1, false);
+    let next_value: i256 = i256_new(2, false);
 
     // Emit the event.
     event_emitter
@@ -365,8 +365,8 @@ fn given_normal_conditions_when_emit_collateral_sum_updated_then_works() {
     let market = contract_address_const::<'market'>();
     let collateral_token = contract_address_const::<'collateral_token'>();
     let is_long: bool = true;
-    let delta: i128 = i128_new(1, false);
-    let next_value: u128 = 2;
+    let delta: i256 = i256_new(1, false);
+    let next_value: u256 = 2;
 
     // Emit the event.
     event_emitter.emit_collateral_sum_updated(market, collateral_token, is_long, delta, next_value);
@@ -408,8 +408,8 @@ fn given_normal_conditions_when_emit_cumulative_borrowing_factor_updated_then_wo
     let market = contract_address_const::<'market'>();
 
     let is_long: bool = true;
-    let delta: u128 = 1;
-    let next_value: u128 = 2;
+    let delta: u256 = 1;
+    let next_value: u256 = 2;
 
     // Emit the event.
     event_emitter.emit_cumulative_borrowing_factor_updated(market, is_long, delta, next_value);
@@ -448,8 +448,8 @@ fn given_normal_conditions_when_emit_funding_fee_amount_per_size_updated_then_wo
     let collateral_token = contract_address_const::<'collateral_token'>();
 
     let is_long: bool = true;
-    let delta: u128 = 1;
-    let next_value: u128 = 2;
+    let delta: u256 = 1;
+    let next_value: u256 = 2;
 
     // Emit the event.
     event_emitter
@@ -494,8 +494,8 @@ fn given_normal_conditions_when_emit_claimable_funding_amount_per_size_updated_t
     let market = contract_address_const::<'market'>();
     let collateral_token = contract_address_const::<'collateral_token'>();
     let is_long: bool = true;
-    let delta: u128 = 1;
-    let next_value: u128 = 2;
+    let delta: u256 = 1;
+    let next_value: u256 = 2;
 
     // Emit the event.
     event_emitter
@@ -540,9 +540,9 @@ fn given_normal_conditions_when_emit_claimable_funding_updated_then_works() {
     let market = contract_address_const::<'market'>();
     let token = contract_address_const::<'token'>();
     let account = contract_address_const::<'account'>();
-    let delta: u128 = 1;
-    let next_value: u128 = 2;
-    let next_pool_value: u128 = 2;
+    let delta: u256 = 1;
+    let next_value: u256 = 2;
+    let next_pool_value: u256 = 2;
 
     // Emit the event.
     event_emitter
@@ -587,8 +587,8 @@ fn given_normal_conditions_when_emit_funding_fees_claimed_then_works() {
     let token = contract_address_const::<'token'>();
     let account = contract_address_const::<'account'>();
     let receiver = contract_address_const::<'receiver'>();
-    let amount: u128 = 1;
-    let next_pool_value: u128 = 2;
+    let amount: u256 = 1;
+    let next_pool_value: u256 = 2;
 
     // Emit the event.
     event_emitter
@@ -633,10 +633,10 @@ fn given_normal_conditions_when_emit_claimable_collateral_updated_then_works() {
     let token = contract_address_const::<'token'>();
     let account = contract_address_const::<'account'>();
 
-    let time_key: u128 = 1;
-    let delta: u128 = 2;
-    let next_value: u128 = 3;
-    let next_pool_value: u128 = 4;
+    let time_key: u256 = 1;
+    let delta: u256 = 2;
+    let next_value: u256 = 3;
+    let next_pool_value: u256 = 4;
 
     // Emit the event.
     event_emitter
@@ -685,9 +685,9 @@ fn given_normal_conditions_when_emit_collateral_claimed_then_works() {
     let account = contract_address_const::<'account'>();
     let receiver = contract_address_const::<'receiver'>();
 
-    let time_key: u128 = 1;
-    let amount: u128 = 2;
-    let next_pool_value: u128 = 3;
+    let time_key: u256 = 1;
+    let amount: u256 = 2;
+    let next_pool_value: u256 = 3;
 
     // Emit the event.
     event_emitter
@@ -732,7 +732,7 @@ fn given_normal_conditions_when_emit_ui_fee_factor_updated_then_works() {
 
     // Create dummy data.
     let account = contract_address_const::<'account'>();
-    let ui_fee_factor: u128 = 1;
+    let ui_fee_factor: u256 = 1;
 
     // Emit the event.
     event_emitter.emit_ui_fee_factor_updated(account, ui_fee_factor);
@@ -802,10 +802,10 @@ fn given_normal_conditions_when_emit_market_created_then_works() {
 
 fn create_dummy_market_pool_value_info() -> MarketPoolValueInfo {
     MarketPoolValueInfo {
-        pool_value: i128_new(1, false),
-        long_pnl: i128_new(2, false),
-        short_pnl: i128_new(3, false),
-        net_pnl: i128_new(4, false),
+        pool_value: i256_new(1, false),
+        long_pnl: i256_new(2, false),
+        short_pnl: i256_new(3, false),
+        net_pnl: i256_new(4, false),
         long_token_amount: 5,
         short_token_amount: 6,
         long_token_usd: 7,

@@ -164,13 +164,13 @@ fn test_deposit_market_integration() {
     let market = data_store.get_market(create_market(market_factory));
     // Set params in data_store
     data_store.set_address(keys::fee_token(), market.index_token);
-    data_store.set_u128(keys::max_swap_path_length(), 0);
+    data_store.set_u256(keys::max_swap_path_length(), 0);
     data_store
-        .set_u128(
+        .set_u256(
             keys::max_pool_amount_key(market.market_token, market.long_token), 10000000000000
         );
     data_store
-        .set_u128(
+        .set_u256(
             keys::max_pool_amount_key(market.market_token, market.short_token), 10000000000000
         );
 

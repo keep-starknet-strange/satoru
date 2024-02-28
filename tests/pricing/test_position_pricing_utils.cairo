@@ -14,7 +14,7 @@ use satoru::pricing::position_pricing_utils::{
 };
 use snforge_std::{declare, start_prank, stop_prank, ContractClassTrait};
 use satoru::utils::precision::{FLOAT_PRECISION, FLOAT_PRECISION_SQRT};
-use satoru::utils::i128::{i128, i128_new};
+use satoru::utils::i256::{i256, i256_new};
 
 // TODO add asserts for each test when possible
 
@@ -40,7 +40,7 @@ fn given_normal_conditions_when_get_next_open_interest_for_virtual_inventory_the
 
     let get_price_impact_params = create_get_price_impact_usd_params(data_store);
     position_pricing_utils::get_next_open_interest_for_virtual_inventory(
-        get_price_impact_params, i128_new(50, false)
+        get_price_impact_params, i256_new(50, false)
     );
 }
 
@@ -229,5 +229,5 @@ fn create_get_price_impact_usd_params(data_store: IDataStoreDispatcher) -> GetPr
         short_token: contract_address_const::<'short_token'>()
     };
 
-    GetPriceImpactUsdParams { data_store, market, usd_delta: i128_new(50, false), is_long: true }
+    GetPriceImpactUsdParams { data_store, market, usd_delta: i256_new(50, false), is_long: true }
 }

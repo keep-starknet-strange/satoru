@@ -23,10 +23,9 @@ use satoru::utils::{calc, precision};
 use satoru::pricing::error::PricingError;
 use satoru::referral::referral_utils;
 use satoru::utils::{
-    i128::{i128, i128_neg}, error_utils, calc::to_signed, default::DefaultContractAddress,
+    i256::{i256, i256_neg}, error_utils, calc::to_signed, default::DefaultContractAddress,
 };
 
-use integer::u128_to_felt252;
 /// Struct used in get_position_fees.
 #[derive(Drop, starknet::Store, Serde)]
 struct GetPositionFeesParams {
@@ -45,7 +44,7 @@ struct GetPositionFeesParams {
     /// The short token contract address.
     short_token: ContractAddress,
     /// The size variation in USD.
-    size_delta_usd: u128,
+    size_delta_usd: u256,
     /// The ui fee receiver contract address.
     ui_fee_receiver: ContractAddress,
 }
@@ -58,7 +57,7 @@ struct GetPriceImpactUsdParams {
     /// The market to check.
     market: Market,
     /// The change in position size in USD.
-    usd_delta: i128,
+    usd_delta: i256,
     /// Whether the position is long or short.
     is_long: bool,
 }
@@ -67,13 +66,13 @@ struct GetPriceImpactUsdParams {
 #[derive(Drop, starknet::Store, Serde)]
 struct OpenInterestParams {
     /// The amount of long open interest.
-    long_open_interest: u128,
+    long_open_interest: u256,
     /// The amount of short open interest.
-    short_open_interest: u128,
+    short_open_interest: u256,
     /// The updated amount of long open interest.
-    next_long_open_interest: u128,
+    next_long_open_interest: u256,
     /// The updated amount of short open interest.
-    next_short_open_interest: u128,
+    next_short_open_interest: u256,
 }
 
 /// Struct to store position fees data.
@@ -90,23 +89,23 @@ struct PositionFees {
     /// The collateral_token_price.
     collateral_token_price: Price,
     /// The position fee factor.
-    position_fee_factor: u128,
+    position_fee_factor: u256,
     /// The amount of fee to the protocol.
-    protocol_fee_amount: u128,
+    protocol_fee_amount: u256,
     /// The factor of fee due to receiver.
-    position_fee_receiver_factor: u128,
+    position_fee_receiver_factor: u256,
     /// The amount of fee due to receiver.
-    fee_receiver_amount: u128,
+    fee_receiver_amount: u256,
     /// The amount of fee due to the pool.
-    fee_amount_for_pool: u128,
+    fee_amount_for_pool: u256,
     /// The position fee amount for the pool
-    position_fee_amount_for_pool: u128,
+    position_fee_amount_for_pool: u256,
     /// The fee amount for increasing / decreasing the position.
-    position_fee_amount: u128,
+    position_fee_amount: u256,
     /// The total cost amount in tokens excluding funding.
-    total_cost_amount_excluding_funding: u128,
+    total_cost_amount_excluding_funding: u256,
     /// The total cost amount in tokens.
-    total_cost_amount: u128,
+    total_cost_amount: u256,
 }
 
 /// Struct used to store referral parameters useful for fees computation.
@@ -119,45 +118,45 @@ struct PositionReferralFees {
     /// The trader address.
     trader: ContractAddress,
     /// The total rebate factor.
-    total_rebate_factor: u128,
+    total_rebate_factor: u256,
     /// The trader discount factor.
-    trader_discount_factor: u128,
+    trader_discount_factor: u256,
     /// The total rebate amount.
-    total_rebate_amount: u128,
+    total_rebate_amount: u256,
     /// The discount amount for the trader.
-    trader_discount_amount: u128,
+    trader_discount_amount: u256,
     /// The affiliate reward amount.
-    affiliate_reward_amount: u128,
+    affiliate_reward_amount: u256,
 }
 
 /// Struct used to store position borrowing fees.
 #[derive(Default, Drop, starknet::Store, Serde, Copy)]
 struct PositionBorrowingFees {
     /// The borrowing fees amount in USD.
-    borrowing_fee_usd: u128,
+    borrowing_fee_usd: u256,
     /// The borrowing fees amount in tokens.
-    borrowing_fee_amount: u128,
+    borrowing_fee_amount: u256,
     /// The borrowing fees factor for receiver.
-    borrowing_fee_receiver_factor: u128,
+    borrowing_fee_receiver_factor: u256,
     /// The borrowing fees amount in tokens for fee receiver.
-    borrowing_fee_amount_for_fee_receiver: u128,
+    borrowing_fee_amount_for_fee_receiver: u256,
 }
 
 /// Struct used to store position funding fees.
 #[derive(Default, Copy, Drop, starknet::Store, Serde)]
 struct PositionFundingFees {
     /// The amount of funding fees in tokens.
-    funding_fee_amount: u128,
+    funding_fee_amount: u256,
     /// The negative funding fee in long token that is claimable.
-    claimable_long_token_amount: u128,
+    claimable_long_token_amount: u256,
     /// The negative funding fee in short token that is claimable.
-    claimable_short_token_amount: u128,
+    claimable_short_token_amount: u256,
     /// The latest long token funding fee amount per size for the market.
-    latest_funding_fee_amount_per_size: u128,
+    latest_funding_fee_amount_per_size: u256,
     /// The latest long token funding amount per size for the market.
-    latest_long_token_claimable_funding_amount_per_size: u128,
+    latest_long_token_claimable_funding_amount_per_size: u256,
     /// The latest short token funding amount per size for the market.
-    latest_short_token_claimable_funding_amount_per_size: u128,
+    latest_short_token_claimable_funding_amount_per_size: u256,
 }
 
 /// Struct used to store position ui fees
@@ -166,9 +165,9 @@ struct PositionUiFees {
     /// The ui fee receiver address
     ui_fee_receiver: ContractAddress,
     /// The factor for fee receiver.
-    ui_fee_receiver_factor: u128,
+    ui_fee_receiver_factor: u256,
     /// The ui fee amount in tokens.
-    ui_fee_amount: u128,
+    ui_fee_amount: u256,
 }
 
 /// Get the price impact in USD for a position increase / decrease.
@@ -176,7 +175,7 @@ struct PositionUiFees {
 /// * `params` - GetPriceImpactUsdParams
 /// # Returns
 /// Price impact usd
-fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i128 {
+fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i256 {
     let open_interest_params: OpenInterestParams = get_next_open_interest(params);
     let price_impact_usd = get_price_impact_usd_internal(
         params.data_store, params.market.market_token, open_interest_params
@@ -231,7 +230,7 @@ fn get_price_impact_usd_internal(
     data_store: IDataStoreDispatcher,
     market: ContractAddress,
     open_interest_params: OpenInterestParams,
-) -> i128 {
+) -> i256 {
     let initial_diff_usd = calc::diff(
         open_interest_params.long_open_interest, open_interest_params.short_open_interest
     );
@@ -257,7 +256,7 @@ fn get_price_impact_usd_internal(
         && is_same_side_rebalance_third;
 
     let impact_exponent_factor = data_store
-        .get_u128(keys::position_impact_exponent_factor_key(market));
+        .get_u256(keys::position_impact_exponent_factor_key(market));
 
     if (is_same_side_rebalance) {
         let has_positive_impact = next_diff_usd < initial_diff_usd;
@@ -308,7 +307,7 @@ fn get_next_open_interest(params: GetPriceImpactUsdParams) -> OpenInterestParams
 /// # Returns
 /// New open interest for virtual inventory.
 fn get_next_open_interest_for_virtual_inventory(
-    params: GetPriceImpactUsdParams, virtual_inventory: i128,
+    params: GetPriceImpactUsdParams, virtual_inventory: i256,
 ) -> OpenInterestParams {
     let mut long_open_interest = 0;
     let mut short_open_interest = 0;
@@ -323,7 +322,7 @@ fn get_next_open_interest_for_virtual_inventory(
     if (virtual_inventory > Zeroable::zero()) {
         short_open_interest = calc::to_unsigned(virtual_inventory);
     } else {
-        long_open_interest = calc::to_unsigned(i128_neg(virtual_inventory));
+        long_open_interest = calc::to_unsigned(i256_neg(virtual_inventory));
     }
 
     /// the virtual long and short open interest is adjusted by the usdDelta
@@ -331,7 +330,7 @@ fn get_next_open_interest_for_virtual_inventory(
     /// price impact depends on the change in USD balance, so offsetting both
     /// values equally should not change the price impact calculation
     if (params.usd_delta < Zeroable::zero()) {
-        let offset = calc::to_unsigned(i128_neg(params.usd_delta));
+        let offset = calc::to_unsigned(i256_neg(params.usd_delta));
         long_open_interest += offset;
         short_open_interest += offset;
     }
@@ -347,27 +346,27 @@ fn get_next_open_interest_for_virtual_inventory(
 /// # Returns
 /// New open interest.
 fn get_next_open_interest_params(
-    params: GetPriceImpactUsdParams, long_open_interest: u128, short_open_interest: u128
+    params: GetPriceImpactUsdParams, long_open_interest: u256, short_open_interest: u256
 ) -> OpenInterestParams {
     let mut next_long_open_interest = long_open_interest;
     let mut next_short_open_interest = short_open_interest;
 
     if (params.is_long) {
         if (params.usd_delta < Zeroable::zero()
-            && calc::to_unsigned(i128_neg(params.usd_delta)) > long_open_interest) {
+            && calc::to_unsigned(i256_neg(params.usd_delta)) > long_open_interest) {
             PricingError::USD_DELTA_EXCEEDS_LONG_OPEN_INTEREST(params.usd_delta, long_open_interest)
         }
 
-        next_long_open_interest = calc::sum_return_uint_128(long_open_interest, params.usd_delta);
+        next_long_open_interest = calc::sum_return_uint_256(long_open_interest, params.usd_delta);
     } else {
         if (params.usd_delta < Zeroable::zero()
-            && calc::to_unsigned(i128_neg(params.usd_delta)) > short_open_interest) {
+            && calc::to_unsigned(i256_neg(params.usd_delta)) > short_open_interest) {
             PricingError::USD_DELTA_EXCEEDS_SHORT_OPEN_INTEREST(
                 params.usd_delta, short_open_interest
             )
         }
 
-        next_short_open_interest = calc::sum_return_uint_128(short_open_interest, params.usd_delta);
+        next_short_open_interest = calc::sum_return_uint_256(short_open_interest, params.usd_delta);
     }
 
     let open_interest_params = OpenInterestParams {
@@ -464,16 +463,16 @@ fn get_position_fees(params: GetPositionFeesParams) -> PositionFees {
 /// # Returns
 /// Borrowing fees.
 fn get_borrowing_fees(
-    data_store: IDataStoreDispatcher, collateral_token_price: Price, borrowing_fee_usd: u128,
+    data_store: IDataStoreDispatcher, collateral_token_price: Price, borrowing_fee_usd: u256,
 ) -> PositionBorrowingFees {
     error_utils::check_division_by_zero(collateral_token_price.min, 'collateral_token_price.min');
     let borrowing_fee_amount = borrowing_fee_usd / collateral_token_price.min;
-    let borrowing_fee_receiver_factor = data_store.get_u128(keys::borrowing_fee_receiver_factor());
+    let borrowing_fee_receiver_factor = data_store.get_u256(keys::borrowing_fee_receiver_factor());
     PositionBorrowingFees {
         borrowing_fee_usd,
         borrowing_fee_amount,
         borrowing_fee_receiver_factor,
-        borrowing_fee_amount_for_fee_receiver: precision::apply_factor_u128(
+        borrowing_fee_amount_for_fee_receiver: precision::apply_factor_u256(
             borrowing_fee_amount, borrowing_fee_receiver_factor
         )
     }
@@ -529,7 +528,7 @@ fn get_funding_fees(
 fn get_ui_fees(
     data_store: IDataStoreDispatcher,
     collateral_token_price: Price,
-    size_delta_usd: u128,
+    size_delta_usd: u256,
     ui_fee_receiver: ContractAddress
 ) -> PositionUiFees {
     let mut ui_fees: PositionUiFees = Default::default();
@@ -543,7 +542,7 @@ fn get_ui_fees(
     error_utils::check_division_by_zero(collateral_token_price.min, 'collateral_token_price.min');
     ui_fees
         .ui_fee_amount =
-            precision::apply_factor_u128(size_delta_usd, ui_fees.ui_fee_receiver_factor)
+            precision::apply_factor_u256(size_delta_usd, ui_fees.ui_fee_receiver_factor)
         / collateral_token_price.min;
 
     ui_fees
@@ -566,7 +565,7 @@ fn get_position_fees_after_referral(
     for_positive_impact: bool,
     account: ContractAddress,
     market: ContractAddress,
-    size_delta_usd: u128,
+    size_delta_usd: u256,
 ) -> PositionFees {
     let mut fees: PositionFees = Default::default();
 
@@ -591,23 +590,23 @@ fn get_position_fees_after_referral(
     /// a user could split the order into two, to incur a smaller fee, reducing the fee through this should not be a large issue
     fees
         .position_fee_factor = data_store
-        .get_u128(keys::position_fee_factor_key(market, for_positive_impact));
+        .get_u256(keys::position_fee_factor_key(market, for_positive_impact));
     error_utils::check_division_by_zero(collateral_token_price.min, 'collateral_token_price.min');
     fees
         .position_fee_amount =
-            precision::apply_factor_u128(size_delta_usd, fees.position_fee_factor)
+            precision::apply_factor_u256(size_delta_usd, fees.position_fee_factor)
         / collateral_token_price.min;
 
     fees
         .referral
         .total_rebate_amount =
-            precision::apply_factor_u128(
+            precision::apply_factor_u256(
                 fees.position_fee_amount, fees.referral.total_rebate_factor
             );
     fees
         .referral
         .trader_discount_amount =
-            precision::apply_factor_u128(
+            precision::apply_factor_u256(
                 fees.referral.total_rebate_amount, fees.referral.trader_discount_factor
             );
     fees.referral.affiliate_reward_amount = fees.referral.total_rebate_amount
@@ -615,10 +614,10 @@ fn get_position_fees_after_referral(
 
     fees.protocol_fee_amount = fees.position_fee_amount - fees.referral.total_rebate_amount;
 
-    fees.position_fee_receiver_factor = data_store.get_u128(keys::position_fee_receiver_factor());
+    fees.position_fee_receiver_factor = data_store.get_u256(keys::position_fee_receiver_factor());
     fees
         .fee_receiver_amount =
-            precision::apply_factor_u128(
+            precision::apply_factor_u256(
                 fees.protocol_fee_amount, fees.position_fee_receiver_factor
             );
     fees.position_fee_amount_for_pool = fees.protocol_fee_amount - fees.fee_receiver_amount;

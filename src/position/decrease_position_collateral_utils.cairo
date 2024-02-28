@@ -12,7 +12,7 @@ use satoru::pricing::position_pricing_utils;
 use satoru::market::market_utils;
 use satoru::price::price::{Price, PriceTrait};
 use satoru::order::{base_order_utils, order};
-use satoru::utils::{i128::{i128, i128_neg}, calc, precision};
+use satoru::utils::{i256::{i256, i256_neg}, calc, precision};
 use satoru::data::{keys, data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::fee::fee_utils;
@@ -25,7 +25,7 @@ struct ProcessCollateralCache {
     /// Wether profit is swapped to collateral token.
     was_swapped: bool,
     /// The amount swapped to collateral token.
-    swap_output_amount: u128,
+    swap_output_amount: u256,
     /// The output result after paying for costs.
     result: PayForCostResult,
 }
@@ -34,22 +34,22 @@ struct ProcessCollateralCache {
 #[derive(Drop, starknet::Store, Serde, Default, Copy)]
 struct PayForCostResult {
     /// The amount of collateral token paid as cost.
-    amount_paid_in_collateral_token: u128,
+    amount_paid_in_collateral_token: u256,
     /// The amount of secondary output token paid as cost.
-    amount_paid_in_secondary_output_token: u128,
+    amount_paid_in_secondary_output_token: u256,
     /// The amount of remaining cost in USD
-    remaining_cost_usd: u128,
+    remaining_cost_usd: u256,
 }
 
 /// Struct used in get_execution_price function as cache.
 #[derive(Drop, starknet::Store, Serde, Default)]
 struct GetExecutionPriceCache {
     /// The price impact induced by execution.
-    price_impact_usd: i128,
+    price_impact_usd: i256,
     /// The difference between maximum price impact and originally calculated price impact.
-    price_impact_diff_usd: u128,
+    price_impact_diff_usd: u256,
     /// The execution price.
-    execution_price: u128,
+    execution_price: u256,
 }
 
 /// Handle the collateral changes of the position.
@@ -131,7 +131,7 @@ fn process_collateral(
     // if the pnl is positive, deduct the pnl amount from the pool
     if values.base_pnl_usd > Zeroable::zero() {
         // use pnl_token_price.max to minimize the tokens paid out
-        let deduction_amount_for_pool: u128 = calc::to_unsigned(values.base_pnl_usd)
+        let deduction_amount_for_pool: u256 = calc::to_unsigned(values.base_pnl_usd)
             / cache.pnl_token_price.max;
 
         market_utils::apply_delta_to_pool_amount(
@@ -170,7 +170,7 @@ fn process_collateral(
         // the deduction value
         // the pool value is calculated by subtracting the worth of the tokens in the position impact pool
         // so this transfer of value would increase the price of the market token
-        let deduction_amount_for_pool: u128 = calc::to_unsigned(values.price_impact_usd)
+        let deduction_amount_for_pool: u256 = calc::to_unsigned(values.price_impact_usd)
             / cache.pnl_token_price.max;
 
         market_utils::apply_delta_to_pool_amount(
@@ -271,7 +271,7 @@ fn process_collateral(
             values,
             cache.prices,
             cache.collateral_token_price,
-            calc::to_unsigned(i128_neg(values.base_pnl_usd))
+            calc::to_unsigned(i256_neg(values.base_pnl_usd))
         );
         values = values_;
         collateral_cache.result = result_;
@@ -389,7 +389,7 @@ fn process_collateral(
             values,
             cache.prices,
             cache.collateral_token_price,
-            calc::to_unsigned(i128_neg(values.price_impact_usd))
+            calc::to_unsigned(i256_neg(values.price_impact_usd))
         );
         values = values_;
         collateral_cache.result = result_;
@@ -486,9 +486,9 @@ fn process_collateral(
     // note that this calculation may not be entirely accurate since it is possible that the priceImpactDiffUsd
     // could have been paid with one of or a combination of collateral / outputAmount / secondaryOutputAmount
     if params.order.initial_collateral_delta_amount > 0 && values.price_impact_diff_usd > 0 {
-        let initial_collateral_delta_amount: u128 = params.order.initial_collateral_delta_amount;
+        let initial_collateral_delta_amount: u256 = params.order.initial_collateral_delta_amount;
 
-        let price_impact_diff_amount: u128 = values.price_impact_diff_usd
+        let price_impact_diff_amount: u256 = values.price_impact_diff_usd
             / cache.collateral_token_price.min;
         if initial_collateral_delta_amount > price_impact_diff_amount {
             params.order.initial_collateral_delta_amount = initial_collateral_delta_amount
@@ -536,8 +536,8 @@ fn process_collateral(
 /// (price_impact_usd, price_impact_diff_usd, execution_price)
 fn get_execution_price(
     params: position_utils::UpdatePositionParams, index_token_price: Price
-) -> (i128, u128, u128) {
-    let size_delta_usd: u128 = params.order.size_delta_usd;
+) -> (i256, u256, u256) {
+    let size_delta_usd: u256 = params.order.size_delta_usd;
 
     // note that the executionPrice is not validated against the order.acceptable_price value
     // if the size_delta_usd is zero
@@ -574,15 +574,15 @@ fn get_execution_price(
             );
 
     if cache.price_impact_usd < Zeroable::zero() {
-        let max_price_impact_factor: u128 = market_utils::get_max_position_impact_factor(
+        let max_price_impact_factor: u256 = market_utils::get_max_position_impact_factor(
             params.contracts.data_store, params.market.market_token, false
         );
 
         // convert the max price impact to the min negative value
         // e.g. if size_delta_usd is 10,000 and max_price_impact_factor is 2%
         // then minPriceImpactUsd = -200
-        let min_price_impact_usd: i128 = calc::to_signed(
-            precision::apply_factor_u128(size_delta_usd, max_price_impact_factor), false
+        let min_price_impact_usd: i256 = calc::to_signed(
+            precision::apply_factor_u256(size_delta_usd, max_price_impact_factor), false
         );
 
         // cap priceImpactUsd to the min negative value and store the difference in price_impact_diff_usd
@@ -630,7 +630,7 @@ fn pay_for_cost(
     mut values: position_utils::DecreasePositionCollateralValues,
     prices: market_utils::MarketPrices,
     collateral_token_price: Price,
-    cost_usd: u128,
+    cost_usd: u256,
 ) -> (position_utils::DecreasePositionCollateralValues, PayForCostResult) {
     let mut result: PayForCostResult = Default::default();
 
@@ -638,7 +638,7 @@ fn pay_for_cost(
         return (values, result);
     }
 
-    let mut remaining_cost_in_output_token: u128 = calc::roundup_division(
+    let mut remaining_cost_in_output_token: u256 = calc::roundup_division(
         cost_usd, collateral_token_price.min
     );
 
@@ -678,7 +678,7 @@ fn pay_for_cost(
         values.output.secondary_output_token, params.market, prices
     );
 
-    let mut remaining_cost_in_secondary_output_token: u128 = remaining_cost_in_output_token
+    let mut remaining_cost_in_secondary_output_token: u256 = remaining_cost_in_output_token
         * collateral_token_price.min
         / secondary_output_token_price.min;
 

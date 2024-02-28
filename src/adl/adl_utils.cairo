@@ -31,7 +31,7 @@ use satoru::order::order::{Order, OrderType, DecreasePositionSwapType};
 use satoru::nonce::nonce_utils;
 use satoru::callback::callback_utils::get_saved_callback_contract;
 use satoru::utils::span32::{Span32, Array32Trait};
-use satoru::utils::i128::i128;
+use satoru::utils::i256::i256;
 /// CreateAdlOrderParams struct used in createAdlOrder to avoid stack
 #[derive(Drop, Copy, starknet::Store, Serde)]
 struct CreateAdlOrderParams {
@@ -48,7 +48,7 @@ struct CreateAdlOrderParams {
     /// Whether the position is long or short.
     is_long: bool,
     /// The size to reduce the position by.
-    size_delta_usd: u128,
+    size_delta_usd: u256,
     /// The block to set the order's updated_at_block.
     updated_at_block: u64,
 }
@@ -148,8 +148,8 @@ fn create_adl_order(params: CreateAdlOrderParams) -> felt252 {
     // swapping the pnl token to the collateral token helps to ensure fees can be paid
     // using the realized profit
 
-    let acceptable_price_: u128 = if position.is_long {
-        0_u128
+    let acceptable_price_: u256 = if position.is_long {
+        0_u256
     } else {
         BoundedInt::max()
     };
@@ -175,8 +175,7 @@ fn create_adl_order(params: CreateAdlOrderParams) -> felt252 {
         callback_gas_limit: params
             .data_store
             .get_felt252(keys::max_callback_gas_limit())
-            .try_into()
-            .expect('get_felt252 into u128 failed'),
+            .into(),
         min_output_amount: 0,
         updated_at_block: params.updated_at_block,
         is_long: position.is_long,
@@ -220,9 +219,9 @@ fn get_latest_adl_block(
     data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool
 ) -> u64 {
     data_store
-        .get_u128(keys::latest_adl_block_key(market, is_long))
+        .get_u256(keys::latest_adl_block_key(market, is_long))
         .try_into()
-        .expect('get_u128 into u64 failed')
+        .expect('get_u256 into u64 failed')
 }
 
 /// Set the latest block at which the ADL flag was updated.
@@ -236,7 +235,7 @@ fn get_latest_adl_block(
 fn set_latest_adl_block(
     data_store: IDataStoreDispatcher, market: ContractAddress, is_long: bool, value: u64
 ) -> u64 {
-    data_store.set_u128(keys::latest_adl_block_key(market, is_long), value.into());
+    data_store.set_u256(keys::latest_adl_block_key(market, is_long), value.into());
     value
 }
 
@@ -280,8 +279,8 @@ fn emit_adl_state_updated(
     event_emitter: IEventEmitterDispatcher,
     market: ContractAddress,
     is_long: bool,
-    pnl_to_pool_factor: i128,
-    max_pnl_factor: u128,
+    pnl_to_pool_factor: i256,
+    max_pnl_factor: u256,
     should_enable_adl: bool
 ) {
     event_emitter

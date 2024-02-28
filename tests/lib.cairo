@@ -105,8 +105,8 @@ mod utils {
     mod test_precision;
     mod test_reentrancy_guard;
     mod test_starknet_utils;
-    mod test_u128_mask;
-    mod test_i128;
+    mod test_u256_mask;
+    mod test_i256;
     mod test_serializable_dict;
 }
 mod withdrawal {

@@ -49,11 +49,11 @@ struct CreateDepositParams {
     /// The swap path into markets for the short token.
     short_token_swap_path: Span32<ContractAddress>,
     /// The minimum acceptable number of liquidity tokens.
-    min_market_tokens: u128,
+    min_market_tokens: u256,
     /// The execution fee for keepers.
-    execution_fee: u128,
+    execution_fee: u256,
     /// The gas limit for the callback_contract.
-    callback_gas_limit: u128,
+    callback_gas_limit: u256,
 }
 
 
@@ -150,7 +150,7 @@ fn cancel_deposit(
     deposit_vault: IDepositVaultDispatcher,
     key: felt252,
     keeper: ContractAddress,
-    mut starting_gas: u128,
+    mut starting_gas: u256,
     reason: felt252,
     reason_bytes: Array<felt252>
 ) {

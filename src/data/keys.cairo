@@ -1446,13 +1446,13 @@ fn claimable_collateral_amount_key(market: ContractAddress, token: ContractAddre
 /// * `time_key` - The time key for the claimable amount.
 /// * `account` - The account address.
 fn claimable_collateral_amount_for_account_key(
-    market: ContractAddress, token: ContractAddress, time_key: u128, account: ContractAddress
+    market: ContractAddress, token: ContractAddress, time_key: u256, account: ContractAddress
 ) -> felt252 {
     let mut data = array![];
     data.append(claimable_collateral_amount());
     data.append(market.into());
     data.append(token.into());
-    data.append(time_key.into());
+    data.append(time_key.try_into().expect('u256 into felt failed'));
     data.append(account.into());
     poseidon_hash_span(data.span())
 }
@@ -1463,13 +1463,13 @@ fn claimable_collateral_amount_for_account_key(
 /// * `token` - The token address.
 /// * `time_key` - The time key for the claimable amount.
 fn claimable_collateral_factor_key(
-    market: ContractAddress, token: ContractAddress, time_key: u128
+    market: ContractAddress, token: ContractAddress, time_key: u256
 ) -> felt252 {
     let mut data = array![];
     data.append(claimable_collateral_factor());
     data.append(market.into());
     data.append(token.into());
-    data.append(time_key.into());
+    data.append(time_key.try_into().expect('u256 into felt failed'));
     poseidon_hash_span(data.span())
 }
 
@@ -1480,13 +1480,13 @@ fn claimable_collateral_factor_key(
 /// * `time_key` - The time key for the claimable amount.
 /// * `account` - The account address.
 fn claimable_collateral_factor_for_account_key(
-    market: ContractAddress, token: ContractAddress, time_key: u128, account: ContractAddress
+    market: ContractAddress, token: ContractAddress, time_key: u256, account: ContractAddress
 ) -> felt252 {
     let mut data = array![];
     data.append(claimable_collateral_factor());
     data.append(market.into());
     data.append(token.into());
-    data.append(time_key.into());
+    data.append(time_key.try_into().expect('u256 into felt failed'));
     data.append(account.into());
     poseidon_hash_span(data.span())
 }
@@ -1498,13 +1498,13 @@ fn claimable_collateral_factor_for_account_key(
 /// * `time_key` - The time key for the claimable amount.
 /// * `account` - The account address.
 fn claimed_collateral_amount_key(
-    market: ContractAddress, token: ContractAddress, time_key: u128, account: ContractAddress
+    market: ContractAddress, token: ContractAddress, time_key: u256, account: ContractAddress
 ) -> felt252 {
     let mut data = array![];
     data.append(claimed_collateral_amount());
     data.append(market.into());
     data.append(token.into());
-    data.append(time_key.into());
+    data.append(time_key.try_into().expect('u256 into felt failed'));
     data.append(account.into());
     poseidon_hash_span(data.span())
 }

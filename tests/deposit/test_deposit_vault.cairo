@@ -4,7 +4,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use integer::{u128_from_felt252, u256_from_felt252};
+use integer::{u256_from_felt252, u256_from_felt252};
 use result::ResultTrait;
 use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
@@ -42,7 +42,7 @@ fn given_already_intialized_when_initialize_then_fails() {
 fn given_normal_conditions_when_transfer_out_then_works() {
     let (_, receiver_address, _, data_store, deposit_vault, erc20) = setup();
 
-    let amount_to_transfer: u128 = 100;
+    let amount_to_transfer: u256 = 100;
     deposit_vault.transfer_out(erc20.contract_address, receiver_address, amount_to_transfer);
 
     // check that the contract balance reduces
@@ -65,7 +65,7 @@ fn given_normal_conditions_when_transfer_out_then_works() {
 fn given_not_enough_token_when_transfer_out_then_fails() {
     let (_, receiver_address, _, data_store, deposit_vault, erc20) = setup();
 
-    let amount_to_transfer: u128 = u128_from_felt252(INITIAL_TOKENS_MINTED + 1);
+    let amount_to_transfer: u256 = u256_from_felt252(INITIAL_TOKENS_MINTED + 1);
     deposit_vault.transfer_out(erc20.contract_address, receiver_address, amount_to_transfer);
 
     teardown(data_store, deposit_vault);
@@ -77,7 +77,7 @@ fn given_caller_has_no_controller_role_when_transfer_out_then_fails() {
     let (caller_address, receiver_address, _, data_store, deposit_vault, erc20) = setup();
     stop_prank(deposit_vault.contract_address);
     start_prank(deposit_vault.contract_address, receiver_address);
-    deposit_vault.transfer_out(erc20.contract_address, caller_address, 100_u128);
+    deposit_vault.transfer_out(erc20.contract_address, caller_address, 100_u256);
     teardown(data_store, deposit_vault);
 }
 
@@ -85,7 +85,7 @@ fn given_caller_has_no_controller_role_when_transfer_out_then_fails() {
 #[should_panic(expected: ('self_transfer_not_supported',))]
 fn given_receiver_is_contract_when_transfer_out_then_fails() {
     let (caller_address, receiver_address, _, data_store, deposit_vault, erc20) = setup();
-    deposit_vault.transfer_out(erc20.contract_address, deposit_vault.contract_address, 100_u128);
+    deposit_vault.transfer_out(erc20.contract_address, deposit_vault.contract_address, 100_u256);
     teardown(data_store, deposit_vault);
 }
 
@@ -93,8 +93,8 @@ fn given_receiver_is_contract_when_transfer_out_then_fails() {
 fn given_normal_conditions_when_record_transfer_in_then_works() {
     let (_, _, _, data_store, deposit_vault, erc20) = setup();
 
-    let initial_balance: u128 = u128_from_felt252(INITIAL_TOKENS_MINTED);
-    let tokens_received: u128 = deposit_vault.record_transfer_in(erc20.contract_address);
+    let initial_balance: u256 = u256_from_felt252(INITIAL_TOKENS_MINTED);
+    let tokens_received: u256 = deposit_vault.record_transfer_in(erc20.contract_address);
     assert(tokens_received == initial_balance, 'should be initial balance');
 
     teardown(data_store, deposit_vault);
@@ -104,30 +104,30 @@ fn given_normal_conditions_when_record_transfer_in_then_works() {
 fn given_more_balance_when_2nd_record_transfer_in_then_works() {
     let (_, _, _, data_store, deposit_vault, erc20) = setup();
 
-    let initial_balance: u128 = u128_from_felt252(INITIAL_TOKENS_MINTED);
-    let tokens_received: u128 = deposit_vault.record_transfer_in(erc20.contract_address);
+    let initial_balance: u256 = u256_from_felt252(INITIAL_TOKENS_MINTED);
+    let tokens_received: u256 = deposit_vault.record_transfer_in(erc20.contract_address);
     assert(tokens_received == initial_balance, 'should be initial balance');
 
-    let tokens_transfered_in: u128 = 250;
+    let tokens_transfered_in: u256 = 250;
     let mock_balance_with_more_tokens: u256 = (initial_balance + tokens_transfered_in).into();
     start_mock_call(erc20.contract_address, 'balance_of', mock_balance_with_more_tokens);
 
-    let tokens_received: u128 = deposit_vault.record_transfer_in(erc20.contract_address);
+    let tokens_received: u256 = deposit_vault.record_transfer_in(erc20.contract_address);
     assert(tokens_received == tokens_transfered_in, 'incorrect received amount');
 
     teardown(data_store, deposit_vault);
 }
 
 #[test]
-#[should_panic(expected: ('u128_sub Overflow',))]
+#[should_panic(expected: ('u256_sub Overflow',))]
 fn given_less_balance_when_2nd_record_transfer_in_then_fails() {
     let (_, _, _, data_store, deposit_vault, erc20) = setup();
 
-    let initial_balance: u128 = u128_from_felt252(INITIAL_TOKENS_MINTED);
-    let tokens_received: u128 = deposit_vault.record_transfer_in(erc20.contract_address);
+    let initial_balance: u256 = u256_from_felt252(INITIAL_TOKENS_MINTED);
+    let tokens_received: u256 = deposit_vault.record_transfer_in(erc20.contract_address);
     assert(tokens_received == initial_balance, 'should be initial balance');
 
-    let tokens_transfered_out: u128 = 250;
+    let tokens_transfered_out: u256 = 250;
     let mock_balance_with_less_tokens: u256 = (initial_balance - tokens_transfered_out).into();
     start_mock_call(erc20.contract_address, 'balance_of', mock_balance_with_less_tokens);
 

@@ -30,14 +30,14 @@ fn values_at_address() -> Array<ContractAddress> { // TODO
     ArrayTrait::new()
 }
 
-/// Returns an array of u128 values from the given set, starting at the given
+/// Returns an array of u256 values from the given set, starting at the given
 /// start index and ending before the given end index..
 /// # Arguments
 /// * `set` - The set to get the values from.
 /// * `start` - The starting index.
 /// * `end` - The ending index.
 /// # Returns
-/// An array of u128 values.
-fn values_at_u128() -> Array<u128> { // TODO
+/// An array of u256 values.
+fn values_at_u256() -> Array<u256> { // TODO
     ArrayTrait::new()
 }

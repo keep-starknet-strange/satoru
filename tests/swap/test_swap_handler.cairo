@@ -442,11 +442,11 @@ fn given_swap_path_market_then_works() {
     oracle.set_primary_price(short_token, price);
 
     data_store.set_market(market_token_deployed_address, 1, market);
-    data_store.set_u128(key1, 361850278866613121369732);
-    data_store.set_u128(key2, 361850278866613121369732);
+    data_store.set_u256(key1, 361850278866613121369732);
+    data_store.set_u256(key2, 361850278866613121369732);
 
-    data_store.set_u128(key3, 661850278866613121369732);
-    data_store.set_u128(key4, 661850278866613121369732);
+    data_store.set_u256(key3, 661850278866613121369732);
+    data_store.set_u256(key4, 661850278866613121369732);
 
     let mut swap_path_markets = ArrayTrait::<Market>::new();
     swap_path_markets.append(market);

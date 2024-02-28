@@ -38,6 +38,7 @@ use satoru::callback::deposit_callback_receiver::interface::{
 use satoru::callback::withdrawal_callback_receiver::interface::{
     IWithdrawalCallbackReceiverDispatcher, IWithdrawalCallbackReceiverDispatcherTrait
 };
+use integer::U256TryIntoFelt252;
 
 /// Validate that the callback_gas_limit is less than the max specified value.
 /// This is to prevent callback gas limits which are larger than the max gas limits per block
@@ -45,14 +46,14 @@ use satoru::callback::withdrawal_callback_receiver::interface::{
 /// # Arguments
 /// * `data_store` - The data store to use.
 /// * `callback_gas_limit` - The callback gas limit.
-fn validate_callback_gas_limit(data_store: IDataStoreDispatcher, callback_gas_limit: u128) {
-    let max_callback_gas_limit = data_store.get_u128(keys::max_callback_gas_limit());
+fn validate_callback_gas_limit(data_store: IDataStoreDispatcher, callback_gas_limit: u256) {
+    let max_callback_gas_limit = data_store.get_u256(keys::max_callback_gas_limit());
     if callback_gas_limit > max_callback_gas_limit {
         panic(
             array![
                 CallbackError::MAX_CALLBACK_GAS_LIMIT_EXCEEDED,
-                callback_gas_limit.into(),
-                max_callback_gas_limit.into()
+                callback_gas_limit.try_into().expect('u256 into felt failed'),
+                max_callback_gas_limit.try_into().expect('u256 into felt failed')
             ]
         );
     }

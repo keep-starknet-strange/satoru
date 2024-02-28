@@ -20,7 +20,7 @@ use satoru::deposit::{
 };
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::event::event_utils::{
-    LogData, LogDataTrait, Felt252IntoU128, ContractAddressDictValue, I128252DictValue
+    LogData, LogDataTrait, ContractAddressDictValue, I256252DictValue
 };
 use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 use satoru::fee::fee_utils;
@@ -38,7 +38,7 @@ use satoru::pricing::swap_pricing_utils::{
 use satoru::swap::swap_utils;
 use satoru::swap::error::SwapError;
 use satoru::utils::{
-    calc::{to_unsigned, to_signed}, i128::{i128, i128_new, i128_neg}, precision, span32::Span32,
+    calc::{to_unsigned, to_signed}, i256::{i256, i256_new, i256_neg}, precision, span32::Span32,
     starknet_utils::{sn_gasleft, sn_gasprice}
 };
 use debug::PrintTrait;
@@ -63,7 +63,7 @@ struct ExecuteDepositParams {
     /// `keeper` the address of the keeper executing the deposit.
     keeper: ContractAddress,
     /// `starting_gas` the starting amount of gas.
-    starting_gas: u128
+    starting_gas: u256
 }
 
 /// Struct used in executeDeposit to avoid stack too deep errors
@@ -86,19 +86,19 @@ struct _ExecuteDepositParams {
     /// `token_out_price` Price of token_out.
     token_out_price: Price,
     /// `amount` Amount of token_in.
-    amount: u128,
+    amount: u256,
     /// `price_impact_usd` Price impact in USD.
-    price_impact_usd: i128
+    price_impact_usd: i256
 }
 
 #[derive(Drop, Default)]
 struct ExecuteDepositCache {
-    long_token_amount: u128,
-    short_token_amount: u128,
-    long_token_usd: u128,
-    short_token_usd: u128,
-    received_market_tokens: u128,
-    price_impact_usd: i128
+    long_token_amount: u256,
+    short_token_amount: u256,
+    long_token_usd: u256,
+    short_token_usd: u256,
+    received_market_tokens: u256,
+    price_impact_usd: i256
 }
 
 /// Executes a deposit.
@@ -260,7 +260,7 @@ fn execute_deposit(params: ExecuteDepositParams) {
 /// * `_params` - @_ExecuteDepositParams.
 fn execute_deposit_helper(
     params: @ExecuteDepositParams, ref _params: _ExecuteDepositParams
-) -> u128 {
+) -> u256 {
     // for markets where longToken == shortToken, the price impact factor should be set to zero
     // in which case, the priceImpactUsd would always equal zero
     let mut fees = get_swap_fees(
@@ -360,7 +360,7 @@ fn execute_deposit_helper(
     // to avoid this, set the price_impact_usd to be zero for this case
 
     if _params.price_impact_usd > Zeroable::zero() && market_tokens_supply == Zeroable::zero() {
-        _params.price_impact_usd = i128_new(0, false);
+        _params.price_impact_usd = i256_new(0, false);
     }
 
     if _params.price_impact_usd > Zeroable::zero() {
@@ -431,7 +431,7 @@ fn execute_deposit_helper(
             _params.price_impact_usd,
         );
 
-        fees.amount_after_fees -= to_unsigned(i128_neg(negative_impact_amount));
+        fees.amount_after_fees -= to_unsigned(i256_neg(negative_impact_amount));
     }
 
     mint_amount +=
@@ -459,11 +459,11 @@ fn swap(
     params: @ExecuteDepositParams,
     swap_path: Span32<ContractAddress>,
     initial_token: ContractAddress,
-    input_amount: u128,
+    input_amount: u256,
     market: ContractAddress,
     expected_output_token: ContractAddress,
     ui_fee_receiver: ContractAddress
-) -> u128 {
+) -> u256 {
     let swap_path_markets = market_utils::get_swap_path_markets(*params.data_store, swap_path);
 
     let (output_token, output_amount) = swap_utils::swap(

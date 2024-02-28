@@ -452,7 +452,7 @@ fn create_new_deposit(
     account: ContractAddress,
     receiver: ContractAddress,
     market: ContractAddress,
-    deposit_no: u128,
+    deposit_no: u256,
 ) -> Deposit {
     let callback_contract = contract_address_const::<'callback_contract'>();
     let ui_fee_receiver = contract_address_const::<'ui_fee_receiver'>();

@@ -3,7 +3,7 @@ use starknet::{
     contract_address_const
 };
 use array::ArrayTrait;
-use satoru::utils::i128::i128;
+use satoru::utils::i256::i256;
 use traits::Default;
 use satoru::utils::traits::ContractAddressDefault;
 
@@ -18,20 +18,8 @@ use alexandria_data_structures::array_ext::SpanTraitExt;
 
 impl Felt252IntoBool of Into<felt252, bool> {
     fn into(self: felt252) -> bool {
-        let as_u128: u128 = self.try_into().expect('u128 Overflow');
-        as_u128 > 0
-    }
-}
-
-impl Felt252IntoU128 of Into<felt252, u128> {
-    fn into(self: felt252) -> u128 {
-        self.try_into().expect('u128 Overflow')
-    }
-}
-
-impl Felt252IntoI128 of Into<felt252, i128> {
-    fn into(self: felt252) -> i128 {
-        self.try_into().expect('i128 Overflow')
+        let as_u256: u256 = self.into();
+        as_u256 > 0
     }
 }
 
@@ -41,9 +29,15 @@ impl Felt252IntoContractAddress of Into<felt252, ContractAddress> {
     }
 }
 
-impl I128252DictValue of Felt252DictValue<i128> {
-    fn zero_default() -> i128 nopanic {
-        i128 { mag: 0, sign: false }
+impl I256252DictValue of Felt252DictValue<i256> {
+    fn zero_default() -> i256 nopanic {
+        i256 { mag: 0, sign: false }
+    }
+}
+
+impl U256252DictValue of Felt252DictValue<u256> {
+    fn zero_default() -> u256 nopanic {
+        0
     }
 }
 
@@ -60,15 +54,15 @@ impl ContractAddressDictValue of Felt252DictValue<ContractAddress> {
 //TODO Switch the append with a set in the functions when its available
 #[derive(Default, Serde, Destruct)]
 struct EventLogData {
-    cant_be_empty: u128, // remove 
+    cant_be_empty: u256, // remove 
 // TODO
 }
 
 #[derive(Default, Destruct)]
 struct LogData {
     address_dict: SerializableFelt252Dict<ContractAddress>,
-    uint_dict: SerializableFelt252Dict<u128>,
-    int_dict: SerializableFelt252Dict<i128>,
+    uint_dict: SerializableFelt252Dict<u256>,
+    int_dict: SerializableFelt252Dict<i256>,
     bool_dict: SerializableFelt252Dict<bool>,
     felt252_dict: SerializableFelt252Dict<felt252>,
     string_dict: SerializableFelt252Dict<felt252>
@@ -133,11 +127,11 @@ impl LogDataImpl of LogDataTrait {
             .expect('deserialize err address');
 
         let mut serialized_dict = get_next_dict_serialized(ref serialized);
-        let uint_dict = SerializableFelt252DictTrait::<u128>::deserialize(ref serialized_dict)
+        let uint_dict = SerializableFelt252DictTrait::<u256>::deserialize(ref serialized_dict)
             .expect('deserialize err uint');
 
         let mut serialized_dict = get_next_dict_serialized(ref serialized);
-        let int_dict = SerializableFelt252DictTrait::<i128>::deserialize(ref serialized_dict)
+        let int_dict = SerializableFelt252DictTrait::<i256>::deserialize(ref serialized_dict)
             .expect('deserialize err int');
 
         let mut serialized_dict = get_next_dict_serialized(ref serialized);

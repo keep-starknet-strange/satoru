@@ -46,75 +46,75 @@ mod OracleError {
         panic(data)
     }
 
-    fn ARRAY_OUT_OF_BOUNDS_U128(mut data_1: Span<u128>, data_2: u128, msg: felt252) {
-        let mut data: Array<felt252> = array!['array out of bounds u128'];
+    fn ARRAY_OUT_OF_BOUNDS_U256(mut data_1: Span<u256>, data_2: u256, msg: felt252) {
+        let mut data: Array<felt252> = array!['array out of bounds u256'];
         let mut length = data_1.len();
         loop {
             if length == 0 {
                 break;
             }
-            data.append((*data_1.pop_front().expect('array pop_front failed')).into());
+            data.append((*data_1.pop_front().expect('array pop_front failed')).try_into().expect('u256 into felt failed'));
         };
-        data.append(data_2.into());
+        data.append(data_2.try_into().expect('u256 into felt failed'));
         data.append(msg);
         panic(data)
     }
 
-    fn INVALID_SIGNER_MIN_MAX_PRICE(data_1: u128, data_2: u128) {
-        panic(array!['invalid med min-max price', data_1.into(), data_2.into()])
+    fn INVALID_SIGNER_MIN_MAX_PRICE(data_1: u256, data_2: u256) {
+        panic(array!['invalid med min-max price', data_1.try_into().expect('u256 into felt failed'), data_2.try_into().expect('u256 into felt failed')])
     }
 
-    fn INVALID_MEDIAN_MIN_MAX_PRICE(data_1: u128, data_2: u128) {
-        panic(array!['invalid med min-max price', data_1.into(), data_2.into()])
+    fn INVALID_MEDIAN_MIN_MAX_PRICE(data_1: u256, data_2: u256) {
+        panic(array!['invalid med min-max price', data_1.try_into().expect('u256 into felt failed'), data_2.try_into().expect('u256 into felt failed')])
     }
 
     fn INVALID_ORACLE_PRICE(data_1: ContractAddress) {
         panic(array!['invalid oracle price', data_1.into()])
     }
 
-    fn MIN_ORACLE_SIGNERS(data_1: u128, data_2: u128) {
+    fn MIN_ORACLE_SIGNERS(data_1: u256, data_2: u256) {
         let mut data: Array<felt252> = array!['min oracle signers'];
-        data.append(data_1.into());
-        data.append(data_2.into());
-        panic(array!['min oracle signers', data_1.into(), data_2.into()])
+        data.append(data_1.try_into().expect('u256 into felt failed'));
+        data.append(data_2.try_into().expect('u256 into felt failed'));
+        panic(data)
     }
 
-    fn MAX_ORACLE_SIGNERS(data_1: u128, data_2: u128) {
-        panic(array!['max oracle signers', data_1.into(), data_2.into()])
+    fn MAX_ORACLE_SIGNERS(data_1: u256, data_2: u256) {
+        panic(array!['max oracle signers', data_1.try_into().expect('u256 into felt failed'), data_2.try_into().expect('u256 into felt failed')])
     }
 
-    fn MAX_SIGNERS_INDEX(data_1: u128, data_2: u128) {
-        panic(array!['max signers index', data_1.into(), data_2.into()])
+    fn MAX_SIGNERS_INDEX(data_1: u256, data_2: u256) {
+        panic(array!['max signers index', data_1.try_into().expect('u256 into felt failed'), data_2.try_into().expect('u256 into felt failed')])
     }
 
-    fn EMPTY_SIGNER(data_1: u128) {
-        panic(array!['empty signers', data_1.into()])
+    fn EMPTY_SIGNER(data_1: u256) {
+        panic(array!['empty signers', data_1.try_into().expect('u256 into felt failed')])
     }
 
     fn MAX_REFPRICE_DEVIATION_EXCEEDED(
-        data_1: ContractAddress, data_2: u128, data_3: u128, data_4: u128
+        data_1: ContractAddress, data_2: u256, data_3: u256, data_4: u256
     ) {
         panic(
             array![
-                'max refprice deviation', data_1.into(), data_2.into(), data_3.into(), data_4.into()
+                'max refprice deviation', data_1.into(), data_2.try_into().expect('u256 into felt failed'), data_3.try_into().expect('u256 into felt failed'), data_4.try_into().expect('u256 into felt failed')
             ]
         )
     }
 
-    fn INVALID_PRICE_FEED(data_1: ContractAddress, data_2: u128) {
-        panic(array!['invalid price feed', data_1.into(), data_2.into()])
+    fn INVALID_PRICE_FEED(data_1: ContractAddress, data_2: u256) {
+        panic(array!['invalid price feed', data_1.into(), data_2.try_into().expect('u256 into felt failed')])
     }
 
     fn INVALID_PRIMARY_PRICES_FOR_SIMULATION(data_1: u32, data_2: u32) {
         panic(array!['Simulation:invalid prim_prices', data_1.into(), data_2.into()])
     }
 
-    fn PRICE_FEED_NOT_UPDATED(data_1: ContractAddress, data_2: u64, data_3: u128) {
-        panic(array!['price feed not updated', data_1.into(), data_2.into(), data_3.into()])
+    fn PRICE_FEED_NOT_UPDATED(data_1: ContractAddress, data_2: u64, data_3: u256) {
+        panic(array!['price feed not updated', data_1.into(), data_2.into(), data_3.try_into().expect('u256 into felt failed')])
     }
 
-    fn PRICE_ALREADY_SET(data_1: ContractAddress, data_2: u128, data_3: u128) {
-        panic(array!['price already set', data_1.into(), data_2.into(), data_3.into()])
+    fn PRICE_ALREADY_SET(data_1: ContractAddress, data_2: u256, data_3: u256) {
+        panic(array!['price already set', data_1.into(), data_2.try_into().expect('u256 into felt failed'), data_3.try_into().expect('u256 into felt failed')])
     }
 
     fn EMPTY_PRICE_FEED(data_1: ContractAddress) {
@@ -193,21 +193,21 @@ mod OracleError {
         data.append(data_2.into());
     }
 
-    fn MIN_PRICES_NOT_SORTED(token: ContractAddress, min_price: u128, min_price_prev: u128) {
+    fn MIN_PRICES_NOT_SORTED(token: ContractAddress, min_price: u256, min_price_prev: u256) {
         let mut data: Array<felt252> = array![];
         data.append('min prices not sorted');
         data.append(token.into());
-        data.append(min_price.into());
-        data.append(min_price_prev.into());
+        data.append(min_price.try_into().expect('u256 into felt failed'));
+        data.append(min_price_prev.try_into().expect('u256 into felt failed'));
         panic(data)
     }
 
-    fn MAX_PRICES_NOT_SORTED(token: ContractAddress, max_price: u128, max_price_prev: u128) {
+    fn MAX_PRICES_NOT_SORTED(token: ContractAddress, max_price: u256, max_price_prev: u256) {
         let mut data: Array<felt252> = array![];
         data.append('max prices not sorted');
         data.append(token.into());
-        data.append(max_price.into());
-        data.append(max_price_prev.into());
+        data.append(max_price.try_into().expect('u256 into felt failed'));
+        data.append(max_price_prev.try_into().expect('u256 into felt failed'));
         panic(data)
     }
 }

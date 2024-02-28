@@ -25,9 +25,9 @@ use satoru::position::{
 use satoru::position::error::PositionError;
 use satoru::utils::{
     calc::{
-        to_unsigned, to_signed, sum_return_uint_128, roundup_magnitude_division, roundup_division
+        to_unsigned, to_signed, sum_return_uint_256, roundup_magnitude_division, roundup_division
     },
-    i128::{i128, i128_neg}
+    i256::{i256, i256_neg}
 };
 use satoru::fee::fee_utils;
 use satoru::data::keys;
@@ -36,19 +36,19 @@ use satoru::order::base_order_utils;
 #[derive(Drop, starknet::Store, Serde, Default, Copy)]
 struct IncreasePositionCache {
     /// The change in collateral amount.
-    collateral_delta_amount: i128,
-    execution_price: u128,
+    collateral_delta_amount: i256,
+    execution_price: u256,
     collateral_token_price: Price,
     /// The price impact of the position increase in USD.
-    price_impact_usd: i128,
+    price_impact_usd: i256,
     /// The price impact of the position increase in tokens.
-    price_impact_amount: i128,
+    price_impact_amount: i256,
     /// The change in position size in tokens.
-    size_delta_in_tokens: u128,
+    size_delta_in_tokens: u256,
     /// The new position size in USD.
-    next_position_size_in_usd: u128,
+    next_position_size_in_usd: u256,
     /// The new position borrowing factor.
-    next_position_borrowing_factor: u128,
+    next_position_borrowing_factor: u256,
 }
 
 /// The increasePosition function is used to increase the size of a position
@@ -56,7 +56,7 @@ struct IncreasePositionCache {
 /// calculating the price impact of the size increase, and updating the position's
 /// size and borrowing factor. This function also applies fees to the position
 /// and updates the market's liquidity pool based on the new position size.
-fn increase_position(mut params: UpdatePositionParams, collateral_increment_amount: u128) {
+fn increase_position(mut params: UpdatePositionParams, collateral_increment_amount: u256) {
     // get the market prices for the given position
     let prices = market_utils::get_market_prices(params.contracts.oracle, params.market);
 
@@ -128,7 +128,7 @@ fn increase_position(mut params: UpdatePositionParams, collateral_increment_amou
     if (cache.collateral_delta_amount < Zeroable::zero()
         && params
             .position
-            .collateral_amount < to_unsigned(i128_neg(cache.collateral_delta_amount))) {
+            .collateral_amount < to_unsigned(i256_neg(cache.collateral_delta_amount))) {
         PositionError::INSUFFICIENT_COLLATERAL_AMOUNT(
             params.position.collateral_amount, cache.collateral_delta_amount
         )
@@ -136,7 +136,7 @@ fn increase_position(mut params: UpdatePositionParams, collateral_increment_amou
     params
         .position
         .collateral_amount =
-            sum_return_uint_128(params.position.collateral_amount, cache.collateral_delta_amount);
+            sum_return_uint_256(params.position.collateral_amount, cache.collateral_delta_amount);
 
     // if there is a positive impact, the impact pool amount should be reduced
     // if there is a negative impact, the impact pool amount should be increased
@@ -144,7 +144,7 @@ fn increase_position(mut params: UpdatePositionParams, collateral_increment_amou
         params.contracts.data_store,
         params.contracts.event_emitter,
         params.market.market_token,
-        i128_neg(cache.price_impact_amount)
+        i256_neg(cache.price_impact_amount)
     );
 
     cache.next_position_size_in_usd = params.position.size_in_usd + params.order.size_delta_usd;
@@ -273,9 +273,9 @@ fn increase_position(mut params: UpdatePositionParams, collateral_increment_amou
 fn process_collateral(
     params: UpdatePositionParams,
     collateral_token_price: Price,
-    mut collateral_delta_amount: i128,
-    price_impact_usd: i128,
-) -> (i128, PositionFees) {
+    mut collateral_delta_amount: i256,
+    price_impact_usd: i256,
+) -> (i256, PositionFees) {
     let get_position_fees_params: GetPositionFeesParams = GetPositionFeesParams {
         data_store: params.contracts.data_store,
         referral_storage: params.contracts.referral_storage,
@@ -335,7 +335,7 @@ fn process_collateral(
 /// price_impact_usd, price_impact_amount, size_delta_in_tokens, execution_price
 fn get_execution_price(
     params: UpdatePositionParams, index_token_price: Price
-) -> (i128, i128, u128, u128) {
+) -> (i256, i256, u256, u256) {
     // note that the executionPrice is not validated against the order.acceptablePrice value
     // if the sizeDeltaUsd is zero
     // for limit orders the order.triggerPrice should still have been validated
@@ -386,7 +386,7 @@ fn get_execution_price(
     // if price impact is negative, the sizeDeltaInTokens would be increased by the priceImpactAmount
     // the priceImpactAmount should be maximized
 
-    let mut price_impact_amount: i128 = Zeroable::zero();
+    let mut price_impact_amount: i256 = Zeroable::zero();
 
     if (price_impact_usd > Zeroable::zero()) {
         // use indexTokenPrice.max and round down to minimize the priceImpactAmount
@@ -396,7 +396,7 @@ fn get_execution_price(
         price_impact_amount = roundup_magnitude_division(price_impact_usd, index_token_price.min);
     }
 
-    let mut base_size_delta_in_tokens: u128 = 0;
+    let mut base_size_delta_in_tokens: u256 = 0;
 
     if (params.position.is_long) {
         // round the number of tokens for long positions down
@@ -407,7 +407,7 @@ fn get_execution_price(
             roundup_division(params.order.size_delta_usd, index_token_price.min);
     }
 
-    let mut size_delta_in_tokens: i128 = Zeroable::zero();
+    let mut size_delta_in_tokens: i256 = Zeroable::zero();
     if (params.position.is_long) {
         size_delta_in_tokens = to_signed(base_size_delta_in_tokens, true) + price_impact_amount;
     } else {

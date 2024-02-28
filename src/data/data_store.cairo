@@ -10,7 +10,7 @@ use satoru::order::order::Order;
 use satoru::position::position::Position;
 use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::deposit::deposit::Deposit;
-use satoru::utils::i128::i128;
+use satoru::utils::i256::i256;
 
 // *************************************************************************
 //                  Interface of the `DataStore` contract.
@@ -85,53 +85,23 @@ trait IDataStore<TContractState> {
 
 
     // *************************************************************************
-    //                          u128 related functions.
+    //                          u256 related functions.
     // *************************************************************************
-    /// Get a u128 value for the given key.
-    /// # Arguments
-    /// * `key` - The key to get the value for.
-    /// # Returns
-    /// The value for the given key.
-    fn get_u128(self: @TContractState, key: felt252) -> u128;
-
-    /// Set a u128 value for the given key.
-    /// # Arguments
-    /// * `key` - The key to set the value for.
-    /// * `value` - The value to set.
-    fn set_u128(ref self: TContractState, key: felt252, value: u128);
-
-    /// Delete a u128 value for the given key.
-    /// # Arguments
-    /// * `key` - The key to delete the value for.
-    fn remove_u128(ref self: TContractState, key: felt252);
-
     /// Add signed value to existing value if result positive.
     /// # Arguments
     /// * `key` - The key to add the value to.
     /// * `value` - The value to add.
     /// * `error` - The error to throw if result is negative.
-    fn apply_delta_to_u128(
-        ref self: TContractState, key: felt252, value: i128, error: felt252
-    ) -> u128;
-
-    /// Add input to existing value.
-    /// # Arguments
-    /// * `key` - The key to add the value to.
-    /// * `value` - The value to add.
-    fn increment_u128(ref self: TContractState, key: felt252, value: u128) -> u128;
-
-    /// Subtract input from existing value.
-    /// # Arguments
-    /// * `key` - The key to subtract the value from.
-    /// * `value` - The value to subtract.
-    fn decrement_u128(ref self: TContractState, key: felt252, value: u128) -> u128;
+    fn apply_delta_to_u256(
+        ref self: TContractState, key: felt252, value: i256, error: felt252
+    ) -> u256;
 
     /// Add the input int value to the existing uint value, prevent the uint
     /// value from becoming negative
     /// # Arguments
     /// * `key` -  the key of the value
     /// * `value` - the input int value
-    fn apply_bounded_delta_to_u128(ref self: TContractState, key: felt252, value: i128) -> u128;
+    fn apply_bounded_delta_to_u256(ref self: TContractState, key: felt252, value: i256) -> u256;
 
     // *************************************************************************
     //                      Address related functions.
@@ -427,14 +397,14 @@ trait IDataStore<TContractState> {
 
 
     // *************************************************************************
-    //                          int128 related functions.
+    //                          int256 related functions.
     // *************************************************************************
     /// Get a int value for the given key.
     /// # Arguments
     /// * `key` - The key to get the value for.
     /// # Returns
     /// The value for the given key.
-    fn get_i128(self: @TContractState, key: felt252) -> i128;
+    fn get_i256(self: @TContractState, key: felt252) -> i256;
 
     /// Set the int value for the given key.
     /// # Arguments
@@ -442,31 +412,31 @@ trait IDataStore<TContractState> {
     /// `value` - The value to set
     /// # Return
     /// The int value for the key.
-    fn set_i128(ref self: TContractState, key: felt252, value: i128);
+    fn set_i256(ref self: TContractState, key: felt252, value: i256);
 
 
-    /// Delete a i128 value for the given key.
+    /// Delete a i256 value for the given key.
     /// # Arguments
     /// * `key` - The key to delete the value for.
-    fn remove_i128(ref self: TContractState, key: felt252);
+    fn remove_i256(ref self: TContractState, key: felt252);
 
     // @dev add the input int value to the existing int value
     // @param key the key of the value
     // @param value the input int value
     // @return the new int value
-    fn apply_delta_to_i128(ref self: TContractState, key: felt252, value: i128) -> i128;
+    fn apply_delta_to_i256(ref self: TContractState, key: felt252, value: i256) -> i256;
 
     /// Add input to existing value.
     /// # Arguments
     /// * `key` - The key to add the value to.
     /// * `value` - The value to add.
-    fn increment_i128(ref self: TContractState, key: felt252, value: i128) -> i128;
+    fn increment_i256(ref self: TContractState, key: felt252, value: i256) -> i256;
 
     /// Subtract input from existing value.
     /// # Arguments
     /// * `key` - The key to subtract the value from.
     /// * `value` - The value to subtract.
-    fn decrement_i128(ref self: TContractState, key: felt252, value: i128) -> i128;
+    fn decrement_i256(ref self: TContractState, key: felt252, value: i256) -> i256;
 }
 
 #[starknet::contract]
@@ -493,9 +463,9 @@ mod DataStore {
     use satoru::position::{position::Position, error::PositionError};
     use satoru::withdrawal::{withdrawal::Withdrawal, error::WithdrawalError};
     use satoru::deposit::{deposit::Deposit, error::DepositError};
-    use satoru::utils::calc::{sum_return_uint_128, to_signed, to_unsigned};
+    use satoru::utils::calc::{sum_return_uint_256, to_signed, to_unsigned};
     use satoru::utils::calc;
-    use satoru::utils::i128::{i128, i128_neg};
+    use satoru::utils::i256::{i256, i256_neg};
     use debug::PrintTrait;
 
     // *************************************************************************
@@ -506,8 +476,7 @@ mod DataStore {
         role_store: IRoleStoreDispatcher,
         felt252_values: LegacyMap::<felt252, felt252>,
         u256_values: LegacyMap::<felt252, u256>,
-        u128_values: LegacyMap::<felt252, u128>,
-        i128_values: LegacyMap::<felt252, i128>,
+        i256_values: LegacyMap::<felt252, i256>,
         address_values: LegacyMap::<felt252, ContractAddress>,
         bool_values: LegacyMap::<felt252, bool>,
         /// Market storage
@@ -646,129 +615,86 @@ mod DataStore {
         }
 
         // *************************************************************************
-        //                          u128 related functions.
+        //                          u256 related functions.
         // *************************************************************************
-        fn get_u128(self: @ContractState, key: felt252) -> u128 {
-            self.u128_values.read(key)
-        }
 
-        fn set_u128(ref self: ContractState, key: felt252, value: u128) {
-            // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
-            // Set the value.
-            self.u128_values.write(key, value);
-        }
-
-        fn remove_u128(ref self: ContractState, key: felt252) {
-            // Check that the caller has permission to delete the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
-            // Delete the value.
-            self.u128_values.write(key, Default::default());
-        }
-
-        fn apply_delta_to_u128(
-            ref self: ContractState, key: felt252, value: i128, error: felt252
-        ) -> u128 {
+        fn apply_delta_to_u256(
+            ref self: ContractState, key: felt252, value: i256, error: felt252
+        ) -> u256 {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
 
-            let current_value = self.u128_values.read(key);
-            if value < Zeroable::zero() && calc::to_unsigned(i128_neg(value)) > current_value {
+            let current_value = self.u256_values.read(key);
+            if value < Zeroable::zero() && calc::to_unsigned(i256_neg(value)) > current_value {
                 panic(array![error]);
             }
-            let next_value = calc::sum_return_uint_128(current_value, value);
-            self.u128_values.write(key, next_value);
+            let next_value = calc::sum_return_uint_256(current_value, value);
+            self.u256_values.write(key, next_value);
             next_value
         }
 
-        fn increment_u128(ref self: ContractState, key: felt252, value: u128) -> u128 {
-            // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
-            // Get the current value.
-            let current_value = self.u128_values.read(key);
-            // Add the delta to the current value.
-            let new_value = current_value + value;
-            // Set the new value.
-            self.u128_values.write(key, new_value);
-            // Return the new value.
-            new_value
-        }
-
-        fn decrement_u128(ref self: ContractState, key: felt252, value: u128) -> u128 {
-            // Check that the caller has permission to set the value.
-            self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
-            // Get the current value.
-            let current_value = self.u128_values.read(key);
-            // Subtract the delta from the current value.
-            let new_value = current_value - value;
-            // Set the new value.
-            self.u128_values.write(key, new_value);
-            // Return the new value.
-            new_value
-        }
-
-        fn apply_bounded_delta_to_u128(ref self: ContractState, key: felt252, value: i128) -> u128 {
-            let uint_value: u128 = self.u128_values.read(key);
-            if (value < Zeroable::zero() && to_unsigned(i128_neg(value)) > uint_value) {
-                self.u128_values.write(key, 0);
+        fn apply_bounded_delta_to_u256(ref self: ContractState, key: felt252, value: i256) -> u256 {
+            let uint_value: u256 = self.u256_values.read(key);
+            if (value < Zeroable::zero() && to_unsigned(i256_neg(value)) > uint_value) {
+                self.u256_values.write(key, 0);
                 return 0;
             }
-            let next_uint: u128 = sum_return_uint_128(uint_value, value);
-            self.u128_values.write(key, next_uint);
+            let next_uint: u256 = sum_return_uint_256(uint_value, value);
+            self.u256_values.write(key, next_uint);
             next_uint
         }
 
 
         // *************************************************************************
-        //                      i128 related functions.
+        //                      i256 related functions.
         // *************************************************************************
-        fn get_i128(self: @ContractState, key: felt252) -> i128 {
-            self.i128_values.read(key)
+        fn get_i256(self: @ContractState, key: felt252) -> i256 {
+            self.i256_values.read(key)
         }
 
-        fn set_i128(ref self: ContractState, key: felt252, value: i128) {
+        fn set_i256(ref self: ContractState, key: felt252, value: i256) {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             // Set the value.
-            self.i128_values.write(key, value);
+            self.i256_values.write(key, value);
         }
 
-        fn remove_i128(ref self: ContractState, key: felt252) {
+        fn remove_i256(ref self: ContractState, key: felt252) {
             // Check that the caller has permission to delete the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             // Delete the value.
-            self.i128_values.write(key, Default::default());
+            self.i256_values.write(key, Default::default());
         }
 
-        fn apply_delta_to_i128(ref self: ContractState, key: felt252, value: i128) -> i128 {
-            let next_int: i128 = self.i128_values.read(key) + value;
-            self.i128_values.write(key, next_int);
+        fn apply_delta_to_i256(ref self: ContractState, key: felt252, value: i256) -> i256 {
+            let next_int: i256 = self.i256_values.read(key) + value;
+            self.i256_values.write(key, next_int);
             next_int
         }
 
-        fn increment_i128(ref self: ContractState, key: felt252, value: i128) -> i128 {
+        fn increment_i256(ref self: ContractState, key: felt252, value: i256) -> i256 {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             // Get the current value.
-            let current_value = self.i128_values.read(key);
+            let current_value = self.i256_values.read(key);
             // Add the delta to the current value.
             // TODO: Check for overflow.
             let new_value = current_value + value;
             // Set the new value.
-            self.i128_values.write(key, new_value);
+            self.i256_values.write(key, new_value);
             // Return the new value.
             new_value
         }
 
-        fn decrement_i128(ref self: ContractState, key: felt252, value: i128) -> i128 {
+        fn decrement_i256(ref self: ContractState, key: felt252, value: i256) -> i256 {
             // Check that the caller has permission to set the value.
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
             // Get the current value.
-            let current_value = self.i128_values.read(key);
+            let current_value = self.i256_values.read(key);
             // Subtract the delta from the current value.
             let new_value = current_value - value;
             // Set the new value.
-            self.i128_values.write(key, new_value);
+            self.i256_values.write(key, new_value);
             // Return the new value.
             new_value
         }

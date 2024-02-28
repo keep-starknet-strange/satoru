@@ -29,7 +29,7 @@ trait IStrictBank<TContractState> {
     /// * `receiver` - The address of the receiver.
     /// * `amount` - The amount of tokens to transfer.
     fn transfer_out(
-        ref self: TContractState, token: ContractAddress, receiver: ContractAddress, amount: u128,
+        ref self: TContractState, token: ContractAddress, receiver: ContractAddress, amount: u256,
     );
 
     /// Records a token transfer into the contract
@@ -37,7 +37,7 @@ trait IStrictBank<TContractState> {
     /// * `token` - The token to record the transfer for
     /// # Return
     /// The amount of tokens transferred in
-    fn record_transfer_in(ref self: TContractState, token: ContractAddress) -> u128;
+    fn record_transfer_in(ref self: TContractState, token: ContractAddress) -> u256;
 
     /// this can be used to update the tokenBalances in case of token burns
     /// or similar balance changes
@@ -47,7 +47,7 @@ trait IStrictBank<TContractState> {
     /// * `token` - The token to record the burn for
     /// # Return
     /// The new balance
-    fn sync_token_balance(ref self: TContractState, token: starknet::ContractAddress) -> u128;
+    fn sync_token_balance(ref self: TContractState, token: starknet::ContractAddress) -> u256;
 }
 
 #[starknet::contract]
@@ -73,7 +73,7 @@ mod StrictBank {
     // *************************************************************************
     #[storage]
     struct Storage {
-        token_balances: LegacyMap::<ContractAddress, u128>,
+        token_balances: LegacyMap::<ContractAddress, u256>,
     }
 
     // *************************************************************************
@@ -110,21 +110,21 @@ mod StrictBank {
             ref self: ContractState,
             token: ContractAddress,
             receiver: ContractAddress,
-            amount: u128,
+            amount: u256,
         ) {
             let mut state: Bank::ContractState = Bank::unsafe_new_contract_state();
             IBank::transfer_out(ref state, token, receiver, amount);
             self.after_transfer_out_infernal(token);
         }
 
-        fn sync_token_balance(ref self: ContractState, token: ContractAddress) -> u128 {
+        fn sync_token_balance(ref self: ContractState, token: ContractAddress) -> u256 {
             // assert that caller is a controller
             let mut role_module: RoleModule::ContractState =
                 RoleModule::unsafe_new_contract_state();
             role_module.only_controller();
 
             let this_contract = get_contract_address();
-            let next_balance: u128 = IERC20Dispatcher { contract_address: token }
+            let next_balance: u256 = IERC20Dispatcher { contract_address: token }
                 .balance_of(this_contract)
                 .try_into()
                 .unwrap();
@@ -132,7 +132,7 @@ mod StrictBank {
             next_balance
         }
 
-        fn record_transfer_in(ref self: ContractState, token: ContractAddress) -> u128 {
+        fn record_transfer_in(ref self: ContractState, token: ContractAddress) -> u256 {
             // assert that caller is a controller
             let mut role_module: RoleModule::ContractState =
                 RoleModule::unsafe_new_contract_state();
@@ -149,7 +149,7 @@ mod StrictBank {
         /// * `token` - token the token to transfer
         fn after_transfer_out_infernal(ref self: ContractState, token: starknet::ContractAddress) {
             let this_contract = get_contract_address();
-            let balance: u128 = IERC20Dispatcher { contract_address: token }
+            let balance: u256 = IERC20Dispatcher { contract_address: token }
                 .balance_of(this_contract)
                 .try_into()
                 .unwrap();
@@ -163,10 +163,10 @@ mod StrictBank {
         /// The amount of tokens transferred in
         fn record_transfer_in_internal(
             ref self: ContractState, token: starknet::ContractAddress
-        ) -> u128 {
-            let prev_balance: u128 = self.token_balances.read(token);
+        ) -> u256 {
+            let prev_balance: u256 = self.token_balances.read(token);
             let this_contract = get_contract_address();
-            let next_balance: u128 = IERC20Dispatcher { contract_address: token }
+            let next_balance: u256 = IERC20Dispatcher { contract_address: token }
                 .balance_of(this_contract)
                 .try_into()
                 .unwrap();

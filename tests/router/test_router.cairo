@@ -14,7 +14,7 @@ fn given_normal_conditions_when_transfer_then_expected_results() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let mint_amount = 10000;
-    let transfer_amount: u128 = 100;
+    let transfer_amount: u256 = 100;
     let receiver_address: ContractAddress = 0x103.try_into().unwrap();
     let (sender_address, caller_address, router, test_token) = setup(mint_amount);
 
@@ -59,7 +59,7 @@ fn given_bad_caller_when_transfer_then_fail() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let mint_amount = 10000;
-    let transfer_amount: u128 = 100;
+    let transfer_amount: u256 = 100;
     let receiver_address: ContractAddress = 0x103.try_into().unwrap();
     let (sender_address, _, router, test_token) = setup(mint_amount);
 

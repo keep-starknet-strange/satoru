@@ -189,7 +189,7 @@ mod BaseOrderHandler {
             key: felt252,
             oracle_params: SetPricesParams,
             keeper: ContractAddress,
-            starting_gas: u128,
+            starting_gas: u256,
             secondary_order_type: SecondaryOrderType
         ) -> ExecuteOrderParams {
             let data_store = self.data_store.read();

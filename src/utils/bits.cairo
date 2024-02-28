@@ -2,10 +2,10 @@
 //                                  IMPORTS
 // *************************************************************************
 
-const BITMASK_8: u128 = 127;
+const BITMASK_8: u256 = 127;
 
-const BITMASK_16: u128 = 32767;
+const BITMASK_16: u256 = 32767;
 
-const BITMASK_32: u128 = 2147483647;
+const BITMASK_32: u256 = 2147483647;
 
 const BITMASK_64: u64 = 9223372036854775807;

@@ -8,7 +8,7 @@ use starknet::{
     contract_address_const
 };
 use satoru::event::event_utils::{
-    Felt252IntoBool, Felt252IntoU128, Felt252IntoI128, Felt252IntoContractAddress, I128252DictValue,
+    Felt252IntoBool, Felt252IntoU256, Felt252IntoI256, Felt252IntoContractAddress, I256252DictValue,
     ContractAddressDictValue, LogData, LogDataTrait
 };
 use satoru::utils::traits::{ContractAddressDefault};
@@ -27,7 +27,7 @@ fn test_log_data_default() {
 
     // try to add things
     log_data.address_dict.insert_single('test', contract_address_const::<0>());
-    log_data.uint_dict.insert_single('test', 12_u128);
+    log_data.uint_dict.insert_single('test', 12_u256);
 
     // assert results OK
     let addr_item = log_data.address_dict.get('test').expect('key not found');
@@ -36,7 +36,7 @@ fn test_log_data_default() {
 
     let uint_item = log_data.uint_dict.get('test').expect('key not found');
     let uint_value = uint_item.unwrap_single();
-    assert(uint_value == 12_u128, 'uint value wrong');
+    assert(uint_value == 12_u256, 'uint value wrong');
 }
 
 #[test]
@@ -52,7 +52,7 @@ fn test_log_data_default_each() {
 
     // try to add things
     log_data.address_dict.insert_single('test', contract_address_const::<0>());
-    log_data.uint_dict.insert_single('test', 12_u128);
+    log_data.uint_dict.insert_single('test', 12_u256);
 
     // assert results OK
     let addr_item = log_data.address_dict.get('test').expect('key not found');
@@ -61,7 +61,7 @@ fn test_log_data_default_each() {
 
     let uint_item = log_data.uint_dict.get('test').expect('key not found');
     let uint_value = uint_item.unwrap_single();
-    assert(uint_value == 12_u128, 'uint value wrong');
+    assert(uint_value == 12_u256, 'uint value wrong');
 }
 
 #[test]

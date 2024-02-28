@@ -20,8 +20,8 @@ use satoru::position::position::Position;
 use satoru::swap::swap_utils::{SwapParams};
 use satoru::position::position_utils::UpdatePositionParams;
 use satoru::event::event_utils::{
-    LogData, LogDataTrait, Felt252IntoU128, Felt252IntoContractAddress, ContractAddressDictValue,
-    I128252DictValue
+    LogData, LogDataTrait, Felt252IntoContractAddress, ContractAddressDictValue,
+    I256252DictValue, U256252DictValue
 };
 use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
@@ -181,11 +181,11 @@ fn validate_oracle_block_numbers(
 fn validate_output_amount(
     oracle: IOracleDispatcher,
     output_token: ContractAddress,
-    output_amount: u128,
-    min_output_amount: u128
+    output_amount: u256,
+    min_output_amount: u256
 ) {
-    let output_token_price: u128 = oracle.get_primary_price(output_token).min;
-    let output_usd: u128 = output_amount * output_token_price;
+    let output_token_price: u256 = oracle.get_primary_price(output_token).min;
+    let output_usd: u256 = output_amount * output_token_price;
 
     if (output_usd < min_output_amount) {
         OrderError::INSUFFICIENT_OUTPUT_AMOUNT(output_usd, output_token_price);
@@ -196,18 +196,18 @@ fn validate_output_amount(
 fn validate_output_amount_secondary(
     oracle: IOracleDispatcher,
     output_token: ContractAddress,
-    output_amount: u128,
+    output_amount: u256,
     secondary_output_token: ContractAddress,
-    secondary_output_amount: u128,
-    min_output_amount: u128
+    secondary_output_amount: u256,
+    min_output_amount: u256
 ) {
-    let output_token_price: u128 = oracle.get_primary_price(output_token).min;
-    let output_usd: u128 = output_amount * output_token_price;
+    let output_token_price: u256 = oracle.get_primary_price(output_token).min;
+    let output_usd: u256 = output_amount * output_token_price;
 
-    let secondary_output_token_price: u128 = oracle.get_primary_price(secondary_output_token).min;
-    let seconday_output_usd: u128 = secondary_output_amount * secondary_output_token_price;
+    let secondary_output_token_price: u256 = oracle.get_primary_price(secondary_output_token).min;
+    let seconday_output_usd: u256 = secondary_output_amount * secondary_output_token_price;
 
-    let total_output_usd: u128 = output_usd + seconday_output_usd;
+    let total_output_usd: u256 = output_usd + seconday_output_usd;
 
     if (total_output_usd < min_output_amount) {
         OrderError::INSUFFICIENT_OUTPUT_AMOUNT(output_usd, output_token_price);
@@ -236,9 +236,9 @@ fn handle_swap_error(
 // needs it. We need to find a solution for that case.
 fn get_output_event_data(
     output_token: ContractAddress,
-    output_amount: u128,
+    output_amount: u256,
     secondary_output_token: ContractAddress,
-    secondary_output_amount: u128
+    secondary_output_amount: u256
 ) -> LogData {
     let mut log_data: LogData = Default::default();
 

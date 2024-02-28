@@ -25,7 +25,7 @@ fn increment_claimable_fee_amount(
     event_emitter: IEventEmitterDispatcher,
     market: ContractAddress,
     token: ContractAddress,
-    delta: u128,
+    delta: u256,
     fee_type: felt252,
 ) {
     if delta == 0 {
@@ -34,7 +34,7 @@ fn increment_claimable_fee_amount(
 
     let key = keys::claimable_fee_amount_key(market, token);
 
-    let next_value = data_store.increment_u128(key, delta);
+    let next_value = data_store.increment_u256(key, delta);
 
     event_emitter.emit_claimable_fee_amount_updated(market, token, delta, next_value, fee_type);
 }
@@ -54,7 +54,7 @@ fn increment_claimable_ui_fee_amount(
     ui_fee_receiver: ContractAddress,
     market: ContractAddress,
     token: ContractAddress,
-    delta: u128,
+    delta: u256,
     fee_type: felt252,
 ) {
     if delta == 0 {
@@ -62,12 +62,12 @@ fn increment_claimable_ui_fee_amount(
     }
 
     let next_value = data_store
-        .increment_u128(
+        .increment_u256(
             keys::claimable_ui_fee_amount_for_account_key(market, token, ui_fee_receiver), delta
         );
 
     let next_pool_value = data_store
-        .increment_u128(keys::claimable_ui_fee_amount_key(market, token), delta);
+        .increment_u256(keys::claimable_ui_fee_amount_key(market, token), delta);
     event_emitter
         .emit_claimable_ui_fee_amount_updated(
             ui_fee_receiver, market, token, delta, next_value, next_pool_value, fee_type
@@ -92,8 +92,8 @@ fn claim_fees(
 
     let key = keys::claimable_fee_amount_key(market, token);
 
-    let fee_amount = data_store.get_u128(key);
-    data_store.set_u128(key, 0);
+    let fee_amount = data_store.get_u256(key);
+    data_store.set_u256(key, 0);
 
     IBankDispatcher { contract_address: market }.transfer_out(token, receiver, fee_amount);
 
@@ -117,15 +117,15 @@ fn claim_ui_fees(
     market: ContractAddress,
     token: ContractAddress,
     receiver: ContractAddress,
-) -> u128 {
+) -> u256 {
     validate_receiver(receiver);
 
     let key = keys::claimable_ui_fee_amount_for_account_key(market, token, ui_fee_receiver);
-    let fee_amount = data_store.get_u128(key);
-    data_store.set_u128(key, 0);
+    let fee_amount = data_store.get_u256(key);
+    data_store.set_u256(key, 0);
 
     let next_pool_value = data_store
-        .decrement_u128(keys::claimable_ui_fee_amount_key(market, token), fee_amount);
+        .decrement_u256(keys::claimable_ui_fee_amount_key(market, token), fee_amount);
 
     IBankDispatcher { contract_address: market }.transfer_out(token, receiver, fee_amount);
 
