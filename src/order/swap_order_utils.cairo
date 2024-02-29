@@ -9,11 +9,7 @@ use satoru::utils::arrays::are_gte_u64;
 use satoru::swap::swap_utils;
 use satoru::event::event_utils::{
     LogData, LogDataTrait, Felt252IntoContractAddress, ContractAddressDictValue,
-<<<<<<< HEAD
-    I256252DictValue, U256252DictValue
-=======
     I256252DictValue, U256252DictValue, U256IntoFelt252
->>>>>>> 1473259 (serialize issue workaround along with i256 lib fixes)
 };
 use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 use satoru::order::error::OrderError;
