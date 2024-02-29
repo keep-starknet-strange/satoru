@@ -9,8 +9,7 @@ use satoru::bank::{bank::{IBankDispatcher, IBankDispatcherTrait},};
 use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
 use satoru::callback::callback_utils;
 use satoru::event::{
-    event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait},
-    event_utils::EventLogData
+    event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait}
 };
 use satoru::fee::fee_utils;
 use satoru::gas::gas_utils;

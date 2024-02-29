@@ -9,7 +9,7 @@ use satoru::utils::arrays::are_gte_u64;
 use satoru::swap::swap_utils;
 use satoru::event::event_utils::{
     LogData, LogDataTrait, Felt252IntoContractAddress, ContractAddressDictValue,
-    I256252DictValue
+    I256252DictValue, U256252DictValue
 };
 use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 use satoru::order::error::OrderError;

@@ -37,7 +37,7 @@ impl I256252DictValue of Felt252DictValue<i256> {
 
 impl U256252DictValue of Felt252DictValue<u256> {
     fn zero_default() -> u256 nopanic {
-        0
+        u256 { high: 0, low: 0 }
     }
 }
 

@@ -186,14 +186,8 @@ trait IntegerTrait<T, U> {
     fn min(self: T, other: T) -> T;
 }
 
-/// Core lib imports.
-use starknet::{
-    storage_access::{Store, StorageBaseAddress},
-    {SyscallResult, syscalls::{storage_read_syscall, storage_write_syscall}}
-};
-use integer::{BoundedInt, Felt252IntoU256};
+use integer::{BoundedInt, u256_wide_mul};
 use satoru::utils::felt_math::{felt_abs, felt_sign};
-
 // ====================== INT 256 ======================
 
 // i256 represents a 256-bit integer.
@@ -227,48 +221,11 @@ impl i256Impl of IntegerTrait<i256, u256> {
     }
 }
 
-// Implements the Into trait for i256.
-impl u256Intoi256 of Into<u256, i256> {
-    fn into(self: u256) -> i256 {
-        IntegerTrait::<i256>::new(self, false)
-    }
-}
-
-impl I256TryIntoFelt252 of TryInto<i256, felt252> {
-    fn try_into(self: i256) -> Option<felt252> {
-        let val: Option<felt252> = self.mag.try_into();
-        match val {
-            Option::Some(val) => Option::Some(val * if self.sign { -1 } else { 1 }),
-            Option::None(()) => Option::None(())
-        }
-    }
-}
-
-impl I256IntoFelt252 of Into<i256, felt252> {
-    fn into(self: i256) -> felt252 {
-        let mag_felt: felt252 = self.mag.try_into().unwrap();
-        if self.sign {
-            mag_felt * -1
-        } else {
-            mag_felt
-        }
-    }
-}
-
-impl Felt252IntoI256 of Into<felt252, i256> {
-    fn into(self: felt252) -> i256 {
-        let mag = felt_abs(self).into();
-        IntegerTrait::<i256>::new(mag, felt_sign(self))
-    }
-}
-
-
 impl I256Default of Default<i256> {
     fn default() -> i256 {
         Zeroable::zero()
     }
 }
-
 
 // Implements the Add trait for i256.
 impl i256Add of Add<i256> {
@@ -279,6 +236,7 @@ impl i256Add of Add<i256> {
 
 // Implements the AddEq trait for i256.
 impl i256AddEq of AddEq<i256> {
+    #[inline(always)]
     fn add_eq(ref self: i256, other: i256) {
         self = Add::add(self, other);
     }
@@ -293,6 +251,7 @@ impl i256Sub of Sub<i256> {
 
 // Implements the SubEq trait for i256.
 impl i256SubEq of SubEq<i256> {
+    #[inline(always)]
     fn sub_eq(ref self: i256, other: i256) {
         self = Sub::sub(self, other);
     }
@@ -307,6 +266,7 @@ impl i256Mul of Mul<i256> {
 
 // Implements the MulEq trait for i256.
 impl i256MulEq of MulEq<i256> {
+    #[inline(always)]
     fn mul_eq(ref self: i256, other: i256) {
         self = Mul::mul(self, other);
     }
@@ -321,6 +281,7 @@ impl i256Div of Div<i256> {
 
 // Implements the DivEq trait for i256.
 impl i256DivEq of DivEq<i256> {
+    #[inline(always)]
     fn div_eq(ref self: i256, other: i256) {
         self = Div::div(self, other);
     }
@@ -335,6 +296,7 @@ impl i256Rem of Rem<i256> {
 
 // Implements the RemEq trait for i256.
 impl i256RemEq of RemEq<i256> {
+    #[inline(always)]
     fn rem_eq(ref self: i256, other: i256) {
         self = Rem::rem(self, other);
     }
@@ -375,18 +337,80 @@ impl i256Neg of Neg<i256> {
     }
 }
 
+impl i256TryIntou256 of TryInto<i256, u256> {
+    fn try_into(self: i256) -> Option<u256> {
+        assert(self.sign == false, 'The sign must be positive');
+        Option::Some(self.mag)
+    }
+}
+
+impl u256Intoi256 of Into<u256, i256> {
+    fn into(self: u256) -> i256 {
+        IntegerTrait::<i256>::new(self, false)
+    }
+}
+
+// hack for serialization to work with u256
+impl U256IntoFelt252 of Into<u256, felt252> {
+    fn into(self: u256) -> felt252 {
+        self.high.into() * 0x100000000000000000000000000000000_felt252 + self.low.into()
+        // let FELT252_PRIME_HIGH = 0x8000000000000110000000000000000_u128;
+        // if self.high > FELT252_PRIME_HIGH {
+        //     return Option::None;
+        // }
+        // if self.high == FELT252_PRIME_HIGH {
+        //     // since FELT252_PRIME_LOW is 1.
+        //     if self.low != 0 {
+        //         return Option::None;
+        //     }
+        // }
+        // Option::Some(
+        //     self.high.into() * 0x100000000000000000000000000000000_felt252 + self.low.into()
+        // )
+    }
+}
+
+impl I256TryIntoFelt252 of TryInto<i256, felt252> {
+    fn try_into(self: i256) -> Option<felt252> {
+        let val: Option<felt252> = self.mag.try_into();
+        match val {
+            Option::Some(val) => Option::Some(val * if self.sign { -1 } else { 1 }),
+            Option::None(()) => Option::None(())
+        }
+    }
+}
+
+impl I256IntoFelt252 of Into<i256, felt252> {
+    fn into(self: i256) -> felt252 {
+        let mag_felt: felt252 = self.mag.try_into().unwrap();
+        if self.sign {
+            mag_felt * -1
+        } else {
+            mag_felt
+        }
+    }
+}
+
+impl Felt252IntoI256 of Into<felt252, i256> {
+    fn into(self: felt252) -> i256 {
+        let mag = felt_abs(self).into();
+        IntegerTrait::<i256>::new(mag, felt_sign(self))
+    }
+}
+
 impl i256Zeroable of Zeroable<i256> {
     fn zero() -> i256 {
         IntegerTrait::<i256>::new(0, false)
     }
+    #[inline(always)]
     fn is_zero(self: i256) -> bool {
-        self == Zeroable::zero()
+        self == i256Zeroable::zero()
     }
+    #[inline(always)]
     fn is_non_zero(self: i256) -> bool {
-        self != Zeroable::zero()
+        self != i256Zeroable::zero()
     }
 }
-
 
 // Checks if the given i256 integer is zero and has the correct sign.
 // # Arguments
@@ -402,9 +426,9 @@ fn i256_check_sign_zero(x: i256) {
 /// Cf: IntegerTrait::new docstring
 fn i256_new(mag: u256, sign: bool) -> i256 {
     if sign == true {
-        assert(mag <= 170141183460469231731687303715884105728_u256, 'i256 Overflow');
+        assert(mag <= BoundedInt::max() / 2, 'int: out of range');
     } else {
-        assert(mag <= 170141183460469231731687303715884105727_u256, 'i256 Overflow');
+        assert(mag <= (BoundedInt::max() / 2) - 1, 'int: out of range');
     }
     i256 { mag, sign }
 }
@@ -480,13 +504,16 @@ fn i256_mul(a: i256, b: i256) -> i256 {
     // The sign of the product is the XOR of the signs of the operands.
     let sign = a.sign ^ b.sign;
     // The product is the product of the absolute values of the operands.
-    let mag = a.mag * b.mag;
+    let mag_512 = u256_wide_mul(a.mag, b.mag);
+    assert(mag_512.limb2 == 0 && mag_512.limb3 == 0, 'mul i256 overflow');
 
-    if (mag == 0_u256) {
-        return IntegerTrait::new(mag, false);
+    let result = u256 { low: mag_512.limb0, high: mag_512.limb1 };
+
+    if (result == 0) {
+        return IntegerTrait::new(result, false);
     }
 
-    return ensure_non_negative_zero(mag, sign);
+    return ensure_non_negative_zero(result, sign);
 }
 
 // Divides the first i256 by the second i256.
@@ -498,7 +525,7 @@ fn i256_mul(a: i256, b: i256) -> i256 {
 fn i256_div(a: i256, b: i256) -> i256 {
     i256_check_sign_zero(a);
     // Check that the divisor is not zero.
-    assert(b.mag != 0_u256, 'Division by 0');
+    assert(b.mag != 0_u256, 'b can not be 0');
 
     // The sign of the quotient is the XOR of the signs of the operands.
     let sign = a.sign ^ b.sign;
@@ -510,19 +537,19 @@ fn i256_div(a: i256, b: i256) -> i256 {
 
     // If the operands have different signs, rounding is necessary.
     // First, check if the quotient is an integer.
-    if (a.mag % b.mag == 0_u256) {
+    if (a.mag % b.mag == 0) {
         let quotient = a.mag / b.mag;
-        if (quotient == 0_u256) {
+        if (quotient == 0) {
             return IntegerTrait::new(quotient, false);
         }
         return ensure_non_negative_zero(quotient, sign);
     }
 
     // If the quotient is not an integer, multiply the dividend by 10 to move the decimal point over.
-    let quotient = (a.mag * 10_u256) / b.mag;
-    let last_digit = quotient % 10_u256;
+    let quotient = (a.mag * 10) / b.mag;
+    let last_digit = quotient % 10;
 
-    if (quotient == 0_u256) {
+    if (quotient == 0) {
         return IntegerTrait::new(quotient, false);
     }
 
@@ -543,7 +570,7 @@ fn i256_div(a: i256, b: i256) -> i256 {
 fn i256_rem(a: i256, b: i256) -> i256 {
     i256_check_sign_zero(a);
     // Check that the divisor is not zero.
-    assert(b.mag != 0_u256, 'Division by 0');
+    assert(b.mag != 0_u256, 'b can not be 0');
 
     return a - (b * (a / b));
 }
@@ -687,43 +714,26 @@ fn ensure_non_negative_zero(mag: u256, sign: bool) -> i256 {
         IntegerTrait::<i256>::new(mag, sign)
     }
 }
-// impl i256Store of Store<i256> {
-//     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<i256> {
-//         Result::Ok(
-//             Store::<felt252>::read(address_domain, base)?.try_into().expect('i256Store - non i256')
-//         )
-//     }
-// //     fn write(address_domain: u32, base: StorageBaseAddress, value: i256) -> SyscallResult<()> {
-//         Store::<felt252>::write(address_domain, base, value.into())
-//     }
-// //     fn read_at_offset(
-//         address_domain: u32, base: StorageBaseAddress, offset: u8
-//     ) -> SyscallResult<i256> {
-//         Result::Ok(
-//             Store::<felt252>::read_at_offset(address_domain, base, offset)?
-//                 .try_into()
-//                 .expect('i256Store - non i256')
-//         )
-//     }
-// //     fn write_at_offset(
-//         address_domain: u32, base: StorageBaseAddress, offset: u8, value: i256
-//     ) -> SyscallResult<()> {
-//         Store::<felt252>::write_at_offset(address_domain, base, offset, value.into())
-//     }
-// //     fn size() -> u8 {
-//         1_u8
-//     }
-// }
 
-// impl i256Serde of Serde<i256> {
-//     fn serialize(self: @i256, ref output: Array<felt252>) {
-//         output.append((*self).into());
-//     }
-//     fn deserialize(ref serialized: Span<felt252>) -> Option<i256> {
-//         let felt_val = *(serialized.pop_front().expect('i256 deserialize'));
-//         let i256_val = felt_val.try_into().expect('i256 Overflow');
-//         Option::Some(i256_val)
-//     }
-// }
+fn two_complement_if_nec(x: i256) -> i256 {
+    let mag = if x.sign {
+        ~(x.mag) + 1
+    } else {
+        x.mag
+    };
 
+    i256 { mag: mag, sign: x.sign }
+}
 
+fn bitwise_or(x: i256, y: i256) -> i256 {
+    let x = two_complement_if_nec(x);
+    let y = two_complement_if_nec(y);
+    let sign = x.sign || y.sign;
+    let mag = if sign {
+        ~(x.mag | y.mag) + 1
+    } else {
+        x.mag | y.mag
+    };
+
+    IntegerTrait::<i256>::new(mag, sign)
+}
