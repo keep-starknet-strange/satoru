@@ -350,26 +350,6 @@ impl u256Intoi256 of Into<u256, i256> {
     }
 }
 
-// hack for serialization to work with u256
-impl U256IntoFelt252 of Into<u256, felt252> {
-    fn into(self: u256) -> felt252 {
-        self.high.into() * 0x100000000000000000000000000000000_felt252 + self.low.into()
-        // let FELT252_PRIME_HIGH = 0x8000000000000110000000000000000_u128;
-        // if self.high > FELT252_PRIME_HIGH {
-        //     return Option::None;
-        // }
-        // if self.high == FELT252_PRIME_HIGH {
-        //     // since FELT252_PRIME_LOW is 1.
-        //     if self.low != 0 {
-        //         return Option::None;
-        //     }
-        // }
-        // Option::Some(
-        //     self.high.into() * 0x100000000000000000000000000000000_felt252 + self.low.into()
-        // )
-    }
-}
-
 impl I256TryIntoFelt252 of TryInto<i256, felt252> {
     fn try_into(self: i256) -> Option<felt252> {
         let val: Option<felt252> = self.mag.try_into();

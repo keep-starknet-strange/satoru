@@ -21,7 +21,7 @@ use satoru::swap::swap_utils::{SwapParams};
 use satoru::position::position_utils::UpdatePositionParams;
 use satoru::event::event_utils::{
     LogData, LogDataTrait, Felt252IntoContractAddress, ContractAddressDictValue,
-    I256252DictValue, U256252DictValue
+    I256252DictValue, U256252DictValue, U256IntoFelt252
 };
 use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
