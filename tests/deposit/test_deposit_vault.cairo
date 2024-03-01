@@ -4,7 +4,7 @@
 //                                  IMPORTS
 // *************************************************************************
 // Core lib imports.
-use integer::{u256_from_felt252, u256_from_felt252};
+use integer::{u256_from_felt252};
 use result::ResultTrait;
 use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
@@ -48,7 +48,7 @@ fn given_normal_conditions_when_transfer_out_then_works() {
     // check that the contract balance reduces
     let contract_balance = erc20.balance_of(deposit_vault.contract_address);
     let expected_balance: u256 = u256_from_felt252(
-        INITIAL_TOKENS_MINTED - amount_to_transfer.into()
+        INITIAL_TOKENS_MINTED - amount_to_transfer.try_into().expect('u256 into felt failed')
     );
     assert(contract_balance == expected_balance, 'transfer_out failed');
 

@@ -11,7 +11,7 @@ fn given_normal_conditions_when_sn_gasleft_then_works() {
     assert(default_value == 0_u256, 'default value wrong');
 
     // Value provided then returns that value
-    let value_as_felt: felt252 = 55_u256.into();
+    let value_as_felt: felt252 = 55_u256.try_into().expect('u256 into felt failed');
     let some_value = sn_gasleft(array![value_as_felt]);
     assert(some_value == 55_u256, 'some value wrong');
 }
@@ -23,7 +23,7 @@ fn given_normal_conditions_when_gasprice_then_works() {
     assert(default_value == 0_u256, 'default value wrong');
 
     // Value provided then returns that value
-    let value_as_felt: felt252 = 35_u256.into();
+    let value_as_felt: felt252 = 35_u256.try_into().expect('u256 into felt failed');
     let some_value = sn_gasprice(array![value_as_felt]);
     assert(some_value == 35_u256, 'some value wrong');
 }

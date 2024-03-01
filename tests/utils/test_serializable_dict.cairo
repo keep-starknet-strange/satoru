@@ -17,8 +17,8 @@ use alexandria_data_structures::array_ext::ArrayTraitExt;
 // Local imports.
 use satoru::utils::traits::ContractAddressDefault;
 use satoru::event::event_utils::{
-    Felt252IntoBool, Felt252IntoU256, Felt252IntoI256, Felt252IntoContractAddress, I256252DictValue,
-    ContractAddressDictValue
+    Felt252IntoBool, Felt252IntoContractAddress, I256252DictValue,
+    ContractAddressDictValue, U256252DictValue, U256IntoFelt252
 };
 use satoru::utils::serializable_dict::{
     Item, ItemTrait, SerializableFelt252Dict, SerializableFelt252DictTrait,

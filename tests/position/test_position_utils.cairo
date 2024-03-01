@@ -614,8 +614,8 @@ fn given_initial_open_interest_when_updating_then_correct_open_interest() {
     };
 
     //Update open interest 
-    let size_delta_usd: i256 = 10.try_into().unwrap();
-    let size_delta_in_tokens: i256 = 20.try_into().unwrap();
+    let size_delta_usd: i256 = 10.into();
+    let size_delta_in_tokens: i256 = 20.into();
 
     //Test
 

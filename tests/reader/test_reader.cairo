@@ -260,7 +260,7 @@ fn given_normal_conditions_when_get_position_pnl_usd_then_works() {
 
     let (data1, data2, data3) = reader
         .get_position_pnl_usd(data_store, market, prices, key_1, 1000000);
-    let data3_felt: felt252 = data3.into();
+    let data3_felt: felt252 = data3.try_into().expect('u256 into felt failed');
 
     assert(data3_felt == 10000, 'Invalid');
     teardown(data_store.contract_address);
@@ -1018,7 +1018,7 @@ fn given_normal_conditions_when_get_execution_price_then_works() {
     position2.is_long = true;
     position2.size_in_tokens = 10000;
 
-    let size: i256 = 20000.try_into().unwrap();
+    let size: i256 = 20000.into();
     let is_long = true;
 
     start_prank(role_store.contract_address, caller_address);
