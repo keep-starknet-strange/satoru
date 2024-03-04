@@ -8,9 +8,7 @@ use starknet::{ContractAddress, get_block_timestamp, contract_address_const};
 use satoru::bank::{bank::{IBankDispatcher, IBankDispatcherTrait},};
 use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
 use satoru::callback::callback_utils;
-use satoru::event::{
-    event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait}
-};
+use satoru::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait}};
 use satoru::fee::fee_utils;
 use satoru::gas::gas_utils;
 use satoru::market::{

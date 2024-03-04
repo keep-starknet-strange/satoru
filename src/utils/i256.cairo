@@ -354,7 +354,11 @@ impl I256TryIntoFelt252 of TryInto<i256, felt252> {
     fn try_into(self: i256) -> Option<felt252> {
         let val: Option<felt252> = self.mag.try_into();
         match val {
-            Option::Some(val) => Option::Some(val * if self.sign { -1 } else { 1 }),
+            Option::Some(val) => Option::Some(val * if self.sign {
+                -1
+            } else {
+                1
+            }),
             Option::None(()) => Option::None(())
         }
     }

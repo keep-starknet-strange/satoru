@@ -21,8 +21,7 @@ use satoru::callback::callback_utils;
 use satoru::gas::gas_utils;
 use satoru::order::order::{Order, OrderType, OrderTrait};
 use satoru::event::event_utils::{
-    LogData, LogDataTrait, Felt252IntoContractAddress, ContractAddressDictValue,
-    I256252DictValue
+    LogData, LogDataTrait, Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue
 };
 use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 use satoru::order::error::OrderError;

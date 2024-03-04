@@ -463,9 +463,7 @@ mod TestInteger256 {
     mod TwoComplementTests {
         use integer::BoundedInt;
 
-        use satoru::utils::i256::{
-            i256, two_complement_if_nec, IntegerTrait
-        };
+        use satoru::utils::i256::{i256, two_complement_if_nec, IntegerTrait};
 
         // Some expected values where calculated in Python with a script
 

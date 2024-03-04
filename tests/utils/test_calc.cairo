@@ -2,7 +2,8 @@ use integer::BoundedInt;
 
 use satoru::role::role;
 use satoru::utils::calc::{
-    roundup_division, roundup_magnitude_division, sum_return_uint_256, sum_return_int_256, diff, to_signed, max_i256, min_i256
+    roundup_division, roundup_magnitude_division, sum_return_uint_256, sum_return_int_256, diff,
+    to_signed, max_i256, min_i256
 };
 
 fn max_i256_as_u256() -> u256 {

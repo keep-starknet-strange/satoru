@@ -134,10 +134,7 @@ fn mul_div_roundup(
     );
     if roundup_magnitude && r > 0 {
         let result = u256 { low: q.limb0, high: q.limb1 };
-        assert(
-            result != BoundedU256::max() && q.limb2 == 0 && q.limb3 == 0,
-            'MulDivOverflow'
-        );
+        assert(result != BoundedU256::max() && q.limb2 == 0 && q.limb3 == 0, 'MulDivOverflow');
         u256 { low: q.limb0, high: q.limb1 } + 1
     } else {
         assert(q.limb2 == 0 && q.limb3 == 0, 'MulDivOverflow');

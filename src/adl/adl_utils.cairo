@@ -172,10 +172,7 @@ fn create_adl_order(params: CreateAdlOrderParams) -> felt252 {
         trigger_price: 0,
         acceptable_price: acceptable_price_,
         execution_fee: 0,
-        callback_gas_limit: params
-            .data_store
-            .get_felt252(keys::max_callback_gas_limit())
-            .into(),
+        callback_gas_limit: params.data_store.get_felt252(keys::max_callback_gas_limit()).into(),
         min_output_amount: 0,
         updated_at_block: params.updated_at_block,
         is_long: position.is_long,

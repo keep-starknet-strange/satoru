@@ -8,11 +8,23 @@ mod WithdrawalError {
     const EMPTY_WITHDRAWAL: felt252 = 'empty withdrawal';
 
     fn INSUFFICIENT_FEE_TOKEN_AMOUNT(data_1: u256, data_2: u256) {
-        panic(array!['insufficient fee token amout', data_1.try_into().expect('u256 into felt failed'), data_2.try_into().expect('u256 into felt failed')])
+        panic(
+            array![
+                'insufficient fee token amout',
+                data_1.try_into().expect('u256 into felt failed'),
+                data_2.try_into().expect('u256 into felt failed')
+            ]
+        )
     }
 
     fn INSUFFICIENT_MARKET_TOKENS(data_1: u256, data_2: u256) {
-        panic(array!['insufficient market token', data_1.try_into().expect('u256 into felt failed'), data_2.try_into().expect('u256 into felt failed')])
+        panic(
+            array![
+                'insufficient market token',
+                data_1.try_into().expect('u256 into felt failed'),
+                data_2.try_into().expect('u256 into felt failed')
+            ]
+        )
     }
 
     fn INVALID_POOL_VALUE_FOR_WITHDRAWAL(data: i256) {

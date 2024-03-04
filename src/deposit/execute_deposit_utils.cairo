@@ -19,9 +19,7 @@ use satoru::deposit::{
     deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait}, error::DepositError
 };
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
-use satoru::event::event_utils::{
-    LogData, LogDataTrait, ContractAddressDictValue, I256252DictValue
-};
+use satoru::event::event_utils::{LogData, LogDataTrait, ContractAddressDictValue, I256252DictValue};
 use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 use satoru::fee::fee_utils;
 use satoru::gas::gas_utils::pay_execution_fee_deposit;

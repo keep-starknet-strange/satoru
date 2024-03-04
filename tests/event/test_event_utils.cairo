@@ -8,8 +8,8 @@ use starknet::{
     contract_address_const
 };
 use satoru::event::event_utils::{
-    Felt252IntoBool, Felt252IntoContractAddress, I256252DictValue,
-    ContractAddressDictValue, LogData, LogDataTrait, U256252DictValue, U256IntoFelt252
+    Felt252IntoBool, Felt252IntoContractAddress, I256252DictValue, ContractAddressDictValue,
+    LogData, LogDataTrait, U256252DictValue, U256IntoFelt252
 };
 use satoru::utils::traits::{ContractAddressDefault};
 use traits::Default;
