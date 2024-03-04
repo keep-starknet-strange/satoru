@@ -83,10 +83,6 @@ trait IDataStore<TContractState> {
     /// * `value` - The value to subtract.
     fn decrement_u256(ref self: TContractState, key: felt252, value: u256) -> u256;
 
-
-    // *************************************************************************
-    //                          u256 related functions.
-    // *************************************************************************
     /// Add signed value to existing value if result positive.
     /// # Arguments
     /// * `key` - The key to add the value to.
@@ -614,10 +610,6 @@ mod DataStore {
             new_value
         }
 
-        // *************************************************************************
-        //                          u256 related functions.
-        // *************************************************************************
-
         fn apply_delta_to_u256(
             ref self: ContractState, key: felt252, value: i256, error: felt252
         ) -> u256 {
@@ -643,7 +635,6 @@ mod DataStore {
             self.u256_values.write(key, next_uint);
             next_uint
         }
-
 
         // *************************************************************************
         //                      i256 related functions.
