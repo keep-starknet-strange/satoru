@@ -2,12 +2,11 @@ use integer::BoundedInt;
 
 use satoru::role::role;
 use satoru::utils::calc::{
-    roundup_division, roundup_magnitude_division, sum_return_uint_256, sum_return_int_256, diff,
-    bounded_add, bounded_sub, to_signed, max_i256, min_i256
+    roundup_division, roundup_magnitude_division, sum_return_uint_256, sum_return_int_256, diff, to_signed, max_i256, min_i256
 };
 
 fn max_i256_as_u256() -> u256 {
-    170_141_183_460_469_231_731_687_303_715_884_105_727
+    (BoundedInt::<u256>::max() / 2) - 1
 }
 use satoru::utils::i256::{i256, i256_new};
 
@@ -158,97 +157,6 @@ fn given_normal_conditions_when_diff_then_works() {
     assert(diff(max, max) == 0, 'Should be 0 (2)');
     assert(diff(max - 1, max) == 1, 'Should be 1 (1))');
     assert(diff(max, max - 1) == 1, 'Should be 1 (2)');
-}
-
-#[test]
-fn given_normal_conditions_when_bounded_add_then_works() {
-    // This tests the first if 
-    assert(
-        bounded_add(i256_new(0, false), i256_new(3, false)) == i256_new(3, false), 'Should be 3'
-    );
-    assert(
-        bounded_add(i256_new(4, false), i256_new(0, false)) == i256_new(4, false), 'Should be 4'
-    );
-    assert(
-        bounded_add(i256_new(42, false), i256_new(41, false)) == i256_new(83, false), 'Shoud be 83'
-    );
-    assert(
-        bounded_add(i256_new(42, false), i256_new(42, false)) == i256_new(84, false), 'Should be 84'
-    );
-    assert(
-        bounded_add(i256_new(10, true), i256_new(12, true)) == i256_new(22, true), 'Should be -22'
-    );
-    assert(
-        bounded_add(i256_new(10, true), i256_new(10, true)) == i256_new(20, true), 'Should be -20'
-    );
-
-    let max = max_i256();
-    let min = min_i256();
-    // This tests the second if 
-    // TODO fix calc file
-    // assert(bounded_add(min, i256_new(1, true)) == min, 'Should be min (1)');
-    // assert(bounded_add(min + i256_new(1, false), i256_new(1, true)) == min, 'Should be min (2)');
-    // This tests the third if 
-    assert(bounded_add(max, i256_new(1, false)) == max, 'Should be max (1)');
-    assert(bounded_add(max - i256_new(1, false), i256_new(1, false)) == max, 'Should be max (2)');
-
-    // Mixing signing
-    assert(
-        bounded_add(i256_new(10, true), i256_new(10, false)) == i256_new(0, false),
-        'Should be 0 (1)'
-    );
-    assert(
-        bounded_add(i256_new(10, false), i256_new(10, true)) == i256_new(0, false),
-        'Should be 0 (2)'
-    );
-    assert(
-        bounded_add(i256_new(10, true), i256_new(10, true)) == i256_new(20, true), 'Shoud be -20'
-    );
-}
-
-#[test]
-fn given_normal_conditions_when_bounded_sub_then_works() {
-    // This tests the first if 
-    assert(
-        bounded_sub(i256_new(0, false), i256_new(3, false)) == i256_new(3, true), 'Should be -3'
-    );
-    assert(
-        bounded_sub(i256_new(3, false), i256_new(0, false),) == i256_new(3, false), 'Should be 3'
-    );
-    assert(
-        bounded_sub(i256_new(42, false), i256_new(41, false)) == i256_new(1, false), 'Shoud be 1'
-    );
-    assert(
-        bounded_sub(i256_new(41, false), i256_new(42, false)) == i256_new(1, true), 'Should be -1'
-    );
-    assert(
-        bounded_sub(i256_new(10, true), i256_new(12, true)) == i256_new(2, false), 'Should be 2'
-    );
-    assert(
-        bounded_sub(i256_new(12, true), i256_new(10, true)) == i256_new(2, true), 'Should be -2'
-    );
-
-    let max = max_i256();
-    let min = min_i256();
-    // This tests the second if 
-    assert(bounded_sub(max, i256_new(1, true)) == max, 'Should be max (1)');
-    assert(bounded_sub(max - i256_new(1, false), i256_new(2, true)) == max, 'Should be max (2)');
-    // This tests the third if 
-    // TODO fix calc file
-    // assert(bounded_sub(min, i256_new(1, false)) == min, 'Should be min (1)');
-    // assert(bounded_sub(min + i256_new(1, false), i256_new(1, false)) == min, 'Should be min (2)');
-
-    // Zero test case
-    assert(
-        bounded_sub(i256_new(10, false), i256_new(10, false)) == i256_new(0, false), 'Shoud be 0'
-    );
-    // Mixing signing
-    assert(
-        bounded_sub(i256_new(10, true), i256_new(10, false)) == i256_new(20, true), 'Should be -20'
-    );
-    assert(
-        bounded_sub(i256_new(10, false), i256_new(10, true)) == i256_new(20, false), 'Should be 20'
-    );
 }
 
 #[test]

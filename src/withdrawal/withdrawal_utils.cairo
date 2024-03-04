@@ -199,7 +199,7 @@ fn execute_withdrawal(
     mut params: ExecuteWithdrawalParams
 ) { // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
     // TODO: change the following line once once equivalent function is available in starknet.
-    params.starting_gas -= (starknet_utils::sn_gasleft(array![]) / 63);
+    params.starting_gas -= (starknet_utils::sn_gasleft(array![]) / 63).into();
 
     let withdrawal = params.data_store.get_withdrawal(params.key);
 

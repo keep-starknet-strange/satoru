@@ -406,9 +406,9 @@ fn i256_check_sign_zero(x: i256) {
 /// Cf: IntegerTrait::new docstring
 fn i256_new(mag: u256, sign: bool) -> i256 {
     if sign == true {
-        assert(mag <= BoundedInt::max() / 2, 'int: out of range');
+        assert(mag <= BoundedInt::<u256>::max() / 2, 'i256 Overflow');
     } else {
-        assert(mag <= (BoundedInt::max() / 2) - 1, 'int: out of range');
+        assert(mag <= (BoundedInt::<u256>::max() / 2) - 1, 'i256 Overflow');
     }
     i256 { mag, sign }
 }

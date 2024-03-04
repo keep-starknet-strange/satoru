@@ -3,8 +3,9 @@
 // *************************************************************************
 // Core lib imports.
 use satoru::utils::error_utils;
-use satoru::utils::i256::{i256, i256_new, i256_neg};
-
+use integer::{BoundedInt, u256_checked_add, U256PartialOrd};
+use satoru::utils::i256::{i256, i256_new, i256_neg, i256Zeroable, i256_add};
+use debug::PrintTrait;
 /// Calculates the result of dividing the first number by the second number 
 /// rounded up to the nearest integer.
 /// # Arguments
@@ -74,64 +75,6 @@ fn diff(a: u256, b: u256) -> u256 {
     }
 }
 
-/// Adds two numbers together, the result is bounded to prevent overflows,
-/// # Arguments
-/// * `a` - first number.
-/// * `b` - second number.
-/// # Return
-/// the result of adding the two numbers together.
-fn bounded_add(a: i256, b: i256) -> i256 {
-    if (a == Zeroable::zero()
-        || b == Zeroable::zero()
-        || (a < Zeroable::zero() && b > Zeroable::zero())
-        || (a > Zeroable::zero() && b < Zeroable::zero())) {
-        return a + b;
-    }
-
-    // if adding `b` to `a` would result in a value less than the min int256 value
-    // then return the min int256 value
-    if (a < Zeroable::zero() && b <= min_i256() - a) {
-        return min_i256();
-    }
-
-    // if adding `b` to `a` would result in a value more than the max int256 value
-    // then return the max int256 value
-    if (a > Zeroable::zero() && b >= max_i256() - a) {
-        return max_i256();
-    }
-
-    return a + b;
-}
-
-/// Returns a - b, the result is bounded to prevent overflows,
-/// # Arguments
-/// * `a` - first number.
-/// * `b` - second number.
-/// # Return
-/// the bounded result of a - b.
-fn bounded_sub(a: i256, b: i256) -> i256 {
-    if (a == Zeroable::zero()
-        || b == Zeroable::zero()
-        || (a > Zeroable::zero() && b > Zeroable::zero())
-        || (a < Zeroable::zero() && b < Zeroable::zero())) {
-        return a - b;
-    }
-
-    // if adding `-b` to `a` would result in a value greater than the max int256 value
-    // then return the max int256 value
-    if (a > Zeroable::zero() && i256_neg(b) >= max_i256() - a) {
-        return max_i256();
-    }
-
-    // if subtracting `b` from `a` would result in a value less than the min int256 value
-    // then return the min int256 value
-    if (a < Zeroable::zero() && i256_neg(b) <= min_i256() - a) {
-        return min_i256();
-    }
-
-    return a - b;
-}
-
 /// Converts the given unsigned integer to a signed integer.
 /// # Arguments
 /// * `a` - first number.
@@ -159,12 +102,11 @@ fn to_unsigned(value: i256) -> u256 {
 // Can't impl trait BoundedInt because of "-" that can panic (unless I can do it without using the minus operator)
 fn max_i256() -> i256 {
     // Comes from https://doc.rust-lang.org/std/i256/constant.MAX.html
-    i256 { mag: 170_141_183_460_469_231_731_687_303_715_884_105_727, sign: false }
+    i256 { mag: (BoundedInt::<u256>::max() / 2) - 1, sign: false }
 }
 
 fn min_i256() -> i256 {
-    // Comes from https://doc.rust-lang.org/std/i256/constant.MIN.html
-    i256 { mag: 170_141_183_460_469_231_731_687_303_715_884_105_728, sign: true }
+    i256 { mag: BoundedInt::<u256>::max() / 2, sign: true }
 }
 
 /// Raise a number to a power, computes x^n.

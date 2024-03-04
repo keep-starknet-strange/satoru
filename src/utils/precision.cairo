@@ -59,7 +59,7 @@ fn mul_div(value: u256, numerator: u256, denominator: u256) -> u256 {
     let (q, _) = u512_safe_div_rem_by_u256(
         product, u256_try_as_non_zero(denominator).expect('MulDivByZero')
     );
-    assert(q.limb2 == 0 && q.limb3 == 0, 'mul_div u256 overflow');
+    assert(q.limb2 == 0 && q.limb3 == 0, 'MulDivOverflow');
     u256 { low: q.limb0, high: q.limb1 }
 }
 
@@ -445,9 +445,9 @@ fn pow256(x: u256, n: usize) -> u256 {
 
 fn msb(mut x: u256) -> u256 {
     let mut result = 0;
-    if (x >= pow256(2, 256)) {
-        x = BitShift::shr(x, 256);
-        result += 256;
+    if (x >= pow256(2, 128)) {
+        x = BitShift::shr(x, 128);
+        result += 128;
     }
     if x >= pow256(2, 64) {
         x = BitShift::shr(x, 64);
