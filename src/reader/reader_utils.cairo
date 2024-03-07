@@ -29,23 +29,23 @@ use satoru::pricing::position_pricing_utils::PositionReferralFees;
 use satoru::pricing::position_pricing_utils::PositionFundingFees;
 use satoru::pricing::position_pricing_utils::PositionUiFees;
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
-use satoru::utils::{calc, i128::i128};
+use satoru::utils::{calc, i256::i256};
 
 #[derive(Default, Drop, starknet::Store, Serde)]
 struct PositionInfo {
     position: Position,
     fees: PositionFees,
     execution_price_result: ExecutionPriceResult,
-    base_pnl_usd: i128,
-    uncapped_base_pnl_usd: i128,
-    pnl_after_price_impact_usd: i128,
+    base_pnl_usd: i256,
+    uncapped_base_pnl_usd: i256,
+    pnl_after_price_impact_usd: i256,
 }
 
 #[derive(Default, Drop, starknet::Store, Serde)]
 struct GetPositionInfoCache {
     market: Market,
     collateral_token_price: Price,
-    pending_borrowing_fee_usd: u128,
+    pending_borrowing_fee_usd: u256,
 }
 
 #[derive(Default, Drop, starknet::Store, Serde)]
@@ -64,7 +64,7 @@ struct BaseFundingValues {
 /// Returns an unsigned integer representing the calculated borrowing fees for the specified position within the market.
 fn get_next_borrowing_fees(
     data_store: IDataStoreDispatcher, position: Position, market: Market, prices: MarketPrices
-) -> u128 {
+) -> u256 {
     market_utils::get_next_borrowing_fees(data_store, @position, @market, @prices)
 }
 
@@ -76,7 +76,7 @@ fn get_next_borrowing_fees(
 /// # Returns
 /// Struct containing information about the borrowing fees for the specified position.
 fn get_borrowing_fees(
-    data_store: IDataStoreDispatcher, collateral_token_price: Price, borrowing_fee_usd: u128
+    data_store: IDataStoreDispatcher, collateral_token_price: Price, borrowing_fee_usd: u256
 ) -> PositionBorrowingFees {
     position_pricing_utils::get_borrowing_fees(
         data_store, collateral_token_price, borrowing_fee_usd
@@ -189,7 +189,7 @@ fn get_position_info(
     referral_storage: IReferralStorageDispatcher,
     position_key: felt252,
     prices: MarketPrices,
-    mut size_delta_usd: u128,
+    mut size_delta_usd: u256,
     ui_fee_receiver: ContractAddress,
     use_position_size_as_size_delta_usd: bool
 ) -> PositionInfo {

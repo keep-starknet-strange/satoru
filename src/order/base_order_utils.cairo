@@ -20,7 +20,7 @@ use satoru::utils::store_arrays::{StoreMarketArray, StoreU64Array, StoreContract
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::utils::span32::Span32;
 use satoru::utils::calc;
-use satoru::utils::i128::{i128, i128_neg};
+use satoru::utils::i256::{i256, i256_neg};
 
 #[derive(Drop, starknet::Store, Serde)]
 struct ExecuteOrderParams {
@@ -40,7 +40,7 @@ struct ExecuteOrderParams {
     /// The keeper sending the transaction.
     keeper: ContractAddress,
     /// The starting gas.
-    starting_gas: u128,
+    starting_gas: u256,
     /// The secondary order type.
     secondary_order_type: SecondaryOrderType
 }
@@ -82,21 +82,21 @@ struct CreateOrderParams {
     /// An Span32 of market addresses to swap through.
     swap_path: Span32<ContractAddress>,
     /// The requested change in position size.
-    size_delta_usd: u128,
+    size_delta_usd: u256,
     /// For increase orders, this is the amount of the initialCollateralToken sent in by the user.
     /// For decrease orders, this is the amount of the position's collateralToken to withdraw.
     /// For swaps, this is the amount of initialCollateralToken sent in for the swap.
-    initial_collateral_delta_amount: u128,
+    initial_collateral_delta_amount: u256,
     /// The trigger price for non-market orders.
-    trigger_price: u128,
+    trigger_price: u256,
     /// The acceptable execution price for increase / decrease orders.
-    acceptable_price: u128,
+    acceptable_price: u256,
     /// The execution fee for keepers.
-    execution_fee: u128,
+    execution_fee: u256,
     /// The gas limit for the callbackContract.
-    callback_gas_limit: u128,
+    callback_gas_limit: u256,
     /// The minimum output amount for decrease orders and swaps.
-    min_output_amount: u128,
+    min_output_amount: u256,
     /// The order type.
     order_type: OrderType,
     /// The swap type on decrease position.
@@ -133,9 +133,9 @@ impl CreateOrderParamsClone of Clone<CreateOrderParams> {
 
 #[derive(Drop, starknet::Store, Serde)]
 struct GetExecutionPriceCache {
-    price: u128,
-    execution_price: u128,
-    adjusted_price_impact_usd: u128
+    price: u256,
+    execution_price: u256,
+    adjusted_price_impact_usd: u256
 }
 
 /// Check if an order_type is a market order.
@@ -223,7 +223,7 @@ fn validate_order_trigger_price(
     oracle: IOracleDispatcher,
     index_token: ContractAddress,
     order_type: OrderType,
-    trigger_price: u128,
+    trigger_price: u256,
     is_long: bool
 ) {
     if is_swap_order(order_type)
@@ -298,8 +298,8 @@ fn validate_order_trigger_price(
 }
 
 fn get_execution_price_for_increase(
-    size_delta_usd: u128, size_delta_in_tokens: u128, acceptable_price: u128, is_long: bool
-) -> u128 {
+    size_delta_usd: u256, size_delta_in_tokens: u256, acceptable_price: u256, is_long: bool
+) -> u256 {
     assert(size_delta_in_tokens != 0, OrderError::EMPTY_SIZE_DELTA_IN_TOKENS);
 
     let execution_price = size_delta_usd / size_delta_in_tokens;
@@ -338,13 +338,13 @@ fn get_execution_price_for_increase(
 
 fn get_execution_price_for_decrease(
     index_token_price: Price,
-    position_size_in_usd: u128,
-    position_size_in_tokens: u128,
-    size_delta_usd: u128,
-    price_impact_usd: i128,
-    acceptable_price: u128,
+    position_size_in_usd: u256,
+    position_size_in_tokens: u256,
+    size_delta_usd: u256,
+    price_impact_usd: i256,
+    acceptable_price: u256,
     is_long: bool
-) -> u128 {
+) -> u256 {
     // decrease order:
     //     - long: use the smaller price
     //     - short: use the larger price
@@ -402,11 +402,11 @@ fn get_execution_price_for_decrease(
         let adjusted_price_impact_usd = if is_long {
             price_impact_usd
         } else {
-            i128_neg(price_impact_usd)
+            i256_neg(price_impact_usd)
         };
 
         if adjusted_price_impact_usd < Zeroable::zero()
-            && calc::to_unsigned(i128_neg(adjusted_price_impact_usd)) > size_delta_usd {
+            && calc::to_unsigned(i256_neg(adjusted_price_impact_usd)) > size_delta_usd {
             OrderError::PRICE_IMPACT_LARGER_THAN_ORDER_SIZE(
                 adjusted_price_impact_usd, size_delta_usd
             );
@@ -417,7 +417,7 @@ fn get_execution_price_for_decrease(
         );
         let adjustment = numerator / calc::to_signed(size_delta_usd, true);
 
-        let _execution_price: i128 = calc::to_signed(price, true) + adjustment;
+        let _execution_price: i256 = calc::to_signed(price, true) + adjustment;
 
         if _execution_price < Zeroable::zero() {
             OrderError::NEGATIVE_EXECUTION_PRICE(

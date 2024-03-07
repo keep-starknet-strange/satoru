@@ -389,9 +389,9 @@ fn given_normal_conditions_when_emit_signal_set_price_feed_then_works() {
     let action_key = 'SignalSetPriceFeed';
     let token = contract_address_const::<'token'>();
     let price_feed = contract_address_const::<'priceFeed'>();
-    let price_feed_multiplier: u128 = 1;
-    let price_feed_heartbeat_duration: u128 = 2;
-    let stable_price: u128 = 3;
+    let price_feed_multiplier: u256 = 1;
+    let price_feed_heartbeat_duration: u256 = 2;
+    let stable_price: u256 = 3;
 
     // Emit the event.
     event_emitter
@@ -444,9 +444,9 @@ fn given_normal_conditions_when_emit_set_price_feed_then_works() {
     let action_key = 'SetPriceFeed';
     let token = contract_address_const::<'token'>();
     let price_feed = contract_address_const::<'priceFeed'>();
-    let price_feed_multiplier: u128 = 1;
-    let price_feed_heartbeat_duration: u128 = 2;
-    let stable_price: u128 = 3;
+    let price_feed_multiplier: u256 = 1;
+    let price_feed_heartbeat_duration: u256 = 2;
+    let stable_price: u256 = 3;
 
     // Emit the event.
     event_emitter

@@ -14,7 +14,7 @@ enum DataType {
 
 #[derive(Serde, Drop, Copy)]
 struct PragmaPricesResponse {
-    price: u128,
+    price: u256,
     decimals: u32,
     last_updated_timestamp: u64,
     num_sources_aggregated: u32,

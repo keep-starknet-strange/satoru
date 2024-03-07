@@ -17,7 +17,7 @@ use satoru::pricing::error::PricingError;
 use satoru::pricing::pricing_utils;
 use satoru::utils::calc;
 use satoru::utils::precision;
-use satoru::utils::i128::{i128, i128_neg};
+use satoru::utils::i256::{i256, i256_neg};
 
 
 /// Struct used in get_price_impact_usd.
@@ -31,42 +31,42 @@ struct GetPriceImpactUsdParams {
     token_a: ContractAddress,
     /// The token to check balance for.
     token_b: ContractAddress,
-    price_for_token_a: u128,
-    price_for_token_b: u128,
+    price_for_token_a: u256,
+    price_for_token_b: u256,
     // The USD change in amount of token_a.
-    usd_delta_for_token_a: i128,
+    usd_delta_for_token_a: i256,
     // The USD change in amount of token_b.
-    usd_delta_for_token_b: i128,
+    usd_delta_for_token_b: i256,
 }
 
 /// Struct to contain pool values.
 #[derive(Drop, starknet::Store, Serde)]
 struct PoolParams {
     /// The USD value of token_a in the pool.
-    pool_usd_for_token_a: u128,
+    pool_usd_for_token_a: u256,
     /// The USD value of token_b in the pool.
-    pool_usd_for_token_b: u128,
+    pool_usd_for_token_b: u256,
     /// The next USD value of token_a in the pool.
-    next_pool_usd_for_token_a: u128,
+    next_pool_usd_for_token_a: u256,
     /// The next USD value of token_b in the pool.
-    next_pool_usd_for_token_b: u128,
+    next_pool_usd_for_token_b: u256,
 }
 
 /// Struct to contain swap fee values.
 #[derive(Copy, Drop, starknet::Store, Serde)]
 struct SwapFees {
     /// The fee amount for the fee receiver.
-    fee_receiver_amount: u128,
+    fee_receiver_amount: u256,
     /// The fee amount for the pool.
-    fee_amount_for_pool: u128,
+    fee_amount_for_pool: u256,
     /// The output amount after fees.
-    amount_after_fees: u128,
+    amount_after_fees: u256,
     /// The ui fee receiver.
     ui_fee_receiver: ContractAddress,
     /// The factor for receiver.
-    ui_fee_receiver_factor: u128,
+    ui_fee_receiver_factor: u256,
     /// The ui fee amount.
-    ui_fee_amount: u128,
+    ui_fee_amount: u256,
 }
 
 impl DefaultSwapFees of Default<SwapFees> {
@@ -97,7 +97,7 @@ impl DefaultSwapFees of Default<SwapFees> {
 /// * `params` - The necessary params to compute next pool amount in USD.
 /// # Returns
 /// New pool amount.
-fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i128 {
+fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i256 {
     let pool_params = get_next_pool_amount_usd(params);
     let price_impact_usd = get_price_impact_usd_(params.data_store, params.market, pool_params);
 
@@ -166,7 +166,7 @@ fn get_price_impact_usd(params: GetPriceImpactUsdParams) -> i128 {
 /// The price impact in USD.
 fn get_price_impact_usd_(
     data_store: IDataStoreDispatcher, market: Market, pool_params: PoolParams,
-) -> i128 {
+) -> i256 {
     let initial_diff_usd = calc::diff(
         pool_params.pool_usd_for_token_a, pool_params.pool_usd_for_token_b
     );
@@ -185,7 +185,7 @@ fn get_price_impact_usd_(
         .next_pool_usd_for_token_b;
     let is_same_side_rebalance = a_lte_b == next_a_lte_b;
     let impact_exponent_factor = data_store
-        .get_u128(keys::swap_impact_exponent_factor_key(market.market_token));
+        .get_u256(keys::swap_impact_exponent_factor_key(market.market_token));
 
     if is_same_side_rebalance {
         let has_positive_impact = next_diff_usd < initial_diff_usd;
@@ -237,27 +237,27 @@ fn get_next_pool_amount_usd(params: GetPriceImpactUsdParams) -> PoolParams {
 /// # Returns
 /// New pool values.
 fn get_next_pool_amount_params(
-    params: GetPriceImpactUsdParams, pool_amount_for_token_a: u128, pool_amount_for_token_b: u128
+    params: GetPriceImpactUsdParams, pool_amount_for_token_a: u256, pool_amount_for_token_b: u256
 ) -> PoolParams {
     let pool_usd_for_token_a = pool_amount_for_token_a * params.price_for_token_a;
     let pool_usd_for_token_b = pool_amount_for_token_b * params.price_for_token_b;
     if params.usd_delta_for_token_a < Zeroable::zero()
-        && calc::to_unsigned(i128_neg(params.usd_delta_for_token_a)) > pool_usd_for_token_a {
+        && calc::to_unsigned(i256_neg(params.usd_delta_for_token_a)) > pool_usd_for_token_a {
         PricingError::USD_DELTA_EXCEEDS_POOL_VALUE(
             params.usd_delta_for_token_a.into(), pool_usd_for_token_a.into()
         );
     }
     if params.usd_delta_for_token_b < Zeroable::zero()
-        && calc::to_unsigned(i128_neg(params.usd_delta_for_token_b)) > pool_usd_for_token_b {
+        && calc::to_unsigned(i256_neg(params.usd_delta_for_token_b)) > pool_usd_for_token_b {
         PricingError::USD_DELTA_EXCEEDS_POOL_VALUE(
             params.usd_delta_for_token_b.into(), pool_usd_for_token_b.into()
         );
     }
 
-    let next_pool_usd_for_token_a = calc::sum_return_uint_128(
+    let next_pool_usd_for_token_a = calc::sum_return_uint_256(
         pool_usd_for_token_a, params.usd_delta_for_token_a
     );
-    let next_pool_usd_for_token_b = calc::sum_return_uint_128(
+    let next_pool_usd_for_token_b = calc::sum_return_uint_256(
         pool_usd_for_token_b, params.usd_delta_for_token_b
     );
 
@@ -281,7 +281,7 @@ fn get_next_pool_amount_params(
 fn get_swap_fees(
     data_store: IDataStoreDispatcher,
     market_token: ContractAddress,
-    amount: u128,
+    amount: u256,
     for_positive_impact: bool,
     ui_fee_receiver: ContractAddress,
 ) -> SwapFees {
@@ -292,16 +292,16 @@ fn get_swap_fees(
     // a user could split the order into two, to incur a smaller fee, reducing the fee through this should not be a large issue
 
     let fee_factor = data_store
-        .get_u128(keys::swap_fee_factor_key(market_token, for_positive_impact));
-    let swap_fee_receiver_factor = data_store.get_u128(keys::swap_fee_receiver_factor());
+        .get_u256(keys::swap_fee_factor_key(market_token, for_positive_impact));
+    let swap_fee_receiver_factor = data_store.get_u256(keys::swap_fee_receiver_factor());
 
-    let fee_amount = precision::apply_factor_u128(amount, fee_factor);
+    let fee_amount = precision::apply_factor_u256(amount, fee_factor);
 
-    let fee_receiver_amount = precision::apply_factor_u128(fee_amount, swap_fee_receiver_factor);
+    let fee_receiver_amount = precision::apply_factor_u256(fee_amount, swap_fee_receiver_factor);
     let fee_amount_for_pool = fee_amount - fee_receiver_amount;
 
     let ui_fee_receiver_factor = market_utils::get_ui_fee_factor(data_store, ui_fee_receiver);
-    let ui_fee_amount = precision::apply_factor_u128(amount, ui_fee_receiver_factor);
+    let ui_fee_amount = precision::apply_factor_u256(amount, ui_fee_receiver_factor);
 
     let amount_after_fees = amount - fee_amount - ui_fee_amount;
 

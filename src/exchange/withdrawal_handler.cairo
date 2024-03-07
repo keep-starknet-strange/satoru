@@ -296,7 +296,7 @@ mod WithdrawalHandler {
         /// * `starting_gas` - The starting gas of the transaction.
         /// * `reason_bytes` - The reason of the error.
         fn handle_withdrawal_error(
-            ref self: ContractState, key: felt252, starting_gas: u128, reason_bytes: Array<felt252>
+            ref self: ContractState, key: felt252, starting_gas: u256, reason_bytes: Array<felt252>
         ) {
             // Just cancels withdrawal. There is no way to handle revert and revert reason right now.
 

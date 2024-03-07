@@ -29,9 +29,9 @@ fn given_normal_conditions_when_emit_affiliate_reward_updated_then_works() {
     let market = contract_address_const::<'market'>();
     let token = contract_address_const::<'token'>();
     let affiliate = contract_address_const::<'affiliate'>();
-    let delta: u128 = 100;
-    let next_value: u128 = 200;
-    let next_pool_value: u128 = 300;
+    let delta: u256 = 100;
+    let next_value: u256 = 200;
+    let next_pool_value: u256 = 300;
 
     // Emit the event.
     event_emitter
@@ -79,8 +79,8 @@ fn given_normal_conditions_when_emit_affiliate_reward_claimed_then_works() {
     let token = contract_address_const::<'token'>();
     let affiliate = contract_address_const::<'affiliate'>();
     let receiver = contract_address_const::<'receiver'>();
-    let amount: u128 = 100;
-    let next_pool_value: u128 = 200;
+    let amount: u256 = 100;
+    let next_pool_value: u256 = 200;
 
     // Emit the event.
     event_emitter

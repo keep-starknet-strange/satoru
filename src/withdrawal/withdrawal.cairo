@@ -32,17 +32,17 @@ struct Withdrawal {
     /// An array of market addresses to swap through.
     short_token_swap_path: Span32<ContractAddress>,
     /// The amount of market tokens that will be withdrawn.
-    market_token_amount: u128,
+    market_token_amount: u256,
     /// The minimum amount of long tokens that must be withdrawn.
-    min_long_token_amount: u128,
+    min_long_token_amount: u256,
     /// The minimum amount of short tokens that must be withdrawn.
-    min_short_token_amount: u128,
+    min_short_token_amount: u256,
     /// The block at which the withdrawal was last updated.
     updated_at_block: u64,
     /// The execution fee for the withdrawal.
-    execution_fee: u128,
+    execution_fee: u256,
     /// The gas limit for calling the callback contract.
-    callback_gas_limit: u128,
+    callback_gas_limit: u256,
 }
 
 impl DefaultWithdrawal of Default<Withdrawal> {

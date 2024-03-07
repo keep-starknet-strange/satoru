@@ -29,20 +29,20 @@ use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::position::{position_utils, position::Position};
 use satoru::pricing::swap_pricing_utils::SwapFees;
 use satoru::deposit::deposit::Deposit;
-use satoru::utils::i128::i128;
+use satoru::utils::i256::i256;
 
 #[derive(Drop, starknet::Store, Serde)]
 struct VirtualInventory {
-    virtual_pool_amount_for_long_token: u128,
-    virtual_pool_amount_for_short_token: u128,
-    virtual_inventory_for_positions: i128,
+    virtual_pool_amount_for_long_token: u256,
+    virtual_pool_amount_for_short_token: u256,
+    virtual_inventory_for_positions: i256,
 }
 
 #[derive(Drop, starknet::Store, Serde)]
 struct MarketInfo {
     market: Market,
-    borrowing_factor_per_second_for_longs: u128,
-    borrowing_factor_per_second_for_shorts: u128,
+    borrowing_factor_per_second_for_longs: u256,
+    borrowing_factor_per_second_for_shorts: u256,
     base_funding: BaseFundingValues,
     next_funding: GetNextFundingAmountPerSizeResult,
     virtual_inventory: VirtualInventory,
@@ -128,8 +128,8 @@ trait IReader<TContractState> {
         market: Market,
         prices: MarketPrices,
         position_key: felt252,
-        size_delta_usd: u128
-    ) -> (i128, i128, u128);
+        size_delta_usd: u256
+    ) -> (i256, i256, u256);
 
     /// Retrieve an array of position data associated with a specific account within a specified range.
     /// # Arguments
@@ -182,7 +182,7 @@ trait IReader<TContractState> {
         referral_storage: IReferralStorageDispatcher,
         position_key: felt252,
         prices: MarketPrices,
-        size_delta_usd: u128,
+        size_delta_usd: u256,
         ui_fee_receiver: ContractAddress,
         use_position_size_as_size_delta_usd: bool
     ) -> PositionInfo;
@@ -263,7 +263,7 @@ trait IReader<TContractState> {
         short_token_price: Price,
         pnl_factor_type: felt252,
         maximize: bool
-    ) -> (i128, MarketPoolValueInfo);
+    ) -> (i256, MarketPoolValueInfo);
 
     /// Calculate and return the net profit and loss (PnL) for a specific market based on various input parameters.
     /// # Arguments
@@ -279,7 +279,7 @@ trait IReader<TContractState> {
         market: Market,
         index_token_price: Price,
         maximize: bool
-    ) -> i128;
+    ) -> i256;
 
     /// Calculate and return the profit and loss (PnL) for a specific market position, either long or short, based on various input parameters.
     /// # Arguments
@@ -296,7 +296,7 @@ trait IReader<TContractState> {
         index_token_price: Price,
         is_long: bool,
         maximize: bool
-    ) -> i128;
+    ) -> i256;
 
     /// Calculate and return the open interest with profit and loss (PnL) for a specific market position.
     /// # Arguments
@@ -313,7 +313,7 @@ trait IReader<TContractState> {
         index_token_price: Price,
         is_long: bool,
         maximize: bool
-    ) -> i128;
+    ) -> i256;
 
 
     /// Calculate and return the profit and loss (PnL) to pool factor for a specific market position.
@@ -331,7 +331,7 @@ trait IReader<TContractState> {
         prices: MarketPrices,
         is_long: bool,
         maximize: bool
-    ) -> i128;
+    ) -> i256;
 
     /// Calculate and return various values related to a swap operation, including the amount of the output token, fees associated with the swap, and other information.
     /// # Arguments
@@ -351,9 +351,9 @@ trait IReader<TContractState> {
         market: Market,
         prices: MarketPrices,
         token_in: ContractAddress,
-        amount_in: u128,
+        amount_in: u256,
         ui_fee_receiver: ContractAddress
-    ) -> (u128, i128, SwapFees);
+    ) -> (u256, i256, SwapFees);
 
     /// Calculate and return information about the virtual inventory for a specific market.
     /// # Arguments
@@ -381,9 +381,9 @@ trait IReader<TContractState> {
         data_store: IDataStoreDispatcher,
         market_key: ContractAddress,
         index_token_price: Price,
-        position_size_in_usd: u128,
-        position_size_in_token: u128,
-        size_delta_usd: i128,
+        position_size_in_usd: u256,
+        position_size_in_token: u256,
+        size_delta_usd: i256,
         is_long: bool
     ) -> ExecutionPriceResult;
 
@@ -404,10 +404,10 @@ trait IReader<TContractState> {
         market_key: ContractAddress,
         token_in: ContractAddress,
         token_out: ContractAddress,
-        amount_in: u128,
+        amount_in: u256,
         token_in_price: Price,
         token_out_price: Price
-    ) -> (i128, i128);
+    ) -> (i256, i256);
 
     /// Retrieve and return the state of the Account Deleveraging (ADL) system for a specific market and position (either long or short).
     /// # Arguments
@@ -424,7 +424,7 @@ trait IReader<TContractState> {
         market: ContractAddress,
         is_long: bool,
         prices: MarketPrices
-    ) -> (u64, bool, i128, u128);
+    ) -> (u64, bool, i256, u256);
 }
 
 #[starknet::contract]
@@ -450,7 +450,7 @@ mod Reader {
         market_utils, market_utils::GetNextFundingAmountPerSizeResult, market::Market,
         market_utils::MarketPrices, market_pool_value_info::MarketPoolValueInfo,
     };
-    use satoru::utils::i128::i128;
+    use satoru::utils::i256::i256;
     use satoru::withdrawal::withdrawal::Withdrawal;
     use satoru::position::{position_utils, position::Position};
     use satoru::pricing::swap_pricing_utils::SwapFees;
@@ -520,8 +520,8 @@ mod Reader {
             market: Market,
             prices: MarketPrices,
             position_key: felt252,
-            size_delta_usd: u128
-        ) -> (i128, i128, u128) {
+            size_delta_usd: u256
+        ) -> (i256, i256, u256) {
             let position = data_store.get_position(position_key);
             position_utils::get_position_pnl_usd(
                 data_store, market, prices, position, size_delta_usd
@@ -588,7 +588,7 @@ mod Reader {
             referral_storage: IReferralStorageDispatcher,
             position_key: felt252,
             prices: MarketPrices,
-            size_delta_usd: u128,
+            size_delta_usd: u256,
             ui_fee_receiver: ContractAddress,
             use_position_size_as_size_delta_usd: bool
         ) -> PositionInfo {
@@ -711,7 +711,7 @@ mod Reader {
             short_token_price: Price,
             pnl_factor_type: felt252,
             maximize: bool
-        ) -> (i128, MarketPoolValueInfo) {
+        ) -> (i256, MarketPoolValueInfo) {
             market_utils::get_market_token_price(
                 data_store,
                 market,
@@ -729,7 +729,7 @@ mod Reader {
             market: Market,
             index_token_price: Price,
             maximize: bool
-        ) -> i128 {
+        ) -> i256 {
             market_utils::get_net_pnl(data_store, @market, @index_token_price, maximize)
         }
 
@@ -740,7 +740,7 @@ mod Reader {
             index_token_price: Price,
             is_long: bool,
             maximize: bool
-        ) -> i128 {
+        ) -> i256 {
             market_utils::get_pnl(data_store, @market, @index_token_price, is_long, maximize)
         }
 
@@ -751,7 +751,7 @@ mod Reader {
             index_token_price: Price,
             is_long: bool,
             maximize: bool
-        ) -> i128 {
+        ) -> i256 {
             market_utils::get_open_interest_with_pnl(
                 data_store, @market, @index_token_price, is_long, maximize
             )
@@ -764,7 +764,7 @@ mod Reader {
             prices: MarketPrices,
             is_long: bool,
             maximize: bool
-        ) -> i128 {
+        ) -> i256 {
             let market = data_store.get_market(market_address);
             market_utils::get_pnl_to_pool_factor_from_prices(
                 data_store, @market, @prices, is_long, maximize
@@ -777,9 +777,9 @@ mod Reader {
             market: Market,
             prices: MarketPrices,
             token_in: ContractAddress,
-            amount_in: u128,
+            amount_in: u256,
             ui_fee_receiver: ContractAddress
-        ) -> (u128, i128, SwapFees) {
+        ) -> (u256, i256, SwapFees) {
             reader_pricing_utils::get_swap_amount_out(
                 data_store, market, prices, token_in, amount_in, ui_fee_receiver
             )
@@ -808,9 +808,9 @@ mod Reader {
             data_store: IDataStoreDispatcher,
             market_key: ContractAddress,
             index_token_price: Price,
-            position_size_in_usd: u128,
-            position_size_in_token: u128,
-            size_delta_usd: i128,
+            position_size_in_usd: u256,
+            position_size_in_token: u256,
+            size_delta_usd: i256,
             is_long: bool
         ) -> ExecutionPriceResult {
             let market = data_store.get_market(market_key);
@@ -831,10 +831,10 @@ mod Reader {
             market_key: ContractAddress,
             token_in: ContractAddress,
             token_out: ContractAddress,
-            amount_in: u128,
+            amount_in: u256,
             token_in_price: Price,
             token_out_price: Price
-        ) -> (i128, i128) {
+        ) -> (i256, i256) {
             let market = data_store.get_market(market_key);
             reader_pricing_utils::get_swap_price_impact(
                 data_store, market, token_in, token_out, amount_in, token_in_price, token_out_price
@@ -847,7 +847,7 @@ mod Reader {
             market: ContractAddress,
             is_long: bool,
             prices: MarketPrices
-        ) -> (u64, bool, i128, u128) {
+        ) -> (u64, bool, i256, u256) {
             let latest_adl_block = adl_utils::get_latest_adl_block(data_store, market, is_long);
             let _market = market_utils::get_enabled_market(data_store, market);
             let (should_enabled_ald, pnl_to_pool_factor, max_pnl_factor) =

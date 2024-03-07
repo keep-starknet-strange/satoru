@@ -42,7 +42,7 @@ use satoru::utils::precision;
 use satoru::price::price::Price;
 use satoru::market::market::{Market};
 use satoru::nonce::nonce_utils;
-const max_u128: u128 = 340282366920938463463374607431768211455;
+const max_u256: u256 = 340282366920938463463374607431768211455;
 
 
 #[test]
@@ -166,11 +166,11 @@ fn given_disabled_feature_when_create_execute_liquidation_then_fails() {
     data_store.set_token_id(collateral_token, 3);
 
     // Set price feed multiplier
-    data_store.set_u128(keys::price_feed_multiplier_key(token1), precision::FLOAT_PRECISION);
-    data_store.set_u128(keys::price_feed_multiplier_key(token2), precision::FLOAT_PRECISION);
+    data_store.set_u256(keys::price_feed_multiplier_key(token1), precision::FLOAT_PRECISION);
+    data_store.set_u256(keys::price_feed_multiplier_key(token2), precision::FLOAT_PRECISION);
     data_store
-        .set_u128(keys::price_feed_multiplier_key(collateral_token), precision::FLOAT_PRECISION);
-    data_store.set_u128(keys::max_oracle_ref_price_deviation_factor(), max_u128);
+        .set_u256(keys::price_feed_multiplier_key(collateral_token), precision::FLOAT_PRECISION);
+    data_store.set_u256(keys::max_oracle_ref_price_deviation_factor(), max_u256);
 
     let usdc_price = Price { min: 1000000, max: 1000000 };
     let eth_price = Price { min: 17500000000000, max: 17500000000000 };
@@ -256,11 +256,11 @@ fn given_negative_open_interest_when_create_execute_liquidation_then_fails() {
     data_store.set_token_id(collateral_token, 3);
 
     // Set price feed multiplier
-    data_store.set_u128(keys::price_feed_multiplier_key(token1), precision::FLOAT_PRECISION);
-    data_store.set_u128(keys::price_feed_multiplier_key(token2), precision::FLOAT_PRECISION);
+    data_store.set_u256(keys::price_feed_multiplier_key(token1), precision::FLOAT_PRECISION);
+    data_store.set_u256(keys::price_feed_multiplier_key(token2), precision::FLOAT_PRECISION);
     data_store
-        .set_u128(keys::price_feed_multiplier_key(collateral_token), precision::FLOAT_PRECISION);
-    data_store.set_u128(keys::max_oracle_ref_price_deviation_factor(), max_u128);
+        .set_u256(keys::price_feed_multiplier_key(collateral_token), precision::FLOAT_PRECISION);
+    data_store.set_u256(keys::max_oracle_ref_price_deviation_factor(), max_u256);
 
     let usdc_price = Price { min: 1000000, max: 1000000 };
     let eth_price = Price { min: 17500000000000, max: 17500000000000 };
@@ -284,7 +284,7 @@ fn given_negative_open_interest_when_create_execute_liquidation_then_fails() {
 
     // Set open interest
     let interest_key1 = keys::open_interest_key(market.market_token, market.long_token, true);
-    data_store.set_u128(interest_key1, 1000000000000000000000);
+    data_store.set_u256(interest_key1, 1000000000000000000000);
     let oracle_params = mock_set_prices_params(token1, collateral_token);
 
     // Test
@@ -343,11 +343,11 @@ fn given_normal_conditions_when_create_execute_liquidation_then_works() {
     data_store.set_address(keys::fee_token(), fee_token);
 
     // Set price feed multiplier
-    data_store.set_u128(keys::price_feed_multiplier_key(token1), precision::FLOAT_PRECISION);
-    data_store.set_u128(keys::price_feed_multiplier_key(token2), precision::FLOAT_PRECISION);
+    data_store.set_u256(keys::price_feed_multiplier_key(token1), precision::FLOAT_PRECISION);
+    data_store.set_u256(keys::price_feed_multiplier_key(token2), precision::FLOAT_PRECISION);
     data_store
-        .set_u128(keys::price_feed_multiplier_key(collateral_token), precision::FLOAT_PRECISION);
-    data_store.set_u128(keys::max_oracle_ref_price_deviation_factor(), max_u128);
+        .set_u256(keys::price_feed_multiplier_key(collateral_token), precision::FLOAT_PRECISION);
+    data_store.set_u256(keys::max_oracle_ref_price_deviation_factor(), max_u256);
 
     let usdc_price = Price { min: 1000000, max: 1000000 };
     let eth_price = Price { min: 17500000000000, max: 17500000000000 };
@@ -371,14 +371,14 @@ fn given_normal_conditions_when_create_execute_liquidation_then_works() {
 
     // Set open interest
     let interest_key1 = keys::open_interest_key(market.market_token, market.long_token, true);
-    data_store.set_u128(interest_key1, 1000000000000000000000);
+    data_store.set_u256(interest_key1, 1000000000000000000000);
 
     let interest_key2 = keys::open_interest_key(market.market_token, collateral_token, true);
-    data_store.set_u128(interest_key2, 10000000000);
+    data_store.set_u256(interest_key2, 10000000000);
     let interest_key3 = keys::open_interest_in_tokens_key(
         market.market_token, collateral_token, true
     );
-    data_store.set_u128(interest_key3, 10000000000);
+    data_store.set_u256(interest_key3, 10000000000);
 
     let current_nonce = nonce_utils::get_current_nonce(data_store);
 

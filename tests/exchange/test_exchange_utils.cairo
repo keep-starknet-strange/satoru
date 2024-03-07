@@ -18,7 +18,7 @@ fn given_exchange_utils_when_validate_request_cancellation_then_success() {
 
     // Test
     let expiration_age = 5;
-    data_store.set_u128(keys::request_expiration_block_age(), expiration_age);
+    data_store.set_u256(keys::request_expiration_block_age(), expiration_age);
 
     let block_number = get_block_number();
 
@@ -41,7 +41,7 @@ fn given_exchange_utils_when_validate_request_cancellation_then_fails() {
 
     // Test
     let expiration_age = 5;
-    data_store.set_u128(keys::request_expiration_block_age(), expiration_age);
+    data_store.set_u256(keys::request_expiration_block_age(), expiration_age);
 
     let block_number = get_block_number();
     let created_at_block = block_number - 4;

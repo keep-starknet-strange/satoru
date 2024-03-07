@@ -10,7 +10,7 @@ use starknet::ContractAddress;
 
 // Local imports.
 use satoru::oracle::oracle_utils::SetPricesParams;
-use satoru::utils::i128::i128;
+use satoru::utils::i256::i256;
 
 
 // *************************************************************************
@@ -49,7 +49,7 @@ trait IAdlHandler<TContractState> {
         market_address: ContractAddress,
         collateral_token: ContractAddress,
         is_long: bool,
-        size_delta_usd: u128,
+        size_delta_usd: u256,
         oracle_params: SetPricesParams
     );
 }
@@ -96,14 +96,14 @@ mod AdlHandler {
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use satoru::utils::{store_arrays::StoreU64Array, calc::to_signed};
-    use satoru::utils::i128::i128;
+    use satoru::utils::i256::i256;
 
 
     /// ExecuteAdlCache struct used in execute_adl.
     #[derive(Drop, Serde)]
     struct ExecuteAdlCache {
         /// The starting gas to execute adl.
-        starting_gas: u128,
+        starting_gas: u256,
         /// The min oracles block numbers.
         min_oracle_block_numbers: Array<u64>,
         /// The max oracles block numbers.
@@ -113,13 +113,13 @@ mod AdlHandler {
         /// Whether adl should be allowed, depending on pnl state.
         should_allow_adl: bool,
         /// The maximum pnl factor to allow adl.
-        max_pnl_factor_for_adl: u128,
+        max_pnl_factor_for_adl: u256,
         /// The factor between pnl and pool.
-        pnl_to_pool_factor: i128,
+        pnl_to_pool_factor: i256,
         /// The new factor between pnl and pool.
-        next_pnl_to_pool_factor: i128,
+        next_pnl_to_pool_factor: i256,
         /// The minimal pnl factor for adl.
-        min_pnl_factor_for_adl: u128
+        min_pnl_factor_for_adl: u256
     }
 
     // *************************************************************************
@@ -201,7 +201,7 @@ mod AdlHandler {
             market_address: ContractAddress,
             collateral_token: ContractAddress,
             is_long: bool,
-            size_delta_usd: u128,
+            size_delta_usd: u256,
             oracle_params: oracle_utils::SetPricesParams
         ) {
             let mut cache = ExecuteAdlCache {

@@ -21,8 +21,7 @@ use satoru::callback::callback_utils;
 use satoru::gas::gas_utils;
 use satoru::order::order::{Order, OrderType, OrderTrait};
 use satoru::event::event_utils::{
-    LogData, LogDataTrait, Felt252IntoU128, Felt252IntoContractAddress, ContractAddressDictValue,
-    I128252DictValue
+    LogData, LogDataTrait, Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue
 };
 use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 use satoru::order::error::OrderError;
@@ -242,7 +241,7 @@ fn cancel_order(
     order_vault: IOrderVaultDispatcher,
     key: felt252,
     keeper: ContractAddress,
-    starting_gas: u128,
+    starting_gas: u256,
     reason: felt252,
     reason_bytes: Array<felt252>
 ) {
@@ -299,7 +298,7 @@ fn freeze_order(
     order_vault: IOrderVaultDispatcher,
     key: felt252,
     keeper: ContractAddress,
-    starting_gas: u128,
+    starting_gas: u256,
     reason: felt252,
     reason_bytes: Array<felt252>
 ) {

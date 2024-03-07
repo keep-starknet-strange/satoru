@@ -13,7 +13,7 @@ use satoru::event::event_emitter::EventEmitter::{SwapInfo, SwapFeesCollected};
 
 
 use satoru::pricing::swap_pricing_utils::SwapFees;
-use satoru::utils::i128::{i128, i128_new};
+use satoru::utils::i256::{i256, i256_new};
 
 #[test]
 fn given_normal_conditions_when_emit_swap_info_then_works() {
@@ -33,13 +33,13 @@ fn given_normal_conditions_when_emit_swap_info_then_works() {
     let receiver = contract_address_const::<'receiver'>();
     let token_in = contract_address_const::<'token_in'>();
     let token_out = contract_address_const::<'token_out'>();
-    let token_in_price: u128 = 1;
-    let token_out_price: u128 = 2;
-    let amount_in: u128 = 3;
-    let amount_in_after_fees: u128 = 4;
-    let amount_out: u128 = 5;
-    let price_impact_usd: i128 = i128_new(6, false);
-    let price_impact_amount: i128 = i128_new(7, false);
+    let token_in_price: u256 = 1;
+    let token_out_price: u256 = 2;
+    let amount_in: u256 = 3;
+    let amount_in_after_fees: u256 = 4;
+    let amount_out: u256 = 5;
+    let price_impact_usd: i256 = i256_new(6, false);
+    let price_impact_amount: i256 = i256_new(7, false);
 
     // Emit the event.
     event_emitter
@@ -102,7 +102,7 @@ fn given_normal_conditions_when_emit_swap_fees_collected_then_works() {
     // Create a dummy data.
     let market = contract_address_const::<'market'>();
     let token = contract_address_const::<'token'>();
-    let token_price: u128 = 1;
+    let token_price: u256 = 1;
     let action = 'action';
     let fees: SwapFees = SwapFees {
         fee_receiver_amount: 1,

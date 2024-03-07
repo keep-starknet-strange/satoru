@@ -27,7 +27,7 @@ fn given_normal_conditions_when_emit_adl_state_updated_then_works() {
     let market: ContractAddress = contract_address_const::<'market'>();
     let is_long: bool = true;
     let pnl_to_pool_factor: felt252 = 1;
-    let max_pnl_factor: u128 = 10;
+    let max_pnl_factor: u256 = 10;
     let should_enable_adl: bool = false;
 
     // Emit the event.

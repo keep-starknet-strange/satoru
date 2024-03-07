@@ -77,9 +77,9 @@ fn given_normal_conditions_when_fetching_code_owner_from_storage_before_setting_
 fn given_normal_conditions_when_setting_and_fetching_tier_from_storage_then_works() {
     let (_, _, data_store, _, referral_storage, _) = setup();
 
-    let tier_id: u128 = 3;
-    let total_rebate: u128 = 10;
-    let discount_share: u128 = 10;
+    let tier_id: u256 = 3;
+    let total_rebate: u256 = 10;
+    let discount_share: u256 = 10;
     referral_storage.set_tier(tier_id, total_rebate, discount_share);
 
     let mut referral_tier: ReferralTier = referral_storage.tiers(tier_id);
@@ -94,9 +94,9 @@ fn given_normal_conditions_when_setting_and_fetching_tier_from_storage_then_work
 fn given_total_rebate_too_high_when_setting_tier_from_storage_then_fails() {
     let (_, _, data_store, _, referral_storage, _) = setup();
 
-    let tier_id: u128 = 3;
-    let total_rebate: u128 = 10001;
-    let discount_share: u128 = 10;
+    let tier_id: u256 = 3;
+    let total_rebate: u256 = 10001;
+    let discount_share: u256 = 10;
     referral_storage.set_tier(tier_id, total_rebate, discount_share);
 
     tests_lib::teardown(data_store.contract_address);
@@ -107,9 +107,9 @@ fn given_total_rebate_too_high_when_setting_tier_from_storage_then_fails() {
 fn given_discount_share_too_high_when_setting_tier_from_storage_then_fails() {
     let (_, _, data_store, _, referral_storage, _) = setup();
 
-    let tier_id: u128 = 3;
-    let total_rebate: u128 = 10;
-    let discount_share: u128 = 10001;
+    let tier_id: u256 = 3;
+    let total_rebate: u256 = 10;
+    let discount_share: u256 = 10001;
     referral_storage.set_tier(tier_id, total_rebate, discount_share);
 
     tests_lib::teardown(data_store.contract_address);
@@ -119,10 +119,10 @@ fn given_discount_share_too_high_when_setting_tier_from_storage_then_fails() {
 fn given_normal_conditions_when_setting_and_fetching_referrer_tiers_from_storage_then_works() {
     let (caller_address, _, data_store, _, referral_storage, _) = setup();
 
-    let tier_id: u128 = 3;
+    let tier_id: u256 = 3;
     referral_storage.set_referrer_tier(caller_address, tier_id);
 
-    let out: u128 = referral_storage.referrer_tiers(caller_address);
+    let out: u256 = referral_storage.referrer_tiers(caller_address);
     assert(out == tier_id, 'out tier_id is wrong');
 
     tests_lib::teardown(data_store.contract_address);
@@ -132,9 +132,9 @@ fn given_normal_conditions_when_setting_and_fetching_referrer_tiers_from_storage
 fn given_normal_conditions_when_fetching_referrer_tiers_from_storage_before_setting_then_works() {
     let (caller_address, _, data_store, _, referral_storage, _) = setup();
 
-    let tier_id: u128 = 3;
+    let tier_id: u256 = 3;
 
-    let out: u128 = referral_storage.referrer_tiers(caller_address);
+    let out: u256 = referral_storage.referrer_tiers(caller_address);
     assert(out == 0, 'out tier_id is wrong');
 
     tests_lib::teardown(data_store.contract_address);
@@ -144,10 +144,10 @@ fn given_normal_conditions_when_fetching_referrer_tiers_from_storage_before_sett
 fn given_normal_conditions_when_setting_and_fetching_referrer_discount_share_from_storage_then_works() {
     let (caller_address, _, data_store, _, referral_storage, _) = setup();
 
-    let discount_share: u128 = 1000;
+    let discount_share: u256 = 1000;
     referral_storage.set_referrer_discount_share(discount_share);
 
-    let out: u128 = referral_storage.referrer_discount_shares(caller_address);
+    let out: u256 = referral_storage.referrer_discount_shares(caller_address);
     assert(out == discount_share, 'out discount_share is wrong');
 
     tests_lib::teardown(data_store.contract_address);
@@ -158,7 +158,7 @@ fn given_normal_conditions_when_setting_and_fetching_referrer_discount_share_fro
 fn given_discount_share_too_high_when_setting_referrer_discount_share_from_storage_then_fails() {
     let (_, _, data_store, _, referral_storage, _) = setup();
 
-    let discount_share: u128 = 10001;
+    let discount_share: u256 = 10001;
     referral_storage.set_referrer_discount_share(discount_share);
 
     tests_lib::teardown(data_store.contract_address);

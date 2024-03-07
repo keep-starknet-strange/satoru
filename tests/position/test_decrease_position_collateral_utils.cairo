@@ -55,7 +55,7 @@ fn given_good_params_when_process_collateral_then_succeed() {
 
     // setting open_interest to 10_000 to allow decreasing position.
     data_store
-        .set_u128(
+        .set_u256(
             keys::open_interest_key(
                 contract_address_const::<'market_token'>(), long_token_address, true
             ),
@@ -85,7 +85,7 @@ fn given_good_params_when_process_collateral_then_succeed() {
 
     // Checks
     let open_interest = data_store
-        .get_u128(
+        .get_u256(
             keys::open_interest_key(
                 contract_address_const::<'market_token'>(), long_token_address, true
             ),
@@ -103,7 +103,7 @@ fn given_good_params_get_execution_price_then_succeed() {
 
     // setting open_interest to 10_000 to allow decreasing position.
     data_store
-        .set_u128(
+        .set_u256(
             keys::open_interest_key(
                 contract_address_const::<'market_token'>(), long_token_address, true
             ),

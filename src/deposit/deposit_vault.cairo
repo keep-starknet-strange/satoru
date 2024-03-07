@@ -29,7 +29,7 @@ trait IDepositVault<TContractState> {
     /// * `receiver` - The address of the receiver.
     /// * `amount` - The amount of tokens to transfer.
     fn transfer_out(
-        ref self: TContractState, token: ContractAddress, receiver: ContractAddress, amount: u128,
+        ref self: TContractState, token: ContractAddress, receiver: ContractAddress, amount: u256,
     );
 
     /// Records a token transfer into the contract.
@@ -37,7 +37,7 @@ trait IDepositVault<TContractState> {
     /// * `token` - The token address to transfer.
     /// # Returns
     /// * The amount of tokens transferred.
-    fn record_transfer_in(ref self: TContractState, token: ContractAddress) -> u128;
+    fn record_transfer_in(ref self: TContractState, token: ContractAddress) -> u256;
 
     /// this can be used to update the tokenBalances in case of token burns
     /// or similar balance changes
@@ -47,7 +47,7 @@ trait IDepositVault<TContractState> {
     /// * `token` - The token to record the burn for
     /// # Return
     /// The new balance
-    fn sync_token_balance(ref self: TContractState, token: ContractAddress) -> u128;
+    fn sync_token_balance(ref self: TContractState, token: ContractAddress) -> u256;
 }
 
 #[starknet::contract]
@@ -116,18 +116,18 @@ mod DepositVault {
             ref self: ContractState,
             token: ContractAddress,
             receiver: ContractAddress,
-            amount: u128,
+            amount: u256,
         ) {
             let mut state: StrictBank::ContractState = StrictBank::unsafe_new_contract_state();
             IStrictBank::transfer_out(ref state, token, receiver, amount);
         }
 
-        fn record_transfer_in(ref self: ContractState, token: ContractAddress) -> u128 {
+        fn record_transfer_in(ref self: ContractState, token: ContractAddress) -> u256 {
             let mut state: StrictBank::ContractState = StrictBank::unsafe_new_contract_state();
             IStrictBank::record_transfer_in(ref state, token)
         }
 
-        fn sync_token_balance(ref self: ContractState, token: ContractAddress) -> u128 {
+        fn sync_token_balance(ref self: ContractState, token: ContractAddress) -> u256 {
             let mut state: StrictBank::ContractState = StrictBank::unsafe_new_contract_state();
             IStrictBank::sync_token_balance(ref state, token)
         }

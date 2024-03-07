@@ -37,9 +37,9 @@ fn create_liquidation_order(
     let acceptable_price = if position.is_long {
         0
     } else {
-        BoundedInt::<u128>::max()
+        BoundedInt::<u256>::max()
     };
-    let callback_gas_limit = data_store.get_u128(keys::max_callback_gas_limit());
+    let callback_gas_limit = data_store.get_u256(keys::max_callback_gas_limit());
     let swap_path = Array32Trait::<ContractAddress>::span32(@ArrayTrait::new());
     let updated_at_block = starknet::info::get_block_number();
     let size_delta_usd = position.size_in_usd;

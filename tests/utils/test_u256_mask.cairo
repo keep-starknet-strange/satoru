@@ -1,5 +1,6 @@
-use satoru::utils::u128_mask::validate_unique_and_set_index;
+use satoru::utils::u256_mask::validate_unique_and_set_index;
 use integer::BoundedInt;
+use debug::PrintTrait;
 
 #[test]
 fn given_valid_index_bit_not_set_when_validate_unique_and_set_index_then_works() {
@@ -19,7 +20,7 @@ fn given_valid_index_bit_already_set_when_validate_unique_and_set_index_then_fai
 #[should_panic(expected: ('mask index out of bounds',))]
 fn given_invalid_index_when_validate_unique_and_set_index_then_fails() {
     let mut mask = 0b0000_0000;
-    validate_unique_and_set_index(ref mask, 128);
+    validate_unique_and_set_index(ref mask, 256);
 }
 
 #[test]

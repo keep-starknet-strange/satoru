@@ -100,10 +100,10 @@ fn given_normal_conditions_when_emit_order_updated_then_works() {
 
     // Create dummy data.
     let key = 100;
-    let size_delta_usd: u128 = 200;
-    let acceptable_price: u128 = 300;
-    let trigger_price: u128 = 400;
-    let min_output_amount: u128 = 500;
+    let size_delta_usd: u256 = 200;
+    let acceptable_price: u256 = 300;
+    let trigger_price: u256 = 400;
+    let min_output_amount: u256 = 500;
 
     // Emit the event.
     event_emitter
@@ -147,8 +147,8 @@ fn given_normal_conditions_when_emit_order_size_delta_auto_updated_then_works() 
 
     // Create dummy data.
     let key = 100;
-    let size_delta_usd: u128 = 200;
-    let next_size_delta_usd: u128 = 300;
+    let size_delta_usd: u256 = 200;
+    let next_size_delta_usd: u256 = 300;
 
     // Emit the event.
     event_emitter.emit_order_size_delta_auto_updated(key, size_delta_usd, next_size_delta_usd);
@@ -187,8 +187,8 @@ fn given_normal_conditions_when_emit_order_collateral_delta_amount_auto_updated_
 
     // Create dummy data.
     let key = 100;
-    let collateral_delta_amount: u128 = 200;
-    let next_collateral_delta_amount: u128 = 300;
+    let collateral_delta_amount: u256 = 200;
+    let next_collateral_delta_amount: u256 = 300;
 
     // Emit the event.
     event_emitter

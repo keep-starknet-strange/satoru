@@ -40,7 +40,7 @@ use satoru::order::{
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
 use satoru::order::base_order_utils::ExecuteOrderParamsContracts;
-use satoru::utils::i128::{i128, i128_new};
+use satoru::utils::i256::{i256, i256_new};
 #[test]
 fn given_normal_conditions_when_get_position_key_then_works() {
     // 
@@ -182,11 +182,11 @@ fn given_minimum_position_size_when_validate_position_then_fails() {
 
     // Test
 
-    let min_size: u128 = 1000000;
-    data_store.set_u128(keys::min_position_size_usd(), min_size);
+    let min_size: u256 = 1000000;
+    data_store.set_u256(keys::min_position_size_usd(), min_size);
     data_store.set_bool(keys::is_market_disabled_key(market.market_token), false);
     // Check key assigned
-    let retrieved_size = data_store.get_u128(keys::min_position_size_usd());
+    let retrieved_size = data_store.get_u256(keys::min_position_size_usd());
     assert(retrieved_size == min_size, 'invalid key assignment');
 
     // Fail 
@@ -214,8 +214,8 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
     let long_token: ContractAddress = contract_address_const::<'long_token'>();
     let short_token: ContractAddress = contract_address_const::<'short_token'>();
     let account: ContractAddress = contract_address_const::<'account'>();
-    let long_token_amount: u128 = 10000;
-    let short_token_amount: u128 = 20000;
+    let long_token_amount: u256 = 10000;
+    let short_token_amount: u256 = 20000;
 
     let mut fees: PositionFees = Default::default();
 
@@ -252,8 +252,8 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
     );
 
     // Check funding amounts increased for long and short tokens
-    let retrieved_claimable_long = data_store.get_u128(claimable_fund_long_key);
-    let retrieved_claimable_short = data_store.get_u128(claimable_fund_short_key);
+    let retrieved_claimable_long = data_store.get_u256(claimable_fund_long_key);
+    let retrieved_claimable_short = data_store.get_u256(claimable_fund_short_key);
     assert(retrieved_claimable_long == long_token_amount, 'Invalid claimable for long');
     assert(retrieved_claimable_short == short_token_amount, 'Invalid claimable for short');
 
@@ -263,8 +263,8 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
     position_utils::increment_claimable_funding_amount(params, fees2);
 
     // Check funding amounts doesnt change
-    let retrieved_claimable_long = data_store.get_u128(claimable_fund_long_key);
-    let retrieved_claimable_short = data_store.get_u128(claimable_fund_short_key);
+    let retrieved_claimable_long = data_store.get_u256(claimable_fund_long_key);
+    let retrieved_claimable_short = data_store.get_u256(claimable_fund_short_key);
     assert(retrieved_claimable_long == long_token_amount, 'Invalid claimable for long');
     assert(retrieved_claimable_short == short_token_amount, 'Invalid claimable for short');
 
@@ -312,11 +312,11 @@ fn given_negative_remaining_collateral_usd_when_checking_liquidatability_then_in
 
     // setting long interest greater than te position size in USD...
     let open_interest_key = keys::open_interest_key(market_token, long_token, true);
-    data_store.set_u128(open_interest_key, 15000);
+    data_store.set_u256(open_interest_key, 15000);
 
     // setting cumulative borrowing factor greater than the borrowing factor...
     let cumulative_borrowing_factor_key = keys::cumulative_borrowing_factor_key(market_token, true);
-    data_store.set_u128(cumulative_borrowing_factor_key, 1000);
+    data_store.set_u256(cumulative_borrowing_factor_key, 1000);
 
     let market = Market { market_token, index_token: long_token, long_token, short_token, };
 
@@ -373,11 +373,11 @@ fn given_below_minimum_collateral_when_checking_liquidatability_then_invalid_pos
 
     // setting long interest greater than te position size in USD...
     let open_interest_key = keys::open_interest_key(market_token, long_token, true);
-    data_store.set_u128(open_interest_key, 15000);
+    data_store.set_u256(open_interest_key, 15000);
 
     // setting cumulative borrowing factor greater than the borrowing factor...
     let cumulative_borrowing_factor_key = keys::cumulative_borrowing_factor_key(market_token, true);
-    data_store.set_u128(cumulative_borrowing_factor_key, 1000);
+    data_store.set_u256(cumulative_borrowing_factor_key, 1000);
 
     let market = Market { market_token, index_token: long_token, long_token, short_token, };
 
@@ -433,11 +433,11 @@ fn given_valid_position_when_checking_liquidatability_then_valid_position() {
 
     // setting long interest greater than te position size in USD...
     let open_interest_key = keys::open_interest_key(market_token, long_token, true);
-    data_store.set_u128(open_interest_key, 15000);
+    data_store.set_u256(open_interest_key, 15000);
 
     // setting cumulative borrowing factor greater than the borrowing factor...
     let cumulative_borrowing_factor_key = keys::cumulative_borrowing_factor_key(market_token, true);
-    data_store.set_u128(cumulative_borrowing_factor_key, 1000);
+    data_store.set_u256(cumulative_borrowing_factor_key, 1000);
 
     let market = Market { market_token, index_token: long_token, long_token, short_token, };
 
@@ -493,15 +493,15 @@ fn given_below_min_collateral_leverage_when_checking_liquidatability_then_invali
 
     // setting long interest greater than te position size in USD...
     let open_interest_key = keys::open_interest_key(market_token, long_token, true);
-    data_store.set_u128(open_interest_key, 15000);
+    data_store.set_u256(open_interest_key, 15000);
 
     // setting cumulative borrowing factor greater than the borrowing factor...
     let cumulative_borrowing_factor_key = keys::cumulative_borrowing_factor_key(market_token, true);
-    data_store.set_u128(cumulative_borrowing_factor_key, 1000);
+    data_store.set_u256(cumulative_borrowing_factor_key, 1000);
 
     // setting a min collateral factor for the market
     let min_collateral_factor_key = keys::min_collateral_factor_key(market_token);
-    data_store.set_u128(min_collateral_factor_key, 10_000_000_000_000_000_000);
+    data_store.set_u256(min_collateral_factor_key, 10_000_000_000_000_000_000);
 
     let market = Market { market_token, index_token: long_token, long_token, short_token, };
 
@@ -540,7 +540,7 @@ fn given_initial_total_borrowing_when_updating_then_correct_total_borrowing() {
 
     // Fill required data store keys.
     let total_borrowing_key = keys::total_borrowing_key(market_token, false);
-    data_store.set_u128(total_borrowing_key, 1000);
+    data_store.set_u256(total_borrowing_key, 1000);
 
     let mut params: position_utils::UpdatePositionParams = UpdatePositionParams {
         contracts: ExecuteOrderParamsContracts {
@@ -562,14 +562,14 @@ fn given_initial_total_borrowing_when_updating_then_correct_total_borrowing() {
     //Test
 
     //Update total borrowing 
-    let next_position_size_in_usd: u128 = 1000000000000000;
-    let next_position_borrowing_factor: u128 = 20000000;
+    let next_position_size_in_usd: u256 = 1000000000000000;
+    let next_position_borrowing_factor: u256 = 20000000;
 
     position_utils::update_total_borrowing(
         params, next_position_size_in_usd, next_position_borrowing_factor
     );
 
-    let total_borrowing_value: u128 = data_store.get_u128(total_borrowing_key);
+    let total_borrowing_value: u256 = data_store.get_u256(total_borrowing_key);
     assert(total_borrowing_value == 1200, 'Invalid total borrowing')
 }
 
@@ -589,12 +589,12 @@ fn given_initial_open_interest_when_updating_then_correct_open_interest() {
     let key_open_interest = keys::open_interest_key(
         market_token, contract_address_const::<0>(), false
     );
-    data_store.set_u128(key_open_interest, 1000);
+    data_store.set_u256(key_open_interest, 1000);
 
     let key_open_interest_in_tokens = keys::open_interest_in_tokens_key(
         market_token, contract_address_const::<0>(), false
     );
-    data_store.set_u128(key_open_interest_in_tokens, 2000);
+    data_store.set_u256(key_open_interest_in_tokens, 2000);
 
     let mut params: position_utils::UpdatePositionParams = UpdatePositionParams {
         contracts: ExecuteOrderParamsContracts {
@@ -614,16 +614,16 @@ fn given_initial_open_interest_when_updating_then_correct_open_interest() {
     };
 
     //Update open interest 
-    let size_delta_usd: i128 = 10.try_into().unwrap();
-    let size_delta_in_tokens: i128 = 20.try_into().unwrap();
+    let size_delta_usd: i256 = 10.into();
+    let size_delta_in_tokens: i256 = 20.into();
 
     //Test
 
     position_utils::update_open_interest(params, size_delta_usd, size_delta_in_tokens);
 
-    let open_interest = data_store.get_u128(key_open_interest);
+    let open_interest = data_store.get_u256(key_open_interest);
 
-    let open_interest_in_tokens = data_store.get_u128(key_open_interest_in_tokens);
+    let open_interest_in_tokens = data_store.get_u256(key_open_interest_in_tokens);
 
     assert(open_interest == 1010, 'Invalid open interest value');
     assert(open_interest_in_tokens == 2020, 'Invalid open interest value');
@@ -652,7 +652,7 @@ fn given_valid_referral_when_handling_then_referral_successfully_processed() {
     let affiliate_reward_for_account_key = keys::affiliate_reward_for_account_key(
         market_token, contract_address_const::<0>(), referral.affiliate
     );
-    data_store.set_u128(affiliate_reward_for_account_key, 10);
+    data_store.set_u256(affiliate_reward_for_account_key, 10);
 
     let mut params: position_utils::UpdatePositionParams = UpdatePositionParams {
         contracts: ExecuteOrderParamsContracts {
@@ -678,7 +678,7 @@ fn given_valid_referral_when_handling_then_referral_successfully_processed() {
     //Test 
 
     position_utils::handle_referral(params, fees);
-    let affiliate_reward_value = data_store.get_u128(affiliate_reward_for_account_key);
+    let affiliate_reward_value = data_store.get_u256(affiliate_reward_for_account_key);
 
     assert(affiliate_reward_value == 30, 'Invalide affiliate reward value')
 }
@@ -700,11 +700,11 @@ fn test_will_position_collateral_be_sufficient() {
 
     // setting long interest greater than te position size in USD...
     let open_interest_key = keys::open_interest_key(market_token, long_token, true);
-    data_store.set_u128(open_interest_key, 15000);
+    data_store.set_u256(open_interest_key, 15000);
 
     // setting a min collateral factor for the market
     let min_collateral_factor_key = keys::min_collateral_factor_key(market_token);
-    data_store.set_u128(min_collateral_factor_key, 10_000_000_000_000_000_000);
+    data_store.set_u256(min_collateral_factor_key, 10_000_000_000_000_000_000);
 
     let prices: MarketPrices = MarketPrices {
         index_token_price: index_token_price,
@@ -716,8 +716,8 @@ fn test_will_position_collateral_be_sufficient() {
         WillPositionCollateralBeSufficientValues {
         position_size_in_usd: 1000,
         position_collateral_amount: 50,
-        realized_pnl_usd: i128_new(10, true),
-        open_interest_delta: i128_new(5, true),
+        realized_pnl_usd: i256_new(10, true),
+        open_interest_delta: i256_new(5, true),
     };
 
     // invoke the function with scenario where collateral will be sufficient
@@ -726,14 +726,14 @@ fn test_will_position_collateral_be_sufficient() {
         data_store, market, prices, long_token, true, values
     );
     assert(will_be_sufficient, 'collateral supposed sufficient');
-    assert(remaining_collateral_usd == i128_new(4990, false), 'eq 4990');
+    assert(remaining_collateral_usd == i256_new(4990, false), 'eq 4990');
 
     let values: WillPositionCollateralBeSufficientValues =
         WillPositionCollateralBeSufficientValues {
         position_size_in_usd: 1000,
         position_collateral_amount: 5,
-        realized_pnl_usd: i128_new(410, true),
-        open_interest_delta: i128_new(5, true),
+        realized_pnl_usd: i256_new(410, true),
+        open_interest_delta: i256_new(5, true),
     };
 
     // invoke the function with scenario where collateral will be insufficient
@@ -743,7 +743,7 @@ fn test_will_position_collateral_be_sufficient() {
     );
     // assert that the function returns that the collateral is not sufficient
     assert(!will_be_sufficient, 'collateral should insufficient');
-    assert(remaining_collateral_usd == i128_new(90, false), 'eq 90');
+    assert(remaining_collateral_usd == i256_new(90, false), 'eq 90');
 }
 //TODO
 // #[test]

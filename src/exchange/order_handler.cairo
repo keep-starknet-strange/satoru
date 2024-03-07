@@ -53,10 +53,10 @@ trait IOrderHandler<TContractState> {
     fn update_order(
         ref self: TContractState,
         key: felt252,
-        size_delta_usd: u128,
-        acceptable_price: u128,
-        trigger_price: u128,
-        min_output_amount: u128,
+        size_delta_usd: u256,
+        acceptable_price: u256,
+        trigger_price: u256,
+        min_output_amount: u256,
         order: Order
     ) -> Order;
 
@@ -226,10 +226,10 @@ mod OrderHandler {
         fn update_order(
             ref self: ContractState,
             key: felt252,
-            size_delta_usd: u128,
-            acceptable_price: u128,
-            trigger_price: u128,
-            min_output_amount: u128,
+            size_delta_usd: u256,
+            acceptable_price: u256,
+            trigger_price: u256,
+            min_output_amount: u256,
             order: Order
         ) -> Order {
             // Check only controller.
@@ -287,7 +287,7 @@ mod OrderHandler {
         }
 
         fn cancel_order(ref self: ContractState, key: felt252) {
-            let starting_gas: u128 = 0; // TODO: Get starting gas from Cairo.
+            let starting_gas: u256 = 0; // TODO: Get starting gas from Cairo.
 
             // Check only controller.
             let role_module_state = RoleModule::unsafe_new_contract_state();
@@ -398,7 +398,7 @@ mod OrderHandler {
             oracle_params: SetPricesParams,
             keeper: ContractAddress
         ) {
-            let starting_gas: u128 = 0; // TODO: Get starting gas from Cairo.
+            let starting_gas: u256 = 0; // TODO: Get starting gas from Cairo.
 
             // Check only self.
             let role_module_state = RoleModule::unsafe_new_contract_state();
@@ -431,7 +431,7 @@ mod OrderHandler {
         /// * `starting_gas` - The starting gas of the transaction.
         /// * `reason` - The reason of the error.
         fn handle_order_error(
-            self: @ContractState, key: felt252, starting_gas: u128, reason_bytes: Array<felt252>
+            self: @ContractState, key: felt252, starting_gas: u256, reason_bytes: Array<felt252>
         ) {
             let error_selector = error_utils::get_error_selector_from_data(reason_bytes.span());
 

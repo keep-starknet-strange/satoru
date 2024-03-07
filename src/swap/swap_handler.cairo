@@ -19,7 +19,7 @@ trait ISwapHandler<TContractState> {
     /// * `params` - SwapParams.
     /// # Returns
     /// * (outputToken, outputAmount)
-    fn swap(ref self: TContractState, params: SwapParams) -> (ContractAddress, u128);
+    fn swap(ref self: TContractState, params: SwapParams) -> (ContractAddress, u256);
 }
 
 #[starknet::contract]
@@ -34,7 +34,7 @@ mod SwapHandler {
     use satoru::swap::swap_utils::SwapParams;
     use satoru::swap::swap_utils;
     use satoru::role::role_module::{RoleModule, IRoleModule};
-    use satoru::utils::i128::i128;
+    use satoru::utils::i256::i256;
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::utils::global_reentrancy_guard;
 
@@ -65,7 +65,7 @@ mod SwapHandler {
     // *************************************************************************
     #[abi(embed_v0)]
     impl SwapHandler of super::ISwapHandler<ContractState> {
-        fn swap(ref self: ContractState, params: SwapParams) -> (ContractAddress, u128) {
+        fn swap(ref self: ContractState, params: SwapParams) -> (ContractAddress, u256) {
             let mut role_module: RoleModule::ContractState =
                 RoleModule::unsafe_new_contract_state();
             role_module.only_controller();

@@ -7,7 +7,7 @@ use satoru::pricing::swap_pricing_utils::{
 use satoru::market::market::Market;
 use satoru::utils::calc;
 use satoru::tests_lib::{setup, teardown};
-use satoru::utils::i128::{i128, i128_new};
+use satoru::utils::i256::{i256, i256_new};
 
 #[test]
 fn given_normal_conditions_when_swap_pricing_utils_functions_then_works() {
@@ -21,8 +21,8 @@ fn given_normal_conditions_when_swap_pricing_utils_functions_then_works() {
     let long_token = 'long_token'.try_into().unwrap();
     let short_token = 'short_token'.try_into().unwrap();
 
-    data_store.set_u128(keys::pool_amount_key(market_token, long_token), 1000);
-    data_store.set_u128(keys::pool_amount_key(market_token, short_token), 1000);
+    data_store.set_u256(keys::pool_amount_key(market_token, long_token), 1000);
+    data_store.set_u256(keys::pool_amount_key(market_token, short_token), 1000);
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -35,13 +35,13 @@ fn given_normal_conditions_when_swap_pricing_utils_functions_then_works() {
         token_b: short_token,
         price_for_token_a: 101,
         price_for_token_b: 99,
-        usd_delta_for_token_a: i128_new(5, false),
-        usd_delta_for_token_b: i128_new(4, false),
+        usd_delta_for_token_a: i256_new(5, false),
+        usd_delta_for_token_b: i256_new(4, false),
     };
 
     let impact = get_price_impact_usd(params);
     // TODO change to real value when precision::apply_exponent_factor is implemented
-    assert(impact == i128_new(0, false), 'foo');
+    assert(impact == i256_new(0, false), 'foo');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -61,11 +61,11 @@ fn given_normal_conditions_when_get_next_pool_amount_usd_then_works() {
     let long_token = 'long_token'.try_into().unwrap();
     let short_token = 'short_token'.try_into().unwrap();
 
-    data_store.set_u128(keys::pool_amount_key(market_token, long_token), 1000);
-    data_store.set_u128(keys::pool_amount_key(market_token, short_token), 1000);
-    data_store.set_u128(keys::swap_impact_factor_key(market_token, false), 10);
-    data_store.set_u128(keys::swap_impact_factor_key(market_token, true), 10);
-    data_store.set_u128(keys::swap_impact_exponent_factor_key(market_token), 10);
+    data_store.set_u256(keys::pool_amount_key(market_token, long_token), 1000);
+    data_store.set_u256(keys::pool_amount_key(market_token, short_token), 1000);
+    data_store.set_u256(keys::swap_impact_factor_key(market_token, false), 10);
+    data_store.set_u256(keys::swap_impact_factor_key(market_token, true), 10);
+    data_store.set_u256(keys::swap_impact_exponent_factor_key(market_token), 10);
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *
@@ -78,8 +78,8 @@ fn given_normal_conditions_when_get_next_pool_amount_usd_then_works() {
         token_b: short_token,
         price_for_token_a: 101,
         price_for_token_b: 99,
-        usd_delta_for_token_a: i128_new(5, false),
-        usd_delta_for_token_b: i128_new(4, false),
+        usd_delta_for_token_a: i256_new(5, false),
+        usd_delta_for_token_b: i256_new(4, false),
     };
 
     let pool_params = get_next_pool_amount_usd(params);
@@ -105,10 +105,10 @@ fn given_normal_conditions_when_get_swap_fees_then_works() {
     let ui_fee_receiver = 'ui_fee_receiver'.try_into().unwrap();
     let for_positive_impact = true;
 
-    data_store.set_u128(keys::swap_fee_factor_key(market_token, for_positive_impact), 5);
-    data_store.set_u128(keys::swap_fee_receiver_factor(), 10);
-    data_store.set_u128(keys::max_ui_fee_factor(), 9);
-    data_store.set_u128(keys::ui_fee_factor_key(ui_fee_receiver), 9);
+    data_store.set_u256(keys::swap_fee_factor_key(market_token, for_positive_impact), 5);
+    data_store.set_u256(keys::swap_fee_receiver_factor(), 10);
+    data_store.set_u256(keys::max_ui_fee_factor(), 9);
+    data_store.set_u256(keys::ui_fee_factor_key(ui_fee_receiver), 9);
 
     // *********************************************************************************************
     // *                              TEST LOGIC                                                   *

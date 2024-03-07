@@ -26,7 +26,7 @@ use satoru::withdrawal::withdrawal::{Withdrawal};
 use satoru::position::position::{Position};
 use satoru::data::keys;
 use satoru::price::price::{Price, PriceTrait};
-use satoru::utils::i128::{i128, i128_new};
+use satoru::utils::i256::{i256, i256_new};
 use satoru::market::market_utils::{get_capped_pnl, MarketPrices};
 
 
@@ -260,7 +260,7 @@ fn given_normal_conditions_when_get_position_pnl_usd_then_works() {
 
     let (data1, data2, data3) = reader
         .get_position_pnl_usd(data_store, market, prices, key_1, 1000000);
-    let data3_felt: felt252 = data3.into();
+    let data3_felt: felt252 = data3.try_into().expect('u256 into felt failed');
 
     assert(data3_felt == 10000, 'Invalid');
     teardown(data_store.contract_address);
@@ -360,7 +360,7 @@ fn given_normal_conditions_when_get_account_positions_then_works() {
 //     data_store.set_market(key, 1, market);
 //     data_store.set_position(key_4, position);
 
-//     let size_delta: u128 = 1000000;
+//     let size_delta: u256 = 1000000;
 //     let res: PositionInfo = reader
 //         .get_position_info(data_store, referral, key_4, prices, size_delta, ui_fee_receiver, true);
 //     // assert(res.position.key == 44444444444, 'wrong_key');
@@ -748,18 +748,18 @@ fn given_normal_conditions_when_get_net_pnl_then_works() {
     let open_interest_key_for_long = keys::open_interest_key(
         market_token_address, market.long_token, is_long
     );
-    data_store.set_u128(open_interest_key_for_long, 100);
+    data_store.set_u256(open_interest_key_for_long, 100);
     // Set open interest for short token.
     let open_interest_key_for_short = keys::open_interest_key(
         market_token_address, market.short_token, is_long
     );
-    data_store.set_u128(open_interest_key_for_short, 150);
+    data_store.set_u256(open_interest_key_for_short, 150);
 
     // Set open interest in tokens for long token.
     let open_interest_in_tokens_key_for_long = keys::open_interest_in_tokens_key(
         market_token_address, market.long_token, is_long
     );
-    data_store.set_u128(open_interest_in_tokens_key_for_long, 200);
+    data_store.set_u256(open_interest_in_tokens_key_for_long, 200);
 
     // Set open interest in tokens for short token.
     let open_interest_in_tokens_key_for_short = keys::open_interest_in_tokens_key(
@@ -771,9 +771,9 @@ fn given_normal_conditions_when_get_net_pnl_then_works() {
     stop_prank(role_store.contract_address);
 
     data_store.set_market(market_token_address, 0, market);
-    let net_pnl: i128 = reader.get_net_pnl(data_store, market, price, maximize);
+    let net_pnl: i256 = reader.get_net_pnl(data_store, market, price, maximize);
 
-    assert(net_pnl == i128_new(9750, false), 'wrong net_pnl');
+    assert(net_pnl == i256_new(9750, false), 'wrong net_pnl');
     teardown(data_store.contract_address);
 }
 
@@ -802,30 +802,30 @@ fn given_normal_conditions_when_get_pnl_then_works() {
     let open_interest_key_for_long = keys::open_interest_key(
         market_token_address, market.long_token, is_long
     );
-    data_store.set_u128(open_interest_key_for_long, 100);
+    data_store.set_u256(open_interest_key_for_long, 100);
     // Set open interest for short token.
     let open_interest_key_for_short = keys::open_interest_key(
         market_token_address, market.short_token, is_long
     );
-    data_store.set_u128(open_interest_key_for_short, 150);
+    data_store.set_u256(open_interest_key_for_short, 150);
 
     // Set open interest in tokens for long token.
     let open_interest_in_tokens_key_for_long = keys::open_interest_in_tokens_key(
         market_token_address, market.long_token, is_long
     );
-    data_store.set_u128(open_interest_in_tokens_key_for_long, 200);
+    data_store.set_u256(open_interest_in_tokens_key_for_long, 200);
 
     // Set open interest in tokens for short token.
     let open_interest_in_tokens_key_for_short = keys::open_interest_in_tokens_key(
         market_token_address, market.short_token, is_long
     );
-    data_store.set_u128(open_interest_in_tokens_key_for_short, 250);
+    data_store.set_u256(open_interest_in_tokens_key_for_short, 250);
 
     // Actual test case.
     let pnl = reader.get_pnl(data_store, market, price, is_long, maximize);
 
     // Perform assertions.
-    assert(pnl == i128_new(22250, false), 'wrong pnl');
+    assert(pnl == i256_new(22250, false), 'wrong pnl');
 
     teardown(data_store.contract_address);
 }
@@ -852,26 +852,26 @@ fn given_normal_conditions_when_get_open_interest_with_pnl_then_works() {
     let open_interest_key_for_long = keys::open_interest_key(
         market_token_address, market.long_token, is_long
     );
-    data_store.set_u128(open_interest_key_for_long, 100);
+    data_store.set_u256(open_interest_key_for_long, 100);
     // Set open interest for short token.
     let open_interest_key_for_short = keys::open_interest_key(
         market_token_address, market.short_token, is_long
     );
-    data_store.set_u128(open_interest_key_for_short, 150);
+    data_store.set_u256(open_interest_key_for_short, 150);
 
     // Set open interest in tokens for long token.
     let open_interest_in_tokens_key_for_long = keys::open_interest_in_tokens_key(
         market_token_address, market.long_token, is_long
     );
-    data_store.set_u128(open_interest_in_tokens_key_for_long, 200);
+    data_store.set_u256(open_interest_in_tokens_key_for_long, 200);
 
     // Set open interest in tokens for short token.
     let open_interest_in_tokens_key_for_short = keys::open_interest_in_tokens_key(
         market_token_address, market.short_token, is_long
     );
-    data_store.set_u128(open_interest_in_tokens_key_for_short, 250);
+    data_store.set_u256(open_interest_in_tokens_key_for_short, 250);
     let res = reader.get_open_interest_with_pnl(data_store, market, price, is_long, maximize);
-    assert(res == i128_new(22500, false), 'incorrect open_interest');
+    assert(res == i256_new(22500, false), 'incorrect open_interest');
     teardown(data_store.contract_address);
 }
 // audit, return value is 0x0
@@ -924,7 +924,7 @@ fn given_normal_conditions_when_get_open_interest_with_pnl_then_works() {
 //     data_store.set_market(market_token_address, 0, market);
 //     data_store.set_position(key_1, position);
 
-//     let res : i128 = reader.get_pnl_to_pool_factor(data_store,market_token_address,prices,is_long,maximize);
+//     let res : i256 = reader.get_pnl_to_pool_factor(data_store,market_token_address,prices,is_long,maximize);
 //     let resfelt : felt252 = res.into();
 //     resfelt.print();
 //     teardown(data_store.contract_address);
@@ -969,7 +969,7 @@ fn given_normal_conditions_when_get_open_interest_with_pnl_then_works() {
 //     stop_prank(role_store.contract_address);
 
 //     data_store.set_market(market_token_address, 0, market);
-//     let amount_in : u128 = 20000;
+//     let amount_in : u256 = 20000;
 //     // reader.get_swap_amount_out(data_store,market,prices,token_,amount_in,ui_fee_receiver);
 //     teardown(data_store.contract_address);
 // }
@@ -1018,7 +1018,7 @@ fn given_normal_conditions_when_get_execution_price_then_works() {
     position2.is_long = true;
     position2.size_in_tokens = 10000;
 
-    let size: i128 = 20000.try_into().unwrap();
+    let size: i256 = 20000.into();
     let is_long = true;
 
     start_prank(role_store.contract_address, caller_address);

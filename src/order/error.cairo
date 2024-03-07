@@ -1,7 +1,7 @@
 mod OrderError {
     use satoru::order::order::OrderType;
     use satoru::price::price::Price;
-    use satoru::utils::i128::i128;
+    use satoru::utils::i256::i256;
 
     const EMPTY_ORDER: felt252 = 'empty_order';
     const INVALID_ORDER_PRICES: felt252 = 'invalid_order_prices';
@@ -36,53 +36,53 @@ mod OrderError {
         panic(data)
     }
 
-    fn INSUFFICIENT_OUTPUT_AMOUNT(output_usd: u128, min_output_amount: u128) {
+    fn INSUFFICIENT_OUTPUT_AMOUNT(output_usd: u256, min_output_amount: u256) {
         let mut data = array!['Insufficient output amount'];
-        data.append(output_usd.into());
-        data.append(min_output_amount.into());
+        data.append(output_usd.try_into().expect('u256 into felt failed'));
+        data.append(min_output_amount.try_into().expect('u256 into felt failed'));
         panic(data);
     }
 
-    fn INVALID_ORDER_PRICE(primary_price: Price, trigger_price: u128, order_type: OrderType) {
+    fn INVALID_ORDER_PRICE(primary_price: Price, trigger_price: u256, order_type: OrderType) {
         let mut data: Array<felt252> = array![];
         data.append('invalid_order_price');
-        data.append(primary_price.min.into());
-        data.append(primary_price.max.into());
-        data.append(trigger_price.into());
+        data.append(primary_price.min.try_into().expect('u256 into felt failed'));
+        data.append(primary_price.max.try_into().expect('u256 into felt failed'));
+        data.append(trigger_price.try_into().expect('u256 into felt failed'));
         data.append(order_type.into());
         panic(data);
     }
 
-    fn ORDER_NOT_FULFILLABLE_AT_ACCEPTABLE_PRICE(execution_price: u128, acceptable_price: u128) {
+    fn ORDER_NOT_FULFILLABLE_AT_ACCEPTABLE_PRICE(execution_price: u256, acceptable_price: u256) {
         let mut data: Array<felt252> = array![];
         data.append('order_unfulfillable_at_price');
-        data.append(execution_price.into());
-        data.append(acceptable_price.into());
+        data.append(execution_price.try_into().expect('u256 into felt failed'));
+        data.append(acceptable_price.try_into().expect('u256 into felt failed'));
         panic(data);
     }
 
-    fn PRICE_IMPACT_LARGER_THAN_ORDER_SIZE(price_impact_usd: i128, size_delta_usd: u128) {
+    fn PRICE_IMPACT_LARGER_THAN_ORDER_SIZE(price_impact_usd: i256, size_delta_usd: u256) {
         let mut data: Array<felt252> = array![];
         data.append('price_impact_too_large');
-        data.append(price_impact_usd.into());
-        data.append(size_delta_usd.into());
+        data.append(price_impact_usd.try_into().expect('u256 into felt failed'));
+        data.append(size_delta_usd.try_into().expect('u256 into felt failed'));
         panic(data);
     }
 
     fn NEGATIVE_EXECUTION_PRICE(
-        execution_price: i128,
-        price: u128,
-        position_size_in_usd: u128,
-        adjusted_price_impact_usd: i128,
-        size_delta_usd: u128
+        execution_price: i256,
+        price: u256,
+        position_size_in_usd: u256,
+        adjusted_price_impact_usd: i256,
+        size_delta_usd: u256
     ) {
         let mut data: Array<felt252> = array![];
         data.append('negative_execution_price');
         data.append(execution_price.into());
-        data.append(price.into());
-        data.append(position_size_in_usd.into());
+        data.append(price.try_into().expect('u256 into felt failed'));
+        data.append(position_size_in_usd.try_into().expect('u256 into felt failed'));
         data.append(adjusted_price_impact_usd.into());
-        data.append(size_delta_usd.into());
+        data.append(size_delta_usd.try_into().expect('u256 into felt failed'));
         panic(data);
     }
 
@@ -93,10 +93,10 @@ mod OrderError {
         panic(data);
     }
 
-    fn INSUFFICIENT_WNT_AMOUNT_FOR_EXECUTION_FEE(first_amount: u128, secont_amount: u128) {
+    fn INSUFFICIENT_WNT_AMOUNT_FOR_EXECUTION_FEE(first_amount: u256, secont_amount: u256) {
         let mut data = array!['Insufficient wnt amount for fee'];
-        data.append(first_amount.into());
-        data.append(secont_amount.into());
+        data.append(first_amount.try_into().expect('u256 into felt failed'));
+        data.append(secont_amount.try_into().expect('u256 into felt failed'));
         panic(data);
     }
 }

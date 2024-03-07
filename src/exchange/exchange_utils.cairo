@@ -16,7 +16,7 @@ use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 fn validate_request_cancellation(
     data_store: IDataStoreDispatcher, created_at_block: u64, request_type: felt252
 ) {
-    let request_expiration_age = data_store.get_u128(keys::request_expiration_block_age());
+    let request_expiration_age = data_store.get_u256(keys::request_expiration_block_age());
     let request_age = get_block_number() - created_at_block;
 
     if request_age.into() < request_expiration_age {

@@ -27,7 +27,7 @@ trait IReferralStorage<TContractState> {
     /// Set the trader discount share for an affiliate.
     /// # Arguments
     /// * `account` - The address of the affiliate.
-    fn set_referrer_discount_share(ref self: TContractState, discount_share: u128);
+    fn set_referrer_discount_share(ref self: TContractState, discount_share: u256);
 
     /// Set the referral code for a trader.
     /// # Arguments
@@ -63,14 +63,14 @@ trait IReferralStorage<TContractState> {
     /// * `account` - The address of the affiliate.
     /// # Returns
     /// The trader discount share.
-    fn referrer_discount_shares(self: @TContractState, account: ContractAddress) -> u128;
+    fn referrer_discount_shares(self: @TContractState, account: ContractAddress) -> u256;
 
     /// Get the tier level of an affiliate.
     /// # Arguments
     /// * `account` - The address of the affiliate.
     /// # Returns
     /// The tier level of the affiliate.
-    fn referrer_tiers(self: @TContractState, account: ContractAddress) -> u128;
+    fn referrer_tiers(self: @TContractState, account: ContractAddress) -> u256;
 
     /// Get the referral info for a trader.
     /// # Arguments
@@ -92,13 +92,13 @@ trait IReferralStorage<TContractState> {
     /// * `tier_id` - The tier level.
     /// * `total_rebate` - The total rebate for the tier (affiliate reward + trader discount).
     /// * `discount_share` - The share of the total_rebate for traders.
-    fn set_tier(ref self: TContractState, tier_id: u128, total_rebate: u128, discount_share: u128);
+    fn set_tier(ref self: TContractState, tier_id: u256, total_rebate: u256, discount_share: u256);
 
     /// Set the tier for an affiliate.
     /// # Arguments
     /// * `referrer` - The referrer.
     /// * `tier_id` - The tier level.
-    fn set_referrer_tier(ref self: TContractState, referrer: ContractAddress, tier_id: u128);
+    fn set_referrer_tier(ref self: TContractState, referrer: ContractAddress, tier_id: u256);
 
     /// Set the owner for a referral code.
     /// # Arguments
@@ -111,7 +111,7 @@ trait IReferralStorage<TContractState> {
     /// * `tier_level` - The tier level.
     /// # Returns
     /// (total_rebate, discount_share).
-    fn tiers(self: @TContractState, tier_level: u128) -> ReferralTier;
+    fn tiers(self: @TContractState, tier_level: u256) -> ReferralTier;
 }
 
 #[starknet::contract]
@@ -136,9 +136,9 @@ mod ReferralStorage {
     // *************************************************************************
     #[storage]
     struct Storage {
-        referrer_discount_shares: LegacyMap<ContractAddress, u128>,
-        referrer_tiers: LegacyMap<ContractAddress, u128>,
-        tiers: LegacyMap<u128, ReferralTier>,
+        referrer_discount_shares: LegacyMap<ContractAddress, u256>,
+        referrer_tiers: LegacyMap<ContractAddress, u256>,
+        tiers: LegacyMap<u256, ReferralTier>,
         is_handler: LegacyMap<ContractAddress, bool>,
         code_owners: LegacyMap<felt252, ContractAddress>,
         trader_referral_codes: LegacyMap<ContractAddress, felt252>,
@@ -150,7 +150,7 @@ mod ReferralStorage {
         self.initialize(event_emitter_address);
     }
 
-    const BASIS_POINTS: u128 = 10000;
+    const BASIS_POINTS: u256 = 10000;
 
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
@@ -170,15 +170,15 @@ mod ReferralStorage {
             self.trader_referral_codes.read(account)
         }
 
-        fn referrer_discount_shares(self: @ContractState, account: ContractAddress) -> u128 {
+        fn referrer_discount_shares(self: @ContractState, account: ContractAddress) -> u256 {
             self.referrer_discount_shares.read(account)
         }
 
-        fn referrer_tiers(self: @ContractState, account: ContractAddress) -> u128 {
+        fn referrer_tiers(self: @ContractState, account: ContractAddress) -> u256 {
             self.referrer_tiers.read(account)
         }
 
-        fn tiers(self: @ContractState, tier_level: u128) -> ReferralTier {
+        fn tiers(self: @ContractState, tier_level: u256) -> ReferralTier {
             self.tiers.read(tier_level)
         }
 
@@ -194,7 +194,7 @@ mod ReferralStorage {
         }
 
         fn set_tier(
-            ref self: ContractState, tier_id: u128, total_rebate: u128, discount_share: u128
+            ref self: ContractState, tier_id: u256, total_rebate: u256, discount_share: u256
         ) {
             let gov_state = Governable::unsafe_new_contract_state();
             gov_state.only_gov();
@@ -208,14 +208,14 @@ mod ReferralStorage {
             self.event_emitter.read().emit_set_tier(tier_id, total_rebate, discount_share);
         }
 
-        fn set_referrer_tier(ref self: ContractState, referrer: ContractAddress, tier_id: u128) {
+        fn set_referrer_tier(ref self: ContractState, referrer: ContractAddress, tier_id: u256) {
             let gov_state = Governable::unsafe_new_contract_state();
             gov_state.only_gov();
             self.referrer_tiers.write(referrer, tier_id);
             self.event_emitter.read().emit_set_referrer_tier(referrer, tier_id);
         }
 
-        fn set_referrer_discount_share(ref self: ContractState, discount_share: u128) {
+        fn set_referrer_discount_share(ref self: ContractState, discount_share: u256) {
             assert(discount_share <= BASIS_POINTS, MockError::INVALID_DISCOUNT_SHARE);
 
             self.referrer_discount_shares.write(get_caller_address(), discount_share);

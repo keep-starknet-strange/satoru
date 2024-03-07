@@ -18,19 +18,19 @@ struct Position {
     /// The collateral token of the position.
     collateral_token: ContractAddress,
     /// The size of the position in USD.
-    size_in_usd: u128,
+    size_in_usd: u256,
     /// The size of the position in tokens.
-    size_in_tokens: u128,
+    size_in_tokens: u256,
     /// The amount of collateralToken for collateral.
-    collateral_amount: u128,
+    collateral_amount: u256,
     /// The borrowing factor of the position.
-    borrowing_factor: u128,
+    borrowing_factor: u256,
     /// The position funding fee per size..
-    funding_fee_amount_per_size: u128,
+    funding_fee_amount_per_size: u256,
     /// the position's claimable funding amount per size for the market.long_token
-    long_token_claimable_funding_amount_per_size: u128,
+    long_token_claimable_funding_amount_per_size: u256,
     /// the position's claimable funding amount per size for the market.short_token
-    short_token_claimable_funding_amount_per_size: u128,
+    short_token_claimable_funding_amount_per_size: u256,
     /// The block at which the position was last increased.
     increased_at_block: u64,
     /// The block at which the position was last decreased.

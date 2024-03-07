@@ -24,7 +24,7 @@ use satoru::event::event_emitter::EventEmitter::{
 };
 
 
-use satoru::utils::i128::{i128, i128_new};
+use satoru::utils::i256::{i256, i256_new};
 
 #[test]
 fn given_normal_conditions_when_emit_position_increase_then_works() {
@@ -208,7 +208,7 @@ fn given_normal_conditions_when_emit_insolvent_close_then_works() {
     // Create a dummy data.
     let order_key = 'order_key';
     let position_collateral_amount = 100;
-    let base_pnl_usd = i128_new(50, false);
+    let base_pnl_usd = i256_new(50, false);
     let remaining_cost_usd = 75;
 
     // Emit the event.
@@ -534,9 +534,9 @@ fn create_dummy_position_increase_params(
         execution_price: 100,
         size_delta_usd: 3,
         size_delta_in_tokens: 1,
-        collateral_delta_amount: i128_new(2, false),
-        price_impact_usd: i128_new(1, false),
-        price_impact_amount: i128_new(1, false),
+        collateral_delta_amount: i256_new(2, false),
+        price_impact_usd: i256_new(1, false),
+        price_impact_amount: i256_new(1, false),
         order_type: OrderType::MarketSwap(())
     }
 }
@@ -572,10 +572,10 @@ fn create_dummy_dec_pos_collateral_values() -> DecreasePositionCollateralValues 
     DecreasePositionCollateralValues {
         execution_price: 10,
         remaining_collateral_amount: 10,
-        base_pnl_usd: i128_new(10, false),
-        uncapped_base_pnl_usd: i128_new(10, false),
+        base_pnl_usd: i256_new(10, false),
+        uncapped_base_pnl_usd: i256_new(10, false),
         size_delta_in_tokens: 10,
-        price_impact_usd: i128_new(10, false),
+        price_impact_usd: i256_new(10, false),
         price_impact_diff_usd: 10,
         output: dummy_values_output
     }

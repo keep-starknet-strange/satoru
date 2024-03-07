@@ -15,7 +15,7 @@ use satoru::tests_lib::{setup, teardown, setup_event_emitter};
 #[test]
 fn given_normal_conditions_when_validate_callback_gas_limit_then_works() {
     let (_, _, data_store) = setup();
-    data_store.set_u128(keys::max_callback_gas_limit(), 100);
+    data_store.set_u256(keys::max_callback_gas_limit(), 100);
 
     validate_callback_gas_limit(data_store, 100);
 
@@ -26,7 +26,7 @@ fn given_normal_conditions_when_validate_callback_gas_limit_then_works() {
 #[should_panic(expected: ('max_callback_gas_limit_exceeded', 101, 100))]
 fn given_callback_gas_limit_exceeded_when_validate_callback_gas_limit_then_fails() {
     let (_, _, data_store) = setup();
-    data_store.set_u128(keys::max_callback_gas_limit(), 100);
+    data_store.set_u256(keys::max_callback_gas_limit(), 100);
 
     validate_callback_gas_limit(data_store, 101);
 

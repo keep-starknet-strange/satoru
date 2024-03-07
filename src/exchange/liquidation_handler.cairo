@@ -156,7 +156,7 @@ mod LiquidationHandler {
                 @oracle_params
             );
 
-            let starting_gas: u128 = starknet_utils::sn_gasleft(array![100]);
+            let starting_gas: u256 = starknet_utils::sn_gasleft(array![100]);
 
             let key: felt252 = create_liquidation_order(
                 state_base.data_store.read(),

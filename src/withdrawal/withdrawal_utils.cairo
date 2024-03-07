@@ -8,10 +8,7 @@ use starknet::{ContractAddress, get_block_timestamp, contract_address_const};
 use satoru::bank::{bank::{IBankDispatcher, IBankDispatcherTrait},};
 use satoru::data::{data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}, keys};
 use satoru::callback::callback_utils;
-use satoru::event::{
-    event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait},
-    event_utils::EventLogData
-};
+use satoru::event::{event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait}};
 use satoru::fee::fee_utils;
 use satoru::gas::gas_utils;
 use satoru::market::{
@@ -24,7 +21,7 @@ use satoru::pricing::{swap_pricing_utils, swap_pricing_utils::SwapFees};
 use satoru::swap::{swap_utils, swap_utils::SwapParams};
 use satoru::utils::{
     calc, account_utils, error_utils, precision, starknet_utils, span32::Span32,
-    store_arrays::{StoreContractAddressArray, StoreU128Array}
+    store_arrays::{StoreContractAddressArray, StoreU256Array}
 };
 use satoru::withdrawal::{
     error::WithdrawalError, withdrawal::Withdrawal,
@@ -47,13 +44,13 @@ struct CreateWithdrawalParams {
     /// The short token swap path
     short_token_swap_path: Span32<ContractAddress>,
     /// The minimum amount of long tokens that must be withdrawn.
-    min_long_token_amount: u128,
+    min_long_token_amount: u256,
     /// The minimum amount of short tokens that must be withdrawn.
-    min_short_token_amount: u128,
+    min_short_token_amount: u256,
     /// The execution fee for the withdrawal.
-    execution_fee: u128,
+    execution_fee: u256,
     /// The gas limit for calling the callback contract.
-    callback_gas_limit: u128,
+    callback_gas_limit: u256,
 }
 
 #[derive(Drop, Serde)]
@@ -75,25 +72,25 @@ struct ExecuteWithdrawalParams {
     /// The keeper that is executing the withdrawal.
     keeper: ContractAddress,
     /// The starting gas limit for the withdrawal execution.
-    starting_gas: u128,
+    starting_gas: u256,
 }
 
 #[derive(Default, Drop, starknet::Store, Serde)]
 struct ExecuteWithdrawalCache {
-    long_token_output_amount: u128,
-    short_token_output_amount: u128,
+    long_token_output_amount: u256,
+    short_token_output_amount: u256,
     long_token_fees: SwapFees,
     short_token_fees: SwapFees,
-    long_token_pool_amount_delta: u128,
-    short_token_pool_amount_delta: u128,
+    long_token_pool_amount_delta: u256,
+    short_token_pool_amount_delta: u256,
 }
 
 #[derive(Drop, starknet::Store, Serde)]
 struct ExecuteWithdrawalResult {
     output_token: ContractAddress,
-    output_amount: u128,
+    output_amount: u256,
     secondary_output_token: ContractAddress,
-    secondary_output_amount: u128,
+    secondary_output_amount: u256,
 }
 
 #[derive(Drop, Serde)]
@@ -101,7 +98,7 @@ struct SwapCache {
     swap_path_markets: Array<Market>,
     swap_params: SwapParams,
     output_token: ContractAddress,
-    output_amount: u128,
+    output_amount: u256,
 }
 
 /// Creates a withdrawal in the withdrawal store.
@@ -200,7 +197,7 @@ fn execute_withdrawal(
     mut params: ExecuteWithdrawalParams
 ) { // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
     // TODO: change the following line once once equivalent function is available in starknet.
-    params.starting_gas -= (starknet_utils::sn_gasleft(array![]) / 63);
+    params.starting_gas -= (starknet_utils::sn_gasleft(array![]) / 63).into();
 
     let withdrawal = params.data_store.get_withdrawal(params.key);
 
@@ -254,7 +251,7 @@ fn cancel_withdrawal(
     withdrawal_vault: IWithdrawalVaultDispatcher,
     key: felt252,
     keeper: ContractAddress,
-    mut starting_gas: u128,
+    mut starting_gas: u256,
     reason: felt252,
     reason_bytes: Array<felt252>,
 ) {
@@ -482,12 +479,12 @@ fn swap(
     params: @ExecuteWithdrawalParams,
     market: Market,
     token_in: ContractAddress,
-    amount_in: u128,
+    amount_in: u256,
     swap_path: Span32<ContractAddress>,
-    min_output_amount: u128,
+    min_output_amount: u256,
     receiver: ContractAddress,
     ui_fee_receiver: ContractAddress,
-) -> (ContractAddress, u128) {
+) -> (ContractAddress, u256) {
     let mut cache = SwapCache {
         swap_path_markets: Default::default(),
         swap_params: Default::default(),
@@ -534,8 +531,8 @@ fn get_output_amounts(
     params: @ExecuteWithdrawalParams,
     market: Market,
     prices: @MarketPrices,
-    market_token_amount: u128
-) -> (u128, u128) {
+    market_token_amount: u256
+) -> (u256, u256) {
     // the max pnl factor for withdrawals should be the lower of the max pnl factor values
     // which means that pnl would be capped to a smaller amount and the pool
     // value would be higher even if there is a large pnl

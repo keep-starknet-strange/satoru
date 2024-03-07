@@ -10,8 +10,8 @@ use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 /// * `data_store` - The data store to use.
 /// # Returns
 /// Return the current nonce value.
-fn get_current_nonce(data_store: IDataStoreDispatcher) -> u128 {
-    data_store.get_u128(keys::nonce())
+fn get_current_nonce(data_store: IDataStoreDispatcher) -> u256 {
+    data_store.get_u256(keys::nonce())
 }
 
 /// Increment the current nonce value.
@@ -19,8 +19,8 @@ fn get_current_nonce(data_store: IDataStoreDispatcher) -> u128 {
 /// * `data_store` - The data store to use.
 /// # Returns
 /// Return the new nonce value.
-fn increment_nonce(data_store: IDataStoreDispatcher) -> u128 {
-    data_store.increment_u128(keys::nonce(), 1)
+fn increment_nonce(data_store: IDataStoreDispatcher) -> u256 {
+    data_store.increment_u256(keys::nonce(), 1)
 }
 
 /// Creates a felt252 hash using the next nonce. The nonce can also be used directly as a key,
@@ -34,7 +34,7 @@ fn get_next_key(data_store: IDataStoreDispatcher) -> felt252 {
     compute_key(data_store.contract_address, nonce)
 }
 
-fn compute_key(data_store_address: ContractAddress, nonce: u128) -> felt252 {
-    let data = array![data_store_address.into(), nonce.into()];
+fn compute_key(data_store_address: ContractAddress, nonce: u256) -> felt252 {
+    let data = array![data_store_address.into(), nonce.try_into().expect('u256 into felt failed')];
     poseidon_hash_span(data.span())
 }
