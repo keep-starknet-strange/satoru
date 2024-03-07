@@ -90,7 +90,7 @@ mod TestInteger256 {
         #[test]
         #[should_panic]
         fn test_overflow() {
-            let i256_max = BoundedInt::max() / 2;
+            let i256_max = BoundedInt::max();
             let a = IntegerTrait::<i256>::new(i256_max - 1, false);
             let b = IntegerTrait::<i256>::new(1, false);
             let result = a + b;
@@ -196,7 +196,7 @@ mod TestInteger256 {
         #[test]
         #[should_panic]
         fn test_overflow() {
-            let i256_max = BoundedInt::max() / 2;
+            let i256_max = BoundedInt::max();
             let a = IntegerTrait::<i256>::new(i256_max, true);
             let b = IntegerTrait::<i256>::new(1, false);
             let result = a - b;
@@ -262,7 +262,7 @@ mod TestInteger256 {
         #[test]
         #[should_panic]
         fn test_overflow() {
-            let i256_max = BoundedInt::max() / 2;
+            let i256_max = BoundedInt::max();
             let a = IntegerTrait::<i256>::new(i256_max - 1, false);
             let b = IntegerTrait::<i256>::new(2, false);
             let result = a * b;
@@ -280,8 +280,8 @@ mod TestInteger256 {
             let a = IntegerTrait::<i256>::new(13, false);
             let b = IntegerTrait::<i256>::new(5, false);
             let (q, r) = a.div_rem(b);
-            assert(q.mag == 2 && r.mag == 3, '13 // 5 = 2 r 3');
-            assert((q.sign == false) & (r.sign == false), '13 // 5 -> positive');
+            assert(q.mag == 2 && r.mag == 3, '13 // 5 -> q 2 r 3');
+            assert((q.sign == false) & (r.sign == false), '13 // 5 -> positive, positive');
         }
 
         // Test division and remainder of negative integers
@@ -290,8 +290,8 @@ mod TestInteger256 {
             let a = IntegerTrait::<i256>::new(13, true);
             let b = IntegerTrait::<i256>::new(5, true);
             let (q, r) = a.div_rem(b);
-            assert(q.mag == 2 && r.mag == 3, '-13 // -5 = 2 r -3');
-            assert(q.sign == false && r.sign == true, '-13 // -5 -> positive');
+            assert(q.mag == 2 && r.mag == 3, '-13 // -5 -> q 2 r -3');
+            assert(q.sign == false && r.sign == true, '-13 // -5 -> positive, negative');
         }
 
         // Test division and remainder of positive and negative integers
@@ -300,8 +300,8 @@ mod TestInteger256 {
             let a = IntegerTrait::<i256>::new(13, false);
             let b = IntegerTrait::<i256>::new(5, true);
             let (q, r) = a.div_rem(b);
-            assert(q.mag == 3 && r.mag == 2, '13 // -5 = -3 r -2');
-            assert(q.sign == true && r.sign == true, '13 // -5 -> negative');
+            assert(q.mag == 2 && r.mag == 3, '13 // -5 -> q -2 r 3');
+            assert(q.sign == true && r.sign == false, '13 // -5 -> negative, positive');
         }
 
         // Test division and remainder with a negative dividend and positive divisor
@@ -310,8 +310,8 @@ mod TestInteger256 {
             let a = IntegerTrait::<i256>::new(13, true);
             let b = IntegerTrait::<i256>::new(5, false);
             let (q, r) = a.div_rem(b);
-            assert(q.mag == 3 && r.mag == 2, '-13 // 5 = -3 r 2');
-            assert(q.sign == true && r.sign == false, '-13 // 5 -> negative');
+            assert(q.mag == 2 && r.mag == 3, '-13 // 5 -> q -2 r -3');
+            assert(q.sign == true && r.sign == true, '-13 // 5 -> negative, negative');
         }
 
         // Test division with a = zero
@@ -320,8 +320,8 @@ mod TestInteger256 {
             let a = IntegerTrait::<i256>::new(0, false);
             let b = IntegerTrait::<i256>::new(10, false);
             let (q, r) = a.div_rem(b);
-            assert(q.mag == 0 && r.mag == 0, '0 // 10 = 0 r 0');
-            assert(q.sign == false && r.sign == false, '0 // 10 -> positive');
+            assert(q.mag == 0 && r.mag == 0, '0 // 10 -> q 0 r 0');
+            assert(q.sign == false && r.sign == false, '0 // 10 -> positive, positive');
         }
 
         // Test division by zero
@@ -340,7 +340,7 @@ mod TestInteger256 {
             let a = IntegerTrait::<i256>::new(65, true);
             let b = IntegerTrait::<i256>::new(256, false);
             let (q, r) = a.div_rem(b);
-            assert(q.mag == 0 && r.mag == 65, '-65 // 256 = 0 r 65');
+            assert(q.mag == 0 && r.mag == 65, '-65 // 256 -> q 0 r -65');
             assert(q.sign == false && r.sign == true, '-65 // 256 -> positive (bc 0)');
 
             // -55 / 256 = 0
@@ -358,45 +358,42 @@ mod TestInteger256 {
             let a = IntegerTrait::<i256>::new(10, true);
             let b = IntegerTrait::<i256>::new(3, false);
             let (q, r) = a.div_rem(b);
-            assert(q.mag == 3 && r.mag == 1, '-10 / 3 = (-3, -1)'); // should be (-3, 1)?
+            assert(q.mag == 3 && r.mag == 1, '-10 / 3 = (-3, -1)');
             assert(q.sign == true && r.sign == true, '(neg, neg)');
 
             // -6 / 10 = -1
             let a = IntegerTrait::<i256>::new(6, true);
             let b = IntegerTrait::<i256>::new(10, false);
             let (q, r) = a.div_rem(b);
-            assert(q.mag == 1 && r.mag == 4, '-6 / 10 = (-1, 4)'); // should be (0, -4)?
-            // Following the previous behavior, the rest should be negative!
-            // TODO: Change r.sign to true
-            assert(q.sign == true && r.sign == false, '(neg, neg)'); // assert fails
+
+            assert(q.mag == 0 && r.mag == 6, '-6 / 10 = (0, -6)');
+            assert(q.sign == false && r.sign == true, '(pos, neg)');
 
             // -5 / 10 = 0
             let a = IntegerTrait::<i256>::new(5, true);
             let b = IntegerTrait::<i256>::new(10, false);
             let (q, r) = a.div_rem(b);
-            assert(q.mag == 0 && r.mag == 5, '-5 // 10 = 0 r -4');
+            assert(q.mag == 0 && r.mag == 5, '-5 // 10 -> q 0 r -5');
             assert(q.sign == false && r.sign == true, '-5 // 10 -> (q: +, r: -)');
 
             // 5 / 10 = 0
             let a = IntegerTrait::<i256>::new(5, false);
             let b = IntegerTrait::<i256>::new(10, false);
             let (q, r) = a.div_rem(b);
-            assert(q.mag == 0 && r.mag == 5, '5 // 10 = 0 r 5');
+            assert(q.mag == 0 && r.mag == 5, '5 // 10 -> q 0 r 5');
             assert(q.sign == false && r.sign == false, '5 // 10 -> (q: +, r: +)');
 
             // 5 / -10 = 0
             let a = IntegerTrait::<i256>::new(5, false);
             let b = IntegerTrait::<i256>::new(10, true);
             let (q, r) = a.div_rem(b);
-            assert(q.mag == 0 && r.mag == 5, '5 // -10 = 0 r -5');
-            // TODO: Change r.sign to true
+            assert(q.mag == 0 && r.mag == 5, '5 // -10 -> q 0 r -5');
             assert(q.sign == false && r.sign == false, '5 // -10 -> (q: +, r: -)');
 
             // -4 / 10 = 0
             let a = IntegerTrait::<i256>::new(4, true);
             let b = IntegerTrait::<i256>::new(10, false);
             let (q, r) = a.div_rem(b);
-            // TODO: verify r.mag 4
             assert(q.mag == 0 && r.mag == 4, '-4 / 10 = 0 r -4');
             assert(q.sign == false && r.sign == true, '-4 // 10 -> (q: +, r: -)');
 
@@ -404,7 +401,6 @@ mod TestInteger256 {
             let a = IntegerTrait::<i256>::new(3, true);
             let b = IntegerTrait::<i256>::new(10, false);
             let (q, r) = a.div_rem(b);
-            // TODO: verify r.mag 3
             assert(q.mag == 0 && r.mag == 3, '-3 / 10 = 0 r -3');
             assert(q.sign == false && r.sign == true, '-3 // 10 -> (q: +, r: -)');
 
@@ -412,7 +408,6 @@ mod TestInteger256 {
             let a = IntegerTrait::<i256>::new(2, true);
             let b = IntegerTrait::<i256>::new(10, false);
             let (q, r) = a.div_rem(b);
-            // TODO: verify r.mag 2
             assert(q.mag == 0 && r.mag == 2, '-2 / 10 = 0 r -2');
             assert(q.sign == false && r.sign == true, '-2 // 10 -> (q: +, r: -)');
 
@@ -420,7 +415,6 @@ mod TestInteger256 {
             let a = IntegerTrait::<i256>::new(1, true);
             let b = IntegerTrait::<i256>::new(10, false);
             let (q, r) = a.div_rem(b);
-            // TODO: verify r.mag 1
             assert(q.mag == 0 && r.mag == 1, '-1 / 10 = 0 r -1');
             assert(q.sign == false && r.sign == true, '-1 // 10 -> (q: +, r: -)');
         }
