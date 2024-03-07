@@ -149,14 +149,15 @@ mod LiquidationHandler {
             let mut role_state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
             IRoleModule::only_liquidation_keeper(@role_state);
 
-            with_oracle_prices_before(
-                state_base.oracle.read(),
-                state_base.data_store.read(),
-                state_base.event_emitter.read(),
-                @oracle_params
-            );
+            // with_oracle_prices_before(
+            //     state_base.oracle.read(),
+            //     state_base.data_store.read(),
+            //     state_base.event_emitter.read(),
+            //     @oracle_params
+            // );
 
-            let starting_gas: u128 = starknet_utils::sn_gasleft(array![100]);
+            // let starting_gas: u128 = starknet_utils::sn_gasleft(array![100]); TODO GAS
+            let starting_gas: u128 = 0;
 
             let key: felt252 = create_liquidation_order(
                 state_base.data_store.read(),
@@ -181,7 +182,7 @@ mod LiquidationHandler {
                 execute_order_feature_disabled_key(get_contract_address(), params.order.order_type)
             );
             order_utils::execute_order(params);
-            with_oracle_prices_after(state_base.oracle.read());
+            // with_oracle_prices_after(state_base.oracle.read());
 
             global_reentrancy_guard::non_reentrant_after(state_base.data_store.read());
         }
