@@ -410,9 +410,9 @@ fn i256_check_sign_zero(x: i256) {
 /// Cf: IntegerTrait::new docstring
 fn i256_new(mag: u256, sign: bool) -> i256 {
     if sign == true {
-        assert(mag <= BoundedInt::<u256>::max() / 2, 'i256 Overflow');
+        assert(mag <= BoundedInt::<u256>::max(), 'i256 Overflow');
     } else {
-        assert(mag <= (BoundedInt::<u256>::max() / 2) - 1, 'i256 Overflow');
+        assert(mag <= (BoundedInt::<u256>::max() - 1), 'i256 Overflow');
     }
     i256 { mag, sign }
 }
@@ -462,13 +462,19 @@ fn i256_sub(a: i256, b: i256) -> i256 {
     i256_check_sign_zero(a);
     i256_check_sign_zero(b);
 
-    if (b.mag == 0_u256) {
-        return a;
+    if a.sign == b.sign {
+        if a.mag > b.mag {
+            return ensure_non_negative_zero(a.mag - b.mag, a.sign);
+        } else if a.mag < b.mag {
+            return ensure_non_negative_zero(b.mag - a.mag, !a.sign);
+        } else {
+            return ensure_non_negative_zero(0, false);
+        }
+    } else if a.sign {
+        return ensure_non_negative_zero(a.mag + b.mag, true);
+    } else {
+        return ensure_non_negative_zero(a.mag + b.mag, false);
     }
-
-    // The subtraction of `a` to `b` is achieved by negating `b` sign and adding it to `a`.
-    let neg_b = ensure_non_negative_zero(b.mag, !b.sign);
-    return a + neg_b;
 }
 
 // Multiplies two i256 integers.
@@ -537,12 +543,7 @@ fn i256_div(a: i256, b: i256) -> i256 {
         return IntegerTrait::new(quotient, false);
     }
 
-    // Check the last digit to determine rounding direction.
-    if (last_digit <= 5_u256) {
-        return ensure_non_negative_zero(quotient / 10_u256, sign);
-    } else {
-        return ensure_non_negative_zero((quotient / 10_u256) + 1_u256, sign);
-    }
+    return ensure_non_negative_zero(quotient / 10_u256, sign);
 }
 
 // Calculates the remainder of the division of a first i256 by a second i256.
@@ -556,7 +557,7 @@ fn i256_rem(a: i256, b: i256) -> i256 {
     // Check that the divisor is not zero.
     assert(b.mag != 0_u256, 'b can not be 0');
 
-    return a - (b * (a / b));
+    return IntegerTrait::new((a - (b * (a / b))).mag, a.sign);
 }
 
 /// Cf: IntegerTrait::div_rem docstring
