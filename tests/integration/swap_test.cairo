@@ -345,32 +345,32 @@ fn test_deposit_market_integration() {
     'usdc after all the flow'.print();
     balance_USDC_after.print();
 
-    // assert(balance_ETH_after == 999999, 'wrong balance ETH after swap');
-    // assert(balance_USDC_after == 995000, 'wrong balance USDC after swap');
+    assert(balance_ETH_after == 999999, 'wrong balance ETH after swap');
+    assert(balance_USDC_after == 1005000, 'wrong balance USDC after swap');
 
-    //  let first_swap_pool_value_info = market_utils::get_pool_value_info(
-    //     data_store,
-    //     market,
-    //     Price {
-    //         min: 5000,
-    //         max: 5000,
-    //     }
-    //     ,
-    //     Price {
-    //         min: 5000,
-    //         max: 5000,
-    //     },
-    //     Price {
-    //         min: 1,
-    //         max: 1,
-    //     },
-    //     keys::max_pnl_factor_for_deposits(),
-    //     true,
-    // );
+     let first_swap_pool_value_info = market_utils::get_pool_value_info(
+        data_store,
+        market,
+        Price {
+            min: 5000,
+            max: 5000,
+        }
+        ,
+        Price {
+            min: 5000,
+            max: 5000,
+        },
+        Price {
+            min: 1,
+            max: 1,
+        },
+        keys::max_pnl_factor_for_deposits(),
+        true,
+    );
 
-    // first_swap_pool_value_info.pool_value.mag.print();
-    // first_swap_pool_value_info.long_token_amount.print();
-    // first_swap_pool_value_info.short_token_amount.print();
+    first_swap_pool_value_info.pool_value.mag.print();
+    first_swap_pool_value_info.long_token_amount.print();
+    first_swap_pool_value_info.short_token_amount.print();
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
