@@ -144,10 +144,7 @@ fn swap(params: @SwapParams) -> (ContractAddress, u128) {
 
     //TODO
     let first_path: Market = *params.swap_path_markets[0];
-    if (params
-        .bank
-        .contract_address != params
-        .receiver) { //check if the address should be the same
+    if (params.bank.contract_address != params.receiver) { //check if the address should be the same
         (*params.bank).transfer_out(*params.token_in, *params.receiver, *params.amount_in);
     }
 
