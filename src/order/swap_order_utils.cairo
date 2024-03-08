@@ -21,7 +21,7 @@ use satoru::oracle::error::OracleError;
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 
 fn process_order(params: ExecuteOrderParams) -> LogData {
-    'ICIIIII'.print();
+    '6. Process Order'.print();
     if (params.order.market.is_non_zero()) {
         panic(array![OrderError::UNEXPECTED_MARKET]);
     }
@@ -31,11 +31,19 @@ fn process_order(params: ExecuteOrderParams) -> LogData {
     //     params.order.order_type,
     //     params.order.updated_at_block
     // );
-    let balance_ETH_after = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
+    let balance_ETH_start = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(contract_address_const::<'caller'>());
-    'SWAPP BEFOOREE'.print();
-    balance_ETH_after.print();
 
+    let balance_usdc_start = IERC20Dispatcher {
+        contract_address: contract_address_const::<'USDC'>()
+    }
+        .balance_of(contract_address_const::<'caller'>());
+
+    '6. eth start process order'.print();
+    balance_ETH_start.print();
+
+    '6. usdc start process order'.print();
+    balance_usdc_start.print();
 
     let (output_token, output_amount) = swap_utils::swap(
         @swap_utils::SwapParams {
@@ -55,14 +63,23 @@ fn process_order(params: ExecuteOrderParams) -> LogData {
         }
     );
 
-
-    'ICIIIII222'.print();
-
-
     let mut log_data: LogData = Default::default();
 
     log_data.address_dict.insert_single('output_token', output_token);
     log_data.uint_dict.insert_single('output_amount', output_amount);
+
+    let balance_ETH_end = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
+        .balance_of(contract_address_const::<'caller'>());
+
+    let balance_usdc_end = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
+        .balance_of(contract_address_const::<'caller'>());
+
+    '6. eth end process order'.print();
+    balance_ETH_end.print();
+
+    '6. usdc end process order'.print();
+    balance_usdc_end.print();
+    '------------------------'.print();
 
     log_data
 }
