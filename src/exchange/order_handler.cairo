@@ -104,8 +104,6 @@ mod OrderHandler {
     use core::option::OptionTrait;
     use core::starknet::SyscallResultTrait;
     use core::traits::Into;
-    use starknet::ContractAddress;
-    use starknet::{get_caller_address, get_contract_address};
     use array::ArrayTrait;
     use debug::PrintTrait;
 
@@ -147,6 +145,10 @@ mod OrderHandler {
     use satoru::chain::chain::Chain;
     use satoru::utils::global_reentrancy_guard;
     use satoru::utils::error_utils;
+    use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
+    use starknet::{
+        get_contract_address, ContractAddress, contract_address_const, get_caller_address
+    };
 
     // *************************************************************************
     //                              STORAGE
@@ -200,13 +202,27 @@ mod OrderHandler {
         fn create_order(
             ref self: ContractState, account: ContractAddress, params: CreateOrderParams
         ) -> felt252 {
+            '3. Create order'.print();
 
-            'passe ici'.print();
+            let balance_ETH_start = IERC20Dispatcher {
+                contract_address: contract_address_const::<'ETH'>()
+            }
+                .balance_of(contract_address_const::<'caller'>());
+
+            let balance_USDC_start = IERC20Dispatcher {
+                contract_address: contract_address_const::<'USDC'>()
+            }
+                .balance_of(contract_address_const::<'caller'>());
+
+            '3. eth start 0 create order'.print();
+            balance_ETH_start.print();
+
+            '3. usdc start 0 create order'.print();
+            balance_USDC_start.print();
             // Check only controller.
             let role_module_state = RoleModule::unsafe_new_contract_state();
             role_module_state.only_controller();
             // Fetch data store.
-            'gooooood'.print();
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
 
@@ -337,6 +353,7 @@ mod OrderHandler {
 
         fn execute_order(ref self: ContractState, key: felt252, oracle_params: SetPricesParams) {
             // Check only order keeper.
+            '4. Execute order'.print();
             let role_module_state = RoleModule::unsafe_new_contract_state();
             role_module_state.only_order_keeper();
             // Fetch data store.
