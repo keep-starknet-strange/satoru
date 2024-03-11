@@ -51,6 +51,11 @@ fn process_order(params: ExecuteOrderParams) -> event_utils::LogData {
     let position_key = position_utils::get_position_key(
         params.order.account, params.order.market, collateral_token, params.order.is_long,
     );
+    params.order.account.print();
+    params.order.market.print();
+    collateral_token.print();
+    params.order.is_long.print();
+
     'AFTER VALIDATE1'.print();
     let mut position = params.contracts.data_store.get_position(position_key);
     'AFTER VALIDATE2'.print();
@@ -86,6 +91,9 @@ fn process_order(params: ExecuteOrderParams) -> event_utils::LogData {
         collateral_increment_amount
     );
     'AFTER VALIDATE6'.print();
+    let position_updated = params.contracts.data_store.get_position(position_key);
+    position_updated.size_in_usd.print();
+    'AFTER POSIOTOPN UPDATED'.print();
 
     let log: event_utils::LogData = Default::default();
     log
