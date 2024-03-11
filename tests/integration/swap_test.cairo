@@ -348,22 +348,12 @@ fn test_deposit_market_integration() {
     assert(balance_ETH_after == 999999, 'wrong balance ETH after swap');
     assert(balance_USDC_after == 1005000, 'wrong balance USDC after swap');
 
-     let first_swap_pool_value_info = market_utils::get_pool_value_info(
+    let first_swap_pool_value_info = market_utils::get_pool_value_info(
         data_store,
         market,
-        Price {
-            min: 5000,
-            max: 5000,
-        }
-        ,
-        Price {
-            min: 5000,
-            max: 5000,
-        },
-        Price {
-            min: 1,
-            max: 1,
-        },
+        Price { min: 5000, max: 5000, },
+        Price { min: 5000, max: 5000, },
+        Price { min: 1, max: 1, },
         keys::max_pnl_factor_for_deposits(),
         true,
     );
