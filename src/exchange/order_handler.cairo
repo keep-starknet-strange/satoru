@@ -237,8 +237,6 @@ mod OrderHandler {
             let data_store = base_order_handler_state.data_store.read();
             let event_emitter = base_order_handler_state.event_emitter.read();
 
-           
-
             // Validate feature.
             feature_utils::validate_feature(
                 data_store,
@@ -277,8 +275,6 @@ mod OrderHandler {
                     key, size_delta_usd, acceptable_price, trigger_price, min_output_amount
                 );
 
-            
-
             updated_order
         }
 
@@ -292,8 +288,6 @@ mod OrderHandler {
             // Fetch data store.
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
-
-            
 
             let order = data_store.get_order(key);
 
@@ -319,8 +313,6 @@ mod OrderHandler {
                 keys::user_initiated_cancel(),
                 ArrayTrait::<felt252>::new(),
             );
-
-            
         }
 
         fn execute_order(ref self: ContractState, key: felt252, oracle_params: SetPricesParams) {
@@ -364,7 +356,6 @@ mod OrderHandler {
             // Fetch data store.
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
-
 
             oracle_modules::with_simulated_oracle_prices_before(
                 base_order_handler_state.oracle.read(), params

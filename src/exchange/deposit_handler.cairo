@@ -157,7 +157,6 @@ mod DepositHandler {
 
             let data_store = self.data_store.read();
 
-
             feature_utils::validate_feature(
                 self.data_store.read(),
                 keys::create_deposit_feature_disabled_key(get_contract_address())
@@ -171,8 +170,6 @@ mod DepositHandler {
                 params
             );
 
-            
-
             key
         }
 
@@ -181,7 +178,6 @@ mod DepositHandler {
             IRoleModule::only_controller(@state);
 
             let data_store = self.data_store.read();
-            
 
             // let starting_gas = gas_left();
 
@@ -235,7 +231,7 @@ mod DepositHandler {
 
             let data_store = self.data_store.read();
             let oracle = self.oracle.read();
-            
+
             oracle_modules::with_simulated_oracle_prices_before(oracle, params);
 
             let oracleParams = Default::default();

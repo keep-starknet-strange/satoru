@@ -148,8 +148,6 @@ mod WithdrawalHandler {
 
             let data_store = self.data_store.read();
 
-            
-
             feature_utils::validate_feature(
                 data_store, keys::create_withdrawal_feature_disabled_key(get_contract_address())
             );
@@ -157,8 +155,6 @@ mod WithdrawalHandler {
             let result = withdrawal_utils::create_withdrawal(
                 data_store, self.event_emitter.read(), self.withdrawal_vault.read(), account, params
             );
-
-            
 
             result
         }
@@ -171,8 +167,6 @@ mod WithdrawalHandler {
                 ); // Only controller can call this method.
 
             let data_store = self.data_store.read();
-
-            
 
             let starting_gas = starknet_utils::sn_gasleft(array![200]); // Returns 200 for now,
             let withdrawal = data_store.get_withdrawal(key);
@@ -195,8 +189,6 @@ mod WithdrawalHandler {
                 keys::user_initiated_cancel(),
                 array![]
             );
-
-            
         }
 
         fn execute_withdrawal(
@@ -260,8 +252,6 @@ mod WithdrawalHandler {
 
             let data_store = self.data_store.read();
 
-            
-
             let oracle_params: SetPricesParams = SetPricesParams {
                 signer_info: 0,
                 tokens: Default::default(),
@@ -278,8 +268,6 @@ mod WithdrawalHandler {
             }; // Initiates default values for this struct. Derive Default is not working for that size.
 
             self.execute_withdrawal_keeper(key, oracle_params, get_caller_address());
-
-            
 
             oracle_modules::with_simulated_oracle_prices_after();
         }
