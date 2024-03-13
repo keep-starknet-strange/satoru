@@ -148,7 +148,7 @@ mod WithdrawalHandler {
 
             let data_store = self.data_store.read();
 
-            global_reentrancy_guard::non_reentrant_before(data_store); // Initiates re-entrancy
+            
 
             feature_utils::validate_feature(
                 data_store, keys::create_withdrawal_feature_disabled_key(get_contract_address())
@@ -158,7 +158,7 @@ mod WithdrawalHandler {
                 data_store, self.event_emitter.read(), self.withdrawal_vault.read(), account, params
             );
 
-            global_reentrancy_guard::non_reentrant_after(data_store); // Finalizes re-entrancy
+            
 
             result
         }
@@ -172,7 +172,7 @@ mod WithdrawalHandler {
 
             let data_store = self.data_store.read();
 
-            global_reentrancy_guard::non_reentrant_before(data_store); // Initiates re-entrancy
+            
 
             let starting_gas = starknet_utils::sn_gasleft(array![200]); // Returns 200 for now,
             let withdrawal = data_store.get_withdrawal(key);
@@ -196,7 +196,7 @@ mod WithdrawalHandler {
                 array![]
             );
 
-            global_reentrancy_guard::non_reentrant_after(data_store); // Finalizes re-entrancy
+            
         }
 
         fn execute_withdrawal(
@@ -260,7 +260,7 @@ mod WithdrawalHandler {
 
             let data_store = self.data_store.read();
 
-            global_reentrancy_guard::non_reentrant_before(data_store); // Initiates re-entrancy
+            
 
             let oracle_params: SetPricesParams = SetPricesParams {
                 signer_info: 0,
@@ -279,7 +279,7 @@ mod WithdrawalHandler {
 
             self.execute_withdrawal_keeper(key, oracle_params, get_caller_address());
 
-            global_reentrancy_guard::non_reentrant_after(data_store); // Finalizes re-entrancy
+            
 
             oracle_modules::with_simulated_oracle_prices_after();
         }
