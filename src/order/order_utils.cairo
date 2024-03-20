@@ -193,7 +193,7 @@ fn execute_order(params: ExecuteOrderParams) {
         params.order.trigger_price,
         params.order.is_long
     );
-
+    'passed validations'.print();
     let params_process = ExecuteOrderParams {
         contracts: params.contracts,
         key: params.key,
