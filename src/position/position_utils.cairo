@@ -383,6 +383,9 @@ fn get_position_key(
 /// # Arguments
 /// *`position` - The position to validate.
 fn validate_non_empty_position(position: Position,) {
+    position.size_in_usd.print();
+    position.size_in_tokens.print();
+    position.collateral_amount.print();
     if (position.size_in_usd == 0
         && position.size_in_tokens == 0
         && position.collateral_amount == 0) {
