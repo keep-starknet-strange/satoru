@@ -144,9 +144,7 @@ mod OrderHandler {
     use satoru::utils::global_reentrancy_guard;
     use satoru::utils::error_utils;
     use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
-    use starknet::{
-        get_contract_address, ContractAddress, contract_address_const, get_caller_address
-    };
+    use starknet::contract_address_const;
 
     // *************************************************************************
     //                              STORAGE
@@ -422,8 +420,7 @@ mod OrderHandler {
             oracle_params: SetPricesParams,
             keeper: ContractAddress
         ) {
-            let starting_gas: u128 = 100000; // TODO: Get starting gas from Cairo.
-
+            let starting_gas: u256 = 100000; // TODO: Get starting gas from Cairo.
 
             // Check only self.
             let role_module_state = RoleModule::unsafe_new_contract_state();

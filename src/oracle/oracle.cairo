@@ -122,7 +122,7 @@ trait IOracle<TContractState> {
         self: @TContractState, data_store: IDataStoreDispatcher, token: ContractAddress,
     ) -> u256;
 
-    fn set_price_testing_eth(ref self: TContractState, new_price: u128);
+    fn set_price_testing_eth(ref self: TContractState, new_price: u256);
 
     /// Validate prices in `params` for oracles.
     /// # Arguments
@@ -252,9 +252,8 @@ mod Oracle {
         tokens_with_prices: List<ContractAddress>,
         /// Mapping between tokens and prices.
         primary_prices: LegacyMap::<ContractAddress, Price>,
-        
         // Only for testing
-        eth_price : Price,
+        eth_price: Price,
     }
 
     // *************************************************************************
@@ -332,8 +331,8 @@ mod Oracle {
         }
 
         // Only for testing
-        fn set_price_testing_eth(ref self: ContractState, new_price: u128) {
-            self.eth_price.write(Price {min: new_price, max: new_price })
+        fn set_price_testing_eth(ref self: ContractState, new_price: u256) {
+            self.eth_price.write(Price { min: new_price, max: new_price })
         }
 
         fn clear_all_prices(ref self: ContractState) {

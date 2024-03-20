@@ -910,9 +910,8 @@ fn apply_delta_to_open_interest(
     // Increment the open interest by the delta.
     let key = keys::open_interest_key(*market.market_token, collateral_token, is_long);
     'got key'.print();
-    let next_value = data_store.apply_delta_to_u128(key, delta, 'negative open interest');
-    'got next value'.print();
     let next_value = data_store.apply_delta_to_u256(key, delta, 'negative open interest');
+    'got next value'.print();
 
     // If the open interest for longs is increased then tokens were virtually bought from the pool
     // so the virtual inventory should be decreased.
