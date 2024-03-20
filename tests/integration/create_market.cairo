@@ -1158,6 +1158,7 @@ fn test_long_market_integration() {
     order_handler.execute_order_keeper(key_long, set_price_params, keeper_address);
     'long position SUCCEEDED'.print();
     let position_key = position_utils::get_position_key(caller_address, market.market_token, contract_address_const::<'USDC'>(), true);
+
     let first_position = data_store.get_position(position_key);
     let market_prices = market_utils::MarketPrices {
         index_token_price: Price {
