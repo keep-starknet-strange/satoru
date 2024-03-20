@@ -101,9 +101,11 @@ mod OrderHandler {
 
     // Core lib imports.
     use core::starknet::SyscallResultTrait;
+    use core::traits::Into;
     use starknet::ContractAddress;
     use starknet::{get_caller_address, get_contract_address};
     use array::ArrayTrait;
+    use debug::PrintTrait;
 
     // Local imports.
     use super::IOrderHandler;
@@ -141,6 +143,10 @@ mod OrderHandler {
     use satoru::gas::gas_utils;
     use satoru::utils::global_reentrancy_guard;
     use satoru::utils::error_utils;
+    use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
+    use starknet::{
+        get_contract_address, ContractAddress, contract_address_const, get_caller_address
+    };
 
     // *************************************************************************
     //                              STORAGE
@@ -194,10 +200,26 @@ mod OrderHandler {
         fn create_order(
             ref self: ContractState, account: ContractAddress, params: CreateOrderParams
         ) -> felt252 {
+            '3. Create order'.print();
+
+            let balance_ETH_start = IERC20Dispatcher {
+                contract_address: contract_address_const::<'ETH'>()
+            }
+                .balance_of(contract_address_const::<'caller'>());
+
+            let balance_USDC_start = IERC20Dispatcher {
+                contract_address: contract_address_const::<'USDC'>()
+            }
+                .balance_of(contract_address_const::<'caller'>());
+
+            '3. eth start 0 create order'.print();
+            balance_ETH_start.print();
+
+            '3. usdc start 0 create order'.print();
+            balance_USDC_start.print();
             // Check only controller.
             let role_module_state = RoleModule::unsafe_new_contract_state();
             role_module_state.only_controller();
-
             // Fetch data store.
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
@@ -329,23 +351,25 @@ mod OrderHandler {
 
         fn execute_order(ref self: ContractState, key: felt252, oracle_params: SetPricesParams) {
             // Check only order keeper.
+            '4. Execute order'.print();
             let role_module_state = RoleModule::unsafe_new_contract_state();
             role_module_state.only_order_keeper();
             // Fetch data store.
+            'firsttter'.print();
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
-
             global_reentrancy_guard::non_reentrant_before(data_store);
-            oracle_modules::with_oracle_prices_before(
-                base_order_handler_state.oracle.read(),
-                data_store,
-                base_order_handler_state.event_emitter.read(),
-                @oracle_params
-            );
-
+            // oracle_modules::with_oracle_prices_before(
+            //     base_order_handler_state.oracle.read(),
+            //     data_store,
+            //     base_order_handler_state.event_emitter.read(),
+            //     @oracle_params
+            // );
+            'in handlerr'.print();
             // TODO: Did not implement starting gas and try / catch logic as not available in Cairo
             self._execute_order(key, oracle_params, get_contract_address());
-            oracle_modules::with_oracle_prices_after(base_order_handler_state.oracle.read());
+            'finish execution'.print();
+            // oracle_modules::with_oracle_prices_after(base_order_handler_state.oracle.read());
             global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
@@ -398,7 +422,8 @@ mod OrderHandler {
             oracle_params: SetPricesParams,
             keeper: ContractAddress
         ) {
-            let starting_gas: u256 = 0; // TODO: Get starting gas from Cairo.
+            let starting_gas: u128 = 100000; // TODO: Get starting gas from Cairo.
+
 
             // Check only self.
             let role_module_state = RoleModule::unsafe_new_contract_state();

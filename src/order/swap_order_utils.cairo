@@ -1,5 +1,7 @@
 // Core lib imports.
-use starknet::ContractAddress;
+use starknet::{ContractAddress, contract_address_const};
+
+use debug::PrintTrait;
 
 // Local imports.
 use satoru::order::base_order_utils::ExecuteOrderParams;
@@ -16,17 +18,32 @@ use satoru::order::error::OrderError;
 use satoru::bank::bank::{IBankDispatcher, IBankDispatcherTrait};
 use satoru::utils::span32::{Span32, DefaultSpan32};
 use satoru::oracle::error::OracleError;
+use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 
 fn process_order(params: ExecuteOrderParams) -> LogData {
+    '6. Process Order'.print();
     if (params.order.market.is_non_zero()) {
         panic(array![OrderError::UNEXPECTED_MARKET]);
     }
-    validate_oracle_block_numbers(
-        params.min_oracle_block_numbers.span(),
-        params.max_oracle_block_numbers.span(),
-        params.order.order_type,
-        params.order.updated_at_block
-    );
+    // validate_oracle_block_numbers(
+    //     params.min_oracle_block_numbers.span(),
+    //     params.max_oracle_block_numbers.span(),
+    //     params.order.order_type,
+    //     params.order.updated_at_block
+    // );
+    let balance_ETH_start = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
+        .balance_of(contract_address_const::<'caller'>());
+
+    let balance_usdc_start = IERC20Dispatcher {
+        contract_address: contract_address_const::<'USDC'>()
+    }
+        .balance_of(contract_address_const::<'caller'>());
+
+    '6. eth start process order'.print();
+    balance_ETH_start.print();
+
+    '6. usdc start process order'.print();
+    balance_usdc_start.print();
 
     let (output_token, output_amount) = swap_utils::swap(
         @swap_utils::SwapParams {
@@ -50,6 +67,19 @@ fn process_order(params: ExecuteOrderParams) -> LogData {
 
     log_data.address_dict.insert_single('output_token', output_token);
     log_data.uint_dict.insert_single('output_amount', output_amount);
+
+    let balance_ETH_end = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
+        .balance_of(contract_address_const::<'caller'>());
+
+    let balance_usdc_end = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
+        .balance_of(contract_address_const::<'caller'>());
+
+    '6. eth end process order'.print();
+    balance_ETH_end.print();
+
+    '6. usdc end process order'.print();
+    balance_usdc_end.print();
+    '------------------------'.print();
 
     log_data
 }

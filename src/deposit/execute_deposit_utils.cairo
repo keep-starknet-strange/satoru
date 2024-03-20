@@ -40,6 +40,7 @@ use satoru::utils::{
     starknet_utils::{sn_gasleft, sn_gasprice}
 };
 use debug::PrintTrait;
+use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
 
 /// Struct used in executeDeposit to avoid stack too deep errors
 #[derive(Drop, Serde)]
@@ -103,6 +104,7 @@ struct ExecuteDepositCache {
 /// # Arguments
 /// * `params` - ExecuteDepositParams.
 fn execute_deposit(params: ExecuteDepositParams) {
+    '1. Execute deposit'.print();
     // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
     let starting_gas = params.starting_gas - sn_gasleft(array![]) / 63;
 
@@ -447,8 +449,8 @@ fn execute_deposit_helper(
 
     market_utils::validate_pool_amount(params.data_store, @_params.market, _params.token_in);
 
-    // IMarketTokenDispatcher { contract_address: _params.market.market_token }
-    //     .mint(_params.receiver, mint_amount);
+    IMarketTokenDispatcher { contract_address: _params.market.market_token }
+        .mint(_params.receiver, mint_amount);
 
     mint_amount
 }

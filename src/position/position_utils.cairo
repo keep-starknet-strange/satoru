@@ -25,6 +25,7 @@ use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorag
 use satoru::price::price::{Price, PriceTrait};
 use satoru::utils::{calc, precision, i256::i256, default::DefaultContractAddress, error_utils};
 use satoru::referral::referral_utils;
+use debug::PrintTrait;
 
 /// Struct used in increasePosition and decreasePosition.
 #[derive(Drop, Copy, starknet::Store, Serde)]
@@ -382,6 +383,9 @@ fn get_position_key(
 /// # Arguments
 /// *`position` - The position to validate.
 fn validate_non_empty_position(position: Position,) {
+    position.size_in_usd.print();
+    position.size_in_tokens.print();
+    position.collateral_amount.print();
     if (position.size_in_usd == 0
         && position.size_in_tokens == 0
         && position.collateral_amount == 0) {
@@ -729,7 +733,7 @@ fn update_open_interest(
             params.position.is_long,
             size_delta_usd
         );
-
+        'enter apply delta'.print();
         market_utils::apply_delta_to_open_interest_in_tokens(
             params.contracts.data_store,
             params.contracts.event_emitter,

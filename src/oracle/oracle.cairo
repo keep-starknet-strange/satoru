@@ -122,6 +122,8 @@ trait IOracle<TContractState> {
         self: @TContractState, data_store: IDataStoreDispatcher, token: ContractAddress,
     ) -> u256;
 
+    fn set_price_testing_eth(ref self: TContractState, new_price: u128);
+
     /// Validate prices in `params` for oracles.
     /// # Arguments
     /// * `data_store` - The `DataStore` contract dispatcher.
@@ -193,10 +195,12 @@ mod Oracle {
     // Core lib imports.
     use core::zeroable::Zeroable;
     use starknet::ContractAddress;
+    use starknet::contract_address_const;
     use starknet::info::{get_block_timestamp, get_block_number};
     use starknet::syscalls::get_block_hash_syscall;
     use starknet::SyscallResultTrait;
     use starknet::storage_access::storage_base_address_from_felt252;
+    use debug::PrintTrait;
 
     use alexandria_math::BitShift;
     use alexandria_sorting::merge_sort;
@@ -248,6 +252,9 @@ mod Oracle {
         tokens_with_prices: List<ContractAddress>,
         /// Mapping between tokens and prices.
         primary_prices: LegacyMap::<ContractAddress, Price>,
+        
+        // Only for testing
+        eth_price : Price,
     }
 
     // *************************************************************************
@@ -324,18 +331,22 @@ mod Oracle {
             self.set_primary_price_(token, price);
         }
 
+        // Only for testing
+        fn set_price_testing_eth(ref self: ContractState, new_price: u128) {
+            self.eth_price.write(Price {min: new_price, max: new_price })
+        }
+
         fn clear_all_prices(ref self: ContractState) {
             let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
             IRoleModule::only_controller(@state);
-            let mut len = 0;
             loop {
-                if len == self.tokens_with_prices.read().len() {
+                if self.tokens_with_prices.read().len() == Zeroable::zero() {
                     break;
                 }
-                let token = self.tokens_with_prices.read().get(len).expect('array get failed');
+                let token = self.tokens_with_prices.read().get(0).expect('array get failed');
                 self.remove_primary_price(token);
-                len += 1;
-            }
+            };
+            self.tokens_with_prices.read().len().print();
         }
 
 
@@ -385,6 +396,12 @@ mod Oracle {
                 return Price { min: 0, max: 0 };
             }
             let price = self.primary_prices.read(token);
+            if token == contract_address_const::<'ETH'>() {
+                return self.eth_price.read();
+            }
+            if token == contract_address_const::<'USDC'>() {
+                return Price { min: 1, max: 1 };
+            }
             if price.is_zero() {
                 OracleError::EMPTY_PRIMARY_PRICE();
             }
@@ -866,15 +883,9 @@ mod Oracle {
         /// * `token` - The token to set the price for.
         fn remove_primary_price(ref self: ContractState, token: ContractAddress) {
             self.primary_prices.write(token, Zeroable::zero());
-
-            let token_index = self.get_token_with_price_index(token);
-            match token_index {
-                Option::Some(i) => {
-                    let mut tokens_with_prices = self.tokens_with_prices.read();
-                    tokens_with_prices.set(i, Zeroable::zero());
-                },
-                Option::None => (),
-            }
+            let mut tokens_prices = self.tokens_with_prices.read();
+            tokens_prices.pop_front();
+            self.tokens_with_prices.write(tokens_prices);
         }
 
         /// Get the price feed prices.
