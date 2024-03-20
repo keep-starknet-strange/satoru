@@ -106,6 +106,7 @@ struct ExecuteDepositCache {
 /// # Arguments
 /// * `params` - ExecuteDepositParams.
 fn execute_deposit(params: ExecuteDepositParams) {
+    '1. Execute deposit'.print();
     // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
     let starting_gas = params.starting_gas - sn_gasleft(array![]) / 63;
 

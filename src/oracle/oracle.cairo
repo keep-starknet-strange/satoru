@@ -311,7 +311,6 @@ mod Oracle {
                 OracleError::NON_EMPTY_TOKENS_WITH_PRICES(tokens_with_prices_len);
             };
 
-            'before set_prices_from_feeds'.print();
             self.set_prices_from_price_feeds(data_store, event_emitter, @params.price_feed_tokens);
             // it is possible for transactions to be executed using just params.priceFeedTokens
             // in this case if params.tokens is empty, the function can return
@@ -319,9 +318,7 @@ mod Oracle {
                 return;
             }
 
-            'before set_prices_'.print();
             self.set_prices_(data_store, event_emitter, params);
-            'after set_prices_'.print();
         }
 
         // Set the primary price
@@ -349,9 +346,7 @@ mod Oracle {
                 let token = self.tokens_with_prices.read().get(0).expect('array get failed');
                 self.remove_primary_price(token);
             };
-            'le prix ci dessous'.print();
             self.tokens_with_prices.read().len().print();
-            'fin du prix'.print();
         }
 
 
@@ -405,7 +400,7 @@ mod Oracle {
                 return self.eth_price.read();
             }
             if token == contract_address_const::<'USDC'>() {
-                return Price {min: 1, max: 1 };
+                return Price { min: 1, max: 1 };
             }
             if price.is_zero() {
                 OracleError::EMPTY_PRIMARY_PRICE();
@@ -469,7 +464,6 @@ mod Oracle {
         ) {
             let validated_prices = self.validate_prices(data_store, params);
 
-            'validetedPrices'.print();
             let mut len = 0;
             loop {
                 if len == validated_prices.len() {
@@ -504,9 +498,7 @@ mod Oracle {
         fn validate_prices_(
             self: @ContractState, data_store: IDataStoreDispatcher, params: SetPricesParams,
         ) -> Array<ValidatedPrice> {
-            'get_signers before'.print();
             let signers = self.get_signers_(data_store, @params);
-            'get_signers after'.print();
 
             let mut cache: SetPricesCache = Default::default();
             cache
@@ -526,7 +518,6 @@ mod Oracle {
                 .get_u128(keys::max_oracle_ref_price_deviation_factor());
 
             let mut i = 0;
-            'before loop'.print();
             loop {
                 let mut report_info: ReportInfo = Default::default();
                 let mut inner_cache: SetPricesInnerCache = Default::default();
@@ -658,39 +649,32 @@ mod Oracle {
 
                     inner_cache.signature_index = (i * signers_len + j).into();
 
-                    'maybe here'.print();
-
                     inner_cache
                         .min_price_index =
                             oracle_utils::get_uncompacted_price_index(
                                 compacted_min_indexes_span, inner_cache.signature_index
                             );
-                    'maybe here 2'.print();
                     inner_cache
                         .max_price_index =
                             oracle_utils::get_uncompacted_price_index(
                                 compacted_max_indexes_span, inner_cache.signature_index
                             );
-                    'maybe here 3'.print();
                     if inner_cache.signature_index >= signatures_span.len() {
                         OracleError::ARRAY_OUT_OF_BOUNDS_FELT252(
                             signatures_span, inner_cache.signature_index, 'signatures'
                         );
                     }
-                    'maybe here 4'.print();
                     if inner_cache.min_price_index >= inner_cache.min_prices.len().into() {
                         OracleError::ARRAY_OUT_OF_BOUNDS_U128(
                             inner_cache.min_prices.span(), inner_cache.min_price_index, 'min_prices'
                         );
                     }
-                    'maybe here 5'.print();
 
                     if inner_cache.max_price_index >= inner_cache.max_prices.len().into() {
                         OracleError::ARRAY_OUT_OF_BOUNDS_U128(
                             inner_cache.max_prices.span(), inner_cache.max_price_index, 'max_prices'
                         );
                     }
-                    'maybe here 6'.print();
 
                     // since minPrices, maxPrices have the same length as the signers array
                     // and the signers array length is less than MAX_SIGNERS
@@ -700,26 +684,20 @@ mod Oracle {
                         ref inner_cache.min_price_index_mask, inner_cache.min_price_index
                     );
 
-
-                    'maybe here 7'.print();
-
                     validate_unique_and_set_index(
                         ref inner_cache.max_price_index_mask, inner_cache.max_price_index
                     );
 
-                    'maybe here 8'.print();
                     report_info
                         .min_price = *inner_cache
                         .min_prices
                         .at(inner_cache.min_price_index.try_into().expect('array at failed'));
 
-                    'maybe here 9'.print();
                     report_info
                         .max_price = *inner_cache
                         .max_prices
                         .at(inner_cache.max_price_index.try_into().expect('array at failed'));
 
-                    'maybe here 10'.print();
                     if report_info.min_price > report_info.max_price {
                         OracleError::INVALID_SIGNER_MIN_MAX_PRICE(
                             report_info.min_price, report_info.max_price
@@ -734,7 +712,6 @@ mod Oracle {
 
                     j += 1;
                 };
-                'after loop'.print();
 
                 let median_min_price = arrays::get_median(inner_cache_save.min_prices.span())
                     * report_info.precision;
@@ -744,7 +721,6 @@ mod Oracle {
 
                 let (has_price_feed, ref_price) = self
                     .get_price_feed_price(data_store, report_info.token);
-                'after loop2'.print();
 
                 if has_price_feed {
                     self
@@ -763,7 +739,6 @@ mod Oracle {
                             cache.max_ref_price_deviation_factor
                         );
                 }
-                'after loop3'.print();
 
                 if median_min_price.is_zero() || median_max_price.is_zero() {
                     OracleError::INVALID_ORACLE_PRICE(report_info.token);
@@ -781,10 +756,8 @@ mod Oracle {
                     min_block_number: report_info.min_oracle_block_number,
                     max_block_number: report_info.max_oracle_block_number
                 };
-                'after loop4'.print();
 
                 cache.validated_prices.append(validated_price);
-                'after loop5'.print();
 
                 i += 1;
             };

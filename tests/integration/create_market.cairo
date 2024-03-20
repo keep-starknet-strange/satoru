@@ -1059,19 +1059,9 @@ fn test_long_market_integration() {
     let pool_value_info = market_utils::get_pool_value_info(
         data_store,
         market,
-        Price {
-            min: 5000,
-            max: 5000,
-        }
-        ,
-        Price {
-            min: 5000,
-            max: 5000,
-        },
-        Price {
-            min: 1,
-            max: 1,
-        },
+        Price { min: 5000, max: 5000, },
+        Price { min: 5000, max: 5000, },
+        Price { min: 1, max: 1, },
         keys::max_pnl_factor_for_deposits(),
         true,
     );
@@ -1080,16 +1070,18 @@ fn test_long_market_integration() {
     pool_value_info.long_token_amount.print();
     pool_value_info.short_token_amount.print();
 
-    
+
     // ************************************* TEST LONG *********************************************
 
     'begining of LONG TEST'.print();
 
-    let key_open_interest = keys::open_interest_key(market.market_token, contract_address_const::<'ETH'>(), true);
+    let key_open_interest = keys::open_interest_key(
+        market.market_token, contract_address_const::<'ETH'>(), true
+    );
     data_store.set_u128(key_open_interest, 1);
     let max_key_open_interest = keys::max_open_interest_key(market.market_token, true);
     data_store.set_u128(max_key_open_interest, 10000);
-    
+
     start_prank(contract_address_const::<'ETH'>(), caller_address);
     // Send token to order_vault in multicall with create_order
     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
@@ -1159,20 +1151,12 @@ fn test_long_market_integration() {
     'long position SUCCEEDED'.print();
     let position_key = position_utils::get_position_key(caller_address, market.market_token, contract_address_const::<'USDC'>(), true);
 
+
     let first_position = data_store.get_position(position_key);
     let market_prices = market_utils::MarketPrices {
-        index_token_price: Price {
-            min: 8000,
-            max: 8000,
-        },
-        long_token_price: Price {
-            min: 8000,
-            max: 8000,
-        },
-        short_token_price: Price {
-            min: 1,
-            max: 1,
-        },
+        index_token_price: Price { min: 8000, max: 8000, },
+        long_token_price: Price { min: 8000, max: 8000, },
+        short_token_price: Price { min: 1, max: 1, },
     };
     'size tokens'.print();
     first_position.size_in_tokens.print();
@@ -1202,19 +1186,9 @@ fn test_long_market_integration() {
     let second_swap_pool_value_info = market_utils::get_pool_value_info(
         data_store,
         market,
-        Price {
-            min: 5000,
-            max: 5000,
-        }
-        ,
-        Price {
-            min: 5000,
-            max: 5000,
-        },
-        Price {
-            min: 1,
-            max: 1,
-        },
+        Price { min: 5000, max: 5000, },
+        Price { min: 5000, max: 5000, },
+        Price { min: 1, max: 1, },
         keys::max_pnl_factor_for_deposits(),
         true,
     );

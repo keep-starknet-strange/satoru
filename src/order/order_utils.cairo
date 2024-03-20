@@ -48,7 +48,22 @@ fn create_order( //TODO and fix when fee_token is implememted
     account: ContractAddress,
     mut params: CreateOrderParams
 ) -> felt252 {
-    'debut'.print();
+    '4. Create Order in order store'.print();
+
+    let balance_ETH_start = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
+        .balance_of(contract_address_const::<'caller'>());
+
+    let balance_USDC_start = IERC20Dispatcher {
+        contract_address: contract_address_const::<'USDC'>()
+    }
+        .balance_of(contract_address_const::<'caller'>());
+
+    '4. eth start create order'.print();
+    balance_ETH_start.print();
+
+    '4. usdc start create order'.print();
+    balance_USDC_start.print();
+
     account_utils::validate_account(account);
     referral_utils::set_trader_referral_code(referral_storage, account, params.referral_code);
 
@@ -84,7 +99,6 @@ fn create_order( //TODO and fix when fee_token is implememted
         OrderError::ORDER_TYPE_CANNOT_BE_CREATED(params.order_type);
     }
 
-    'second'.print();
     if (should_record_separate_execution_fee_transfer) {
         let fee_token_amount = order_vault.record_transfer_in(fee_token);
         if (fee_token_amount < params.execution_fee) {
@@ -102,7 +116,6 @@ fn create_order( //TODO and fix when fee_token is implememted
     // validate swap path markets
     market_utils::validate_swap_path(data_store, params.swap_path);
 
-    'third'.print();
     let mut order = Order {
         key: 0,
         order_type: params.order_type,
@@ -155,7 +168,22 @@ fn execute_order(params: ExecuteOrderParams) {
     // TODO GAS NOT AVAILABLE params.startingGas -= gasleft() / 63;
     params.contracts.data_store.remove_order(params.key, params.order.account);
 
-    'exeeecutre'.print();
+    '5. Execute Order'.print();
+
+    let balance_ETH_start = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
+        .balance_of(contract_address_const::<'caller'>());
+
+    let balance_USDC_start = IERC20Dispatcher {
+        contract_address: contract_address_const::<'USDC'>()
+    }
+        .balance_of(contract_address_const::<'caller'>());
+
+    '5. eth start create order'.print();
+    balance_ETH_start.print();
+
+    '5. usdc start create order'.print();
+    balance_USDC_start.print();
+
     base_order_utils::validate_non_empty_order(@params.order);
 
     base_order_utils::validate_order_trigger_price(
@@ -188,8 +216,15 @@ fn execute_order(params: ExecuteOrderParams) {
 
     let balance_ETH_after = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(contract_address_const::<'caller'>());
-    'HEEEERREEEEEEEEEEE'.print();
+    'balance_ETH_after'.print();
     balance_ETH_after.print();
+
+    let balance_USDC_after = IERC20Dispatcher {
+        contract_address: contract_address_const::<'USDC'>()
+    }
+        .balance_of(contract_address_const::<'caller'>());
+    'balance_USDC_after'.print();
+    balance_USDC_after.print();
 
     if (params.market.market_token != contract_address_const::<0>()) {
         market_utils::validate_market_token_balance_check(
@@ -201,23 +236,20 @@ fn execute_order(params: ExecuteOrderParams) {
     );
 
     params.contracts.event_emitter.emit_order_executed(params.key, params.secondary_order_type);
+// callback_utils::after_order_execution(params.key, params.order, event_data);
 
-    'event emitted'.print();
-
-    // callback_utils::after_order_execution(params.key, params.order, event_data);
-
-    // the order.executionFee for liquidation / adl orders is zero
-    // gas costs for liquidations / adl is subsidised by the treasury
-    // TODO crashing
-    // gas_utils::pay_execution_fee_order(
-    //     params.contracts.data_store,
-    //     params.contracts.event_emitter,
-    //     params.contracts.order_vault,
-    //     params.order.execution_fee,
-    //     params.starting_gas,
-    //     params.keeper,
-    //     params.order.account
-    // );
+// the order.executionFee for liquidation / adl orders is zero
+// gas costs for liquidations / adl is subsidised by the treasury
+// TODO crashing
+// gas_utils::pay_execution_fee_order(
+//     params.contracts.data_store,
+//     params.contracts.event_emitter,
+//     params.contracts.order_vault,
+//     params.order.execution_fee,
+//     params.starting_gas,
+//     params.keeper,
+//     params.order.account
+// );
 }
 
 /// Process an order execution.
