@@ -183,15 +183,15 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 
 //     // Set params in data_store
 //     data_store.set_address(keys::fee_token(), market.index_token);
-//     data_store.set_u128(keys::max_swap_path_length(), 5);
+//     data_store.set_u256(keys::max_swap_path_length(), 5);
 
 //     // Set max pool amount.
 //     data_store
-//         .set_u128(
+//         .set_u256(
 //             keys::max_pool_amount_key(market.market_token, market.long_token), 500000000000000000
 //         );
 //     data_store
-//         .set_u128(
+//         .set_u256(
 //             keys::max_pool_amount_key(market.market_token, market.short_token), 500000000000000000
 //         );
 
@@ -204,9 +204,9 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 //     // TODO Check why we don't need to set pool_amount_key
 //     // // Set pool amount in data_store.
 //     // let mut key = keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>());
-//     // data_store.set_u128(key, 50000000000);
+//     // data_store.set_u256(key, 50000000000);
 //     // key = keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>());
-//     // data_store.set_u128(key, 50000000000);
+//     // data_store.set_u256(key, 50000000000);
 
 //     // Send token to deposit in the deposit vault (this should be in a multi call with create_deposit)
 //     IERC20Dispatcher { contract_address: market.long_token }
@@ -340,7 +340,6 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 //         .balance_of(caller_address);
 //     assert(balance_USDC_before_swap == 1000000, 'wrong balance USDC before swap');
 
-
 //     start_prank(contract_address_const::<'ETH'>(), caller_address); //change to switch swap
 //     // Send token to order_vault in multicall with create_order
 //     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() } //change to switch swap
@@ -385,8 +384,8 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 //     let key = order_handler.create_order(caller_address, order_params);
 
 //     let got_order = data_store.get_order(key);
-//     // data_store.set_u128(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
-//     // data_store.set_u128(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
+//     // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
+//     // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
 //     // Execute the swap order.
 //     let signatures: Span<felt252> = array![0].span();
 //     let set_price_params = SetPricesParams {
@@ -430,7 +429,6 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 //         .balance_of(caller_address);
 //     let balance_USDC_after = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
 //         .balance_of(caller_address);
-    
 
 //     'balance eth after'.print();
 //     balance_ETH_after.print();
@@ -468,10 +466,10 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 //     'begining of LONG TEST'.print();
 
 //     let key_open_interest = keys::open_interest_key(market.market_token, contract_address_const::<'ETH'>(), true);
-//     data_store.set_u128(key_open_interest, 1);
+//     data_store.set_u256(key_open_interest, 1);
 //     let max_key_open_interest = keys::max_open_interest_key(market.market_token, true);
-//     data_store.set_u128(max_key_open_interest, 10000);
-    
+//     data_store.set_u256(max_key_open_interest, 10000);
+
 //     start_prank(contract_address_const::<'ETH'>(), caller_address);
 //     // Send token to order_vault in multicall with create_order
 //     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
@@ -508,8 +506,8 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 //     let key_long = order_handler.create_order(caller_address, order_params_long);
 //     'long created'.print();
 //     let got_order_long = data_store.get_order(key_long);
-//     // data_store.set_u128(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
-//     // data_store.set_u128(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
+//     // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
+//     // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
 //     // Execute the swap order.
 
 //     let signatures: Span<felt252> = array![0].span();
@@ -624,15 +622,15 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 
 //     // Set params in data_store
 //     data_store.set_address(keys::fee_token(), market.index_token);
-//     data_store.set_u128(keys::max_swap_path_length(), 5);
+//     data_store.set_u256(keys::max_swap_path_length(), 5);
 
 //     // Set max pool amount.
 //     data_store
-//         .set_u128(
+//         .set_u256(
 //             keys::max_pool_amount_key(market.market_token, market.long_token), 500000000000000000
 //         );
 //     data_store
-//         .set_u128(
+//         .set_u256(
 //             keys::max_pool_amount_key(market.market_token, market.short_token), 500000000000000000
 //         );
 
@@ -645,9 +643,9 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 //     // TODO Check why we don't need to set pool_amount_key
 //     // // Set pool amount in data_store.
 //     // let mut key = keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>());
-//     // data_store.set_u128(key, 50000000000);
+//     // data_store.set_u256(key, 50000000000);
 //     // key = keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>());
-//     // data_store.set_u128(key, 50000000000);
+//     // data_store.set_u256(key, 50000000000);
 
 //     // Send token to deposit in the deposit vault (this should be in a multi call with create_deposit)
 //     IERC20Dispatcher { contract_address: market.long_token }
@@ -779,7 +777,6 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 //         .balance_of(caller_address);
 //     assert(balance_USDC_before_swap == 1000000, 'wrong balance USDC before swap');
 
-
 //     start_prank(contract_address_const::<'ETH'>(), caller_address); //change to switch swap
 //     // Send token to order_vault in multicall with create_order
 //     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() } //change to switch swap
@@ -821,8 +818,8 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 //     let key = order_handler.create_order(caller_address, order_params);
 
 //     let got_order = data_store.get_order(key);
-//     // data_store.set_u128(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
-//     // data_store.set_u128(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
+//     // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
+//     // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
 //     // Execute the swap order.
 //     let signatures: Span<felt252> = array![0].span();
 //     let set_price_params = SetPricesParams {
@@ -866,7 +863,6 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 //         .balance_of(caller_address);
 //     let balance_USDC_after = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
 //         .balance_of(caller_address);
-    
 
 //     'balance eth after'.print();
 //     balance_ETH_after.print();
@@ -945,7 +941,7 @@ fn test_long_market_integration() {
     data_store
         .set_u256(
             keys::max_pool_amount_key(market.market_token, market.short_token), 500000000000000000
-
+        );
 
     oracle.set_price_testing_eth(5000);
 
@@ -956,9 +952,9 @@ fn test_long_market_integration() {
     // TODO Check why we don't need to set pool_amount_key
     // // Set pool amount in data_store.
     // let mut key = keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>());
-    // data_store.set_u128(key, 50000000000);
+    // data_store.set_u256(key, 50000000000);
     // key = keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>());
-    // data_store.set_u128(key, 50000000000);
+    // data_store.set_u256(key, 50000000000);
 
     // Send token to deposit in the deposit vault (this should be in a multi call with create_deposit)
     IERC20Dispatcher { contract_address: market.long_token }
@@ -1070,7 +1066,6 @@ fn test_long_market_integration() {
     pool_value_info.long_token_amount.print();
     pool_value_info.short_token_amount.print();
 
-
     // ************************************* TEST LONG *********************************************
 
     'begining of LONG TEST'.print();
@@ -1078,9 +1073,9 @@ fn test_long_market_integration() {
     let key_open_interest = keys::open_interest_key(
         market.market_token, contract_address_const::<'ETH'>(), true
     );
-    data_store.set_u128(key_open_interest, 1);
+    data_store.set_u256(key_open_interest, 1);
     let max_key_open_interest = keys::max_open_interest_key(market.market_token, true);
-    data_store.set_u128(max_key_open_interest, 10000);
+    data_store.set_u256(max_key_open_interest, 10000);
 
     start_prank(contract_address_const::<'ETH'>(), caller_address);
     // Send token to order_vault in multicall with create_order
@@ -1118,8 +1113,8 @@ fn test_long_market_integration() {
     let key_long = order_handler.create_order(caller_address, order_params_long);
     'long created'.print();
     let got_order_long = data_store.get_order(key_long);
-    // data_store.set_u128(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
-    // data_store.set_u128(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
+    // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
+    // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
     // Execute the swap order.
 
     let signatures: Span<felt252> = array![0].span();
@@ -1149,8 +1144,9 @@ fn test_long_market_integration() {
     // TODO add real signatures check on Oracle Account
     order_handler.execute_order_keeper(key_long, set_price_params, keeper_address);
     'long position SUCCEEDED'.print();
-    let position_key = position_utils::get_position_key(caller_address, market.market_token, contract_address_const::<'USDC'>(), true);
-
+    let position_key = position_utils::get_position_key(
+        caller_address, market.market_token, contract_address_const::<'USDC'>(), true
+    );
 
     let first_position = data_store.get_position(position_key);
     let market_prices = market_utils::MarketPrices {
@@ -1164,14 +1160,17 @@ fn test_long_market_integration() {
     first_position.size_in_usd.print();
 
     oracle.set_price_testing_eth(7000);
-    let position_key_after_pump = position_utils::get_position_key(caller_address, market.market_token, contract_address_const::<'USDC'>(), true);
+    let position_key_after_pump = position_utils::get_position_key(
+        caller_address, market.market_token, contract_address_const::<'USDC'>(), true
+    );
     let first_position_after_pump = data_store.get_position(position_key_after_pump);
     'size tokens after pump'.print();
     first_position_after_pump.size_in_tokens.print();
     'size in usd after pump'.print();
     first_position_after_pump.size_in_usd.print();
 
-    let position_info = reader.get_position_info(
+    let position_info = reader
+        .get_position_info(
             data_store,
             referal_storage,
             position_key_after_pump,
@@ -1241,15 +1240,15 @@ fn test_long_market_integration() {
 
 //     // Set params in data_store
 //     data_store.set_address(keys::fee_token(), market.index_token);
-//     data_store.set_u128(keys::max_swap_path_length(), 5);
+//     data_store.set_u256(keys::max_swap_path_length(), 5);
 
 //     // Set max pool amount.
 //     data_store
-//         .set_u128(
+//         .set_u256(
 //             keys::max_pool_amount_key(market.market_token, market.long_token), 500000000000000000
 //         );
 //     data_store
-//         .set_u128(
+//         .set_u256(
 //             keys::max_pool_amount_key(market.market_token, market.short_token), 500000000000000000
 //         );
 
@@ -1260,9 +1259,9 @@ fn test_long_market_integration() {
 //     // TODO Check why we don't need to set pool_amount_key
 //     // // Set pool amount in data_store.
 //     // let mut key = keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>());
-//     // data_store.set_u128(key, 50000000000);
+//     // data_store.set_u256(key, 50000000000);
 //     // key = keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>());
-//     // data_store.set_u128(key, 50000000000);
+//     // data_store.set_u256(key, 50000000000);
 
 //     // Send token to deposit in the deposit vault (this should be in a multi call with create_deposit)
 //     IERC20Dispatcher { contract_address: market.long_token }
@@ -1384,16 +1383,15 @@ fn test_long_market_integration() {
 //     pool_value_info.long_token_amount.print();
 //     pool_value_info.short_token_amount.print();
 
-    
 //     // ************************************* TEST SHORT *********************************************
 
 //     'begining of SHORT TEST'.print();
 
 //     let key_open_interest = keys::open_interest_key(market.market_token, contract_address_const::<'ETH'>(), true);
-//     data_store.set_u128(key_open_interest, 1);
+//     data_store.set_u256(key_open_interest, 1);
 //     let max_key_open_interest = keys::max_open_interest_key(market.market_token, true);
-//     data_store.set_u128(max_key_open_interest, 10000);
-    
+//     data_store.set_u256(max_key_open_interest, 10000);
+
 //     start_prank(contract_address_const::<'ETH'>(), caller_address);
 //     // Send token to order_vault in multicall with create_order
 //     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
@@ -1430,8 +1428,8 @@ fn test_long_market_integration() {
 //     let key_short = order_handler.create_order(caller_address, order_params_short);
 //     'short created'.print();
 //     let got_order_short = data_store.get_order(key_short);
-//     // data_store.set_u128(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
-//     // data_store.set_u128(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
+//     // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
+//     // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
 //     // Execute the swap order.
 
 //     let signatures: Span<felt252> = array![0].span();
@@ -1685,7 +1683,6 @@ fn setup_contracts() -> (
     IOrderVaultDispatcher,
     IReaderDispatcher,
     IReferralStorageDispatcher,
-
 ) {
     // Deploy the role store contract.
     let role_store_address = deploy_role_store();

@@ -157,7 +157,7 @@ mod LiquidationHandler {
             // );
 
             // let starting_gas: u128 = starknet_utils::sn_gasleft(array![100]); TODO GAS
-            let starting_gas: u128 = 0;
+            let starting_gas: u256 = 0;
 
             let key: felt252 = create_liquidation_order(
                 state_base.data_store.read(),
