@@ -37,21 +37,21 @@ struct Order {
     /// An array of market addresses to swap through.
     swap_path: Span32<ContractAddress>,
     /// The requested change in position size.
-    size_delta_usd: u128,
+    size_delta_usd: u256,
     /// For increase orders, this is the amount of the initialCollateralToken sent in by the user.
     /// For decrease orders, this is the amount of the position's collateralToken to withdraw.
     /// For swaps, this is the amount of initialCollateralToken sent in for the swap.
-    initial_collateral_delta_amount: u128,
+    initial_collateral_delta_amount: u256,
     /// The trigger price for non-market orders.
-    trigger_price: u128,
+    trigger_price: u256,
     /// The acceptable execution price for increase / decrease orders.
-    acceptable_price: u128,
+    acceptable_price: u256,
     /// The execution fee for keepers.
-    execution_fee: u128,
+    execution_fee: u256,
     /// The gas limit for the callbackContract.
-    callback_gas_limit: u128,
+    callback_gas_limit: u256,
     /// The minimum output amount for decrease orders and swaps.
-    min_output_amount: u128,
+    min_output_amount: u256,
     /// The block at which the order was last updated.
     updated_at_block: u64,
     /// Whether the order is for a long or short.

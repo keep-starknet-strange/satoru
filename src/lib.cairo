@@ -144,16 +144,17 @@ mod utils {
     mod global_reentrancy_guard;
     mod precision;
     mod span32;
-    mod u128_mask;
+    mod u256_mask;
     mod hash;
-    mod i128;
-    mod i128_test_storage_contract;
+    mod i256;
+    mod i256_test_storage_contract;
     mod store_arrays;
     mod error_utils;
     mod starknet_utils;
     mod traits;
     mod default;
     mod serializable_dict;
+    mod felt_math;
 }
 
 // `liquidation` function to help with liquidations.

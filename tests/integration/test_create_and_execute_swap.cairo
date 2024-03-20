@@ -80,24 +80,24 @@ fn given_right_swap_order_params_when_execute_order_then_success() {
 
     // Set pool amount in data_store.
     let mut key = keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>());
-    data_store.set_u128(key, 100000000000000000000000000000);
+    data_store.set_u256(key, 100000000000000000000000000000);
     key = keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>());
-    data_store.set_u128(key, 300000000000000000000000000000000);
+    data_store.set_u256(key, 300000000000000000000000000000000);
 
     // Set max pool amount.
     data_store
-        .set_u128(
+        .set_u256(
             keys::max_pool_amount_key(market.market_token, contract_address_const::<'USDC'>()),
             5000000000000000000000000000000000000
         );
     data_store
-        .set_u128(
+        .set_u256(
             keys::max_pool_amount_key(market.market_token, contract_address_const::<'ETH'>()),
             5000000000000000000000000000000000000
         );
     // Set params in data_store.
     data_store.set_address(keys::fee_token(), market.index_token);
-    data_store.set_u128(keys::max_swap_path_length(), 5);
+    data_store.set_u256(keys::max_swap_path_length(), 5);
 
     start_prank(market.long_token, caller_address);
     let order_params = CreateOrderParams {
@@ -123,8 +123,8 @@ fn given_right_swap_order_params_when_execute_order_then_success() {
     start_roll(order_handler.contract_address, 1910);
     let key = order_handler.create_order(caller_address, order_params);
 
-    // data_store.set_u128(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
-    // data_store.set_u128(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
+    // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
+    // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
     // Execute the swap order.
     let signatures: Span<felt252> = array![0].span();
     let set_price_params = SetPricesParams {

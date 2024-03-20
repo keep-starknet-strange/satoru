@@ -35,7 +35,7 @@ trait IOracleStore<TContractState> {
     /// Get the total number of signers.
     /// # Returns
     /// Signer count.
-    fn get_signer_count(self: @TContractState) -> u128;
+    fn get_signer_count(self: @TContractState) -> u256;
 
     /// Get the total signer at index.
     /// # Arguments
@@ -50,7 +50,7 @@ trait IOracleStore<TContractState> {
     /// * `end` - End index, not included.
     /// # Returns
     /// Signer for specified indexes.
-    fn get_signers(self: @TContractState, start: u128, end: u128) -> Array<ContractAddress>;
+    fn get_signers(self: @TContractState, start: u256, end: u256) -> Array<ContractAddress>;
 }
 
 #[starknet::contract]
@@ -143,7 +143,7 @@ mod OracleStore {
             signers.len = signers.len() - 1;
         }
 
-        fn get_signer_count(self: @ContractState) -> u128 {
+        fn get_signer_count(self: @ContractState) -> u256 {
             self.signers.read().len().into()
         }
 
@@ -152,11 +152,11 @@ mod OracleStore {
             contract_address_const::<'signer'>() // TODO
         }
 
-        fn get_signers(self: @ContractState, start: u128, end: u128) -> Array<ContractAddress> {
+        fn get_signers(self: @ContractState, start: u256, end: u256) -> Array<ContractAddress> {
             let mut signers_subset: Array<ContractAddress> = ArrayTrait::new();
             let signers = self.signers.read();
 
-            let mut index: u32 = start.try_into().expect('failed convertion u32 to u128');
+            let mut index: u32 = start.try_into().expect('failed convertion u32 to u256');
             loop {
                 if start == end {
                     break;

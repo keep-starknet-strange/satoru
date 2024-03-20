@@ -29,18 +29,18 @@ struct Deposit {
     /// The short token swap path.
     short_token_swap_path: Span32<ContractAddress>,
     /// The amount of long tokens to deposit.
-    initial_long_token_amount: u128,
+    initial_long_token_amount: u256,
     /// The amount of short tokens to deposit.
-    initial_short_token_amount: u128,
+    initial_short_token_amount: u256,
     /// The minimum acceptable number of liquidity tokens.
-    min_market_tokens: u128,
+    min_market_tokens: u256,
     /// The block that the deposit was last updated at sending funds back to the user in case the deposit gets cancelled.
     updated_at_block: u64,
     /// The execution fee for keepers.
-    execution_fee: u128,
+    execution_fee: u256,
     /// The gas limit for the callback contract.
     /// TODO: investigate how we want to handle callback and gas limit for Starknet contracts.
-    callback_gas_limit: u128,
+    callback_gas_limit: u256,
 }
 
 impl DefaultDeposit of Default<Deposit> {

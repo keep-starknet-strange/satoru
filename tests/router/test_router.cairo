@@ -14,7 +14,7 @@ fn given_normal_conditions_when_transfer_then_expected_results() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let mint_amount = 10000;
-    let transfer_amount: u128 = 100;
+    let transfer_amount: u256 = 100;
     let receiver_address: ContractAddress = 0x103.try_into().unwrap();
     let (sender_address, caller_address, router, test_token) = setup(mint_amount);
 
@@ -59,7 +59,7 @@ fn given_bad_caller_when_transfer_then_fail() {
     // *                              SETUP                                                        *
     // *********************************************************************************************
     let mint_amount = 10000;
-    let transfer_amount: u128 = 100;
+    let transfer_amount: u256 = 100;
     let receiver_address: ContractAddress = 0x103.try_into().unwrap();
     let (sender_address, _, router, test_token) = setup(mint_amount);
 
@@ -172,5 +172,5 @@ fn deploy_role_store() -> ContractAddress {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'role_store'>();
     start_prank(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![], deployed_contract_address).unwrap()
+    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
 }

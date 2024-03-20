@@ -26,7 +26,7 @@ use satoru::utils::span32::{Span32, Array32Trait};
 use snforge_std::{declare, ContractClassTrait, start_prank};
 use starknet::{get_caller_address, ContractAddress, contract_address_const};
 use array::ArrayTrait;
-use satoru::utils::i128::{i128, i128_new};
+use satoru::utils::i256::{i256, i256_new};
 
 //TODO Tests need to be added after implementation of decrease_position_swap_utils
 
@@ -47,7 +47,7 @@ fn deploy_role_store() -> ContractAddress {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'role_store'>();
     start_prank(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![], deployed_contract_address).unwrap()
+    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
 }
 
 /// Utility function to deploy a `DataStore` contract and return its dispatcher.
@@ -110,7 +110,7 @@ fn given_unauthorized_access_role_when_swap_to_pnl_token_then_fails() {
     decrease_position_swap_utils::swap_withdrawn_collateral_to_pnl_token(params, values);
 }
 
-// TODO: uncomment after implementation of i128 and all function required by swap()
+// TODO: uncomment after implementation of i256 and all function required by swap()
 // #[test]
 // fn given_normal_conditions_when_swap_to_pnl_token_then_works() {
 //     let (caller_address, role_store, swap_handler) = setup();
@@ -227,10 +227,10 @@ fn create_new_decrease_position_collateral_values(
     let value = DecreasePositionCollateralValues {
         execution_price: 10,
         remaining_collateral_amount: 1000,
-        base_pnl_usd: i128_new(10, false),
-        uncapped_base_pnl_usd: i128_new(10, false),
+        base_pnl_usd: i256_new(10, false),
+        uncapped_base_pnl_usd: i256_new(10, false),
         size_delta_in_tokens: 1000,
-        price_impact_usd: i128_new(1000, false),
+        price_impact_usd: i256_new(1000, false),
         price_impact_diff_usd: 500,
         output
     };

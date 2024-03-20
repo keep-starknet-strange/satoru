@@ -103,7 +103,7 @@ trait IOracle<TContractState> {
     /// The stable price of a token.
     fn get_stable_price(
         self: @TContractState, data_store: IDataStoreDispatcher, token: ContractAddress
-    ) -> u128;
+    ) -> u256;
 
     /// Get the multiplier value to convert the external price feed price to the price of 1 unit of the token
     /// represented with 30 decimals.
@@ -120,7 +120,7 @@ trait IOracle<TContractState> {
     /// The price feed multiplier.
     fn get_price_feed_multiplier(
         self: @TContractState, data_store: IDataStoreDispatcher, token: ContractAddress,
-    ) -> u128;
+    ) -> u256;
 
     fn set_price_testing_eth(ref self: TContractState, new_price: u128);
 
@@ -139,9 +139,9 @@ struct ValidatedPrice {
     /// The token to validate the price for.
     token: ContractAddress,
     /// The min price of the token.
-    min: u128,
+    min: u256,
     /// The max price of the token.
-    max: u128,
+    max: u256,
     /// The timestamp of the price validated.
     timestamp: u64,
     min_block_number: u64,
@@ -157,7 +157,7 @@ struct SetPricesCache {
     /// The max allowed age of price values.
     max_price_age: u64,
     /// The max ref_price deviation factor allowed.
-    max_ref_price_deviation_factor: u128,
+    max_ref_price_deviation_factor: u256,
     /// The previous oracle block number of the loop.
     prev_min_oracle_block_number: u64,
     // The prices that have been validated to set.
@@ -173,17 +173,17 @@ struct SetPricesInnerCache {
     /// The current signature index to retrieve from the signatures array.
     signature_index: usize,
     /// The index of the min price in min_prices for the current signer.
-    min_price_index: u128,
+    min_price_index: u256,
     /// The index of the max price in max_prices for the current signer.
-    max_price_index: u128,
+    max_price_index: u256,
     /// The min prices.
-    min_prices: Array<u128>,
+    min_prices: Array<u256>,
     /// The max prices.
-    max_prices: Array<u128>,
-    /// The min price index using U128Mask.
-    min_price_index_mask: u128,
-    /// The max price index using U128Mask.
-    max_price_index_mask: u128,
+    max_prices: Array<u256>,
+    /// The min price index using U256Mask.
+    min_price_index_mask: u256,
+    /// The max price index using U256Mask.
+    max_price_index_mask: u256,
 }
 
 #[starknet::contract]
@@ -222,7 +222,7 @@ mod Oracle {
     }; //::role_store::IInternalContractMemberStateTrait as RoleModuleStateTrait;
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::utils::{arrays, arrays::pow, bits, calc, precision};
-    use satoru::utils::u128_mask::{Mask, MaskTrait, validate_unique_and_set_index};
+    use satoru::utils::u256_mask::{Mask, MaskTrait, validate_unique_and_set_index};
 
     use super::{IOracle, SetPricesCache, SetPricesInnerCache, ValidatedPrice};
 
@@ -230,11 +230,11 @@ mod Oracle {
     // *************************************************************************
     //                              CONSTANTS
     // *************************************************************************
-    const SIGNER_INDEX_LENGTH: u128 = 16;
+    const SIGNER_INDEX_LENGTH: u256 = 16;
     // subtract 1 as the first slot is used to store number of signers
-    const MAX_SIGNERS: u128 = 15; //128 / SIGNER_INDEX_LENGTH - 1;
-    // signer indexes are recorded in a signerIndexFlags uint128 value to check for uniqueness
-    const MAX_SIGNER_INDEX: u128 = 128;
+    const MAX_SIGNERS: u256 = 15; //256 / SIGNER_INDEX_LENGTH - 1;
+    // signer indexes are recorded in a signerIndexFlags uint256 value to check for uniqueness
+    const MAX_SIGNER_INDEX: u256 = 256;
 
 
     // *************************************************************************
@@ -411,14 +411,14 @@ mod Oracle {
 
         fn get_stable_price(
             self: @ContractState, data_store: IDataStoreDispatcher, token: ContractAddress
-        ) -> u128 {
-            data_store.get_u128(keys::stable_price_key(token))
+        ) -> u256 {
+            data_store.get_u256(keys::stable_price_key(token))
         }
 
         fn get_price_feed_multiplier(
             self: @ContractState, data_store: IDataStoreDispatcher, token: ContractAddress,
-        ) -> u128 {
-            let multiplier = data_store.get_u128(keys::price_feed_multiplier_key(token));
+        ) -> u256 {
+            let multiplier = data_store.get_u256(keys::price_feed_multiplier_key(token));
 
             if multiplier.is_zero() {
                 OracleError::EMPTY_PRICE_FEED_MULTIPLIER();
@@ -503,19 +503,19 @@ mod Oracle {
             let mut cache: SetPricesCache = Default::default();
             cache
                 .min_block_confirmations = data_store
-                .get_u128(keys::min_oracle_block_confirmations())
+                .get_u256(keys::min_oracle_block_confirmations())
                 .try_into()
-                .expect('get_u128 into u64 failed');
+                .expect('get_u256 into u64 failed');
 
             cache
                 .max_price_age = data_store
-                .get_u128(keys::max_oracle_price_age())
+                .get_u256(keys::max_oracle_price_age())
                 .try_into()
-                .expect('get_u128 into u64 failed');
+                .expect('get_u256 into u64 failed');
 
             cache
                 .max_ref_price_deviation_factor = data_store
-                .get_u128(keys::max_oracle_ref_price_deviation_factor());
+                .get_u256(keys::max_oracle_ref_price_deviation_factor());
 
             let mut i = 0;
             loop {
@@ -585,7 +585,7 @@ mod Oracle {
                                 params.compacted_decimals.span(), i.into()
                             )
                                 .try_into()
-                                .expect('u128 into u32 failed')
+                                .expect('u256 into u32 failed')
                         );
 
                 report_info
@@ -665,13 +665,13 @@ mod Oracle {
                         );
                     }
                     if inner_cache.min_price_index >= inner_cache.min_prices.len().into() {
-                        OracleError::ARRAY_OUT_OF_BOUNDS_U128(
+                        OracleError::ARRAY_OUT_OF_BOUNDS_U256(
                             inner_cache.min_prices.span(), inner_cache.min_price_index, 'min_prices'
                         );
                     }
 
                     if inner_cache.max_price_index >= inner_cache.max_prices.len().into() {
-                        OracleError::ARRAY_OUT_OF_BOUNDS_U128(
+                        OracleError::ARRAY_OUT_OF_BOUNDS_U256(
                             inner_cache.max_prices.span(), inner_cache.max_price_index, 'max_prices'
                         );
                     }
@@ -776,9 +776,9 @@ mod Oracle {
             let mut signers: Array<ContractAddress> = array![];
 
             let signers_len = *params.signer_info & bits::BITMASK_16;
-            if signers_len < data_store.get_u128(keys::min_oracle_signers()) {
+            if signers_len < data_store.get_u256(keys::min_oracle_signers()) {
                 OracleError::MIN_ORACLE_SIGNERS(
-                    signers_len, data_store.get_u128(keys::min_oracle_signers())
+                    signers_len, data_store.get_u256(keys::min_oracle_signers())
                 );
             }
 
@@ -794,7 +794,7 @@ mod Oracle {
                     break;
                 }
 
-                let signer_index: u128 = BitShift::shr(
+                let signer_index: u256 = BitShift::shr(
                     *params.signer_info, (8 + 8 * len) & bits::BITMASK_16
                 );
 
@@ -809,10 +809,10 @@ mod Oracle {
                         self
                             .oracle_store
                             .read()
-                            .get_signer(signer_index.try_into().expect('u128 into u32 failed'))
+                            .get_signer(signer_index.try_into().expect('u256 into u32 failed'))
                     );
 
-                if (*signers.at(len.try_into().expect('u128 into u32 failed'))).is_zero() {
+                if (*signers.at(len.try_into().expect('u256 into u32 failed'))).is_zero() {
                     OracleError::EMPTY_SIGNER(signer_index);
                 }
 
@@ -841,9 +841,9 @@ mod Oracle {
         fn validate_ref_price(
             self: @ContractState,
             token: ContractAddress,
-            price: u128,
-            ref_price: u128,
-            max_ref_price_deviation_factor: u128,
+            price: u256,
+            ref_price: u256,
+            max_ref_price_deviation_factor: u256,
         ) {
             let diff = calc::diff(price, ref_price);
 
@@ -898,7 +898,7 @@ mod Oracle {
         /// The price feed multiplier.
         fn get_price_feed_price(
             self: @ContractState, data_store: IDataStoreDispatcher, token: ContractAddress,
-        ) -> (bool, u128) {
+        ) -> (bool, u256) {
             let token_id = data_store.get_token_id(token);
             if token_id == 0 {
                 return (false, 0);
@@ -910,14 +910,14 @@ mod Oracle {
             }
 
             let heart_beat_duration = data_store
-                .get_u128(keys::price_feed_heartbeat_duration_key(token));
+                .get_u256(keys::price_feed_heartbeat_duration_key(token));
 
             let current_timestamp = get_block_timestamp();
             if current_timestamp > response.last_updated_timestamp && current_timestamp
                 - response
                     .last_updated_timestamp > heart_beat_duration
                     .try_into()
-                    .expect('u128 into u32 failed') {
+                    .expect('u256 into u32 failed') {
                 OracleError::PRICE_FEED_NOT_UPDATED(
                     token, response.last_updated_timestamp, heart_beat_duration
                 );
@@ -1006,8 +1006,8 @@ mod Oracle {
             self: @ContractState,
             event_emitter: IEventEmitterDispatcher,
             token: ContractAddress,
-            min_price: u128,
-            max_price: u128,
+            min_price: u256,
+            max_price: u256,
             is_price_feed: bool,
         ) {
             event_emitter.emit_oracle_price_updated(token, min_price, max_price, is_price_feed);

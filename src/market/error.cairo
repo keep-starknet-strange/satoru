@@ -21,24 +21,31 @@ mod MarketError {
         panic(array!['minimum_position_size', is_market_disabled.into()])
     }
 
-    fn EMPTY_MARKET_TOKEN_SUPPLY(supply: u128) {
-        panic(array!['empty_market_token_supply', supply.into()])
+    fn EMPTY_MARKET_TOKEN_SUPPLY(supply: u256) {
+        panic(
+            array!['empty_market_token_supply', supply.try_into().expect('u256 into felt failed')]
+        )
     }
 
     fn INVALID_MARKET_COLLATERAL_TOKEN(market: ContractAddress, token: ContractAddress) {
         panic(array!['invalid_market_collateral_token', market.into(), token.into()])
     }
 
-    fn UNABLE_TO_GET_FUNDING_FACTOR_EMPTY_OPEN_INTEREST(total_open_interest: u128) {
-        panic(array!['unable_to_get_funding_factor', total_open_interest.into()])
+    fn UNABLE_TO_GET_FUNDING_FACTOR_EMPTY_OPEN_INTEREST(total_open_interest: u256) {
+        panic(
+            array![
+                'unable_to_get_funding_factor',
+                total_open_interest.try_into().expect('u256 into felt failed')
+            ]
+        )
     }
 
-    fn MAX_SWAP_PATH_LENGTH_EXCEEDED(token_swap_path_length: u32, max_swap_path_length: u128) {
+    fn MAX_SWAP_PATH_LENGTH_EXCEEDED(token_swap_path_length: u32, max_swap_path_length: u256) {
         panic(
             array![
                 'max_swap_path_length_exceeded',
                 token_swap_path_length.into(),
-                max_swap_path_length.into()
+                max_swap_path_length.try_into().expect('u256 into felt failed')
             ]
         )
     }
@@ -51,46 +58,89 @@ mod MarketError {
         panic(array!['pnl_exceeded_for_shorts', is_pnl_factor_exceeded_for_shorts.into()])
     }
 
-    fn UI_FEE_FACTOR_EXCEEDED(ui_fee_factor: u128, max_ui_fee_factor: u128) {
-        panic(array!['ui_fee_factor_exceeded', ui_fee_factor.into(), max_ui_fee_factor.into()])
-    }
-
-    fn INVALID_MARKET_TOKEN_BALANCE_FOR_COLLATERAL_AMOUNT(balance: u128, collateral_amount: u128) {
-        panic(array!['invalid_mrkt_tkn_balance_col', balance.into(), collateral_amount.into()])
-    }
-
-    fn INVALID_MARKET_TOKEN_BALANCE_FOR_CLAIMABLE_FUNDING(
-        balance: u128, claimable_funding_fee_amount: u128
-    ) {
+    fn UI_FEE_FACTOR_EXCEEDED(ui_fee_factor: u256, max_ui_fee_factor: u256) {
         panic(
             array![
-                'invalid_mrkt_tkn_balance_clm', balance.into(), claimable_funding_fee_amount.into()
+                'ui_fee_factor_exceeded',
+                ui_fee_factor.try_into().expect('u256 into felt failed'),
+                max_ui_fee_factor.try_into().expect('u256 into felt failed')
             ]
         )
     }
 
-    fn UNABLE_TO_GET_BORROWING_FACTOR_EMPTY_POOL_USD(pool_usd: u128) {
-        panic(array!['unable_to_get_borrowing_factor', pool_usd.into()])
+    fn INVALID_MARKET_TOKEN_BALANCE_FOR_COLLATERAL_AMOUNT(balance: u256, collateral_amount: u256) {
+        panic(
+            array![
+                'invalid_mrkt_tkn_balance_col',
+                balance.try_into().expect('u256 into felt failed'),
+                collateral_amount.try_into().expect('u256 into felt failed')
+            ]
+        )
     }
 
-    fn MAX_OPEN_INTEREST_EXCEDEED(open_interest: u128, max_open_interest: u128) {
-        panic(array!['max_open_interest_exceeded', open_interest.into(), max_open_interest.into()])
+    fn INVALID_MARKET_TOKEN_BALANCE_FOR_CLAIMABLE_FUNDING(
+        balance: u256, claimable_funding_fee_amount: u256
+    ) {
+        panic(
+            array![
+                'invalid_mrkt_tkn_balance_clm',
+                balance.try_into().expect('u256 into felt failed'),
+                claimable_funding_fee_amount.try_into().expect('u256 into felt failed')
+            ]
+        )
+    }
+
+    fn UNABLE_TO_GET_BORROWING_FACTOR_EMPTY_POOL_USD(pool_usd: u256) {
+        panic(
+            array![
+                'unable_to_get_borrowing_factor',
+                pool_usd.try_into().expect('u256 into felt failed')
+            ]
+        )
+    }
+
+    fn MAX_OPEN_INTEREST_EXCEDEED(open_interest: u256, max_open_interest: u256) {
+        panic(
+            array![
+                'max_open_interest_exceeded',
+                open_interest.try_into().expect('u256 into felt failed'),
+                max_open_interest.try_into().expect('u256 into felt failed')
+            ]
+        )
     }
 
     fn UNABLE_TO_GET_CACHED_TOKEN_PRICE(token_in: ContractAddress, market_token: ContractAddress) {
         panic(array!['unable_to_get_cached_token_pri', token_in.into(), market_token.into()])
     }
 
-    fn MAX_POOL_AMOUNT_EXCEEDED(pool_amount: u128, max_pool_amount: u128) {
-        panic(array!['max_pool_amount_exceeded', pool_amount.into(), max_pool_amount.into()])
+    fn MAX_POOL_AMOUNT_EXCEEDED(pool_amount: u256, max_pool_amount: u256) {
+        panic(
+            array![
+                'max_pool_amount_exceeded',
+                pool_amount.try_into().expect('u256 into felt failed'),
+                max_pool_amount.try_into().expect('u256 into felt failed')
+            ]
+        )
     }
 
-    fn INSUFFICIENT_RESERVE(reserve: u128, amount: u128) {
-        panic(array!['insufficient_reserve', reserve.into(), amount.into()])
+    fn INSUFFICIENT_RESERVE(reserve: u256, amount: u256) {
+        panic(
+            array![
+                'insufficient_reserve',
+                reserve.try_into().expect('u256 into felt failed'),
+                amount.try_into().expect('u256 into felt failed')
+            ]
+        )
     }
 
-    fn UNEXCEPTED_BORROWING_FACTOR(borrowing_factor: u128, next: u128) {
-        panic(array!['unexpected_borrowing_factor', borrowing_factor.into(), next.into()])
+    fn UNEXCEPTED_BORROWING_FACTOR(borrowing_factor: u256, next: u256) {
+        panic(
+            array![
+                'unexpected_borrowing_factor',
+                borrowing_factor.try_into().expect('u256 into felt failed'),
+                next.try_into().expect('u256 into felt failed')
+            ]
+        )
     }
 
     fn UNEXCEPTED_TOKEN(token: ContractAddress) {

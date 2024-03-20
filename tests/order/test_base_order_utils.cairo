@@ -16,7 +16,7 @@ use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatche
 use satoru::oracle::price_feed::PriceFeed;
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
 use satoru::role::role;
-use satoru::utils::i128::{i128, i128_new};
+use satoru::utils::i256::{i256, i256_new};
 
 #[test]
 fn given_normal_conditions_when_is_market_order_then_works() {
@@ -232,7 +232,7 @@ fn given_normal_conditions_when_get_execution_price_for_decrease_then_works() {
         position_size_in_usd: 1000,
         position_size_in_tokens: 100,
         size_delta_usd: 200,
-        price_impact_usd: i128_new(1, false),
+        price_impact_usd: i256_new(1, false),
         acceptable_price: 8,
         is_long: true,
     );
@@ -243,7 +243,7 @@ fn given_normal_conditions_when_get_execution_price_for_decrease_then_works() {
         position_size_in_usd: 200000000,
         position_size_in_tokens: 30000,
         size_delta_usd: 50000,
-        price_impact_usd: i128_new(15, false),
+        price_impact_usd: i256_new(15, false),
         acceptable_price: 1001,
         is_long: true,
     );
@@ -254,7 +254,7 @@ fn given_normal_conditions_when_get_execution_price_for_decrease_then_works() {
         position_size_in_usd: 200000000,
         position_size_in_tokens: 30000,
         size_delta_usd: 50000,
-        price_impact_usd: i128_new(15, false),
+        price_impact_usd: i256_new(15, false),
         acceptable_price: 1100,
         is_long: false,
     );
@@ -276,7 +276,7 @@ fn given_price_impact_larger_than_order_when_get_execution_price_for_decrease_th
         position_size_in_usd: 200000000,
         position_size_in_tokens: 30000,
         size_delta_usd: 1,
-        price_impact_usd: i128_new(15, false),
+        price_impact_usd: i256_new(15, false),
         acceptable_price: 1100,
         is_long: false,
     );
@@ -299,7 +299,7 @@ fn given_negative_execution_price_than_order_when_get_execution_price_for_decrea
         position_size_in_usd: 200000000,
         position_size_in_tokens: 30000,
         size_delta_usd: 50000,
-        price_impact_usd: i128_new(15, false),
+        price_impact_usd: i256_new(15, false),
         acceptable_price: 1100,
         is_long: false,
     );
@@ -314,7 +314,7 @@ fn given_not_acceptable_price_when_get_execution_price_for_decrease_then_fails()
         position_size_in_usd: 200000000,
         position_size_in_tokens: 30000,
         size_delta_usd: 50000,
-        price_impact_usd: i128_new(15, false),
+        price_impact_usd: i256_new(15, false),
         acceptable_price: 10000,
         is_long: true,
     );
@@ -414,7 +414,7 @@ fn deploy_role_store() -> ContractAddress {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'role_store'>();
     start_prank(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![], deployed_contract_address).unwrap()
+    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
 }
 
 fn deploy_event_emitter() -> ContractAddress {

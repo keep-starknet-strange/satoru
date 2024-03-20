@@ -47,15 +47,15 @@ fn increment_affiliate_reward(
     market: ContractAddress,
     token: ContractAddress,
     affiliate: ContractAddress,
-    delta: u128
+    delta: u256
 ) {
     if (delta == 0) {
         return;
     }
-    let next_value: u128 = data_store
-        .increment_u128(keys::affiliate_reward_for_account_key(market, token, affiliate), delta);
-    let next_pool_value: u128 = data_store
-        .increment_u128(keys::affiliate_reward_key(market, token), delta);
+    let next_value: u256 = data_store
+        .increment_u256(keys::affiliate_reward_for_account_key(market, token, affiliate), delta);
+    let next_pool_value: u256 = data_store
+        .increment_u256(keys::affiliate_reward_key(market, token), delta);
 
     event_emitter
         .emit_affiliate_reward_updated(
@@ -71,18 +71,18 @@ fn increment_affiliate_reward(
 /// The referral code, the affiliate's address, the total rebate, and the discount share.
 fn get_referral_info(
     referral_storage: IReferralStorageDispatcher, trader: ContractAddress
-) -> (felt252, ContractAddress, u128, u128) {
+) -> (felt252, ContractAddress, u256, u256) {
     let code: felt252 = referral_storage.trader_referral_codes(trader);
     let mut affiliate = contract_address_const::<0>();
-    let mut total_rebate: u128 = 0;
-    let mut discount_share: u128 = 0;
+    let mut total_rebate: u256 = 0;
+    let mut discount_share: u256 = 0;
     if (code != 0) {
         affiliate = referral_storage.code_owners(code);
-        let referral_tier_level: u128 = referral_storage.referrer_tiers(affiliate);
+        let referral_tier_level: u256 = referral_storage.referrer_tiers(affiliate);
         let referral_tier: ReferralTier = referral_storage.tiers(referral_tier_level);
         total_rebate = referral_tier.total_rebate;
         discount_share = referral_tier.discount_share;
-        let custom_discount_share: u128 = referral_storage.referrer_discount_shares(affiliate);
+        let custom_discount_share: u256 = referral_storage.referrer_discount_shares(affiliate);
         if (custom_discount_share != 0) {
             discount_share = custom_discount_share;
         }
@@ -113,14 +113,14 @@ fn claim_affiliate_reward(
     token: ContractAddress,
     account: ContractAddress,
     receiver: ContractAddress
-) -> u128 {
+) -> u256 {
     let key: felt252 = keys::affiliate_reward_for_account_key(market, token, account);
 
-    let reward_amount: u128 = data_store.get_u128(key);
-    data_store.set_u128(key, 0);
+    let reward_amount: u256 = data_store.get_u256(key);
+    data_store.set_u256(key, 0);
 
-    let next_pool_value: u128 = data_store
-        .decrement_u128(keys::affiliate_reward_key(market, token), reward_amount);
+    let next_pool_value: u256 = data_store
+        .decrement_u256(keys::affiliate_reward_key(market, token), reward_amount);
 
     IMarketTokenDispatcher { contract_address: market }
         .transfer_out(token, receiver, reward_amount);

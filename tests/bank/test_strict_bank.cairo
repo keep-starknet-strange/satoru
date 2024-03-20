@@ -111,7 +111,7 @@ fn deploy_role_store() -> ContractAddress {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let role_store_address: ContractAddress = contract_address_const::<'role_store'>();
 
-    let constructor_arguments: @Array::<felt252> = @ArrayTrait::new();
+    let constructor_arguments: @Array::<felt252> = @array![caller_address.into()];
     start_prank(role_store_address, caller_address);
     contract.deploy_at(constructor_arguments, role_store_address).unwrap()
 }
@@ -149,7 +149,7 @@ fn given_normal_conditions_when_transfer_out_then_works() {
     let erc20_dispatcher = IERC20Dispatcher { contract_address: erc20_contract_address };
 
     // call the transfer_out function
-    strict_bank.transfer_out(erc20_contract_address, receiver_address, 100_u128);
+    strict_bank.transfer_out(erc20_contract_address, receiver_address, 100_u256);
     // check that the contract balance reduces
     let contract_balance = erc20_dispatcher.balance_of(strict_bank.contract_address);
     assert(contract_balance == u256_from_felt252(900), 'transfer_out failed');
@@ -201,7 +201,7 @@ fn given_receiver_is_contract_when_transfer_out_then_fails() {
     let erc20_contract_address = erc20_contract.deploy(@constructor_calldata3).unwrap();
     let erc20_dispatcher = IERC20Dispatcher { contract_address: erc20_contract_address };
 
-    strict_bank.transfer_out(erc20_contract_address, strict_bank.contract_address, 100_u128);
+    strict_bank.transfer_out(erc20_contract_address, strict_bank.contract_address, 100_u256);
 
     //teardown
     teardown(data_store, strict_bank);
@@ -227,7 +227,7 @@ fn given_normal_conditions_when_record_transfer_in_works() {
     // send tokens into strict bank 
     erc20_dispatcher.transfer(strict_bank.contract_address, u256_from_felt252(50));
 
-    let new_balance: u128 = erc20_dispatcher
+    let new_balance: u256 = erc20_dispatcher
         .balance_of(strict_bank.contract_address)
         .try_into()
         .unwrap();

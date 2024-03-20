@@ -132,7 +132,7 @@ fn given_normal_conditions_when_emit_set_uint_then_works() {
     // Create dummy data.
     let key = 'set_address';
     let data = array!['0x01'];
-    let value: u128 = 10;
+    let value: u256 = 10;
 
     // Emit the event.
     event_emitter.emit_set_uint(key, data.span(), value);

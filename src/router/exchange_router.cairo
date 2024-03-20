@@ -36,7 +36,7 @@ trait IExchangeRouter<TContractState> {
     /// * `receiver` - The address of the receiver.
     /// * `amount` - The amount of tokens to transfer.
     fn send_tokens(
-        ref self: TContractState, token: ContractAddress, receiver: ContractAddress, amount: u128
+        ref self: TContractState, token: ContractAddress, receiver: ContractAddress, amount: u256
     );
 
     /// Creates a new deposit with the given params. The deposit is created by transferring the specified amounts of
@@ -111,10 +111,10 @@ trait IExchangeRouter<TContractState> {
     fn update_order(
         ref self: TContractState,
         key: felt252,
-        size_delta_usd: u128,
-        acceptable_price: u128,
-        trigger_price: u128,
-        min_output_amout: u128
+        size_delta_usd: u256,
+        acceptable_price: u256,
+        trigger_price: u256,
+        min_output_amout: u256
     );
 
     /// Cancels the given order.
@@ -135,15 +135,15 @@ trait IExchangeRouter<TContractState> {
         markets: Array<ContractAddress>,
         tokens: Array<ContractAddress>,
         receiver: ContractAddress
-    ) -> Array<u128>;
+    ) -> Array<u256>;
 
     fn claim_collateral(
         ref self: TContractState,
         markets: Array<ContractAddress>,
         tokens: Array<ContractAddress>,
-        time_keys: Array<u128>,
+        time_keys: Array<u256>,
         receiver: ContractAddress
-    ) -> Array<u128>;
+    ) -> Array<u256>;
 
     /// Claims affiliate rewards for the given markets and tokens on behalf of the caller, and sends the rewards to the specified receiver.
     /// # Arguments
@@ -155,16 +155,16 @@ trait IExchangeRouter<TContractState> {
         markets: Array<ContractAddress>,
         tokens: Array<ContractAddress>,
         receiver: ContractAddress
-    ) -> Array<u128>;
+    ) -> Array<u256>;
 
-    fn set_ui_fee_factor(ref self: TContractState, ui_fee_factor: u128);
+    fn set_ui_fee_factor(ref self: TContractState, ui_fee_factor: u256);
 
     fn claim_ui_fees(
         ref self: TContractState,
         markets: Array<ContractAddress>,
         tokens: Array<ContractAddress>,
         receiver: ContractAddress
-    ) -> Array<u128>;
+    ) -> Array<u256>;
 }
 
 #[starknet::contract]
@@ -276,7 +276,7 @@ mod ExchangeRouter {
     #[abi(embed_v0)]
     impl ExchangeRouterImpl of super::IExchangeRouter<ContractState> {
         fn send_tokens(
-            ref self: ContractState, token: ContractAddress, receiver: ContractAddress, amount: u128
+            ref self: ContractState, token: ContractAddress, receiver: ContractAddress, amount: u256
         ) {
             account_utils::validate_receiver(receiver);
             let account = get_caller_address();
@@ -408,10 +408,10 @@ mod ExchangeRouter {
         fn update_order(
             ref self: ContractState,
             key: felt252,
-            size_delta_usd: u128,
-            acceptable_price: u128,
-            trigger_price: u128,
-            min_output_amout: u128
+            size_delta_usd: u256,
+            acceptable_price: u256,
+            trigger_price: u256,
+            min_output_amout: u256
         ) {
             let data_store = self.data_store.read();
             global_reentrancy_guard::non_reentrant_before(data_store);
@@ -450,7 +450,7 @@ mod ExchangeRouter {
             markets: Array<ContractAddress>,
             tokens: Array<ContractAddress>,
             receiver: ContractAddress
-        ) -> Array<u128> {
+        ) -> Array<u256> {
             let data_store = self.data_store.read();
             global_reentrancy_guard::non_reentrant_before(data_store);
 
@@ -466,7 +466,7 @@ mod ExchangeRouter {
 
             let account = get_caller_address();
 
-            let mut claimed_amounts: Array<u128> = ArrayTrait::new();
+            let mut claimed_amounts: Array<u256> = ArrayTrait::new();
 
             let mut i = 0;
             loop {
@@ -496,9 +496,9 @@ mod ExchangeRouter {
             ref self: ContractState,
             markets: Array<ContractAddress>,
             tokens: Array<ContractAddress>,
-            time_keys: Array<u128>,
+            time_keys: Array<u256>,
             receiver: ContractAddress
-        ) -> Array<u128> {
+        ) -> Array<u256> {
             let data_store = self.data_store.read();
             global_reentrancy_guard::non_reentrant_before(data_store);
 
@@ -516,7 +516,7 @@ mod ExchangeRouter {
 
             let account = get_caller_address();
 
-            let mut claimed_amounts: Array<u128> = ArrayTrait::new();
+            let mut claimed_amounts: Array<u256> = ArrayTrait::new();
 
             let mut i = 0;
             loop {
@@ -548,7 +548,7 @@ mod ExchangeRouter {
             markets: Array<ContractAddress>,
             tokens: Array<ContractAddress>,
             receiver: ContractAddress
-        ) -> Array<u128> {
+        ) -> Array<u256> {
             let data_store = self.data_store.read();
             global_reentrancy_guard::non_reentrant_before(data_store);
 
@@ -563,7 +563,7 @@ mod ExchangeRouter {
 
             let account = get_caller_address();
 
-            let mut claimed_amounts: Array<u128> = ArrayTrait::new();
+            let mut claimed_amounts: Array<u256> = ArrayTrait::new();
 
             let mut i = 0;
             loop {
@@ -589,7 +589,7 @@ mod ExchangeRouter {
             claimed_amounts
         }
 
-        fn set_ui_fee_factor(ref self: ContractState, ui_fee_factor: u128) {
+        fn set_ui_fee_factor(ref self: ContractState, ui_fee_factor: u256) {
             let data_store = self.data_store.read();
             global_reentrancy_guard::non_reentrant_before(data_store);
 
@@ -606,7 +606,7 @@ mod ExchangeRouter {
             markets: Array<ContractAddress>,
             tokens: Array<ContractAddress>,
             receiver: ContractAddress
-        ) -> Array<u128> {
+        ) -> Array<u256> {
             let data_store = self.data_store.read();
             global_reentrancy_guard::non_reentrant_before(data_store);
 
@@ -620,7 +620,7 @@ mod ExchangeRouter {
 
             let ui_fee_receiver = get_caller_address();
 
-            let mut claimed_amounts: Array<u128> = ArrayTrait::new();
+            let mut claimed_amounts: Array<u256> = ArrayTrait::new();
 
             let mut i = 0;
             loop {

@@ -28,11 +28,11 @@ struct DecreasePositionResult {
     /// The output token address.
     output_token: ContractAddress,
     /// The output token amount.
-    output_amount: u128,
+    output_amount: u256,
     /// The secondary output token address.
     secondary_output_token: ContractAddress,
     /// The secondary output token amount.
-    secondary_output_amount: u128,
+    secondary_output_amount: u256,
 }
 
 /// The decrease_position function decreases the size of an existing position
@@ -156,7 +156,7 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
         if ((estimated_remaining_collateral_usd
             + cache
                 .estimated_remaining_pnl_usd) < to_signed(
-                    params.contracts.data_store.get_u128(keys::min_collateral_usd()), true
+                    params.contracts.data_store.get_u256(keys::min_collateral_usd()), true
                 )) {
             params
                 .contracts
@@ -171,7 +171,7 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
             && (params.position.size_in_usd - params.order.size_delta_usd) < params
                 .contracts
                 .data_store
-                .get_u128(keys::min_collateral_usd())) {
+                .get_u256(keys::min_collateral_usd())) {
             params
                 .contracts
                 .event_emitter

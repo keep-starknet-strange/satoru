@@ -37,7 +37,7 @@ fn deploy_role_store() -> ContractAddress {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'role_store'>();
     start_prank(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![], deployed_contract_address).unwrap()
+    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
 }
 
 fn deploy_event_emitter() -> ContractAddress {
@@ -244,8 +244,8 @@ fn given_normal_conditions_when_increment_affiliate_reward_then_works() {
     let mut spy = spy_events(SpyOn::One(event_emitter.contract_address));
     role_store.grant_role(caller_address, role::CONTROLLER);
 
-    let init_value: u128 = 10000;
-    let init_next_pool: u128 = 20000;
+    let init_value: u256 = 10000;
+    let init_next_pool: u256 = 20000;
 
     let market: ContractAddress = contract_address_const::<'market'>();
     let token: ContractAddress = contract_address_const::<'token'>();
@@ -254,10 +254,10 @@ fn given_normal_conditions_when_increment_affiliate_reward_then_works() {
     let key_1 = keys::affiliate_reward_for_account_key(market, token, affiliate);
     let key_2 = keys::affiliate_reward_key(market, token);
 
-    data_store.set_u128(key_1, init_value);
-    data_store.set_u128(key_2, init_next_pool);
+    data_store.set_u256(key_1, init_value);
+    data_store.set_u256(key_2, init_next_pool);
 
-    let delta: u128 = 2000;
+    let delta: u256 = 2000;
     let expected_value = init_value + delta;
     let expected_pool = init_next_pool + delta;
 
@@ -266,10 +266,10 @@ fn given_normal_conditions_when_increment_affiliate_reward_then_works() {
         data_store, event_emitter, market, token, affiliate, delta
     );
 
-    let retrieved_value = data_store.get_u128(key_1);
+    let retrieved_value = data_store.get_u256(key_1);
     assert(retrieved_value == expected_value, 'invalid next value');
 
-    let retrieved_pool_value = data_store.get_u128(key_2);
+    let retrieved_pool_value = data_store.get_u256(key_2);
     assert(retrieved_pool_value == expected_pool, 'invalid next pool');
 
     spy
@@ -454,18 +454,18 @@ fn given_normal_conditions_when_claim_affiliate_reward_then_works() {
     let key_1 = keys::affiliate_reward_for_account_key(market, token_address, account);
     let key_2 = keys::affiliate_reward_key(market, token_address);
 
-    data_store.set_u128(key_1, reward_amount);
-    data_store.set_u128(key_2, pool_value);
+    data_store.set_u256(key_1, reward_amount);
+    data_store.set_u256(key_2, pool_value);
 
     // Test
 
     let caller_balance = token_dispatcher.balance_of(caller_address);
     assert(caller_balance == 0, 'invalid init balance');
 
-    // let retrieved_amount: u128 = referral_utils::claim_affiliate_reward(
+    // let retrieved_amount: u256 = referral_utils::claim_affiliate_reward(
     //     data_store, event_emitter, market, token_address, account, caller_address
     // );
-    let retrieved_amount: u128 =
+    let retrieved_amount: u256 =
         reward_amount; //TODO fix referral_utils::claim_affiliate_reward function and delete this line
 
     assert(retrieved_amount == reward_amount, 'invalid retrieved_amount');
@@ -474,10 +474,10 @@ fn given_normal_conditions_when_claim_affiliate_reward_then_works() {
     let caller_balance_after = token_dispatcher.balance_of(caller_address);
     //assert(caller_balance_after == reward_amount.into(), 'invalid after balance');//TODO fix referral_utils::claim_affiliate_reward function and delete this line
 
-    let retrived_value = data_store.get_u128(key_1);
+    let retrived_value = data_store.get_u256(key_1);
     //assert(retrived_value == 0, 'invalid value'); //TODO fix referral_utils::claim_affiliate_reward function and delete this line
 
-    let retrived_value2 = data_store.get_u128(key_2);
+    let retrived_value2 = data_store.get_u256(key_2);
     //assert(retrived_value2 == pool_value - reward_amount, 'invalid value'); //TODO fix referral_utils::claim_affiliate_reward function and delete this line
 
     // Check event

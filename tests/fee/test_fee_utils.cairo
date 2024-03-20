@@ -23,17 +23,17 @@ fn given_normal_conditions_when_increment_claimable_fee_amount_then_works() {
         market, token
     ); // Calculate slot key to get initial value of slot.
 
-    let initial_value = data_store.get_u128(key);
-    assert(initial_value == 0_u128, 'initial value wrong');
+    let initial_value = data_store.get_u256(key);
+    assert(initial_value == 0_u256, 'initial value wrong');
 
     // Change value with util function.
 
-    let delta = 50_u128;
+    let delta = 50_u256;
     let fee_type = 'FEE_TYPE';
 
     increment_claimable_fee_amount(data_store, event_emitter, market, token, delta, fee_type);
 
-    let final_value = data_store.get_u128(key);
+    let final_value = data_store.get_u256(key);
 
     assert(final_value == delta, 'Final value wrong');
 }
@@ -49,21 +49,21 @@ fn given_normal_conditions_when_increment_claimable_ui_fee_amount_then_works() {
     let key = claimable_ui_fee_amount_for_account_key(market, token, ui_fee_receiver);
     let pool_key = claimable_ui_fee_amount_key(market, token);
 
-    let initial_value = data_store.get_u128(key);
-    let initial_pool_value = data_store.get_u128(pool_key);
+    let initial_value = data_store.get_u256(key);
+    let initial_pool_value = data_store.get_u256(pool_key);
 
     assert(initial_value == 0, 'Initial value wrong');
     assert(initial_pool_value == 0, 'Initial pool value wrong');
 
-    let delta = 75_u128;
+    let delta = 75_u256;
     let fee_type = 'UI_FEE_TYPE';
 
     increment_claimable_ui_fee_amount(
         data_store, event_emitter, ui_fee_receiver, market, token, delta, fee_type
     );
 
-    let final_value = data_store.get_u128(key);
-    let final_pool_value = data_store.get_u128(pool_key);
+    let final_value = data_store.get_u256(key);
+    let final_pool_value = data_store.get_u256(pool_key);
 
     assert(final_value == delta, 'Final value wrong');
     assert(final_pool_value == delta, 'Final pool value wrong');
@@ -83,7 +83,7 @@ fn deploy_role_store() -> ContractAddress {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'role_store'>();
     start_prank(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![], deployed_contract_address).unwrap()
+    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
 }
 
 fn deploy_event_emitter() -> ContractAddress {

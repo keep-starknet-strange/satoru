@@ -5,7 +5,6 @@
 // *************************************************************************
 
 // Core lib imports.
-use core::traits::Into;
 use starknet::ContractAddress;
 // Local imports.
 use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
@@ -54,10 +53,10 @@ trait IOrderHandler<TContractState> {
     fn update_order(
         ref self: TContractState,
         key: felt252,
-        size_delta_usd: u128,
-        acceptable_price: u128,
-        trigger_price: u128,
-        min_output_amount: u128,
+        size_delta_usd: u256,
+        acceptable_price: u256,
+        trigger_price: u256,
+        min_output_amount: u256,
         order: Order
     ) -> Order;
 
@@ -101,9 +100,10 @@ mod OrderHandler {
     // *************************************************************************
 
     // Core lib imports.
-    use core::option::OptionTrait;
     use core::starknet::SyscallResultTrait;
     use core::traits::Into;
+    use starknet::ContractAddress;
+    use starknet::{get_caller_address, get_contract_address};
     use array::ArrayTrait;
     use debug::PrintTrait;
 
@@ -112,12 +112,11 @@ mod OrderHandler {
     use satoru::oracle::{
         oracle_modules, oracle_utils, oracle_utils::{SetPricesParams, SimulatePricesParams}
     };
-    use satoru::order::{base_order_utils::CreateOrderParams, order_utils, order, base_order_utils};
     use satoru::order::{
+        base_order_utils::CreateOrderParams, order_utils, order, base_order_utils,
         order::{Order, OrderTrait, OrderType, SecondaryOrderType},
         order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}
     };
-    use satoru::market::market::Market;
     use satoru::market::error::MarketError;
     use satoru::position::error::PositionError;
     use satoru::feature::error::FeatureError;
@@ -142,7 +141,6 @@ mod OrderHandler {
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::token::token_utils;
     use satoru::gas::gas_utils;
-    use satoru::chain::chain::Chain;
     use satoru::utils::global_reentrancy_guard;
     use satoru::utils::error_utils;
     use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
@@ -250,10 +248,10 @@ mod OrderHandler {
         fn update_order(
             ref self: ContractState,
             key: felt252,
-            size_delta_usd: u128,
-            acceptable_price: u128,
-            trigger_price: u128,
-            min_output_amount: u128,
+            size_delta_usd: u256,
+            acceptable_price: u256,
+            trigger_price: u256,
+            min_output_amount: u256,
             order: Order
         ) -> Order {
             // Check only controller.
@@ -311,7 +309,7 @@ mod OrderHandler {
         }
 
         fn cancel_order(ref self: ContractState, key: felt252) {
-            let starting_gas: u128 = 0; // TODO: Get starting gas from Cairo.
+            let starting_gas: u256 = 0; // TODO: Get starting gas from Cairo.
 
             // Check only controller.
             let role_module_state = RoleModule::unsafe_new_contract_state();
@@ -426,6 +424,7 @@ mod OrderHandler {
         ) {
             let starting_gas: u128 = 100000; // TODO: Get starting gas from Cairo.
 
+
             // Check only self.
             let role_module_state = RoleModule::unsafe_new_contract_state();
             //role_module_state.only_self();
@@ -457,7 +456,7 @@ mod OrderHandler {
         /// * `starting_gas` - The starting gas of the transaction.
         /// * `reason` - The reason of the error.
         fn handle_order_error(
-            self: @ContractState, key: felt252, starting_gas: u128, reason_bytes: Array<felt252>
+            self: @ContractState, key: felt252, starting_gas: u256, reason_bytes: Array<felt252>
         ) {
             let error_selector = error_utils::get_error_selector_from_data(reason_bytes.span());
 

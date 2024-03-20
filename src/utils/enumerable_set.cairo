@@ -175,7 +175,7 @@ impl ContractAddressSetImpl of SetTrait<ContractAddress> {
     }
 }
 
-impl U128SetImpl of SetTrait<u128> {
+impl U256SetImpl of SetTrait<u256> {
     /// Creates a new set.
     /// # Returns
     /// * A new set.
@@ -188,8 +188,8 @@ impl U128SetImpl of SetTrait<u128> {
     /// * `value` - The value to add.
     /// # Returns
     /// * `true` if the value was added to the set, `false` otherwise.
-    fn add(ref self: Set, value: u128) -> bool {
-        Felt252SetImpl::add(ref self, value.into())
+    fn add(ref self: Set, value: u256) -> bool {
+        Felt252SetImpl::add(ref self, value.try_into().expect('u256 into felt failed'))
     }
 
     /// Removes a value from the set.
@@ -197,8 +197,8 @@ impl U128SetImpl of SetTrait<u128> {
     /// * `value` - The value to remove.
     /// # Returns
     /// * `true` if the value was removed from the set, `false` otherwise.
-    fn remove(ref self: Set, value: u128) -> bool {
-        Felt252SetImpl::remove(ref self, value.into())
+    fn remove(ref self: Set, value: u256) -> bool {
+        Felt252SetImpl::remove(ref self, value.try_into().expect('u256 into felt failed'))
     }
 
     /// Checks if a value is in the set.
@@ -206,8 +206,8 @@ impl U128SetImpl of SetTrait<u128> {
     /// * `value` - The value to check.
     /// # Returns
     /// * `true` if the value is in the set, `false` otherwise.
-    fn contains(ref self: Set, value: u128) -> bool {
-        Felt252SetImpl::contains(ref self, value.into())
+    fn contains(ref self: Set, value: u256) -> bool {
+        Felt252SetImpl::contains(ref self, value.try_into().expect('u256 into felt failed'))
     }
 
     /// Returns the number of elements in the set.
@@ -220,15 +220,15 @@ impl U128SetImpl of SetTrait<u128> {
     /// Returns the value stored at position `index` in the set.
     /// # Arguments
     /// * `index` - The index of the value to return.
-    fn at(ref self: Set, index: felt252) -> u128 {
-        self.values.get(index).try_into().expect('Invalid u128')
+    fn at(ref self: Set, index: felt252) -> u256 {
+        self.values.get(index).into()
     }
 
     /// Returns the entire set as an array.
     /// # Returns
     /// * The entire set as an array.
-    fn values(ref self: Set) -> Array<u128> {
-        let mut values = ArrayTrait::<u128>::new();
+    fn values(ref self: Set) -> Array<u256> {
+        let mut values = ArrayTrait::<u256>::new();
         let mut i = self.length;
         loop {
             if i == 0 {

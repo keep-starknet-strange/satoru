@@ -65,7 +65,7 @@ fn deploy_swap_handler_address(
 /// * `ContractAddress` - The address of the deployed role store contract.
 fn deploy_role_store() -> ContractAddress {
     let contract = declare('RoleStore');
-    deploy_mock_contract(contract, @array![])
+    deploy_mock_contract(contract, @array![contract_address_const::<'caller'>().into()])
 }
 
 /// Utility function to deploy a `EventEmitter` contract and return its dispatcher.

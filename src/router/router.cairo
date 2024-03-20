@@ -24,7 +24,7 @@ trait IRouter<TContractState> {
         token: ContractAddress,
         account: ContractAddress,
         receiver: ContractAddress,
-        amount: u128
+        amount: u256
     );
 }
 
@@ -77,7 +77,7 @@ mod Router {
             token: ContractAddress,
             account: ContractAddress,
             receiver: ContractAddress,
-            amount: u128
+            amount: u256
         ) {
             let mut role_module: RoleModule::ContractState =
                 RoleModule::unsafe_new_contract_state();

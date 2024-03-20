@@ -431,7 +431,7 @@ fn create_new_position(
     market: ContractAddress,
     collateral_token: ContractAddress,
     is_long: bool,
-    position_no: u128
+    position_no: u256
 ) -> Position {
     let size_in_usd = 1000 * position_no;
     let size_in_tokens = 1000 * position_no;

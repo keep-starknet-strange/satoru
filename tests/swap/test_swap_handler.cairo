@@ -74,7 +74,7 @@ fn deploy_role_store() -> ContractAddress {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'role_store'>();
     start_prank(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![], deployed_contract_address).unwrap()
+    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
 }
 
 fn deploy_tokens() -> (ContractAddress, ContractAddress, ContractAddress) {
@@ -442,11 +442,11 @@ fn given_swap_path_market_then_works() {
     oracle.set_primary_price(short_token, price);
 
     data_store.set_market(market_token_deployed_address, 1, market);
-    data_store.set_u128(key1, 361850278866613121369732);
-    data_store.set_u128(key2, 361850278866613121369732);
+    data_store.set_u256(key1, 361850278866613121369732);
+    data_store.set_u256(key2, 361850278866613121369732);
 
-    data_store.set_u128(key3, 661850278866613121369732);
-    data_store.set_u128(key4, 661850278866613121369732);
+    data_store.set_u256(key3, 661850278866613121369732);
+    data_store.set_u256(key4, 661850278866613121369732);
 
     let mut swap_path_markets = ArrayTrait::<Market>::new();
     swap_path_markets.append(market);

@@ -29,7 +29,7 @@ trait IBank<TContractState> {
     /// * `receiver` - The address of the receiver.
     /// * `amount` - The amount of tokens to transfer.
     fn transfer_out(
-        ref self: TContractState, token: ContractAddress, receiver: ContractAddress, amount: u128,
+        ref self: TContractState, token: ContractAddress, receiver: ContractAddress, amount: u256,
     );
 }
 
@@ -103,7 +103,7 @@ mod Bank {
             ref self: ContractState,
             token: ContractAddress,
             receiver: ContractAddress,
-            amount: u128,
+            amount: u256,
         ) {
             // assert that caller is a controller
             // let mut role_module: RoleModule::ContractState =
@@ -124,7 +124,7 @@ mod Bank {
             ref self: ContractState,
             token: ContractAddress,
             receiver: ContractAddress,
-            amount: u128,
+            amount: u256,
         ) {
             // check that receiver is not this contract
             assert(receiver != get_contract_address(), BankError::SELF_TRANSFER_NOT_SUPPORTED);

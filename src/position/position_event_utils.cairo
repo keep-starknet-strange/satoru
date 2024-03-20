@@ -11,7 +11,7 @@ use satoru::order::order::OrderType;
 use satoru::position::{position_utils::DecreasePositionCollateralValues, position::Position,};
 use satoru::price::price::Price;
 use satoru::pricing::position_pricing_utils::PositionFees;
-use satoru::utils::i128::i128;
+use satoru::utils::i256::i256;
 
 
 /// Struct to store a position increase parameters.
@@ -30,17 +30,17 @@ struct PositionIncreaseParams {
     /// The position index token price.
     collateral_token_price: Price,
     /// The execution price.
-    execution_price: u128,
+    execution_price: u256,
     /// The position increase amount in usd.
-    size_delta_usd: u128,
+    size_delta_usd: u256,
     /// The position increase amount in tokens.
-    size_delta_in_tokens: u128,
+    size_delta_in_tokens: u256,
     /// The collateral variation amount in usd.
-    collateral_delta_amount: i128,
+    collateral_delta_amount: i256,
     /// The position increase price impact in usd.
-    price_impact_usd: i128,
+    price_impact_usd: i256,
     /// The position increase price impact in tokens.
-    price_impact_amount: i128,
+    price_impact_amount: i256,
     /// The type of the order.
     order_type: OrderType
 }

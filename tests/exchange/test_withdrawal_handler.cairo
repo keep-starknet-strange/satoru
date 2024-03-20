@@ -47,7 +47,7 @@ fn given_normal_conditions_when_create_withdrawal_then_works() {
     };
 
     data_store.set_market(market_token, 0, market);
-    start_mock_call(withdrawal_vault_address, 'record_transfer_in', 1);
+    start_mock_call(withdrawal_vault_address, 'record_transfer_in', 1_u256);
     let key = withdrawal_handler.create_withdrawal(account, params);
 
     //check withdrawal datas created
@@ -130,7 +130,7 @@ fn given_normal_conditions_when_cancel_withdrawal_then_works() {
     data_store.set_market(key, 0, market);
 
     let params = create_withrawal_params(key);
-    start_mock_call(withdrawal_vault_address, 'record_transfer_in', 1);
+    start_mock_call(withdrawal_vault_address, 'record_transfer_in', 1_u256);
 
     let withdrawal_key = withdrawal_handler.create_withdrawal(account, params);
 
@@ -216,7 +216,7 @@ fn given_account_address_zero_when_cancel_withdrawal_then_fails() {
 
     data_store.set_market(key, 0, market);
 
-    start_mock_call(withdrawal_vault_address, 'record_transfer_in', 1);
+    start_mock_call(withdrawal_vault_address, 'record_transfer_in', 1_u256);
 
     let withdrawal_key = withdrawal_handler.create_withdrawal(account, params);
 
@@ -267,7 +267,7 @@ fn given_market_token_equals_zero_when_cancel_withdrawal_then_fails() {
 
     data_store.set_market(key, 0, market);
 
-    start_mock_call(withdrawal_vault_address, 'record_transfer_in', 1);
+    start_mock_call(withdrawal_vault_address, 'record_transfer_in', 1_u256);
 
     let withdrawal_key = withdrawal_handler.create_withdrawal(account, params);
 
@@ -479,7 +479,7 @@ fn deploy_role_store() -> ContractAddress {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'role_store'>();
     start_prank(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![], deployed_contract_address).unwrap()
+    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
 }
 
 fn deploy_event_emitter() -> ContractAddress {

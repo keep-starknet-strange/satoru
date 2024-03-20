@@ -27,8 +27,8 @@ fn given_normal_conditions_when_emit_oracle_price_update_then_works() {
 
     // Create dummy data.
     let token = contract_address_const::<'token'>();
-    let min_price: u128 = 1;
-    let max_price: u128 = 2;
+    let min_price: u256 = 1;
+    let max_price: u256 = 2;
     let is_price_feed: bool = true;
 
     // Emit the event.

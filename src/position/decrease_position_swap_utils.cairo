@@ -66,8 +66,8 @@ fn swap_withdrawn_collateral_to_pnl_token(
 /// # Returns
 /// DecreasePositionCollateralValues
 fn swap_profit_to_collateral_token(
-    params: UpdatePositionParams, pnl_token: ContractAddress, profit_amount: u128
-) -> (bool, u128) {
+    params: UpdatePositionParams, pnl_token: ContractAddress, profit_amount: u256
+) -> (bool, u256) {
     let mut swap_path_markets = ArrayTrait::<Market>::new();
     if (profit_amount > 0
         && params

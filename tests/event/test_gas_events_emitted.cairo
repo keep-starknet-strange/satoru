@@ -26,7 +26,7 @@ fn given_normal_conditions_when_emit_execution_fee_refund_then_works() {
 
     // Create dummy data.
     let receiver = contract_address_const::<'receiver'>();
-    let refund_fee_amount: u128 = 1;
+    let refund_fee_amount: u256 = 1;
 
     // Emit the event.
     event_emitter.emit_execution_fee_refund(receiver, refund_fee_amount);
@@ -62,7 +62,7 @@ fn given_normal_conditions_when_emit_keeper_execution_fee_then_works() {
 
     // Create dummy data.
     let keeper = contract_address_const::<'keeper'>();
-    let execution_fee_amount: u128 = 1;
+    let execution_fee_amount: u256 = 1;
 
     // Emit the event.
     event_emitter.emit_keeper_execution_fee(keeper, execution_fee_amount);

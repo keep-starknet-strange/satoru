@@ -25,7 +25,7 @@ use satoru::market::market_utils;
 use satoru::data::keys;
 use satoru::role::role;
 use satoru::price::price::{Price, PriceTrait};
-use satoru::utils::i128::{i128, i128_new};
+use satoru::utils::i256::{i256, i256_new};
 
 #[test]
 fn given_normal_conditions_when_get_open_interest_then_works() {
@@ -71,7 +71,7 @@ fn given_normal_conditions_when_get_open_interest_then_works() {
     let open_interest_data_store_key = keys::open_interest_key(
         market_token_deployed_address, collateral_token, is_long
     );
-    data_store.set_u128(open_interest_data_store_key, 300);
+    data_store.set_u256(open_interest_data_store_key, 300);
 
     let open_interest = market_utils::get_open_interest_div(
         data_store, market_token_deployed_address, collateral_token, is_long, divisor
@@ -123,7 +123,7 @@ fn given_normal_conditions_when_get_open_interest_in_tokens_then_works() {
     let open_interest_in_tokens_key = keys::open_interest_in_tokens_key(
         market_address, collateral_token, is_long
     );
-    data_store.set_u128(open_interest_in_tokens_key, 300);
+    data_store.set_u256(open_interest_in_tokens_key, 300);
 
     let open_interest_in_tokens = market_utils::get_open_interest_in_tokens(
         data_store, market_address, collateral_token, is_long, divisor
@@ -176,13 +176,13 @@ fn given_normal_conditions_when_get_open_interest_in_tokens_for_market_then_work
     let open_interest_in_tokens_key_for_long = keys::open_interest_in_tokens_key(
         market_token_address, market.long_token, is_long
     );
-    data_store.set_u128(open_interest_in_tokens_key_for_long, 100);
+    data_store.set_u256(open_interest_in_tokens_key_for_long, 100);
 
     // Set open interest for short token.
     let open_interest_in_tokens_key_for_short = keys::open_interest_in_tokens_key(
         market_token_address, market.short_token, is_long
     );
-    data_store.set_u128(open_interest_in_tokens_key_for_short, 200);
+    data_store.set_u256(open_interest_in_tokens_key_for_short, 200);
 
     // Actual test case.
     let open_interest_in_tokens_for_market = market_utils::get_open_interest_in_tokens_for_market(
@@ -236,7 +236,7 @@ fn given_normal_conditions_when_get_pool_amount_then_works() {
         short_token: contract_address_const::<'short_token'>(),
     };
     let pool_amount_key = keys::pool_amount_key(market_token_address, token_address);
-    data_store.set_u128(pool_amount_key, 1000);
+    data_store.set_u256(pool_amount_key, 1000);
 
     let pool_amount = market_utils::get_pool_amount(data_store, @market, token_address);
     // long_token != short_token, so the pool amount is 1000 because the divisor is 1.
@@ -254,7 +254,7 @@ fn given_normal_conditions_when_get_pool_amount_then_works() {
         short_token: contract_address_const::<'same_token'>(),
     };
     let pool_amount_key_2 = keys::pool_amount_key(market_token_address_2, token_address_2);
-    data_store.set_u128(pool_amount_key_2, 1000);
+    data_store.set_u256(pool_amount_key_2, 1000);
     let pool_amount_2 = market_utils::get_pool_amount(data_store, @market_2, token_address_2);
     // long_token == short_token, so the pool amount is 500 because the divisor is 2.
     assert(pool_amount_2 == 500, 'wrong pool amount');
@@ -294,7 +294,7 @@ fn given_normal_conditions_when_get_max_pool_amount_then_works() {
 
     // Setup pre conditions.
     let max_pool_amount_key = keys::max_pool_amount_key(market_token_address, token_address);
-    data_store.set_u128(max_pool_amount_key, 1000);
+    data_store.set_u256(max_pool_amount_key, 1000);
 
     // Actual test case.
 
@@ -343,7 +343,7 @@ fn given_normal_conditions_when_get_max_open_interest_then_works() {
     // Setup pre conditions.
 
     let max_open_interest_key = keys::max_open_interest_key(market_token_address, is_long);
-    data_store.set_u128(max_open_interest_key, 1000);
+    data_store.set_u256(max_open_interest_key, 1000);
 
     // Actual test case.
 
@@ -391,7 +391,7 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
     let market_address = contract_address_const::<'market_address'>();
     let token = contract_address_const::<'token'>();
     let account = contract_address_const::<'account'>();
-    let delta = i128_new(50, false);
+    let delta = i256_new(50, false);
     // The key for the claimable collateral amount for the account.
     // This is the key that will be used to assert the result.
     let claimable_collatoral_amount_for_account_key =
@@ -407,7 +407,7 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
     start_warp(chain.contract_address, current_timestamp);
 
     // Fill required data store keys.
-    data_store.set_u128(keys::claimable_collateral_time_divisor(), 1);
+    data_store.set_u256(keys::claimable_collateral_time_divisor(), 1);
 
     // Actual test case. 
     // TODO uncomment below when we can use get_block_timestamp() with foundry
@@ -420,11 +420,11 @@ fn given_normal_conditions_when_increment_claimable_collateral_amount_then_works
     // The value of the claimable collateral amount for the account should now be 50.
     // Read the value from the data store using the hardcoded key and assert it.
     // TODO uncomment below when we can use get_block_timestamp() with foundry
-    //assert(data_store.get_u128(claimable_collatoral_amount_for_account_key) == 50, 'wrong value');
+    //assert(data_store.get_u256(claimable_collatoral_amount_for_account_key) == 50, 'wrong value');
     // The value of the claimable collateral amount for the market should now be 50.
     // Read the value from the data store using the hardcoded key and assert it.
     // TODO uncomment below when we can use get_block_timestamp() with foundry
-    //assert(data_store.get_u128(claimable_collateral_amount_key) == 50, 'wrong value');
+    //assert(data_store.get_u256(claimable_collateral_amount_key) == 50, 'wrong value');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -478,10 +478,10 @@ fn given_normal_conditions_when_increment_claimable_funding_amount_then_works() 
 
     // The value of the claimable funding amount for the account should now be 50.
     // Read the value from the data store using the hardcoded key and assert it.
-    assert(data_store.get_u128(claimable_funding_amount_for_account_key) == 50, 'wrong value');
+    assert(data_store.get_u256(claimable_funding_amount_for_account_key) == 50, 'wrong value');
     // The value of the claimable funding amount for the market should now be 50.
     // Read the value from the data store using the hardcoded key and assert it.
-    assert(data_store.get_u128(claimable_funding_amount_key) == 50, 'wrong value');
+    assert(data_store.get_u256(claimable_funding_amount_key) == 50, 'wrong value');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -548,30 +548,30 @@ fn given_normal_conditions_when_get_pnl_then_works() {
     let open_interest_key_for_long = keys::open_interest_key(
         market_token_address, market.long_token, is_long
     );
-    data_store.set_u128(open_interest_key_for_long, 100);
+    data_store.set_u256(open_interest_key_for_long, 100);
     // Set open interest for short token.
     let open_interest_key_for_short = keys::open_interest_key(
         market_token_address, market.short_token, is_long
     );
-    data_store.set_u128(open_interest_key_for_short, 150);
+    data_store.set_u256(open_interest_key_for_short, 150);
 
     // Set open interest in tokens for long token.
     let open_interest_in_tokens_key_for_long = keys::open_interest_in_tokens_key(
         market_token_address, market.long_token, is_long
     );
-    data_store.set_u128(open_interest_in_tokens_key_for_long, 200);
+    data_store.set_u256(open_interest_in_tokens_key_for_long, 200);
 
     // Set open interest in tokens for short token.
     let open_interest_in_tokens_key_for_short = keys::open_interest_in_tokens_key(
         market_token_address, market.short_token, is_long
     );
-    data_store.set_u128(open_interest_in_tokens_key_for_short, 250);
+    data_store.set_u256(open_interest_in_tokens_key_for_short, 250);
 
     // Actual test case.
     let pnl = market_utils::get_pnl(data_store, @market, @price, is_long, maximize);
 
     // Perform assertions.
-    assert(pnl == i128_new(22250, false), 'wrong pnl');
+    assert(pnl == i256_new(22250, false), 'wrong pnl');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -620,30 +620,30 @@ fn given_zero_open_interest_when_get_pnl_then_returns_zero_pnl() {
     let open_interest_key_for_long = keys::open_interest_key(
         market_token_address, market.long_token, is_long
     );
-    data_store.set_u128(open_interest_key_for_long, 0);
+    data_store.set_u256(open_interest_key_for_long, 0);
     // Set open interest for short token.
     let open_interest_key_for_short = keys::open_interest_key(
         market_token_address, market.short_token, is_long
     );
-    data_store.set_u128(open_interest_key_for_short, 0);
+    data_store.set_u256(open_interest_key_for_short, 0);
 
     // Set open interest in tokens for long token.
     let open_interest_in_tokens_key_for_long = keys::open_interest_in_tokens_key(
         market_token_address, market.long_token, is_long
     );
-    data_store.set_u128(open_interest_in_tokens_key_for_long, 200);
+    data_store.set_u256(open_interest_in_tokens_key_for_long, 200);
 
     // Set open interest in tokens for short token.
     let open_interest_in_tokens_key_for_short = keys::open_interest_in_tokens_key(
         market_token_address, market.short_token, is_long
     );
-    data_store.set_u128(open_interest_in_tokens_key_for_short, 250);
+    data_store.set_u256(open_interest_in_tokens_key_for_short, 250);
 
     // Actual test case.
     let pnl = market_utils::get_pnl(data_store, @market, @price, is_long, maximize);
 
     // Perform assertions.
-    assert(pnl == i128_new(0, false), 'wrong pnl');
+    assert(pnl == i256_new(0, false), 'wrong pnl');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -692,30 +692,30 @@ fn given_zero_open_interest_in_tokens_when_get_pnl_then_returns_zero_pnl() {
     let open_interest_key_for_long = keys::open_interest_key(
         market_token_address, market.long_token, is_long
     );
-    data_store.set_u128(open_interest_key_for_long, 100);
+    data_store.set_u256(open_interest_key_for_long, 100);
     // Set open interest for short token.
     let open_interest_key_for_short = keys::open_interest_key(
         market_token_address, market.short_token, is_long
     );
-    data_store.set_u128(open_interest_key_for_short, 200);
+    data_store.set_u256(open_interest_key_for_short, 200);
 
     // Set open interest in tokens for long token.
     let open_interest_in_tokens_key_for_long = keys::open_interest_in_tokens_key(
         market_token_address, market.long_token, is_long
     );
-    data_store.set_u128(open_interest_in_tokens_key_for_long, 0);
+    data_store.set_u256(open_interest_in_tokens_key_for_long, 0);
 
     // Set open interest in tokens for short token.
     let open_interest_in_tokens_key_for_short = keys::open_interest_in_tokens_key(
         market_token_address, market.short_token, is_long
     );
-    data_store.set_u128(open_interest_in_tokens_key_for_short, 0);
+    data_store.set_u256(open_interest_in_tokens_key_for_short, 0);
 
     // Actual test case.
     let pnl = market_utils::get_pnl(data_store, @market, @price, is_long, maximize);
 
     // Perform assertions.
-    assert(pnl == i128_new(0, false), 'wrong pnl');
+    assert(pnl == i256_new(0, false), 'wrong pnl');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -755,7 +755,7 @@ fn given_normal_conditions_when_get_position_impact_pool_amount_then_works() {
     let position_impact_pool_amount_key = keys::position_impact_pool_amount_key(
         market_token_address
     );
-    data_store.set_u128(position_impact_pool_amount_key, 1000);
+    data_store.set_u256(position_impact_pool_amount_key, 1000);
 
     // Actual test case.
     let position_impact_pool_amount = market_utils::get_position_impact_pool_amount(
@@ -805,7 +805,7 @@ fn given_normal_conditions_when_get_swap_impact_pool_amount_then_works() {
     let swap_impact_pool_amount_key = keys::swap_impact_pool_amount_key(
         market_token_address, token
     );
-    data_store.set_u128(swap_impact_pool_amount_key, 1000);
+    data_store.set_u256(swap_impact_pool_amount_key, 1000);
 
     // Actual test case.
     let swap_impact_pool_amount = market_utils::get_swap_impact_pool_amount(
@@ -847,13 +847,13 @@ fn given_normal_conditions_when_apply_delta_to_position_impact_pool_then_works()
 
     // Define variables for the test case.
     let market_token_address = contract_address_const::<'market_token'>();
-    let delta = i128_new(50, false);
+    let delta = i256_new(50, false);
 
     // Setup pre conditions.
 
     // Fill required data store keys.
     let key = keys::position_impact_pool_amount_key(market_token_address);
-    data_store.set_u128(key, 1000);
+    data_store.set_u256(key, 1000);
 
     // Actual test case.
     let next_value = market_utils::apply_delta_to_position_impact_pool(
@@ -896,13 +896,13 @@ fn given_normal_conditions_when_apply_delta_to_swap_impact_pool_then_works() {
     // Define variables for the test case.
     let market_token_address = contract_address_const::<'market_token'>();
     let token = contract_address_const::<'token'>();
-    let delta = i128_new(50, false);
+    let delta = i256_new(50, false);
 
     // Setup pre conditions.
 
     // Fill required data store keys.
     let key = keys::swap_impact_pool_amount_key(market_token_address, token);
-    data_store.set_u128(key, 1000);
+    data_store.set_u256(key, 1000);
 
     // Actual test case.
     let next_value = market_utils::apply_delta_to_swap_impact_pool(
@@ -1120,7 +1120,7 @@ fn deploy_role_store() -> ContractAddress {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'role_store'>();
     start_prank(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![], deployed_contract_address).unwrap()
+    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
 }
 
 fn deploy_event_emitter() -> ContractAddress {

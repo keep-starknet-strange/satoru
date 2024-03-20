@@ -18,7 +18,7 @@ use satoru::oracle::{
 };
 use satoru::price::price::{Price};
 use satoru::utils::{
-    store_arrays::{StoreContractAddressArray, StorePriceArray, StoreU128Array, StoreFelt252Array},
+    store_arrays::{StoreContractAddressArray, StorePriceArray, StoreU256Array, StoreFelt252Array},
     arrays::{are_lte_u64, are_gte_u64, get_uncompacted_value, get_uncompacted_value_u64},
     bits::{BITMASK_8, BITMASK_16, BITMASK_32, BITMASK_64}
 };
@@ -43,16 +43,16 @@ use alexandria_data_structures::array_ext::SpanTraitExt;
 /// * `price_feed_tokens` - tokens to set prices for based on an external price feed value.
 #[derive(Default, Drop, Clone, Serde)]
 struct SetPricesParams {
-    signer_info: u128,
+    signer_info: u256,
     tokens: Array<ContractAddress>,
     compacted_min_oracle_block_numbers: Array<u64>,
     compacted_max_oracle_block_numbers: Array<u64>,
     compacted_oracle_timestamps: Array<u64>,
-    compacted_decimals: Array<u128>,
-    compacted_min_prices: Array<u128>,
-    compacted_min_prices_indexes: Array<u128>,
-    compacted_max_prices: Array<u128>,
-    compacted_max_prices_indexes: Array<u128>,
+    compacted_decimals: Array<u256>,
+    compacted_min_prices: Array<u256>,
+    compacted_min_prices_indexes: Array<u256>,
+    compacted_max_prices: Array<u256>,
+    compacted_max_prices_indexes: Array<u256>,
     signatures: Array<Span<felt252>>,
     price_feed_tokens: Array<ContractAddress>,
 }
@@ -82,20 +82,20 @@ struct ReportInfo {
     block_hash: felt252,
     token: ContractAddress,
     token_oracle_type: felt252,
-    precision: u128,
-    min_price: u128,
-    max_price: u128,
+    precision: u256,
+    min_price: u256,
+    max_price: u256,
 }
 
 // compacted prices have a length of 32 bits
 const COMPACTED_PRICE_BIT_LENGTH: usize = 32;
-fn COMPACTED_PRICE_BITMASK() -> u128 {
+fn COMPACTED_PRICE_BITMASK() -> u256 {
     BITMASK_32
 }
 
 // compacted precisions have a length of 8 bits
 const COMPACTED_PRECISION_BIT_LENGTH: usize = 8;
-fn COMPACTED_PRECISION_BITMASK() -> u128 {
+fn COMPACTED_PRECISION_BITMASK() -> u256 {
     BITMASK_8
 }
 
@@ -113,7 +113,7 @@ fn COMPACTED_TIMESTAMP_BITMASK() -> u64 {
 
 // compacted price indexes have a length of 8 bits
 const COMPACTED_PRICE_INDEX_BIT_LENGTH: usize = 8;
-fn COMPACTED_PRICE_INDEX_BITMASK() -> u128 {
+fn COMPACTED_PRICE_INDEX_BITMASK() -> u256 {
     BITMASK_8
 }
 
@@ -160,7 +160,7 @@ fn is_block_number_within_range(
 /// * `index` - The index to get the decimal at.
 /// # Returns
 /// The price at the specified index.
-fn get_uncompacted_price(compacted_prices: Span<u128>, index: usize) -> u128 {
+fn get_uncompacted_price(compacted_prices: Span<u256>, index: usize) -> u256 {
     let price = get_uncompacted_value(
         compacted_prices,
         index,
@@ -182,7 +182,7 @@ fn get_uncompacted_price(compacted_prices: Span<u128>, index: usize) -> u128 {
 /// * `index` - The index to get the decimal at.
 /// # Returns
 /// The decimal at the specified index.
-fn get_uncompacted_decimal(compacted_decimals: Span<u128>, index: usize) -> u128 {
+fn get_uncompacted_decimal(compacted_decimals: Span<u256>, index: usize) -> u256 {
     let decimal = get_uncompacted_value(
         compacted_decimals,
         index,
@@ -200,7 +200,7 @@ fn get_uncompacted_decimal(compacted_decimals: Span<u128>, index: usize) -> u128
 /// * `index` - The index to get the price index at.
 /// # Returns
 /// The uncompacted price index at the specified index.
-fn get_uncompacted_price_index(compacted_price_indexes: Span<u128>, index: usize) -> u128 {
+fn get_uncompacted_price_index(compacted_price_indexes: Span<u256>, index: usize) -> u256 {
     let price_index = get_uncompacted_value(
         compacted_price_indexes,
         index,
@@ -307,9 +307,9 @@ fn validate_signer(
     digest = LegacyHash::<felt252>::hash(digest, info.block_hash);
     digest = LegacyHash::<ContractAddress>::hash(digest, info.token);
     digest = LegacyHash::<felt252>::hash(digest, info.token_oracle_type);
-    digest = LegacyHash::<u128>::hash(digest, info.precision);
-    digest = LegacyHash::<u128>::hash(digest, info.min_price);
-    digest = LegacyHash::<u128>::hash(digest, info.max_price);
+    digest = LegacyHash::<u256>::hash(digest, info.precision);
+    digest = LegacyHash::<u256>::hash(digest, info.min_price);
+    digest = LegacyHash::<u256>::hash(digest, info.max_price);
 
     // We now need to hash message_hash with the size of the array: (change_owner selector, chainid, contract address, old_owner)
     // https://github.com/starkware-libs/cairo-lang/blob/b614d1867c64f3fb2cf4a4879348cfcf87c3a5a7/src/starkware/cairo/common/hash_state.py#L6

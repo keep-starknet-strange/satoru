@@ -29,7 +29,7 @@ fn setup() -> (
     let role_store_address = contract_address_const::<'role_store'>();
     start_prank(role_store_address, caller_address);
     let role_store_contract_address = role_store_contract
-        .deploy_at(@array![], role_store_address)
+        .deploy_at(@array![caller_address.into()], role_store_address)
         .unwrap();
     let role_store_dispatcher = IRoleStoreDispatcher {
         contract_address: role_store_contract_address
@@ -92,7 +92,7 @@ fn given_already_intialized_when_initialize_then_fails() {
 fn given_normal_conditions_when_transfer_out_then_works() {
     let (caller_address, receiver_address, role_store, data_store, bank, erc20) = setup();
     // call the transfer_out function
-    bank.transfer_out(erc20.contract_address, receiver_address, 100_u128);
+    bank.transfer_out(erc20.contract_address, receiver_address, 100_u256);
     // check that the contract balance reduces
     let contract_balance = erc20.balance_of(bank.contract_address);
     assert(contract_balance == u256_from_felt252(900), 'transfer_out failed');
@@ -111,7 +111,7 @@ fn given_caller_has_no_controller_role_when_transfer_out_then_fails() {
     stop_prank(bank.contract_address);
     start_prank(bank.contract_address, receiver_address);
     // call the transfer_out function
-    bank.transfer_out(erc20.contract_address, caller_address, 100_u128);
+    bank.transfer_out(erc20.contract_address, caller_address, 100_u256);
     // teardown
     teardown(data_store, bank);
 }
@@ -121,7 +121,7 @@ fn given_caller_has_no_controller_role_when_transfer_out_then_fails() {
 fn given_receiver_is_contract_when_transfer_out_then_fails() {
     let (caller_address, receiver_address, role_store, data_store, bank, erc20) = setup();
     // call the transfer_out function with receiver as bank contract address
-    bank.transfer_out(erc20.contract_address, bank.contract_address, 100_u128);
+    bank.transfer_out(erc20.contract_address, bank.contract_address, 100_u256);
     // teardown
     teardown(data_store, bank);
 }

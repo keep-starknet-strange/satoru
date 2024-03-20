@@ -25,7 +25,7 @@ fn deploy_role_store() -> ContractAddress {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address: ContractAddress = contract_address_const::<'role_store'>();
     start_prank(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![], deployed_contract_address).unwrap()
+    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
 }
 
 
@@ -452,7 +452,7 @@ fn create_new_deposit(
     account: ContractAddress,
     receiver: ContractAddress,
     market: ContractAddress,
-    deposit_no: u128,
+    deposit_no: u256,
 ) -> Deposit {
     let callback_contract = contract_address_const::<'callback_contract'>();
     let ui_fee_receiver = contract_address_const::<'ui_fee_receiver'>();
