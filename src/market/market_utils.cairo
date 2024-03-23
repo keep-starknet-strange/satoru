@@ -2845,7 +2845,9 @@ fn validate_market_token_balance_with_token(
     let mut collateral_amount: u256 = get_collateral_sum(
         data_store, market.market_token, token, true, 1
     );
+    'before add collateral amount'.print();
     collateral_amount += get_collateral_sum(data_store, market.market_token, token, false, 1);
+    'after add collateral amount'.print();
 
     if (balance < collateral_amount) {
         MarketError::INVALID_MARKET_TOKEN_BALANCE_FOR_COLLATERAL_AMOUNT(balance, collateral_amount);

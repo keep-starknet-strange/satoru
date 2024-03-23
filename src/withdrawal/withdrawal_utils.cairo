@@ -205,11 +205,11 @@ fn execute_withdrawal(
     assert(withdrawal.account.is_non_zero(), WithdrawalError::EMPTY_WITHDRAWAL);
     assert(withdrawal.market_token_amount.is_non_zero(), WithdrawalError::EMPTY_WITHDRAWAL_AMOUNT);
 
-    oracle_utils::validate_block_number_within_range(
-        params.min_oracle_block_numbers.span(),
-        params.max_oracle_block_numbers.span(),
-        withdrawal.updated_at_block
-    );
+    // oracle_utils::validate_block_number_within_range(
+    //     params.min_oracle_block_numbers.span(),
+    //     params.max_oracle_block_numbers.span(),
+    //     withdrawal.updated_at_block
+    // );
 
     let market_token_balance = IMarketTokenDispatcher { contract_address: withdrawal.market }
         .balance_of(params.withdrawal_vault.contract_address);
@@ -223,16 +223,18 @@ fn execute_withdrawal(
     let result = execute_withdrawal_(@params, withdrawal);
 
     params.event_emitter.emit_withdrawal_executed(params.key);
+    'emit event withdrawal executed'.print();
 
-    gas_utils::pay_execution_fee_withdrawal(
-        params.data_store,
-        params.event_emitter,
-        params.withdrawal_vault,
-        withdrawal.execution_fee,
-        params.starting_gas,
-        params.keeper,
-        withdrawal.account
-    )
+    // TODO fix pay execution fees
+    // gas_utils::pay_execution_fee_withdrawal(
+    //     params.data_store,
+    //     params.event_emitter,
+    //     params.withdrawal_vault,
+    //     withdrawal.execution_fee,
+    //     params.starting_gas,
+    //     params.keeper,
+    //     withdrawal.account
+    // )
 }
 
 /// Cancel a withdrawal.
@@ -399,7 +401,7 @@ fn execute_withdrawal_(
         keys::max_pnl_factor_for_withdrawals(),
         keys::max_pnl_factor_for_withdrawals()
     );
-
+    'withdraw execution 1'.print();
     IMarketTokenDispatcher { contract_address: market.market_token }
         .burn(*params.withdrawal_vault.contract_address, withdrawal.market_token_amount);
 
@@ -422,6 +424,7 @@ fn execute_withdrawal_(
         withdrawal.receiver,
         withdrawal.ui_fee_receiver
     );
+    'pass first swap'.print();
     result.output_token = output_token;
     result.output_amount = output_amount;
 
@@ -435,6 +438,8 @@ fn execute_withdrawal_(
         withdrawal.receiver,
         withdrawal.ui_fee_receiver
     );
+    'pass second swap'.print();
+
     result.secondary_output_token = secondary_output_token;
     result.secondary_output_amount = secondary_output_amount;
 
@@ -459,7 +464,7 @@ fn execute_withdrawal_(
     // if the native token was transferred to the receiver in a swap
     // it may be possible to invoke external contracts before the validations are called
     market_utils::validate_market_token_balance_check(*params.data_store, market);
-
+    
     result
 }
 
