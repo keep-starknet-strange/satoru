@@ -476,6 +476,7 @@ fn test_deposit_market_integration() {
         referal_storage,
         withdrawal_handler,
         withdrawal_vault,
+
     ) =
         setup();
 
