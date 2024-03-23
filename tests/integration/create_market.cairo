@@ -22,6 +22,7 @@ use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatc
 use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
 use satoru::deposit::deposit::Deposit;
 use satoru::withdrawal::withdrawal::Withdrawal;
+
 use satoru::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
 use satoru::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
 use satoru::router::exchange_router::{IExchangeRouterDispatcher, IExchangeRouterDispatcherTrait};
@@ -604,6 +605,7 @@ fn test_deposit_market_integration() {
     assert(not_deposit == default_deposit, 'Still existing deposit');
 
     // let market_token_dispatcher = IMarketTokenDispatcher { contract_address: market.market_token };
+
 
     // let balance = market_token_dispatcher.balance_of(user1);
 
