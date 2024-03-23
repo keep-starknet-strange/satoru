@@ -28,6 +28,7 @@ use satoru::withdrawal::{
     withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait}
 };
 use satoru::market::market_utils::validate_enabled_market_check;
+use debug::PrintTrait;
 
 #[derive(Drop, starknet::Store, Serde)]
 struct CreateWithdrawalParams {
@@ -171,11 +172,9 @@ fn create_withdrawal(
     withdrawal.callback_gas_limit = params.callback_gas_limit;
 
     callback_utils::validate_callback_gas_limit(data_store, withdrawal.callback_gas_limit);
-
     let estimated_gas_limit = gas_utils::estimate_execute_withdrawal_gas_limit(
         data_store, withdrawal
     );
-
     gas_utils::validate_execution_fee(data_store, estimated_gas_limit, params.execution_fee);
 
     let key = nonce_utils::get_next_key(data_store);
