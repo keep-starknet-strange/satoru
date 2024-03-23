@@ -224,17 +224,16 @@ fn execute_withdrawal(
 
     params.event_emitter.emit_withdrawal_executed(params.key);
     'emit event withdrawal executed'.print();
-
-    // TODO fix pay execution fees
-    // gas_utils::pay_execution_fee_withdrawal(
-    //     params.data_store,
-    //     params.event_emitter,
-    //     params.withdrawal_vault,
-    //     withdrawal.execution_fee,
-    //     params.starting_gas,
-    //     params.keeper,
-    //     withdrawal.account
-    // )
+// TODO fix pay execution fees
+// gas_utils::pay_execution_fee_withdrawal(
+//     params.data_store,
+//     params.event_emitter,
+//     params.withdrawal_vault,
+//     withdrawal.execution_fee,
+//     params.starting_gas,
+//     params.keeper,
+//     withdrawal.account
+// )
 }
 
 /// Cancel a withdrawal.
@@ -464,7 +463,7 @@ fn execute_withdrawal_(
     // if the native token was transferred to the receiver in a swap
     // it may be possible to invoke external contracts before the validations are called
     market_utils::validate_market_token_balance_check(*params.data_store, market);
-    
+
     result
 }
 

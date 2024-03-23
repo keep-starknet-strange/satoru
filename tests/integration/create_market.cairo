@@ -23,7 +23,9 @@ use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispa
 use satoru::deposit::deposit::Deposit;
 use satoru::withdrawal::withdrawal::Withdrawal;
 
-use satoru::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
+use satoru::exchange::withdrawal_handler::{
+    IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait
+};
 use satoru::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
 use satoru::router::exchange_router::{IExchangeRouterDispatcher, IExchangeRouterDispatcherTrait};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
@@ -40,7 +42,9 @@ use satoru::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
 use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
-use satoru::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
+use satoru::withdrawal::withdrawal_vault::{
+    IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait
+};
 use satoru::data::keys;
 use satoru::market::market_utils;
 use satoru::price::price::{Price, PriceTrait};
@@ -606,7 +610,6 @@ fn test_deposit_market_integration() {
 
     // let market_token_dispatcher = IMarketTokenDispatcher { contract_address: market.market_token };
 
-
     // let balance = market_token_dispatcher.balance_of(user1);
 
     let balance_deposit_vault = IERC20Dispatcher { contract_address: market.short_token }
@@ -885,7 +888,6 @@ fn test_deposit_withdraw_integration() {
     // Execute Deposit
     start_roll(withdrawal_handler.contract_address, 1935);
     withdrawal_handler.execute_withdrawal(key, price_params_withdrawal);
-
 
     let not_withdrawal = data_store.get_withdrawal(key);
     let default_withdrawal: Withdrawal = Default::default();
@@ -1820,8 +1822,12 @@ fn setup_contracts() -> (
 
     let referal_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
 
-    let withdrawal_handler = IWithdrawalHandlerDispatcher { contract_address: withdrawal_handler_address };
-    let withdrawal_vault = IWithdrawalVaultDispatcher { contract_address: withdrawal_vault_address };
+    let withdrawal_handler = IWithdrawalHandlerDispatcher {
+        contract_address: withdrawal_handler_address
+    };
+    let withdrawal_vault = IWithdrawalVaultDispatcher {
+        contract_address: withdrawal_vault_address
+    };
     (
         contract_address_const::<'caller'>(),
         market_factory_address,
