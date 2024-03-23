@@ -21,6 +21,7 @@ use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDis
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
 use satoru::deposit::deposit::Deposit;
+use satoru::withdrawal::withdrawal::Withdrawal;
 use satoru::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
 use satoru::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
 use satoru::router::exchange_router::{IExchangeRouterDispatcher, IExchangeRouterDispatcherTrait};
@@ -803,14 +804,14 @@ fn test_deposit_withdraw_integration() {
 
     /////////////////////////////////// WITHDRAW //////////////////////////////////
 
-    'balanceof matket_token'.print();
+    'balanceof mkt before withdrawal'.print();
     let balance_market_token = IERC20Dispatcher { contract_address: market.market_token }
         .balance_of(caller_address);
     balance_market_token.print();
 
     start_prank(market.market_token, caller_address);
     IERC20Dispatcher { contract_address: market.market_token }
-        .transfer(withdrawal_vault.contract_address, 250);
+        .transfer(withdrawal_vault.contract_address, 125);
 
     let withdrawal_params = withdrawal_utils::CreateWithdrawalParams {
         /// The address that will receive the withdrawal tokens.
@@ -826,9 +827,9 @@ fn test_deposit_withdraw_integration() {
         /// The short token swap path
         short_token_swap_path: Array32Trait::<ContractAddress>::span32(@array![]),
         /// The minimum amount of long tokens that must be withdrawn.
-        min_long_token_amount: 50000000000,
+        min_long_token_amount: 25000000000,
         /// The minimum amount of short tokens that must be withdrawn.
-        min_short_token_amount: 50000000000,
+        min_short_token_amount: 25000000000,
         /// The execution fee for the withdrawal.
         execution_fee: 0,
         /// The gas limit for calling the callback contract.
@@ -841,35 +842,75 @@ fn test_deposit_withdraw_integration() {
 
     assert(first_withdrawal.receiver == caller_address, 'Wrong account receiver');
 
+    let pool_value_info = market_utils::get_pool_value_info(
+        data_store,
+        market,
+        Price { min: 1999, max: 2000 },
+        Price { min: 1999, max: 2000 },
+        Price { min: 1, max: 1 },
+        keys::max_pnl_factor_for_deposits(),
+        true,
+    );
 
-    // assert(pool_value_info.pool_value.mag == 200000000000000, 'wrong pool value amount');
-    // assert(pool_value_info.long_token_amount == 40000000000, 'wrong long token amount');
-    // assert(pool_value_info.short_token_amount == 40000000000, 'wrong short token amount');
+    assert(pool_value_info.pool_value.mag == 100050000000000, 'wrong pool value amount');
+    assert(pool_value_info.long_token_amount == 50000000000, 'wrong long token amount');
+    assert(pool_value_info.short_token_amount == 50000000000, 'wrong short token amount');
 
-    // let not_withdrawal = data_store.get_withdrawal(key);
-    // let default_withdrawal: Deposit = Default::default();
-    // assert(not_withdrawal == default_withdrawal, 'Still existing deposit');
+    let price_params_withdrawal = SetPricesParams { // TODO
+        signer_info: 1,
+        tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
+        compacted_min_oracle_block_numbers: array![1920, 1920],
+        compacted_max_oracle_block_numbers: array![1930, 1930],
+        compacted_oracle_timestamps: array![9999, 9999],
+        compacted_decimals: array![18, 18],
+        compacted_min_prices: array![4294967346000000], // 50000000, 1000000 compacted
+        compacted_min_prices_indexes: array![0],
+        compacted_max_prices: array![4294967346000000], // 50000000, 1000000 compacted
+        compacted_max_prices_indexes: array![0],
+        signatures: array![
+            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
+        ],
+        price_feed_tokens: array![]
+    };
 
-    // let market_token_dispatcher = IMarketTokenDispatcher { contract_address: market.market_token };
+    start_prank(role_store.contract_address, caller_address);
 
-    // let balance = market_token_dispatcher.balance_of(user1);
+    role_store.grant_role(caller_address, role::ORDER_KEEPER);
+    role_store.grant_role(caller_address, role::ROLE_ADMIN);
+    role_store.grant_role(caller_address, role::CONTROLLER);
+    role_store.grant_role(caller_address, role::MARKET_KEEPER);
 
-    // let balance_deposit_vault = IERC20Dispatcher { contract_address: market.short_token }
-    //     .balance_of(deposit_vault.contract_address);
+    // Execute Deposit
+    start_roll(withdrawal_handler.contract_address, 1935);
+    withdrawal_handler.execute_withdrawal(key, price_params_withdrawal);
 
-    // let pool_value_info = market_utils::get_pool_value_info(
-    //     data_store,
-    //     market,
-    //     Price { min: 5000, max: 5000, },
-    //     Price { min: 5000, max: 5000, },
-    //     Price { min: 1, max: 1, },
-    //     keys::max_pnl_factor_for_deposits(),
-    //     true,
-    // );
 
-    // pool_value_info.pool_value.mag.print();
-    // pool_value_info.long_token_amount.print();
-    // pool_value_info.short_token_amount.print();
+    let not_withdrawal = data_store.get_withdrawal(key);
+    let default_withdrawal: Withdrawal = Default::default();
+    assert(not_withdrawal == default_withdrawal, 'Still existing deposit');
+
+    'balanceof mkt after withdrawal'.print();
+    let balance_market_token_after = IERC20Dispatcher { contract_address: market.market_token }
+        .balance_of(caller_address);
+    balance_market_token_after.print();
+
+    let pool_value_info = market_utils::get_pool_value_info(
+        data_store,
+        market,
+        Price { min: 1999, max: 2000, },
+        Price { min: 1999, max: 2000, },
+        Price { min: 1, max: 1, },
+        keys::max_pnl_factor_for_deposits(),
+        true,
+    );
+
+    assert(pool_value_info.pool_value.mag == 50025000000000, 'wrong pool value amount');
+    assert(pool_value_info.long_token_amount == 25000000000, 'wrong long token amount');
+    assert(pool_value_info.short_token_amount == 25000000000, 'wrong short token amount');
+
+    pool_value_info.pool_value.mag.print();
+    pool_value_info.long_token_amount.print();
+    pool_value_info.short_token_amount.print();
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *

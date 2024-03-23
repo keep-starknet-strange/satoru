@@ -135,6 +135,7 @@ fn swap(params: @SwapParams) -> (ContractAddress, u256) {
         if (params.bank.contract_address != params.receiver) {
             (*params.bank).transfer_out(*params.token_in, *params.receiver, *params.amount_in);
         }
+        'second if withdraw execution'.print();
         return (*params.token_in, *params.amount_in);
     }
 
