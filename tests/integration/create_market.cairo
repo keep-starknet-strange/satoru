@@ -21,6 +21,7 @@ use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDis
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
 use satoru::deposit::deposit::Deposit;
+use satoru::exchange::withdrawal_handler::{IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait};
 use satoru::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
 use satoru::router::exchange_router::{IExchangeRouterDispatcher, IExchangeRouterDispatcherTrait};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
@@ -37,11 +38,12 @@ use satoru::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
 use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use satoru::withdrawal::withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait};
 use satoru::data::keys;
 use satoru::market::market_utils;
 use satoru::price::price::{Price, PriceTrait};
 use satoru::position::position_utils;
-
+use satoru::withdrawal::withdrawal_utils;
 
 use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
 use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
@@ -472,6 +474,9 @@ fn test_deposit_market_integration() {
         order_vault,
         reader,
         referal_storage,
+        withdrawal_handler,
+        withdrawal_vault,
+
     ) =
         setup();
 
@@ -626,6 +631,254 @@ fn test_deposit_market_integration() {
 }
 
 #[test]
+fn test_deposit_withdraw_integration() {
+    // *********************************************************************************************
+    // *                              SETUP                                                        *
+    // *********************************************************************************************
+    let (
+        caller_address,
+        market_factory_address,
+        role_store_address,
+        data_store_address,
+        market_token_class_hash,
+        market_factory,
+        role_store,
+        data_store,
+        event_emitter,
+        exchange_router,
+        deposit_handler,
+        deposit_vault,
+        oracle,
+        order_handler,
+        order_vault,
+        reader,
+        referal_storage,
+        withdrawal_handler,
+        withdrawal_vault,
+    ) =
+        setup();
+
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
+
+    // Create a market.
+    let market = data_store.get_market(create_market(market_factory));
+
+    // Set params in data_store
+    data_store.set_address(keys::fee_token(), market.index_token);
+    data_store.set_u256(keys::max_swap_path_length(), 5);
+
+    // Set max pool amount.
+    data_store
+        .set_u256(
+            keys::max_pool_amount_key(market.market_token, market.long_token), 500000000000000000
+        );
+    data_store
+        .set_u256(
+            keys::max_pool_amount_key(market.market_token, market.short_token), 500000000000000000
+        );
+
+    oracle.set_price_testing_eth(5000);
+
+    // Fill the pool.
+    IERC20Dispatcher { contract_address: market.long_token }.mint(market.market_token, 50000000000);
+    IERC20Dispatcher { contract_address: market.short_token }
+        .mint(market.market_token, 50000000000);
+    // TODO Check why we don't need to set pool_amount_key
+    // // Set pool amount in data_store.
+    // let mut key = keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>());
+    // data_store.set_u256(key, 50000000000);
+    // key = keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>());
+    // data_store.set_u256(key, 50000000000);
+
+    // Send token to deposit in the deposit vault (this should be in a multi call with create_deposit)
+    IERC20Dispatcher { contract_address: market.long_token }
+        .mint(deposit_vault.contract_address, 50000000000);
+    IERC20Dispatcher { contract_address: market.short_token }
+        .mint(deposit_vault.contract_address, 50000000000);
+
+    let balance_deposit_vault_before = IERC20Dispatcher { contract_address: market.short_token }
+        .balance_of(deposit_vault.contract_address);
+
+    // Create Deposit
+    let user1: ContractAddress = contract_address_const::<'user1'>();
+    let user2: ContractAddress = contract_address_const::<'user2'>();
+
+    let addresss_zero: ContractAddress = 0.try_into().unwrap();
+
+    let params = CreateDepositParams {
+        receiver: caller_address,
+        callback_contract: addresss_zero,
+        ui_fee_receiver: addresss_zero,
+        market: market.market_token,
+        initial_long_token: market.long_token,
+        initial_short_token: market.short_token,
+        long_token_swap_path: Array32Trait::<ContractAddress>::span32(@array![]),
+        short_token_swap_path: Array32Trait::<ContractAddress>::span32(@array![]),
+        min_market_tokens: 0,
+        execution_fee: 0,
+        callback_gas_limit: 0,
+    };
+
+    start_roll(deposit_handler.contract_address, 1910);
+    let key = deposit_handler.create_deposit(caller_address, params);
+    let first_deposit = data_store.get_deposit(key);
+
+    assert(first_deposit.account == caller_address, 'Wrong account depositer');
+    assert(first_deposit.receiver == caller_address, 'Wrong account receiver');
+    assert(first_deposit.initial_long_token == market.long_token, 'Wrong initial long token');
+    assert(
+        first_deposit.initial_long_token_amount == 50000000000, 'Wrong initial long token amount'
+    );
+    assert(
+        first_deposit.initial_short_token_amount == 50000000000, 'Wrong init short token amount'
+    );
+
+    let price_params = SetPricesParams { // TODO
+        signer_info: 1,
+        tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
+        compacted_min_oracle_block_numbers: array![1900, 1900],
+        compacted_max_oracle_block_numbers: array![1910, 1910],
+        compacted_oracle_timestamps: array![9999, 9999],
+        compacted_decimals: array![18, 18],
+        compacted_min_prices: array![4294967346000000], // 50000000, 1000000 compacted
+        compacted_min_prices_indexes: array![0],
+        compacted_max_prices: array![4294967346000000], // 50000000, 1000000 compacted
+        compacted_max_prices_indexes: array![0],
+        signatures: array![
+            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
+        ],
+        price_feed_tokens: array![]
+    };
+
+    start_prank(role_store.contract_address, caller_address);
+
+    role_store.grant_role(caller_address, role::ORDER_KEEPER);
+    role_store.grant_role(caller_address, role::ROLE_ADMIN);
+    role_store.grant_role(caller_address, role::CONTROLLER);
+    role_store.grant_role(caller_address, role::MARKET_KEEPER);
+
+    // Execute Deposit
+    start_roll(deposit_handler.contract_address, 1915);
+    deposit_handler.execute_deposit(key, price_params);
+
+    let pool_value_info = market_utils::get_pool_value_info(
+        data_store,
+        market,
+        Price { min: 1999, max: 2000 },
+        Price { min: 1999, max: 2000 },
+        Price { min: 1999, max: 2000 },
+        keys::max_pnl_factor_for_deposits(),
+        true,
+    );
+
+    assert(pool_value_info.pool_value.mag == 200000000000000, 'wrong pool value amount');
+    assert(pool_value_info.long_token_amount == 50000000000, 'wrong long token amount');
+    assert(pool_value_info.short_token_amount == 50000000000, 'wrong short token amount');
+
+    let not_deposit = data_store.get_deposit(key);
+    let default_deposit: Deposit = Default::default();
+    assert(not_deposit == default_deposit, 'Still existing deposit');
+
+    // let market_token_dispatcher = IMarketTokenDispatcher { contract_address: market.market_token };
+
+    // let balance = market_token_dispatcher.balance_of(user1);
+
+    let balance_deposit_vault = IERC20Dispatcher { contract_address: market.short_token }
+        .balance_of(deposit_vault.contract_address);
+
+    let pool_value_info = market_utils::get_pool_value_info(
+        data_store,
+        market,
+        Price { min: 5000, max: 5000, },
+        Price { min: 5000, max: 5000, },
+        Price { min: 1, max: 1, },
+        keys::max_pnl_factor_for_deposits(),
+        true,
+    );
+
+    pool_value_info.pool_value.mag.print();
+    pool_value_info.long_token_amount.print();
+    pool_value_info.short_token_amount.print();
+
+    /////////////////////////////////// WITHDRAW //////////////////////////////////
+
+    'balanceof matket_token'.print();
+    let balance_market_token = IERC20Dispatcher { contract_address: market.market_token }
+        .balance_of(caller_address);
+    balance_market_token.print();
+
+    start_prank(market.market_token, caller_address);
+    IERC20Dispatcher { contract_address: market.market_token }
+        .transfer(withdrawal_vault.contract_address, 250);
+
+    let withdrawal_params = withdrawal_utils::CreateWithdrawalParams {
+        /// The address that will receive the withdrawal tokens.
+        receiver: caller_address,
+        /// The contract that will be called back.
+        callback_contract: addresss_zero,
+        /// The ui fee receiver.
+        ui_fee_receiver: addresss_zero,
+        /// The market on which the withdrawal will be executed.
+        market: market.market_token,
+        /// The swap path for the long token
+        long_token_swap_path: Array32Trait::<ContractAddress>::span32(@array![]),
+        /// The short token swap path
+        short_token_swap_path: Array32Trait::<ContractAddress>::span32(@array![]),
+        /// The minimum amount of long tokens that must be withdrawn.
+        min_long_token_amount: 50000000000,
+        /// The minimum amount of short tokens that must be withdrawn.
+        min_short_token_amount: 50000000000,
+        /// The execution fee for the withdrawal.
+        execution_fee: 0,
+        /// The gas limit for calling the callback contract.
+        callback_gas_limit: 0,
+    };
+
+    start_roll(withdrawal_handler.contract_address, 1930);
+    let key = withdrawal_handler.create_withdrawal(caller_address, withdrawal_params);
+    let first_withdrawal = data_store.get_withdrawal(key);
+
+    assert(first_withdrawal.receiver == caller_address, 'Wrong account receiver');
+
+
+    // assert(pool_value_info.pool_value.mag == 200000000000000, 'wrong pool value amount');
+    // assert(pool_value_info.long_token_amount == 40000000000, 'wrong long token amount');
+    // assert(pool_value_info.short_token_amount == 40000000000, 'wrong short token amount');
+
+    // let not_withdrawal = data_store.get_withdrawal(key);
+    // let default_withdrawal: Deposit = Default::default();
+    // assert(not_withdrawal == default_withdrawal, 'Still existing deposit');
+
+    // let market_token_dispatcher = IMarketTokenDispatcher { contract_address: market.market_token };
+
+    // let balance = market_token_dispatcher.balance_of(user1);
+
+    // let balance_deposit_vault = IERC20Dispatcher { contract_address: market.short_token }
+    //     .balance_of(deposit_vault.contract_address);
+
+    // let pool_value_info = market_utils::get_pool_value_info(
+    //     data_store,
+    //     market,
+    //     Price { min: 5000, max: 5000, },
+    //     Price { min: 5000, max: 5000, },
+    //     Price { min: 1, max: 1, },
+    //     keys::max_pnl_factor_for_deposits(),
+    //     true,
+    // );
+
+    // pool_value_info.pool_value.mag.print();
+    // pool_value_info.long_token_amount.print();
+    // pool_value_info.short_token_amount.print();
+
+    // *********************************************************************************************
+    // *                              TEARDOWN                                                     *
+    // *********************************************************************************************
+    teardown(data_store, market_factory);
+}
+
+#[test]
 fn test_long_market_integration() {
     // *********************************************************************************************
     // *                              SETUP                                                        *
@@ -648,6 +901,8 @@ fn test_long_market_integration() {
         order_vault,
         reader,
         referal_storage,
+        withdrawal_handler,
+        withdrawal_vault,
     ) =
         setup();
 
@@ -1299,6 +1554,8 @@ fn setup() -> (
     IOrderVaultDispatcher,
     IReaderDispatcher,
     IReferralStorageDispatcher,
+    IWithdrawalHandlerDispatcher,
+    IWithdrawalVaultDispatcher,
 ) {
     let (
         caller_address,
@@ -1318,6 +1575,8 @@ fn setup() -> (
         order_vault,
         reader,
         referal_storage,
+        withdrawal_handler,
+        withdrawal_vault,
     ) =
         setup_contracts();
     grant_roles_and_prank(caller_address, role_store, data_store, market_factory);
@@ -1339,6 +1598,8 @@ fn setup() -> (
         order_vault,
         reader,
         referal_storage,
+        withdrawal_handler,
+        withdrawal_vault,
     )
 }
 
@@ -1412,6 +1673,8 @@ fn setup_contracts() -> (
     IOrderVaultDispatcher,
     IReaderDispatcher,
     IReferralStorageDispatcher,
+    IWithdrawalHandlerDispatcher,
+    IWithdrawalVaultDispatcher,
 ) {
     // Deploy the role store contract.
     let role_store_address = deploy_role_store();
@@ -1514,6 +1777,9 @@ fn setup_contracts() -> (
     let reader = IReaderDispatcher { contract_address: reader_address };
 
     let referal_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
+
+    let withdrawal_handler = IWithdrawalHandlerDispatcher { contract_address: withdrawal_handler_address };
+    let withdrawal_vault = IWithdrawalVaultDispatcher { contract_address: withdrawal_vault_address };
     (
         contract_address_const::<'caller'>(),
         market_factory_address,
@@ -1532,6 +1798,8 @@ fn setup_contracts() -> (
         order_vault,
         reader,
         referal_storage,
+        withdrawal_handler,
+        withdrawal_vault,
     )
 }
 
