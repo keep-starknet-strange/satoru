@@ -156,7 +156,6 @@ mod DepositHandler {
             IRoleModule::only_controller(@state);
 
             let data_store = self.data_store.read();
-            global_reentrancy_guard::non_reentrant_before(data_store);
 
             feature_utils::validate_feature(
                 self.data_store.read(),
@@ -171,8 +170,6 @@ mod DepositHandler {
                 params
             );
 
-            global_reentrancy_guard::non_reentrant_after(data_store);
-
             key
         }
 
@@ -181,7 +178,6 @@ mod DepositHandler {
             IRoleModule::only_controller(@state);
 
             let data_store = self.data_store.read();
-            global_reentrancy_guard::non_reentrant_before(data_store);
 
             // let starting_gas = gas_left();
 
@@ -204,8 +200,6 @@ mod DepositHandler {
                 keys::user_initiated_cancel(),
                 array!['Cancel Deposit'] //TODO should be empty string
             );
-
-            global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
         fn execute_deposit(ref self: ContractState, key: felt252, oracle_params: SetPricesParams) {
@@ -237,7 +231,7 @@ mod DepositHandler {
 
             let data_store = self.data_store.read();
             let oracle = self.oracle.read();
-            global_reentrancy_guard::non_reentrant_before(data_store);
+
             oracle_modules::with_simulated_oracle_prices_before(oracle, params);
 
             let oracleParams = Default::default();
@@ -245,7 +239,6 @@ mod DepositHandler {
             self.execute_deposit_keeper(key, oracleParams, get_caller_address());
 
             oracle_modules::with_simulated_oracle_prices_after();
-            global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
         fn execute_deposit_keeper(

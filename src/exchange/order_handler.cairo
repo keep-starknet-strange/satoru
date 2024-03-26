@@ -222,8 +222,6 @@ mod OrderHandler {
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
 
-            global_reentrancy_guard::non_reentrant_before(data_store);
-
             // Validate feature and create order.
             feature_utils::validate_feature(
                 data_store,
@@ -237,8 +235,6 @@ mod OrderHandler {
                 account,
                 params
             );
-
-            global_reentrancy_guard::non_reentrant_after(data_store);
 
             key
         }
@@ -260,8 +256,6 @@ mod OrderHandler {
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
             let event_emitter = base_order_handler_state.event_emitter.read();
-
-            global_reentrancy_guard::non_reentrant_before(data_store);
 
             // Validate feature.
             feature_utils::validate_feature(
@@ -301,8 +295,6 @@ mod OrderHandler {
                     key, size_delta_usd, acceptable_price, trigger_price, min_output_amount
                 );
 
-            global_reentrancy_guard::non_reentrant_after(data_store);
-
             updated_order
         }
 
@@ -316,8 +308,6 @@ mod OrderHandler {
             // Fetch data store.
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
-
-            global_reentrancy_guard::non_reentrant_before(data_store);
 
             let order = data_store.get_order(key);
 
@@ -343,8 +333,6 @@ mod OrderHandler {
                 keys::user_initiated_cancel(),
                 ArrayTrait::<felt252>::new(),
             );
-
-            global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
         fn execute_order(ref self: ContractState, key: felt252, oracle_params: SetPricesParams) {
@@ -383,15 +371,14 @@ mod OrderHandler {
         fn simulate_execute_order(
             ref self: ContractState, key: felt252, params: SimulatePricesParams
         ) {
-            // Check only order keeper.
+            // Check only controller.
             let role_module_state = RoleModule::unsafe_new_contract_state();
-            role_module_state.only_order_keeper();
+            role_module_state.only_controller();
 
             // Fetch data store.
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
 
-            global_reentrancy_guard::non_reentrant_before(data_store);
             oracle_modules::with_simulated_oracle_prices_before(
                 base_order_handler_state.oracle.read(), params
             );
@@ -400,7 +387,6 @@ mod OrderHandler {
             self._execute_order(key, oracle_params, get_contract_address());
 
             oracle_modules::with_simulated_oracle_prices_after();
-            global_reentrancy_guard::non_reentrant_after(data_store);
         }
     }
 
