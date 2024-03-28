@@ -200,6 +200,9 @@ fn swap(params: @SwapParams) -> (ContractAddress, u256) {
         (*params.data_store).set_bool(keys::swap_path_market_flag_key(market.market_token), false);
         i += 1;
     };
+    'output before'.print();
+    output_amount.print();
+    (*params.min_output_amount).print();
     if (output_amount < *params.min_output_amount) {
         SwapError::INSUFFICIENT_OUTPUT_AMOUNT(output_amount, *params.min_output_amount);
     }
@@ -215,6 +218,11 @@ fn swap(params: @SwapParams) -> (ContractAddress, u256) {
 
     'Usdc balance: '.print();
     balance_USDC.print();
+
+    'token out'.print();
+    token_out.print();
+    'output amount'.print();
+    output_amount.print();
 
     (token_out, output_amount)
 }
