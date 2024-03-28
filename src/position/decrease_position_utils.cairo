@@ -21,6 +21,7 @@ use satoru::order::order::{OrderType, DecreasePositionSwapType};
 use satoru::order::base_order_utils;
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::position::error::PositionError;
+use debug::PrintTrait;
 
 /// Struct used as result for decrease_position_function output.
 #[derive(Drop, Default, Copy, starknet::Store, Serde)]
@@ -60,6 +61,7 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
             market_utils::get_cached_token_price(
                 params.order.initial_collateral_token, params.market, cache.prices
             );
+    '1 inside function decrease'.print();
 
     // cap the order size to the position size
     if (params.order.size_delta_usd > params.position.size_in_usd) {
@@ -73,11 +75,16 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
                 );
             params.order.size_delta_usd = params.position.size_in_usd;
         } else {
+            'enter in else'.print();
+            params.order.size_delta_usd.print();
+            params.position.size_in_usd.print();
             PositionError::INVALID_DECREASE_ORDER_SIZE(
                 params.order.size_delta_usd, params.position.size_in_usd
             );
         }
     }
+    '2 inside function decrease'.print();
+
     // if the position will be partially decreased then do a check on the
     // remaining collateral amount and update the order attributes if needed
     if (params.order.size_delta_usd < params.position.size_in_usd) {
@@ -117,6 +124,7 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
             params.position.is_long,
             position_values
         );
+        '3 inside function decrease'.print();
 
         // do not allow withdrawal of collateral if it would lead to the position
         // having an insufficient amount of collateral
@@ -188,7 +196,7 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
         && params.order.initial_collateral_delta_amount > 0) {
         params.order.initial_collateral_delta_amount = 0;
     }
-
+    'inside function decrease'.print();
     if (params.position.is_long) {
         cache.pnl_token = params.market.long_token;
         cache.pnl_token_price = cache.prices.long_token_price;

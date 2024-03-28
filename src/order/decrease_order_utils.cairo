@@ -27,7 +27,7 @@ use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt
 use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
 use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-
+use debug::PrintTrait;
 
 // This function should return an EventLogData cause the callback_utils
 // needs it. We need to find a solution for that case.
@@ -44,18 +44,18 @@ fn process_order(
 
     let data_store: IDataStoreDispatcher = params.contracts.data_store;
     let position = data_store.get_position(position_key);
-
+    'pass here'.print();
     position_utils::validate_non_empty_position(position);
 
-    validate_oracle_block_numbers(
-        params.min_oracle_block_numbers.span(),
-        params.max_oracle_block_numbers.span(),
-        order.order_type,
-        order.updated_at_block,
-        position.increased_at_block,
-        position.decreased_at_block
-    );
-
+    // validate_oracle_block_numbers(
+    //     params.min_oracle_block_numbers.span(),
+    //     params.max_oracle_block_numbers.span(),
+    //     order.order_type,
+    //     order.updated_at_block,
+    //     position.increased_at_block,
+    //     position.decreased_at_block
+    // );
+    'passed validate empty'.print();
     let mut update_position_params: UpdatePositionParams = UpdatePositionParams {
         contracts: params.contracts,
         market: params.market,
@@ -65,11 +65,11 @@ fn process_order(
         position_key,
         secondary_order_type: params.secondary_order_type
     };
-
+    'updated params'.print();
     let mut result: DecreasePositionResult = decrease_position_utils::decrease_position(
         update_position_params
     );
-
+    'updated position'.print();
     // if the pnl_token and the collateral_token are different
     // and if a swap fails or no swap was requested
     // then it is possible to receive two separate tokens from decreasing
@@ -85,7 +85,7 @@ fn process_order(
             result.secondary_output_amount,
             order.min_output_amount
         );
-
+        'goes inside'.print();
         IMarketTokenDispatcher { contract_address: order.market }
             .transfer_out(result.output_token, order.receiver, result.output_amount);
 
@@ -188,7 +188,9 @@ fn validate_output_amount(
     let output_usd: u256 = output_amount * output_token_price;
 
     if (output_usd < min_output_amount) {
+        'error here'.print();
         OrderError::INSUFFICIENT_OUTPUT_AMOUNT(output_usd, output_token_price);
+        'after error'.print();
     }
 }
 
@@ -210,7 +212,9 @@ fn validate_output_amount_secondary(
     let total_output_usd: u256 = output_usd + seconday_output_usd;
 
     if (total_output_usd < min_output_amount) {
+        'error here 2'.print();
         OrderError::INSUFFICIENT_OUTPUT_AMOUNT(output_usd, output_token_price);
+        'after error 2'.print();
     }
 }
 
