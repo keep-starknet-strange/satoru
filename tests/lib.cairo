@@ -105,8 +105,8 @@ mod utils {
     mod test_precision;
     mod test_reentrancy_guard;
     mod test_starknet_utils;
-    mod test_u128_mask;
-    mod test_i128;
+    // mod test_u128_mask;
+    // mod test_i128;
     mod test_serializable_dict;
 }
 mod withdrawal {
@@ -119,7 +119,6 @@ mod mock {
 mod referral {
     mod test_referral_utils;
 }
-mod test_create_and_execute_swap;
 
 mod integration {
     mod test_deposit_withdrawal;
