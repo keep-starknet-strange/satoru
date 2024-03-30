@@ -293,7 +293,6 @@ fn test_long_market_integration() {
             10000000000
         );
 
-
     let signatures: Span<felt252> = array![0].span();
     let set_price_params = SetPricesParams {
         signer_info: 2,
