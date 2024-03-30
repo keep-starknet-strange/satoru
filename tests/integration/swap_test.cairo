@@ -238,9 +238,7 @@ fn test_deposit_market_integration() {
 
     start_prank(contract_address_const::<'ETH'>(), caller_address); //change to switch swap
     // Send token to order_vault in multicall with create_order
-    IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    } //change to switch swap
+    IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() } //change to switch swap
         .transfer(order_vault.contract_address, 1);
 
     let balance_ETH_before = IERC20Dispatcher {
