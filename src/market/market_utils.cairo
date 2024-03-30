@@ -2882,18 +2882,6 @@ fn get_expected_min_token_balance(
         .get_u256(keys::claimable_ui_fee_amount_key(market.market_token, token));
     let affiliate_reward_amount: u256 = data_store
         .get_u256(keys::affiliate_reward_key(market.market_token, token));
-    'pool_amount'.print();
-    pool_amount.print();
-    'swap_impact_pool_amount'.print();
-    swap_impact_pool_amount.print();
-    'claimable_collateral_amount'.print();
-    claimable_collateral_amount.print();
-    'claimable_fee_amount'.print();
-    claimable_fee_amount.print();
-    'claimable_ui_fee_amount'.print();
-    claimable_ui_fee_amount.print();
-    'affiliate_reward_amount'.print();
-    affiliate_reward_amount.print();
     // funding fees are excluded from this summation as claimable funding fees
     // are incremented without a corresponding decrease of the collateral of
     // other positions, the collateral of other positions is decreased when
