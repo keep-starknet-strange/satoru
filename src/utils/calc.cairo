@@ -28,6 +28,8 @@ fn roundup_division(a: u256, b: u256) -> u256 {
 /// The result of dividing the first number by the second number, rounded up to the nearest integer.
 // TODO function doesn't really do what the comments tell
 fn roundup_magnitude_division(a: i256, b: u256) -> i256 {
+    'this is value of b'.print();
+    b.print();
     error_utils::check_division_by_zero(b, 'roundup_magnitude_division');
     if (a < Zeroable::zero()) {
         return ((a - i256_new(b, false) + i256_new(1, false)) / i256_new(b, false));

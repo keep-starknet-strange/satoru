@@ -1,3 +1,6 @@
+use debug::PrintTrait;
+
+
 fn get_error_selector_from_data(reason_bytes: Span<felt252>) -> felt252 {
     // TODO
     0
@@ -14,6 +17,7 @@ fn get_revert_message(reason_bytes: Span<felt252>) -> felt252 {
 }
 
 fn check_division_by_zero(divisor: u256, variable_name: felt252) {
+    'value of divisor'.print();
     if divisor.is_zero() {
         panic(array!['division by zero', variable_name])
     }

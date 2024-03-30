@@ -1313,6 +1313,7 @@ fn get_swap_impact_amount_with_cap(
         }
     } else {
         let price = token_price.min;
+        'issue here'.print();
         // round negative impactAmount up, this will be deducted from the user
         impact_amount = roundup_magnitude_division(price_impact_usd, price);
     }
@@ -2832,7 +2833,10 @@ fn validate_market_token_balance_with_token(
         .low
         .into();
     let expected_min_balance: u256 = get_expected_min_token_balance(data_store, market, token);
-
+    'the issue is here!!'.print();
+    balance.print();
+    'expected_min_balance'.print();
+    expected_min_balance.print();
     assert(balance >= expected_min_balance, MarketError::INVALID_MARKET_TOKEN_BALANCE);
 
     // funding fees can be claimed even if the collateral for positions that should pay funding fees

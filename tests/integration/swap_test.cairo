@@ -86,17 +86,19 @@ fn test_deposit_market_integration() {
 
     // Set params in data_store
     data_store.set_address(keys::fee_token(), market.index_token);
-    data_store.set_u128(keys::max_swap_path_length(), 5);
+    data_store.set_u256(keys::max_swap_path_length(), 5);
 
     // Set max pool amount.
     data_store
-        .set_u128(
+        .set_u256(
             keys::max_pool_amount_key(market.market_token, market.long_token), 500000000000000000
         );
     data_store
-        .set_u128(
+        .set_u256(
             keys::max_pool_amount_key(market.market_token, market.short_token), 500000000000000000
         );
+
+    oracle.set_price_testing_eth(5000);
 
     // Fill the pool.
     IERC20Dispatcher { contract_address: market.long_token }.mint(market.market_token, 50000000000);
@@ -684,7 +686,7 @@ fn deploy_role_store() -> ContractAddress {
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'role_store'>();
     start_prank(deployed_contract_address, caller_address);
-    contract.deploy_at(@array![], deployed_contract_address).unwrap()
+    contract.deploy_at(@array![caller_address.into()], deployed_contract_address).unwrap()
 }
 
 fn deploy_event_emitter() -> ContractAddress {

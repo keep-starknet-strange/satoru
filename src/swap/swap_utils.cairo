@@ -330,7 +330,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u256) 
                 cache.token_in_price,
                 price_impact_usd
             );
-        // 'SWAP6'.print();
+        'SWAP6'.print();
 
         if fees.amount_after_fees <= calc::to_unsigned(i256_neg(price_impact_amount)) {
             SwapError::SWAP_PRICE_IMPACT_EXCEEDS_AMOUNT_IN(
@@ -338,14 +338,14 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u256) 
             );
         }
 
-        // 'SWAP6test'.print();
+        'SWAP6test'.print();
 
         cache.amount_in = fees.amount_after_fees - calc::to_unsigned(i256_neg(price_impact_amount));
 
         cache.amount_out = cache.amount_in * cache.token_in_price.min / cache.token_out_price.max;
         cache.pool_amount_out = cache.amount_out;
     }
-    // 'SWAP6bank dispatcherbefore'.print();
+    'SWAP6bank dispatcherbefore'.print();
 
     // the amountOut value includes the positive price impact amount
     if (_params.receiver != _params.market.market_token) {
@@ -355,7 +355,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u256) 
         IBankDispatcher { contract_address: *_params.market.market_token }
             .transfer_out(cache.token_out, *_params.receiver, cache.amount_out);
     }
-    // 'SWAP7'.print();
+    'SWAP7'.print();
 
     market_utils::apply_delta_to_pool_amount(
         *params.data_store,
@@ -373,7 +373,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u256) 
         cache.token_out,
         calc::to_signed(cache.pool_amount_out, false),
     );
-    // 'SWAP8'.print();
+    'SWAP8'.print();
 
     let prices = market_utils::MarketPrices {
         index_token_price: (*params.oracle).get_primary_price(*_params.market.index_token),
@@ -388,7 +388,7 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u256) 
             cache.token_out_price
         },
     };
-    // 'SWAP9'.print();
+    'SWAP9'.print();
 
     market_utils::validate_pool_amount(params.data_store, _params.market, *_params.token_in);
     market_utils::validate_reserve(
