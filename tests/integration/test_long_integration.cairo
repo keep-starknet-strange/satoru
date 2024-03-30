@@ -120,9 +120,6 @@ fn test_long_market_integration() {
     // TODO Check why we don't need to set pool_amount_key
     // // Set pool amount in data_store.
     // let mut key = keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>());
-    // data_store.set_u256(key, 50000000000);
-    // key = keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>());
-    // data_store.set_u256(key, 50000000000);
 
     // Send token to deposit in the deposit vault (this should be in a multi call with create_deposit)
     IERC20Dispatcher { contract_address: market.long_token }
@@ -284,6 +281,18 @@ fn test_long_market_integration() {
     // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
     // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
     // Execute the swap order.
+
+    data_store
+        .set_u256(
+            keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()),
+            10000000000
+        );
+    data_store
+        .set_u256(
+            keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()),
+            10000000000
+        );
+
 
     let signatures: Span<felt252> = array![0].span();
     let set_price_params = SetPricesParams {
