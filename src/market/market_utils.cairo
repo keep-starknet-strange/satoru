@@ -2831,6 +2831,7 @@ fn validate_market_token_balance_with_token(
         .balance_of(market.market_token)
         .low
         .into();
+    'Issue here'.print();
     let expected_min_balance: u256 = get_expected_min_token_balance(data_store, market, token);
 
     assert(balance >= expected_min_balance, MarketError::INVALID_MARKET_TOKEN_BALANCE);
