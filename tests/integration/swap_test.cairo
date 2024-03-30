@@ -238,7 +238,9 @@ fn test_deposit_market_integration() {
 
     start_prank(contract_address_const::<'ETH'>(), caller_address); //change to switch swap
     // Send token to order_vault in multicall with create_order
-    IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() } //change to switch swap
+    IERC20Dispatcher {
+        contract_address: contract_address_const::<'ETH'>()
+    } //change to switch swap
         .transfer(order_vault.contract_address, 1);
 
     let balance_ETH_before = IERC20Dispatcher {
@@ -287,9 +289,17 @@ fn test_deposit_market_integration() {
     let key = order_handler.create_order(caller_address, order_params);
 
     let got_order = data_store.get_order(key);
-    
-    data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), 10000000000);
-    data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 10000000000);
+
+    data_store
+        .set_u256(
+            keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()),
+            10000000000
+        );
+    data_store
+        .set_u256(
+            keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()),
+            10000000000
+        );
 
     // Execute the swap order.
     let signatures: Span<felt252> = array![0].span();
