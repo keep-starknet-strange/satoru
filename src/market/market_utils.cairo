@@ -923,7 +923,6 @@ fn apply_delta_to_open_interest(
     // so the virtual inventory should be decreased.
 
     if is_long {
-        'goes here'.print();
         apply_delta_to_virtual_inventory_for_positions(
             data_store, event_emitter, *market.index_token, i256_neg(delta)
         );
@@ -1515,6 +1514,8 @@ fn validate_open_interest(data_store: IDataStoreDispatcher, market: @Market, is_
     // Get the maximum open interest.
     let max_open_interest = get_max_open_interest(data_store, *market.market_token, is_long);
     'pass get int second'.print();
+    open_interest.print();
+    max_open_interest.print();
 
     // Check that the open interest is not greater than the maximum open interest.
     if (open_interest > max_open_interest) {
