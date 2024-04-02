@@ -236,9 +236,13 @@ fn test_short_market_integration() {
 
     'begining of SHORT TEST'.print();
 
-    let key_open_interest = keys::open_interest_key(market.market_token, contract_address_const::<'ETH'>(), false);
+    let key_open_interest = keys::open_interest_key(
+        market.market_token, contract_address_const::<'ETH'>(), false
+    );
     data_store.set_u256(key_open_interest, 1);
-    let key_open_interest_usdc = keys::open_interest_key(market.market_token, contract_address_const::<'USDC'>(), false);
+    let key_open_interest_usdc = keys::open_interest_key(
+        market.market_token, contract_address_const::<'USDC'>(), false
+    );
     data_store.set_u256(key_open_interest_usdc, 1);
     let max_key_open_interest = keys::max_open_interest_key(market.market_token, false);
     data_store.set_u256(max_key_open_interest, 10000000000000000);
@@ -314,21 +318,14 @@ fn test_short_market_integration() {
     // TODO add real signatures check on Oracle Account
     order_handler.execute_order_keeper(key_short, set_price_params, keeper_address);
     'short position SUCCEEDED'.print();
-    let position_key = position_utils::get_position_key(caller_address, market.market_token, contract_address_const::<'ETH'>(), false);
+    let position_key = position_utils::get_position_key(
+        caller_address, market.market_token, contract_address_const::<'ETH'>(), false
+    );
     let first_position = data_store.get_position(position_key);
     let market_prices = market_utils::MarketPrices {
-        index_token_price: Price {
-            min: 8000,
-            max: 8000,
-        },
-        long_token_price: Price {
-            min: 8000,
-            max: 8000,
-        },
-        short_token_price: Price {
-            min: 1,
-            max: 1,
-        },
+        index_token_price: Price { min: 8000, max: 8000, },
+        long_token_price: Price { min: 8000, max: 8000, },
+        short_token_price: Price { min: 1, max: 1, },
     };
     'size tokens'.print();
     first_position.size_in_tokens.print();
@@ -338,19 +335,9 @@ fn test_short_market_integration() {
     let second_swap_pool_value_info = market_utils::get_pool_value_info(
         data_store,
         market,
-        Price {
-            min: 5000,
-            max: 5000,
-        }
-        ,
-        Price {
-            min: 5000,
-            max: 5000,
-        },
-        Price {
-            min: 1,
-            max: 1,
-        },
+        Price { min: 5000, max: 5000, },
+        Price { min: 5000, max: 5000, },
+        Price { min: 1, max: 1, },
         keys::max_pnl_factor_for_deposits(),
         true,
     );
