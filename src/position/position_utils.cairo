@@ -269,7 +269,8 @@ fn get_position_pnl_usd(
 ) -> (i256, i256, u256) {
     let mut cache: GetPositionPnlUsdCache = Default::default();
     let execution_price = prices.index_token_price.pick_price_for_pnl(position.is_long, false);
-
+    'size delta usd pnl'.print();
+    size_delta_usd.print();
     // position.sizeInUsd is the cost of the tokens, positionValue is the current worth of the tokens
     cache.position_value = calc::to_signed(position.size_in_tokens * execution_price, true);
     cache
@@ -326,7 +327,9 @@ fn get_position_pnl_usd(
         }
     }
     if position.size_in_usd == size_delta_usd {
-        cache.size_delta_in_tokens = position.size_in_tokens
+        'pass heure if 1'.print();
+        (position.size_in_usd).print();
+        cache.size_delta_in_tokens = position.size_in_tokens;
     } else {
         if position.is_long {
             cache
@@ -336,6 +339,13 @@ fn get_position_pnl_usd(
                     );
         } else {
             error_utils::check_division_by_zero(position.size_in_usd, 'position.size_in_usd');
+            'diiv by zero heure ma'.print();
+            position.size_in_tokens.print();
+            'second 1 2'.print();
+            size_delta_usd.print();
+            'last'.print();
+            position.size_in_usd.print();
+            'finished'.print();
             cache.size_delta_in_tokens = position.size_in_tokens
                 * size_delta_usd
                 / position.size_in_usd;

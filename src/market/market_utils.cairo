@@ -1518,7 +1518,7 @@ fn validate_open_interest(data_store: IDataStoreDispatcher, market: @Market, is_
 
     // Check that the open interest is not greater than the maximum open interest.
     if (open_interest > max_open_interest) {
-        'goes here'.print();
+        'goes here open inte'.print();
         MarketError::MAX_OPEN_INTEREST_EXCEDEED(open_interest, max_open_interest);
     }
 }
