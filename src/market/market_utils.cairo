@@ -923,7 +923,6 @@ fn apply_delta_to_open_interest(
     // so the virtual inventory should be decreased.
 
     if is_long {
-        'goes here'.print();
         apply_delta_to_virtual_inventory_for_positions(
             data_store, event_emitter, *market.index_token, i256_neg(delta)
         );
@@ -1515,6 +1514,8 @@ fn validate_open_interest(data_store: IDataStoreDispatcher, market: @Market, is_
     // Get the maximum open interest.
     let max_open_interest = get_max_open_interest(data_store, *market.market_token, is_long);
     'pass get int second'.print();
+    open_interest.print();
+    max_open_interest.print();
 
     // Check that the open interest is not greater than the maximum open interest.
     if (open_interest > max_open_interest) {
@@ -2831,8 +2832,8 @@ fn validate_market_token_balance_with_token(
         .balance_of(market.market_token)
         .low
         .into();
+    'Issue here'.print();
     let expected_min_balance: u256 = get_expected_min_token_balance(data_store, market, token);
-
     assert(balance >= expected_min_balance, MarketError::INVALID_MARKET_TOKEN_BALANCE);
 
     // funding fees can be claimed even if the collateral for positions that should pay funding fees
@@ -2882,7 +2883,6 @@ fn get_expected_min_token_balance(
         .get_u256(keys::claimable_ui_fee_amount_key(market.market_token, token));
     let affiliate_reward_amount: u256 = data_store
         .get_u256(keys::affiliate_reward_key(market.market_token, token));
-
     // funding fees are excluded from this summation as claimable funding fees
     // are incremented without a corresponding decrease of the collateral of
     // other positions, the collateral of other positions is decreased when
