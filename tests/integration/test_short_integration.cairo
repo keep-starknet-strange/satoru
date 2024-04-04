@@ -267,7 +267,7 @@ fn test_short_market_integration() {
         ui_fee_receiver: contract_address,
         market: market.market_token,
         initial_collateral_token: market.short_token,
-        swap_path: Array32Trait::<ContractAddress>::span32(@array![market.market_token]),
+        swap_path: Array32Trait::<ContractAddress>::span32(@array![]),
         size_delta_usd: 5000,
         initial_collateral_delta_amount: 5000, // 10^18
         trigger_price: 5000,
@@ -319,7 +319,7 @@ fn test_short_market_integration() {
     order_handler.execute_order_keeper(key_short, set_price_params, keeper_address);
     'short position SUCCEEDED'.print();
     let position_key = position_utils::get_position_key(
-        caller_address, market.market_token, contract_address_const::<'ETH'>(), false
+        caller_address, market.market_token, contract_address_const::<'USDC'>(), false
     );
     let first_position = data_store.get_position(position_key);
     let market_prices = market_utils::MarketPrices {
