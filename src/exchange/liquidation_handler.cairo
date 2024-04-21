@@ -181,7 +181,7 @@ mod LiquidationHandler {
                 params.contracts.data_store,
                 execute_order_feature_disabled_key(get_contract_address(), params.order.order_type)
             );
-            order_utils::execute_order(params);
+            order_utils::execute_order_utils(params);
             // with_oracle_prices_after(state_base.oracle.read());
 
             global_reentrancy_guard::non_reentrant_after(state_base.data_store.read());

@@ -39,7 +39,7 @@ use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 /// * `params` - The parameters used to create the order.
 /// # Returns
 /// Return the key of the created order.
-fn create_order( //TODO and fix when fee_token is implememted
+fn create_order_utils( //TODO and fix when fee_token is implememted
     data_store: IDataStoreDispatcher,
     event_emitter: IEventEmitterDispatcher,
     order_vault: IOrderVaultDispatcher,
@@ -162,7 +162,7 @@ fn create_order( //TODO and fix when fee_token is implememted
 /// Executes an order.
 /// # Arguments
 /// * `params` - The parameters used to execute the order.
-fn execute_order(params: ExecuteOrderParams) {
+fn execute_order_utils(params: ExecuteOrderParams) {
     // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
     // TODO GAS NOT AVAILABLE params.startingGas -= gasleft() / 63;
     params.contracts.data_store.remove_order(params.key, params.order.account);
