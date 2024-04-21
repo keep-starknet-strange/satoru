@@ -282,7 +282,7 @@ mod AdlHandler {
                 )
             );
 
-            order_utils::execute_order(params);
+            order_utils::execute_order_utils(params);
 
             // validate that the ratio of pending pnl to pool value was decreased
             cache
