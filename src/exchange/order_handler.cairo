@@ -100,7 +100,8 @@ mod OrderHandler {
     // *************************************************************************
 
     // Core lib imports.
-    use core::starknet::SyscallResultTrait;
+    use satoru::order::order_utils::IOrderUtilsDispatcherTrait;
+use core::starknet::SyscallResultTrait;
     use core::traits::Into;
     use starknet::ContractAddress;
     use starknet::{get_caller_address, get_contract_address};
@@ -115,7 +116,7 @@ mod OrderHandler {
 
     use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
     use satoru::order::{
-        base_order_utils::CreateOrderParams, order_utils::{create_order_utils, execute_order_utils}, //base_order_utils,
+        base_order_utils::CreateOrderParams, order_utils::{IOrderUtilsDispatcher},
         order::{Order, OrderTrait, OrderType, SecondaryOrderType},
         order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait}
     };
@@ -152,7 +153,9 @@ mod OrderHandler {
     //                              STORAGE
     // *************************************************************************
     #[storage]
-    struct Storage {}
+    struct Storage {
+        order_utils: IOrderUtilsDispatcher
+    }
 
     // *************************************************************************
     //                              CONSTRUCTOR
@@ -175,7 +178,8 @@ mod OrderHandler {
         order_vault_address: ContractAddress,
         oracle_address: ContractAddress,
         swap_handler_address: ContractAddress,
-        referral_storage_address: ContractAddress
+        referral_storage_address: ContractAddress,
+        order_utils_address: ContractAddress
     ) {
         let mut state: BaseOrderHandler::ContractState =
             BaseOrderHandler::unsafe_new_contract_state();
@@ -187,7 +191,8 @@ mod OrderHandler {
             order_vault_address,
             oracle_address,
             swap_handler_address,
-            referral_storage_address
+            referral_storage_address,
+            order_utils_address
         );
     }
 
@@ -200,7 +205,6 @@ mod OrderHandler {
         fn create_order(
             ref self: ContractState, account: ContractAddress, params: CreateOrderParams
         ) -> felt252 {
-            '3. Create order'.print();
 
             let balance_ETH_start = IERC20Dispatcher {
                 contract_address: contract_address_const::<'ETH'>()
@@ -212,11 +216,7 @@ mod OrderHandler {
             }
                 .balance_of(contract_address_const::<'caller'>());
 
-            '3. eth start 0 create order'.print();
-            balance_ETH_start.print();
 
-            '3. usdc start 0 create order'.print();
-            balance_USDC_start.print();
             // Check only controller.
             let role_module_state = RoleModule::unsafe_new_contract_state();
             role_module_state.only_controller();
@@ -231,7 +231,7 @@ mod OrderHandler {
                 data_store,
                 create_order_feature_disabled_key(get_contract_address(), params.order_type)
             );
-            let key = create_order_utils(
+            let key = self.order_utils.read().create_order_utils(
                 data_store,
                 base_order_handler_state.event_emitter.read(),
                 base_order_handler_state.order_vault.read(),
@@ -248,11 +248,9 @@ mod OrderHandler {
         
         fn execute_order(ref self: ContractState, key: felt252, oracle_params: SetPricesParams) {
             // Check only order keeper.
-            '4. Execute order'.print();
             let role_module_state = RoleModule::unsafe_new_contract_state();
             role_module_state.only_order_keeper();
             // Fetch data store.
-            'firsttter'.print();
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
             non_reentrant_before(data_store);
@@ -262,10 +260,8 @@ mod OrderHandler {
             //     base_order_handler_state.event_emitter.read(),
             //     @oracle_params
             // );
-            'in handlerr'.print();
             // TODO: Did not implement starting gas and try / catch logic as not available in Cairo
             self._execute_order(key, oracle_params, get_contract_address());
-            'finish execution'.print();
             // oracle_modules::with_oracle_prices_after(base_order_handler_state.oracle.read());
             non_reentrant_after(data_store);
         }
@@ -343,7 +339,7 @@ mod OrderHandler {
                 )
             );
 
-            execute_order_utils(params);
+            self.order_utils.read().execute_order_utils(params);
         }
 
         
