@@ -154,7 +154,9 @@ mod OrderHandler {
     //                              STORAGE
     // *************************************************************************
     #[storage]
-    struct Storage {}
+    struct Storage {
+        order_utils: IOrderUtilsDispatcher
+    }
 
     // *************************************************************************
     //                              CONSTRUCTOR
