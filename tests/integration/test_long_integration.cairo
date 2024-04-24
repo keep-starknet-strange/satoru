@@ -715,7 +715,13 @@ fn setup_contracts() -> (
 
     let swap_handler_address = deploy_swap_handler_address(role_store_address, data_store_address);
     let referral_storage_address = deploy_referral_storage(event_emitter_address);
-    let order_utils_address = deploy_order_utils();
+    
+    let increase_order_address = deploy_increase_order();
+    let decrease_order_address = deploy_decrease_order();
+    let swap_order_address = deploy_swap_order();
+
+    let order_utils_address = deploy_order_utils(increase_order_address, decrease_order_address, swap_order_address);
+
     let order_handler_address = deploy_order_handler(
         data_store_address,
         role_store_address,
@@ -1028,14 +1034,53 @@ fn deploy_order_vault(
     tests_lib::deploy_mock_contract(contract, @constructor_calldata)
 }
 
-fn deploy_order_utils() -> ContractAddress {
+fn deploy_increase_order() -> ContractAddress {
+    let contract = declare('IncreaseOrderUtils');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'increase_order_utils'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract
+        .deploy_at(
+            @array![], deployed_contract_address
+        )
+        .unwrap()
+}
+fn deploy_decrease_order() -> ContractAddress {
+    let contract = declare('DecreaseOrderUtils');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'decrease_order_utils'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract
+        .deploy_at(
+            @array![], deployed_contract_address
+        )
+        .unwrap()
+}
+fn deploy_swap_order() -> ContractAddress {
+    let contract = declare('SwapOrderUtils');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'swap_order_utils'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract
+        .deploy_at(
+            @array![], deployed_contract_address
+        )
+        .unwrap()
+}
+
+
+fn deploy_order_utils(
+    increase_order_address: ContractAddress,
+    decrease_order_address: ContractAddress,
+    swap_order_address: ContractAddress,
+) -> ContractAddress {
     let contract = declare('OrderUtils');
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'order_utils'>();
     start_prank(deployed_contract_address, caller_address);
     contract
         .deploy_at(
-            @array![], deployed_contract_address
+            @array![increase_order_address.into(), decrease_order_address.into(), swap_order_address.into()], deployed_contract_address
         )
         .unwrap()
 }

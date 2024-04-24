@@ -15,7 +15,7 @@ use satoru::event::event_utils::{
     Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue
 };
 // *************************************************************************
-//                  Interface of the `OrderHandler` contract.
+//                  Interface of the `OrderUtils` contract.
 // *************************************************************************
 #[starknet::interface]
 trait IOrderUtils<TContractState> {
@@ -122,11 +122,34 @@ mod OrderUtils {
     };
     use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
     use satoru::order::error::OrderError;
-    use satoru::order::{increase_order_utils, decrease_order_utils, swap_order_utils};
+
+    use satoru::order::increase_order_utils::{IIncreaseOrderUtilsDispatcher, IIncreaseOrderUtilsDispatcherTrait};
+    use satoru::order::decrease_order_utils::{IDecreaseOrderUtilsDispatcher, IDecreaseOrderUtilsDispatcherTrait};
+    use satoru::order::swap_order_utils::{ISwapOrderUtilsDispatcher, ISwapOrderUtilsDispatcherTrait};
+
     use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 
     #[storage]
-    struct Storage {}
+    struct Storage {
+        increase_order_utils: IIncreaseOrderUtilsDispatcher,
+        decrease_order_utils: IDecreaseOrderUtilsDispatcher,
+        swap_order_utils: ISwapOrderUtilsDispatcher,
+    }
+
+    // *************************************************************************
+    //                              CONSTRUCTOR
+    // *************************************************************************
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        increase_order_address: ContractAddress,
+        decrease_order_address: ContractAddress,
+        swap_order_address: ContractAddress
+    ) {
+        self.increase_order_utils.write(IIncreaseOrderUtilsDispatcher { contract_address: increase_order_address });
+        self.decrease_order_utils.write(IDecreaseOrderUtilsDispatcher { contract_address: decrease_order_address });
+        self.swap_order_utils.write(ISwapOrderUtilsDispatcher { contract_address: swap_order_address });
+    }
 
     // *************************************************************************
     //                          EXTERNAL FUNCTIONS
@@ -355,11 +378,11 @@ mod OrderUtils {
         /// * `params` - The parameters used to process the order.
         fn process_order(ref self: ContractState, params: ExecuteOrderParams) {
             if (base_order_utils::is_increase_order(params.order.order_type)) {
-                increase_order_utils::process_order(params);
+                self.increase_order_utils.read().process_order(params);
             } else if (base_order_utils::is_decrease_order(params.order.order_type)) {
-                decrease_order_utils::process_order(params);
+                self.decrease_order_utils.read().process_order(params);
             } else if (base_order_utils::is_swap_order(params.order.order_type)) {
-                swap_order_utils::process_order(params);
+                self.swap_order_utils.read().process_order(params);
             }else{
                 panic_with_felt252(OrderError::UNSUPPORTED_ORDER_TYPE)
             }
