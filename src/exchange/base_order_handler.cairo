@@ -70,7 +70,7 @@ mod BaseOrderHandler {
         error::OrderError, order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType},
         order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
         base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts},
-        order_utils::IOrderUtilsDispatcher
+        order_utils::{IOrderUtilsDispatcher, IOrderUtilsDispatcherTrait}
     };
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use satoru::exchange::error::ExchangeError;

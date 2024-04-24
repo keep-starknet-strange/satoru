@@ -101,7 +101,7 @@ mod OrderHandler {
 
     // Core lib imports.
     use satoru::order::order_utils::IOrderUtilsDispatcherTrait;
-use core::starknet::SyscallResultTrait;
+    use core::starknet::SyscallResultTrait;
     use core::traits::Into;
     use starknet::ContractAddress;
     use starknet::{get_caller_address, get_contract_address};
@@ -133,6 +133,7 @@ use core::starknet::SyscallResultTrait;
         order_vault::InternalContractMemberStateTrait as OrderVaultStateTrait,
         referral_storage::InternalContractMemberStateTrait as ReferralStorageStateTrait,
         oracle::InternalContractMemberStateTrait as OracleStateTrait,
+        order_utils::InternalContractMemberStateTrait as OrderUtilsTrait,
         InternalTrait as BaseOrderHandleInternalTrait,
     };
     use satoru::feature::feature_utils::{validate_feature};
@@ -153,9 +154,7 @@ use core::starknet::SyscallResultTrait;
     //                              STORAGE
     // *************************************************************************
     #[storage]
-    struct Storage {
-        order_utils: IOrderUtilsDispatcher
-    }
+    struct Storage {}
 
     // *************************************************************************
     //                              CONSTRUCTOR
@@ -231,7 +230,7 @@ use core::starknet::SyscallResultTrait;
                 data_store,
                 create_order_feature_disabled_key(get_contract_address(), params.order_type)
             );
-            let key = self.order_utils.read().create_order_utils(
+            let key = base_order_handler_state.order_utils.read().create_order_utils(
                 data_store,
                 base_order_handler_state.event_emitter.read(),
                 base_order_handler_state.order_vault.read(),
@@ -339,7 +338,7 @@ use core::starknet::SyscallResultTrait;
                 )
             );
 
-            self.order_utils.read().execute_order_utils(params);
+            base_order_handler_state.order_utils.read().execute_order_utils(params);
         }
 
         

@@ -12,7 +12,7 @@ use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::event::event_utils::{
-    LogData, LogDataTrait, Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue
+    Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue
 };
 // *************************************************************************
 //                  Interface of the `OrderHandler` contract.
@@ -44,7 +44,7 @@ trait IOrderUtils<TContractState> {
     /// Process an order execution.
     /// # Arguments
     /// * `params` - The parameters used to process the order.
-    fn process_order(ref self: TContractState, params: ExecuteOrderParams) -> LogData;
+    fn process_order(ref self: TContractState, params: ExecuteOrderParams); //TODO add LogData return value
 
     /// Cancels an order.
     /// # Arguments
@@ -118,7 +118,7 @@ mod OrderUtils {
     use satoru::gas::gas_utils;
     use satoru::order::order::{Order, OrderType, OrderTrait};
     use satoru::event::event_utils::{
-        LogData, LogDataTrait, Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue
+    Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue
     };
     use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
     use satoru::order::error::OrderError;
@@ -304,7 +304,8 @@ mod OrderUtils {
                 secondary_order_type: params.secondary_order_type
             };
 
-            let mut event_data: LogData = self.process_order(params_process);
+            // let mut event_data: LogData = self.process_order(params_process); //TODO LogData return value
+            self.process_order(params_process);
             // validate that internal state changes are correct before calling
             // external callbacks
             // if the native token was transferred to the receiver in a swap
@@ -352,20 +353,16 @@ mod OrderUtils {
         /// Process an order execution.
         /// # Arguments
         /// * `params` - The parameters used to process the order.
-        fn process_order(ref self: ContractState, params: ExecuteOrderParams) -> LogData {
+        fn process_order(ref self: ContractState, params: ExecuteOrderParams) {
             if (base_order_utils::is_increase_order(params.order.order_type)) {
-                return increase_order_utils::process_order(params);
+                increase_order_utils::process_order(params);
+            } else if (base_order_utils::is_decrease_order(params.order.order_type)) {
+                decrease_order_utils::process_order(params);
+            } else if (base_order_utils::is_swap_order(params.order.order_type)) {
+                swap_order_utils::process_order(params);
+            }else{
+                panic_with_felt252(OrderError::UNSUPPORTED_ORDER_TYPE)
             }
-
-            if (base_order_utils::is_decrease_order(params.order.order_type)) {
-                return decrease_order_utils::process_order(params);
-            }
-
-            if (base_order_utils::is_swap_order(params.order.order_type)) {
-                return swap_order_utils::process_order(params);
-            }
-
-            panic_with_felt252(OrderError::UNSUPPORTED_ORDER_TYPE)
         }
 
         /// Cancels an order.
@@ -412,8 +409,8 @@ mod OrderUtils {
 
             event_emitter.emit_order_cancelled(key, reason, reason_bytes.span());
 
-            let mut event_data: LogData = Default::default();
-            callback_utils::after_order_cancellation(key, order, event_data);
+            // let mut event_data: LogData = Default::default();
+            // callback_utils::after_order_cancellation(key, order, event_data);
 
             gas_utils::pay_execution_fee_order(
                 data_store,
@@ -466,8 +463,8 @@ mod OrderUtils {
 
             event_emitter.emit_order_frozen(key, reason, reason_bytes.span());
 
-            let mut event_data: LogData = Default::default();
-            callback_utils::after_order_frozen(key, order, event_data);
+            // let mut event_data: LogData = Default::default();
+            // callback_utils::after_order_frozen(key, order, event_data);
 
             gas_utils::pay_execution_fee_order(
                 data_store, event_emitter, order_vault, execution_fee, starting_gas, keeper, order.account

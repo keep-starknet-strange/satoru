@@ -17,6 +17,7 @@ use snforge_std::{declare, start_prank, stop_prank, start_roll, ContractClassTra
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
 use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
+use satoru::order::order_utils::{IOrderUtilsDispatcher, IOrderUtilsDispatcherTrait};
 use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDispatcherTrait};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
@@ -598,6 +599,7 @@ fn setup_contracts() -> (
 
     let swap_handler_address = deploy_swap_handler_address(role_store_address, data_store_address);
     let referral_storage_address = deploy_referral_storage(event_emitter_address);
+    let order_utils_address = deploy_order_utils();
     let order_handler_address = deploy_order_handler(
         data_store_address,
         role_store_address,
@@ -605,7 +607,8 @@ fn setup_contracts() -> (
         order_vault_address,
         oracle_address,
         swap_handler_address,
-        referral_storage_address
+        referral_storage_address,
+        order_utils_address
     );
     let order_handler = IOrderHandlerDispatcher { contract_address: order_handler_address };
 
@@ -834,7 +837,8 @@ fn deploy_order_handler(
     order_vault_address: ContractAddress,
     oracle_address: ContractAddress,
     swap_handler_address: ContractAddress,
-    referral_storage_address: ContractAddress
+    referral_storage_address: ContractAddress,
+    order_utils_address: ContractAddress
 ) -> ContractAddress {
     let contract = declare('OrderHandler');
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
@@ -847,7 +851,8 @@ fn deploy_order_handler(
         order_vault_address.into(),
         oracle_address.into(),
         swap_handler_address.into(),
-        referral_storage_address.into()
+        referral_storage_address.into(),
+        order_utils_address.into()
     ];
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
@@ -905,6 +910,18 @@ fn deploy_order_vault(
     constructor_calldata.append(data_store_address.into());
     constructor_calldata.append(role_store_address.into());
     tests_lib::deploy_mock_contract(contract, @constructor_calldata)
+}
+
+fn deploy_order_utils() -> ContractAddress {
+    let contract = declare('OrderUtils');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'order_utils'>();
+    start_prank(deployed_contract_address, caller_address);
+    contract
+        .deploy_at(
+            @array![], deployed_contract_address
+        )
+        .unwrap()
 }
 
 fn deploy_bank(
