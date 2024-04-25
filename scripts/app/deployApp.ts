@@ -134,6 +134,51 @@ async function deploy() {
     })
     console.log("ReferralStorage Deployed.")
 
+    console.log("Deploying IncreaseOrderUtils")
+    const compiledIncreaseOrderUtilsCasm = json.parse(fs.readFileSync( "./target/dev/satoru_IncreaseOrderUtils.compiled_contract_class.json").toString( "ascii"))
+    const compiledIncreaseOrderUtilsSierra = json.parse(fs.readFileSync( "./target/dev/satoru_IncreaseOrderUtils.contract_class.json").toString( "ascii"))
+    const increaseOrderUtilsCallData: CallData = new CallData(compiledIncreaseOrderUtilsSierra.abi)
+    const increaseOrderUtilsConstructor: Calldata = increaseOrderUtilsCallData.compile("constructor", {})
+    const deployIncreaseOrderUtilsResponse = await account0.declareAndDeploy({
+        contract: compiledIncreaseOrderUtilsSierra,
+        casm: compiledIncreaseOrderUtilsCasm,
+    })
+
+    console.log("Deploying DecreaseOrderUtils")
+    const compiledDecreaseOrderUtilsCasm = json.parse(fs.readFileSync( "./target/dev/satoru_DecreaseOrderUtils.compiled_contract_class.json").toString( "ascii"))
+    const compiledDecreaseOrderUtilsSierra = json.parse(fs.readFileSync( "./target/dev/satoru_DecreaseOrderUtils.contract_class.json").toString( "ascii"))
+    const decreaseOrderUtilsCallData: CallData = new CallData(compiledDecreaseOrderUtilsSierra.abi)
+    const decreaseOrderUtilsConstructor: Calldata = decreaseOrderUtilsCallData.compile("constructor", {})
+    const deployDecreaseOrderUtilsResponse = await account0.declareAndDeploy({
+        contract: compiledDecreaseOrderUtilsSierra,
+        casm: compiledDecreaseOrderUtilsCasm,
+    })
+
+    console.log("Deploying SwapOrderUtils")
+    const compiledSwapOrderUtilsCasm = json.parse(fs.readFileSync( "./target/dev/satoru_SwapOrderUtils.compiled_contract_class.json").toString( "ascii"))
+    const compiledSwapOrderUtilsSierra = json.parse(fs.readFileSync( "./target/dev/satoru_SwapOrderUtils.contract_class.json").toString( "ascii"))
+    const swapOrderUtilsCallData: CallData = new CallData(compiledSwapOrderUtilsSierra.abi)
+    const swapOrderUtilsConstructor: Calldata = swapOrderUtilsCallData.compile("constructor", {})
+    const deploySwapOrderUtilsResponse = await account0.declareAndDeploy({
+        contract: compiledSwapOrderUtilsSierra,
+        casm: compiledSwapOrderUtilsCasm,
+    })
+
+    console.log("Deploying OrderUtils")
+    const compiledOrderUtilsCasm = json.parse(fs.readFileSync( "./target/dev/satoru_OrderUtils.compiled_contract_class.json").toString( "ascii"))
+    const compiledOrderUtilsSierra = json.parse(fs.readFileSync( "./target/dev/satoru_OrderUtils.contract_class.json").toString( "ascii"))
+    const orderUtilsCallData: CallData = new CallData(compiledOrderUtilsSierra.abi)
+    const orderUtilsConstructor: Calldata = orderUtilsCallData.compile("constructor", {
+        increase_order_address: deployIncreaseOrderUtilsResponse.deploy.contract_address,
+        decrease_order_address: deployDecreaseOrderUtilsResponse.deploy.contract_address,
+        swap_order_address: deploySwapOrderUtilsResponse.deploy.contract_address
+    })
+    const deployOrderUtilsResponse = await account0.declareAndDeploy({
+        contract: compiledOrderUtilsSierra,
+        casm: compiledOrderUtilsCasm,
+        constructorCalldata: orderUtilsConstructor
+    })
+
     console.log("Deploying OrderHandler...")
     const compiledOrderHandlerCasm = json.parse(fs.readFileSync( "./target/dev/satoru_OrderHandler.compiled_contract_class.json").toString( "ascii"))
     const compiledOrderHandlerSierra = json.parse(fs.readFileSync( "./target/dev/satoru_OrderHandler.contract_class.json").toString( "ascii"))
@@ -145,7 +190,8 @@ async function deploy() {
         order_vault_address: deployOrderVaultResponse.deploy.contract_address,
         oracle_address: deployOracleResponse.deploy.contract_address,
         swap_handler_address: deploySwapHandlerResponse.deploy.contract_address,
-        referral_storage_address: deployReferralStorageResponse.deploy.contract_address
+        referral_storage_address: deployReferralStorageResponse.deploy.contract_address,
+        order_utils_address: deployOrderUtilsResponse.deploy.contract_address
     })
     const deployOrderHandlerResponse = await account0.declareAndDeploy({
         contract: compiledOrderHandlerSierra,

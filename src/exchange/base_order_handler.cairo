@@ -33,7 +33,8 @@ trait IBaseOrderHandler<TContractState> {
         order_vault_address: ContractAddress,
         oracle_address: ContractAddress,
         swap_handler_address: ContractAddress,
-        referral_storage_address: ContractAddress
+        referral_storage_address: ContractAddress,
+        order_utils_address: ContractAddress
     );
 }
 
@@ -69,6 +70,7 @@ mod BaseOrderHandler {
         error::OrderError, order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType},
         order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
         base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts},
+        order_utils::{IOrderUtilsDispatcher, IOrderUtilsDispatcherTrait}
     };
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use satoru::exchange::error::ExchangeError;
@@ -96,7 +98,9 @@ mod BaseOrderHandler {
         /// Interface to interact with the `Oracle` contract.
         oracle: IOracleDispatcher,
         /// Interface to interact with the `ReferralStorage` contract.
-        referral_storage: IReferralStorageDispatcher
+        referral_storage: IReferralStorageDispatcher,
+        /// Interface to interact with the `OrderUtils` contract.
+        order_utils: IOrderUtilsDispatcher
     }
 
     // *************************************************************************
@@ -121,7 +125,8 @@ mod BaseOrderHandler {
         order_vault_address: ContractAddress,
         oracle_address: ContractAddress,
         swap_handler_address: ContractAddress,
-        referral_storage_address: ContractAddress
+        referral_storage_address: ContractAddress,
+        order_utils_address: ContractAddress
     ) {
         self
             .initialize(
@@ -131,7 +136,8 @@ mod BaseOrderHandler {
                 order_vault_address,
                 oracle_address,
                 swap_handler_address,
-                referral_storage_address
+                referral_storage_address,
+                order_utils_address
             );
     }
 
@@ -149,7 +155,8 @@ mod BaseOrderHandler {
             order_vault_address: ContractAddress,
             oracle_address: ContractAddress,
             swap_handler_address: ContractAddress,
-            referral_storage_address: ContractAddress
+            referral_storage_address: ContractAddress,
+            order_utils_address: ContractAddress
         ) {
             // Make sure the contract is not already initialized.
             assert(
@@ -170,6 +177,7 @@ mod BaseOrderHandler {
             self
                 .referral_storage
                 .write(IReferralStorageDispatcher { contract_address: referral_storage_address });
+            self.order_utils.write(IOrderUtilsDispatcher { contract_address: order_utils_address });
         }
     }
 
