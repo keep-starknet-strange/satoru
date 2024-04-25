@@ -44,7 +44,9 @@ trait IOrderUtils<TContractState> {
     /// Process an order execution.
     /// # Arguments
     /// * `params` - The parameters used to process the order.
-    fn process_order(ref self: TContractState, params: ExecuteOrderParams); //TODO add LogData return value
+    fn process_order(
+        ref self: TContractState, params: ExecuteOrderParams
+    ); //TODO add LogData return value
 
     /// Cancels an order.
     /// # Arguments
@@ -58,7 +60,7 @@ trait IOrderUtils<TContractState> {
     /// # Returns
     /// Return the key of the created order.
     fn cancel_order(
-        ref self: TContractState, 
+        ref self: TContractState,
         data_store: IDataStoreDispatcher,
         event_emitter: IEventEmitterDispatcher,
         order_vault: IOrderVaultDispatcher,
@@ -81,7 +83,7 @@ trait IOrderUtils<TContractState> {
     /// # Returns
     /// Return the key of the created order.
     fn freeze_order(
-        ref self: TContractState, 
+        ref self: TContractState,
         data_store: IDataStoreDispatcher,
         event_emitter: IEventEmitterDispatcher,
         order_vault: IOrderVaultDispatcher,
@@ -91,8 +93,6 @@ trait IOrderUtils<TContractState> {
         reason: felt252,
         reason_bytes: Array<felt252>
     );
-
-
 }
 
 
@@ -108,7 +108,9 @@ mod OrderUtils {
     use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
     use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
     use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
-    use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+    use satoru::mock::referral_storage::{
+        IReferralStorageDispatcher, IReferralStorageDispatcherTrait
+    };
     use satoru::market::market_utils;
     use satoru::nonce::nonce_utils;
     use satoru::utils::account_utils;
@@ -118,14 +120,20 @@ mod OrderUtils {
     use satoru::gas::gas_utils;
     use satoru::order::order::{Order, OrderType, OrderTrait};
     use satoru::event::event_utils::{
-    Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue
+        Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue
     };
     use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
     use satoru::order::error::OrderError;
 
-    use satoru::order::increase_order_utils::{IIncreaseOrderUtilsDispatcher, IIncreaseOrderUtilsDispatcherTrait};
-    use satoru::order::decrease_order_utils::{IDecreaseOrderUtilsDispatcher, IDecreaseOrderUtilsDispatcherTrait};
-    use satoru::order::swap_order_utils::{ISwapOrderUtilsDispatcher, ISwapOrderUtilsDispatcherTrait};
+    use satoru::order::increase_order_utils::{
+        IIncreaseOrderUtilsDispatcher, IIncreaseOrderUtilsDispatcherTrait
+    };
+    use satoru::order::decrease_order_utils::{
+        IDecreaseOrderUtilsDispatcher, IDecreaseOrderUtilsDispatcherTrait
+    };
+    use satoru::order::swap_order_utils::{
+        ISwapOrderUtilsDispatcher, ISwapOrderUtilsDispatcherTrait
+    };
 
     use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 
@@ -146,9 +154,15 @@ mod OrderUtils {
         decrease_order_address: ContractAddress,
         swap_order_address: ContractAddress
     ) {
-        self.increase_order_utils.write(IIncreaseOrderUtilsDispatcher { contract_address: increase_order_address });
-        self.decrease_order_utils.write(IDecreaseOrderUtilsDispatcher { contract_address: decrease_order_address });
-        self.swap_order_utils.write(ISwapOrderUtilsDispatcher { contract_address: swap_order_address });
+        self
+            .increase_order_utils
+            .write(IIncreaseOrderUtilsDispatcher { contract_address: increase_order_address });
+        self
+            .decrease_order_utils
+            .write(IDecreaseOrderUtilsDispatcher { contract_address: decrease_order_address });
+        self
+            .swap_order_utils
+            .write(ISwapOrderUtilsDispatcher { contract_address: swap_order_address });
     }
 
     // *************************************************************************
@@ -175,8 +189,9 @@ mod OrderUtils {
             account: ContractAddress,
             mut params: CreateOrderParams
         ) -> felt252 {
-
-            let balance_ETH_start = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
+            let balance_ETH_start = IERC20Dispatcher {
+                contract_address: contract_address_const::<'ETH'>()
+            }
                 .balance_of(contract_address_const::<'caller'>());
 
             let balance_USDC_start = IERC20Dispatcher {
@@ -185,7 +200,9 @@ mod OrderUtils {
                 .balance_of(contract_address_const::<'caller'>());
 
             account_utils::validate_account(account);
-            referral_utils::set_trader_referral_code(referral_storage, account, params.referral_code);
+            referral_utils::set_trader_referral_code(
+                referral_storage, account, params.referral_code
+            );
 
             let mut initial_collateral_delta_amount = 0;
 
@@ -265,7 +282,9 @@ mod OrderUtils {
 
             callback_utils::validate_callback_gas_limit(data_store, order.callback_gas_limit);
 
-            let estimated_gas_limit = gas_utils::estimate_execute_order_gas_limit(data_store, @order);
+            let estimated_gas_limit = gas_utils::estimate_execute_order_gas_limit(
+                data_store, @order
+            );
             gas_utils::validate_execution_fee(data_store, estimated_gas_limit, order.execution_fee);
 
             let key = nonce_utils::get_next_key(data_store);
@@ -290,7 +309,9 @@ mod OrderUtils {
 
             '5. Execute Order'.print();
 
-            let balance_ETH_start = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
+            let balance_ETH_start = IERC20Dispatcher {
+                contract_address: contract_address_const::<'ETH'>()
+            }
                 .balance_of(contract_address_const::<'caller'>());
 
             let balance_USDC_start = IERC20Dispatcher {
@@ -335,7 +356,9 @@ mod OrderUtils {
             // it may be possible to invoke external contracts before the validations
             // are called
 
-            let balance_ETH_after = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
+            let balance_ETH_after = IERC20Dispatcher {
+                contract_address: contract_address_const::<'ETH'>()
+            }
                 .balance_of(contract_address_const::<'caller'>());
             'balance_ETH_after'.print();
             balance_ETH_after.print();
@@ -356,7 +379,10 @@ mod OrderUtils {
                 params.contracts.data_store, params.swap_path_markets
             );
 
-            params.contracts.event_emitter.emit_order_executed(params.key, params.secondary_order_type);
+            params
+                .contracts
+                .event_emitter
+                .emit_order_executed(params.key, params.secondary_order_type);
         // callback_utils::after_order_execution(params.key, params.order, event_data);
 
         // the order.executionFee for liquidation / adl orders is zero
@@ -383,7 +409,7 @@ mod OrderUtils {
                 self.decrease_order_utils.read().process_order(params);
             } else if (base_order_utils::is_swap_order(params.order.order_type)) {
                 self.swap_order_utils.read().process_order(params);
-            }else{
+            } else {
                 panic_with_felt252(OrderError::UNSUPPORTED_ORDER_TYPE)
             }
         }
@@ -490,7 +516,13 @@ mod OrderUtils {
             // callback_utils::after_order_frozen(key, order, event_data);
 
             gas_utils::pay_execution_fee_order(
-                data_store, event_emitter, order_vault, execution_fee, starting_gas, keeper, order.account
+                data_store,
+                event_emitter,
+                order_vault,
+                execution_fee,
+                starting_gas,
+                keeper,
+                order.account
             );
         }
     }

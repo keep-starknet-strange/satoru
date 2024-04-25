@@ -14,8 +14,8 @@ use satoru::oracle::oracle_utils;
 use satoru::utils::arrays::are_gte_u64;
 use satoru::swap::swap_utils;
 use satoru::event::event_utils::{
-    Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue,
-    U256252DictValue, U256IntoFelt252
+    Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue, U256252DictValue,
+    U256IntoFelt252
 };
 use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
 use satoru::order::error::OrderError;
@@ -59,8 +59,8 @@ mod SwapOrderUtils {
     use satoru::utils::arrays::are_gte_u64;
     use satoru::swap::swap_utils;
     use satoru::event::event_utils::{
-        Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue,
-        U256252DictValue, U256IntoFelt252
+        Felt252IntoContractAddress, ContractAddressDictValue, I256252DictValue, U256252DictValue,
+        U256IntoFelt252
     };
     use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
     use satoru::order::error::OrderError;
@@ -88,7 +88,9 @@ mod SwapOrderUtils {
             //     params.order.order_type,
             //     params.order.updated_at_block
             // );
-            let balance_ETH_start = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
+            let balance_ETH_start = IERC20Dispatcher {
+                contract_address: contract_address_const::<'ETH'>()
+            }
                 .balance_of(contract_address_const::<'caller'>());
 
             let balance_usdc_start = IERC20Dispatcher {
@@ -125,10 +127,14 @@ mod SwapOrderUtils {
             // log_data.address_dict.insert_single('output_token', output_token);
             // log_data.uint_dict.insert_single('output_amount', output_amount);
 
-            let balance_ETH_end = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
+            let balance_ETH_end = IERC20Dispatcher {
+                contract_address: contract_address_const::<'ETH'>()
+            }
                 .balance_of(contract_address_const::<'caller'>());
 
-            let balance_usdc_end = IERC20Dispatcher { contract_address: contract_address_const::<'USDC'>() }
+            let balance_usdc_end = IERC20Dispatcher {
+                contract_address: contract_address_const::<'USDC'>()
+            }
                 .balance_of(contract_address_const::<'caller'>());
 
             '6. eth end process order'.print();
@@ -137,8 +143,7 @@ mod SwapOrderUtils {
             '6. usdc end process order'.print();
             balance_usdc_end.print();
             '------------------------'.print();
-
-            // log_data
+        // log_data
         }
 
 
@@ -155,21 +160,21 @@ mod SwapOrderUtils {
             order_type: OrderType,
             order_updated_at_block: u64
         ) {
-        if (order_type == OrderType::MarketSwap) {
-            oracle_utils::validate_block_number_within_range(
-                min_oracle_block_numbers, max_oracle_block_numbers, order_updated_at_block
-            );
-            return;
-        }
-        if (order_type == OrderType::LimitSwap) {
-            if (!are_gte_u64(min_oracle_block_numbers, order_updated_at_block)) {
-                OracleError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(
-                    min_oracle_block_numbers, order_updated_at_block
+            if (order_type == OrderType::MarketSwap) {
+                oracle_utils::validate_block_number_within_range(
+                    min_oracle_block_numbers, max_oracle_block_numbers, order_updated_at_block
                 );
+                return;
             }
-            return;
-        }
-        panic(array![OrderError::UNSUPPORTED_ORDER_TYPE]);
+            if (order_type == OrderType::LimitSwap) {
+                if (!are_gte_u64(min_oracle_block_numbers, order_updated_at_block)) {
+                    OracleError::ORACLE_BLOCK_NUMBERS_ARE_SMALLER_THAN_REQUIRED(
+                        min_oracle_block_numbers, order_updated_at_block
+                    );
+                }
+                return;
+            }
+            panic(array![OrderError::UNSUPPORTED_ORDER_TYPE]);
         }
     }
 }

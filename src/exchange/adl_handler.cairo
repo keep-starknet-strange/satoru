@@ -92,7 +92,8 @@ mod AdlHandler {
     use satoru::order::{
         order::{SecondaryOrderType, OrderType, Order},
         order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
-        base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}, order_utils::{IOrderUtilsDispatcher}
+        base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts},
+        order_utils::{IOrderUtilsDispatcher}
     };
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
@@ -167,7 +168,7 @@ mod AdlHandler {
             referral_storage_address,
             order_utils_address
         );
-        self.order_utils.write(IOrderUtilsDispatcher {contract_address : order_utils_address });
+        self.order_utils.write(IOrderUtilsDispatcher { contract_address: order_utils_address });
     }
 
     // *************************************************************************

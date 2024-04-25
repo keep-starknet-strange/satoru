@@ -109,7 +109,7 @@ mod LiquidationHandler {
         oracle_address: ContractAddress,
         swap_handler_address: ContractAddress,
         referral_storage_address: ContractAddress,
-        order_utils_address : ContractAddress
+        order_utils_address: ContractAddress
     ) {
         let mut state: BaseOrderHandler::ContractState =
             BaseOrderHandler::unsafe_new_contract_state();

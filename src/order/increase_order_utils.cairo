@@ -85,7 +85,9 @@ mod IncreaseOrderUtils {
         /// This function should return an EventLogData cause the callback_utils
         /// needs it. We need to find a solution for that case.
         fn process_order(ref self: ContractState, params: ExecuteOrderParams) {
-            market_utils::validate_position_market(params.contracts.data_store, params.market.market_token);
+            market_utils::validate_position_market(
+                params.contracts.data_store, params.market.market_token
+            );
 
             let (collateral_token, collateral_increment_amount) = swap_utils::swap(
                 @swap_utils::SwapParams {

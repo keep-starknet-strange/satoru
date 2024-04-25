@@ -204,7 +204,6 @@ mod OrderHandler {
         fn create_order(
             ref self: ContractState, account: ContractAddress, params: CreateOrderParams
         ) -> felt252 {
-
             let balance_ETH_start = IERC20Dispatcher {
                 contract_address: contract_address_const::<'ETH'>()
             }
@@ -214,7 +213,6 @@ mod OrderHandler {
                 contract_address: contract_address_const::<'USDC'>()
             }
                 .balance_of(contract_address_const::<'caller'>());
-
 
             // Check only controller.
             let role_module_state = RoleModule::unsafe_new_contract_state();
@@ -230,21 +228,24 @@ mod OrderHandler {
                 data_store,
                 create_order_feature_disabled_key(get_contract_address(), params.order_type)
             );
-            let key = base_order_handler_state.order_utils.read().create_order_utils(
-                data_store,
-                base_order_handler_state.event_emitter.read(),
-                base_order_handler_state.order_vault.read(),
-                base_order_handler_state.referral_storage.read(),
-                account,
-                params
-            );
+            let key = base_order_handler_state
+                .order_utils
+                .read()
+                .create_order_utils(
+                    data_store,
+                    base_order_handler_state.event_emitter.read(),
+                    base_order_handler_state.order_vault.read(),
+                    base_order_handler_state.referral_storage.read(),
+                    account,
+                    params
+                );
 
             non_reentrant_after(data_store);
 
             key
         }
 
-        
+
         fn execute_order(ref self: ContractState, key: felt252, oracle_params: SetPricesParams) {
             // Check only order keeper.
             let role_module_state = RoleModule::unsafe_new_contract_state();
@@ -333,15 +334,12 @@ mod OrderHandler {
             // Validate feature.
             validate_feature(
                 params.contracts.data_store,
-                execute_order_feature_disabled_key(
-                    get_contract_address(), params.order.order_type
-                )
+                execute_order_feature_disabled_key(get_contract_address(), params.order.order_type)
             );
 
             base_order_handler_state.order_utils.read().execute_order_utils(params);
         }
 
-        
 
         /// Validate that the keeper is a frozen order keeper.
         /// # Arguments
