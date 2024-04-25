@@ -177,9 +177,7 @@ mod BaseOrderHandler {
             self
                 .referral_storage
                 .write(IReferralStorageDispatcher { contract_address: referral_storage_address });
-            self
-                .order_utils
-                .write(IOrderUtilsDispatcher { contract_address: order_utils_address});
+            self.order_utils.write(IOrderUtilsDispatcher { contract_address: order_utils_address });
         }
     }
 
