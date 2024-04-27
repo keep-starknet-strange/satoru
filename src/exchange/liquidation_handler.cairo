@@ -59,7 +59,7 @@ mod LiquidationHandler {
         oracle_utils::SetPricesParams
     };
     use satoru::order::{
-        order_utils, order::{SecondaryOrderType, OrderType, Order},
+        order_utils::{IOrderUtilsDispatcher}, order::{SecondaryOrderType, OrderType, Order},
         order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
         base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}
     };
@@ -77,6 +77,7 @@ mod LiquidationHandler {
     use satoru::exchange::base_order_handler::BaseOrderHandler::{
         event_emitter::InternalContractMemberStateTrait,
         data_store::InternalContractMemberStateImpl,
+        order_utils::InternalContractMemberStateTrait as OrderUtilsTrait,
         oracle::InternalContractMemberStateTrait as OracleStateTrait,
     };
 
@@ -107,7 +108,8 @@ mod LiquidationHandler {
         order_vault_address: ContractAddress,
         oracle_address: ContractAddress,
         swap_handler_address: ContractAddress,
-        referral_storage_address: ContractAddress
+        referral_storage_address: ContractAddress,
+        order_utils_address: ContractAddress
     ) {
         let mut state: BaseOrderHandler::ContractState =
             BaseOrderHandler::unsafe_new_contract_state();
@@ -119,9 +121,9 @@ mod LiquidationHandler {
             order_vault_address,
             oracle_address,
             swap_handler_address,
-            referral_storage_address
+            referral_storage_address,
+            order_utils_address
         );
-
         let mut state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
         IRoleModule::initialize(ref state, role_store_address,);
     }
@@ -181,7 +183,7 @@ mod LiquidationHandler {
                 params.contracts.data_store,
                 execute_order_feature_disabled_key(get_contract_address(), params.order.order_type)
             );
-            order_utils::execute_order(params);
+            state_base.execute_order_utils(params);
             // with_oracle_prices_after(state_base.oracle.read());
 
             global_reentrancy_guard::non_reentrant_after(state_base.data_store.read());

@@ -108,19 +108,19 @@ trait IExchangeRouter<TContractState> {
     /// * `acceptable_price` - The new acceptable price for the order.
     /// * `trigger_price` - The new trigger price for the order.
     /// * `min_output_amout` - The minimum required output amount in the transaction.
-    fn update_order(
-        ref self: TContractState,
-        key: felt252,
-        size_delta_usd: u256,
-        acceptable_price: u256,
-        trigger_price: u256,
-        min_output_amout: u256
-    );
+    // fn update_order(
+    //     ref self: TContractState,
+    //     key: felt252,
+    //     size_delta_usd: u256,
+    //     acceptable_price: u256,
+    //     trigger_price: u256,
+    //     min_output_amout: u256
+    // );
 
     /// Cancels the given order.
     /// # Arguments
     /// * `key` - The unique ID of the order to be cancelled.
-    fn cancel_order(ref self: TContractState, key: felt252);
+    // fn cancel_order(ref self: TContractState, key: felt252);
 
     /// Claims funding fees for the given markets and tokens on behalf of the caller, and sends the
     /// fees to the specified receiver. The length of the `markets` and `tokens` arrays must be the same.
@@ -405,45 +405,45 @@ mod ExchangeRouter {
             global_reentrancy_guard::non_reentrant_after(data_store);
         }
 
-        fn update_order(
-            ref self: ContractState,
-            key: felt252,
-            size_delta_usd: u256,
-            acceptable_price: u256,
-            trigger_price: u256,
-            min_output_amout: u256
-        ) {
-            let data_store = self.data_store.read();
-            global_reentrancy_guard::non_reentrant_before(data_store);
+        // fn update_order(
+        //     ref self: ContractState,
+        //     key: felt252,
+        //     size_delta_usd: u256,
+        //     acceptable_price: u256,
+        //     trigger_price: u256,
+        //     min_output_amout: u256
+        // ) {
+        //     let data_store = self.data_store.read();
+        //     global_reentrancy_guard::non_reentrant_before(data_store);
 
-            let order = data_store.get_order(key);
+        //     let order = data_store.get_order(key);
 
-            if (order.account != get_caller_address()) {
-                RouterError::UNAUTHORIZED(get_caller_address(), 'account for update_order')
-            }
-            self
-                .order_handler
-                .read()
-                .update_order(
-                    key, size_delta_usd, acceptable_price, trigger_price, min_output_amout, order
-                );
+        //     if (order.account != get_caller_address()) {
+        //         RouterError::UNAUTHORIZED(get_caller_address(), 'account for update_order')
+        //     }
+        //     self
+        //         .order_handler
+        //         .read()
+        //         .update_order(
+        //             key, size_delta_usd, acceptable_price, trigger_price, min_output_amout, order
+        //         );
 
-            global_reentrancy_guard::non_reentrant_after(data_store);
-        }
+        //     global_reentrancy_guard::non_reentrant_after(data_store);
+        // }
 
-        fn cancel_order(ref self: ContractState, key: felt252) {
-            let data_store = self.data_store.read();
-            global_reentrancy_guard::non_reentrant_before(data_store);
+        // fn cancel_order(ref self: ContractState, key: felt252) {
+        //     let data_store = self.data_store.read();
+        //     global_reentrancy_guard::non_reentrant_before(data_store);
 
-            let order = data_store.get_order(key);
+        //     let order = data_store.get_order(key);
 
-            if (order.account != get_caller_address()) {
-                RouterError::UNAUTHORIZED(get_caller_address(), 'account for cancel_order')
-            }
-            self.order_handler.read().cancel_order(key);
+        //     if (order.account != get_caller_address()) {
+        //         RouterError::UNAUTHORIZED(get_caller_address(), 'account for cancel_order')
+        //     }
+        //     self.order_handler.read().cancel_order(key);
 
-            global_reentrancy_guard::non_reentrant_after(data_store);
-        }
+        //     global_reentrancy_guard::non_reentrant_after(data_store);
+        // }
 
         fn claim_funding_fees(
             ref self: ContractState,

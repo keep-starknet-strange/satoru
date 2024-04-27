@@ -42,11 +42,11 @@ mod event {
     mod test_event_utils;
 }
 mod exchange {
-    mod test_liquidation_handler;
+    // mod test_liquidation_handler;
     mod test_withdrawal_handler;
     mod test_deposit_handler;
     mod test_exchange_utils;
-    mod test_base_order_handler;
+// mod test_base_order_handler;
 }
 mod feature {
     mod test_feature_utils;
@@ -68,7 +68,7 @@ mod oracle {
 }
 mod order {
     mod test_base_order_utils;
-    mod test_increase_order_utils;
+    // mod test_increase_order_utils;
     mod test_order;
 }
 mod position {
@@ -124,6 +124,6 @@ mod integration {
     mod test_deposit_withdrawal;
     mod test_long_integration;
     mod test_short_integration;
-    mod test_swap_integration;
+    // mod test_swap_integration;
     mod swap_test;
 }

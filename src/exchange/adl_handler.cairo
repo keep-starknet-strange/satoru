@@ -77,6 +77,7 @@ mod AdlHandler {
     use satoru::exchange::base_order_handler::BaseOrderHandler::{
         data_store::InternalContractMemberStateTrait as DataStoreStateTrait,
         event_emitter::InternalContractMemberStateTrait as EventEmitterStateTrait,
+        order_utils::InternalContractMemberStateTrait as OrderUtilsTrait,
         oracle::InternalContractMemberStateTrait as OracleStateTrait,
         InternalTrait as BaseOrderHandleInternalTrait,
     };
@@ -91,7 +92,8 @@ mod AdlHandler {
     use satoru::order::{
         order::{SecondaryOrderType, OrderType, Order},
         order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
-        base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts}, order_utils
+        base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts},
+        order_utils::{IOrderUtilsDispatcher}
     };
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
@@ -151,7 +153,7 @@ mod AdlHandler {
         oracle_address: ContractAddress,
         swap_handler_address: ContractAddress,
         referral_storage_address: ContractAddress,
-        order_handler_address: ContractAddress
+        order_utils_address: ContractAddress
     ) {
         let mut state: BaseOrderHandler::ContractState =
             BaseOrderHandler::unsafe_new_contract_state();
@@ -163,8 +165,10 @@ mod AdlHandler {
             order_vault_address,
             oracle_address,
             swap_handler_address,
-            referral_storage_address
+            referral_storage_address,
+            order_utils_address
         );
+        self.order_utils.write(IOrderUtilsDispatcher { contract_address: order_utils_address });
     }
 
     // *************************************************************************
@@ -282,7 +286,7 @@ mod AdlHandler {
                 )
             );
 
-            order_utils::execute_order(params);
+            base_order_handler_state.order_utils.read().execute_order_utils(params);
 
             // validate that the ratio of pending pnl to pool value was decreased
             cache
