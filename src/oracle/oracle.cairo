@@ -227,12 +227,6 @@ mod Oracle {
                 return Price { min: 0, max: 0 };
             }
             let price = self.primary_prices.read(token);
-            if token == contract_address_const::<'ETH'>() {
-                return self.eth_price.read();
-            }
-            if token == contract_address_const::<'USDC'>() {
-                return Price { min: 1, max: 1 };
-            }
 
             if price.is_zero() {
                 OracleError::EMPTY_PRIMARY_PRICE();
