@@ -35,11 +35,11 @@ fn with_oracle_prices_before(
     event_emitter: IEventEmitterDispatcher,
     params: @SetPricesParams
 ) {
-    oracle.set_prices(data_store, event_emitter, params.clone());
+    // oracle.set_prices(data_store, event_emitter, params.clone());
 }
 
 fn with_oracle_prices_after(oracle: IOracleDispatcher) {
-    oracle.clear_all_prices();
+    // oracle.clear_all_prices();
 }
 
 /// Set oracle prices for a simulation.
@@ -67,7 +67,7 @@ fn with_simulated_oracle_prices_before(oracle: IOracleDispatcher, params: Simula
         }
         let token: ContractAddress = *params.primary_tokens.at(cur_idx);
         let price: Price = *params.primary_prices.at(cur_idx);
-        oracle.set_primary_price(token, price);
+        // oracle.set_primary_price(token, price);
         cur_idx = cur_idx + 1;
     };
 }
