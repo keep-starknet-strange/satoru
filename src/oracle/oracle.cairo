@@ -37,6 +37,8 @@ trait IOracle<TContractState> {
         pragma_address: ContractAddress,
     );
 
+    fn set_primary_prices(ref self: TContractState, token: ContractAddress, price: u256);
+
     /// Get the primary price of a token.
     /// # Arguments
     /// * `token` - The token to get the price for.
@@ -216,6 +218,10 @@ mod Oracle {
             self.eth_price.write(Price { min: new_price, max: new_price })
         }
 
+        fn set_primary_prices(ref self: ContractState, token: ContractAddress, price: u256) {
+            self.primary_prices.write(token, Price { min: price, max: price });
+        }
+
         fn get_primary_price(self: @ContractState, token: ContractAddress) -> Price {
             if token.is_zero() {
                 return Price { min: 0, max: 0 };
@@ -227,6 +233,7 @@ mod Oracle {
             if token == contract_address_const::<'USDC'>() {
                 return Price { min: 1, max: 1 };
             }
+
             if price.is_zero() {
                 OracleError::EMPTY_PRIMARY_PRICE();
             }
