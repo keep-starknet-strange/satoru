@@ -728,12 +728,12 @@ fn test_long_decimals_market_integration() {
     data_store
         .set_u256(
             keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()),
-            100000000000000000000
+            10000000000000000000
         );
     data_store
         .set_u256(
             keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()),
-            1000000000000000000
+            100000000000000000
         );
 
     let signatures: Span<felt252> = array![0].span();
@@ -840,7 +840,7 @@ fn test_long_decimals_market_integration() {
         initial_collateral_token: market.long_token,
         swap_path: Array32Trait::<ContractAddress>::span32(@array![market.market_token]),
         size_delta_usd: 6000000000000000000000, // 6000
-        initial_collateral_delta_amount: 2000000000000000000, // 1 ETH 10^18
+        initial_collateral_delta_amount: 1000000000000000000, // 1 ETH 10^18
         trigger_price: 6000,
         acceptable_price: 6000,
         execution_fee: 0,
