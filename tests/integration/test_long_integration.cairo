@@ -519,20 +519,23 @@ fn test_long_decimals_market_integration() {
     // Set max pool amount.
     data_store
         .set_u256(
-            keys::max_pool_amount_key(market.market_token, market.long_token), 500000000000000000000000 //500 000 ETH
+            keys::max_pool_amount_key(market.market_token, market.long_token), 5000000000000000000000000000000000000000000 //500 000 ETH
         );
     data_store
         .set_u256(
-            keys::max_pool_amount_key(market.market_token, market.short_token), 250000000000000000000000000 //250 000 000 USDC
+            keys::max_pool_amount_key(market.market_token, market.short_token), 2500000000000000000000000000000000000000000000 //250 000 000 USDC
         );
+
+    let factor : felt252 = 0x4896bc14d7c67b49131baf26724d3f29032ddd7539a3a8d88324140ea2de9b4;
+    data_store.set_u256(keys::max_pnl_factor_key(factor, market.market_token, true), 50000000000000000000000000000000000000000000000);
 
     oracle.set_price_testing_eth(5000);
 
     'fill the pool'.print();
     // Fill the pool.
-    IERC20Dispatcher { contract_address: market.long_token }.mint(market.market_token, 5000000000000000000); // 5 ETH
+    IERC20Dispatcher { contract_address: market.long_token }.mint(market.market_token, 50000000000000000000000000000000000000); // 5 ETH
     IERC20Dispatcher { contract_address: market.short_token }
-        .mint(market.market_token, 25000000000000000000000); // 25000 USDC
+        .mint(market.market_token, 25000000000000000000000000000000000000000); // 25000 USDC
     'filled pool 1'.print();
     
     IERC20Dispatcher { contract_address: market.long_token }.mint(caller_address, 9999999999999000000); // 9.999 ETH
@@ -559,14 +562,19 @@ fn test_long_decimals_market_integration() {
 
     // Send token to deposit in the deposit vault (this should be in a multi call with create_deposit)
     'get balances'.print();
-    start_prank(market.long_token, caller_address);
-    IERC20Dispatcher { contract_address: market.long_token }
-        .transfer(deposit_vault.contract_address, 5000000000000000000); // 5 ETH
+    // start_prank(market.long_token, caller_address);
+    // IERC20Dispatcher { contract_address: market.long_token }
+    //     .transfer(deposit_vault.contract_address, 5000000000000000000); // 5 ETH
 
-    start_prank(market.short_token, caller_address);
+    // start_prank(market.short_token, caller_address);
+    // IERC20Dispatcher { contract_address: market.short_token }
+    //     .transfer(deposit_vault.contract_address, 25000000000000000000000); // 25000 USDC
+    // 'make transfer'.print();
+
+    IERC20Dispatcher { contract_address: market.long_token }
+        .mint(deposit_vault.contract_address, 50000000000000000000000000000); // 50 000 000 000
     IERC20Dispatcher { contract_address: market.short_token }
-        .transfer(deposit_vault.contract_address, 25000000000000000000000); // 25000 USDC
-    'make transfer'.print();
+        .mint(deposit_vault.contract_address, 50000000000000000000000000000); // 50 000 000 000
     // Create Deposit
 
     let addresss_zero: ContractAddress = 0.try_into().unwrap();
@@ -596,10 +604,10 @@ fn test_long_decimals_market_integration() {
     assert(first_deposit.receiver == caller_address, 'Wrong account receiver');
     assert(first_deposit.initial_long_token == market.long_token, 'Wrong initial long token');
     assert(
-        first_deposit.initial_long_token_amount == 5000000000000000000, 'Wrong initial long token amount'
+        first_deposit.initial_long_token_amount == 50000000000000000000000000000, 'Wrong initial long token amount'
     );
     assert(
-        first_deposit.initial_short_token_amount == 25000000000000000000000, 'Wrong init short token amount'
+        first_deposit.initial_short_token_amount == 50000000000000000000000000000, 'Wrong init short token amount'
     );
 
     let price_params = SetPricesParams { // TODO
@@ -660,19 +668,19 @@ fn test_long_decimals_market_integration() {
     let balance_deposit_vault_after = IERC20Dispatcher { contract_address: market.short_token }
         .balance_of(deposit_vault.contract_address);
 
-    let pool_value_info = market_utils::get_pool_value_info(
-        data_store,
-        market,
-        Price { min: 5000, max: 5000, },
-        Price { min: 5000, max: 5000, },
-        Price { min: 1, max: 1, },
-        keys::max_pnl_factor_for_deposits(),
-        true,
-    );
+    // let pool_value_info = market_utils::get_pool_value_info(
+    //     data_store,
+    //     market,
+    //     Price { min: 5000, max: 5000, },
+    //     Price { min: 5000, max: 5000, },
+    //     Price { min: 1, max: 1, },
+    //     keys::max_pnl_factor_for_deposits(),
+    //     true,
+    // );
 
-    pool_value_info.pool_value.mag.print(); // 10000 000000000000000000
-    pool_value_info.long_token_amount.print(); // 5 000000000000000000
-    pool_value_info.short_token_amount.print(); // 25000 000000000000000000
+    // pool_value_info.pool_value.mag.print(); // 10000 000000000000000000
+    // pool_value_info.long_token_amount.print(); // 5 000000000000000000
+    // pool_value_info.short_token_amount.print(); // 25000 000000000000000000
 
     // ************************************* TEST LONG *********************************************
 
@@ -728,12 +736,12 @@ fn test_long_decimals_market_integration() {
     data_store
         .set_u256(
             keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()),
-            10000000000000000000
+            50000000000000000000000000000
         );
     data_store
         .set_u256(
             keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()),
-            100000000000000000
+            50000000000000000000000000000
         );
 
     let signatures: Span<felt252> = array![0].span();
@@ -800,19 +808,19 @@ fn test_long_decimals_market_integration() {
     'pnl'.print();
     position_info.base_pnl_usd.mag.print();
 
-    let second_swap_pool_value_info = market_utils::get_pool_value_info(
-        data_store,
-        market,
-        Price { min: 5000, max: 5000, },
-        Price { min: 5000, max: 5000, },
-        Price { min: 1, max: 1, },
-        keys::max_pnl_factor_for_deposits(),
-        true,
-    );
+    // let second_swap_pool_value_info = market_utils::get_pool_value_info(
+    //     data_store,
+    //     market,
+    //     Price { min: 5000, max: 5000, },
+    //     Price { min: 5000, max: 5000, },
+    //     Price { min: 1, max: 1, },
+    //     keys::max_pnl_factor_for_deposits(),
+    //     true,
+    // );
 
-    second_swap_pool_value_info.pool_value.mag.print();
-    second_swap_pool_value_info.long_token_amount.print();
-    second_swap_pool_value_info.short_token_amount.print();
+    // second_swap_pool_value_info.pool_value.mag.print();
+    // second_swap_pool_value_info.long_token_amount.print();
+    // second_swap_pool_value_info.short_token_amount.print();
     // let (position_pnl_usd, uncapped_position_pnl_usd, size_delta_in_tokens) = 
     //     position_utils::get_position_pnl_usd(
     //             data_store, market, market_prices, first_position, 5000

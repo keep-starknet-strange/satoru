@@ -2687,6 +2687,9 @@ fn validate_max_pnl(
     pnl_factor_type_for_longs: felt252,
     pnl_factor_type_for_shorts: felt252
 ) {
+    'pnl factor begin'.print();
+    pnl_factor_type_for_longs.print();
+    'pnl factor end'.print();
     let (is_pnl_factor_exceeded_for_longs, pnl_to_pool_factor_for_longs, max_pnl_factor_for_longs) =
         is_pnl_factor_exceeded_check(
         data_store, market, prices, true, pnl_factor_type_for_longs,
