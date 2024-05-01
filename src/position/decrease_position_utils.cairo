@@ -218,7 +218,7 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
     }
 
     position_utils::update_funding_and_borrowing_state(params, cache.prices);
-
+    'updated funding and bor'.print();
     if (base_order_utils::is_liquidation_order(params.order.order_type)) {
         let (is_liquidatable, liquidation_amount_usd) = position_utils::is_position_liquiditable(
             params.contracts.data_store,
@@ -294,7 +294,7 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
 
         params.contracts.data_store.set_position(params.position_key, params.position);
     }
-
+    'before here'.print();
     market_utils::apply_delta_to_collateral_sum(
         params.contracts.data_store,
         params.contracts.event_emitter,
@@ -303,6 +303,7 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
         params.position.is_long,
         to_signed(cache.initial_collateral_amount - params.position.collateral_amount, false)
     );
+    'PAAASSSED'.print();
 
     position_utils::update_open_interest(
         params,
