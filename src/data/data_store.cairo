@@ -625,7 +625,6 @@ mod DataStore {
             if value < Zeroable::zero() && calc::to_unsigned(i256_neg(value)) > current_value {
                 panic(array![error]);
             }
-            
             'value'.print();
             value.mag.print();
             let next_value = calc::sum_return_uint_256(current_value, value);
