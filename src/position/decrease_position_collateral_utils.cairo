@@ -12,10 +12,11 @@ use satoru::pricing::position_pricing_utils;
 use satoru::market::market_utils;
 use satoru::price::price::{Price, PriceTrait};
 use satoru::order::{base_order_utils, order};
-use satoru::utils::{i256::{i256, i256_neg}, calc, precision};
+use satoru::utils::{i256::{i256, i256_neg, i256_new}, calc, precision};
 use satoru::data::{keys, data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait}};
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::fee::fee_utils;
+use debug::PrintTrait;
 
 /// Struct used in process_collateral function as cache.
 #[derive(Drop, starknet::Store, Serde, Default, Copy)]
@@ -88,9 +89,15 @@ fn process_collateral(
     // price_impact_diff_usd is the difference between the maximum price impact and the originally calculated price impact
     // e.g. if the originally calculated price impact is -$100, but the capped price impact is -$80
     // then priceImpactDiffUsd would be $20
-    let (price_impact_usd_, price_impact_diff_usd_, execution_price_) = get_execution_price(
-        params, cache.prices.index_token_price
-    );
+
+    //TODO uncomment this and should calculate price_impact_usd_ etc..
+    // let (price_impact_usd_, price_impact_diff_usd_, execution_price_) = get_execution_price(
+    //     params, cache.prices.index_token_price
+    // );
+    let (price_impact_usd_, price_impact_diff_usd_, execution_price_) = (i256_new(0, false), 0, 0);
+    'here finieshed'.print();
+
+
     values.price_impact_usd = price_impact_usd_;
     values.price_impact_diff_usd = price_impact_diff_usd_;
     values.execution_price = execution_price_;
@@ -123,10 +130,11 @@ fn process_collateral(
         size_delta_usd: params.order.size_delta_usd,
         ui_fee_receiver: params.order.ui_fee_receiver,
     };
-
+    'bug here'.print();
     let mut fees: position_pricing_utils::PositionFees = position_pricing_utils::get_position_fees(
         get_position_fees_params
     );
+    'finiesh here'.print();
 
     // if the pnl is positive, deduct the pnl amount from the pool
     if values.base_pnl_usd > Zeroable::zero() {
