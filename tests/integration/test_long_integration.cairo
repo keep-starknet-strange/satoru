@@ -112,7 +112,7 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 //             keys::max_pool_amount_key(market.market_token, market.short_token), 500000000000000000
 //         );
 
-//     oracle.set_price_testing_eth(5000);
+//     oracle.set_primary_prices(market.long_token, 5000);
 
 //     // Fill the pool.
 //     IERC20Dispatcher { contract_address: market.long_token }.mint(market.market_token, 50000000000);
@@ -382,7 +382,8 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 //         .balance_of(caller_address);
 //     'balance of mkt before'.print();
 //     balance_of_mkt_before.print();
-//     oracle.set_price_testing_eth(6000);
+//     oracle.set_primary_prices(market.long_token, 6000);
+
 
 //     start_prank(market.market_token, caller_address);
 //     start_prank(market.long_token, caller_address);
@@ -527,7 +528,8 @@ fn test_long_decimals_market_integration() {
             50000000000000000000000000000000000000000000000
         );
 
-    oracle.set_price_testing_eth(5000);
+    oracle.set_primary_prices(market.long_token, 5000);
+    oracle.set_primary_prices(market.short_token, 1);
 
     'fill the pool'.print();
     // Fill the pool.
@@ -788,7 +790,7 @@ fn test_long_decimals_market_integration() {
     'size in usd'.print();
     first_position.size_in_usd.print();
     'OKAAAAAYYYYYY'.print();
-    oracle.set_price_testing_eth(6000);
+    oracle.set_primary_prices(market.long_token, 6000);
     let first_position_after_pump = data_store.get_position(position_key_1);
     'size tokens after pump'.print();
     first_position_after_pump.size_in_tokens.print();
