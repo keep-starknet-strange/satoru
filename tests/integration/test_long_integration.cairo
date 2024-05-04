@@ -521,10 +521,16 @@ fn test_long_decimals_market_integration() {
             2500000000000000000000000000000000000000000000 //250 000 000 USDC
         );
 
-    let factor: felt252 = 0x4896bc14d7c67b49131baf26724d3f29032ddd7539a3a8d88324140ea2de9b4;
+    let factor_for_deposits: felt252 = keys::max_pnl_factor_for_deposits();
     data_store
         .set_u256(
-            keys::max_pnl_factor_key(factor, market.market_token, true),
+            keys::max_pnl_factor_key(factor_for_deposits, market.market_token, true),
+            50000000000000000000000000000000000000000000000
+        );
+    let factor_for_withdrawal: felt252 = keys::max_pnl_factor_for_withdrawals();
+    data_store
+        .set_u256(
+            keys::max_pnl_factor_key(factor_for_withdrawal, market.market_token, true),
             50000000000000000000000000000000000000000000000
         );
 
