@@ -321,11 +321,10 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 //     // TODO add real signatures check on Oracle Account
 //     order_handler.execute_order_keeper(key_long, set_price_params, keeper_address);
 //     'long position SUCCEEDED'.print();
-//     let position_key = position_utils::get_position_key(
-//         caller_address, market.market_token, contract_address_const::<'ETH'>(), true
-//     );
+//     let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
 
-//     let first_position = data_store.get_position(position_key);
+//     let position_key_1: felt252 = *position_key.at(0);
+//     let first_position = data_store.get_position(position_key_1);
 //     let market_prices = market_utils::MarketPrices {
 //         index_token_price: Price { min: 8000, max: 8000, },
 //         long_token_price: Price { min: 8000, max: 8000, },
@@ -336,10 +335,7 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 //     'size in usd'.print();
 //     first_position.size_in_usd.print();
 
-//     let position_key_after_pump = position_utils::get_position_key(
-//         caller_address, market.market_token, contract_address_const::<'ETH'>(), true
-//     );
-//     let first_position_after_pump = data_store.get_position(position_key_after_pump);
+//     let first_position_after_pump = data_store.get_position(position_key_1);
 //     'size tokens after pump'.print();
 //     first_position_after_pump.size_in_tokens.print();
 //     'size in usd after pump'.print();
@@ -349,7 +345,7 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 //         .get_position_info(
 //             data_store,
 //             referal_storage,
-//             position_key_after_pump,
+//             position_key_1,
 //             market_prices,
 //             0,
 //             contract_address,
@@ -448,11 +444,7 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 //     order_handler.execute_order_keeper(key_long_dec, set_price_params_dec, keeper_address);
 //     'long pos dec SUCCEEDED'.print();
 
-//     let position_key_dec = position_utils::get_position_key(
-//         caller_address, market.market_token, contract_address_const::<'ETH'>(), true
-//     );
-
-//     let first_position_dec = data_store.get_position(position_key_dec);
+//     let first_position_dec = data_store.get_position(position_key_1);
 
 //     'size tokens before'.print();
 //     first_position.size_in_tokens.print();
@@ -782,11 +774,10 @@ fn test_long_decimals_market_integration() {
     // TODO add real signatures check on Oracle Account
     order_handler.execute_order_keeper(key_long, set_price_params, keeper_address);
     'long position SUCCEEDED'.print();
-    let position_key = position_utils::get_position_key(
-        caller_address, market.market_token, contract_address_const::<'ETH'>(), true
-    );
+    let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
 
-    let first_position = data_store.get_position(position_key);
+    let position_key_1: felt252 = *position_key.at(0);
+    let first_position = data_store.get_position(position_key_1);
     let market_prices = market_utils::MarketPrices {
         index_token_price: Price { min: 8000, max: 8000, },
         long_token_price: Price { min: 8000, max: 8000, },
@@ -798,10 +789,7 @@ fn test_long_decimals_market_integration() {
     first_position.size_in_usd.print();
     'OKAAAAAYYYYYY'.print();
     oracle.set_price_testing_eth(6000);
-    let position_key_after_pump = position_utils::get_position_key(
-        caller_address, market.market_token, contract_address_const::<'ETH'>(), true
-    );
-    let first_position_after_pump = data_store.get_position(position_key_after_pump);
+    let first_position_after_pump = data_store.get_position(position_key_1);
     'size tokens after pump'.print();
     first_position_after_pump.size_in_tokens.print();
     'size in usd after pump'.print();
@@ -811,7 +799,7 @@ fn test_long_decimals_market_integration() {
         .get_position_info(
             data_store,
             referal_storage,
-            position_key_after_pump,
+            position_key_1,
             market_prices,
             0,
             contract_address,
@@ -909,14 +897,8 @@ fn test_long_decimals_market_integration() {
     order_handler.execute_order_keeper(key_long_dec, set_price_params_dec, keeper_address);
     'long pos dec SUCCEEDED'.print();
 
-    let position_key_dec = position_utils::get_position_key(
-        caller_address, market.market_token, contract_address_const::<'ETH'>(), true
-    );
-    'position key'.print();
-    position_key_dec.print();
-    'finicj position key'.print();
 
-    let first_position_dec = data_store.get_position(position_key_dec);
+    let first_position_dec = data_store.get_position(position_key_1);
 
     'size tokens before'.print();
     first_position.size_in_tokens.print();
