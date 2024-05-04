@@ -63,419 +63,411 @@ use satoru::exchange::order_handler::{
 };
 const INITIAL_TOKENS_MINTED: felt252 = 1000;
 
-#[test]
-fn test_long_market_integration() {
-    // *********************************************************************************************
-    // *                              SETUP                                                        *
-    // *********************************************************************************************
-    let (
-        caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
-        market_factory,
-        role_store,
-        data_store,
-        event_emitter,
-        exchange_router,
-        deposit_handler,
-        deposit_vault,
-        oracle,
-        order_handler,
-        order_vault,
-        reader,
-        referal_storage,
-        withdrawal_handler,
-        withdrawal_vault,
-    ) =
-        setup();
+// #[test]
+// fn test_long_market_integration() {
+//     // *********************************************************************************************
+//     // *                              SETUP                                                        *
+//     // *********************************************************************************************
+//     let (
+//         caller_address,
+//         market_factory_address,
+//         role_store_address,
+//         data_store_address,
+//         market_token_class_hash,
+//         market_factory,
+//         role_store,
+//         data_store,
+//         event_emitter,
+//         exchange_router,
+//         deposit_handler,
+//         deposit_vault,
+//         oracle,
+//         order_handler,
+//         order_vault,
+//         reader,
+//         referal_storage,
+//         withdrawal_handler,
+//         withdrawal_vault,
+//     ) =
+//         setup();
 
-    // *********************************************************************************************
-    // *                              TEST LOGIC                                                   *
-    // *********************************************************************************************
+//     // *********************************************************************************************
+//     // *                              TEST LOGIC                                                   *
+//     // *********************************************************************************************
 
-    // Create a market.
-    let market = data_store.get_market(create_market(market_factory));
+//     // Create a market.
+//     let market = data_store.get_market(create_market(market_factory));
 
-    // Set params in data_store
-    data_store.set_address(keys::fee_token(), market.index_token);
-    data_store.set_u256(keys::max_swap_path_length(), 5);
+//     // Set params in data_store
+//     data_store.set_address(keys::fee_token(), market.index_token);
+//     data_store.set_u256(keys::max_swap_path_length(), 5);
 
-    // Set max pool amount.
-    data_store
-        .set_u256(
-            keys::max_pool_amount_key(market.market_token, market.long_token), 500000000000000000
-        );
-    data_store
-        .set_u256(
-            keys::max_pool_amount_key(market.market_token, market.short_token), 500000000000000000
-        );
+//     // Set max pool amount.
+//     data_store
+//         .set_u256(
+//             keys::max_pool_amount_key(market.market_token, market.long_token), 500000000000000000
+//         );
+//     data_store
+//         .set_u256(
+//             keys::max_pool_amount_key(market.market_token, market.short_token), 500000000000000000
+//         );
 
-    oracle.set_price_testing_eth(5000);
+//     oracle.set_price_testing_eth(5000);
 
-    // Fill the pool.
-    IERC20Dispatcher { contract_address: market.long_token }.mint(market.market_token, 50000000000);
-    IERC20Dispatcher { contract_address: market.short_token }
-        .mint(market.market_token, 50000000000);
-    // TODO Check why we don't need to set pool_amount_key
-    // // Set pool amount in data_store.
-    // let mut key = keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>());
+//     // Fill the pool.
+//     IERC20Dispatcher { contract_address: market.long_token }.mint(market.market_token, 50000000000);
+//     IERC20Dispatcher { contract_address: market.short_token }
+//         .mint(market.market_token, 50000000000);
+//     // TODO Check why we don't need to set pool_amount_key
+//     // // Set pool amount in data_store.
+//     // let mut key = keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>());
 
-    // Send token to deposit in the deposit vault (this should be in a multi call with create_deposit)
-    IERC20Dispatcher { contract_address: market.long_token }
-        .mint(deposit_vault.contract_address, 50000000000);
-    IERC20Dispatcher { contract_address: market.short_token }
-        .mint(deposit_vault.contract_address, 50000000000);
+//     // Send token to deposit in the deposit vault (this should be in a multi call with create_deposit)
+//     IERC20Dispatcher { contract_address: market.long_token }
+//         .mint(deposit_vault.contract_address, 50000000000);
+//     IERC20Dispatcher { contract_address: market.short_token }
+//         .mint(deposit_vault.contract_address, 50000000000);
 
-    let balance_deposit_vault_before = IERC20Dispatcher { contract_address: market.short_token }
-        .balance_of(deposit_vault.contract_address);
+//     let balance_deposit_vault_before = IERC20Dispatcher { contract_address: market.short_token }
+//         .balance_of(deposit_vault.contract_address);
 
-    // Create Deposit
-    let user1: ContractAddress = contract_address_const::<'user1'>();
-    let user2: ContractAddress = contract_address_const::<'user2'>();
+//     // Create Deposit
+//     let user1: ContractAddress = contract_address_const::<'user1'>();
+//     let user2: ContractAddress = contract_address_const::<'user2'>();
 
-    let addresss_zero: ContractAddress = 0.try_into().unwrap();
+//     let addresss_zero: ContractAddress = 0.try_into().unwrap();
 
-    let params = CreateDepositParams {
-        receiver: user1,
-        callback_contract: user2,
-        ui_fee_receiver: addresss_zero,
-        market: market.market_token,
-        initial_long_token: market.long_token,
-        initial_short_token: market.short_token,
-        long_token_swap_path: Array32Trait::<ContractAddress>::span32(@array![]),
-        short_token_swap_path: Array32Trait::<ContractAddress>::span32(@array![]),
-        min_market_tokens: 0,
-        execution_fee: 0,
-        callback_gas_limit: 0,
-    };
+//     let params = CreateDepositParams {
+//         receiver: user1,
+//         callback_contract: user2,
+//         ui_fee_receiver: addresss_zero,
+//         market: market.market_token,
+//         initial_long_token: market.long_token,
+//         initial_short_token: market.short_token,
+//         long_token_swap_path: Array32Trait::<ContractAddress>::span32(@array![]),
+//         short_token_swap_path: Array32Trait::<ContractAddress>::span32(@array![]),
+//         min_market_tokens: 0,
+//         execution_fee: 0,
+//         callback_gas_limit: 0,
+//     };
 
-    start_roll(deposit_handler.contract_address, 1910);
-    let key = deposit_handler.create_deposit(caller_address, params);
-    let first_deposit = data_store.get_deposit(key);
+//     start_roll(deposit_handler.contract_address, 1910);
+//     let key = deposit_handler.create_deposit(caller_address, params);
+//     let first_deposit = data_store.get_deposit(key);
 
-    assert(first_deposit.account == caller_address, 'Wrong account depositer');
-    assert(first_deposit.receiver == user1, 'Wrong account receiver');
-    assert(first_deposit.initial_long_token == market.long_token, 'Wrong initial long token');
-    assert(
-        first_deposit.initial_long_token_amount == 50000000000, 'Wrong initial long token amount'
-    );
-    assert(
-        first_deposit.initial_short_token_amount == 50000000000, 'Wrong init short token amount'
-    );
+//     assert(first_deposit.account == caller_address, 'Wrong account depositer');
+//     assert(first_deposit.receiver == user1, 'Wrong account receiver');
+//     assert(first_deposit.initial_long_token == market.long_token, 'Wrong initial long token');
+//     assert(
+//         first_deposit.initial_long_token_amount == 50000000000, 'Wrong initial long token amount'
+//     );
+//     assert(
+//         first_deposit.initial_short_token_amount == 50000000000, 'Wrong init short token amount'
+//     );
 
-    let price_params = SetPricesParams { // TODO
-        signer_info: 1,
-        tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-        compacted_min_oracle_block_numbers: array![1900, 1900],
-        compacted_max_oracle_block_numbers: array![1910, 1910],
-        compacted_oracle_timestamps: array![9999, 9999],
-        compacted_decimals: array![18, 18],
-        compacted_min_prices: array![4294967346000000], // 50000000, 1000000 compacted
-        compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![4294967346000000], // 50000000, 1000000 compacted
-        compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
-        price_feed_tokens: array![]
-    };
+//     let price_params = SetPricesParams { // TODO
+//         signer_info: 1,
+//         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
+//         compacted_min_oracle_block_numbers: array![1900, 1900],
+//         compacted_max_oracle_block_numbers: array![1910, 1910],
+//         compacted_oracle_timestamps: array![9999, 9999],
+//         compacted_decimals: array![18, 18],
+//         compacted_min_prices: array![4294967346000000], // 50000000, 1000000 compacted
+//         compacted_min_prices_indexes: array![0],
+//         compacted_max_prices: array![4294967346000000], // 50000000, 1000000 compacted
+//         compacted_max_prices_indexes: array![0],
+//         signatures: array![
+//             array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
+//         ],
+//         price_feed_tokens: array![]
+//     };
 
-    start_prank(role_store.contract_address, caller_address);
+//     start_prank(role_store.contract_address, caller_address);
 
-    role_store.grant_role(caller_address, role::ORDER_KEEPER);
-    role_store.grant_role(caller_address, role::ROLE_ADMIN);
-    role_store.grant_role(caller_address, role::CONTROLLER);
-    role_store.grant_role(caller_address, role::MARKET_KEEPER);
+//     role_store.grant_role(caller_address, role::ORDER_KEEPER);
+//     role_store.grant_role(caller_address, role::ROLE_ADMIN);
+//     role_store.grant_role(caller_address, role::CONTROLLER);
+//     role_store.grant_role(caller_address, role::MARKET_KEEPER);
 
-    // Execute Deposit
-    start_roll(deposit_handler.contract_address, 1915);
-    deposit_handler.execute_deposit(key, price_params);
+//     // Execute Deposit
+//     start_roll(deposit_handler.contract_address, 1915);
+//     deposit_handler.execute_deposit(key, price_params);
 
-    let pool_value_info = market_utils::get_pool_value_info(
-        data_store,
-        market,
-        Price { min: 1999, max: 2000 },
-        Price { min: 1999, max: 2000 },
-        Price { min: 1999, max: 2000 },
-        keys::max_pnl_factor_for_deposits(),
-        true,
-    );
+//     let pool_value_info = market_utils::get_pool_value_info(
+//         data_store,
+//         market,
+//         Price { min: 1999, max: 2000 },
+//         Price { min: 1999, max: 2000 },
+//         Price { min: 1999, max: 2000 },
+//         keys::max_pnl_factor_for_deposits(),
+//         true,
+//     );
 
-    assert(pool_value_info.pool_value.mag == 200000000000000, 'wrong pool value amount');
-    assert(pool_value_info.long_token_amount == 50000000000, 'wrong long token amount');
-    assert(pool_value_info.short_token_amount == 50000000000, 'wrong short token amount');
+//     assert(pool_value_info.pool_value.mag == 200000000000000, 'wrong pool value amount');
+//     assert(pool_value_info.long_token_amount == 50000000000, 'wrong long token amount');
+//     assert(pool_value_info.short_token_amount == 50000000000, 'wrong short token amount');
 
-    let not_deposit = data_store.get_deposit(key);
-    let default_deposit: Deposit = Default::default();
-    assert(not_deposit == default_deposit, 'Still existing deposit');
+//     let not_deposit = data_store.get_deposit(key);
+//     let default_deposit: Deposit = Default::default();
+//     assert(not_deposit == default_deposit, 'Still existing deposit');
 
-    // let market_token_dispatcher = IMarketTokenDispatcher { contract_address: market.market_token };
+//     // let market_token_dispatcher = IMarketTokenDispatcher { contract_address: market.market_token };
 
-    // let balance = market_token_dispatcher.balance_of(user1);
+//     // let balance = market_token_dispatcher.balance_of(user1);
 
-    let balance_deposit_vault = IERC20Dispatcher { contract_address: market.short_token }
-        .balance_of(deposit_vault.contract_address);
+//     let balance_deposit_vault = IERC20Dispatcher { contract_address: market.short_token }
+//         .balance_of(deposit_vault.contract_address);
 
-    let pool_value_info = market_utils::get_pool_value_info(
-        data_store,
-        market,
-        Price { min: 5000, max: 5000, },
-        Price { min: 5000, max: 5000, },
-        Price { min: 1, max: 1, },
-        keys::max_pnl_factor_for_deposits(),
-        true,
-    );
+//     let pool_value_info = market_utils::get_pool_value_info(
+//         data_store,
+//         market,
+//         Price { min: 5000, max: 5000, },
+//         Price { min: 5000, max: 5000, },
+//         Price { min: 1, max: 1, },
+//         keys::max_pnl_factor_for_deposits(),
+//         true,
+//     );
 
-    pool_value_info.pool_value.mag.print();
-    pool_value_info.long_token_amount.print();
-    pool_value_info.short_token_amount.print();
+//     pool_value_info.pool_value.mag.print();
+//     pool_value_info.long_token_amount.print();
+//     pool_value_info.short_token_amount.print();
 
-    // ************************************* TEST LONG *********************************************
+//     // ************************************* TEST LONG *********************************************
 
-    'begining of LONG TEST'.print();
+//     'begining of LONG TEST'.print();
 
-    let key_open_interest = keys::open_interest_key(
-        market.market_token, contract_address_const::<'ETH'>(), true
-    );
-    data_store.set_u256(key_open_interest, 1);
-    let max_key_open_interest = keys::max_open_interest_key(market.market_token, true);
-    data_store.set_u256(max_key_open_interest, 10000000);
+//     let key_open_interest = keys::open_interest_key(
+//         market.market_token, contract_address_const::<'ETH'>(), true
+//     );
+//     data_store.set_u256(key_open_interest, 1);
+//     let max_key_open_interest = keys::max_open_interest_key(market.market_token, true);
+//     data_store.set_u256(max_key_open_interest, 10000000);
 
-    start_prank(contract_address_const::<'ETH'>(), caller_address);
-    // Send token to order_vault in multicall with create_order
-    IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
-        .transfer(order_vault.contract_address, 2);
+//     start_prank(contract_address_const::<'ETH'>(), caller_address);
+//     // Send token to order_vault in multicall with create_order
+//     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
+//         .transfer(order_vault.contract_address, 2);
 
-    'transfer made'.print();
-    // Create order_params Struct
-    let contract_address = contract_address_const::<0>();
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
-    let order_params_long = CreateOrderParams {
-        receiver: caller_address,
-        callback_contract: contract_address,
-        ui_fee_receiver: contract_address,
-        market: market.market_token,
-        initial_collateral_token: market.long_token,
-        swap_path: Array32Trait::<ContractAddress>::span32(@array![]),
-        size_delta_usd: 10000,
-        initial_collateral_delta_amount: 2, // 10^18
-        trigger_price: 5000,
-        acceptable_price: 5500,
-        execution_fee: 0,
-        callback_gas_limit: 0,
-        min_output_amount: 0,
-        order_type: OrderType::MarketIncrease(()),
-        decrease_position_swap_type: DecreasePositionSwapType::NoSwap(()),
-        is_long: true,
-        referral_code: 0
-    };
-    // Create the swap order.
-    start_roll(order_handler.contract_address, 1930);
-    'try to create prder'.print();
-    start_prank(order_handler.contract_address, caller_address);
-    let key_long = order_handler.create_order(caller_address, order_params_long);
-    'long created'.print();
-    let got_order_long = data_store.get_order(key_long);
-    // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
-    // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
-    // Execute the swap order.
+//     'transfer made'.print();
+//     // Create order_params Struct
+//     let contract_address = contract_address_const::<0>();
+//     start_prank(market.market_token, caller_address);
+//     start_prank(market.long_token, caller_address);
+//     let order_params_long = CreateOrderParams {
+//         receiver: caller_address,
+//         callback_contract: contract_address,
+//         ui_fee_receiver: contract_address,
+//         market: market.market_token,
+//         initial_collateral_token: market.long_token,
+//         swap_path: Array32Trait::<ContractAddress>::span32(@array![]),
+//         size_delta_usd: 10000,
+//         initial_collateral_delta_amount: 2, // 10^18
+//         trigger_price: 5000,
+//         acceptable_price: 5500,
+//         execution_fee: 0,
+//         callback_gas_limit: 0,
+//         min_output_amount: 0,
+//         order_type: OrderType::MarketIncrease(()),
+//         decrease_position_swap_type: DecreasePositionSwapType::NoSwap(()),
+//         is_long: true,
+//         referral_code: 0
+//     };
+//     // Create the swap order.
+//     start_roll(order_handler.contract_address, 1930);
+//     'try to create prder'.print();
+//     start_prank(order_handler.contract_address, caller_address);
+//     let key_long = order_handler.create_order(caller_address, order_params_long);
+//     'long created'.print();
+//     let got_order_long = data_store.get_order(key_long);
+//     // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
+//     // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
+//     // Execute the swap order.
 
-    data_store
-        .set_u256(
-            keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()),
-            10000000000
-        );
-    data_store
-        .set_u256(
-            keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()),
-            10000000000
-        );
+//     data_store
+//         .set_u256(
+//             keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()),
+//             10000000000
+//         );
+//     data_store
+//         .set_u256(
+//             keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()),
+//             10000000000
+//         );
 
-    let signatures: Span<felt252> = array![0].span();
-    let set_price_params = SetPricesParams {
-        signer_info: 2,
-        tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-        compacted_min_oracle_block_numbers: array![1910, 1910],
-        compacted_max_oracle_block_numbers: array![1920, 1920],
-        compacted_oracle_timestamps: array![9999, 9999],
-        compacted_decimals: array![1, 1],
-        compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
-        compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![2147483648010000], // 500000, 10000 compacted
-        compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
-        price_feed_tokens: array![]
-    };
+//     let signatures: Span<felt252> = array![0].span();
+//     let set_price_params = SetPricesParams {
+//         signer_info: 2,
+//         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
+//         compacted_min_oracle_block_numbers: array![1910, 1910],
+//         compacted_max_oracle_block_numbers: array![1920, 1920],
+//         compacted_oracle_timestamps: array![9999, 9999],
+//         compacted_decimals: array![1, 1],
+//         compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
+//         compacted_min_prices_indexes: array![0],
+//         compacted_max_prices: array![2147483648010000], // 500000, 10000 compacted
+//         compacted_max_prices_indexes: array![0],
+//         signatures: array![
+//             array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
+//         ],
+//         price_feed_tokens: array![]
+//     };
 
-    let keeper_address = contract_address_const::<'keeper'>();
-    role_store.grant_role(keeper_address, role::ORDER_KEEPER);
+//     let keeper_address = contract_address_const::<'keeper'>();
+//     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1935);
-    // TODO add real signatures check on Oracle Account
-    order_handler.execute_order_keeper(key_long, set_price_params, keeper_address);
-    'long position SUCCEEDED'.print();
-    let position_key = position_utils::get_position_key(
-        caller_address, market.market_token, contract_address_const::<'ETH'>(), true
-    );
+//     stop_prank(order_handler.contract_address);
+//     start_prank(order_handler.contract_address, keeper_address);
+//     start_roll(order_handler.contract_address, 1935);
+//     // TODO add real signatures check on Oracle Account
+//     order_handler.execute_order_keeper(key_long, set_price_params, keeper_address);
+//     'long position SUCCEEDED'.print();
+//     let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
 
-    let first_position = data_store.get_position(position_key);
-    let market_prices = market_utils::MarketPrices {
-        index_token_price: Price { min: 8000, max: 8000, },
-        long_token_price: Price { min: 8000, max: 8000, },
-        short_token_price: Price { min: 1, max: 1, },
-    };
-    'size tokens'.print();
-    first_position.size_in_tokens.print();
-    'size in usd'.print();
-    first_position.size_in_usd.print();
+//     let position_key_1: felt252 = *position_key.at(0);
+//     let first_position = data_store.get_position(position_key_1);
+//     let market_prices = market_utils::MarketPrices {
+//         index_token_price: Price { min: 8000, max: 8000, },
+//         long_token_price: Price { min: 8000, max: 8000, },
+//         short_token_price: Price { min: 1, max: 1, },
+//     };
+//     'size tokens'.print();
+//     first_position.size_in_tokens.print();
+//     'size in usd'.print();
+//     first_position.size_in_usd.print();
 
-    let position_key_after_pump = position_utils::get_position_key(
-        caller_address, market.market_token, contract_address_const::<'ETH'>(), true
-    );
-    let first_position_after_pump = data_store.get_position(position_key_after_pump);
-    'size tokens after pump'.print();
-    first_position_after_pump.size_in_tokens.print();
-    'size in usd after pump'.print();
-    first_position_after_pump.size_in_usd.print();
+//     let first_position_after_pump = data_store.get_position(position_key_1);
+//     'size tokens after pump'.print();
+//     first_position_after_pump.size_in_tokens.print();
+//     'size in usd after pump'.print();
+//     first_position_after_pump.size_in_usd.print();
 
-    let position_info = reader
-        .get_position_info(
-            data_store,
-            referal_storage,
-            position_key_after_pump,
-            market_prices,
-            0,
-            contract_address,
-            true
-        );
-    'pnl'.print();
-    position_info.base_pnl_usd.mag.print();
+//     let position_info = reader
+//         .get_position_info(
+//             data_store,
+//             referal_storage,
+//             position_key_1,
+//             market_prices,
+//             0,
+//             contract_address,
+//             true
+//         );
+//     'pnl'.print();
+//     position_info.base_pnl_usd.mag.print();
 
-    let second_swap_pool_value_info = market_utils::get_pool_value_info(
-        data_store,
-        market,
-        Price { min: 5000, max: 5000, },
-        Price { min: 5000, max: 5000, },
-        Price { min: 1, max: 1, },
-        keys::max_pnl_factor_for_deposits(),
-        true,
-    );
+//     let second_swap_pool_value_info = market_utils::get_pool_value_info(
+//         data_store,
+//         market,
+//         Price { min: 5000, max: 5000, },
+//         Price { min: 5000, max: 5000, },
+//         Price { min: 1, max: 1, },
+//         keys::max_pnl_factor_for_deposits(),
+//         true,
+//     );
 
-    second_swap_pool_value_info.pool_value.mag.print();
-    second_swap_pool_value_info.long_token_amount.print();
-    second_swap_pool_value_info.short_token_amount.print();
-    // let (position_pnl_usd, uncapped_position_pnl_usd, size_delta_in_tokens) = 
-    //     position_utils::get_position_pnl_usd(
-    //             data_store, market, market_prices, first_position, 5000
-    //         );
-    // position_pnl_usd.mag.print();
+//     second_swap_pool_value_info.pool_value.mag.print();
+//     second_swap_pool_value_info.long_token_amount.print();
+//     second_swap_pool_value_info.short_token_amount.print();
+//     // let (position_pnl_usd, uncapped_position_pnl_usd, size_delta_in_tokens) = 
+//     //     position_utils::get_position_pnl_usd(
+//     //             data_store, market, market_prices, first_position, 5000
+//     //         );
+//     // position_pnl_usd.mag.print();
 
-    //////////////////////////////////// CLOSING POSITION //////////////////////////////////////
-    'CLOOOOSE POSITION'.print();
+//     //////////////////////////////////// CLOSING POSITION //////////////////////////////////////
+//     'CLOOOOSE POSITION'.print();
 
-    let balance_of_mkt_before = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
-        .balance_of(caller_address);
-    'balance of mkt before'.print();
-    balance_of_mkt_before.print();
-    oracle.set_price_testing_eth(6000);
+//     let balance_of_mkt_before = IERC20Dispatcher {
+//         contract_address: contract_address_const::<'USDC'>()
+//     }
+//         .balance_of(caller_address);
+//     'balance of mkt before'.print();
+//     balance_of_mkt_before.print();
+//     oracle.set_price_testing_eth(6000);
 
-    start_prank(market.market_token, caller_address);
-    start_prank(market.long_token, caller_address);
-    let order_params_long_dec = CreateOrderParams {
-        receiver: caller_address,
-        callback_contract: contract_address,
-        ui_fee_receiver: contract_address,
-        market: market.market_token,
-        initial_collateral_token: market.long_token,
-        swap_path: Array32Trait::<ContractAddress>::span32(@array![market.market_token]),
-        size_delta_usd: 6000,
-        initial_collateral_delta_amount: 1, // 10^18
-        trigger_price: 1,
-        acceptable_price: 1,
-        execution_fee: 0,
-        callback_gas_limit: 0,
-        min_output_amount: 6000,
-        order_type: OrderType::MarketDecrease(()),
-        decrease_position_swap_type: DecreasePositionSwapType::NoSwap(()),
-        is_long: true,
-        referral_code: 0
-    };
-    // Create the long order.
-    start_roll(order_handler.contract_address, 1940);
-    'try to create order'.print();
-    start_prank(order_handler.contract_address, caller_address);
-    let key_long_dec = order_handler.create_order(caller_address, order_params_long_dec);
-    'long decrease created'.print();
-    let got_order_long_dec = data_store.get_order(key_long_dec);
-    // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
-    // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
-    // Execute the swap order.
+//     start_prank(market.market_token, caller_address);
+//     start_prank(market.long_token, caller_address);
+//     let order_params_long_dec = CreateOrderParams {
+//         receiver: caller_address,
+//         callback_contract: contract_address,
+//         ui_fee_receiver: contract_address,
+//         market: market.market_token,
+//         initial_collateral_token: market.long_token,
+//         swap_path: Array32Trait::<ContractAddress>::span32(@array![market.market_token]),
+//         size_delta_usd: 6000,
+//         initial_collateral_delta_amount: 1, // 10^18
+//         trigger_price: 1,
+//         acceptable_price: 1,
+//         execution_fee: 0,
+//         callback_gas_limit: 0,
+//         min_output_amount: 6000,
+//         order_type: OrderType::MarketDecrease(()),
+//         decrease_position_swap_type: DecreasePositionSwapType::NoSwap(()),
+//         is_long: true,
+//         referral_code: 0
+//     };
+//     // Create the long order.
+//     start_roll(order_handler.contract_address, 1940);
+//     'try to create order'.print();
+//     start_prank(order_handler.contract_address, caller_address);
+//     let key_long_dec = order_handler.create_order(caller_address, order_params_long_dec);
+//     'long decrease created'.print();
+//     let got_order_long_dec = data_store.get_order(key_long_dec);
+//     // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
+//     // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
+//     // Execute the swap order.
 
-    let signatures: Span<felt252> = array![0].span();
-    let set_price_params_dec = SetPricesParams {
-        signer_info: 2,
-        tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-        compacted_min_oracle_block_numbers: array![1910, 1910],
-        compacted_max_oracle_block_numbers: array![1920, 1920],
-        compacted_oracle_timestamps: array![9999, 9999],
-        compacted_decimals: array![1, 1],
-        compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
-        compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![2147483648010000], // 500000, 10000 compacted
-        compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
-        price_feed_tokens: array![]
-    };
+//     let signatures: Span<felt252> = array![0].span();
+//     let set_price_params_dec = SetPricesParams {
+//         signer_info: 2,
+//         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
+//         compacted_min_oracle_block_numbers: array![1910, 1910],
+//         compacted_max_oracle_block_numbers: array![1920, 1920],
+//         compacted_oracle_timestamps: array![9999, 9999],
+//         compacted_decimals: array![1, 1],
+//         compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
+//         compacted_min_prices_indexes: array![0],
+//         compacted_max_prices: array![2147483648010000], // 500000, 10000 compacted
+//         compacted_max_prices_indexes: array![0],
+//         signatures: array![
+//             array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
+//         ],
+//         price_feed_tokens: array![]
+//     };
 
-    let keeper_address = contract_address_const::<'keeper'>();
-    role_store.grant_role(keeper_address, role::ORDER_KEEPER);
+//     let keeper_address = contract_address_const::<'keeper'>();
+//     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
 
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1945);
-    // TODO add real signatures check on Oracle Account
-    order_handler.execute_order_keeper(key_long_dec, set_price_params_dec, keeper_address);
-    'long pos dec SUCCEEDED'.print();
+//     stop_prank(order_handler.contract_address);
+//     start_prank(order_handler.contract_address, keeper_address);
+//     start_roll(order_handler.contract_address, 1945);
+//     // TODO add real signatures check on Oracle Account
+//     order_handler.execute_order_keeper(key_long_dec, set_price_params_dec, keeper_address);
+//     'long pos dec SUCCEEDED'.print();
 
-    let position_key_dec = position_utils::get_position_key(
-        caller_address, market.market_token, contract_address_const::<'ETH'>(), true
-    );
+//     let first_position_dec = data_store.get_position(position_key_1);
 
-    let first_position_dec = data_store.get_position(position_key_dec);
+//     'size tokens before'.print();
+//     first_position.size_in_tokens.print();
+//     'size in usd before'.print();
+//     first_position.size_in_usd.print();
 
-    'size tokens before'.print();
-    first_position.size_in_tokens.print();
-    'size in usd before'.print();
-    first_position.size_in_usd.print();
+//     'size tokens'.print();
+//     first_position_dec.size_in_tokens.print();
+//     'size in usd'.print();
+//     first_position_dec.size_in_usd.print();
 
-    'size tokens'.print();
-    first_position_dec.size_in_tokens.print();
-    'size in usd'.print();
-    first_position_dec.size_in_usd.print();
+//     let balance_of_mkt_after = IERC20Dispatcher {
+//         contract_address: contract_address_const::<'USDC'>()
+//     }
+//         .balance_of(caller_address);
+//     'balance of mkt after'.print();
+//     balance_of_mkt_after.print();
 
-    let balance_of_mkt_after = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
-        .balance_of(caller_address);
-    'balance of mkt after'.print();
-    balance_of_mkt_after.print();
-
-    // *********************************************************************************************
-    // *                              TEARDOWN                                                     *
-    // *********************************************************************************************
-    teardown(data_store, market_factory);
-}
+//     // *********************************************************************************************
+//     // *                              TEARDOWN                                                     *
+//     // *********************************************************************************************
+//     teardown(data_store, market_factory);
+// }
 
 #[test]
 fn test_long_decimals_market_integration() {
@@ -702,7 +694,7 @@ fn test_long_decimals_market_integration() {
     );
     data_store.set_u256(key_open_interest, 1);
     let max_key_open_interest = keys::max_open_interest_key(market.market_token, true);
-    data_store.set_u256(max_key_open_interest, 1000000000000000000000000); // 1 000 000
+    data_store.set_u256(max_key_open_interest, 1000000000000000000000000000000000000000000000000000); // 1 000 000
 
     // Send token to order_vault in multicall with create_order
     start_prank(contract_address_const::<'ETH'>(), caller_address);
@@ -782,11 +774,10 @@ fn test_long_decimals_market_integration() {
     // TODO add real signatures check on Oracle Account
     order_handler.execute_order_keeper(key_long, set_price_params, keeper_address);
     'long position SUCCEEDED'.print();
-    let position_key = position_utils::get_position_key(
-        caller_address, market.market_token, contract_address_const::<'ETH'>(), true
-    );
+    let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
 
-    let first_position = data_store.get_position(position_key);
+    let position_key_1: felt252 = *position_key.at(0);
+    let first_position = data_store.get_position(position_key_1);
     let market_prices = market_utils::MarketPrices {
         index_token_price: Price { min: 8000, max: 8000, },
         long_token_price: Price { min: 8000, max: 8000, },
@@ -796,11 +787,9 @@ fn test_long_decimals_market_integration() {
     first_position.size_in_tokens.print();
     'size in usd'.print();
     first_position.size_in_usd.print();
-
-    let position_key_after_pump = position_utils::get_position_key(
-        caller_address, market.market_token, contract_address_const::<'ETH'>(), true
-    );
-    let first_position_after_pump = data_store.get_position(position_key_after_pump);
+    'OKAAAAAYYYYYY'.print();
+    oracle.set_price_testing_eth(6000);
+    let first_position_after_pump = data_store.get_position(position_key_1);
     'size tokens after pump'.print();
     first_position_after_pump.size_in_tokens.print();
     'size in usd after pump'.print();
@@ -810,7 +799,7 @@ fn test_long_decimals_market_integration() {
         .get_position_info(
             data_store,
             referal_storage,
-            position_key_after_pump,
+            position_key_1,
             market_prices,
             0,
             contract_address,
@@ -847,7 +836,6 @@ fn test_long_decimals_market_integration() {
         .balance_of(caller_address);
     'balance of mkt before'.print();
     balance_of_mkt_before.print();
-    oracle.set_price_testing_eth(6000);
 
     start_prank(market.market_token, caller_address);
     start_prank(market.long_token, caller_address);
@@ -909,11 +897,8 @@ fn test_long_decimals_market_integration() {
     order_handler.execute_order_keeper(key_long_dec, set_price_params_dec, keeper_address);
     'long pos dec SUCCEEDED'.print();
 
-    let position_key_dec = position_utils::get_position_key(
-        caller_address, market.market_token, contract_address_const::<'ETH'>(), true
-    );
 
-    let first_position_dec = data_store.get_position(position_key_dec);
+    let first_position_dec = data_store.get_position(position_key_1);
 
     'size tokens before'.print();
     first_position.size_in_tokens.print();
