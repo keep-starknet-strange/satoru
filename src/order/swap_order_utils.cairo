@@ -88,21 +88,10 @@ mod SwapOrderUtils {
             //     params.order.order_type,
             //     params.order.updated_at_block
             // );
-            let balance_ETH_start = IERC20Dispatcher {
-                contract_address: contract_address_const::<'ETH'>()
-            }
-                .balance_of(contract_address_const::<'caller'>());
-
-            let balance_usdc_start = IERC20Dispatcher {
-                contract_address: contract_address_const::<'USDC'>()
-            }
-                .balance_of(contract_address_const::<'caller'>());
 
             '6. eth start process order'.print();
-            balance_ETH_start.print();
 
             '6. usdc start process order'.print();
-            balance_usdc_start.print();
 
             let (output_token, output_amount) = swap_utils::swap(
                 @swap_utils::SwapParams {
@@ -127,21 +116,9 @@ mod SwapOrderUtils {
             // log_data.address_dict.insert_single('output_token', output_token);
             // log_data.uint_dict.insert_single('output_amount', output_amount);
 
-            let balance_ETH_end = IERC20Dispatcher {
-                contract_address: contract_address_const::<'ETH'>()
-            }
-                .balance_of(contract_address_const::<'caller'>());
-
-            let balance_usdc_end = IERC20Dispatcher {
-                contract_address: contract_address_const::<'USDC'>()
-            }
-                .balance_of(contract_address_const::<'caller'>());
-
             '6. eth end process order'.print();
-            balance_ETH_end.print();
 
             '6. usdc end process order'.print();
-            balance_usdc_end.print();
             '------------------------'.print();
         // log_data
         }

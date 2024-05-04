@@ -112,21 +112,6 @@ fn swap(params: @SwapParams) -> (ContractAddress, u256) {
     }
     (*params.amount_in).print();
     '2. Swap function'.print();
-    // let balance_ETH_loop = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
-    //     .balance_of(contract_address_const::<'caller'>());
-    let balance_ETH_start = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
-        .balance_of(contract_address_const::<'caller'>());
-
-    let balance_USDC_start = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
-        .balance_of(contract_address_const::<'caller'>());
-
-    '2. balance eth start swap'.print();
-    balance_ETH_start.print();
-
-    '2. balance usdc start swap'.print();
-    balance_USDC_start.print();
 
     let swap_path_array_length = (*params.swap_path_markets).len();
     if (swap_path_array_length == 0) {
