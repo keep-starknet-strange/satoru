@@ -204,16 +204,6 @@ mod OrderHandler {
         fn create_order(
             ref self: ContractState, account: ContractAddress, params: CreateOrderParams
         ) -> felt252 {
-            let balance_ETH_start = IERC20Dispatcher {
-                contract_address: contract_address_const::<'ETH'>()
-            }
-                .balance_of(contract_address_const::<'caller'>());
-
-            let balance_USDC_start = IERC20Dispatcher {
-                contract_address: contract_address_const::<'USDC'>()
-            }
-                .balance_of(contract_address_const::<'caller'>());
-
             // Check only controller.
             let role_module_state = RoleModule::unsafe_new_contract_state();
             role_module_state.only_controller();
