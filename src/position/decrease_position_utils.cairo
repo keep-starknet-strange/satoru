@@ -61,7 +61,16 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
             market_utils::get_cached_token_price(
                 params.order.initial_collateral_token, params.market, cache.prices
             );
-    '1 inside function decrease'.print();
+    'cache prices'.print();
+    (cache.prices.long_token_price.min).print();
+    (cache.prices.short_token_price.min).print();
+    (cache.collateral_token_price.min).print();
+    
+    //TODO check if this is needed
+    // Update the size_in_usd of the position
+    params.position.size_in_usd = params.position.size_in_tokens * cache.collateral_token_price.min;
+    params.position.size_in_usd.print();
+    'was size in usd'.print();
 
     // cap the order size to the position size
     if (params.order.size_delta_usd > params.position.size_in_usd) {
@@ -232,7 +241,7 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
             PositionError::POSITION_SHOULD_BE_LIQUIDATED();
         }
     }
-
+    'passed liquidations'.print();
     cache.initial_collateral_amount = params.position.collateral_amount;
     let (mut values, fees) = decrease_position_collateral_utils::process_collateral(params, cache);
 
@@ -272,7 +281,7 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
         params.position.size_in_usd = 0;
         params.position.size_in_tokens = 0;
         params.position.collateral_amount = 0;
-
+        'REMOOOVED'.print();
         params.contracts.data_store.remove_position(params.position_key, params.order.account);
     } else {
         params.position.borrowing_factor = cache.next_position_borrowing_factor;
@@ -305,11 +314,12 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
     );
     'PAAASSSED'.print();
 
-    position_utils::update_open_interest(
-        params,
-        to_signed(params.order.size_delta_usd, false),
-        to_signed(values.size_delta_in_tokens, false)
-    );
+    // TODO uncomment open interest
+    // position_utils::update_open_interest(
+    //     params,
+    //     to_signed(params.order.size_delta_usd, false),
+    //     to_signed(values.size_delta_in_tokens, false)
+    // );
 
     // affiliate rewards are still distributed even if the order is a liquidation order
     // this is expected as a partial liquidation is considered the same as an automatic
