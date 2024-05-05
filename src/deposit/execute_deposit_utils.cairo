@@ -39,7 +39,6 @@ use satoru::utils::{
     calc::{to_unsigned, to_signed}, i256::{i256, i256_new, i256_neg}, precision, span32::Span32,
     starknet_utils::{sn_gasleft, sn_gasprice}
 };
-use debug::PrintTrait;
 use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
 
 /// Struct used in executeDeposit to avoid stack too deep errors
@@ -104,7 +103,6 @@ struct ExecuteDepositCache {
 /// # Arguments
 /// * `params` - ExecuteDepositParams.
 fn execute_deposit(params: ExecuteDepositParams) {
-    '1. Execute deposit'.print();
     // 63/64 gas is forwarded to external calls, reduce the startingGas to account for this
     let starting_gas = params.starting_gas - sn_gasleft(array![]) / 63;
 

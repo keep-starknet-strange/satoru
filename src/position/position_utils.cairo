@@ -25,7 +25,6 @@ use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorag
 use satoru::price::price::{Price, PriceTrait};
 use satoru::utils::{calc, precision, i256::i256, default::DefaultContractAddress, error_utils};
 use satoru::referral::referral_utils;
-use debug::PrintTrait;
 
 /// Struct used in increasePosition and decreasePosition.
 #[derive(Drop, Copy, starknet::Store, Serde)]
@@ -269,8 +268,6 @@ fn get_position_pnl_usd(
 ) -> (i256, i256, u256) {
     let mut cache: GetPositionPnlUsdCache = Default::default();
     let execution_price = prices.index_token_price.pick_price_for_pnl(position.is_long, false);
-    'size delta usd pnl'.print();
-    size_delta_usd.print();
     // position.sizeInUsd is the cost of the tokens, positionValue is the current worth of the tokens
     cache.position_value = calc::to_signed(position.size_in_tokens * execution_price, true);
     cache
@@ -327,8 +324,6 @@ fn get_position_pnl_usd(
         }
     }
     if position.size_in_usd == size_delta_usd {
-        'pass heure if 1'.print();
-        (position.size_in_usd).print();
         cache.size_delta_in_tokens = position.size_in_tokens;
     } else {
         if position.is_long {
@@ -339,13 +334,6 @@ fn get_position_pnl_usd(
                     );
         } else {
             error_utils::check_division_by_zero(position.size_in_usd, 'position.size_in_usd');
-            'diiv by zero heure ma'.print();
-            position.size_in_tokens.print();
-            'second 1 2'.print();
-            size_delta_usd.print();
-            'last'.print();
-            position.size_in_usd.print();
-            'finished'.print();
             cache.size_delta_in_tokens = position.size_in_tokens
                 * size_delta_usd
                 / position.size_in_usd;
@@ -393,9 +381,6 @@ fn get_position_key(
 /// # Arguments
 /// *`position` - The position to validate.
 fn validate_non_empty_position(position: Position,) {
-    position.size_in_usd.print();
-    position.size_in_tokens.print();
-    position.collateral_amount.print();
     if (position.size_in_usd == 0
         && position.size_in_tokens == 0
         && position.collateral_amount == 0) {
@@ -743,7 +728,6 @@ fn update_open_interest(
             params.position.is_long,
             size_delta_usd
         );
-        'enter apply delta'.print();
         market_utils::apply_delta_to_open_interest_in_tokens(
             params.contracts.data_store,
             params.contracts.event_emitter,

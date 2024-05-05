@@ -28,7 +28,6 @@ use satoru::withdrawal::{
     withdrawal_vault::{IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait}
 };
 use satoru::market::market_utils::validate_enabled_market_check;
-use debug::PrintTrait;
 
 #[derive(Drop, starknet::Store, Serde)]
 struct CreateWithdrawalParams {
@@ -223,7 +222,6 @@ fn execute_withdrawal(
     let result = execute_withdrawal_(@params, withdrawal);
 
     params.event_emitter.emit_withdrawal_executed(params.key);
-    'emit event withdrawal executed'.print();
 // TODO fix pay execution fees
 // gas_utils::pay_execution_fee_withdrawal(
 //     params.data_store,
@@ -400,7 +398,6 @@ fn execute_withdrawal_(
         keys::max_pnl_factor_for_withdrawals(),
         keys::max_pnl_factor_for_withdrawals()
     );
-    'withdraw execution 1'.print();
     IMarketTokenDispatcher { contract_address: market.market_token }
         .burn(*params.withdrawal_vault.contract_address, withdrawal.market_token_amount);
 
@@ -423,7 +420,6 @@ fn execute_withdrawal_(
         withdrawal.receiver,
         withdrawal.ui_fee_receiver
     );
-    'pass first swap'.print();
     result.output_token = output_token;
     result.output_amount = output_amount;
 
@@ -437,7 +433,6 @@ fn execute_withdrawal_(
         withdrawal.receiver,
         withdrawal.ui_fee_receiver
     );
-    'pass second swap'.print();
 
     result.secondary_output_token = secondary_output_token;
     result.secondary_output_amount = secondary_output_amount;

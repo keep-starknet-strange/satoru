@@ -5,8 +5,6 @@
 // Core lib imports.
 use starknet::{ContractAddress, contract_address_const};
 
-use debug::PrintTrait;
-
 // Local imports.
 use satoru::order::base_order_utils::ExecuteOrderParams;
 use satoru::order::order::OrderType;
@@ -78,7 +76,6 @@ mod SwapOrderUtils {
     #[abi(embed_v0)]
     impl SwapOrderUtilsImpl of super::ISwapOrderUtils<ContractState> {
         fn process_order(ref self: ContractState, params: ExecuteOrderParams) {
-            '6. Process Order'.print();
             if (params.order.market.is_non_zero()) {
                 panic(array![OrderError::UNEXPECTED_MARKET]);
             }
@@ -88,11 +85,6 @@ mod SwapOrderUtils {
             //     params.order.order_type,
             //     params.order.updated_at_block
             // );
-
-            '6. eth start process order'.print();
-
-            '6. usdc start process order'.print();
-
             let (output_token, output_amount) = swap_utils::swap(
                 @swap_utils::SwapParams {
                     data_store: params.contracts.data_store,
@@ -116,10 +108,6 @@ mod SwapOrderUtils {
             // log_data.address_dict.insert_single('output_token', output_token);
             // log_data.uint_dict.insert_single('output_amount', output_amount);
 
-            '6. eth end process order'.print();
-
-            '6. usdc end process order'.print();
-            '------------------------'.print();
         // log_data
         }
 
