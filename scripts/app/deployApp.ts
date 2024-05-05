@@ -15,7 +15,6 @@ async function deploy() {
     console.log("Deploying with Account: " + account0Address)
     const resp = await provider.getSpecVersion();
     console.log('rpc version =', resp);
-    console.log("Deploying RoleStore...")
     const compiledRoleStoreCasm = json.parse(fs.readFileSync( "./target/dev/satoru_RoleStore.compiled_contract_class.json").toString( "ascii"))
     const compiledRoleStoreSierra = json.parse(fs.readFileSync( "./target/dev/satoru_RoleStore.contract_class.json").toString( "ascii"))
     const roleStoreCallData: CallData = new CallData(compiledRoleStoreSierra.abi)
@@ -27,7 +26,6 @@ async function deploy() {
     })
     console.log("RoleStore Deployed: " + deployRoleStoreResponse.deploy.contract_address)
 
-    console.log("Deploying DataStore...")
     const compiledDataStoreCasm = json.parse(fs.readFileSync( "./target/dev/satoru_DataStore.compiled_contract_class.json").toString( "ascii"))
     const compiledDataStoreSierra = json.parse(fs.readFileSync( "./target/dev/satoru_DataStore.contract_class.json").toString( "ascii"))
     const dataStoreCallData: CallData = new CallData(compiledDataStoreSierra.abi)
@@ -41,7 +39,6 @@ async function deploy() {
     })
     console.log("DataStore Deployed: " + deployDataStoreResponse.deploy.contract_address)
     
-    console.log("Granting Controller role...")
     const roleStoreContract = new Contract(compiledRoleStoreSierra.abi, deployRoleStoreResponse.deploy.contract_address, provider)
     roleStoreContract.connect(account0);
     const roleCall = roleStoreContract.populate("grant_role", [account0.address, shortString.encodeShortString("CONTROLLER")])
@@ -61,7 +58,6 @@ async function deploy() {
     })
     console.log("EventEmitter Deployed: " + deployEventEmitterResponse.deploy.contract_address)
 
-    console.log("Deploying OracleStore...")
     const compiledOracleStoreCasm = json.parse(fs.readFileSync( "./target/dev/satoru_OracleStore.compiled_contract_class.json").toString( "ascii"))
     const compiledOracleStoreSierra = json.parse(fs.readFileSync( "./target/dev/satoru_OracleStore.contract_class.json").toString( "ascii"))
     const oracleStoreCallData: CallData = new CallData(compiledOracleStoreSierra.abi)
@@ -76,7 +72,6 @@ async function deploy() {
     })
     console.log("OracleStore Deployed: " + deployOracleStoreResponse.deploy.contract_address)
 
-    console.log("Deploying Oracle...")
     const compiledOracleCasm = json.parse(fs.readFileSync( "./target/dev/satoru_Oracle.compiled_contract_class.json").toString( "ascii"))
     const compiledOracleSierra = json.parse(fs.readFileSync( "./target/dev/satoru_Oracle.contract_class.json").toString( "ascii"))
     const oracleCallData: CallData = new CallData(compiledOracleSierra.abi)
@@ -92,7 +87,6 @@ async function deploy() {
     })
     console.log("Oracle Deployed: " + deployOracleResponse.deploy.contract_address)
 
-    console.log("Deploying OrderVault...")
     const compiledOrderVaultCasm = json.parse(fs.readFileSync( "./target/dev/satoru_OrderVault.compiled_contract_class.json").toString( "ascii"))
     const compiledOrderVaultSierra = json.parse(fs.readFileSync( "./target/dev/satoru_OrderVault.contract_class.json").toString( "ascii"))
     const orderVaultCallData: CallData = new CallData(compiledOrderVaultSierra.abi)
@@ -107,7 +101,6 @@ async function deploy() {
     })
     console.log("OrderVault Deployed: " + deployOrderVaultResponse.deploy.contract_address)
 
-    console.log("Deploying SwapHandler...")
     const compiledSwapHandlerCasm = json.parse(fs.readFileSync( "./target/dev/satoru_SwapHandler.compiled_contract_class.json").toString( "ascii"))
     const compiledSwapHandlerSierra = json.parse(fs.readFileSync( "./target/dev/satoru_SwapHandler.contract_class.json").toString( "ascii"))
     const swapHandlerCallData: CallData = new CallData(compiledSwapHandlerSierra.abi)
@@ -121,7 +114,6 @@ async function deploy() {
     })
     console.log("SwapHandler Deployed: " + deploySwapHandlerResponse.deploy.contract_address)
 
-    console.log("Deploying ReferralStorage...")
     const compiledReferralStorageCasm = json.parse(fs.readFileSync( "./target/dev/satoru_ReferralStorage.compiled_contract_class.json").toString( "ascii"))
     const compiledReferralStorageSierra = json.parse(fs.readFileSync( "./target/dev/satoru_ReferralStorage.contract_class.json").toString( "ascii"))
     const referralStorageCallData: CallData = new CallData(compiledReferralStorageSierra.abi)
@@ -135,7 +127,6 @@ async function deploy() {
     })
     console.log("ReferralStorage Deployed: " + deployReferralStorageResponse.deploy.contract_address)
 
-    console.log("Deploying IncreaseOrderUtils")
     const compiledIncreaseOrderUtilsCasm = json.parse(fs.readFileSync( "./target/dev/satoru_IncreaseOrderUtils.compiled_contract_class.json").toString( "ascii"))
     const compiledIncreaseOrderUtilsSierra = json.parse(fs.readFileSync( "./target/dev/satoru_IncreaseOrderUtils.contract_class.json").toString( "ascii"))
     const increaseOrderUtilsCallData: CallData = new CallData(compiledIncreaseOrderUtilsSierra.abi)
@@ -144,8 +135,9 @@ async function deploy() {
         contract: compiledIncreaseOrderUtilsSierra,
         casm: compiledIncreaseOrderUtilsCasm,
     })
+    console.log("IncreaseOrderUtils Deployed: " + deployIncreaseOrderUtilsResponse.deploy.contract_address)
 
-    console.log("Deploying DecreaseOrderUtils")
+
     const compiledDecreaseOrderUtilsCasm = json.parse(fs.readFileSync( "./target/dev/satoru_DecreaseOrderUtils.compiled_contract_class.json").toString( "ascii"))
     const compiledDecreaseOrderUtilsSierra = json.parse(fs.readFileSync( "./target/dev/satoru_DecreaseOrderUtils.contract_class.json").toString( "ascii"))
     const decreaseOrderUtilsCallData: CallData = new CallData(compiledDecreaseOrderUtilsSierra.abi)
@@ -154,8 +146,8 @@ async function deploy() {
         contract: compiledDecreaseOrderUtilsSierra,
         casm: compiledDecreaseOrderUtilsCasm,
     })
+    console.log("DecreaseOrderUtils Deployed: " + deployDecreaseOrderUtilsResponse.deploy.contract_address)
 
-    console.log("Deploying SwapOrderUtils")
     const compiledSwapOrderUtilsCasm = json.parse(fs.readFileSync( "./target/dev/satoru_SwapOrderUtils.compiled_contract_class.json").toString( "ascii"))
     const compiledSwapOrderUtilsSierra = json.parse(fs.readFileSync( "./target/dev/satoru_SwapOrderUtils.contract_class.json").toString( "ascii"))
     const swapOrderUtilsCallData: CallData = new CallData(compiledSwapOrderUtilsSierra.abi)
@@ -164,8 +156,8 @@ async function deploy() {
         contract: compiledSwapOrderUtilsSierra,
         casm: compiledSwapOrderUtilsCasm,
     })
+    console.log("SwapOrderUtils Deployed: " + deploySwapOrderUtilsResponse.deploy.contract_address)
 
-    console.log("Deploying OrderUtils")
     const compiledOrderUtilsCasm = json.parse(fs.readFileSync( "./target/dev/satoru_OrderUtils.compiled_contract_class.json").toString( "ascii"))
     const compiledOrderUtilsSierra = json.parse(fs.readFileSync( "./target/dev/satoru_OrderUtils.contract_class.json").toString( "ascii"))
     const orderUtilsCallData: CallData = new CallData(compiledOrderUtilsSierra.abi)
@@ -179,8 +171,8 @@ async function deploy() {
         casm: compiledOrderUtilsCasm,
         constructorCalldata: orderUtilsConstructor
     })
+    console.log("OrderUtils Deployed: " + deployOrderUtilsResponse.deploy.contract_address)
 
-    console.log("Deploying OrderHandler...")
     const compiledOrderHandlerCasm = json.parse(fs.readFileSync( "./target/dev/satoru_OrderHandler.compiled_contract_class.json").toString( "ascii"))
     const compiledOrderHandlerSierra = json.parse(fs.readFileSync( "./target/dev/satoru_OrderHandler.contract_class.json").toString( "ascii"))
     const orderHandlerCallData: CallData = new CallData(compiledOrderHandlerSierra.abi)
@@ -201,7 +193,6 @@ async function deploy() {
     })
     console.log("OrderHandler Deployed: " + deployOrderHandlerResponse.deploy.contract_address)
 
-    console.log("Deploying DepositVault...")
     const compiledDepositVaultCasm = json.parse(fs.readFileSync( "./target/dev/satoru_DepositVault.compiled_contract_class.json").toString( "ascii"))
     const compiledDepositVaultSierra = json.parse(fs.readFileSync( "./target/dev/satoru_DepositVault.contract_class.json").toString( "ascii"))
     const depositVaultCallData: CallData = new CallData(compiledDepositVaultSierra.abi)
@@ -216,7 +207,6 @@ async function deploy() {
     })
     console.log("DepositVault Deployed: " + deployDepositVaultResponse.deploy.contract_address)
 
-    console.log("Deploying DepositHandler...")
     const compiledDepositHandlerCasm = json.parse(fs.readFileSync( "./target/dev/satoru_DepositHandler.compiled_contract_class.json").toString( "ascii"))
     const compiledDepositHandlerSierra = json.parse(fs.readFileSync( "./target/dev/satoru_DepositHandler.contract_class.json").toString( "ascii"))
     const depositHandlerCallData: CallData = new CallData(compiledDepositHandlerSierra.abi)
@@ -235,7 +225,6 @@ async function deploy() {
     console.log("DepositHandler Deployed: " + deployDepositHandlerResponse.deploy.contract_address)
 
 
-    console.log("Declaring MarketToken...")
     const compiledMarketTokenCasm = json.parse(fs.readFileSync( "./target/dev/satoru_MarketToken.compiled_contract_class.json").toString( "ascii"))
     const compiledMarketTokenSierra = json.parse(fs.readFileSync( "./target/dev/satoru_MarketToken.contract_class.json").toString( "ascii"))    
     try {
@@ -248,7 +237,6 @@ async function deploy() {
         console.log("Already Declared.")
     }
 
-    console.log("Deploying MarketFactory...")
     // const marketTokenClassHash = hash.computeCompiledClassHash(compiledMarketTokenCasm)
     const compiledMarketFactoryCasm = json.parse(fs.readFileSync( "./target/dev/satoru_MarketFactory.compiled_contract_class.json").toString( "ascii"))
     const compiledMarketFactorySierra = json.parse(fs.readFileSync( "./target/dev/satoru_MarketFactory.contract_class.json").toString( "ascii"))
@@ -266,7 +254,6 @@ async function deploy() {
     })
     console.log("MarketFactory Deployed: " + deployMarketFactoryResponse.deploy.contract_address)
 
-    console.log("Granting roles...")
     const roleCall2 = roleStoreContract.populate("grant_role", [account0.address, shortString.encodeShortString("MARKET_KEEPER")])
     const roleCall3 = roleStoreContract.populate("grant_role", [account0.address, shortString.encodeShortString("ORDER_KEEPER")])
     const roleCall4 = roleStoreContract.populate("grant_role",

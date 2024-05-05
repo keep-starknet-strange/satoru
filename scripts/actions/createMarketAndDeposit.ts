@@ -37,7 +37,6 @@ async function create_market() {
     const setAddressTx3 = await dataStoreContract.set_u256(dataCall3.calldata)
     await provider.waitForTransaction(setAddressTx3.transaction_hash)
     
-    console.log("Deploying USDC...")
     const compiledERC20Casm = json.parse(fs.readFileSync( "./target/dev/satoru_ERC20.compiled_contract_class.json").toString( "ascii"))
     const compiledERC20Sierra = json.parse(fs.readFileSync( "./target/dev/satoru_ERC20.contract_class.json").toString( "ascii"))
     const erc20CallData: CallData = new CallData(compiledERC20Sierra.abi)
@@ -54,7 +53,6 @@ async function create_market() {
     })
     console.log("USDC Deployed at: " + deployERC20Response.deploy.contract_address)
 
-    console.log("Deploying zETH...")
     const zETHCallData: CallData = new CallData(compiledERC20Sierra.abi)
     const zETHConstructor: Calldata = zETHCallData.compile("constructor", {
         name: "zEthereum",
@@ -94,6 +92,10 @@ async function create_market() {
     const roleCall3 = roleStoreContract.populate("grant_role", [process.env.DEPOSIT_HANDLER as string, shortString.encodeShortString("CONTROLLER")])
     const grant_role_tx3 = await roleStoreContract.grant_role(roleCall3.calldata)
     await provider.waitForTransaction(grant_role_tx3.transaction_hash)
+
+    const roleCall4 = roleStoreContract.populate("grant_role", [process.env.ORDER_HANDLER as string, shortString.encodeShortString("CONTROLLER")])
+    const grant_role_tx4 = await roleStoreContract.grant_role(roleCall4.calldata)
+    await provider.waitForTransaction(grant_role_tx4.transaction_hash)
     console.log("Roles granted.")
 
     console.log("Creating Market...")
@@ -108,27 +110,53 @@ async function create_market() {
     console.log("Market created: " + marketTokenAddress)
 
     dataStoreContract.connect(account0);
-    //const maxPoolAmountKeyETH
-    const dataCall4 = dataStoreContract.populate(
-        "set_u256",
-        [ec.starkCurve.poseidonHashMany([
-            BigInt(shortString.encodeShortString("MAX_POOL_AMOUNT")),
-            BigInt(marketTokenAddress),
-            BigInt(deployzETHResponse.deploy.contract_address)
-        ]), 5000000000000000000000000000000000000000000n])
-    const setAddressTx4 = await dataStoreContract.set_u256(dataCall4.calldata)
-    await provider.waitForTransaction(setAddressTx4.transaction_hash)
-
-    dataStoreContract.connect(account0);
     const dataCall5 = dataStoreContract.populate(
         "set_u256",
-        [ec.starkCurve.poseidonHashMany([
-            BigInt(shortString.encodeShortString("MAX_POOL_AMOUNT")),
-            BigInt(marketTokenAddress),
-            BigInt(deployERC20Response.deploy.contract_address)
-        ]), 2500000000000000000000000000000000000000000000n])
+        [
+            await dataStoreContract.get_max_pool_amount_key(marketTokenAddress, deployzETHResponse.deploy.contract_address),
+            2500000000000000000000000000000000000000000000n
+        ]
+    )
     const setAddressTx5 = await dataStoreContract.set_u256(dataCall5.calldata)
     await provider.waitForTransaction(setAddressTx5.transaction_hash)
+
+    const dataCall6 = dataStoreContract.populate(
+        "set_u256",
+        [
+            await dataStoreContract.get_max_pool_amount_key(marketTokenAddress, deployERC20Response.deploy.contract_address),
+            2500000000000000000000000000000000000000000000n
+        ]
+    )
+    const setAddressTx6 = await dataStoreContract.set_u256(dataCall6.calldata)
+    await provider.waitForTransaction(setAddressTx6.transaction_hash)
+
+    const dataCall7 = dataStoreContract.populate(
+        "set_u256",
+        [
+            await dataStoreContract.get_max_pnl_factor_key(
+                "0x4896bc14d7c67b49131baf26724d3f29032ddd7539a3a8d88324140ea2de9b4",
+                marketTokenAddress,
+                true
+            ),
+            50000000000000000000000000000000000000000000000n
+        ]
+    )
+    const setAddressTx7 = await dataStoreContract.set_u256(dataCall7.calldata)
+    await provider.waitForTransaction(setAddressTx7.transaction_hash)
+
+    const dataCall8 = dataStoreContract.populate(
+        "set_u256",
+        [
+            await dataStoreContract.get_max_open_interest(
+                marketTokenAddress,
+                true
+            ),
+            1000000000000000000000000000000000000000000000000000n
+        ]
+    )
+    const setAddressTx8 = await dataStoreContract.set_u256(dataCall8.calldata)
+    await provider.waitForTransaction(setAddressTx8.transaction_hash)
+
 
     const usdcContract = new Contract(compiledERC20Sierra.abi, deployERC20Response.deploy.contract_address, provider)
     usdcContract.connect(account0)

@@ -2677,9 +2677,6 @@ fn validate_max_pnl(
     pnl_factor_type_for_longs: felt252,
     pnl_factor_type_for_shorts: felt252
 ) {
-    'pnl factor begin'.print();
-    pnl_factor_type_for_longs.print();
-    'pnl factor end'.print();
     let (is_pnl_factor_exceeded_for_longs, pnl_to_pool_factor_for_longs, max_pnl_factor_for_longs) =
         is_pnl_factor_exceeded_check(
         data_store, market, prices, true, pnl_factor_type_for_longs,
@@ -2826,7 +2823,6 @@ fn validate_market_token_balance_with_token(
         .low
         .into();
     let expected_min_balance: u256 = get_expected_min_token_balance(data_store, market, token);
-    expected_min_balance.print();
     assert(balance >= expected_min_balance, MarketError::INVALID_MARKET_TOKEN_BALANCE);
 
     // funding fees can be claimed even if the collateral for positions that should pay funding fees
