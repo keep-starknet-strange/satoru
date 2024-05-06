@@ -262,12 +262,45 @@ async function deploy() {
             shortString.encodeShortString("CONTROLLER")
         ]
     )
+    const roleCall5 = roleStoreContract.populate("grant_role",
+        [
+            deployIncreaseOrderUtilsResponse.deploy.contract_address,
+            shortString.encodeShortString("CONTROLLER")
+        ]
+    )
+    const roleCall6 = roleStoreContract.populate("grant_role",
+        [
+            deployDecreaseOrderUtilsResponse.deploy.contract_address,
+            shortString.encodeShortString("CONTROLLER")
+        ]
+    )
+    const roleCall7 = roleStoreContract.populate("grant_role",
+        [
+            deploySwapOrderUtilsResponse.deploy.contract_address,
+            shortString.encodeShortString("CONTROLLER")
+        ]
+    )
+    const roleCall8 = roleStoreContract.populate("grant_role",
+        [
+            deployDepositHandlerResponse.deploy.contract_address,
+            shortString.encodeShortString("CONTROLLER")
+        ]
+    )
     const grant_role_tx2 = await roleStoreContract.grant_role(roleCall2.calldata)
     await provider.waitForTransaction(grant_role_tx2.transaction_hash)
     const grant_role_tx3 = await roleStoreContract.grant_role(roleCall3.calldata)
     await provider.waitForTransaction(grant_role_tx3.transaction_hash)
     const grant_role_tx4 = await roleStoreContract.grant_role(roleCall4.calldata)
     await provider.waitForTransaction(grant_role_tx4.transaction_hash)
+    const grant_role_tx5 = await roleStoreContract.grant_role(roleCall5.calldata)
+    await provider.waitForTransaction(grant_role_tx5.transaction_hash)
+    const grant_role_tx6 = await roleStoreContract.grant_role(roleCall6.calldata)
+    await provider.waitForTransaction(grant_role_tx6.transaction_hash)
+    const grant_role_tx7 = await roleStoreContract.grant_role(roleCall7.calldata)
+    await provider.waitForTransaction(grant_role_tx7.transaction_hash)
+    const grant_role_tx8 = await roleStoreContract.grant_role(roleCall8.calldata)
+    await provider.waitForTransaction(grant_role_tx8.transaction_hash)
+
     console.log("Roles granted.")
 }
 

@@ -147,7 +147,7 @@ async function create_market() {
     const dataCall8 = dataStoreContract.populate(
         "set_u256",
         [
-            await dataStoreContract.get_max_open_interest(
+            await dataStoreContract.get_max_open_interest_key(
                 marketTokenAddress,
                 true
             ),
