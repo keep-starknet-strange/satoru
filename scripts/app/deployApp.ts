@@ -224,6 +224,36 @@ async function deploy() {
     })
     console.log("DepositHandler Deployed: " + deployDepositHandlerResponse.deploy.contract_address)
 
+    const compiledWithdrawalVaultCasm = json.parse(fs.readFileSync( "./target/dev/satoru_WithdrawalVault.compiled_contract_class.json").toString( "ascii"))
+    const compiledWithdrawalVaultSierra = json.parse(fs.readFileSync( "./target/dev/satoru_WithdrawalVault.contract_class.json").toString( "ascii"))
+    const withdrawalVaultCallData: CallData = new CallData(compiledWithdrawalVaultSierra.abi)
+    const withdrawalVaultConstructor: Calldata = withdrawalVaultCallData.compile("constructor", {
+        data_store_address: deployDataStoreResponse.deploy.contract_address,
+        role_store_address: deployRoleStoreResponse.deploy.contract_address,
+    })
+    const deployWithdrawalVaultResponse = await account0.declareAndDeploy({
+        contract: compiledWithdrawalVaultSierra,
+        casm: compiledWithdrawalVaultCasm ,
+        constructorCalldata: withdrawalVaultConstructor,
+    })
+    console.log("WithdrawalVault Deployed: " + deployWithdrawalVaultResponse.deploy.contract_address)
+
+    const compiledWithdrawalHandlerCasm = json.parse(fs.readFileSync( "./target/dev/satoru_WithdrawalHandler.compiled_contract_class.json").toString( "ascii"))
+    const compiledWithdrawalHandlerSierra = json.parse(fs.readFileSync( "./target/dev/satoru_WithdrawalHandler.contract_class.json").toString( "ascii"))
+    const withdrawalHandlerCallData: CallData = new CallData(compiledWithdrawalHandlerSierra.abi)
+    const withdrawalHandlerConstructor: Calldata = withdrawalHandlerCallData.compile("constructor", {
+        data_store_address: deployDataStoreResponse.deploy.contract_address,
+        role_store_address: deployRoleStoreResponse.deploy.contract_address,
+        event_emitter_address: deployEventEmitterResponse.deploy.contract_address,
+        withdrawal_vault_address: deployWithdrawalVaultResponse.deploy.contract_address,
+        oracle_address: deployOracleResponse.deploy.contract_address,
+    })
+    const deployWithdrawalHandlerResponse = await account0.declareAndDeploy({
+        contract: compiledWithdrawalHandlerSierra,
+        casm: compiledWithdrawalHandlerCasm ,
+        constructorCalldata: withdrawalHandlerConstructor,
+    })
+    console.log("WithdrawalHandler Deployed: " + deployWithdrawalHandlerResponse.deploy.contract_address)
 
     const compiledMarketTokenCasm = json.parse(fs.readFileSync( "./target/dev/satoru_MarketToken.compiled_contract_class.json").toString( "ascii"))
     const compiledMarketTokenSierra = json.parse(fs.readFileSync( "./target/dev/satoru_MarketToken.contract_class.json").toString( "ascii"))    
@@ -253,6 +283,18 @@ async function deploy() {
         constructorCalldata: marketFactoryConstructor,
     })
     console.log("MarketFactory Deployed: " + deployMarketFactoryResponse.deploy.contract_address)
+
+    const compiledReaderCasm = json.parse(fs.readFileSync( "./target/dev/satoru_Reader.compiled_contract_class.json").toString( "ascii"))
+    const compiledReaderSierra = json.parse(fs.readFileSync( "./target/dev/satoru_Reader.contract_class.json").toString( "ascii"))
+    const readerCallData: CallData = new CallData(compiledReaderSierra.abi)
+    const readerConstructor: Calldata = readerCallData.compile("constructor", {})
+    const deployReaderResponse = await account0.declareAndDeploy({
+        contract: compiledReaderSierra,
+        casm: compiledReaderCasm ,
+        constructorCalldata: readerConstructor,
+    })
+    console.log("Reader Deployed: " + deployReaderResponse.deploy.contract_address)
+
 
     const roleCall2 = roleStoreContract.populate("grant_role", [account0.address, shortString.encodeShortString("MARKET_KEEPER")])
     const roleCall3 = roleStoreContract.populate("grant_role", [account0.address, shortString.encodeShortString("ORDER_KEEPER")])
@@ -286,6 +328,18 @@ async function deploy() {
             shortString.encodeShortString("CONTROLLER")
         ]
     )
+    const roleCall9 = roleStoreContract.populate("grant_role",
+        [
+            deployWithdrawalHandlerResponse.deploy.contract_address,
+            shortString.encodeShortString("CONTROLLER")
+        ]
+    )
+    const roleCall10 = roleStoreContract.populate("grant_role",
+        [
+            deploySwapHandlerResponse.deploy.contract_address,
+            shortString.encodeShortString("CONTROLLER")
+        ]
+    )
     const grant_role_tx2 = await roleStoreContract.grant_role(roleCall2.calldata)
     await provider.waitForTransaction(grant_role_tx2.transaction_hash)
     const grant_role_tx3 = await roleStoreContract.grant_role(roleCall3.calldata)
@@ -300,6 +354,10 @@ async function deploy() {
     await provider.waitForTransaction(grant_role_tx7.transaction_hash)
     const grant_role_tx8 = await roleStoreContract.grant_role(roleCall8.calldata)
     await provider.waitForTransaction(grant_role_tx8.transaction_hash)
+    const grant_role_tx9 = await roleStoreContract.grant_role(roleCall9.calldata)
+    await provider.waitForTransaction(grant_role_tx9.transaction_hash)
+    const grant_role_tx10 = await roleStoreContract.grant_role(roleCall10.calldata)
+    await provider.waitForTransaction(grant_role_tx10.transaction_hash)
 
     console.log("Roles granted.")
 }

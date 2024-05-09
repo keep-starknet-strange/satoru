@@ -33,18 +33,18 @@ async function deploy() {
     // const setAddressTx4 = await dataStoreContract.set_u256(dataCall4.calldata)
     // await provider.waitForTransaction(setAddressTx4.transaction_hash)
 
-    const dataCall8 = dataStoreContract.populate(
-        "set_u256",
-        [
-            await dataStoreContract.get_max_open_interest_key(
-                marketTokenAddress,
-                true
-            ),
-            1000000000000000000000000000000000000000000000000000n
-        ]
-    )
-    const setAddressTx8 = await dataStoreContract.set_u256(dataCall8.calldata)
-    await provider.waitForTransaction(setAddressTx8.transaction_hash)
+    // const dataCall8 = dataStoreContract.populate(
+    //     "set_u256",
+    //     [
+    //         await dataStoreContract.get_max_open_interest_key(
+    //             marketTokenAddress,
+    //             true
+    //         ),
+    //         1000000000000000000000000000000000000000000000000000n
+    //     ]
+    // )
+    // const setAddressTx8 = await dataStoreContract.set_u256(dataCall8.calldata)
+    // await provider.waitForTransaction(setAddressTx8.transaction_hash)
 
     // const dataCall5 = dataStoreContract.populate(
     //     "set_u256",
@@ -53,22 +53,21 @@ async function deploy() {
     // const setAddressTx5 = await dataStoreContract.set_u256(dataCall5.calldata)
     // await provider.waitForTransaction(setAddressTx5.transaction_hash)
 
-    // const compiledRoleStoreSierra = json.parse(fs.readFileSync( "./target/dev/satoru_RoleStore.contract_class.json").toString( "ascii"))
-    // const roleStoreContract = new Contract(compiledRoleStoreSierra.abi, process.env.ROLE_STORE as string, provider)
-    // roleStoreContract.connect(account0);
+    const compiledRoleStoreSierra = json.parse(fs.readFileSync( "./target/dev/satoru_RoleStore.contract_class.json").toString( "ascii"))
+    const roleStoreContract = new Contract(compiledRoleStoreSierra.abi, process.env.ROLE_STORE as string, provider)
+    roleStoreContract.connect(account0);
 
-    // const roleCall4 = roleStoreContract.populate("grant_role", ["0x058404f75600c0fc2dfbc074e437c14fd95881145265b96714727b358070946a" as string, shortString.encodeShortString("CONTROLLER")])
-    // const grant_role_tx4 = await roleStoreContract.grant_role(roleCall4.calldata)
-    // await provider.waitForTransaction(grant_role_tx4.transaction_hash)
+    const roleCall4 = roleStoreContract.populate("grant_role", ["0x04db27f09ae33b3f2720f730e03206050a62ca48c6d651d2853024cd21270ed3" as string, shortString.encodeShortString("CONTROLLER")])
+    const grant_role_tx4 = await roleStoreContract.grant_role(roleCall4.calldata)
+    await provider.waitForTransaction(grant_role_tx4.transaction_hash)
 
     // const compiledOracleSierra = json.parse(fs.readFileSync( "./target/dev/satoru_Oracle.contract_class.json").toString( "ascii"))
 
     // const oracleContract = new Contract(compiledOracleSierra.abi, process.env.ORACLE as string, provider);
     // oracleContract.connect(account0);
-    // const setPrimaryPriceCall1 = oracleContract.populate("set_primary_price", [eth, uint256.bnToUint256(7000n)])
+    // const setPrimaryPriceCall1 = oracleContract.populate("set_primary_price", [eth, uint256.bnToUint256(6000)])
     // const setPrimaryPriceTx1 = await oracleContract.set_primary_price(setPrimaryPriceCall1.calldata);
     // await provider.waitForTransaction(setPrimaryPriceTx1.transaction_hash)
-
 
 }
 

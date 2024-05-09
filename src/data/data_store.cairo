@@ -17,11 +17,26 @@ use satoru::utils::i256::i256;
 // *************************************************************************
 #[starknet::interface]
 trait IDataStore<TContractState> {
-    fn get_max_pool_amount_key(self: @TContractState, market_token: ContractAddress, token: ContractAddress) -> felt252;
-    fn get_open_interest_key(self: @TContractState, market: ContractAddress, collateral_token: ContractAddress, is_long: bool) -> felt252;
-    fn get_max_open_interest_key(self: @TContractState, market: ContractAddress, is_long: bool) -> felt252;
-    fn get_pool_amount_key(self: @TContractState, market: ContractAddress, token: ContractAddress) -> felt252;
-    fn get_max_pnl_factor_key(self: @TContractState, pnl_factor_type: felt252, market: ContractAddress, is_long: bool) -> felt252;
+    fn get_max_pool_amount_key(
+        self: @TContractState, market_token: ContractAddress, token: ContractAddress
+    ) -> felt252;
+    fn get_open_interest_key(
+        self: @TContractState,
+        market: ContractAddress,
+        collateral_token: ContractAddress,
+        is_long: bool
+    ) -> felt252;
+    fn get_max_open_interest_key(
+        self: @TContractState, market: ContractAddress, is_long: bool
+    ) -> felt252;
+    fn get_pool_amount_key(
+        self: @TContractState, market: ContractAddress, token: ContractAddress
+    ) -> felt252;
+    fn get_max_pnl_factor_key(
+        self: @TContractState, pnl_factor_type: felt252, market: ContractAddress, is_long: bool
+    ) -> felt252;
+    fn get_max_pnl_factor_for_deposit_key(self: @TContractState) -> felt252;
+    fn get_max_pnl_factor_for_withdrawals_key(self: @TContractState) -> felt252;
 
     // *************************************************************************
     //                      Felt252 related functions.
@@ -521,26 +536,47 @@ mod DataStore {
     // *************************************************************************
     #[abi(embed_v0)]
     impl DataStore of super::IDataStore<ContractState> {
-
-        fn get_max_pool_amount_key(self: @ContractState, market_token: ContractAddress, token: ContractAddress) -> felt252 {
+        fn get_max_pool_amount_key(
+            self: @ContractState, market_token: ContractAddress, token: ContractAddress
+        ) -> felt252 {
             keys::max_pool_amount_key(market_token, token)
         }
 
-        fn get_open_interest_key(self: @ContractState, market: ContractAddress, collateral_token: ContractAddress, is_long: bool) -> felt252 {
+        fn get_open_interest_key(
+            self: @ContractState,
+            market: ContractAddress,
+            collateral_token: ContractAddress,
+            is_long: bool
+        ) -> felt252 {
             keys::open_interest_key(market, collateral_token, is_long)
         }
 
-        fn get_max_open_interest_key(self: @ContractState, market: ContractAddress, is_long: bool) -> felt252 {
+        fn get_max_open_interest_key(
+            self: @ContractState, market: ContractAddress, is_long: bool
+        ) -> felt252 {
             keys::max_open_interest_key(market, is_long)
         }
 
-        fn get_pool_amount_key(self: @ContractState, market: ContractAddress, token: ContractAddress) -> felt252 {
+        fn get_pool_amount_key(
+            self: @ContractState, market: ContractAddress, token: ContractAddress
+        ) -> felt252 {
             keys::pool_amount_key(market, token)
         }
 
-        fn get_max_pnl_factor_key(self: @ContractState, pnl_factor_type: felt252, market: ContractAddress, is_long: bool) -> felt252 {
+        fn get_max_pnl_factor_key(
+            self: @ContractState, pnl_factor_type: felt252, market: ContractAddress, is_long: bool
+        ) -> felt252 {
             keys::max_pnl_factor_key(pnl_factor_type, market, is_long)
         }
+
+        fn get_max_pnl_factor_for_deposit_key(self: @ContractState) -> felt252 {
+            keys::max_pnl_factor_for_deposits()
+        }
+
+        fn get_max_pnl_factor_for_withdrawals_key(self: @ContractState) -> felt252 {
+            keys::max_pnl_factor_for_withdrawals()
+        }
+
 
         // *************************************************************************
         //                      Felt252 related functions.

@@ -12,9 +12,9 @@ async function create_market() {
     // connect your account. To adapt to your own account :
     const privateKey0: string = process.env.ACCOUNT_PRIVATE as string
     const account0Address: string = process.env.ACCOUNT_PUBLIC as string
-    const marketTokenAddress = "0x68ad9440759f0bd0367e407d53b5e5c32203590f12d54ed8968f48fee0cf636"
-    const eth: string = "0x3fa46510b749925fb3fa02e98195909683eaee8d4c982cc647cd98a7f160905"
-    const usdc: string = "0x636d15cd4dfe130c744282f86496077e089cb9dc96ccc37bf0d85ea358a5760"
+    const marketTokenAddress = "0x69cfad927e7e4ef53261ad9a4630631ff8404746720ce3c73368de8291c4c4d"
+    const eth: string = "0x376bbceb1a044263cba28211fdcaee4e234ebf0c012521e1b258684bbc44949"
+    const usdc: string = "0x42a9a03ceb10ca07d3f598a627c414fe218b1138a78e3da6ce1675680cf95f2"
 
     const account0 = new Account(provider, account0Address!, privateKey0!)
     console.log("Interacting with Account: " + account0Address)
@@ -75,7 +75,7 @@ async function create_market() {
     };
 
     orderHandlerContract.connect(account0)
-    let key = "0x34d4d9d4e2539866c7c7a5fbe5f7d142afaa55af10603cb1a384d9d31e8280a";
+    let key = "0x64f2c4ef9ed1a5f949fa49ac7ae519b0e580b4ab9ecb3be1a9583e543ea54b3";
     const executeOrderCall = orderHandlerContract.populate("execute_order_keeper", [
         key,
         setPricesParams,

@@ -102,11 +102,10 @@ mod SwapOrderUtils {
                     ui_fee_receiver: params.order.ui_fee_receiver,
                 }
             );
+        // let mut log_data: LogData = Default::default();
 
-            // let mut log_data: LogData = Default::default();
-
-            // log_data.address_dict.insert_single('output_token', output_token);
-            // log_data.uint_dict.insert_single('output_amount', output_amount);
+        // log_data.address_dict.insert_single('output_token', output_token);
+        // log_data.uint_dict.insert_single('output_amount', output_amount);
 
         // log_data
         }

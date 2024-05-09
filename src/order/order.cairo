@@ -169,7 +169,6 @@ impl OrderTypeInto of Into<OrderType, felt252> {
         }
     }
 }
-
 // impl OrderTypePrintImpl of PrintTrait<OrderType> {
 //     fn print(self: OrderType) {
 //         match self {
@@ -184,3 +183,5 @@ impl OrderTypeInto of Into<OrderType, felt252> {
 //         }
 //     }
 // }
+
+

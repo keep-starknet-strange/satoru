@@ -49,7 +49,6 @@ trait IOracle<TContractState> {
     fn set_primary_price(ref self: TContractState, token: ContractAddress, price: u256);
 
     fn set_price_testing_eth(ref self: TContractState, new_price: u256);
-
 }
 
 /// A price that has been validated in validate_prices().
@@ -238,9 +237,8 @@ mod Oracle {
 
         fn set_primary_price(ref self: ContractState, token: ContractAddress, price: u256) {
             // TODO add security check keeper
-            self.primary_prices.write(token, Price { min: price, max: price});
+            self.primary_prices.write(token, Price { min: price, max: price });
         }
-
     }
 
     // *************************************************************************
@@ -248,7 +246,6 @@ mod Oracle {
     // *************************************************************************
     #[generate_trait]
     impl InternalImpl of InternalTrait {
- 
         /// Emits an `OraclePriceUpdated` event for a specific token.
         /// # Parameters
         /// * `event_emitter`: Dispatcher used for emitting events.

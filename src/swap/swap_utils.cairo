@@ -270,7 +270,6 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u256) 
             );
 
         cache.amount_out += calc::to_unsigned(price_impact_amount);
-
     } else {
         // when there is a negative price impact factor,
         // less of the input amount is sent to the pool
@@ -292,7 +291,6 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u256) 
                 fees.amount_after_fees, price_impact_amount
             );
         }
-
 
         cache.amount_in = fees.amount_after_fees - calc::to_unsigned(i256_neg(price_impact_amount));
         cache.amount_out = cache.amount_in * cache.token_in_price.min / cache.token_out_price.max;

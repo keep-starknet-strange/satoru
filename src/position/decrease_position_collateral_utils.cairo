@@ -96,7 +96,6 @@ fn process_collateral(
     // );
     let (price_impact_usd_, price_impact_diff_usd_, execution_price_) = (i256_new(0, false), 0, 0);
 
-
     values.price_impact_usd = price_impact_usd_;
     values.price_impact_diff_usd = price_impact_diff_usd_;
     values.execution_price = execution_price_;

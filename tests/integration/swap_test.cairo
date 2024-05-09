@@ -11,7 +11,7 @@ use starknet::{
     ClassHash,
 };
 use snforge_std::{declare, start_prank, stop_prank, start_roll, ContractClassTrait, ContractClass};
-
+use debug::PrintTrait;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -114,7 +114,6 @@ fn test_deposit_market_integration() {
     let balance_deposit_vault_before = IERC20Dispatcher { contract_address: market.short_token }
         .balance_of(deposit_vault.contract_address);
 
-
     // Create Deposit
     let user1: ContractAddress = contract_address_const::<'user1'>();
     let user2: ContractAddress = contract_address_const::<'user2'>();
@@ -213,7 +212,6 @@ fn test_deposit_market_integration() {
         true,
     );
 
-
     // // --------------------------------------------------SWAP TEST ETH->USDC --------------------------------------------------
     let balance_ETH_before_swap = IERC20Dispatcher {
         contract_address: contract_address_const::<'ETH'>()
@@ -227,7 +225,6 @@ fn test_deposit_market_integration() {
         .balance_of(caller_address);
     assert(balance_USDC_before_swap == 1000000, 'wrong balance USDC before swap');
 
-
     start_prank(contract_address_const::<'ETH'>(), caller_address); //change to switch swap
     // Send token to order_vault in multicall with create_order
     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() } //change to switch swap
@@ -237,7 +234,6 @@ fn test_deposit_market_integration() {
         contract_address: contract_address_const::<'ETH'>()
     }
         .balance_of(caller_address);
-
 
     let balance_USDC_before = IERC20Dispatcher {
         contract_address: contract_address_const::<'USDC'>()
