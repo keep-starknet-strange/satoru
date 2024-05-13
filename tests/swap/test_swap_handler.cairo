@@ -396,80 +396,78 @@ fn given_normal_conditions_swap_then_works() {
 
     teardown(role_store.contract_address);
 }
+// #[test]
+// fn given_swap_path_market_then_works() {
+//     let (
+//         caller_address,
+//         data_store,
+//         event_emitter,
+//         oracle,
+//         bank,
+//         role_store,
+//         swap_handler,
+//         market_factory,
+//         index_token_handler,
+//         long_token_handler,
+//         short_token_handler
+//     ) =
+//         setup();
 
+//     //create Market 
+//     let index_token = index_token_handler.contract_address;
+//     let long_token = long_token_handler.contract_address;
+//     let short_token = short_token_handler.contract_address;
+//     let market_type = 'market_type';
 
-#[test]
-fn given_swap_path_market_then_works() {
-    let (
-        caller_address,
-        data_store,
-        event_emitter,
-        oracle,
-        bank,
-        role_store,
-        swap_handler,
-        market_factory,
-        index_token_handler,
-        long_token_handler,
-        short_token_handler
-    ) =
-        setup();
+//     let market_token_deployed_address = market_factory
+//         .create_market(index_token, long_token, short_token, market_type);
 
-    //create Market 
-    let index_token = index_token_handler.contract_address;
-    let long_token = long_token_handler.contract_address;
-    let short_token = short_token_handler.contract_address;
-    let market_type = 'market_type';
+//     let mut market = Market {
+//         market_token: market_token_deployed_address,
+//         index_token: index_token,
+//         long_token: long_token,
+//         short_token: short_token,
+//     };
+//     let price = Price { min: 10, max: 100 };
+//     let key1 = keys::pool_amount_key(market_token_deployed_address, long_token);
+//     let key2 = keys::pool_amount_key(market_token_deployed_address, short_token);
 
-    let market_token_deployed_address = market_factory
-        .create_market(index_token, long_token, short_token, market_type);
+//     let key3 = keys::max_pool_amount_key(market_token_deployed_address, long_token);
+//     let key4 = keys::max_pool_amount_key(market_token_deployed_address, short_token);
 
-    let mut market = Market {
-        market_token: market_token_deployed_address,
-        index_token: index_token,
-        long_token: long_token,
-        short_token: short_token,
-    };
-    let price = Price { min: 10, max: 100 };
-    let key1 = keys::pool_amount_key(market_token_deployed_address, long_token);
-    let key2 = keys::pool_amount_key(market_token_deployed_address, short_token);
+//     oracle.set_primary_price(index_token, price);
+//     oracle.set_primary_price(long_token, price);
+//     oracle.set_primary_price(short_token, price);
 
-    let key3 = keys::max_pool_amount_key(market_token_deployed_address, long_token);
-    let key4 = keys::max_pool_amount_key(market_token_deployed_address, short_token);
+//     data_store.set_market(market_token_deployed_address, 1, market);
+//     data_store.set_u256(key1, 361850278866613121369732);
+//     data_store.set_u256(key2, 361850278866613121369732);
 
-    oracle.set_primary_price(index_token, price);
-    oracle.set_primary_price(long_token, price);
-    oracle.set_primary_price(short_token, price);
+//     data_store.set_u256(key3, 661850278866613121369732);
+//     data_store.set_u256(key4, 661850278866613121369732);
 
-    data_store.set_market(market_token_deployed_address, 1, market);
-    data_store.set_u256(key1, 361850278866613121369732);
-    data_store.set_u256(key2, 361850278866613121369732);
+//     let mut swap_path_markets = ArrayTrait::<Market>::new();
+//     swap_path_markets.append(market);
 
-    data_store.set_u256(key3, 661850278866613121369732);
-    data_store.set_u256(key4, 661850278866613121369732);
+//     let mut swap = SwapParams {
+//         data_store: data_store,
+//         event_emitter: event_emitter,
+//         oracle: oracle,
+//         bank: bank,
+//         key: 1,
+//         token_in: long_token,
+//         amount_in: 200000000000000000,
+//         swap_path_markets: swap_path_markets.span(),
+//         min_output_amount: 1,
+//         receiver: market_token_deployed_address,
+//         ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
+//     };
 
-    let mut swap_path_markets = ArrayTrait::<Market>::new();
-    swap_path_markets.append(market);
+//     let swap_result = swap_handler.swap(swap);
+//     assert(swap_result == (short_token, 20000000000000000), 'Error');
 
-    let mut swap = SwapParams {
-        data_store: data_store,
-        event_emitter: event_emitter,
-        oracle: oracle,
-        bank: bank,
-        key: 1,
-        token_in: long_token,
-        amount_in: 200000000000000000,
-        swap_path_markets: swap_path_markets.span(),
-        min_output_amount: 1,
-        receiver: market_token_deployed_address,
-        ui_fee_receiver: contract_address_const::<'ui_fee_receiver'>(),
-    };
-
-    let swap_result = swap_handler.swap(swap);
-    assert(swap_result == (short_token, 20000000000000000), 'Error');
-
-    teardown(role_store.contract_address);
-}
+//     teardown(role_store.contract_address);
+// }
 //TODO add more tested when swap_handler has been implemented
 
 

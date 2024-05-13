@@ -112,7 +112,7 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 //             keys::max_pool_amount_key(market.market_token, market.short_token), 500000000000000000
 //         );
 
-//     oracle.set_primary_prices(market.long_token, 5000);
+//     oracle.set_primary_price(market.long_token, 5000);
 
 //     // Fill the pool.
 //     IERC20Dispatcher { contract_address: market.long_token }.mint(market.market_token, 50000000000);
@@ -382,7 +382,7 @@ const INITIAL_TOKENS_MINTED: felt252 = 1000;
 //         .balance_of(caller_address);
 //     'balance of mkt before'.print();
 //     balance_of_mkt_before.print();
-//     oracle.set_primary_prices(market.long_token, 6000);
+//     oracle.set_primary_price(market.long_token, 6000);
 
 //     start_prank(market.market_token, caller_address);
 //     start_prank(market.long_token, caller_address);
@@ -533,8 +533,8 @@ fn test_long_demo_market_integration() {
             50000000000000000000000000000000000000000000000
         );
 
-    oracle.set_primary_prices(market.long_token, 5000);
-    oracle.set_primary_prices(market.short_token, 1);
+    oracle.set_primary_price(market.long_token, Price { min: 5000, max: 5000 });
+    oracle.set_primary_price(market.short_token, Price { min: 1, max: 1 });
 
     'fill the pool'.print();
     // Fill the pool.
@@ -798,7 +798,7 @@ fn test_long_demo_market_integration() {
     'size in usd'.print();
     first_position.size_in_usd.print();
     'OKAAAAAYYYYYY'.print();
-    oracle.set_primary_prices(market.long_token, 6000);
+    oracle.set_primary_price(market.long_token, Price { min: 6000, max: 6000 });
     let first_position_after_pump = data_store.get_position(position_key_1);
     'size tokens after pump'.print();
     first_position_after_pump.size_in_tokens.print();
@@ -921,7 +921,7 @@ fn test_long_demo_market_integration() {
     balance_of_mkt_after.print();
 
     /// close all position
-    oracle.set_primary_prices(market.long_token, 7000);
+    oracle.set_primary_price(market.long_token, Price { min: 7000, max: 7000 });
 
     start_prank(market.market_token, caller_address);
     start_prank(market.long_token, caller_address);
@@ -1157,8 +1157,8 @@ fn test_long_18_decrease_close_integration() {
             50000000000000000000000000000000000000000000000
         );
 
-    oracle.set_primary_prices(market.long_token, 5000);
-    oracle.set_primary_prices(market.short_token, 1);
+    oracle.set_primary_price(market.long_token, Price { min: 5000, max: 5000 });
+    oracle.set_primary_price(market.short_token, Price { min: 1, max: 1 });
 
     'fill the pool'.print();
     // Fill the pool.
@@ -1422,7 +1422,7 @@ fn test_long_18_decrease_close_integration() {
     'size in usd'.print();
     first_position.size_in_usd.print();
     'OKAAAAAYYYYYY'.print();
-    oracle.set_primary_prices(market.long_token, 6000);
+    oracle.set_primary_price(market.long_token, Price { min: 6000, max: 6000 });
     let first_position_after_pump = data_store.get_position(position_key_1);
     'size tokens after pump'.print();
     first_position_after_pump.size_in_tokens.print();
@@ -1545,7 +1545,7 @@ fn test_long_18_decrease_close_integration() {
     balance_of_mkt_after.print();
 
     /// close all position
-    oracle.set_primary_prices(market.long_token, 7000);
+    oracle.set_primary_price(market.long_token, Price { min: 7000, max: 7000 });
 
     start_prank(market.market_token, caller_address);
     start_prank(market.long_token, caller_address);
@@ -1699,8 +1699,8 @@ fn test_long_18_close_integration() {
             50000000000000000000000000000000000000000000000
         );
 
-    oracle.set_primary_prices(market.long_token, 5000);
-    oracle.set_primary_prices(market.short_token, 1);
+    oracle.set_primary_price(market.long_token, Price { min: 5000, max: 5000 });
+    oracle.set_primary_price(market.short_token, Price { min: 1, max: 1 });
 
     'fill the pool'.print();
     // Fill the pool.
@@ -1964,7 +1964,7 @@ fn test_long_18_close_integration() {
     'size in usd'.print();
     first_position.size_in_usd.print();
     'OKAAAAAYYYYYY'.print();
-    oracle.set_primary_prices(market.long_token, 6000);
+    oracle.set_primary_price(market.long_token, Price { min: 6000, max: 6000 });
     let first_position_after_pump = data_store.get_position(position_key_1);
     'size tokens after pump'.print();
     first_position_after_pump.size_in_tokens.print();
