@@ -600,7 +600,6 @@ fn setup_contracts() -> (
 
     let swap_handler_address = deploy_swap_handler_address(role_store_address, data_store_address);
     let referral_storage_address = deploy_referral_storage(event_emitter_address);
-
     let increase_order_address = deploy_increase_order();
     let decrease_order_address = deploy_decrease_order();
     let swap_order_address = deploy_swap_order();

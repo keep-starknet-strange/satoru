@@ -5,14 +5,13 @@
 // Core lib imports.
 
 use result::ResultTrait;
-use debug::PrintTrait;
 use traits::{TryInto, Into};
 use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
     ClassHash,
 };
 use snforge_std::{declare, start_prank, stop_prank, start_roll, ContractClassTrait, ContractClass};
-
+use debug::PrintTrait;
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -115,8 +114,6 @@ fn test_deposit_market_integration() {
     let balance_deposit_vault_before = IERC20Dispatcher { contract_address: market.short_token }
         .balance_of(deposit_vault.contract_address);
 
-    // balance_deposit_vault_before.print();
-
     // Create Deposit
     let user1: ContractAddress = contract_address_const::<'user1'>();
     let user2: ContractAddress = contract_address_const::<'user2'>();
@@ -215,29 +212,18 @@ fn test_deposit_market_integration() {
         true,
     );
 
-    pool_value_info.pool_value.mag.print();
-    pool_value_info.long_token_amount.print();
-    pool_value_info.short_token_amount.print();
-
     // // --------------------------------------------------SWAP TEST ETH->USDC --------------------------------------------------
-    'Swap ETH to USDC'.print();
     let balance_ETH_before_swap = IERC20Dispatcher {
         contract_address: contract_address_const::<'ETH'>()
     }
         .balance_of(caller_address);
     assert(balance_ETH_before_swap == 1000000, 'wrong balance ETH before swap');
 
-    'Eth balance: '.print();
-    balance_ETH_before_swap.print();
-
     let balance_USDC_before_swap = IERC20Dispatcher {
         contract_address: contract_address_const::<'USDC'>()
     }
         .balance_of(caller_address);
     assert(balance_USDC_before_swap == 1000000, 'wrong balance USDC before swap');
-
-    'USDC balance: '.print();
-    balance_USDC_before_swap.print();
 
     start_prank(contract_address_const::<'ETH'>(), caller_address); //change to switch swap
     // Send token to order_vault in multicall with create_order
@@ -249,16 +235,10 @@ fn test_deposit_market_integration() {
     }
         .balance_of(caller_address);
 
-    'Eth balance after vault: '.print();
-    balance_ETH_before.print();
-
     let balance_USDC_before = IERC20Dispatcher {
         contract_address: contract_address_const::<'USDC'>()
     }
         .balance_of(caller_address);
-
-    'USDC balance after vault: '.print();
-    balance_USDC_before.print();
 
     // Create order_params Struct
     let contract_address = contract_address_const::<0>();
@@ -330,11 +310,7 @@ fn test_deposit_market_integration() {
     }
         .balance_of(caller_address);
 
-    'balance eth before execute'.print();
-    balance_ETH_before_execute.print();
     // assert(balance_ETH_after == 999999, 'wrong balance ETH after swap');
-    'balance usdc before execute'.print();
-    balance_USDC_before_execute.print();
 
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
@@ -348,16 +324,10 @@ fn test_deposit_market_integration() {
     let balance_ETH_after = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
-    'eth after all the flow'.print();
-    balance_ETH_after.print();
-
     let balance_USDC_after = IERC20Dispatcher {
         contract_address: contract_address_const::<'USDC'>()
     }
         .balance_of(caller_address);
-
-    'usdc after all the flow'.print();
-    balance_USDC_after.print();
 
     assert(balance_ETH_after == 999999, 'wrong balance ETH after swap');
     assert(balance_USDC_after == 1005000, 'wrong balance USDC after swap');
@@ -371,10 +341,6 @@ fn test_deposit_market_integration() {
         keys::max_pnl_factor_for_deposits(),
         true,
     );
-
-    first_swap_pool_value_info.pool_value.mag.print();
-    first_swap_pool_value_info.long_token_amount.print();
-    first_swap_pool_value_info.short_token_amount.print();
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -1299,7 +1265,6 @@ fn setup_contracts() -> (
 
     let swap_handler_address = deploy_swap_handler_address(role_store_address, data_store_address);
     let referral_storage_address = deploy_referral_storage(event_emitter_address);
-
     let increase_order_address = deploy_increase_order();
     let decrease_order_address = deploy_decrease_order();
     let swap_order_address = deploy_swap_order();

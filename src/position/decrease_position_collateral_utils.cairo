@@ -95,8 +95,6 @@ fn process_collateral(
     //     params, cache.prices.index_token_price
     // );
     let (price_impact_usd_, price_impact_diff_usd_, execution_price_) = (i256_new(0, false), 0, 0);
-    'here finieshed'.print();
-
 
     values.price_impact_usd = price_impact_usd_;
     values.price_impact_diff_usd = price_impact_diff_usd_;
@@ -130,11 +128,9 @@ fn process_collateral(
         size_delta_usd: params.order.size_delta_usd,
         ui_fee_receiver: params.order.ui_fee_receiver,
     };
-    'bug here'.print();
     let mut fees: position_pricing_utils::PositionFees = position_pricing_utils::get_position_fees(
         get_position_fees_params
     );
-    'finiesh here'.print();
 
     // if the pnl is positive, deduct the pnl amount from the pool
     if values.base_pnl_usd > Zeroable::zero() {

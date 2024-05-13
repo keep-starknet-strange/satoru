@@ -21,7 +21,6 @@ use satoru::order::order::{OrderType, DecreasePositionSwapType};
 use satoru::order::base_order_utils;
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::position::error::PositionError;
-use debug::PrintTrait;
 
 /// Struct used as result for decrease_position_function output.
 #[derive(Drop, Default, Copy, starknet::Store, Serde)]
@@ -61,16 +60,7 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
             market_utils::get_cached_token_price(
                 params.order.initial_collateral_token, params.market, cache.prices
             );
-    'cache prices'.print();
-    (cache.prices.long_token_price.min).print();
-    (cache.prices.short_token_price.min).print();
-    (cache.collateral_token_price.min).print();
-    
-    //TODO check if this is needed
-    // Update the size_in_usd of the position
     params.position.size_in_usd = params.position.size_in_tokens * cache.collateral_token_price.min;
-    params.position.size_in_usd.print();
-    'was size in usd'.print();
 
     // cap the order size to the position size
     if (params.order.size_delta_usd > params.position.size_in_usd) {
@@ -84,20 +74,15 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
                 );
             params.order.size_delta_usd = params.position.size_in_usd;
         } else {
-            'enter in else'.print();
-            params.order.size_delta_usd.print();
-            params.position.size_in_usd.print();
             PositionError::INVALID_DECREASE_ORDER_SIZE(
                 params.order.size_delta_usd, params.position.size_in_usd
             );
         }
     }
-    '2 inside function decrease'.print();
 
     // if the position will be partially decreased then do a check on the
     // remaining collateral amount and update the order attributes if needed
     if (params.order.size_delta_usd < params.position.size_in_usd) {
-        'pass inside if dec function'.print();
         let (estimated_position_pnl_usd, uncapped_base_pnl_usd, size_delta_in_tokens) =
             position_utils::get_position_pnl_usd(
             params.contracts.data_store,
@@ -106,7 +91,6 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
             params.position,
             params.position.size_in_usd
         );
-        'bef mul div ial'.print();
         cache.estimated_position_pnl_usd = estimated_position_pnl_usd;
         cache
             .estimated_realized_pnl_usd =
@@ -115,14 +99,8 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
                     params.order.size_delta_usd,
                     params.position.size_in_usd
                 );
-        'afer mul'.print();
         cache.estimated_remaining_pnl_usd = cache.estimated_position_pnl_usd
             - cache.estimated_realized_pnl_usd;
-        'pass sub 1'.print();
-        (params.position.size_in_usd).print();
-        (params.order.size_delta_usd).print();
-        (params.position.collateral_amount).print();
-        (params.order.initial_collateral_delta_amount).print();
         let position_values = position_utils::WillPositionCollateralBeSufficientValues {
             position_size_in_usd: params.position.size_in_usd - params.order.size_delta_usd,
             position_collateral_amount: params.position.collateral_amount
@@ -140,7 +118,6 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
             params.position.is_long,
             position_values
         );
-        '3 inside function decrease'.print();
 
         // do not allow withdrawal of collateral if it would lead to the position
         // having an insufficient amount of collateral
@@ -212,7 +189,6 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
         && params.order.initial_collateral_delta_amount > 0) {
         params.order.initial_collateral_delta_amount = 0;
     }
-    'inside function decrease'.print();
     if (params.position.is_long) {
         cache.pnl_token = params.market.long_token;
         cache.pnl_token_price = cache.prices.long_token_price;
@@ -227,7 +203,6 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
     }
 
     position_utils::update_funding_and_borrowing_state(params, cache.prices);
-    'updated funding and bor'.print();
     if (base_order_utils::is_liquidation_order(params.order.order_type)) {
         let (is_liquidatable, liquidation_amount_usd) = position_utils::is_position_liquiditable(
             params.contracts.data_store,
@@ -241,7 +216,6 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
             PositionError::POSITION_SHOULD_BE_LIQUIDATED();
         }
     }
-    'passed liquidations'.print();
     cache.initial_collateral_amount = params.position.collateral_amount;
     let (mut values, fees) = decrease_position_collateral_utils::process_collateral(params, cache);
 
@@ -255,8 +229,6 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
     position_utils::update_total_borrowing(
         params, cache.next_position_size_in_usd, cache.next_position_borrowing_factor
     );
-    'size otk bef'.print();
-    params.position.size_in_tokens.print();
     params.position.size_in_usd = cache.next_position_size_in_usd;
     params
         .position
@@ -264,13 +236,6 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
         .remaining_collateral_amount; //TODO has to be : values.size_delta_in_tokens
     params.position.collateral_amount = values.remaining_collateral_amount;
     params.position.decreased_at_block = starknet::info::get_block_number();
-
-    'new position detials'.print();
-    values.size_delta_in_tokens.print();
-    params.position.size_in_usd.print();
-    params.position.size_in_tokens.print();
-    params.position.collateral_amount.print();
-    'end new details'.print();
 
     position_utils::increment_claimable_funding_amount(params, fees);
 
@@ -281,7 +246,6 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
         params.position.size_in_usd = 0;
         params.position.size_in_tokens = 0;
         params.position.collateral_amount = 0;
-        'REMOOOVED'.print();
         params.contracts.data_store.remove_position(params.position_key, params.order.account);
     } else {
         params.position.borrowing_factor = cache.next_position_borrowing_factor;
@@ -303,7 +267,6 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
 
         params.contracts.data_store.set_position(params.position_key, params.position);
     }
-    'before here'.print();
     market_utils::apply_delta_to_collateral_sum(
         params.contracts.data_store,
         params.contracts.event_emitter,
@@ -312,7 +275,6 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
         params.position.is_long,
         to_signed(cache.initial_collateral_amount - params.position.collateral_amount, false)
     );
-    'PAAASSSED'.print();
 
     // TODO uncomment open interest
     // position_utils::update_open_interest(
@@ -378,11 +340,6 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
         );
 
     values = decrease_position_swap_utils::swap_withdrawn_collateral_to_pnl_token(params, values);
-    'last values'.print();
-    (values.output.output_token).print();
-    (values.output.output_amount).print();
-    (values.output.secondary_output_token).print();
-    (values.output.secondary_output_amount).print();
     DecreasePositionResult {
         output_token: values.output.output_token,
         output_amount: values.output.output_amount,

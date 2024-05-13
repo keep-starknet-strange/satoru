@@ -31,7 +31,6 @@ use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt
 use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
 use satoru::utils::span32::{Span32, Array32Trait};
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-use debug::PrintTrait;
 
 // *************************************************************************
 //                  Interface of the `OrderUtils` contract.
@@ -122,7 +121,6 @@ mod DecreaseOrderUtils {
     use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
     use satoru::utils::span32::{Span32, Array32Trait};
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-    use debug::PrintTrait;
 
     #[storage]
     struct Storage {}
@@ -149,7 +147,6 @@ mod DecreaseOrderUtils {
 
             let data_store: IDataStoreDispatcher = params.contracts.data_store;
             let position = data_store.get_position(position_key);
-            'pass here'.print();
             position_utils::validate_non_empty_position(position);
 
             // validate_oracle_block_numbers(
@@ -160,7 +157,6 @@ mod DecreaseOrderUtils {
             //     position.increased_at_block,
             //     position.decreased_at_block
             // );
-            'passed validate empty'.print();
             let mut update_position_params: UpdatePositionParams = UpdatePositionParams {
                 contracts: params.contracts,
                 market: params.market,
@@ -170,11 +166,9 @@ mod DecreaseOrderUtils {
                 position_key,
                 secondary_order_type: params.secondary_order_type
             };
-            'updated params'.print();
             let mut result: DecreasePositionResult = decrease_position_utils::decrease_position(
                 update_position_params
             );
-            'updated position'.print();
             // if the pnl_token and the collateral_token are different
             // and if a swap fails or no swap was requested
             // then it is possible to receive two separate tokens from decreasing
@@ -191,7 +185,6 @@ mod DecreaseOrderUtils {
                         result.secondary_output_amount,
                         order.min_output_amount
                     );
-                'goes inside'.print();
                 IMarketTokenDispatcher { contract_address: order.market }
                     .transfer_out(result.output_token, order.receiver, result.output_amount);
 
@@ -298,9 +291,7 @@ mod DecreaseOrderUtils {
             let output_usd: u256 = output_amount * output_token_price;
 
             if (output_usd < min_output_amount) {
-                'error here'.print();
                 OrderError::INSUFFICIENT_OUTPUT_AMOUNT(output_usd, output_token_price);
-                'after error'.print();
             }
         }
 
@@ -325,9 +316,7 @@ mod DecreaseOrderUtils {
             let total_output_usd: u256 = output_usd + seconday_output_usd;
 
             if (total_output_usd < min_output_amount) {
-                'error here 2'.print();
                 OrderError::INSUFFICIENT_OUTPUT_AMOUNT(output_usd, output_token_price);
-                'after error 2'.print();
             }
         }
 
