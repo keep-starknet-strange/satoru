@@ -113,8 +113,8 @@ fn test_short_market_integration() {
             keys::max_pool_amount_key(market.market_token, market.short_token), 500000000000000000
         );
 
-    oracle.set_primary_prices(market.long_token, 5000);
-    oracle.set_primary_prices(market.short_token, 1);
+    oracle.set_primary_price(market.long_token, Price { min: 5000, max: 5000 });
+    oracle.set_primary_price(market.short_token, Price { min: 1, max: 1 });
 
     // Fill the pool.
     IERC20Dispatcher { contract_address: market.long_token }.mint(market.market_token, 50000000000);
