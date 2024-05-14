@@ -101,7 +101,6 @@ mod OrderUtils {
     // Core lib imports.
     use starknet::{ContractAddress, contract_address_const};
     use clone::Clone;
-    use debug::PrintTrait;
     // Local imports.
     use satoru::order::base_order_utils::{ExecuteOrderParams, CreateOrderParams};
     use satoru::order::base_order_utils;
@@ -189,8 +188,6 @@ mod OrderUtils {
             account: ContractAddress,
             mut params: CreateOrderParams
         ) -> felt252 {
-            
-
             account_utils::validate_account(account);
             referral_utils::set_trader_referral_code(
                 referral_storage, account, params.referral_code
@@ -299,9 +296,6 @@ mod OrderUtils {
             // TODO GAS NOT AVAILABLE params.startingGas -= gasleft() / 63;
             params.contracts.data_store.remove_order(params.key, params.order.account);
 
-            '5. Execute Order'.print();
-
-
             base_order_utils::validate_non_empty_order(@params.order);
 
             base_order_utils::validate_order_trigger_price(
@@ -311,7 +305,6 @@ mod OrderUtils {
                 params.order.trigger_price,
                 params.order.is_long
             );
-            'passed validations'.print();
             let params_process = ExecuteOrderParams {
                 contracts: params.contracts,
                 key: params.key,
@@ -332,7 +325,6 @@ mod OrderUtils {
             // if the native token was transferred to the receiver in a swap
             // it may be possible to invoke external contracts before the validations
             // are called
-
 
             if (params.market.market_token != contract_address_const::<0>()) {
                 market_utils::validate_market_token_balance_check(

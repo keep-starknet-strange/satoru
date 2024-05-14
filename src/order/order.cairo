@@ -5,7 +5,6 @@
 // Core lib imports.
 use starknet::{ContractAddress, contract_address_const};
 use starknet::info::get_block_number;
-use debug::PrintTrait;
 use array::ArrayTrait;
 
 // Local imports.
@@ -126,14 +125,14 @@ enum SecondaryOrderType {
     Adl,
 }
 
-impl SecondaryOrderTypePrintImpl of PrintTrait<SecondaryOrderType> {
-    fn print(self: SecondaryOrderType) {
-        match self {
-            SecondaryOrderType::None => 'None'.print(),
-            SecondaryOrderType::Adl => 'Adl'.print(),
-        }
-    }
-}
+// impl SecondaryOrderTypePrintImpl of PrintTrait<SecondaryOrderType> {
+//     fn print(self: SecondaryOrderType) {
+//         match self {
+//             SecondaryOrderType::None => 'None'.print(),
+//             SecondaryOrderType::Adl => 'Adl'.print(),
+//         }
+//     }
+// }
 
 /// `DecreasePositionSwapType` is used to indicate whether the decrease order should swap
 /// the pnl token to collateral token or vice versa.
@@ -144,17 +143,17 @@ enum DecreasePositionSwapType {
     SwapCollateralTokenToPnlToken,
 }
 
-impl DecreasePositionSwapTypePrintImpl of PrintTrait<DecreasePositionSwapType> {
-    fn print(self: DecreasePositionSwapType) {
-        match self {
-            DecreasePositionSwapType::NoSwap => 'NoSwap'.print(),
-            DecreasePositionSwapType::SwapPnlTokenToCollateralToken => 'SwapPnlTokenToCollateralToken'
-                .print(),
-            DecreasePositionSwapType::SwapCollateralTokenToPnlToken => 'SwapCollateralTokenToPnlToken'
-                .print(),
-        }
-    }
-}
+// impl DecreasePositionSwapTypePrintImpl of PrintTrait<DecreasePositionSwapType> {
+//     fn print(self: DecreasePositionSwapType) {
+//         match self {
+//             DecreasePositionSwapType::NoSwap => 'NoSwap'.print(),
+//             DecreasePositionSwapType::SwapPnlTokenToCollateralToken => 'SwapPnlTokenToCollateralToken'
+//                 .print(),
+//             DecreasePositionSwapType::SwapCollateralTokenToPnlToken => 'SwapCollateralTokenToPnlToken'
+//                 .print(),
+//         }
+//     }
+// }
 
 impl OrderTypeInto of Into<OrderType, felt252> {
     fn into(self: OrderType) -> felt252 {
@@ -170,18 +169,19 @@ impl OrderTypeInto of Into<OrderType, felt252> {
         }
     }
 }
+// impl OrderTypePrintImpl of PrintTrait<OrderType> {
+//     fn print(self: OrderType) {
+//         match self {
+//             OrderType::MarketSwap => 'MarketSwap'.print(),
+//             OrderType::LimitSwap => 'LimitSwap'.print(),
+//             OrderType::MarketIncrease => 'MarketIncrease'.print(),
+//             OrderType::LimitIncrease => 'LimitIncrease'.print(),
+//             OrderType::MarketDecrease => 'MarketDecrease'.print(),
+//             OrderType::LimitDecrease => 'LimitDecrease'.print(),
+//             OrderType::StopLossDecrease => 'StopLossDecrease'.print(),
+//             OrderType::Liquidation => 'Liquidation'.print(),
+//         }
+//     }
+// }
 
-impl OrderTypePrintImpl of PrintTrait<OrderType> {
-    fn print(self: OrderType) {
-        match self {
-            OrderType::MarketSwap => 'MarketSwap'.print(),
-            OrderType::LimitSwap => 'LimitSwap'.print(),
-            OrderType::MarketIncrease => 'MarketIncrease'.print(),
-            OrderType::LimitIncrease => 'LimitIncrease'.print(),
-            OrderType::MarketDecrease => 'MarketDecrease'.print(),
-            OrderType::LimitDecrease => 'LimitDecrease'.print(),
-            OrderType::StopLossDecrease => 'StopLossDecrease'.print(),
-            OrderType::Liquidation => 'Liquidation'.print(),
-        }
-    }
-}
+

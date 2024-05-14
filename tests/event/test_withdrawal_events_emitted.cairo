@@ -48,6 +48,8 @@ fn given_normal_conditions_when_emit_withdrawal_created_then_works() {
                             receiver: withdrawal.receiver,
                             callback_contract: withdrawal.callback_contract,
                             market: withdrawal.market,
+                            long_token_swap_path: withdrawal.long_token_swap_path,
+                            short_token_swap_path: withdrawal.short_token_swap_path,
                             market_token_amount: withdrawal.market_token_amount,
                             min_long_token_amount: withdrawal.min_long_token_amount,
                             min_short_token_amount: withdrawal.min_short_token_amount,

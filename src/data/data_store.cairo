@@ -17,6 +17,27 @@ use satoru::utils::i256::i256;
 // *************************************************************************
 #[starknet::interface]
 trait IDataStore<TContractState> {
+    fn get_max_pool_amount_key(
+        self: @TContractState, market_token: ContractAddress, token: ContractAddress
+    ) -> felt252;
+    fn get_open_interest_key(
+        self: @TContractState,
+        market: ContractAddress,
+        collateral_token: ContractAddress,
+        is_long: bool
+    ) -> felt252;
+    fn get_max_open_interest_key(
+        self: @TContractState, market: ContractAddress, is_long: bool
+    ) -> felt252;
+    fn get_pool_amount_key(
+        self: @TContractState, market: ContractAddress, token: ContractAddress
+    ) -> felt252;
+    fn get_max_pnl_factor_key(
+        self: @TContractState, pnl_factor_type: felt252, market: ContractAddress, is_long: bool
+    ) -> felt252;
+    fn get_max_pnl_factor_for_deposit_key(self: @TContractState) -> felt252;
+    fn get_max_pnl_factor_for_withdrawals_key(self: @TContractState) -> felt252;
+
     // *************************************************************************
     //                      Felt252 related functions.
     // *************************************************************************
@@ -451,6 +472,7 @@ mod DataStore {
     use poseidon::poseidon_hash_span;
 
     // Local imports.
+    use satoru::data::keys;
     use satoru::role::role;
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::market::{market::{Market, ValidateMarket}, error::MarketError};
@@ -462,7 +484,6 @@ mod DataStore {
     use satoru::utils::calc::{sum_return_uint_256, to_signed, to_unsigned};
     use satoru::utils::calc;
     use satoru::utils::i256::{i256, i256_neg};
-    use debug::PrintTrait;
 
     // *************************************************************************
     //                              STORAGE
@@ -515,6 +536,48 @@ mod DataStore {
     // *************************************************************************
     #[abi(embed_v0)]
     impl DataStore of super::IDataStore<ContractState> {
+        fn get_max_pool_amount_key(
+            self: @ContractState, market_token: ContractAddress, token: ContractAddress
+        ) -> felt252 {
+            keys::max_pool_amount_key(market_token, token)
+        }
+
+        fn get_open_interest_key(
+            self: @ContractState,
+            market: ContractAddress,
+            collateral_token: ContractAddress,
+            is_long: bool
+        ) -> felt252 {
+            keys::open_interest_key(market, collateral_token, is_long)
+        }
+
+        fn get_max_open_interest_key(
+            self: @ContractState, market: ContractAddress, is_long: bool
+        ) -> felt252 {
+            keys::max_open_interest_key(market, is_long)
+        }
+
+        fn get_pool_amount_key(
+            self: @ContractState, market: ContractAddress, token: ContractAddress
+        ) -> felt252 {
+            keys::pool_amount_key(market, token)
+        }
+
+        fn get_max_pnl_factor_key(
+            self: @ContractState, pnl_factor_type: felt252, market: ContractAddress, is_long: bool
+        ) -> felt252 {
+            keys::max_pnl_factor_key(pnl_factor_type, market, is_long)
+        }
+
+        fn get_max_pnl_factor_for_deposit_key(self: @ContractState) -> felt252 {
+            keys::max_pnl_factor_for_deposits()
+        }
+
+        fn get_max_pnl_factor_for_withdrawals_key(self: @ContractState) -> felt252 {
+            keys::max_pnl_factor_for_withdrawals()
+        }
+
+
         // *************************************************************************
         //                      Felt252 related functions.
         // *************************************************************************
@@ -617,19 +680,10 @@ mod DataStore {
             self.role_store.read().assert_only_role(get_caller_address(), role::CONTROLLER);
 
             let current_value = self.u256_values.read(key);
-            'current valie'.print();
-            current_value.print();
-            'value'.print();
-            (value.mag).print();
-            (value.sign).print();
             if value < Zeroable::zero() && calc::to_unsigned(i256_neg(value)) > current_value {
                 panic(array![error]);
             }
-            'value'.print();
-            value.mag.print();
             let next_value = calc::sum_return_uint_256(current_value, value);
-            'next_value'.print();
-            next_value.print();
             self.u256_values.write(key, next_value);
             next_value
         }

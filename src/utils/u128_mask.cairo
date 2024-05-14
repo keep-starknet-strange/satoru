@@ -27,8 +27,6 @@ fn validate_unique_and_set_index(ref mask: u128, index: u128) {
     // }
 
     let bit: u128 = BitShift::shl(1, index);
-    mask.print();
-    index.print();
     // if mask & bit != 0 {
     //     panic_with_felt252(UtilsError::MASK_INDEX_NOT_UNIQUE);
     // }
