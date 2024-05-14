@@ -71,15 +71,15 @@ fn given_not_enough_token_when_transfer_out_then_fails() {
     teardown(data_store, deposit_vault);
 }
 
-// #[test]
-// #[should_panic(expected: ('unauthorized_access',))]
-// fn given_caller_has_no_controller_role_when_transfer_out_then_fails() {
-//     let (caller_address, receiver_address, _, data_store, deposit_vault, erc20) = setup();
-//     stop_prank(deposit_vault.contract_address);
-//     start_prank(deposit_vault.contract_address, receiver_address);
-//     deposit_vault.transfer_out(erc20.contract_address, caller_address, 100_u256);
-//     teardown(data_store, deposit_vault);
-// }
+#[test]
+#[should_panic(expected: ('unauthorized_access',))]
+fn given_caller_has_no_controller_role_when_transfer_out_then_fails() {
+    let (caller_address, receiver_address, _, data_store, deposit_vault, erc20) = setup();
+    stop_prank(deposit_vault.contract_address);
+    start_prank(deposit_vault.contract_address, receiver_address);
+    deposit_vault.transfer_out(erc20.contract_address, caller_address, 100_u256);
+    teardown(data_store, deposit_vault);
+}
 
 #[test]
 #[should_panic(expected: ('self_transfer_not_supported',))]
