@@ -100,11 +100,12 @@ mod OrderHandler {
     // *************************************************************************
 
     // Core lib imports.
+    use satoru::exchange::base_order_handler::BaseOrderHandler::order_utils_lib::InternalContractMemberStateTrait;
     use satoru::order::order_utils::IOrderUtilsDispatcherTrait;
     use core::starknet::SyscallResultTrait;
     use core::traits::Into;
     use starknet::ContractAddress;
-    use starknet::{get_caller_address, get_contract_address};
+    use starknet::{get_caller_address, get_contract_address, ClassHash};
     use array::ArrayTrait;
     use debug::PrintTrait;
 
@@ -133,7 +134,6 @@ mod OrderHandler {
         order_vault::InternalContractMemberStateTrait as OrderVaultStateTrait,
         referral_storage::InternalContractMemberStateTrait as ReferralStorageStateTrait,
         oracle::InternalContractMemberStateTrait as OracleStateTrait,
-        order_utils::InternalContractMemberStateTrait as OrderUtilsTrait,
         InternalTrait as BaseOrderHandleInternalTrait,
     };
     use satoru::feature::feature_utils::{validate_feature};
@@ -178,7 +178,10 @@ mod OrderHandler {
         oracle_address: ContractAddress,
         swap_handler_address: ContractAddress,
         referral_storage_address: ContractAddress,
-        order_utils_address: ContractAddress
+        order_utils_class_hash: ClassHash,
+        increase_order_utils_class_hash: ClassHash,
+        decrease_order_utils_class_hash: ClassHash,
+        swap_order_utils_class_hash: ClassHash,
     ) {
         let mut state: BaseOrderHandler::ContractState =
             BaseOrderHandler::unsafe_new_contract_state();
@@ -191,7 +194,10 @@ mod OrderHandler {
             oracle_address,
             swap_handler_address,
             referral_storage_address,
-            order_utils_address
+            order_utils_class_hash,
+            increase_order_utils_class_hash,
+            decrease_order_utils_class_hash,
+            swap_order_utils_class_hash
         );
     }
 
@@ -219,7 +225,7 @@ mod OrderHandler {
                 create_order_feature_disabled_key(get_contract_address(), params.order_type)
             );
             let key = base_order_handler_state
-                .order_utils
+                .order_utils_lib
                 .read()
                 .create_order_utils(
                     data_store,
@@ -327,7 +333,7 @@ mod OrderHandler {
                 execute_order_feature_disabled_key(get_contract_address(), params.order.order_type)
             );
 
-            base_order_handler_state.order_utils.read().execute_order_utils(params);
+            base_order_handler_state.order_utils_lib.read().execute_order_utils(params);
         }
 
 
