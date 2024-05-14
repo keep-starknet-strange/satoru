@@ -103,18 +103,18 @@ fn given_normal_conditions_when_transfer_out_then_works() {
     teardown(data_store, bank);
 }
 
-// #[test]
-// #[should_panic(expected: ('unauthorized_access',))]
-// fn given_caller_has_no_controller_role_when_transfer_out_then_fails() {
-//     let (caller_address, receiver_address, role_store, data_store, bank, erc20) = setup();
-//     // stop prank as caller_address and start prank as receiver_address who has no controller role
-//     stop_prank(bank.contract_address);
-//     start_prank(bank.contract_address, receiver_address);
-//     // call the transfer_out function
-//     bank.transfer_out(erc20.contract_address, caller_address, 100_u256);
-//     // teardown
-//     teardown(data_store, bank);
-// }
+#[test]
+#[should_panic(expected: ('unauthorized_access',))]
+fn given_caller_has_no_controller_role_when_transfer_out_then_fails() {
+    let (caller_address, receiver_address, role_store, data_store, bank, erc20) = setup();
+    // stop prank as caller_address and start prank as receiver_address who has no controller role
+    stop_prank(bank.contract_address);
+    start_prank(bank.contract_address, receiver_address);
+    // call the transfer_out function
+    bank.transfer_out(erc20.contract_address, caller_address, 100_u256);
+    // teardown
+    teardown(data_store, bank);
+}
 
 #[test]
 #[should_panic(expected: ('self_transfer_not_supported',))]
