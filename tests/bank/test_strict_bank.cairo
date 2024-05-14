@@ -160,32 +160,32 @@ fn given_normal_conditions_when_transfer_out_then_works() {
     teardown(data_store, strict_bank);
 }
 
-// #[test]
-// #[should_panic(expected: ('unauthorized_access',))]
-// fn given_caller_has_no_controller_role_when_transfer_out_then_fails() {
-//     let (caller_address, receiver_address, role_store, data_store, bank, strict_bank) =
-//         setup_contracts();
+#[test]
+#[should_panic(expected: ('unauthorized_access',))]
+fn given_caller_has_no_controller_role_when_transfer_out_then_fails() {
+    let (caller_address, receiver_address, role_store, data_store, bank, strict_bank) =
+        setup_contracts();
 
-//     // *********************************************************************************************
-//     // *                              TEST LOGIC                                                   *
-//     // *********************************************************************************************
+    // *********************************************************************************************
+    // *                              TEST LOGIC                                                   *
+    // *********************************************************************************************
 
-//     // deploy erc20 token
-//     let erc20_contract = declare('ERC20');
-//     let constructor_calldata3 = array![
-//         'satoru', 'STU', 1000, 0, strict_bank.contract_address.into()
-//     ];
-//     let erc20_contract_address = erc20_contract.deploy(@constructor_calldata3).unwrap();
-//     let erc20_dispatcher = IERC20Dispatcher { contract_address: erc20_contract_address };
+    // deploy erc20 token
+    let erc20_contract = declare('ERC20');
+    let constructor_calldata3 = array![
+        'satoru', 'STU', 1000, 0, strict_bank.contract_address.into()
+    ];
+    let erc20_contract_address = erc20_contract.deploy(@constructor_calldata3).unwrap();
+    let erc20_dispatcher = IERC20Dispatcher { contract_address: erc20_contract_address };
 
-//     // stop prank as caller_address and start prank as receiver_address who has no controller role
-//     stop_prank(strict_bank.contract_address);
-//     start_prank(strict_bank.contract_address, receiver_address);
-//     // call the transfer_out function
-//     strict_bank.transfer_out(erc20_contract_address, caller_address, 100);
-//     // teardown
-//     teardown(data_store, strict_bank);
-// }
+    // stop prank as caller_address and start prank as receiver_address who has no controller role
+    stop_prank(strict_bank.contract_address);
+    start_prank(strict_bank.contract_address, receiver_address);
+    // call the transfer_out function
+    strict_bank.transfer_out(erc20_contract_address, caller_address, 100);
+    // teardown
+    teardown(data_store, strict_bank);
+}
 
 #[test]
 #[should_panic(expected: ('self_transfer_not_supported',))]
