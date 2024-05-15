@@ -344,8 +344,6 @@ fn test_short_market_integration() {
         true,
     );
 
-
-
     second_swap_pool_value_info.pool_value.mag.print();
     second_swap_pool_value_info.long_token_amount.print();
     second_swap_pool_value_info.short_token_amount.print();
@@ -354,7 +352,6 @@ fn test_short_market_integration() {
     //             data_store, market, market_prices, first_position, 5000
     //         );
     // position_pnl_usd.mag.print();
-
 
     //////////////////////////////////// CLOSING POSITION //////////////////////////////////////
     'CLOOOOSE POSITION'.print();
