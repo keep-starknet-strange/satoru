@@ -6,7 +6,7 @@
 
 // Core lib imports.
 use core::traits::Into;
-use starknet::{ContractAddress, contract_address_const};
+use starknet::{ContractAddress, contract_address_const, ClassHash};
 
 use satoru::oracle::oracle_utils::SetPricesParams;
 use satoru::order::{order::SecondaryOrderType, base_order_utils::ExecuteOrderParams};
@@ -34,7 +34,10 @@ trait IBaseOrderHandler<TContractState> {
         oracle_address: ContractAddress,
         swap_handler_address: ContractAddress,
         referral_storage_address: ContractAddress,
-        order_utils_address: ContractAddress
+        order_utils_class_hash: ClassHash,
+        increase_order_utils_class_hash: ClassHash,
+        decrease_order_utils_class_hash: ClassHash,
+        swap_order_utils_class_hash: ClassHash,
     );
 }
 
@@ -48,7 +51,7 @@ mod BaseOrderHandler {
     use core::option::OptionTrait;
     use core::zeroable::Zeroable;
     use core::traits::Into;
-    use starknet::{get_caller_address, ContractAddress, contract_address_const};
+    use starknet::{get_caller_address, ContractAddress, contract_address_const, ClassHash};
 
     use result::ResultTrait;
 
@@ -70,7 +73,10 @@ mod BaseOrderHandler {
         error::OrderError, order::{SecondaryOrderType, OrderType, Order, DecreasePositionSwapType},
         order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait},
         base_order_utils::{ExecuteOrderParams, ExecuteOrderParamsContracts},
-        order_utils::{IOrderUtilsDispatcher, IOrderUtilsDispatcherTrait}
+        order_utils::IOrderUtilsLibraryDispatcher,
+        increase_order_utils::IIncreaseOrderUtilsLibraryDispatcher,
+        decrease_order_utils::IDecreaseOrderUtilsLibraryDispatcher,
+        swap_order_utils::ISwapOrderUtilsLibraryDispatcher
     };
     use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
     use satoru::exchange::error::ExchangeError;
@@ -99,8 +105,14 @@ mod BaseOrderHandler {
         oracle: IOracleDispatcher,
         /// Interface to interact with the `ReferralStorage` contract.
         referral_storage: IReferralStorageDispatcher,
-        /// Interface to interact with the `OrderUtils` contract.
-        order_utils: IOrderUtilsDispatcher
+        /// Interface to interact with the `OrderUtils` lib.
+        order_utils_lib: IOrderUtilsLibraryDispatcher,
+        /// Interface to interact with the `IncreaseOrderUtils` lib.
+        increase_order_utils_lib: IIncreaseOrderUtilsLibraryDispatcher,
+        /// Interface to interact with the `DecreaseOrderUtils` lib.
+        decrease_order_utils_lib: IDecreaseOrderUtilsLibraryDispatcher,
+        /// Interface to interact with the `SwapOrderUtils` lib.
+        swap_order_utils_lib: ISwapOrderUtilsLibraryDispatcher
     }
 
     // *************************************************************************
@@ -126,7 +138,10 @@ mod BaseOrderHandler {
         oracle_address: ContractAddress,
         swap_handler_address: ContractAddress,
         referral_storage_address: ContractAddress,
-        order_utils_address: ContractAddress
+        order_utils_class_hash: ClassHash,
+        increase_order_utils_class_hash: ClassHash,
+        decrease_order_utils_class_hash: ClassHash,
+        swap_order_utils_class_hash: ClassHash,
     ) {
         self
             .initialize(
@@ -137,7 +152,10 @@ mod BaseOrderHandler {
                 oracle_address,
                 swap_handler_address,
                 referral_storage_address,
-                order_utils_address
+                order_utils_class_hash,
+                increase_order_utils_class_hash,
+                decrease_order_utils_class_hash,
+                swap_order_utils_class_hash
             );
     }
 
@@ -156,7 +174,10 @@ mod BaseOrderHandler {
             oracle_address: ContractAddress,
             swap_handler_address: ContractAddress,
             referral_storage_address: ContractAddress,
-            order_utils_address: ContractAddress
+            order_utils_class_hash: ClassHash,
+            increase_order_utils_class_hash: ClassHash,
+            decrease_order_utils_class_hash: ClassHash,
+            swap_order_utils_class_hash: ClassHash,
         ) {
             // Make sure the contract is not already initialized.
             assert(
@@ -177,7 +198,28 @@ mod BaseOrderHandler {
             self
                 .referral_storage
                 .write(IReferralStorageDispatcher { contract_address: referral_storage_address });
-            self.order_utils.write(IOrderUtilsDispatcher { contract_address: order_utils_address });
+            self
+                .order_utils_lib
+                .write(IOrderUtilsLibraryDispatcher { class_hash: order_utils_class_hash });
+            self
+                .increase_order_utils_lib
+                .write(
+                    IIncreaseOrderUtilsLibraryDispatcher {
+                        class_hash: increase_order_utils_class_hash
+                    }
+                );
+            self
+                .decrease_order_utils_lib
+                .write(
+                    IDecreaseOrderUtilsLibraryDispatcher {
+                        class_hash: decrease_order_utils_class_hash
+                    }
+                );
+            self
+                .swap_order_utils_lib
+                .write(
+                    ISwapOrderUtilsLibraryDispatcher { class_hash: swap_order_utils_class_hash }
+                );
         }
     }
 
