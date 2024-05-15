@@ -99,7 +99,10 @@ trait IOrderUtils<TContractState> {
 #[starknet::contract]
 mod OrderUtils {
     // Core lib imports.
-    use starknet::{ContractAddress, contract_address_const};
+    use satoru::order::swap_order_utils::ISwapOrderUtilsDispatcherTrait;
+    use satoru::order::decrease_order_utils::IDecreaseOrderUtilsDispatcherTrait;
+    use satoru::order::increase_order_utils::IIncreaseOrderUtilsDispatcherTrait;
+    use starknet::{ContractAddress, contract_address_const, ClassHash};
     use clone::Clone;
     // Local imports.
     use satoru::order::base_order_utils::{ExecuteOrderParams, CreateOrderParams};
@@ -124,23 +127,17 @@ mod OrderUtils {
     use satoru::utils::serializable_dict::{SerializableFelt252Dict, SerializableFelt252DictTrait};
     use satoru::order::error::OrderError;
 
-    use satoru::order::increase_order_utils::{
-        IIncreaseOrderUtilsDispatcher, IIncreaseOrderUtilsDispatcherTrait
-    };
-    use satoru::order::decrease_order_utils::{
-        IDecreaseOrderUtilsDispatcher, IDecreaseOrderUtilsDispatcherTrait
-    };
-    use satoru::order::swap_order_utils::{
-        ISwapOrderUtilsDispatcher, ISwapOrderUtilsDispatcherTrait
-    };
+    use satoru::order::increase_order_utils::IIncreaseOrderUtilsLibraryDispatcher;
+    use satoru::order::decrease_order_utils::IDecreaseOrderUtilsLibraryDispatcher;
+    use satoru::order::swap_order_utils::ISwapOrderUtilsLibraryDispatcher;
 
     use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 
     #[storage]
     struct Storage {
-        increase_order_utils: IIncreaseOrderUtilsDispatcher,
-        decrease_order_utils: IDecreaseOrderUtilsDispatcher,
-        swap_order_utils: ISwapOrderUtilsDispatcher,
+        increase_order_utils_lib: IIncreaseOrderUtilsLibraryDispatcher,
+        decrease_order_utils_lib: IDecreaseOrderUtilsLibraryDispatcher,
+        swap_order_utils_lib: ISwapOrderUtilsLibraryDispatcher,
     }
 
     // *************************************************************************
@@ -149,19 +146,19 @@ mod OrderUtils {
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        increase_order_address: ContractAddress,
-        decrease_order_address: ContractAddress,
-        swap_order_address: ContractAddress
+        increase_order_class_hash: ClassHash,
+        decrease_order_class_hash: ClassHash,
+        swap_order_class_hash: ClassHash
     ) {
         self
-            .increase_order_utils
-            .write(IIncreaseOrderUtilsDispatcher { contract_address: increase_order_address });
+            .increase_order_utils_lib
+            .write(IIncreaseOrderUtilsLibraryDispatcher { class_hash: increase_order_class_hash });
         self
-            .decrease_order_utils
-            .write(IDecreaseOrderUtilsDispatcher { contract_address: decrease_order_address });
+            .decrease_order_utils_lib
+            .write(IDecreaseOrderUtilsLibraryDispatcher { class_hash: decrease_order_class_hash });
         self
-            .swap_order_utils
-            .write(ISwapOrderUtilsDispatcher { contract_address: swap_order_address });
+            .swap_order_utils_lib
+            .write(ISwapOrderUtilsLibraryDispatcher { class_hash: swap_order_class_hash });
     }
 
     // *************************************************************************
@@ -360,11 +357,11 @@ mod OrderUtils {
         /// * `params` - The parameters used to process the order.
         fn process_order(ref self: ContractState, params: ExecuteOrderParams) {
             if (base_order_utils::is_increase_order(params.order.order_type)) {
-                self.increase_order_utils.read().process_order(params);
+                self.increase_order_utils_lib.read().process_order(params);
             } else if (base_order_utils::is_decrease_order(params.order.order_type)) {
-                self.decrease_order_utils.read().process_order(params);
+                self.decrease_order_utils_lib.read().process_order(params);
             } else if (base_order_utils::is_swap_order(params.order.order_type)) {
-                self.swap_order_utils.read().process_order(params);
+                self.swap_order_utils_lib.read().process_order(params);
             } else {
                 panic_with_felt252(OrderError::UNSUPPORTED_ORDER_TYPE)
             }

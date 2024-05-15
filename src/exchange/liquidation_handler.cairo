@@ -41,7 +41,7 @@ mod LiquidationHandler {
 
     // Core lib imports.
 
-    use starknet::{ContractAddress, get_caller_address, get_contract_address};
+    use starknet::{ContractAddress, get_caller_address, get_contract_address, ClassHash};
 
 
     // Local imports.
@@ -109,7 +109,10 @@ mod LiquidationHandler {
         oracle_address: ContractAddress,
         swap_handler_address: ContractAddress,
         referral_storage_address: ContractAddress,
-        order_utils_address: ContractAddress
+        order_utils_class_hash: ClassHash,
+        increase_order_utils_class_hash: ClassHash,
+        decrease_order_utils_class_hash: ClassHash,
+        swap_order_utils_class_hash: ClassHash,
     ) {
         let mut state: BaseOrderHandler::ContractState =
             BaseOrderHandler::unsafe_new_contract_state();
@@ -122,7 +125,10 @@ mod LiquidationHandler {
             oracle_address,
             swap_handler_address,
             referral_storage_address,
-            order_utils_address
+            order_utils_class_hash,
+            increase_order_utils_class_hash: ClassHash,
+            decrease_order_utils_class_hash: ClassHash,
+            swap_order_utils_class_hash: ClassHash,
         );
         let mut state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
         IRoleModule::initialize(ref state, role_store_address,);
