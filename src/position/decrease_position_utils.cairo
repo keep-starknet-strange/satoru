@@ -60,7 +60,6 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
             market_utils::get_cached_token_price(
                 params.order.initial_collateral_token, params.market, cache.prices
             );
-    params.position.size_in_usd = params.position.size_in_tokens * cache.collateral_token_price.min;
 
     // cap the order size to the position size
     if (params.order.size_delta_usd > params.position.size_in_usd) {
@@ -233,7 +232,7 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
     params
         .position
         .size_in_tokens -= values
-        .remaining_collateral_amount; //TODO has to be : values.size_delta_in_tokens
+        .size_delta_in_tokens;
     params.position.collateral_amount = values.remaining_collateral_amount;
     params.position.decreased_at_block = starknet::info::get_block_number();
 
@@ -276,12 +275,11 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
         to_signed(cache.initial_collateral_amount - params.position.collateral_amount, false)
     );
 
-    // TODO uncomment open interest
-    // position_utils::update_open_interest(
-    //     params,
-    //     to_signed(params.order.size_delta_usd, false),
-    //     to_signed(values.size_delta_in_tokens, false)
-    // );
+    position_utils::update_open_interest(
+        params,
+        to_signed(params.order.size_delta_usd, false),
+        to_signed(values.size_delta_in_tokens, false)
+    );
 
     // affiliate rewards are still distributed even if the order is a liquidation order
     // this is expected as a partial liquidation is considered the same as an automatic

@@ -153,8 +153,7 @@ mod DepositHandler {
             ref self: ContractState, account: ContractAddress, params: CreateDepositParams
         ) -> felt252 {
             let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-            // TODO remove comment below
-            // IRoleModule::only_controller(@state);
+            IRoleModule::only_controller(@state);
 
             let data_store = self.data_store.read();
             global_reentrancy_guard::non_reentrant_before(data_store);
