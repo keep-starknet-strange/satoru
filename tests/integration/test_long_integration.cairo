@@ -2454,7 +2454,6 @@ fn test_long_18_takeprofit_integration() {
     //         );
     // position_pnl_usd.mag.print();
 
-
     //////////////////////////////////// TAKE PROFIT TRIGGER /////////////////////////////////
 
     'Take profit start'.print();
@@ -2519,7 +2518,6 @@ fn test_long_18_takeprofit_integration() {
     oracle.set_primary_prices(market.long_token, 7000);
     order_handler.execute_order_keeper(key_tp, set_price_params_dec, keeper_address);
     'take profit pos dec SUCCEEDED'.print();
-
 
     //////////////////////////////////// CLOSING POSITION //////////////////////////////////////
     'CLOOOOSE POSITION'.print();
