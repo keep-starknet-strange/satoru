@@ -2462,12 +2462,7 @@ fn test_long_liquidable_market_integration() {
     };
 
     let (is_liquid, why_liquid) = position_utils::is_position_liquiditable(
-        data_store,
-        referal_storage,
-        first_position,
-        market,
-        market_prices_liquidation,
-        false
+        data_store, referal_storage, first_position, market, market_prices_liquidation, false
     );
 
     assert(is_liquid == false, 'position not liquid');
@@ -2479,12 +2474,7 @@ fn test_long_liquidable_market_integration() {
     };
 
     let (is_liquid, why_liquid) = position_utils::is_position_liquiditable(
-        data_store,
-        referal_storage,
-        first_position,
-        market,
-        market_prices_liquidation,
-        false
+        data_store, referal_storage, first_position, market, market_prices_liquidation, false
     );
 
     assert(is_liquid == true, 'position liquidable');
