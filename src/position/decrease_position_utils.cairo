@@ -60,7 +60,8 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
             market_utils::get_cached_token_price(
                 params.order.initial_collateral_token, params.market, cache.prices
             );
-    params.position.size_in_usd = params.position.size_in_tokens * cache.collateral_token_price.min;
+    params.position.size_in_usd = params.position.size_in_tokens
+        * cache.collateral_token_price.min; //TODO remove
 
     // cap the order size to the position size
     if (params.order.size_delta_usd > params.position.size_in_usd) {
