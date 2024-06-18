@@ -43,8 +43,6 @@ mod LiquidationHandler {
 
     use starknet::{ContractAddress, get_caller_address, get_contract_address, ClassHash};
 
-    use debug::PrintTrait;
-
     // Local imports.
     use super::ILiquidationHandler;
     use satoru::role::role_store::{IRoleStoreSafeDispatcher, IRoleStoreSafeDispatcherTrait};
@@ -191,7 +189,6 @@ mod LiquidationHandler {
                 params.contracts.data_store,
                 execute_order_feature_disabled_key(get_contract_address(), params.order.order_type)
             );
-            'pass everything'.print();
             state_base.order_utils_lib.read().execute_order_utils(params);
             // with_oracle_prices_after(state_base.oracle.read());
 
