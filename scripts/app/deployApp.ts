@@ -295,6 +295,39 @@ async function deploy() {
     })
     console.log("Reader Deployed: " + deployReaderResponse.deploy.contract_address)
 
+    const compiledRouterCasm = json.parse(fs.readFileSync( "./target/dev/satoru_Router.compiled_contract_class.json").toString( "ascii"))
+    const compiledRouterSierra = json.parse(fs.readFileSync( "./target/dev/satoru_Router.contract_class.json").toString( "ascii"))
+    const routerCallData: CallData = new CallData(compiledRouterSierra.abi)
+    const routerConstructor: Calldata = routerCallData.compile("constructor", {
+        role_store_address: deployRoleStoreResponse.deploy.contract_address,
+    })
+    const deployRouterResponse = await account0.declareAndDeploy({
+        contract: compiledRouterSierra,
+        casm: compiledRouterCasm ,
+        constructorCalldata: routerConstructor,
+    })
+    console.log("Router Deployed: " + deployRouterResponse.deploy.contract_address)
+
+
+    const compiledExchangeRouterCasm = json.parse(fs.readFileSync( "./target/dev/satoru_ExchangeRouter.compiled_contract_class.json").toString( "ascii"))
+    const compiledExchangeRouterSierra = json.parse(fs.readFileSync( "./target/dev/satoru_ExchangeRouter.contract_class.json").toString( "ascii"))
+    const exchangeRouterCallData: CallData = new CallData(compiledExchangeRouterSierra.abi)
+    const exchangeRouterConstructor: Calldata = exchangeRouterCallData.compile("constructor", {
+        router: deployRouterResponse.deploy.contract_address,
+        data_store: deployDataStoreResponse.deploy.contract_address,
+        role_store: deployRoleStoreResponse.deploy.contract_address,
+        event_emitter: deployEventEmitterResponse.deploy.contract_address,
+        deposit_handler: deployDepositHandlerResponse.deploy.contract_address,
+        withdrawal_handler: deployWithdrawalHandlerResponse.deploy.contract_address,
+        order_handler: deployOrderHandlerResponse.deploy.contract_address
+    })
+    const deployExchangeRouterResponse = await account0.declareAndDeploy({
+        contract: compiledExchangeRouterSierra,
+        casm: compiledExchangeRouterCasm ,
+        constructorCalldata: exchangeRouterConstructor,
+    })
+    console.log("ExchangeRouter Deployed: " + deployExchangeRouterResponse.deploy.contract_address)
+
 
     const roleCall2 = roleStoreContract.populate("grant_role", [account0.address, shortString.encodeShortString("MARKET_KEEPER")])
     const roleCall3 = roleStoreContract.populate("grant_role", [account0.address, shortString.encodeShortString("ORDER_KEEPER")])

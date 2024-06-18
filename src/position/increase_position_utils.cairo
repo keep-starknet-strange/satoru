@@ -180,14 +180,12 @@ fn increase_position(mut params: UpdatePositionParams, collateral_increment_amou
         // reserves are only validated if the sizeDeltaUsd is more than zero
         // this helps to ensure that deposits of collateral into positions
         // should still succeed even if pool tokens are fully reserved
-        // TODO TEST
-        // market_utils::validate_reserve(
-        //     params.contracts.data_store, @params.market, @prices, params.order.is_long
-        // );
-        // TODO TEST
-        // market_utils::validate_open_interest_reserve(
-        //     params.contracts.data_store, @params.market, @prices, params.order.is_long
-        // );
+        market_utils::validate_reserve(
+            params.contracts.data_store, @params.market, @prices, params.order.is_long
+        );
+        market_utils::validate_open_interest_reserve(
+            params.contracts.data_store, @params.market, @prices, params.order.is_long
+        );
         let position_values: WillPositionCollateralBeSufficientValues =
             WillPositionCollateralBeSufficientValues {
             position_size_in_usd: params.position.size_in_usd,
