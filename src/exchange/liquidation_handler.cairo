@@ -152,7 +152,8 @@ mod LiquidationHandler {
             is_long: bool,
             oracle_params: SetPricesParams
         ) {
-            let mut state_base = BaseOrderHandler::unsafe_new_contract_state(); //retrieve BaseOrderHandler state
+            let mut state_base =
+                BaseOrderHandler::unsafe_new_contract_state(); //retrieve BaseOrderHandler state
             global_reentrancy_guard::non_reentrant_before(state_base.data_store.read());
 
             let mut role_state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();

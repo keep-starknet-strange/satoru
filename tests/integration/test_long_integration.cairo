@@ -3031,13 +3031,10 @@ fn test_long_liquidable_market_integration() {
     start_prank(liquidation_handler.contract_address, keeper_address);
     start_roll(liquidation_handler.contract_address, 1940);
 
-    liquidation_handler.execute_liquidation(
-        caller_address,
-        market.market_token,
-        market.long_token,
-        true,
-        set_price_params
-    );
+    liquidation_handler
+        .execute_liquidation(
+            caller_address, market.market_token, market.long_token, true, set_price_params
+        );
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
