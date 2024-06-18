@@ -36,6 +36,11 @@ version = "0.2.0"
 source = "git+https://github.com/keep-starknet-strange/alexandria.git?tag=cairo-v2.3.0-rc0#ae1d5149ff601a7ac5b39edc867d33ebd83d7f4f"
 
 [[package]]
+name = "pragma_lib"
+version = "1.0.0"
+source = "git+https://github.com/astraly-labs/pragma-lib#fe9a46743254182ac331da488ccfc05e0185cdd0"
+
+[[package]]
 name = "satoru"
 version = "0.1.0"
 dependencies = [
@@ -43,6 +48,7 @@ dependencies = [
  "alexandria_math",
  "alexandria_sorting",
  "alexandria_storage",
+ "pragma_lib",
  "snforge_std",
 ]
 
