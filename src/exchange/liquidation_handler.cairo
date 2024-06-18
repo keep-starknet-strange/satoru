@@ -6,7 +6,7 @@
 
 // Core lib imports.
 use core::traits::Into;
-use starknet::ContractAddress;
+use starknet::{ContractAddress, ClassHash};
 
 // Local imports.
 use satoru::oracle::oracle_utils::SetPricesParams;
@@ -43,6 +43,7 @@ mod LiquidationHandler {
 
     use starknet::{ContractAddress, get_caller_address, get_contract_address, ClassHash};
 
+    use debug::PrintTrait;
 
     // Local imports.
     use super::ILiquidationHandler;
@@ -77,9 +78,10 @@ mod LiquidationHandler {
     use satoru::exchange::base_order_handler::BaseOrderHandler::{
         event_emitter::InternalContractMemberStateTrait,
         data_store::InternalContractMemberStateImpl,
-        order_utils::InternalContractMemberStateTrait as OrderUtilsTrait,
+        order_utils_lib::InternalContractMemberStateTrait as OrderUtilsTrait,
         oracle::InternalContractMemberStateTrait as OracleStateTrait,
     };
+    use satoru::order::order_utils::IOrderUtilsDispatcherTrait;
 
     // *************************************************************************
     //                              STORAGE
@@ -126,9 +128,9 @@ mod LiquidationHandler {
             swap_handler_address,
             referral_storage_address,
             order_utils_class_hash,
-            increase_order_utils_class_hash: ClassHash,
-            decrease_order_utils_class_hash: ClassHash,
-            swap_order_utils_class_hash: ClassHash,
+            increase_order_utils_class_hash,
+            decrease_order_utils_class_hash,
+            swap_order_utils_class_hash,
         );
         let mut state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
         IRoleModule::initialize(ref state, role_store_address,);
@@ -150,8 +152,7 @@ mod LiquidationHandler {
             is_long: bool,
             oracle_params: SetPricesParams
         ) {
-            let mut state_base: BaseOrderHandler::ContractState =
-                BaseOrderHandler::unsafe_new_contract_state(); //retrieve BaseOrderHandler state
+            let mut state_base = BaseOrderHandler::unsafe_new_contract_state(); //retrieve BaseOrderHandler state
             global_reentrancy_guard::non_reentrant_before(state_base.data_store.read());
 
             let mut role_state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
@@ -189,7 +190,8 @@ mod LiquidationHandler {
                 params.contracts.data_store,
                 execute_order_feature_disabled_key(get_contract_address(), params.order.order_type)
             );
-            state_base.execute_order_utils(params);
+            'pass everything'.print();
+            state_base.order_utils_lib.read().execute_order_utils(params);
             // with_oracle_prices_after(state_base.oracle.read());
 
             global_reentrancy_guard::non_reentrant_after(state_base.data_store.read());
