@@ -162,9 +162,9 @@ async function deploy() {
     const compiledOrderUtilsSierra = json.parse(fs.readFileSync( "./target/dev/satoru_OrderUtils.contract_class.json").toString( "ascii"))
     const orderUtilsCallData: CallData = new CallData(compiledOrderUtilsSierra.abi)
     const orderUtilsConstructor: Calldata = orderUtilsCallData.compile("constructor", {
-        increase_order_address: deployIncreaseOrderUtilsResponse.deploy.contract_address,
-        decrease_order_address: deployDecreaseOrderUtilsResponse.deploy.contract_address,
-        swap_order_address: deploySwapOrderUtilsResponse.deploy.contract_address
+        increase_order_class_hash: deployIncreaseOrderUtilsResponse.deploy.classHash,
+        decrease_order_class_hash: deployDecreaseOrderUtilsResponse.deploy.classHash,
+        swap_order_class_hash: deploySwapOrderUtilsResponse.deploy.classHash
     })
     const deployOrderUtilsResponse = await account0.declareAndDeploy({
         contract: compiledOrderUtilsSierra,
@@ -184,7 +184,10 @@ async function deploy() {
         oracle_address: deployOracleResponse.deploy.contract_address,
         swap_handler_address: deploySwapHandlerResponse.deploy.contract_address,
         referral_storage_address: deployReferralStorageResponse.deploy.contract_address,
-        order_utils_address: deployOrderUtilsResponse.deploy.contract_address
+        order_utils_class_hash: deployOrderUtilsResponse.deploy.classHash,
+        increase_order_utils_class_hash: deployIncreaseOrderUtilsResponse.deploy.classHash,
+        decrease_order_utils_class_hash: deployDecreaseOrderUtilsResponse.deploy.classHash,
+        swap_order_utils_class_hash: deploySwapOrderUtilsResponse.deploy.classHash,
     })
     const deployOrderHandlerResponse = await account0.declareAndDeploy({
         contract: compiledOrderHandlerSierra,
@@ -313,13 +316,13 @@ async function deploy() {
     const compiledExchangeRouterSierra = json.parse(fs.readFileSync( "./target/dev/satoru_ExchangeRouter.contract_class.json").toString( "ascii"))
     const exchangeRouterCallData: CallData = new CallData(compiledExchangeRouterSierra.abi)
     const exchangeRouterConstructor: Calldata = exchangeRouterCallData.compile("constructor", {
-        router: deployRouterResponse.deploy.contract_address,
-        data_store: deployDataStoreResponse.deploy.contract_address,
-        role_store: deployRoleStoreResponse.deploy.contract_address,
-        event_emitter: deployEventEmitterResponse.deploy.contract_address,
-        deposit_handler: deployDepositHandlerResponse.deploy.contract_address,
-        withdrawal_handler: deployWithdrawalHandlerResponse.deploy.contract_address,
-        order_handler: deployOrderHandlerResponse.deploy.contract_address
+        router_address: deployRouterResponse.deploy.contract_address,
+        data_store_address: deployDataStoreResponse.deploy.contract_address,
+        role_store_address: deployRoleStoreResponse.deploy.contract_address,
+        event_emitter_address: deployEventEmitterResponse.deploy.contract_address,
+        deposit_handler_address: deployDepositHandlerResponse.deploy.contract_address,
+        withdrawal_handler_address: deployWithdrawalHandlerResponse.deploy.contract_address,
+        order_handler_address: deployOrderHandlerResponse.deploy.contract_address
     })
     const deployExchangeRouterResponse = await account0.declareAndDeploy({
         contract: compiledExchangeRouterSierra,
