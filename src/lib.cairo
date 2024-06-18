@@ -70,7 +70,7 @@ mod exchange {
     mod deposit_handler;
     mod error;
     mod exchange_utils;
-    // mod liquidation_handler;
+    mod liquidation_handler;
     mod order_handler;
     mod withdrawal_handler;
 }
