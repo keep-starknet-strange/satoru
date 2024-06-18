@@ -212,7 +212,7 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
             true
         );
         if (!is_liquidatable) {
-            PositionError::POSITION_SHOULD_BE_LIQUIDATED();
+            PositionError::POSITION_SHOULD_NOT_BE_LIQUIDATED();
         }
     }
     cache.initial_collateral_amount = params.position.collateral_amount;
