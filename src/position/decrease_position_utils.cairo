@@ -229,10 +229,7 @@ fn decrease_position(mut params: UpdatePositionParams) -> DecreasePositionResult
         params, cache.next_position_size_in_usd, cache.next_position_borrowing_factor
     );
     params.position.size_in_usd = cache.next_position_size_in_usd;
-    params
-        .position
-        .size_in_tokens -= values
-        .size_delta_in_tokens;
+    params.position.size_in_tokens -= values.size_delta_in_tokens;
     params.position.collateral_amount = values.remaining_collateral_amount;
     params.position.decreased_at_block = starknet::info::get_block_number();
 
