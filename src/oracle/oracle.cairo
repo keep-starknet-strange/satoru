@@ -20,6 +20,8 @@ use satoru::oracle::{
     oracle_utils::{SetPricesParams, ReportInfo}, error::OracleError,
 };
 use satoru::price::price::Price;
+use pragma_lib::types::DataType;
+
 
 // *************************************************************************
 //                  Interface of the `Oracle` contract.
@@ -45,6 +47,10 @@ trait IOracle<TContractState> {
     /// # Returns
     /// The primary price of a token.
     fn get_primary_price(self: @TContractState, token: ContractAddress) -> Price;
+
+    fn get_asset_price_median(
+        self: @TContractState, oracle_address: ContractAddress, asset: DataType
+    ) -> u128;
 
     fn set_primary_price(ref self: TContractState, token: ContractAddress, price: u256);
 
@@ -131,9 +137,7 @@ mod Oracle {
     use satoru::oracle::{
         oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait}, oracle_utils,
         oracle_utils::{SetPricesParams, ReportInfo}, error::OracleError,
-        price_feed::{
-            IPriceFeedDispatcher, IPriceFeedDispatcherTrait, DataType, PragmaPricesResponse,
-        }
+        price_feed::{IPriceFeedDispatcher, IPriceFeedDispatcherTrait}
     };
     use satoru::role::role_module::{
         IRoleModule, RoleModule
@@ -141,6 +145,8 @@ mod Oracle {
     use satoru::role::role_store::{IRoleStoreDispatcher, IRoleStoreDispatcherTrait};
     use satoru::utils::{arrays, arrays::pow, bits, calc, precision};
     use satoru::utils::u256_mask::{Mask, MaskTrait, validate_unique_and_set_index};
+    use pragma_lib::abi::{IPragmaABIDispatcher, IPragmaABIDispatcherTrait};
+    use pragma_lib::types::{AggregationMode, DataType, PragmaPricesResponse};
 
     use super::{IOracle, SetPricesCache, SetPricesInnerCache, ValidatedPrice};
 
@@ -239,6 +245,20 @@ mod Oracle {
             // TODO add security check keeper
             self.primary_prices.write(token, Price { min: price, max: price });
         }
+
+        fn get_asset_price_median(
+            self: @ContractState, oracle_address: ContractAddress, asset: DataType
+        ) -> u128 {
+            let oracle_dispatcher = IPragmaABIDispatcher { contract_address: oracle_address };
+            let output: PragmaPricesResponse = oracle_dispatcher
+                .get_data(asset, AggregationMode::Median(()));
+            return output.price;
+        }
+    //USAGE
+    // let KEY :felt252 = 18669995996566340; // felt252 conversion of "BTC/USD", can also write const KEY : felt252 = 'BTC/USD';
+    // Sepolia contract address : 0x36031daa264c24520b11d93af622c848b2499b66b41d611bac95e13cfca131a
+    // let oracle_address : ContractAddress = contract_address_const::<0x06df335982dddce41008e4c03f2546fa27276567b5274c7d0c1262f3c2b5d167>();
+    // let price = get_asset_price_median(oracle_address, DataType::SpotEntry(KEY));
     }
 
     // *************************************************************************
