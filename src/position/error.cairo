@@ -25,8 +25,8 @@ mod PositionError {
         panic(data)
     }
 
-    fn POSITION_SHOULD_BE_LIQUIDATED() {
-        let data = array!['position should be liquidated'];
+    fn POSITION_SHOULD_NOT_BE_LIQUIDATED() {
+        let data = array!['position not be liquidated'];
         panic(data)
     }
 
