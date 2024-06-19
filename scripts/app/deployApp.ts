@@ -376,6 +376,12 @@ async function deploy() {
             shortString.encodeShortString("CONTROLLER")
         ]
     )
+    const roleCall11 = roleStoreContract.populate("grant_role",
+        [
+            deployExchangeRouterResponse.deploy.contract_address,
+            shortString.encodeShortString("CONTROLLER")
+        ]
+    )
     const grant_role_tx2 = await roleStoreContract.grant_role(roleCall2.calldata)
     await provider.waitForTransaction(grant_role_tx2.transaction_hash)
     const grant_role_tx3 = await roleStoreContract.grant_role(roleCall3.calldata)
@@ -394,6 +400,8 @@ async function deploy() {
     await provider.waitForTransaction(grant_role_tx9.transaction_hash)
     const grant_role_tx10 = await roleStoreContract.grant_role(roleCall10.calldata)
     await provider.waitForTransaction(grant_role_tx10.transaction_hash)
+    const grant_role_tx11 = await roleStoreContract.grant_role(roleCall11.calldata)
+    await provider.waitForTransaction(grant_role_tx11.transaction_hash)
 
     console.log("Roles granted.")
 }
