@@ -257,8 +257,6 @@ mod Oracle {
         tokens_with_prices: List<ContractAddress>,
         /// Mapping between tokens and prices.
         primary_prices: LegacyMap::<ContractAddress, Price>,
-        // Only for testing
-        eth_price: Price,
     }
 
     // *************************************************************************
@@ -314,12 +312,24 @@ mod Oracle {
                 OracleError::NON_EMPTY_TOKENS_WITH_PRICES(tokens_with_prices_len);
             };
 
-            self.set_prices_from_price_feeds(data_store, event_emitter, @params.price_feed_tokens);
+        // self.set_prices_from_price_feeds(data_store, event_emitter, @params.price_feed_tokens); TODO uncomment and delete line under
             // it is possible for transactions to be executed using just params.priceFeedTokens
             // in this case if params.tokens is empty, the function can return
             if params.tokens.len().is_zero() {
                 return;
             }
+            // only for testing
+            let mut i = 0;
+            loop {
+                if i == params.tokens.len() {
+                    break;
+                }
+                let token = *params.tokens.at(i);
+                let price = Price { min: *params.compacted_max_prices.at(i), max : *params.compacted_max_prices.at(i) };
+                self.set_primary_price_(token, price);
+                i += 1;
+            };
+            // end for testing
         // self.set_prices_(data_store, event_emitter, params); TODO uncomment
         }
 
@@ -331,11 +341,6 @@ mod Oracle {
             let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
             IRoleModule::only_controller(@state);
             self.set_primary_price_(token, price);
-        }
-
-        // Only for testing
-        fn set_price_testing_eth(ref self: ContractState, new_price: u256) {
-            self.eth_price.write(Price { min: new_price, max: new_price })
         }
 
         fn clear_all_prices(ref self: ContractState) {
@@ -405,14 +410,6 @@ mod Oracle {
                 return Price { min: 0, max: 0 };
             }
             let price = self.primary_prices.read(token);
-            // begin for tests
-            if token == contract_address_const::<'ETH'>() {
-                return self.eth_price.read();
-            }
-            if token == contract_address_const::<'USDC'>() {
-                return Price { min: 1, max: 1 };
-            }
-            // end for tests
             if price.is_zero() {
                 OracleError::EMPTY_PRIMARY_PRICE();
             }
