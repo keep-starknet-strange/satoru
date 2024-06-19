@@ -312,7 +312,7 @@ mod Oracle {
                 OracleError::NON_EMPTY_TOKENS_WITH_PRICES(tokens_with_prices_len);
             };
 
-        // self.set_prices_from_price_feeds(data_store, event_emitter, @params.price_feed_tokens); TODO uncomment and delete line under
+            // self.set_prices_from_price_feeds(data_store, event_emitter, @params.price_feed_tokens); TODO uncomment and delete line under
             // it is possible for transactions to be executed using just params.priceFeedTokens
             // in this case if params.tokens is empty, the function can return
             if params.tokens.len().is_zero() {
@@ -325,11 +325,13 @@ mod Oracle {
                     break;
                 }
                 let token = *params.tokens.at(i);
-                let price = Price { min: *params.compacted_max_prices.at(i), max : *params.compacted_max_prices.at(i) };
+                let price = Price {
+                    min: *params.compacted_max_prices.at(i), max: *params.compacted_max_prices.at(i)
+                };
                 self.set_primary_price_(token, price);
                 i += 1;
             };
-            // end for testing
+        // end for testing
         // self.set_prices_(data_store, event_emitter, params); TODO uncomment
         }
 
