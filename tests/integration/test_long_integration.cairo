@@ -1160,10 +1160,7 @@ fn test_long_18_decrease_close_integration() {
             keys::max_pnl_factor_key(factor_for_withdrawal, market.market_token, true),
             50000000000000000000000000000000000000000000000
         );
-    data_store
-        .set_u256(
-            keys::reserve_factor_key(market.market_token, true), 1000000000000000000
-        );
+    data_store.set_u256(keys::reserve_factor_key(market.market_token, true), 1000000000000000000);
     data_store
         .set_u256(
             keys::open_interest_reserve_factor_key(market.market_token, true), 1000000000000000000
@@ -1171,7 +1168,6 @@ fn test_long_18_decrease_close_integration() {
 
     oracle.set_primary_price(market.long_token, Price { min: 3500, max: 3500 });
     oracle.set_primary_price(market.short_token, Price { min: 1, max: 1 });
-
 
     'fill the pool'.print();
     // Fill the pool.
@@ -1468,7 +1464,7 @@ fn test_long_18_decrease_close_integration() {
     // position_pnl_usd.mag.print();
 
     //////////////////////////////// INCREASE POSITION //////////////////////////////////
-    
+
     oracle.set_primary_price(market.long_token, Price { min: 3850, max: 3850 });
 
     // Send token to order_vault in multicall with create_order
@@ -1560,7 +1556,6 @@ fn test_long_18_decrease_close_integration() {
         );
     'pnl'.print();
     position_info.base_pnl_usd.mag.print();
-
 
     //////////////////////////////////// CLOSING POSITION //////////////////////////////////////
     // 'CLOOOOSE POSITION'.print();

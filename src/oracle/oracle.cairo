@@ -343,7 +343,6 @@ mod Oracle {
             // self.set_primary_price_(token, price); //TODO uncomment after tests
 
             self.primary_prices.write(token, price);
-
         }
 
         fn clear_all_prices(ref self: ContractState) {
