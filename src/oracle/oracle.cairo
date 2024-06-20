@@ -124,8 +124,6 @@ trait IOracle<TContractState> {
         self: @TContractState, data_store: IDataStoreDispatcher, token: ContractAddress,
     ) -> u256;
 
-    fn set_price_testing_eth(ref self: TContractState, new_price: u256);
-
     /// Validate prices in `params` for oracles. TODO implement price validations
     /// # Arguments
     /// * `data_store` - The `DataStore` contract dispatcher.
@@ -340,9 +338,11 @@ mod Oracle {
         // * `token` - The token to set the price for.
         // * `price` - The price value to set to.
         fn set_primary_price(ref self: ContractState, token: ContractAddress, price: Price,) {
-            let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-            IRoleModule::only_controller(@state);
-            self.set_primary_price_(token, price);
+            // let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
+            // IRoleModule::only_controller(@state);
+            // self.set_primary_price_(token, price); //TODO uncomment after tests
+
+            self.primary_prices.write(token, price);
         }
 
         fn clear_all_prices(ref self: ContractState) {
