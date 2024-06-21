@@ -339,11 +339,9 @@ mod Oracle {
         // * `token` - The token to set the price for.
         // * `price` - The price value to set to.
         fn set_primary_price(ref self: ContractState, token: ContractAddress, price: Price,) {
-            // let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-            // IRoleModule::only_controller(@state);
-            // self.set_primary_price_(token, price); //TODO uncomment after tests
-
-            self.primary_prices.write(token, price);
+            let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
+            IRoleModule::only_controller(@state);
+            self.set_primary_price_(token, price);
         }
 
         fn clear_all_prices(ref self: ContractState) {
