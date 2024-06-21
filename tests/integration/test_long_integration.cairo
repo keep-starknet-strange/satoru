@@ -1359,7 +1359,7 @@ fn test_long_18_decrease_close_integration() {
         size_delta_usd: 3500000000000000000000,
         initial_collateral_delta_amount: 1000000000000000000, // 10^18
         trigger_price: 0,
-        acceptable_price: 5001,
+        acceptable_price: 3501,
         execution_fee: 0,
         callback_gas_limit: 0,
         min_output_amount: 0,
@@ -1375,20 +1375,8 @@ fn test_long_18_decrease_close_integration() {
     let key_long = order_handler.create_order(caller_address, order_params_long);
     'long created'.print();
     let got_order_long = data_store.get_order(key_long);
-    // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
-    // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
-    // Execute the swap order.
 
-    // data_store
-    //     .set_u256(
-    //         keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()),
-    //         50000000000000000000000000000
-    //     );
-    // data_store
-    //     .set_u256(
-    //         keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()),
-    //         50000000000000000000000000000
-    //     );
+    // Execute the swap order.
 
     let signatures: Span<felt252> = array![0].span();
     let set_price_params = SetPricesParams {
@@ -1422,14 +1410,10 @@ fn test_long_18_decrease_close_integration() {
     let position_key_1: felt252 = *position_key.at(0);
     let first_position = data_store.get_position(position_key_1);
 
-    'size tokens'.print();
-    first_position.size_in_tokens.print();
-    'size in usd'.print();
-    first_position.size_in_usd.print();
-    'borrowing factor'.print();
-    first_position.borrowing_factor.print();
-    'collateral_amount'.print();
-    first_position.collateral_amount.print();
+    assert(first_position.size_in_tokens == 1000000000000000000, 'Size token should be 1 ETH');
+    assert(first_position.size_in_usd == 3500000000000000000000, 'Size should be 3500$');
+    assert(first_position.borrowing_factor == 0, 'Borrow should be 0');
+    assert(first_position.collateral_amount == 1000000000000000000, 'Collat should be 1 ETH');
 
     let market_prices = market_utils::MarketPrices {
         index_token_price: Price { min: 3850, max: 3850, },
@@ -1441,27 +1425,7 @@ fn test_long_18_decrease_close_integration() {
         .get_position_info(
             data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
         );
-    'pnl'.print();
-    position_info.base_pnl_usd.mag.print();
-
-    // let second_swap_pool_value_info = market_utils::get_pool_value_info(
-    //     data_store,
-    //     market,
-    //     Price { min: 5000, max: 5000, },
-    //     Price { min: 5000, max: 5000, },
-    //     Price { min: 1, max: 1, },
-    //     keys::max_pnl_factor_for_deposits(),
-    //     true,
-    // );
-
-    // second_swap_pool_value_info.pool_value.mag.print();
-    // second_swap_pool_value_info.long_token_amount.print();
-    // second_swap_pool_value_info.short_token_amount.print();
-    // let (position_pnl_usd, uncapped_position_pnl_usd, size_delta_in_tokens) = 
-    //     position_utils::get_position_pnl_usd(
-    //             data_store, market, market_prices, first_position, 5000
-    //         );
-    // position_pnl_usd.mag.print();
+    assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
     //////////////////////////////// INCREASE POSITION //////////////////////////////////
 
@@ -1498,9 +1462,8 @@ fn test_long_18_decrease_close_integration() {
     'try to create order'.print();
     start_prank(order_handler.contract_address, caller_address);
     let key_long_inc = order_handler.create_order(caller_address, order_params_long_inc);
-    'long increase created'.print();
-    // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
-    // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
+    'Long increase created'.print();
+
     // Execute the swap order.
 
     let signatures: Span<felt252> = array![0].span();
@@ -1535,14 +1498,10 @@ fn test_long_18_decrease_close_integration() {
     let position_key_1: felt252 = *position_key.at(0);
     let first_position_inc = data_store.get_position(position_key_1);
 
-    'size tokens after'.print();
-    first_position_inc.size_in_tokens.print();
-    'size in usd after'.print();
-    first_position_inc.size_in_usd.print();
-    'borrowing factor after'.print();
-    first_position_inc.borrowing_factor.print();
-    'collateral_amount after'.print();
-    first_position_inc.collateral_amount.print();
+    assert(first_position_inc.size_in_tokens == 3000000000000000000, 'Size token should be 3 ETH');
+    assert(first_position_inc.size_in_usd == 11200000000000000000000, 'Size should be 11200$');
+    assert(first_position_inc.borrowing_factor == 0, 'borrow should be 0');
+    assert(first_position_inc.collateral_amount == 3000000000000000000, 'Collat should be 3 ETH');
 
     let market_prices = market_utils::MarketPrices {
         index_token_price: Price { min: 3850, max: 3850, },
@@ -1555,181 +1514,231 @@ fn test_long_18_decrease_close_integration() {
             data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
         );
     'pnl'.print();
-    position_info.base_pnl_usd.mag.print();
+    assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
-    //////////////////////////////////// CLOSING POSITION //////////////////////////////////////
-    // 'CLOOOOSE POSITION'.print();
+    //////////////////////////////////// DECREASE POSITION //////////////////////////////////////
+    'DECREASE POSITION'.print();
 
-    // let balance_of_mkt_before = IERC20Dispatcher {
-    //     contract_address: contract_address_const::<'USDC'>()
-    // }
-    //     .balance_of(caller_address);
-    // 'balance of mkt before'.print();
-    // balance_of_mkt_before.print();
+    oracle.set_primary_price(market.long_token, Price { min: 3850, max: 3850 });
 
-    // start_prank(market.market_token, caller_address);
-    // start_prank(market.long_token, caller_address);
-    // let order_params_long_dec = CreateOrderParams {
-    //     receiver: caller_address,
-    //     callback_contract: contract_address,
-    //     ui_fee_receiver: contract_address,
-    //     market: market.market_token,
-    //     initial_collateral_token: market.long_token,
-    //     swap_path: Array32Trait::<ContractAddress>::span32(@array![market.market_token]),
-    //     size_delta_usd: 6000000000000000000000, // 6000
-    //     initial_collateral_delta_amount: 1000000000000000000, // 1 ETH 10^18
-    //     trigger_price: 6000,
-    //     acceptable_price: 6000,
-    //     execution_fee: 0,
-    //     callback_gas_limit: 0,
-    //     min_output_amount: 6000000000000000000000, // 6000
-    //     order_type: OrderType::MarketDecrease(()),
-    //     decrease_position_swap_type: DecreasePositionSwapType::NoSwap(()),
-    //     is_long: true,
-    //     referral_code: 0
-    // };
-    // // Create the long order.
-    // start_roll(order_handler.contract_address, 1940);
-    // 'try to create order'.print();
-    // start_prank(order_handler.contract_address, caller_address);
-    // let key_long_dec = order_handler.create_order(caller_address, order_params_long_dec);
-    // 'long decrease created'.print();
-    // let got_order_long_dec = data_store.get_order(key_long_dec);
-    // // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
-    // // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
-    // // Execute the swap order.
+    let balance_USDC_before = IERC20Dispatcher {
+        contract_address: contract_address_const::<'USDC'>()
+    }
+        .balance_of(caller_address);
 
-    // let signatures: Span<felt252> = array![0].span();
-    // let set_price_params_dec = SetPricesParams {
-    //     signer_info: 2,
-    //     tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-    //     compacted_min_oracle_block_numbers: array![1910, 1910],
-    //     compacted_max_oracle_block_numbers: array![1920, 1920],
-    //     compacted_oracle_timestamps: array![9999, 9999],
-    //     compacted_decimals: array![1, 1],
-    //     compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
-    //     compacted_min_prices_indexes: array![0],
-    //     compacted_max_prices: array![2147483648010000], // 500000, 10000 compacted
-    //     compacted_max_prices_indexes: array![0],
-    //     signatures: array![
-    //         array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-    //     ],
-    //     price_feed_tokens: array![]
-    // };
+    let balance_ETH_before = IERC20Dispatcher {
+        contract_address: contract_address_const::<'ETH'>()
+    }
+        .balance_of(caller_address);
 
-    // let keeper_address = contract_address_const::<'keeper'>();
-    // role_store.grant_role(keeper_address, role::ORDER_KEEPER);
+    // Decrease 25% of the position
+    // Size = 11200$ -----> 25% = 2800
+    // Collateral token amount = 3 ETH -----> 25% = 0.75 ETH
 
-    // stop_prank(order_handler.contract_address);
-    // start_prank(order_handler.contract_address, keeper_address);
-    // start_roll(order_handler.contract_address, 1945);
-    // // TODO add real signatures check on Oracle Account
-    // order_handler.execute_order_keeper(key_long_dec, set_price_params_dec, keeper_address);
-    // 'long pos dec SUCCEEDED'.print();
+    start_prank(market.market_token, caller_address);
+    start_prank(market.long_token, caller_address);
+    let order_params_long_dec = CreateOrderParams {
+        receiver: caller_address,
+        callback_contract: contract_address,
+        ui_fee_receiver: contract_address,
+        market: market.market_token,
+        initial_collateral_token: market.long_token,
+        swap_path: Array32Trait::<ContractAddress>::span32(@array![market.market_token]),
+        size_delta_usd: 2800000000000000000000, // 2800
+        initial_collateral_delta_amount: 750000000000000000, // 0.75 ETH 10^18
+        trigger_price: 0,
+        acceptable_price: 3850,
+        execution_fee: 0,
+        callback_gas_limit: 0,
+        min_output_amount: 0,
+        order_type: OrderType::MarketDecrease(()),
+        decrease_position_swap_type: DecreasePositionSwapType::NoSwap(()),
+        is_long: true,
+        referral_code: 0
+    };
+    // Create the long order.
+    start_roll(order_handler.contract_address, 1950);
+    'try to create order'.print();
+    start_prank(order_handler.contract_address, caller_address);
+    let key_long_dec = order_handler.create_order(caller_address, order_params_long_dec);
+    'long decrease created'.print();
+    let got_order_long_dec = data_store.get_order(key_long_dec);
 
-    // let first_position_dec = data_store.get_position(position_key_1);
+    // Execute the swap order.
+    let signatures: Span<felt252> = array![0].span();
+    let set_price_params_dec = SetPricesParams {
+        signer_info: 2,
+        tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
+        compacted_min_oracle_block_numbers: array![1910, 1910],
+        compacted_max_oracle_block_numbers: array![1920, 1920],
+        compacted_oracle_timestamps: array![9999, 9999],
+        compacted_decimals: array![1, 1],
+        compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
+        compacted_min_prices_indexes: array![0],
+        compacted_max_prices: array![2147483648010000], // 500000, 10000 compacted
+        compacted_max_prices_indexes: array![0],
+        signatures: array![
+            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
+        ],
+        price_feed_tokens: array![]
+    };
 
-    // 'size tokens before'.print();
-    // first_position.size_in_tokens.print();
-    // 'size in usd before'.print();
-    // first_position.size_in_usd.print();
+    let keeper_address = contract_address_const::<'keeper'>();
+    role_store.grant_role(keeper_address, role::ORDER_KEEPER);
 
-    // 'size tokens'.print();
-    // first_position_dec.size_in_tokens.print();
-    // 'size in usd'.print();
-    // first_position_dec.size_in_usd.print();
+    stop_prank(order_handler.contract_address);
+    start_prank(order_handler.contract_address, keeper_address);
+    start_roll(order_handler.contract_address, 1955);
+    order_handler.execute_order_keeper(key_long_dec, set_price_params_dec, keeper_address);
+    'long pos dec SUCCEEDED'.print();
 
-    // let balance_of_mkt_after = IERC20Dispatcher {
-    //     contract_address: contract_address_const::<'USDC'>()
-    // }
-    //     .balance_of(caller_address);
-    // 'balance of mkt after'.print();
-    // balance_of_mkt_after.print();
+    // Recieved 2974.999 USDC
 
-    // /// close all position
-    // oracle.set_primary_prices(market.long_token, 7000);
+    let first_position_dec = data_store.get_position(position_key_1);
 
-    // start_prank(market.market_token, caller_address);
-    // start_prank(market.long_token, caller_address);
-    // let order_params_long_dec_2 = CreateOrderParams {
-    //     receiver: caller_address,
-    //     callback_contract: contract_address,
-    //     ui_fee_receiver: contract_address,
-    //     market: market.market_token,
-    //     initial_collateral_token: market.long_token,
-    //     swap_path: Array32Trait::<ContractAddress>::span32(@array![market.market_token]),
-    //     size_delta_usd: 7000000000000000000000, // 6000
-    //     initial_collateral_delta_amount: 1000000000000000000, // 1 ETH 10^18
-    //     trigger_price: 7000,
-    //     acceptable_price: 7000,
-    //     execution_fee: 0,
-    //     callback_gas_limit: 0,
-    //     min_output_amount: 7000000000000000000000, // 6000
-    //     order_type: OrderType::MarketDecrease(()),
-    //     decrease_position_swap_type: DecreasePositionSwapType::NoSwap(()),
-    //     is_long: true,
-    //     referral_code: 0
-    // };
-    // // Create the long order.
-    // start_roll(order_handler.contract_address, 1950);
-    // 'try to create order'.print();
-    // start_prank(order_handler.contract_address, caller_address);
-    // let key_long_dec_2 = order_handler.create_order(caller_address, order_params_long_dec_2);
-    // 'long decrease created'.print();
-    // let got_order_long_dec = data_store.get_order(key_long_dec_2);
-    // // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
-    // // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
-    // // Execute the swap order.
+    assert(
+        first_position_dec.size_in_tokens == 2250000000000000000, 'Size token should be 2.25 ETH'
+    );
+    assert(first_position_dec.size_in_usd == 8400000000000000000000, 'Size should be 8400');
+    assert(first_position_dec.borrowing_factor == 0, 'Borrow should be 0');
+    assert(
+        first_position_dec.collateral_amount == 2250000000000000000, 'Collat should be 2.25 ETH'
+    );
 
-    // let keeper_address = contract_address_const::<'keeper'>();
-    // role_store.grant_role(keeper_address, role::ORDER_KEEPER);
+    let market_prices = market_utils::MarketPrices {
+        index_token_price: Price { min: 3850, max: 3850, },
+        long_token_price: Price { min: 3850, max: 3850, },
+        short_token_price: Price { min: 1, max: 1, },
+    };
 
-    // let signatures: Span<felt252> = array![0].span();
-    // let set_price_params_dec2 = SetPricesParams {
-    //     signer_info: 2,
-    //     tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-    //     compacted_min_oracle_block_numbers: array![1910, 1910],
-    //     compacted_max_oracle_block_numbers: array![1920, 1920],
-    //     compacted_oracle_timestamps: array![9999, 9999],
-    //     compacted_decimals: array![1, 1],
-    //     compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
-    //     compacted_min_prices_indexes: array![0],
-    //     compacted_max_prices: array![2147483648010000], // 500000, 10000 compacted
-    //     compacted_max_prices_indexes: array![0],
-    //     signatures: array![
-    //         array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-    //     ],
-    //     price_feed_tokens: array![]
-    // };
+    let position_info = reader
+        .get_position_info(
+            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
+        );
+    assert(position_info.base_pnl_usd.mag == 262500000000000000000, 'PnL should be 262,5');
 
-    // stop_prank(order_handler.contract_address);
-    // start_prank(order_handler.contract_address, keeper_address);
-    // start_roll(order_handler.contract_address, 1955);
-    // // TODO add real signatures check on Oracle Account
-    // order_handler.execute_order_keeper(key_long_dec_2, set_price_params_dec2, keeper_address);
-    // 'long pos dec SUCCEEDED'.print();
+    let balance_USDC_after = IERC20Dispatcher {
+        contract_address: contract_address_const::<'USDC'>()
+    }
+        .balance_of(caller_address);
 
-    // let first_position_dec = data_store.get_position(position_key_1);
+    let balance_ETH_after = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
+        .balance_of(caller_address);
 
-    // 'size tokens before 2'.print();
-    // first_position.size_in_tokens.print();
-    // 'size in usd before 2'.print();
-    // first_position.size_in_usd.print();
+    assert(balance_USDC_before == 50000000000000000000000, 'balance USDC should be 50000$');
+    // Balance USDC after = (0.75 ETH * 3850$) + 87.499 (PnL)
+    assert(balance_USDC_after == 52974999999999999998950, 'balance USDC shld be 52974.99$');
+    assert(balance_ETH_before == 4000000000000000000, 'balance ETH should be 4');
+    assert(balance_ETH_after == 4000000000000000000, 'balance ETH should be 4');
 
-    // 'size tokens 2'.print();
-    // let token_size_dec = first_position_dec.size_in_tokens;
-    // assert(token_size_dec == 0, 'wrong token size');
-    // 'size in usd 2'.print();
-    // first_position_dec.size_in_usd.print();
+    //////////////////////////////////// CLOSE POSITION //////////////////////////////////////
+    'CLOSE POSITION'.print();
 
-    // let balance_of_mkt_after = IERC20Dispatcher {
-    //     contract_address: contract_address_const::<'USDC'>()
-    // }
-    //     .balance_of(caller_address);
-    // 'balance of mkt after 2'.print();
-    // balance_of_mkt_after.print();
+    oracle.set_primary_price(market.long_token, Price { min: 4000, max: 4000 });
 
-    // assert(balance_of_mkt_after == 63000000000000000000000, 'wrong balance final size');
+    let balance_USDC_bef_close = IERC20Dispatcher {
+        contract_address: contract_address_const::<'USDC'>()
+    }
+        .balance_of(caller_address);
+
+    let balance_ETH_bef_close = IERC20Dispatcher {
+        contract_address: contract_address_const::<'ETH'>()
+    }
+        .balance_of(caller_address);
+
+    let market_prices = market_utils::MarketPrices {
+        index_token_price: Price { min: 4000, max: 4000, },
+        long_token_price: Price { min: 4000, max: 4000, },
+        short_token_price: Price { min: 1, max: 1, },
+    };
+
+    let position_info = reader
+        .get_position_info(
+            data_store, referal_storage, position_key_1, market_prices, 0, contract_address, true
+        );
+    assert(position_info.base_pnl_usd.mag == 600000000000000000000, 'PnL should be 600$');
+
+    start_prank(market.market_token, caller_address);
+    start_prank(market.long_token, caller_address);
+    let order_params_long_dec_2 = CreateOrderParams {
+        receiver: caller_address,
+        callback_contract: contract_address,
+        ui_fee_receiver: contract_address,
+        market: market.market_token,
+        initial_collateral_token: market.long_token,
+        swap_path: Array32Trait::<ContractAddress>::span32(@array![market.market_token]),
+        size_delta_usd: 8400000000000000000000, // 8400
+        initial_collateral_delta_amount: 2250000000000000000, // 2.25 ETH 10^18
+        trigger_price: 0,
+        acceptable_price: 4000,
+        execution_fee: 0,
+        callback_gas_limit: 0,
+        min_output_amount: 0,
+        order_type: OrderType::MarketDecrease(()),
+        decrease_position_swap_type: DecreasePositionSwapType::NoSwap(()),
+        is_long: true,
+        referral_code: 0
+    };
+    // Create the long order.
+    start_roll(order_handler.contract_address, 1960);
+    'try to create order'.print();
+    start_prank(order_handler.contract_address, caller_address);
+    let key_long_dec_2 = order_handler.create_order(caller_address, order_params_long_dec_2);
+    'long decrease created'.print();
+    let got_order_long_dec = data_store.get_order(key_long_dec_2);
+    // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
+    // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
+    // Execute the swap order.
+
+    let keeper_address = contract_address_const::<'keeper'>();
+    role_store.grant_role(keeper_address, role::ORDER_KEEPER);
+
+    let signatures: Span<felt252> = array![0].span();
+    let set_price_params_dec2 = SetPricesParams {
+        signer_info: 2,
+        tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
+        compacted_min_oracle_block_numbers: array![1910, 1910],
+        compacted_max_oracle_block_numbers: array![1920, 1920],
+        compacted_oracle_timestamps: array![9999, 9999],
+        compacted_decimals: array![1, 1],
+        compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
+        compacted_min_prices_indexes: array![0],
+        compacted_max_prices: array![2147483648010000], // 500000, 10000 compacted
+        compacted_max_prices_indexes: array![0],
+        signatures: array![
+            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
+        ],
+        price_feed_tokens: array![]
+    };
+
+    stop_prank(order_handler.contract_address);
+    start_prank(order_handler.contract_address, keeper_address);
+    start_roll(order_handler.contract_address, 1965);
+    // TODO add real signatures check on Oracle Account
+    order_handler.execute_order_keeper(key_long_dec_2, set_price_params_dec2, keeper_address);
+    'Long pos close SUCCEEDED'.print();
+
+    let first_position_close = data_store.get_position(position_key_1);
+
+    assert(first_position_close.size_in_tokens == 0, 'Size token should be 62574.99');
+    assert(first_position_close.size_in_usd == 0, 'Size should be 62574.99');
+    assert(first_position_close.borrowing_factor == 0, 'Borrow should be 62574.99');
+    assert(first_position_close.collateral_amount == 0, 'Collat should be 62574.99');
+
+    let balance_USDC_af_close = IERC20Dispatcher {
+        contract_address: contract_address_const::<'USDC'>()
+    }
+        .balance_of(caller_address);
+
+    let balance_ETH_af_close = IERC20Dispatcher {
+        contract_address: contract_address_const::<'ETH'>()
+    }
+        .balance_of(caller_address);
+
+    assert(balance_USDC_bef_close == 52974999999999999998950, 'balance USDC shld be 52974.99$');
+    assert(balance_USDC_af_close == 62574999999999999998950, 'balance USDC shld be 62574.99$');
+    assert(balance_ETH_af_close == 4000000000000000000, 'balance ETH should be 4');
+    assert(balance_ETH_bef_close == 4000000000000000000, 'balance ETH should be 4');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
