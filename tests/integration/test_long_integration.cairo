@@ -1574,7 +1574,6 @@ fn test_long_18_decrease_close_integration() {
         price_feed_tokens: array![]
     };
 
-
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
 

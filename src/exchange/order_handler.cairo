@@ -257,7 +257,7 @@ mod OrderHandler {
             // TODO: Did not implement starting gas and try / catch logic as not available in Cairo
             self._execute_order(key, oracle_params, get_contract_address());
             oracle_modules::with_oracle_prices_after(base_order_handler_state.oracle.read());
-            // non_reentrant_after(data_store);
+        // non_reentrant_after(data_store);
         }
 
         fn execute_order_keeper(
