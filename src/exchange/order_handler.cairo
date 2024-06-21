@@ -111,9 +111,7 @@ mod OrderHandler {
 
     // Local imports.
     use super::IOrderHandler;
-    // use satoru::oracle::{
-    //     oracle_modules, oracle_utils, oracle_utils::{SetPricesParams, SimulatePricesParams}
-    // };
+    use satoru::oracle::oracle_modules;
 
     use satoru::oracle::oracle_utils::{SetPricesParams, SimulatePricesParams};
     use satoru::order::{
@@ -249,17 +247,17 @@ mod OrderHandler {
             // Fetch data store.
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();
-            non_reentrant_before(data_store);
-            // oracle_modules::with_oracle_prices_before(
-            //     base_order_handler_state.oracle.read(),
-            //     data_store,
-            //     base_order_handler_state.event_emitter.read(),
-            //     @oracle_params
-            // );
+            // non_reentrant_before(data_store);
+            oracle_modules::with_oracle_prices_before(
+                base_order_handler_state.oracle.read(),
+                data_store,
+                base_order_handler_state.event_emitter.read(),
+                @oracle_params
+            );
             // TODO: Did not implement starting gas and try / catch logic as not available in Cairo
             self._execute_order(key, oracle_params, get_contract_address());
-            // oracle_modules::with_oracle_prices_after(base_order_handler_state.oracle.read());
-            non_reentrant_after(data_store);
+            oracle_modules::with_oracle_prices_after(base_order_handler_state.oracle.read());
+            // non_reentrant_after(data_store);
         }
 
         fn execute_order_keeper(

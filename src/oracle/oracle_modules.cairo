@@ -34,10 +34,12 @@ fn with_oracle_prices_before(
     data_store: IDataStoreDispatcher,
     event_emitter: IEventEmitterDispatcher,
     params: @SetPricesParams
-) { // oracle.set_prices(data_store, event_emitter, params.clone());
+) { 
+    oracle.set_prices(data_store, event_emitter, params.clone());
 }
 
-fn with_oracle_prices_after(oracle: IOracleDispatcher) { // oracle.clear_all_prices();
+fn with_oracle_prices_after(oracle: IOracleDispatcher) { 
+    oracle.clear_all_prices();
 }
 
 /// Set oracle prices for a simulation.
