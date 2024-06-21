@@ -1166,9 +1166,6 @@ fn test_long_18_decrease_close_integration() {
             keys::open_interest_reserve_factor_key(market.market_token, true), 1000000000000000000
         );
 
-    oracle.set_primary_price(market.long_token, Price { min: 3500, max: 3500 });
-    oracle.set_primary_price(market.short_token, Price { min: 1, max: 1 });
-
     'fill the pool'.print();
     // Fill the pool.
     IERC20Dispatcher { contract_address: market.long_token }
@@ -1253,16 +1250,16 @@ fn test_long_18_decrease_close_integration() {
         'Wrong init short token amount'
     );
 
-    let price_params = SetPricesParams { // TODO
-        signer_info: 1,
+    let price_params = SetPricesParams {
+        signer_info: 0,
         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-        compacted_min_oracle_block_numbers: array![1900, 1900],
-        compacted_max_oracle_block_numbers: array![1910, 1910],
+        compacted_min_oracle_block_numbers: array![1910, 1910],
+        compacted_max_oracle_block_numbers: array![1920, 1920],
         compacted_oracle_timestamps: array![9999, 9999],
-        compacted_decimals: array![18, 18],
-        compacted_min_prices: array![4294967346000000], // 50000000, 1000000 compacted
+        compacted_decimals: array![1, 1],
+        compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
         compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![4294967346000000], // 50000000, 1000000 compacted
+        compacted_max_prices: array![4000, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
         signatures: array![
             array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
@@ -1380,7 +1377,7 @@ fn test_long_18_decrease_close_integration() {
 
     let signatures: Span<felt252> = array![0].span();
     let set_price_params = SetPricesParams {
-        signer_info: 2,
+        signer_info: 0,
         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
         compacted_min_oracle_block_numbers: array![1910, 1910],
         compacted_max_oracle_block_numbers: array![1920, 1920],
@@ -1388,7 +1385,7 @@ fn test_long_18_decrease_close_integration() {
         compacted_decimals: array![1, 1],
         compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
         compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![2147483648010000], // 500000, 10000 compacted
+        compacted_max_prices: array![3500, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
         signatures: array![
             array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
@@ -1403,7 +1400,7 @@ fn test_long_18_decrease_close_integration() {
     start_prank(order_handler.contract_address, keeper_address);
     start_roll(order_handler.contract_address, 1935);
     // TODO add real signatures check on Oracle Account
-    order_handler.execute_order_keeper(key_long, set_price_params, keeper_address);
+    order_handler.execute_order(key_long, set_price_params);
     'long position SUCCEEDED'.print();
 
     let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
@@ -1428,8 +1425,6 @@ fn test_long_18_decrease_close_integration() {
     assert(position_info.base_pnl_usd.mag == 350000000000000000000, 'PnL should be 350$');
 
     //////////////////////////////// INCREASE POSITION //////////////////////////////////
-
-    oracle.set_primary_price(market.long_token, Price { min: 3850, max: 3850 });
 
     // Send token to order_vault in multicall with create_order
     start_prank(contract_address_const::<'ETH'>(), caller_address);
@@ -1466,9 +1461,8 @@ fn test_long_18_decrease_close_integration() {
 
     // Execute the swap order.
 
-    let signatures: Span<felt252> = array![0].span();
     let set_price_params_inc = SetPricesParams {
-        signer_info: 2,
+        signer_info: 0,
         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
         compacted_min_oracle_block_numbers: array![1910, 1910],
         compacted_max_oracle_block_numbers: array![1920, 1920],
@@ -1476,7 +1470,7 @@ fn test_long_18_decrease_close_integration() {
         compacted_decimals: array![1, 1],
         compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
         compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![2147483648010000], // 500000, 10000 compacted
+        compacted_max_prices: array![3850, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
         signatures: array![
             array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
@@ -1491,7 +1485,7 @@ fn test_long_18_decrease_close_integration() {
     start_prank(order_handler.contract_address, keeper_address);
     start_roll(order_handler.contract_address, 1945);
     // TODO add real signatures check on Oracle Account
-    order_handler.execute_order_keeper(key_long_inc, set_price_params_inc, keeper_address);
+    order_handler.execute_order(key_long_inc, set_price_params_inc);
     'long pos inc SUCCEEDED'.print();
 
     let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
@@ -1518,8 +1512,6 @@ fn test_long_18_decrease_close_integration() {
 
     //////////////////////////////////// DECREASE POSITION //////////////////////////////////////
     'DECREASE POSITION'.print();
-
-    oracle.set_primary_price(market.long_token, Price { min: 3850, max: 3850 });
 
     let balance_USDC_before = IERC20Dispatcher {
         contract_address: contract_address_const::<'USDC'>()
@@ -1565,9 +1557,8 @@ fn test_long_18_decrease_close_integration() {
     let got_order_long_dec = data_store.get_order(key_long_dec);
 
     // Execute the swap order.
-    let signatures: Span<felt252> = array![0].span();
     let set_price_params_dec = SetPricesParams {
-        signer_info: 2,
+        signer_info: 0,
         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
         compacted_min_oracle_block_numbers: array![1910, 1910],
         compacted_max_oracle_block_numbers: array![1920, 1920],
@@ -1575,7 +1566,7 @@ fn test_long_18_decrease_close_integration() {
         compacted_decimals: array![1, 1],
         compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
         compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![2147483648010000], // 500000, 10000 compacted
+        compacted_max_prices: array![3850, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
         signatures: array![
             array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
@@ -1589,7 +1580,7 @@ fn test_long_18_decrease_close_integration() {
     stop_prank(order_handler.contract_address);
     start_prank(order_handler.contract_address, keeper_address);
     start_roll(order_handler.contract_address, 1955);
-    order_handler.execute_order_keeper(key_long_dec, set_price_params_dec, keeper_address);
+    order_handler.execute_order(key_long_dec, set_price_params_dec);
     'long pos dec SUCCEEDED'.print();
 
     // Recieved 2974.999 USDC
@@ -1633,8 +1624,6 @@ fn test_long_18_decrease_close_integration() {
 
     //////////////////////////////////// CLOSE POSITION //////////////////////////////////////
     'CLOSE POSITION'.print();
-
-    oracle.set_primary_price(market.long_token, Price { min: 4000, max: 4000 });
 
     let balance_USDC_bef_close = IERC20Dispatcher {
         contract_address: contract_address_const::<'USDC'>()
@@ -1693,9 +1682,8 @@ fn test_long_18_decrease_close_integration() {
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
 
-    let signatures: Span<felt252> = array![0].span();
     let set_price_params_dec2 = SetPricesParams {
-        signer_info: 2,
+        signer_info: 0,
         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
         compacted_min_oracle_block_numbers: array![1910, 1910],
         compacted_max_oracle_block_numbers: array![1920, 1920],
@@ -1703,7 +1691,7 @@ fn test_long_18_decrease_close_integration() {
         compacted_decimals: array![1, 1],
         compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
         compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![2147483648010000], // 500000, 10000 compacted
+        compacted_max_prices: array![4000, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
         signatures: array![
             array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
@@ -1715,7 +1703,7 @@ fn test_long_18_decrease_close_integration() {
     start_prank(order_handler.contract_address, keeper_address);
     start_roll(order_handler.contract_address, 1965);
     // TODO add real signatures check on Oracle Account
-    order_handler.execute_order_keeper(key_long_dec_2, set_price_params_dec2, keeper_address);
+    order_handler.execute_order(key_long_dec_2, set_price_params_dec2);
     'Long pos close SUCCEEDED'.print();
 
     let first_position_close = data_store.get_position(position_key_1);

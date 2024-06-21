@@ -310,13 +310,14 @@ mod Oracle {
                 OracleError::NON_EMPTY_TOKENS_WITH_PRICES(tokens_with_prices_len);
             };
 
-            // self.set_prices_from_price_feeds(data_store, event_emitter, @params.price_feed_tokens); TODO uncomment and delete line under
+            // self.set_prices_from_price_feeds(data_store, event_emitter, @params.price_feed_tokens); TODO uncomment
             // it is possible for transactions to be executed using just params.priceFeedTokens
             // in this case if params.tokens is empty, the function can return
             if params.tokens.len().is_zero() {
                 return;
             }
             // only for testing
+            // TODO Find how to handle decimals, example ETH price 3453.92399931123
             let mut i = 0;
             loop {
                 if i == params.tokens.len() {
@@ -338,11 +339,9 @@ mod Oracle {
         // * `token` - The token to set the price for.
         // * `price` - The price value to set to.
         fn set_primary_price(ref self: ContractState, token: ContractAddress, price: Price,) {
-            // let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
-            // IRoleModule::only_controller(@state);
-            // self.set_primary_price_(token, price); //TODO uncomment after tests
-
-            self.primary_prices.write(token, price);
+            let state: RoleModule::ContractState = RoleModule::unsafe_new_contract_state();
+            IRoleModule::only_controller(@state);
+            self.set_primary_price_(token, price);
         }
 
         fn clear_all_prices(ref self: ContractState) {
