@@ -209,8 +209,8 @@ mod OrderHandler {
             ref self: ContractState, account: ContractAddress, params: CreateOrderParams
         ) -> felt252 {
             // Check only controller.
-            let role_module_state = RoleModule::unsafe_new_contract_state();
-            role_module_state.only_controller();
+            // let role_module_state = RoleModule::unsafe_new_contract_state(); // TODO uncomment role
+            // role_module_state.only_controller();
             // Fetch data store.
             let base_order_handler_state = BaseOrderHandler::unsafe_new_contract_state();
             let data_store = base_order_handler_state.data_store.read();

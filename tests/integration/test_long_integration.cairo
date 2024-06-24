@@ -1166,6 +1166,8 @@ fn test_long_18_decrease_close_integration() {
             keys::open_interest_reserve_factor_key(market.market_token, true), 1000000000000000000
         );
 
+    data_store.set_bool('REENTRANCY_GUARD_STATUS', false);
+
     'fill the pool'.print();
     // Fill the pool.
     IERC20Dispatcher { contract_address: market.long_token }
@@ -1271,7 +1273,7 @@ fn test_long_18_decrease_close_integration() {
 
     role_store.grant_role(caller_address, role::ORDER_KEEPER);
     role_store.grant_role(caller_address, role::ROLE_ADMIN);
-    role_store.grant_role(caller_address, role::CONTROLLER);
+    role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
     role_store.grant_role(caller_address, role::MARKET_KEEPER);
 
     'execute deposit'.print();
@@ -1366,10 +1368,11 @@ fn test_long_18_decrease_close_integration() {
         referral_code: 0
     };
     // Create the swap order.
-    start_roll(order_handler.contract_address, 1930);
+    role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
+    start_roll(exchange_router.contract_address, 1930);
     'try to create prder'.print();
-    start_prank(order_handler.contract_address, caller_address);
-    let key_long = order_handler.create_order(caller_address, order_params_long);
+    start_prank(exchange_router.contract_address, caller_address);
+    let key_long = exchange_router.create_order(order_params_long);
     'long created'.print();
     let got_order_long = data_store.get_order(key_long);
 
@@ -1453,10 +1456,11 @@ fn test_long_18_decrease_close_integration() {
         referral_code: 0
     };
     // Create the long order.
-    start_roll(order_handler.contract_address, 1940);
+    role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
+    start_roll(exchange_router.contract_address, 1940);
     'try to create order'.print();
-    start_prank(order_handler.contract_address, caller_address);
-    let key_long_inc = order_handler.create_order(caller_address, order_params_long_inc);
+    start_prank(exchange_router.contract_address, caller_address);
+    let key_long_inc = exchange_router.create_order(order_params_long_inc);
     'Long increase created'.print();
 
     // Execute the swap order.
@@ -1549,10 +1553,11 @@ fn test_long_18_decrease_close_integration() {
         referral_code: 0
     };
     // Create the long order.
-    start_roll(order_handler.contract_address, 1950);
+    role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
+    start_roll(exchange_router.contract_address, 1950);
     'try to create order'.print();
-    start_prank(order_handler.contract_address, caller_address);
-    let key_long_dec = order_handler.create_order(caller_address, order_params_long_dec);
+    start_prank(exchange_router.contract_address, caller_address);
+    let key_long_dec = exchange_router.create_order(order_params_long_dec);
     'long decrease created'.print();
     let got_order_long_dec = data_store.get_order(key_long_dec);
 
@@ -1669,10 +1674,11 @@ fn test_long_18_decrease_close_integration() {
         referral_code: 0
     };
     // Create the long order.
-    start_roll(order_handler.contract_address, 1960);
+    role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
+    start_roll(exchange_router.contract_address, 1960);
     'try to create order'.print();
-    start_prank(order_handler.contract_address, caller_address);
-    let key_long_dec_2 = order_handler.create_order(caller_address, order_params_long_dec_2);
+    start_prank(exchange_router.contract_address, caller_address);
+    let key_long_dec_2 = exchange_router.create_order(order_params_long_dec_2);
     'long decrease created'.print();
     let got_order_long_dec = data_store.get_order(key_long_dec_2);
     // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
