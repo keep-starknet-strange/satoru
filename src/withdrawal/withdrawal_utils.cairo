@@ -138,37 +138,24 @@ fn create_withdrawal(
     market_utils::validate_swap_path(data_store, params.long_token_swap_path);
 
     market_utils::validate_swap_path(data_store, params.short_token_swap_path);
+    let key = nonce_utils::get_next_key(data_store);
 
     let mut withdrawal = Withdrawal {
-        key: 0,
-        account: contract_address_const::<0>(),
-        receiver: contract_address_const::<0>(),
-        callback_contract: contract_address_const::<0>(),
-        ui_fee_receiver: contract_address_const::<0>(),
-        market: contract_address_const::<0>(),
-        long_token_swap_path: Default::default(),
-        short_token_swap_path: Default::default(),
-        market_token_amount: 0,
-        min_long_token_amount: 0,
-        min_short_token_amount: 0,
-        updated_at_block: 0,
-        execution_fee: 0,
-        callback_gas_limit: 0,
+        key: key,
+        account: account,
+        receiver: params.receiver,
+        callback_contract: params.callback_contract,
+        ui_fee_receiver: params.ui_fee_receiver,
+        market: params.market,
+        long_token_swap_path: params.long_token_swap_path,
+        short_token_swap_path: params.short_token_swap_path,
+        market_token_amount: market_token_amount,
+        min_long_token_amount: params.min_long_token_amount,
+        min_short_token_amount: params.min_short_token_amount,
+        updated_at_block: get_block_timestamp(),
+        execution_fee: params.execution_fee,
+        callback_gas_limit: params.callback_gas_limit,
     };
-
-    withdrawal.account = account;
-    withdrawal.receiver = params.receiver;
-    withdrawal.callback_contract = params.callback_contract;
-    withdrawal.ui_fee_receiver = params.ui_fee_receiver;
-    withdrawal.market = params.market;
-    withdrawal.long_token_swap_path = params.long_token_swap_path;
-    withdrawal.short_token_swap_path = params.short_token_swap_path;
-    withdrawal.market_token_amount = market_token_amount;
-    withdrawal.min_long_token_amount = params.min_long_token_amount;
-    withdrawal.min_short_token_amount = params.min_short_token_amount;
-    withdrawal.updated_at_block = get_block_timestamp();
-    withdrawal.execution_fee = params.execution_fee;
-    withdrawal.callback_gas_limit = params.callback_gas_limit;
 
     callback_utils::validate_callback_gas_limit(data_store, withdrawal.callback_gas_limit);
     let estimated_gas_limit = gas_utils::estimate_execute_withdrawal_gas_limit(
@@ -176,9 +163,6 @@ fn create_withdrawal(
     );
     gas_utils::validate_execution_fee(data_store, estimated_gas_limit, params.execution_fee);
 
-    let key = nonce_utils::get_next_key(data_store);
-    // assign generated key to withdrawal
-    withdrawal.key = key;
     // store withdrawal
     data_store.set_withdrawal(key, withdrawal);
 

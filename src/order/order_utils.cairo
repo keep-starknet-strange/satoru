@@ -238,9 +238,10 @@ mod OrderUtils {
 
             // validate swap path markets
             market_utils::validate_swap_path(data_store, params.swap_path);
+            let key = nonce_utils::get_next_key(data_store);
 
             let mut order = Order {
-                key: 0,
+                key: key,
                 order_type: params.order_type,
                 decrease_position_swap_type: params.decrease_position_swap_type,
                 account,
@@ -272,8 +273,6 @@ mod OrderUtils {
                 data_store, @order
             );
             gas_utils::validate_execution_fee(data_store, estimated_gas_limit, order.execution_fee);
-
-            let key = nonce_utils::get_next_key(data_store);
 
             order.touch();
 
