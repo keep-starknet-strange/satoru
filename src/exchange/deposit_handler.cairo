@@ -202,7 +202,7 @@ mod DepositHandler {
                 deposit.account,
                 0, //starting_gas
                 keys::user_initiated_cancel(),
-                array!['Cancel Deposit'] //TODO should be empty string
+                array!['']
             );
 
             global_reentrancy_guard::non_reentrant_after(data_store);

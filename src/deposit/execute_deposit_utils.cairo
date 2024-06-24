@@ -315,9 +315,8 @@ fn execute_deposit_helper(
         true,
     );
 
-    //TODO add the pool_value_info.pool in the error message
     if pool_value_info.pool_value < Zeroable::zero() {
-        panic_with_felt252(DepositError::INVALID_POOL_VALUE_FOR_DEPOSIT)
+        DepositError::INVALID_POOL_VALUE_FOR_DEPOSIT(pool_value_info.pool_value.mag);
     }
 
     let mut mint_amount = 0;
@@ -327,7 +326,7 @@ fn execute_deposit_helper(
     );
 
     if pool_value == Zeroable::zero() && market_tokens_supply > 0 {
-        panic_with_felt252(DepositError::INVALID_POOL_VALUE_FOR_DEPOSIT)
+        DepositError::INVALID_POOL_VALUE_FOR_DEPOSIT(pool_value_info.pool_value.mag);
     }
 
     (*params.event_emitter)
