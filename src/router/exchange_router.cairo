@@ -345,13 +345,13 @@ mod ExchangeRouter {
 
         fn create_order(ref self: ContractState, params: CreateOrderParams) -> felt252 {
             let data_store = self.data_store.read();
-            global_reentrancy_guard::non_reentrant_before(data_store);
+            // global_reentrancy_guard::non_reentrant_before(data_store);
 
             let account = get_caller_address();
 
             let key = self.order_handler.read().create_order(account, params);
 
-            global_reentrancy_guard::non_reentrant_after(data_store);
+            // global_reentrancy_guard::non_reentrant_after(data_store);
 
             key
         }
