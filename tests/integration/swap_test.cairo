@@ -5,13 +5,14 @@
 // Core lib imports.
 
 use result::ResultTrait;
+use debug::PrintTrait;
 use traits::{TryInto, Into};
 use starknet::{
     ContractAddress, get_caller_address, Felt252TryIntoContractAddress, contract_address_const,
     ClassHash,
 };
 use snforge_std::{declare, start_prank, stop_prank, start_roll, ContractClassTrait, ContractClass};
-use debug::PrintTrait;
+
 
 // Local imports.
 use satoru::data::data_store::{IDataStoreDispatcher, IDataStoreDispatcherTrait};
@@ -21,8 +22,15 @@ use satoru::market::market_factory::{IMarketFactoryDispatcher, IMarketFactoryDis
 use satoru::event::event_emitter::{IEventEmitterDispatcher, IEventEmitterDispatcherTrait};
 use satoru::deposit::deposit_vault::{IDepositVaultDispatcher, IDepositVaultDispatcherTrait};
 use satoru::deposit::deposit::Deposit;
+use satoru::withdrawal::withdrawal::Withdrawal;
+
+use satoru::exchange::withdrawal_handler::{
+    IWithdrawalHandlerDispatcher, IWithdrawalHandlerDispatcherTrait
+};
 use satoru::exchange::deposit_handler::{IDepositHandlerDispatcher, IDepositHandlerDispatcherTrait};
 use satoru::router::exchange_router::{IExchangeRouterDispatcher, IExchangeRouterDispatcherTrait};
+use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
+use satoru::reader::reader::{IReaderDispatcher, IReaderDispatcherTrait};
 use satoru::market::market::{Market, UniqueIdMarket};
 use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
 use satoru::role::role;
@@ -35,29 +43,312 @@ use satoru::bank::bank::{IBankDispatcherTrait, IBankDispatcher};
 use satoru::bank::strict_bank::{IStrictBankDispatcher, IStrictBankDispatcherTrait};
 use satoru::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use satoru::oracle::oracle::{IOracleDispatcher, IOracleDispatcherTrait};
+use satoru::withdrawal::withdrawal_vault::{
+    IWithdrawalVaultDispatcher, IWithdrawalVaultDispatcherTrait
+};
 use satoru::data::keys;
 use satoru::market::market_utils;
 use satoru::price::price::{Price, PriceTrait};
 use satoru::position::position_utils;
+use satoru::withdrawal::withdrawal_utils;
 
-
+use satoru::exchange::liquidation_handler::{
+    ILiquidationHandlerDispatcher, ILiquidationHandlerDispatcherTrait
+};
 use satoru::order::order::{Order, OrderType, SecondaryOrderType, DecreasePositionSwapType};
 use satoru::order::order_vault::{IOrderVaultDispatcher, IOrderVaultDispatcherTrait};
 use satoru::order::base_order_utils::{CreateOrderParams};
 use satoru::oracle::oracle_store::{IOracleStoreDispatcher, IOracleStoreDispatcherTrait};
 use satoru::swap::swap_handler::{ISwapHandlerDispatcher, ISwapHandlerDispatcherTrait};
-use satoru::mock::referral_storage::{IReferralStorageDispatcher, IReferralStorageDispatcherTrait};
 use satoru::market::{market::{UniqueIdMarketImpl},};
 use satoru::exchange::order_handler::{
     OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait
 };
 const INITIAL_TOKENS_MINTED: felt252 = 1000;
 
+// #[test]
+// fn test_deposit_market_integration() {
+//     // *********************************************************************************************
+//     // *                              SETUP                                                        *
+//     // *********************************************************************************************
+//     let (
+//         caller_address,
+//         market_factory_address,
+//         role_store_address,
+//         data_store_address,
+//         market_token_class_hash,
+//         market_factory,
+//         role_store,
+//         data_store,
+//         event_emitter,
+//         exchange_router,
+//         deposit_handler,
+//         deposit_vault,
+//         oracle,
+//         order_handler,
+//         order_vault,
+//     ) =
+//         setup();
+
+//     // *********************************************************************************************
+//     // *                              TEST LOGIC                                                   *
+//     // *********************************************************************************************
+
+//     // Create a market.
+//     let market = data_store.get_market(create_market(market_factory));
+
+//     // Set params in data_store
+//     data_store.set_address(keys::fee_token(), market.index_token);
+//     data_store.set_u256(keys::max_swap_path_length(), 5);
+
+//     // Set max pool amount.
+//     data_store
+//         .set_u256(
+//             keys::max_pool_amount_key(market.market_token, market.long_token), 500000000000000000
+//         );
+//     data_store
+//         .set_u256(
+//             keys::max_pool_amount_key(market.market_token, market.short_token), 500000000000000000
+//         );
+
+//     // Fill the pool.
+//     IERC20Dispatcher { contract_address: market.long_token }.mint(market.market_token, 50000000000);
+//     IERC20Dispatcher { contract_address: market.short_token }
+//         .mint(market.market_token, 50000000000);
+
+//     IERC20Dispatcher { contract_address: market.long_token }
+//         .mint(deposit_vault.contract_address, 50000000000);
+//     IERC20Dispatcher { contract_address: market.short_token }
+//         .mint(deposit_vault.contract_address, 50000000000);
+
+//     let balance_deposit_vault_before = IERC20Dispatcher { contract_address: market.short_token }
+//         .balance_of(deposit_vault.contract_address);
+
+//     // Create Deposit
+//     let user1: ContractAddress = contract_address_const::<'user1'>();
+//     let user2: ContractAddress = contract_address_const::<'user2'>();
+
+//     let addresss_zero: ContractAddress = 0.try_into().unwrap();
+
+//     let params = CreateDepositParams {
+//         receiver: user1,
+//         callback_contract: user2,
+//         ui_fee_receiver: addresss_zero,
+//         market: market.market_token,
+//         initial_long_token: market.long_token,
+//         initial_short_token: market.short_token,
+//         long_token_swap_path: Array32Trait::<ContractAddress>::span32(@array![]),
+//         short_token_swap_path: Array32Trait::<ContractAddress>::span32(@array![]),
+//         min_market_tokens: 0,
+//         execution_fee: 0,
+//         callback_gas_limit: 0,
+//     };
+
+//     start_roll(deposit_handler.contract_address, 1910);
+//     let key = deposit_handler.create_deposit(caller_address, params);
+//     let first_deposit = data_store.get_deposit(key);
+
+//     assert(first_deposit.account == caller_address, 'Wrong account depositer');
+//     assert(first_deposit.receiver == user1, 'Wrong account receiver');
+//     assert(first_deposit.initial_long_token == market.long_token, 'Wrong initial long token');
+//     assert(
+//         first_deposit.initial_long_token_amount == 50000000000, 'Wrong initial long token amount'
+//     );
+//     assert(
+//         first_deposit.initial_short_token_amount == 50000000000, 'Wrong init short token amount'
+//     );
+
+//     let price_params = SetPricesParams {
+//         signer_info: 1,
+//         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
+//         compacted_min_oracle_block_numbers: array![1900, 1900],
+//         compacted_max_oracle_block_numbers: array![1910, 1910],
+//         compacted_oracle_timestamps: array![9999, 9999],
+//         compacted_decimals: array![18, 18],
+//         compacted_min_prices: array![4294967346000000], // 50000000, 1000000 compacted
+//         compacted_min_prices_indexes: array![0],
+//         compacted_max_prices: array![5000, 1], // 50000000, 1000000 compacted
+//         compacted_max_prices_indexes: array![0],
+//         signatures: array![
+//             array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
+//         ],
+//         price_feed_tokens: array![]
+//     };
+
+//     start_prank(role_store.contract_address, caller_address);
+
+//     role_store.grant_role(caller_address, role::ORDER_KEEPER);
+//     role_store.grant_role(caller_address, role::ROLE_ADMIN);
+//     role_store.grant_role(caller_address, role::CONTROLLER);
+//     role_store.grant_role(caller_address, role::MARKET_KEEPER);
+
+//     // Execute Deposit
+//     start_roll(deposit_handler.contract_address, 1915);
+//     deposit_handler.execute_deposit(key, price_params);
+//     //calling swap ^^
+
+//     let pool_value_info = market_utils::get_pool_value_info(
+//         data_store,
+//         market,
+//         Price { min: 1999, max: 2000 },
+//         Price { min: 1999, max: 2000 },
+//         Price { min: 1999, max: 2000 },
+//         keys::max_pnl_factor_for_deposits(),
+//         true,
+//     );
+
+//     assert(pool_value_info.pool_value.mag == 200000000000000, 'wrong pool value amount');
+//     assert(pool_value_info.long_token_amount == 50000000000, 'wrong long token amount');
+//     assert(pool_value_info.short_token_amount == 50000000000, 'wrong short token amount');
+
+//     let not_deposit = data_store.get_deposit(key);
+//     let default_deposit: Deposit = Default::default();
+//     assert(not_deposit == default_deposit, 'Still existing deposit');
+
+//     // let market_token_dispatcher = IMarketTokenDispatcher { contract_address: market.market_token };
+
+//     // let balance = market_token_dispatcher.balance_of(user1);
+
+//     let balance_deposit_vault = IERC20Dispatcher { contract_address: market.short_token }
+//         .balance_of(deposit_vault.contract_address);
+
+//     let pool_value_info = market_utils::get_pool_value_info(
+//         data_store,
+//         market,
+//         Price { min: 5000, max: 5000, },
+//         Price { min: 5000, max: 5000, },
+//         Price { min: 1, max: 1, },
+//         keys::max_pnl_factor_for_deposits(),
+//         true,
+//     );
+
+//     // // --------------------------------------------------SWAP TEST ETH->USDC --------------------------------------------------
+//     let balance_ETH_before_swap = IERC20Dispatcher {
+//         contract_address: contract_address_const::<'ETH'>()
+//     }
+//         .balance_of(caller_address);
+//     assert(balance_ETH_before_swap == 1000000, 'wrong balance ETH before swap');
+
+//     let balance_USDC_before_swap = IERC20Dispatcher {
+//         contract_address: contract_address_const::<'USDC'>()
+//     }
+//         .balance_of(caller_address);
+//     assert(balance_USDC_before_swap == 1000000, 'wrong balance USDC before swap');
+
+//     start_prank(contract_address_const::<'ETH'>(), caller_address); //change to switch swap
+//     // Send token to order_vault in multicall with create_order
+//     IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() } //change to switch swap
+//         .transfer(order_vault.contract_address, 1);
+
+//     let balance_ETH_before = IERC20Dispatcher {
+//         contract_address: contract_address_const::<'ETH'>()
+//     }
+//         .balance_of(caller_address);
+
+//     let balance_USDC_before = IERC20Dispatcher {
+//         contract_address: contract_address_const::<'USDC'>()
+//     }
+//         .balance_of(caller_address);
+
+//     // Create order_params Struct
+//     let contract_address = contract_address_const::<0>();
+//     start_prank(market.long_token, caller_address); //change to switch swap
+
+//     let order_params = CreateOrderParams {
+//         receiver: caller_address,
+//         callback_contract: contract_address,
+//         ui_fee_receiver: contract_address,
+//         market: contract_address,
+//         initial_collateral_token: market.long_token, //change to switch swap
+//         swap_path: Array32Trait::<ContractAddress>::span32(@array![market.market_token]),
+//         size_delta_usd: 1,
+//         initial_collateral_delta_amount: 1, // 10^18
+//         trigger_price: 0,
+//         acceptable_price: 0,
+//         execution_fee: 0,
+//         callback_gas_limit: 0,
+//         min_output_amount: 0,
+//         order_type: OrderType::MarketSwap(()),
+//         decrease_position_swap_type: DecreasePositionSwapType::NoSwap(()),
+//         is_long: false,
+//         referral_code: 0
+//     };
+//     // Create the swap order.
+//     start_roll(order_handler.contract_address, 1920);
+
+//     //here we create the order but we do not execute it yet
+//     let key = order_handler.create_order(caller_address, order_params);
+
+//     let got_order = data_store.get_order(key);
+
+//     // Execute the swap order.
+//     let signatures: Span<felt252> = array![0].span();
+//     let set_price_params = SetPricesParams {
+//         signer_info: 0,
+//         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
+//         compacted_min_oracle_block_numbers: array![1910, 1910],
+//         compacted_max_oracle_block_numbers: array![1920, 1920],
+//         compacted_oracle_timestamps: array![9999, 9999],
+//         compacted_decimals: array![1, 1],
+//         compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
+//         compacted_min_prices_indexes: array![0],
+//         compacted_max_prices: array![5000, 1], // 500000, 10000 compacted
+//         compacted_max_prices_indexes: array![0],
+//         signatures: array![
+//             array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
+//         ],
+//         price_feed_tokens: array![]
+//     };
+
+//     let balance_ETH_before_execute = IERC20Dispatcher {
+//         contract_address: contract_address_const::<'ETH'>()
+//     }
+//         .balance_of(caller_address);
+//     let balance_USDC_before_execute = IERC20Dispatcher {
+//         contract_address: contract_address_const::<'USDC'>()
+//     }
+//         .balance_of(caller_address);
+
+//     // assert(balance_ETH_after == 999999, 'wrong balance ETH after swap');
+
+//     let keeper_address = contract_address_const::<'keeper'>();
+//     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
+
+//     stop_prank(order_handler.contract_address);
+//     start_prank(order_handler.contract_address, keeper_address);
+//     start_roll(order_handler.contract_address, 1925);
+//     // TODO add real signatures check on Oracle Account -> Later
+//     order_handler.execute_order(key, set_price_params); //execute order
+
+//     let balance_ETH_after = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
+//         .balance_of(caller_address);
+
+//     let balance_USDC_after = IERC20Dispatcher {
+//         contract_address: contract_address_const::<'USDC'>()
+//     }
+//         .balance_of(caller_address);
+
+//     assert(balance_ETH_after == 999999, 'wrong balance ETH after swap');
+//     assert(balance_USDC_after == 1005000, 'wrong balance USDC after swap');
+
+//     let first_swap_pool_value_info = market_utils::get_pool_value_info(
+//         data_store,
+//         market,
+//         Price { min: 5000, max: 5000, },
+//         Price { min: 5000, max: 5000, },
+//         Price { min: 1, max: 1, },
+//         keys::max_pnl_factor_for_deposits(),
+//         true,
+//     );
+
+//     // *********************************************************************************************
+//     // *                              TEARDOWN                                                     *
+//     // *********************************************************************************************
+//     teardown(data_store, market_factory);
+// }
+
 #[test]
-fn test_deposit_market_integration() {
-    // *********************************************************************************************
-    // *                              SETUP                                                        *
-    // *********************************************************************************************
+fn test_swap_market() {
     let (
         caller_address,
         market_factory_address,
@@ -74,301 +365,11 @@ fn test_deposit_market_integration() {
         oracle,
         order_handler,
         order_vault,
-    ) =
-        setup();
-
-    // *********************************************************************************************
-    // *                              TEST LOGIC                                                   *
-    // *********************************************************************************************
-
-    // Create a market.
-    let market = data_store.get_market(create_market(market_factory));
-
-    // Set params in data_store
-    data_store.set_address(keys::fee_token(), market.index_token);
-    data_store.set_u256(keys::max_swap_path_length(), 5);
-
-    // Set max pool amount.
-    data_store
-        .set_u256(
-            keys::max_pool_amount_key(market.market_token, market.long_token), 500000000000000000
-        );
-    data_store
-        .set_u256(
-            keys::max_pool_amount_key(market.market_token, market.short_token), 500000000000000000
-        );
-
-    oracle.set_primary_prices(market.long_token, 5000);
-    oracle.set_primary_prices(market.short_token, 1);
-
-    // Fill the pool.
-    IERC20Dispatcher { contract_address: market.long_token }.mint(market.market_token, 50000000000);
-    IERC20Dispatcher { contract_address: market.short_token }
-        .mint(market.market_token, 50000000000);
-
-    IERC20Dispatcher { contract_address: market.long_token }
-        .mint(deposit_vault.contract_address, 50000000000);
-    IERC20Dispatcher { contract_address: market.short_token }
-        .mint(deposit_vault.contract_address, 50000000000);
-
-    let balance_deposit_vault_before = IERC20Dispatcher { contract_address: market.short_token }
-        .balance_of(deposit_vault.contract_address);
-
-    // Create Deposit
-    let user1: ContractAddress = contract_address_const::<'user1'>();
-    let user2: ContractAddress = contract_address_const::<'user2'>();
-
-    let addresss_zero: ContractAddress = 0.try_into().unwrap();
-
-    let params = CreateDepositParams {
-        receiver: user1,
-        callback_contract: user2,
-        ui_fee_receiver: addresss_zero,
-        market: market.market_token,
-        initial_long_token: market.long_token,
-        initial_short_token: market.short_token,
-        long_token_swap_path: Array32Trait::<ContractAddress>::span32(@array![]),
-        short_token_swap_path: Array32Trait::<ContractAddress>::span32(@array![]),
-        min_market_tokens: 0,
-        execution_fee: 0,
-        callback_gas_limit: 0,
-    };
-
-    start_roll(deposit_handler.contract_address, 1910);
-    let key = deposit_handler.create_deposit(caller_address, params);
-    let first_deposit = data_store.get_deposit(key);
-
-    assert(first_deposit.account == caller_address, 'Wrong account depositer');
-    assert(first_deposit.receiver == user1, 'Wrong account receiver');
-    assert(first_deposit.initial_long_token == market.long_token, 'Wrong initial long token');
-    assert(
-        first_deposit.initial_long_token_amount == 50000000000, 'Wrong initial long token amount'
-    );
-    assert(
-        first_deposit.initial_short_token_amount == 50000000000, 'Wrong init short token amount'
-    );
-
-    let price_params = SetPricesParams {
-        signer_info: 1,
-        tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-        compacted_min_oracle_block_numbers: array![1900, 1900],
-        compacted_max_oracle_block_numbers: array![1910, 1910],
-        compacted_oracle_timestamps: array![9999, 9999],
-        compacted_decimals: array![18, 18],
-        compacted_min_prices: array![4294967346000000], // 50000000, 1000000 compacted
-        compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![4294967346000000], // 50000000, 1000000 compacted
-        compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
-        price_feed_tokens: array![]
-    };
-
-    start_prank(role_store.contract_address, caller_address);
-
-    role_store.grant_role(caller_address, role::ORDER_KEEPER);
-    role_store.grant_role(caller_address, role::ROLE_ADMIN);
-    role_store.grant_role(caller_address, role::CONTROLLER);
-    role_store.grant_role(caller_address, role::MARKET_KEEPER);
-
-    // Execute Deposit
-    start_roll(deposit_handler.contract_address, 1915);
-    deposit_handler.execute_deposit(key, price_params);
-    //calling swap ^^
-
-    let pool_value_info = market_utils::get_pool_value_info(
-        data_store,
-        market,
-        Price { min: 1999, max: 2000 },
-        Price { min: 1999, max: 2000 },
-        Price { min: 1999, max: 2000 },
-        keys::max_pnl_factor_for_deposits(),
-        true,
-    );
-
-    assert(pool_value_info.pool_value.mag == 200000000000000, 'wrong pool value amount');
-    assert(pool_value_info.long_token_amount == 50000000000, 'wrong long token amount');
-    assert(pool_value_info.short_token_amount == 50000000000, 'wrong short token amount');
-
-    let not_deposit = data_store.get_deposit(key);
-    let default_deposit: Deposit = Default::default();
-    assert(not_deposit == default_deposit, 'Still existing deposit');
-
-    // let market_token_dispatcher = IMarketTokenDispatcher { contract_address: market.market_token };
-
-    // let balance = market_token_dispatcher.balance_of(user1);
-
-    let balance_deposit_vault = IERC20Dispatcher { contract_address: market.short_token }
-        .balance_of(deposit_vault.contract_address);
-
-    let pool_value_info = market_utils::get_pool_value_info(
-        data_store,
-        market,
-        Price { min: 5000, max: 5000, },
-        Price { min: 5000, max: 5000, },
-        Price { min: 1, max: 1, },
-        keys::max_pnl_factor_for_deposits(),
-        true,
-    );
-
-    // // --------------------------------------------------SWAP TEST ETH->USDC --------------------------------------------------
-    let balance_ETH_before_swap = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
-        .balance_of(caller_address);
-    assert(balance_ETH_before_swap == 1000000, 'wrong balance ETH before swap');
-
-    let balance_USDC_before_swap = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
-        .balance_of(caller_address);
-    assert(balance_USDC_before_swap == 1000000, 'wrong balance USDC before swap');
-
-    start_prank(contract_address_const::<'ETH'>(), caller_address); //change to switch swap
-    // Send token to order_vault in multicall with create_order
-    IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() } //change to switch swap
-        .transfer(order_vault.contract_address, 1);
-
-    let balance_ETH_before = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
-        .balance_of(caller_address);
-
-    let balance_USDC_before = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
-        .balance_of(caller_address);
-
-    // Create order_params Struct
-    let contract_address = contract_address_const::<0>();
-    start_prank(market.long_token, caller_address); //change to switch swap
-
-    let order_params = CreateOrderParams {
-        receiver: caller_address,
-        callback_contract: contract_address,
-        ui_fee_receiver: contract_address,
-        market: contract_address,
-        initial_collateral_token: market.long_token, //change to switch swap
-        swap_path: Array32Trait::<ContractAddress>::span32(@array![market.market_token]),
-        size_delta_usd: 1,
-        initial_collateral_delta_amount: 1, // 10^18
-        trigger_price: 0,
-        acceptable_price: 0,
-        execution_fee: 0,
-        callback_gas_limit: 0,
-        min_output_amount: 0,
-        order_type: OrderType::MarketSwap(()),
-        decrease_position_swap_type: DecreasePositionSwapType::NoSwap(()),
-        is_long: false,
-        referral_code: 0
-    };
-    // Create the swap order.
-    start_roll(order_handler.contract_address, 1920);
-
-    //here we create the order but we do not execute it yet
-    let key = order_handler.create_order(caller_address, order_params);
-
-    let got_order = data_store.get_order(key);
-
-    data_store
-        .set_u256(
-            keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()),
-            10000000000
-        );
-    data_store
-        .set_u256(
-            keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()),
-            10000000000
-        );
-
-    // Execute the swap order.
-    let signatures: Span<felt252> = array![0].span();
-    let set_price_params = SetPricesParams {
-        signer_info: 2,
-        tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-        compacted_min_oracle_block_numbers: array![1910, 1910],
-        compacted_max_oracle_block_numbers: array![1920, 1920],
-        compacted_oracle_timestamps: array![9999, 9999],
-        compacted_decimals: array![1, 1],
-        compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
-        compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![2147483648010000], // 500000, 10000 compacted
-        compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
-        price_feed_tokens: array![]
-    };
-
-    let balance_ETH_before_execute = IERC20Dispatcher {
-        contract_address: contract_address_const::<'ETH'>()
-    }
-        .balance_of(caller_address);
-    let balance_USDC_before_execute = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
-        .balance_of(caller_address);
-
-    // assert(balance_ETH_after == 999999, 'wrong balance ETH after swap');
-
-    let keeper_address = contract_address_const::<'keeper'>();
-    role_store.grant_role(keeper_address, role::ORDER_KEEPER);
-
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
-    start_roll(order_handler.contract_address, 1925);
-    // TODO add real signatures check on Oracle Account -> Later
-    order_handler.execute_order_keeper(key, set_price_params, keeper_address); //execute order
-
-    let balance_ETH_after = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
-        .balance_of(caller_address);
-
-    let balance_USDC_after = IERC20Dispatcher {
-        contract_address: contract_address_const::<'USDC'>()
-    }
-        .balance_of(caller_address);
-
-    assert(balance_ETH_after == 999999, 'wrong balance ETH after swap');
-    assert(balance_USDC_after == 1005000, 'wrong balance USDC after swap');
-
-    let first_swap_pool_value_info = market_utils::get_pool_value_info(
-        data_store,
-        market,
-        Price { min: 5000, max: 5000, },
-        Price { min: 5000, max: 5000, },
-        Price { min: 1, max: 1, },
-        keys::max_pnl_factor_for_deposits(),
-        true,
-    );
-
-    // *********************************************************************************************
-    // *                              TEARDOWN                                                     *
-    // *********************************************************************************************
-    teardown(data_store, market_factory);
-}
-
-#[test]
-fn test_swap_18_deposit_market_integration() {
-    // *********************************************************************************************
-    // *                              SETUP                                                        *
-    // *********************************************************************************************
-    let (
-        caller_address,
-        market_factory_address,
-        role_store_address,
-        data_store_address,
-        market_token_class_hash,
-        market_factory,
-        role_store,
-        data_store,
-        event_emitter,
-        exchange_router,
-        deposit_handler,
-        deposit_vault,
-        oracle,
-        order_handler,
-        order_vault,
+        reader,
+        referal_storage,
+        withdrawal_handler,
+        withdrawal_vault,
+        liquidation_handler,
     ) =
         setup();
 
@@ -387,16 +388,33 @@ fn test_swap_18_deposit_market_integration() {
     data_store
         .set_u256(
             keys::max_pool_amount_key(market.market_token, market.long_token),
-            5000000000000000000000000000000000000000000
+            5000000000000000000000000000000000000000000 //500 000 ETH
         );
     data_store
         .set_u256(
             keys::max_pool_amount_key(market.market_token, market.short_token),
-            2500000000000000000000000000000000000000000000
+            2500000000000000000000000000000000000000000000 //250 000 000 USDC
         );
 
-    oracle.set_primary_prices(market.long_token, 5000);
-    oracle.set_primary_prices(market.short_token, 1);
+    let factor_for_deposits: felt252 = keys::max_pnl_factor_for_deposits();
+    data_store
+        .set_u256(
+            keys::max_pnl_factor_key(factor_for_deposits, market.market_token, true),
+            50000000000000000000000000000000000000000000000
+        );
+    let factor_for_withdrawal: felt252 = keys::max_pnl_factor_for_withdrawals();
+    data_store
+        .set_u256(
+            keys::max_pnl_factor_key(factor_for_withdrawal, market.market_token, true),
+            50000000000000000000000000000000000000000000000
+        );
+    data_store.set_u256(keys::reserve_factor_key(market.market_token, true), 1000000000000000000);
+    data_store
+        .set_u256(
+            keys::open_interest_reserve_factor_key(market.market_token, true), 1000000000000000000
+        );
+
+    data_store.set_bool('REENTRANCY_GUARD_STATUS', false);
 
     'fill the pool'.print();
     // Fill the pool.
@@ -411,12 +429,9 @@ fn test_swap_18_deposit_market_integration() {
     IERC20Dispatcher { contract_address: market.short_token }
         .mint(caller_address, 49999999999999999000000); // 49.999 UDC
     'filled account'.print();
+
     // INITIAL LONG TOKEN IN POOL : 5 ETH
     // INITIAL SHORT TOKEN IN POOL : 25000 USDC
-
-    // TODO Check why we don't need to set pool_amount_key
-    // // Set pool amount in data_store.
-    // let mut key = keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>());
 
     let balance_deposit_vault_before = IERC20Dispatcher { contract_address: market.short_token }
         .balance_of(deposit_vault.contract_address);
@@ -461,10 +476,13 @@ fn test_swap_18_deposit_market_integration() {
         execution_fee: 0,
         callback_gas_limit: 0,
     };
+    'create deposit'.print();
 
     start_roll(deposit_handler.contract_address, 1910);
     let key = deposit_handler.create_deposit(caller_address, params);
     let first_deposit = data_store.get_deposit(key);
+
+    'created deposit'.print();
 
     assert(first_deposit.account == caller_address, 'Wrong account depositer');
     assert(first_deposit.receiver == caller_address, 'Wrong account receiver');
@@ -479,15 +497,15 @@ fn test_swap_18_deposit_market_integration() {
     );
 
     let price_params = SetPricesParams {
-        signer_info: 1,
+        signer_info: 0,
         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-        compacted_min_oracle_block_numbers: array![1900, 1900],
-        compacted_max_oracle_block_numbers: array![1910, 1910],
+        compacted_min_oracle_block_numbers: array![1910, 1910],
+        compacted_max_oracle_block_numbers: array![1920, 1920],
         compacted_oracle_timestamps: array![9999, 9999],
-        compacted_decimals: array![18, 18],
-        compacted_min_prices: array![4294967346000000], // 50000000, 1000000 compacted
+        compacted_decimals: array![1, 1],
+        compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
         compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![4294967346000000], // 50000000, 1000000 compacted
+        compacted_max_prices: array![4000, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
         signatures: array![
             array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
@@ -499,37 +517,41 @@ fn test_swap_18_deposit_market_integration() {
 
     role_store.grant_role(caller_address, role::ORDER_KEEPER);
     role_store.grant_role(caller_address, role::ROLE_ADMIN);
-    role_store.grant_role(caller_address, role::CONTROLLER);
+    role_store.grant_role(exchange_router.contract_address, role::CONTROLLER);
     role_store.grant_role(caller_address, role::MARKET_KEEPER);
+
+    'execute deposit'.print();
 
     // Execute Deposit
     start_roll(deposit_handler.contract_address, 1915);
     deposit_handler.execute_deposit(key, price_params);
-    //calling swap ^^
+
+    'executed deposit'.print();
 
     // let pool_value_info = market_utils::get_pool_value_info(
     //     data_store,
     //     market,
-    //     Price { min: 1999, max: 2000 },
-    //     Price { min: 1999, max: 2000 },
-    //     Price { min: 1999, max: 2000 },
+    //     Price { min: 2000, max: 2000 },
+    //     Price { min: 2000, max: 2000 },
+    //     Price { min: 2000, max: 2000 },
     //     keys::max_pnl_factor_for_deposits(),
     //     true,
     // );
 
-    // assert(pool_value_info.pool_value.mag == 200000000000000, 'wrong pool value amount');
-    // assert(pool_value_info.long_token_amount == 50000000000, 'wrong long token amount');
-    // assert(pool_value_info.short_token_amount == 50000000000, 'wrong short token amount');
+    // assert(pool_value_info.pool_value.mag == 42000000000000000000000, 'wrong pool value amount');
+    // assert(pool_value_info.long_token_amount == 6000000000000000000, 'wrong long token amount');
+    // assert(pool_value_info.short_token_amount == 30000000000000000000000, 'wrong short token amount');
 
     let not_deposit = data_store.get_deposit(key);
     let default_deposit: Deposit = Default::default();
     assert(not_deposit == default_deposit, 'Still existing deposit');
 
-    // let market_token_dispatcher = IMarketTokenDispatcher { contract_address: market.market_token };
+    let market_token_dispatcher = IMarketTokenDispatcher { contract_address: market.market_token };
+    let balance_market_token = market_token_dispatcher.balance_of(caller_address);
 
-    // let balance = market_token_dispatcher.balance_of(user1);
+    assert(balance_market_token != 0, 'should receive market token');
 
-    let balance_deposit_vault = IERC20Dispatcher { contract_address: market.short_token }
+    let balance_deposit_vault_after = IERC20Dispatcher { contract_address: market.short_token }
         .balance_of(deposit_vault.contract_address);
 
     let pool_value_info = market_utils::get_pool_value_info(
@@ -542,9 +564,21 @@ fn test_swap_18_deposit_market_integration() {
         true,
     );
 
-    pool_value_info.pool_value.mag.print();
-    pool_value_info.long_token_amount.print();
-    pool_value_info.short_token_amount.print();
+    // 250 050 000 000 000 USD
+    assert(
+        pool_value_info.pool_value.mag == 250050000000000000000000000000000,
+        'wrong pool_value balance'
+    );
+    // 50 000 000 000 ETH
+    assert(
+        pool_value_info.long_token_amount == 50000000000000000000000000000,
+        'wrong long_token balance'
+    );
+    // 50 000 000 000 USDC
+    assert(
+        pool_value_info.short_token_amount == 50000000000000000000000000000,
+        'wrong short_token balance'
+    );
 
     // // --------------------------------------------------SWAP TEST ETH->USDC --------------------------------------------------
     'Swap ETH to USDC'.print();
@@ -552,19 +586,16 @@ fn test_swap_18_deposit_market_integration() {
         contract_address: contract_address_const::<'ETH'>()
     }
         .balance_of(caller_address);
-    assert(balance_ETH_before_swap == 10000000000000000000, 'wrong balance ETH before swap');
-
-    'Eth balance: '.print();
-    balance_ETH_before_swap.print();
 
     let balance_USDC_before_swap = IERC20Dispatcher {
         contract_address: contract_address_const::<'USDC'>()
     }
         .balance_of(caller_address);
-    assert(balance_USDC_before_swap == 50000000000000000000000, 'wrong balance USDC before swap');
 
-    'USDC balance: '.print();
-    balance_USDC_before_swap.print();
+    // 10 ETH
+    assert(balance_ETH_before_swap == 10000000000000000000, 'wrong balance ETH before swap');
+    // 50 000 USDC
+    assert(balance_USDC_before_swap == 50000000000000000000000, 'wrong balance USDC before swap');
 
     start_prank(contract_address_const::<'ETH'>(), caller_address); //change to switch swap
     // Send token to order_vault in multicall with create_order
@@ -576,16 +607,16 @@ fn test_swap_18_deposit_market_integration() {
     }
         .balance_of(caller_address);
 
-    'Eth balance after vault: '.print();
-    balance_ETH_before.print();
-
     let balance_USDC_before = IERC20Dispatcher {
         contract_address: contract_address_const::<'USDC'>()
     }
         .balance_of(caller_address);
 
-    'USDC balance after vault: '.print();
-    balance_USDC_before.print();
+    // Balance caller address after sending 1 ETH to the vault
+    // 9 ETH
+    assert(balance_ETH_before == 9000000000000000000, 'wrng ETH blce after vault');
+    // 50 000 USDC
+    assert(balance_USDC_before == 50000000000000000000000, 'wrng USDC blce after vault');
 
     // Create order_params Struct
     let contract_address = contract_address_const::<0>();
@@ -601,7 +632,7 @@ fn test_swap_18_deposit_market_integration() {
         size_delta_usd: 1000000000000000000,
         initial_collateral_delta_amount: 1000000000000000000, // 10^18
         trigger_price: 0,
-        acceptable_price: 0,
+        acceptable_price: 4999,
         execution_fee: 0,
         callback_gas_limit: 0,
         min_output_amount: 0,
@@ -613,26 +644,15 @@ fn test_swap_18_deposit_market_integration() {
     // Create the swap order.
     start_roll(order_handler.contract_address, 1920);
 
-    //here we create the order but we do not execute it yet
+    // Create the order but we do not execute it yet
     let key = order_handler.create_order(caller_address, order_params);
 
     let got_order = data_store.get_order(key);
 
-    data_store
-        .set_u256(
-            keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()),
-            50000000000000000000000000000
-        );
-    data_store
-        .set_u256(
-            keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()),
-            50000000000000000000000000000
-        );
-
     // Execute the swap order.
     let signatures: Span<felt252> = array![0].span();
     let set_price_params = SetPricesParams {
-        signer_info: 2,
+        signer_info: 0,
         tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
         compacted_min_oracle_block_numbers: array![1910, 1910],
         compacted_max_oracle_block_numbers: array![1920, 1920],
@@ -640,7 +660,7 @@ fn test_swap_18_deposit_market_integration() {
         compacted_decimals: array![1, 1],
         compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
         compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![2147483648010000], // 500000, 10000 compacted
+        compacted_max_prices: array![5000, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
         signatures: array![
             array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
@@ -657,11 +677,10 @@ fn test_swap_18_deposit_market_integration() {
     }
         .balance_of(caller_address);
 
-    'balance eth before execute'.print();
-    balance_ETH_before_execute.print();
-    // assert(balance_ETH_after == 999999, 'wrong balance ETH after swap');
-    'balance usdc before execute'.print();
-    balance_USDC_before_execute.print();
+    // 9 ETH
+    assert(balance_ETH_before_execute == 9000000000000000000, 'wrng ETH blce after vault');
+    // 50 000 USDC
+    assert(balance_USDC_before_execute == 50000000000000000000000, 'wrng USDC blce after vault');
 
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);
@@ -669,25 +688,20 @@ fn test_swap_18_deposit_market_integration() {
     stop_prank(order_handler.contract_address);
     start_prank(order_handler.contract_address, keeper_address);
     start_roll(order_handler.contract_address, 1925);
-    // TODO add real signatures check on Oracle Account -> Later
-    order_handler.execute_order_keeper(key, set_price_params, keeper_address); //execute order
+    order_handler.execute_order(key, set_price_params);
 
     let balance_ETH_after = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
-
-    'eth after all the flow'.print();
-    balance_ETH_after.print();
 
     let balance_USDC_after = IERC20Dispatcher {
         contract_address: contract_address_const::<'USDC'>()
     }
         .balance_of(caller_address);
 
-    'usdc after all the flow'.print();
-    balance_USDC_after.print();
-
-    // assert(balance_ETH_after == 999999, 'wrong balance ETH after swap');
-    // assert(balance_USDC_after == 1005000, 'wrong balance USDC after swap');
+    // 9 ETH
+    assert(balance_ETH_after == 9000000000000000000, 'wrng ETH blce after vault');
+    // 55 000 USDC
+    assert(balance_USDC_after == 55000000000000000000000, 'wrng USDC blce after vault');
 
     let first_swap_pool_value_info = market_utils::get_pool_value_info(
         data_store,
@@ -699,12 +713,22 @@ fn test_swap_18_deposit_market_integration() {
         true,
     );
 
-    first_swap_pool_value_info.pool_value.mag.print();
-    first_swap_pool_value_info.long_token_amount.print();
-    first_swap_pool_value_info.short_token_amount.print();
+    // 250 050 000 000 000 USD
+    assert(
+        first_swap_pool_value_info.pool_value.mag == 250050000000000000000000000000000,
+        'wrong pool_value balance'
+    );
+    // 50 000 000 001 ETH
+    assert(
+        first_swap_pool_value_info.long_token_amount == 50000000001000000000000000000,
+        'wrong long_token balance'
+    );
+    // 49 999 995 000 USDC
+    assert(
+        first_swap_pool_value_info.short_token_amount == 49999995000000000000000000000,
+        'wrong short_token balance'
+    );
 
-    balance_ETH_after.print();
-    balance_USDC_after.print();
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
     // *********************************************************************************************
@@ -947,17 +971,6 @@ fn test_swap_18_deposit_market_integration() {
 
 //     let got_order = data_store.get_order(key);
 
-//     data_store
-//         .set_u256(
-//             keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()),
-//             10000000000000000000000000000
-//         );
-//     data_store
-//         .set_u256(
-//             keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()),
-//             1000000000000000000000000000000
-//         );
-
 //     // Execute the swap order.
 //     let signatures: Span<felt252> = array![0].span();
 //     let set_price_params = SetPricesParams {
@@ -1064,6 +1077,7 @@ fn deploy_tokens() -> (ContractAddress, ContractAddress) {
     (eth_address, usdc_address)
 }
 
+
 /// Utility function to setup the test environment.
 fn setup() -> (
     // This caller address will be used with `start_prank` cheatcode to mock the caller address.,
@@ -1093,6 +1107,11 @@ fn setup() -> (
     IOracleDispatcher,
     IOrderHandlerDispatcher,
     IOrderVaultDispatcher,
+    IReaderDispatcher,
+    IReferralStorageDispatcher,
+    IWithdrawalHandlerDispatcher,
+    IWithdrawalVaultDispatcher,
+    ILiquidationHandlerDispatcher,
 ) {
     let (
         caller_address,
@@ -1110,6 +1129,11 @@ fn setup() -> (
         oracle,
         order_handler,
         order_vault,
+        reader,
+        referal_storage,
+        withdrawal_handler,
+        withdrawal_vault,
+        liquidation_handler,
     ) =
         setup_contracts();
     grant_roles_and_prank(caller_address, role_store, data_store, market_factory);
@@ -1129,6 +1153,11 @@ fn setup() -> (
         oracle,
         order_handler,
         order_vault,
+        reader,
+        referal_storage,
+        withdrawal_handler,
+        withdrawal_vault,
+        liquidation_handler,
     )
 }
 
@@ -1200,6 +1229,11 @@ fn setup_contracts() -> (
     IOracleDispatcher,
     IOrderHandlerDispatcher,
     IOrderVaultDispatcher,
+    IReaderDispatcher,
+    IReferralStorageDispatcher,
+    IWithdrawalHandlerDispatcher,
+    IWithdrawalVaultDispatcher,
+    ILiquidationHandlerDispatcher,
 ) {
     // Deploy the role store contract.
     let role_store_address = deploy_role_store();
@@ -1308,6 +1342,34 @@ fn setup_contracts() -> (
     //Create a safe dispatcher to interact with the StrictBank contract.
     let strict_bank = IStrictBankDispatcher { contract_address: strict_bank_address };
 
+    let reader_address = deploy_reader();
+    let reader = IReaderDispatcher { contract_address: reader_address };
+
+    let referal_storage = IReferralStorageDispatcher { contract_address: referral_storage_address };
+
+    let withdrawal_handler = IWithdrawalHandlerDispatcher {
+        contract_address: withdrawal_handler_address
+    };
+    let withdrawal_vault = IWithdrawalVaultDispatcher {
+        contract_address: withdrawal_vault_address
+    };
+    let liquidation_handler_address = deploy_liquidation_handler(
+        data_store_address,
+        role_store_address,
+        event_emitter_address,
+        order_vault_address,
+        oracle_address,
+        swap_handler_address,
+        referral_storage_address,
+        order_utils_class_hash,
+        increase_order_class_hash,
+        decrease_order_class_hash,
+        swap_order_class_hash
+    );
+
+    let liquidation_handler = ILiquidationHandlerDispatcher {
+        contract_address: liquidation_handler_address
+    };
     (
         contract_address_const::<'caller'>(),
         market_factory_address,
@@ -1324,6 +1386,11 @@ fn setup_contracts() -> (
         oracle,
         order_handler,
         order_vault,
+        reader,
+        referal_storage,
+        withdrawal_handler,
+        withdrawal_vault,
+        liquidation_handler,
     )
 }
 
@@ -1489,21 +1556,6 @@ fn deploy_withdrawal_vault(
     contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
 }
 
-fn declare_increase_order() -> ClassHash {
-    declare('IncreaseOrderUtils').class_hash
-}
-fn declare_decrease_order() -> ClassHash {
-    declare('DecreaseOrderUtils').class_hash
-}
-fn declare_swap_order() -> ClassHash {
-    declare('SwapOrderUtils').class_hash
-}
-
-
-fn declare_order_utils() -> ClassHash {
-    declare('OrderUtils').class_hash
-}
-
 fn deploy_order_handler(
     data_store_address: ContractAddress,
     role_store_address: ContractAddress,
@@ -1520,6 +1572,39 @@ fn deploy_order_handler(
     let contract = declare('OrderHandler');
     let caller_address: ContractAddress = contract_address_const::<'caller'>();
     let deployed_contract_address = contract_address_const::<'order_handler'>();
+    start_prank(deployed_contract_address, caller_address);
+    let constructor_calldata = array![
+        data_store_address.into(),
+        role_store_address.into(),
+        event_emitter_address.into(),
+        order_vault_address.into(),
+        oracle_address.into(),
+        swap_handler_address.into(),
+        referral_storage_address.into(),
+        order_utils_class_hash.into(),
+        increase_order_class_hash.into(),
+        decrease_order_class_hash.into(),
+        swap_order_class_hash.into()
+    ];
+    contract.deploy_at(@constructor_calldata, deployed_contract_address).unwrap()
+}
+
+fn deploy_liquidation_handler(
+    data_store_address: ContractAddress,
+    role_store_address: ContractAddress,
+    event_emitter_address: ContractAddress,
+    order_vault_address: ContractAddress,
+    oracle_address: ContractAddress,
+    swap_handler_address: ContractAddress,
+    referral_storage_address: ContractAddress,
+    order_utils_class_hash: ClassHash,
+    increase_order_class_hash: ClassHash,
+    decrease_order_class_hash: ClassHash,
+    swap_order_class_hash: ClassHash
+) -> ContractAddress {
+    let contract = declare('LiquidationHandler');
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let deployed_contract_address = contract_address_const::<'liquidation_handler'>();
     start_prank(deployed_contract_address, caller_address);
     let constructor_calldata = array![
         data_store_address.into(),
@@ -1592,6 +1677,21 @@ fn deploy_order_vault(
     tests_lib::deploy_mock_contract(contract, @constructor_calldata)
 }
 
+fn declare_increase_order() -> ClassHash {
+    declare('IncreaseOrderUtils').class_hash
+}
+fn declare_decrease_order() -> ClassHash {
+    declare('DecreaseOrderUtils').class_hash
+}
+fn declare_swap_order() -> ClassHash {
+    declare('SwapOrderUtils').class_hash
+}
+
+
+fn declare_order_utils() -> ClassHash {
+    declare('OrderUtils').class_hash
+}
+
 fn deploy_bank(
     data_store_address: ContractAddress, role_store_address: ContractAddress,
 ) -> ContractAddress {
@@ -1616,6 +1716,15 @@ fn deploy_strict_bank(
     constructor_calldata.append(role_store_address.into());
     start_prank(strict_bank_address, caller_address);
     contract.deploy_at(@constructor_calldata, strict_bank_address).unwrap()
+}
+
+fn deploy_reader() -> ContractAddress {
+    let caller_address: ContractAddress = contract_address_const::<'caller'>();
+    let reader_address: ContractAddress = contract_address_const::<'reader'>();
+    let contract = declare('Reader');
+    let mut constructor_calldata = array![];
+    start_prank(reader_address, caller_address);
+    contract.deploy_at(@constructor_calldata, reader_address).unwrap()
 }
 
 fn deploy_erc20_token(deposit_vault_address: ContractAddress) -> ContractAddress {
