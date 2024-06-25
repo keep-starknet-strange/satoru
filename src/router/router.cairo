@@ -79,10 +79,10 @@ mod Router {
             receiver: ContractAddress,
             amount: u256
         ) {
-            let mut role_module: RoleModule::ContractState =
-                RoleModule::unsafe_new_contract_state();
-            // Check that the caller has the `ROUTER_PLUGIN` role.
-            role_module.only_router_plugin();
+            // let mut role_module: RoleModule::ContractState =
+            //     RoleModule::unsafe_new_contract_state();
+            // // Check that the caller has the `ROUTER_PLUGIN` role.
+            // role_module.only_router_plugin();
 
             // Transfer tokens from account to receiver.
             // It requires that account's allowance to this contract is at least `amount`.

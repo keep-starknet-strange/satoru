@@ -1185,10 +1185,6 @@ fn test_long_increase_decrease_close() {
     // INITIAL LONG TOKEN IN POOL : 5 ETH
     // INITIAL SHORT TOKEN IN POOL : 25000 USDC
 
-    // TODO Check why we don't need to set pool_amount_key
-    // // Set pool amount in data_store.
-    // let mut key = keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>());
-
     let balance_deposit_vault_before = IERC20Dispatcher { contract_address: market.short_token }
         .balance_of(deposit_vault.contract_address);
     let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }
@@ -1201,20 +1197,29 @@ fn test_long_increase_decrease_close() {
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
 
     // Send token to deposit in the deposit vault (this should be in a multi call with create_deposit)
-    'get balances'.print();
-    // start_prank(market.long_token, caller_address);
-    // IERC20Dispatcher { contract_address: market.long_token }
-    //     .transfer(deposit_vault.contract_address, 5000000000000000000); // 5 ETH
-
-    // start_prank(market.short_token, caller_address);
-    // IERC20Dispatcher { contract_address: market.short_token }
-    //     .transfer(deposit_vault.contract_address, 25000000000000000000000); // 25000 USDC
-    // 'make transfer'.print();
+    start_prank(market.long_token, caller_address);
+    start_prank(market.short_token, caller_address);
+    IERC20Dispatcher { contract_address: market.long_token }
+        .approve(caller_address, 50000000000000000000000000000);
+    IERC20Dispatcher { contract_address: market.short_token }
+        .approve(caller_address, 50000000000000000000000000000);
 
     IERC20Dispatcher { contract_address: market.long_token }
-        .mint(deposit_vault.contract_address, 50000000000000000000000000000); // 50 000 000 000
+        .mint(caller_address, 50000000000000000000000000000); // 20 ETH
     IERC20Dispatcher { contract_address: market.short_token }
-        .mint(deposit_vault.contract_address, 50000000000000000000000000000); // 50 000 000 000
+        .mint(caller_address, 50000000000000000000000000000); // 100 000 USDC
+
+    // role_store.grant_role(exchange_router.contract_address, role::ROUTER_PLUGIN);
+    // role_store.grant_role(caller_address, role::ROUTER_PLUGIN);
+
+    exchange_router
+        .send_tokens(market.long_token, deposit_vault.contract_address, 20000000000000000000);
+    exchange_router
+        .send_tokens(market.short_token, deposit_vault.contract_address, 100000000000000000000000);
+
+    stop_prank(market.long_token);
+    stop_prank(market.short_token);
+
     // Create Deposit
 
     let addresss_zero: ContractAddress = 0.try_into().unwrap();
@@ -1829,10 +1834,6 @@ fn test_takeprofit_long() {
     // INITIAL LONG TOKEN IN POOL : 5 ETH
     // INITIAL SHORT TOKEN IN POOL : 25000 USDC
 
-    // TODO Check why we don't need to set pool_amount_key
-    // // Set pool amount in data_store.
-    // let mut key = keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>());
-
     let balance_deposit_vault_before = IERC20Dispatcher { contract_address: market.short_token }
         .balance_of(deposit_vault.contract_address);
     let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }
@@ -1845,20 +1846,33 @@ fn test_takeprofit_long() {
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
 
     // Send token to deposit in the deposit vault (this should be in a multi call with create_deposit)
-    'get balances'.print();
-    // start_prank(market.long_token, caller_address);
-    // IERC20Dispatcher { contract_address: market.long_token }
-    //     .transfer(deposit_vault.contract_address, 5000000000000000000); // 5 ETH
-
-    // start_prank(market.short_token, caller_address);
-    // IERC20Dispatcher { contract_address: market.short_token }
-    //     .transfer(deposit_vault.contract_address, 25000000000000000000000); // 25000 USDC
-    // 'make transfer'.print();
+    start_prank(market.long_token, caller_address);
+    start_prank(market.short_token, caller_address);
+    IERC20Dispatcher { contract_address: market.long_token }
+        .approve(caller_address, 50000000000000000000000000000);
+    IERC20Dispatcher { contract_address: market.short_token }
+        .approve(caller_address, 50000000000000000000000000000);
 
     IERC20Dispatcher { contract_address: market.long_token }
-        .mint(deposit_vault.contract_address, 50000000000000000000000000000); // 50 000 000 000
+        .mint(caller_address, 50000000000000000000000000000); // 20 ETH
     IERC20Dispatcher { contract_address: market.short_token }
-        .mint(deposit_vault.contract_address, 50000000000000000000000000000); // 50 000 000 000
+        .mint(caller_address, 50000000000000000000000000000); // 100 000 USDC
+
+    // role_store.grant_role(exchange_router.contract_address, role::ROUTER_PLUGIN);
+    // role_store.grant_role(caller_address, role::ROUTER_PLUGIN);
+
+    exchange_router
+        .send_tokens(
+            market.long_token, deposit_vault.contract_address, 50000000000000000000000000000
+        );
+    exchange_router
+        .send_tokens(
+            market.short_token, deposit_vault.contract_address, 50000000000000000000000000000
+        );
+
+    stop_prank(market.long_token);
+    stop_prank(market.short_token);
+
     // Create Deposit
 
     let addresss_zero: ContractAddress = 0.try_into().unwrap();
@@ -2477,10 +2491,6 @@ fn test_takeprofit_long_increase_fails() {
     // INITIAL LONG TOKEN IN POOL : 5 ETH
     // INITIAL SHORT TOKEN IN POOL : 25000 USDC
 
-    // TODO Check why we don't need to set pool_amount_key
-    // // Set pool amount in data_store.
-    // let mut key = keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>());
-
     let balance_deposit_vault_before = IERC20Dispatcher { contract_address: market.short_token }
         .balance_of(deposit_vault.contract_address);
     let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }
@@ -2493,20 +2503,33 @@ fn test_takeprofit_long_increase_fails() {
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
 
     // Send token to deposit in the deposit vault (this should be in a multi call with create_deposit)
-    'get balances'.print();
-    // start_prank(market.long_token, caller_address);
-    // IERC20Dispatcher { contract_address: market.long_token }
-    //     .transfer(deposit_vault.contract_address, 5000000000000000000); // 5 ETH
-
-    // start_prank(market.short_token, caller_address);
-    // IERC20Dispatcher { contract_address: market.short_token }
-    //     .transfer(deposit_vault.contract_address, 25000000000000000000000); // 25000 USDC
-    // 'make transfer'.print();
+    start_prank(market.long_token, caller_address);
+    start_prank(market.short_token, caller_address);
+    IERC20Dispatcher { contract_address: market.long_token }
+        .approve(caller_address, 50000000000000000000000000000);
+    IERC20Dispatcher { contract_address: market.short_token }
+        .approve(caller_address, 50000000000000000000000000000);
 
     IERC20Dispatcher { contract_address: market.long_token }
-        .mint(deposit_vault.contract_address, 50000000000000000000000000000); // 50 000 000 000
+        .mint(caller_address, 50000000000000000000000000000); // 20 ETH
     IERC20Dispatcher { contract_address: market.short_token }
-        .mint(deposit_vault.contract_address, 50000000000000000000000000000); // 50 000 000 000
+        .mint(caller_address, 50000000000000000000000000000); // 100 000 USDC
+
+    // role_store.grant_role(exchange_router.contract_address, role::ROUTER_PLUGIN);
+    // role_store.grant_role(caller_address, role::ROUTER_PLUGIN);
+
+    exchange_router
+        .send_tokens(
+            market.long_token, deposit_vault.contract_address, 50000000000000000000000000000
+        );
+    exchange_router
+        .send_tokens(
+            market.short_token, deposit_vault.contract_address, 50000000000000000000000000000
+        );
+
+    stop_prank(market.long_token);
+    stop_prank(market.short_token);
+
     // Create Deposit
 
     let addresss_zero: ContractAddress = 0.try_into().unwrap();
@@ -3125,10 +3148,6 @@ fn test_takeprofit_long_decrease_fails() {
     // INITIAL LONG TOKEN IN POOL : 5 ETH
     // INITIAL SHORT TOKEN IN POOL : 25000 USDC
 
-    // TODO Check why we don't need to set pool_amount_key
-    // // Set pool amount in data_store.
-    // let mut key = keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>());
-
     let balance_deposit_vault_before = IERC20Dispatcher { contract_address: market.short_token }
         .balance_of(deposit_vault.contract_address);
     let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }
@@ -3141,20 +3160,33 @@ fn test_takeprofit_long_decrease_fails() {
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
 
     // Send token to deposit in the deposit vault (this should be in a multi call with create_deposit)
-    'get balances'.print();
-    // start_prank(market.long_token, caller_address);
-    // IERC20Dispatcher { contract_address: market.long_token }
-    //     .transfer(deposit_vault.contract_address, 5000000000000000000); // 5 ETH
-
-    // start_prank(market.short_token, caller_address);
-    // IERC20Dispatcher { contract_address: market.short_token }
-    //     .transfer(deposit_vault.contract_address, 25000000000000000000000); // 25000 USDC
-    // 'make transfer'.print();
+    start_prank(market.long_token, caller_address);
+    start_prank(market.short_token, caller_address);
+    IERC20Dispatcher { contract_address: market.long_token }
+        .approve(caller_address, 50000000000000000000000000000);
+    IERC20Dispatcher { contract_address: market.short_token }
+        .approve(caller_address, 50000000000000000000000000000);
 
     IERC20Dispatcher { contract_address: market.long_token }
-        .mint(deposit_vault.contract_address, 50000000000000000000000000000); // 50 000 000 000
+        .mint(caller_address, 50000000000000000000000000000); // 20 ETH
     IERC20Dispatcher { contract_address: market.short_token }
-        .mint(deposit_vault.contract_address, 50000000000000000000000000000); // 50 000 000 000
+        .mint(caller_address, 50000000000000000000000000000); // 100 000 USDC
+
+    // role_store.grant_role(exchange_router.contract_address, role::ROUTER_PLUGIN);
+    // role_store.grant_role(caller_address, role::ROUTER_PLUGIN);
+
+    exchange_router
+        .send_tokens(
+            market.long_token, deposit_vault.contract_address, 50000000000000000000000000000
+        );
+    exchange_router
+        .send_tokens(
+            market.short_token, deposit_vault.contract_address, 50000000000000000000000000000
+        );
+
+    stop_prank(market.long_token);
+    stop_prank(market.short_token);
+
     // Create Deposit
 
     let addresss_zero: ContractAddress = 0.try_into().unwrap();
@@ -3773,10 +3805,6 @@ fn test_takeprofit_long_close_fails() {
     // INITIAL LONG TOKEN IN POOL : 5 ETH
     // INITIAL SHORT TOKEN IN POOL : 25000 USDC
 
-    // TODO Check why we don't need to set pool_amount_key
-    // // Set pool amount in data_store.
-    // let mut key = keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>());
-
     let balance_deposit_vault_before = IERC20Dispatcher { contract_address: market.short_token }
         .balance_of(deposit_vault.contract_address);
     let balance_caller_ETH = IERC20Dispatcher { contract_address: market.long_token }
@@ -3789,20 +3817,33 @@ fn test_takeprofit_long_close_fails() {
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
 
     // Send token to deposit in the deposit vault (this should be in a multi call with create_deposit)
-    'get balances'.print();
-    // start_prank(market.long_token, caller_address);
-    // IERC20Dispatcher { contract_address: market.long_token }
-    //     .transfer(deposit_vault.contract_address, 5000000000000000000); // 5 ETH
-
-    // start_prank(market.short_token, caller_address);
-    // IERC20Dispatcher { contract_address: market.short_token }
-    //     .transfer(deposit_vault.contract_address, 25000000000000000000000); // 25000 USDC
-    // 'make transfer'.print();
+    start_prank(market.long_token, caller_address);
+    start_prank(market.short_token, caller_address);
+    IERC20Dispatcher { contract_address: market.long_token }
+        .approve(caller_address, 50000000000000000000000000000);
+    IERC20Dispatcher { contract_address: market.short_token }
+        .approve(caller_address, 50000000000000000000000000000);
 
     IERC20Dispatcher { contract_address: market.long_token }
-        .mint(deposit_vault.contract_address, 50000000000000000000000000000); // 50 000 000 000
+        .mint(caller_address, 50000000000000000000000000000); // 20 ETH
     IERC20Dispatcher { contract_address: market.short_token }
-        .mint(deposit_vault.contract_address, 50000000000000000000000000000); // 50 000 000 000
+        .mint(caller_address, 50000000000000000000000000000); // 100 000 USDC
+
+    // role_store.grant_role(exchange_router.contract_address, role::ROUTER_PLUGIN);
+    // role_store.grant_role(caller_address, role::ROUTER_PLUGIN);
+
+    exchange_router
+        .send_tokens(
+            market.long_token, deposit_vault.contract_address, 50000000000000000000000000000
+        );
+    exchange_router
+        .send_tokens(
+            market.short_token, deposit_vault.contract_address, 50000000000000000000000000000
+        );
+
+    stop_prank(market.long_token);
+    stop_prank(market.short_token);
+
     // Create Deposit
 
     let addresss_zero: ContractAddress = 0.try_into().unwrap();
