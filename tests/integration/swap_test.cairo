@@ -445,24 +445,31 @@ fn test_swap_market() {
     assert(balance_caller_USDC == 50000000000000000000000, 'USDC be 50 000 USDC');
 
     // Send token to deposit in the deposit vault (this should be in a multi call with create_deposit)
-    'get balances'.print();
-    // start_prank(market.long_token, caller_address);
-    // IERC20Dispatcher { contract_address: market.long_token }
-    //     .transfer(deposit_vault.contract_address, 5000000000000000000); // 5 ETH
-
-    // start_prank(market.short_token, caller_address);
-    // IERC20Dispatcher { contract_address: market.short_token }
-    //     .transfer(deposit_vault.contract_address, 25000000000000000000000); // 25000 USDC
-    // 'make transfer'.print();
+    start_prank(market.long_token, caller_address);
+    start_prank(market.short_token, caller_address);
+    IERC20Dispatcher { contract_address: market.long_token }
+        .approve(caller_address, 20000000000000000000);
+    IERC20Dispatcher { contract_address: market.short_token }
+        .approve(caller_address, 100000000000000000000000);
 
     IERC20Dispatcher { contract_address: market.long_token }
-        .mint(deposit_vault.contract_address, 50000000000000000000000000000); // 50 000 000 000
+        .mint(caller_address, 20000000000000000000); // 20 ETH
     IERC20Dispatcher { contract_address: market.short_token }
-        .mint(deposit_vault.contract_address, 50000000000000000000000000000); // 50 000 000 000
+        .mint(caller_address, 100000000000000000000000); // 100 000 USDC
+
+    // role_store.grant_role(exchange_router.contract_address, role::ROUTER_PLUGIN);
+    // role_store.grant_role(caller_address, role::ROUTER_PLUGIN);
+
+    exchange_router
+        .send_tokens(market.long_token, deposit_vault.contract_address, 20000000000000000000);
+    exchange_router
+        .send_tokens(market.short_token, deposit_vault.contract_address, 100000000000000000000000);
+
+    stop_prank(market.long_token);
+    stop_prank(market.short_token);
+
     // Create Deposit
-
     let addresss_zero: ContractAddress = 0.try_into().unwrap();
-
     let params = CreateDepositParams {
         receiver: caller_address,
         callback_contract: addresss_zero,
@@ -488,11 +495,11 @@ fn test_swap_market() {
     assert(first_deposit.receiver == caller_address, 'Wrong account receiver');
     assert(first_deposit.initial_long_token == market.long_token, 'Wrong initial long token');
     assert(
-        first_deposit.initial_long_token_amount == 50000000000000000000000000000,
+        first_deposit.initial_long_token_amount == 20000000000000000000,
         'Wrong initial long token amount'
     );
     assert(
-        first_deposit.initial_short_token_amount == 50000000000000000000000000000,
+        first_deposit.initial_short_token_amount == 100000000000000000000000,
         'Wrong init short token amount'
     );
 
@@ -505,7 +512,7 @@ fn test_swap_market() {
         compacted_decimals: array![1, 1],
         compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
         compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![4000, 1], // 500000, 10000 compacted
+        compacted_max_prices: array![5000, 1], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
         signatures: array![
             array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
@@ -528,20 +535,6 @@ fn test_swap_market() {
 
     'executed deposit'.print();
 
-    // let pool_value_info = market_utils::get_pool_value_info(
-    //     data_store,
-    //     market,
-    //     Price { min: 2000, max: 2000 },
-    //     Price { min: 2000, max: 2000 },
-    //     Price { min: 2000, max: 2000 },
-    //     keys::max_pnl_factor_for_deposits(),
-    //     true,
-    // );
-
-    // assert(pool_value_info.pool_value.mag == 42000000000000000000000, 'wrong pool value amount');
-    // assert(pool_value_info.long_token_amount == 6000000000000000000, 'wrong long token amount');
-    // assert(pool_value_info.short_token_amount == 30000000000000000000000, 'wrong short token amount');
-
     let not_deposit = data_store.get_deposit(key);
     let default_deposit: Deposit = Default::default();
     assert(not_deposit == default_deposit, 'Still existing deposit');
@@ -550,9 +543,6 @@ fn test_swap_market() {
     let balance_market_token = market_token_dispatcher.balance_of(caller_address);
 
     assert(balance_market_token != 0, 'should receive market token');
-
-    let balance_deposit_vault_after = IERC20Dispatcher { contract_address: market.short_token }
-        .balance_of(deposit_vault.contract_address);
 
     let pool_value_info = market_utils::get_pool_value_info(
         data_store,
@@ -564,20 +554,13 @@ fn test_swap_market() {
         true,
     );
 
-    // 250 050 000 000 000 USD
+    // 200 000 USD
+    assert(pool_value_info.pool_value.mag == 200000000000000000000000, 'wrong pool_value balance');
+    // 20 ETH
+    assert(pool_value_info.long_token_amount == 20000000000000000000, 'wrong long_token balance');
+    // 100 000 USDC
     assert(
-        pool_value_info.pool_value.mag == 250050000000000000000000000000000,
-        'wrong pool_value balance'
-    );
-    // 50 000 000 000 ETH
-    assert(
-        pool_value_info.long_token_amount == 50000000000000000000000000000,
-        'wrong long_token balance'
-    );
-    // 50 000 000 000 USDC
-    assert(
-        pool_value_info.short_token_amount == 50000000000000000000000000000,
-        'wrong short_token balance'
+        pool_value_info.short_token_amount == 100000000000000000000000, 'wrong short_token balance'
     );
 
     // // --------------------------------------------------SWAP TEST ETH->USDC --------------------------------------------------
@@ -713,19 +696,19 @@ fn test_swap_market() {
         true,
     );
 
-    // 250 050 000 000 000 USD
+    // 200 000 USD
     assert(
-        first_swap_pool_value_info.pool_value.mag == 250050000000000000000000000000000,
+        first_swap_pool_value_info.pool_value.mag == 200000000000000000000000,
         'wrong pool_value balance'
     );
-    // 50 000 000 001 ETH
+    // 21 ETH
     assert(
-        first_swap_pool_value_info.long_token_amount == 50000000001000000000000000000,
+        first_swap_pool_value_info.long_token_amount == 21000000000000000000,
         'wrong long_token balance'
     );
-    // 49 999 995 000 USDC
+    // 95 000 USDC
     assert(
-        first_swap_pool_value_info.short_token_amount == 49999995000000000000000000000,
+        first_swap_pool_value_info.short_token_amount == 95000000000000000000000,
         'wrong short_token balance'
     );
 
