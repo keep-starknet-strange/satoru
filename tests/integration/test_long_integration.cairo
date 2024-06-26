@@ -1213,9 +1213,13 @@ fn test_long_increase_decrease_close() {
     // role_store.grant_role(caller_address, role::ROUTER_PLUGIN);
 
     exchange_router
-        .send_tokens(market.long_token, deposit_vault.contract_address, 20000000000000000000);
+        .send_tokens(
+            market.long_token, deposit_vault.contract_address, 50000000000000000000000000000
+        );
     exchange_router
-        .send_tokens(market.short_token, deposit_vault.contract_address, 100000000000000000000000);
+        .send_tokens(
+            market.short_token, deposit_vault.contract_address, 50000000000000000000000000000
+        );
 
     stop_prank(market.long_token);
     stop_prank(market.short_token);
