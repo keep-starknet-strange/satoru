@@ -1474,6 +1474,8 @@ fn validate_pool_amount(
     }
 }
 
+use debug::PrintTrait;
+
 /// Validates that the amount of tokens required to be reserved is below the configured threshold.
 /// # Arguments
 /// * `dataStore`: DataStore - The data storage instance.
@@ -1490,7 +1492,9 @@ fn validate_reserve(
     let max_reserved_usd = apply_factor_u256(pool_usd, reserve_factor);
 
     let reserved_usd = get_reserved_usd(data_store, market, prices, is_long);
-
+    'max reserve'.print();
+    max_reserved_usd.print();
+    'end'.print();
     if (reserved_usd > max_reserved_usd) {
         MarketError::INSUFFICIENT_RESERVE(reserved_usd, max_reserved_usd);
     }
