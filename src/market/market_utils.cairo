@@ -586,7 +586,7 @@ fn claim_funding_fees(
 
     // Transfer the amount to the receiver.
     IBankDispatcher { contract_address: market_address }
-        .transfer_out(token, receiver, claimable_amount);
+        .transfer_out(market_address, token, receiver, claimable_amount);
 
     // Validate the market token balance.
     validate_market_token_balance_with_address(data_store, market_address);
@@ -662,7 +662,7 @@ fn claim_collateral(
     let next_pool_value = data_store.decrement_u256(key, amount_to_be_claimed);
 
     IBankDispatcher { contract_address: market_address }
-        .transfer_out(token, receiver, amount_to_be_claimed);
+        .transfer_out(market_address, token, receiver, amount_to_be_claimed);
 
     validate_market_token_balance_with_address(data_store, market_address);
 
@@ -1473,6 +1473,8 @@ fn validate_pool_amount(
         MarketError::MAX_POOL_AMOUNT_EXCEEDED(pool_amount, max_pool_amount);
     }
 }
+
+use debug::PrintTrait;
 
 /// Validates that the amount of tokens required to be reserved is below the configured threshold.
 /// # Arguments

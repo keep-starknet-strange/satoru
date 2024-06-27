@@ -79,7 +79,7 @@ fn pay_execution_fee(
         execution_fee_for_keeper = execution_fee;
     }
 
-    bank.transfer_out(fee_token, keeper, execution_fee_for_keeper);
+    bank.transfer_out(bank.contract_address, fee_token, keeper, execution_fee_for_keeper);
 
     event_emitter.emit_keeper_execution_fee(keeper, execution_fee_for_keeper);
 
@@ -90,7 +90,7 @@ fn pay_execution_fee(
         return;
     }
 
-    bank.transfer_out(fee_token, refund_receiver, refund_fee_amount);
+    bank.transfer_out(bank.contract_address, fee_token, refund_receiver, refund_fee_amount);
 
     event_emitter.emit_execution_fee_refund(refund_receiver, refund_fee_amount);
 }
@@ -119,7 +119,7 @@ fn pay_execution_fee_deposit(
         execution_fee_for_keeper = execution_fee;
     }
 
-    bank.transfer_out(fee_token, keeper, execution_fee_for_keeper);
+    bank.transfer_out(bank.contract_address, fee_token, keeper, execution_fee_for_keeper);
 
     event_emitter.emit_keeper_execution_fee(keeper, execution_fee_for_keeper);
 
@@ -130,7 +130,7 @@ fn pay_execution_fee_deposit(
         return;
     }
 
-    bank.transfer_out(fee_token, refund_receiver, refund_fee_amount);
+    bank.transfer_out(bank.contract_address, fee_token, refund_receiver, refund_fee_amount);
 
     event_emitter.emit_execution_fee_refund(refund_receiver, refund_fee_amount);
 }
@@ -158,7 +158,7 @@ fn pay_execution_fee_order(
         execution_fee_for_keeper = execution_fee;
     }
 
-    bank.transfer_out(fee_token, keeper, execution_fee_for_keeper);
+    bank.transfer_out(bank.contract_address, fee_token, keeper, execution_fee_for_keeper);
 
     event_emitter.emit_keeper_execution_fee(keeper, execution_fee_for_keeper);
 
@@ -169,7 +169,7 @@ fn pay_execution_fee_order(
         return;
     }
 
-    bank.transfer_out(fee_token, refund_receiver, refund_fee_amount);
+    bank.transfer_out(bank.contract_address, fee_token, refund_receiver, refund_fee_amount);
 
     event_emitter.emit_execution_fee_refund(refund_receiver, refund_fee_amount);
 }
@@ -197,7 +197,7 @@ fn pay_execution_fee_withdrawal(
         execution_fee_for_keeper = execution_fee;
     }
 
-    bank.transfer_out(fee_token, keeper, execution_fee_for_keeper);
+    bank.transfer_out(bank.contract_address, fee_token, keeper, execution_fee_for_keeper);
 
     event_emitter.emit_keeper_execution_fee(keeper, execution_fee_for_keeper);
 
@@ -208,7 +208,7 @@ fn pay_execution_fee_withdrawal(
         return;
     }
 
-    bank.transfer_out(fee_token, refund_receiver, refund_fee_amount);
+    bank.transfer_out(bank.contract_address, fee_token, refund_receiver, refund_fee_amount);
 
     event_emitter.emit_execution_fee_refund(refund_receiver, refund_fee_amount);
 }

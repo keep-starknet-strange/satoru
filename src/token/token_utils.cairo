@@ -10,7 +10,7 @@ use satoru::bank::error::BankError;
 fn fee_token(data_store: IDataStoreDispatcher) -> ContractAddress {
     data_store.get_address(keys::fee_token())
 }
-
+use debug::PrintTrait;
 // Transfers the specified amount of `token` from the caller to `receiver`.
 // # Arguments
 // data_store - The data store that contains the `tokenTransferGasLimit` for the specified `token`.

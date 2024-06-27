@@ -29,7 +29,11 @@ trait IDepositVault<TContractState> {
     /// * `receiver` - The address of the receiver.
     /// * `amount` - The amount of tokens to transfer.
     fn transfer_out(
-        ref self: TContractState, token: ContractAddress, receiver: ContractAddress, amount: u256,
+        ref self: TContractState,
+        sender: ContractAddress,
+        token: ContractAddress,
+        receiver: ContractAddress,
+        amount: u256,
     );
 
     /// Records a token transfer into the contract.
@@ -114,12 +118,13 @@ mod DepositVault {
 
         fn transfer_out(
             ref self: ContractState,
+            sender: ContractAddress,
             token: ContractAddress,
             receiver: ContractAddress,
             amount: u256,
         ) {
             let mut state: StrictBank::ContractState = StrictBank::unsafe_new_contract_state();
-            IStrictBank::transfer_out(ref state, token, receiver, amount);
+            IStrictBank::transfer_out(ref state, sender, token, receiver, amount);
         }
 
         fn record_transfer_in(ref self: ContractState, token: ContractAddress) -> u256 {
