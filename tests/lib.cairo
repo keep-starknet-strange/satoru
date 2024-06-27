@@ -124,6 +124,6 @@ mod integration {
     // mod test_deposit_withdrawal;
     mod test_short_integration;
     // mod test_swap_integration;
-    // mod test_long_integration;
-    // mod swap_test;
+    mod test_long_integration;
+    mod swap_test;
 }
