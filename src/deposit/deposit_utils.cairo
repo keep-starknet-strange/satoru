@@ -171,14 +171,20 @@ fn cancel_deposit(
     if deposit.initial_long_token_amount > 0 {
         deposit_vault
             .transfer_out(
-                deposit.initial_long_token, deposit.account, deposit.initial_long_token_amount
+                deposit_vault.contract_address,
+                deposit.initial_long_token,
+                deposit.account,
+                deposit.initial_long_token_amount
             );
     }
 
     if deposit.initial_short_token_amount > 0 {
         deposit_vault
             .transfer_out(
-                deposit.initial_short_token, deposit.account, deposit.initial_short_token_amount
+                deposit_vault.contract_address,
+                deposit.initial_short_token,
+                deposit.account,
+                deposit.initial_short_token_amount
             );
     }
 

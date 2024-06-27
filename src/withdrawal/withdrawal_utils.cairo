@@ -249,7 +249,12 @@ fn cancel_withdrawal(
     data_store.remove_withdrawal(key, withdrawal.account);
 
     withdrawal_vault
-        .transfer_out(withdrawal.market, withdrawal.account, withdrawal.market_token_amount);
+        .transfer_out(
+            withdrawal_vault.contract_address,
+            withdrawal.market,
+            withdrawal.account,
+            withdrawal.market_token_amount
+        );
 
     event_emitter.emit_withdrawal_cancelled(key, reason, reason_bytes.span());
 

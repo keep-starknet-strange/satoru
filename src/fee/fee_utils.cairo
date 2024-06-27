@@ -95,7 +95,7 @@ fn claim_fees(
     let fee_amount = data_store.get_u256(key);
     data_store.set_u256(key, 0);
 
-    IBankDispatcher { contract_address: market }.transfer_out(token, receiver, fee_amount);
+    IBankDispatcher { contract_address: market }.transfer_out(market, token, receiver, fee_amount);
 
     validate_market_token_balance_with_address(data_store, market);
 
@@ -127,7 +127,7 @@ fn claim_ui_fees(
     let next_pool_value = data_store
         .decrement_u256(keys::claimable_ui_fee_amount_key(market, token), fee_amount);
 
-    IBankDispatcher { contract_address: market }.transfer_out(token, receiver, fee_amount);
+    IBankDispatcher { contract_address: market }.transfer_out(market, token, receiver, fee_amount);
 
     validate_market_token_balance_with_address(data_store, market);
 

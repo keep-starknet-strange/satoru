@@ -123,7 +123,7 @@ fn claim_affiliate_reward(
         .decrement_u256(keys::affiliate_reward_key(market, token), reward_amount);
 
     IMarketTokenDispatcher { contract_address: market }
-        .transfer_out(token, receiver, reward_amount);
+        .transfer_out(market, token, receiver, reward_amount);
 
     market_utils::validate_market_token_balance_with_address(data_store, market);
 

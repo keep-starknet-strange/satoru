@@ -18,7 +18,11 @@ trait IMarketToken<TState> {
     fn mint(ref self: TState, recipient: ContractAddress, amount: u256);
     fn burn(ref self: TState, recipient: ContractAddress, amount: u256);
     fn transfer_out(
-        ref self: TState, token: ContractAddress, receiver: ContractAddress, amount: u256,
+        ref self: TState,
+        sender: ContractAddress,
+        token: ContractAddress,
+        receiver: ContractAddress,
+        amount: u256,
     );
 }
 
@@ -153,12 +157,13 @@ mod MarketToken {
         }
         fn transfer_out(
             ref self: ContractState,
+            sender: ContractAddress,
             token: ContractAddress,
             receiver: ContractAddress,
             amount: u256,
         ) {
             let mut bank: Bank::ContractState = Bank::unsafe_new_contract_state();
-            IBank::transfer_out(ref bank, token, receiver, amount);
+            IBank::transfer_out(ref bank, sender, token, receiver, amount);
         }
     }
 

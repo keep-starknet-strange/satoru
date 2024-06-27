@@ -319,7 +319,7 @@ fn test_swap_market() {
     // 9 ETH
     assert(balance_ETH_before == 9000000000000000000, 'wrng ETH blce after vault');
     // 50 000 USDC
-    assert(balance_USDC_before == 50000000000000000000000, 'wrng USDC blce after vault');
+    assert(balance_USDC_before == 50000000000000000000000, 'wrng USDC blce after vlt 1');
 
     // Create order_params Struct
     let contract_address = contract_address_const::<0>();
@@ -383,7 +383,7 @@ fn test_swap_market() {
     // 9 ETH
     assert(balance_ETH_before_execute == 9000000000000000000, 'wrng ETH blce after vault');
     // 50 000 USDC
-    assert(balance_USDC_before_execute == 50000000000000000000000, 'wrng USDC blce after vault');
+    assert(balance_USDC_before_execute == 50000000000000000000000, 'wrng USDC blce after vlt 2');
 
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);

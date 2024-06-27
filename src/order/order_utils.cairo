@@ -401,6 +401,7 @@ mod OrderUtils {
                 if (order.initial_collateral_delta_amount > 0) {
                     order_vault
                         .transfer_out(
+                            order_vault.contract_address,
                             order.initial_collateral_token,
                             order.account,
                             order.initial_collateral_delta_amount,

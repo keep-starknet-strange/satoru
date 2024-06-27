@@ -586,7 +586,7 @@ fn claim_funding_fees(
 
     // Transfer the amount to the receiver.
     IBankDispatcher { contract_address: market_address }
-        .transfer_out(token, receiver, claimable_amount);
+        .transfer_out(market_address, token, receiver, claimable_amount);
 
     // Validate the market token balance.
     validate_market_token_balance_with_address(data_store, market_address);
@@ -662,7 +662,7 @@ fn claim_collateral(
     let next_pool_value = data_store.decrement_u256(key, amount_to_be_claimed);
 
     IBankDispatcher { contract_address: market_address }
-        .transfer_out(token, receiver, amount_to_be_claimed);
+        .transfer_out(market_address, token, receiver, amount_to_be_claimed);
 
     validate_market_token_balance_with_address(data_store, market_address);
 
@@ -1492,9 +1492,7 @@ fn validate_reserve(
     let max_reserved_usd = apply_factor_u256(pool_usd, reserve_factor);
 
     let reserved_usd = get_reserved_usd(data_store, market, prices, is_long);
-    'max reserve'.print();
-    max_reserved_usd.print();
-    'end'.print();
+
     if (reserved_usd > max_reserved_usd) {
         MarketError::INSUFFICIENT_RESERVE(reserved_usd, max_reserved_usd);
     }

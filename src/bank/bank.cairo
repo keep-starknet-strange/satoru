@@ -7,6 +7,7 @@
 // Core lib imports.
 use core::traits::Into;
 use starknet::ContractAddress;
+use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
 
 // *************************************************************************
 //                  Interface of the `Bank` contract.
@@ -29,7 +30,11 @@ trait IBank<TContractState> {
     /// * `receiver` - The address of the receiver.
     /// * `amount` - The amount of tokens to transfer.
     fn transfer_out(
-        ref self: TContractState, token: ContractAddress, receiver: ContractAddress, amount: u256,
+        ref self: TContractState,
+        sender: ContractAddress,
+        token: ContractAddress,
+        receiver: ContractAddress,
+        amount: u256,
     );
 }
 
@@ -50,7 +55,9 @@ mod Bank {
     use super::IBank;
     use satoru::bank::error::BankError;
     use satoru::role::role_module::{RoleModule, IRoleModule};
-    use satoru::token::token_utils::transfer;
+    // use satoru::token::token_utils::transfer;
+    use satoru::token::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait};
+
 
     // *************************************************************************
     //                              STORAGE
@@ -101,6 +108,7 @@ mod Bank {
 
         fn transfer_out(
             ref self: ContractState,
+            sender: ContractAddress,
             token: ContractAddress,
             receiver: ContractAddress,
             amount: u256,
@@ -109,7 +117,7 @@ mod Bank {
             // let mut role_module: RoleModule::ContractState =
             //     RoleModule::unsafe_new_contract_state();
             // role_module.only_controller();
-            self.transfer_out_internal(token, receiver, amount);
+            self.transfer_out_internal(sender, token, receiver, amount);
         }
     }
 
@@ -122,13 +130,15 @@ mod Bank {
         /// * `receiver` - receiver the address to transfer to
         fn transfer_out_internal(
             ref self: ContractState,
+            sender: ContractAddress,
             token: ContractAddress,
             receiver: ContractAddress,
             amount: u256,
         ) {
             // check that receiver is not this contract
             assert(receiver != get_contract_address(), BankError::SELF_TRANSFER_NOT_SUPPORTED);
-            transfer(self.data_store.read(), token, receiver, amount);
+            // transfer(self.data_store.read(), token, receiver, amount); // TODO check double send
+            IERC20Dispatcher { contract_address: token }.transfer_from(sender, receiver, amount);
         }
     }
 }
