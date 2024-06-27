@@ -186,10 +186,11 @@ mod DecreaseOrderUtils {
                         order.min_output_amount
                     );
                 IMarketTokenDispatcher { contract_address: order.market }
-                    .transfer_out(result.output_token, order.receiver, result.output_amount);
+                    .transfer_out(order.market, result.output_token, order.receiver, result.output_amount);
 
                 IMarketTokenDispatcher { contract_address: order.market }
                     .transfer_out(
+                        order.market,
                         result.secondary_output_token,
                         order.receiver,
                         result.secondary_output_amount
@@ -337,7 +338,7 @@ mod DecreaseOrderUtils {
                 );
 
             IMarketTokenDispatcher { contract_address: order.market }
-                .transfer_out(result.output_token, order.receiver, result.output_amount);
+                .transfer_out(order.market, result.output_token, order.receiver, result.output_amount);
         }
     // This function should return an EventLogData cause the callback_utils
     // needs it. We need to find a solution for that case.

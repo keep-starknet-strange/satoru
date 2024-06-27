@@ -319,12 +319,19 @@ fn test_swap_market() {
     // 9 ETH
     assert(balance_ETH_before == 9000000000000000000, 'wrng ETH blce after vault');
     // 50 000 USDC
-    assert(balance_USDC_before == 50000000000000000000000, 'wrng USDC blce after vault');
+    assert(balance_USDC_before == 50000000000000000000000, 'wrng USDC blce after vlt 1');
 
     // Create order_params Struct
     let contract_address = contract_address_const::<0>();
     start_prank(market.long_token, caller_address); //change to switch swap
 
+    'order vault ads'.print();
+    order_vault.contract_address.print();
+    'end order ad'.print();
+
+    'market tok'.print();
+    market.market_token.print();
+    'end market'.print();
     let order_params = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,
@@ -383,7 +390,7 @@ fn test_swap_market() {
     // 9 ETH
     assert(balance_ETH_before_execute == 9000000000000000000, 'wrng ETH blce after vault');
     // 50 000 USDC
-    assert(balance_USDC_before_execute == 50000000000000000000000, 'wrng USDC blce after vault');
+    assert(balance_USDC_before_execute == 50000000000000000000000, 'wrng USDC blce after vlt 2');
 
     let keeper_address = contract_address_const::<'keeper'>();
     role_store.grant_role(keeper_address, role::ORDER_KEEPER);

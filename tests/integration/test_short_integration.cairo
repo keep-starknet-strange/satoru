@@ -424,7 +424,7 @@ fn test_short_increase_decrease_close() {
 
     assert(balance_deposit_vault_before == 0, 'balance deposit should be 0');
     assert(balance_caller_ETH == 10000000000000000000, 'balanc ETH should be 10 ETH');
-    assert(balance_caller_USDC == 36000000000000000000000, 'USDC be 43 000 USDC');
+    assert(balance_caller_USDC == 43000000000000000000000, 'USDC be 43 000 USDC');
 
     // //////////////////////////////////// CLOSE POSITION //////////////////////////////////////
     'CLOSE POSITION'.print();
@@ -526,8 +526,8 @@ fn test_short_increase_decrease_close() {
     }
         .balance_of(caller_address);
 
-    assert(balance_USDC_bef_close == 36000000000000000000000, 'balance USDC shld be 43000$');
-    assert(balance_USDC_af_close == 36000000000000000000000, 'balance USDC shld be 43000$');
+    assert(balance_USDC_bef_close == 43000000000000000000000, 'balance USDC shld be 43000$');
+    assert(balance_USDC_af_close == 43000000000000000000000, 'balance USDC shld be 43000$');
     assert(balance_ETH_af_close == 12666666666666666666, 'balance ETH should be 12.66');
     assert(balance_ETH_bef_close == 10000000000000000000, 'balance ETH should be 10');
 
