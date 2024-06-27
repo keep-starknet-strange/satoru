@@ -325,13 +325,6 @@ fn test_swap_market() {
     let contract_address = contract_address_const::<0>();
     start_prank(market.long_token, caller_address); //change to switch swap
 
-    'order vault ads'.print();
-    order_vault.contract_address.print();
-    'end order ad'.print();
-
-    'market tok'.print();
-    market.market_token.print();
-    'end market'.print();
     let order_params = CreateOrderParams {
         receiver: caller_address,
         callback_contract: contract_address,

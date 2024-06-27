@@ -30,7 +30,11 @@ trait IStrictBank<TContractState> {
     /// * `receiver` - The address of the receiver.
     /// * `amount` - The amount of tokens to transfer.
     fn transfer_out(
-        ref self: TContractState, sender: ContractAddress, token: ContractAddress, receiver: ContractAddress, amount: u256,
+        ref self: TContractState,
+        sender: ContractAddress,
+        token: ContractAddress,
+        receiver: ContractAddress,
+        amount: u256,
     );
 
     /// Records a token transfer into the contract
@@ -117,18 +121,7 @@ mod StrictBank {
         ) {
             let mut state: Bank::ContractState = Bank::unsafe_new_contract_state();
             IBank::transfer_out(ref state, sender, token, receiver, amount);
-
-            'balanc 1'.print();
-            let balance_ETH_loop_aff = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
-                .balance_of(contract_address_const::<'caller'>());
-            balance_ETH_loop_aff.print();
-            'bank 1'.print();
             self.after_transfer_out_infernal(token);
-            'after 1'.print();
-            let balance_ETH_loop_hope = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
-                .balance_of(contract_address_const::<'caller'>());
-            balance_ETH_loop_hope.print();
-            'end 1'.print();
         }
 
         fn sync_token_balance(ref self: ContractState, token: ContractAddress) -> u256 {

@@ -30,7 +30,11 @@ trait IBank<TContractState> {
     /// * `receiver` - The address of the receiver.
     /// * `amount` - The amount of tokens to transfer.
     fn transfer_out(
-        ref self: TContractState, sender: ContractAddress, token: ContractAddress, receiver: ContractAddress, amount: u256,
+        ref self: TContractState,
+        sender: ContractAddress,
+        token: ContractAddress,
+        receiver: ContractAddress,
+        amount: u256,
     );
 }
 
@@ -134,8 +138,7 @@ mod Bank {
             // check that receiver is not this contract
             assert(receiver != get_contract_address(), BankError::SELF_TRANSFER_NOT_SUPPORTED);
             // transfer(self.data_store.read(), token, receiver, amount); // TODO check double send
-            IERC20Dispatcher { contract_address: token }
-                .transfer_from(sender, receiver, amount);
+            IERC20Dispatcher { contract_address: token }.transfer_from(sender, receiver, amount);
         }
     }
 }

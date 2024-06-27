@@ -18,7 +18,11 @@ trait IMarketToken<TState> {
     fn mint(ref self: TState, recipient: ContractAddress, amount: u256);
     fn burn(ref self: TState, recipient: ContractAddress, amount: u256);
     fn transfer_out(
-        ref self: TState, sender: ContractAddress, token: ContractAddress, receiver: ContractAddress, amount: u256,
+        ref self: TState,
+        sender: ContractAddress,
+        token: ContractAddress,
+        receiver: ContractAddress,
+        amount: u256,
     );
 }
 

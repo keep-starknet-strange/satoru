@@ -29,7 +29,11 @@ trait IDepositVault<TContractState> {
     /// * `receiver` - The address of the receiver.
     /// * `amount` - The amount of tokens to transfer.
     fn transfer_out(
-        ref self: TContractState, sender: ContractAddress, token: ContractAddress, receiver: ContractAddress, amount: u256,
+        ref self: TContractState,
+        sender: ContractAddress,
+        token: ContractAddress,
+        receiver: ContractAddress,
+        amount: u256,
     );
 
     /// Records a token transfer into the contract.

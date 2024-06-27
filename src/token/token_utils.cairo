@@ -30,12 +30,6 @@ fn transfer(
 
     // TODO: implement gas limit
 
-    'token'.print();
-    token.print();
-    'receiver'.print();
-    receiver.print();
-    'amount'.print();
-    amount.print();
     // transfer tokens to receiver and return if it suceeeds
     let amount_u256 = amount.into();
     let success0 = IERC20Dispatcher { contract_address: token }

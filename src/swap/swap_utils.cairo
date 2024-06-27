@@ -116,33 +116,29 @@ fn swap(params: @SwapParams) -> (ContractAddress, u256) {
             SwapError::INSUFFICIENT_OUTPUT_AMOUNT(*params.amount_in, *params.min_output_amount);
         }
         if (params.bank.contract_address != params.receiver) {
-            (*params.bank).transfer_out(*params.bank.contract_address, *params.token_in, *params.receiver, *params.amount_in);
+            (*params.bank)
+                .transfer_out(
+                    *params.bank.contract_address,
+                    *params.token_in,
+                    *params.receiver,
+                    *params.amount_in
+                );
         }
         return (*params.token_in, *params.amount_in);
     }
 
-    'balanc ebfeore'.print();
-    let balance_ETH_loop_aff = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
-        .balance_of(contract_address_const::<'caller'>());
-    balance_ETH_loop_aff.print();
-    'bank add'.print();
-    (*params.bank.contract_address).print();
-    'end bang ad'.print();
-
     //TODO
     let first_path: Market = *params.swap_path_markets[0];
-    'mak tok'.print();
-    first_path.market_token.print();
-    'end nak tok'.print();
     if (params.bank.contract_address != @first_path.market_token) {
-        (*params.bank).transfer_out(*params.bank.contract_address, *params.token_in, first_path.market_token, *params.amount_in);
+        (*params.bank)
+            .transfer_out(
+                *params.bank.contract_address,
+                *params.token_in,
+                first_path.market_token,
+                *params.amount_in
+            );
     }
 
-    'after bal'.print();
-    let balance_ETH_loop_hope = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
-        .balance_of(contract_address_const::<'caller'>());
-    balance_ETH_loop_hope.print();
-    'end balance'.print();
     let mut token_out = *params.token_in;
     let mut output_amount = *params.amount_in;
 
@@ -311,7 +307,9 @@ fn _swap(params: @SwapParams, _params: @_SwapParams) -> (ContractAddress, u256) 
     // the amountOut value includes the positive price impact amount
     if (_params.receiver != _params.market.market_token) {
         IBankDispatcher { contract_address: *_params.market.market_token }
-            .transfer_out(*_params.market.market_token, cache.token_out, *_params.receiver, cache.amount_out);
+            .transfer_out(
+                *_params.market.market_token, cache.token_out, *_params.receiver, cache.amount_out
+            );
     }
 
     market_utils::apply_delta_to_pool_amount(
