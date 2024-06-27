@@ -605,8 +605,8 @@ fn test_long_increase_decrease_close() {
     assert(balance_USDC_before == 50000000000000000000000, 'balance USDC should be 50000$');
     // Balance USDC after = (0.75 ETH * 3850$) + 87.499 (PnL)
     assert(balance_USDC_after == 52974999999999999998950, 'balance USDC shld be 52974.99$');
-    assert(balance_ETH_before == 7000000000000000000, 'balance ETH should be 4');
-    assert(balance_ETH_after == 7000000000000000000, 'balance ETH should be 4');
+    assert(balance_ETH_before == 7000000000000000000, 'balance ETH before 7');
+    assert(balance_ETH_after == 7000000000000000000, 'balance ETH after 7');
 
     //////////////////////////////////// CLOSE POSITION //////////////////////////////////////
     'CLOSE POSITION'.print();
@@ -662,8 +662,6 @@ fn test_long_increase_decrease_close() {
     let key_long_dec_2 = exchange_router.create_order(order_params_long_dec_2);
     'long decrease created'.print();
     let got_order_long_dec = data_store.get_order(key_long_dec_2);
-    // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
-    // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
     // Execute the swap order.
 
     let keeper_address = contract_address_const::<'keeper'>();
@@ -712,8 +710,8 @@ fn test_long_increase_decrease_close() {
 
     assert(balance_USDC_bef_close == 52974999999999999998950, 'balance USDC shld be 52974.99$');
     assert(balance_USDC_af_close == 62574999999999999998950, 'balance USDC shld be 62574.99$');
-    assert(balance_ETH_af_close == 7000000000000000000, 'balance ETH should be 4');
-    assert(balance_ETH_bef_close == 7000000000000000000, 'balance ETH should be 4');
+    assert(balance_ETH_af_close == 7000000000000000000, 'balance ETH after 7');
+    assert(balance_ETH_bef_close == 7000000000000000000, 'balance ETH after 7');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -1261,8 +1259,8 @@ fn test_takeprofit_long() {
     assert(balance_USDC_before == 50000000000000000000000, 'balance USDC should be 50000$');
     // Balance USDC after = (0.75 ETH * 3950$) + 162.499 (PnL)
     assert(balance_USDC_after == 53124999999999999996350, 'balance USDC shld be 53124.99$');
-    assert(balance_ETH_before == 7000000000000000000, 'balance ETH should be 4');
-    assert(balance_ETH_after == 7000000000000000000, 'balance ETH should be 4');
+    assert(balance_ETH_before == 7000000000000000000, 'balance ETH before 7');
+    assert(balance_ETH_after == 7000000000000000000, 'balance ETH after 7');
 
     //////////////////////////////////// TRIGGER CLOSE POSITION //////////////////////////////////////
     'CLOSE POSITION'.print();
@@ -1318,8 +1316,6 @@ fn test_takeprofit_long() {
     let key_long_dec_2 = exchange_router.create_order(order_params_long_dec_2);
     'long decrease created'.print();
     let got_order_long_dec = data_store.get_order(key_long_dec_2);
-    // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
-    // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
     // Execute the swap order.
 
     let keeper_address = contract_address_const::<'keeper'>();
@@ -1368,8 +1364,8 @@ fn test_takeprofit_long() {
 
     assert(balance_USDC_bef_close == 53124999999999999996350, 'balance USDC shld be 52974.99$');
     assert(balance_USDC_af_close == 62724999999999999996350, 'balance USDC shld be 62724.99$');
-    assert(balance_ETH_af_close == 7000000000000000000, 'balance ETH should be 4');
-    assert(balance_ETH_bef_close == 7000000000000000000, 'balance ETH should be 4');
+    assert(balance_ETH_af_close == 7000000000000000000, 'balance ETH af close 7');
+    assert(balance_ETH_bef_close == 7000000000000000000, 'balance ETH bef close 7');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -1918,8 +1914,8 @@ fn test_takeprofit_long_increase_fails() {
     assert(balance_USDC_before == 50000000000000000000000, 'balance USDC should be 50000$');
     // Balance USDC after = (0.75 ETH * 3950$) + 162.499 (PnL)
     assert(balance_USDC_after == 53124999999999999996350, 'balance USDC shld be 53124.99$');
-    assert(balance_ETH_before == 7000000000000000000, 'balance ETH should be 4');
-    assert(balance_ETH_after == 7000000000000000000, 'balance ETH should be 4');
+    assert(balance_ETH_before == 7000000000000000000, 'balance ETH before 7');
+    assert(balance_ETH_after == 7000000000000000000, 'balance ETH after 7');
 
     //////////////////////////////////// TRIGGER CLOSE POSITION //////////////////////////////////////
     'CLOSE POSITION'.print();
@@ -1975,8 +1971,6 @@ fn test_takeprofit_long_increase_fails() {
     let key_long_dec_2 = exchange_router.create_order(order_params_long_dec_2);
     'long decrease created'.print();
     let got_order_long_dec = data_store.get_order(key_long_dec_2);
-    // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
-    // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
     // Execute the swap order.
 
     let keeper_address = contract_address_const::<'keeper'>();
@@ -2025,8 +2019,8 @@ fn test_takeprofit_long_increase_fails() {
 
     assert(balance_USDC_bef_close == 53124999999999999996350, 'balance USDC shld be 52974.99$');
     assert(balance_USDC_af_close == 62724999999999999996350, 'balance USDC shld be 62724.99$');
-    assert(balance_ETH_af_close == 7000000000000000000, 'balance ETH should be 4');
-    assert(balance_ETH_bef_close == 7000000000000000000, 'balance ETH should be 4');
+    assert(balance_ETH_af_close == 7000000000000000000, 'balance ETH af close 7');
+    assert(balance_ETH_bef_close == 7000000000000000000, 'balance ETH bef close 7');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -2572,11 +2566,11 @@ fn test_takeprofit_long_decrease_fails() {
     let balance_ETH_after = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
-    assert(balance_USDC_before == 50000000000000000000000, 'balance USDC should be 50000$');
+    assert(balance_USDC_before == 50000000000000000000000, 'balance USDC before 50000$');
     // Balance USDC after = (0.75 ETH * 3950$) + 162.499 (PnL)
-    assert(balance_USDC_after == 53124999999999999996350, 'balance USDC shld be 53124.99$');
-    assert(balance_ETH_before == 7000000000000000000, 'balance ETH should be 4');
-    assert(balance_ETH_after == 7000000000000000000, 'balance ETH should be 4');
+    assert(balance_USDC_after == 53124999999999999996350, 'balance USDC after 53124.99$');
+    assert(balance_ETH_before == 7000000000000000000, 'balance ETH before 7');
+    assert(balance_ETH_after == 7000000000000000000, 'balance ETH after 7');
 
     //////////////////////////////////// TRIGGER CLOSE POSITION //////////////////////////////////////
     'CLOSE POSITION'.print();
@@ -2632,8 +2626,6 @@ fn test_takeprofit_long_decrease_fails() {
     let key_long_dec_2 = exchange_router.create_order(order_params_long_dec_2);
     'long decrease created'.print();
     let got_order_long_dec = data_store.get_order(key_long_dec_2);
-    // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
-    // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
     // Execute the swap order.
 
     let keeper_address = contract_address_const::<'keeper'>();
@@ -2680,10 +2672,10 @@ fn test_takeprofit_long_decrease_fails() {
     }
         .balance_of(caller_address);
 
-    assert(balance_USDC_bef_close == 53124999999999999996350, 'balance USDC shld be 52974.99$');
-    assert(balance_USDC_af_close == 62724999999999999996350, 'balance USDC shld be 62724.99$');
-    assert(balance_ETH_af_close == 7000000000000000000, 'balance ETH should be 4');
-    assert(balance_ETH_bef_close == 7000000000000000000, 'balance ETH should be 4');
+    assert(balance_USDC_bef_close == 53124999999999999996350, 'balance USDC bef close 53124.99$');
+    assert(balance_USDC_af_close == 62724999999999999996350, 'balance USDC af close 62724.99$');
+    assert(balance_ETH_af_close == 7000000000000000000, 'balance ETH af close 7');
+    assert(balance_ETH_bef_close == 7000000000000000000, 'balance ETH bef close 7');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
@@ -3229,11 +3221,11 @@ fn test_takeprofit_long_close_fails() {
     let balance_ETH_after = IERC20Dispatcher { contract_address: contract_address_const::<'ETH'>() }
         .balance_of(caller_address);
 
-    assert(balance_USDC_before == 50000000000000000000000, 'balance USDC should be 50000$');
+    assert(balance_USDC_before == 50000000000000000000000, 'balance USDC before 50000$');
     // Balance USDC after = (0.75 ETH * 3950$) + 162.499 (PnL)
     assert(balance_USDC_after == 53124999999999999996350, 'balance USDC shld be 53124.99$');
-    assert(balance_ETH_before == 7000000000000000000, 'balance ETH should be 4');
-    assert(balance_ETH_after == 7000000000000000000, 'balance ETH should be 4');
+    assert(balance_ETH_before == 7000000000000000000, 'balance ETH before 7');
+    assert(balance_ETH_after == 7000000000000000000, 'balance ETH after 7');
 
     //////////////////////////////////// TRIGGER CLOSE POSITION //////////////////////////////////////
     'CLOSE POSITION'.print();
@@ -3289,8 +3281,6 @@ fn test_takeprofit_long_close_fails() {
     let key_long_dec_2 = exchange_router.create_order(order_params_long_dec_2);
     'long decrease created'.print();
     let got_order_long_dec = data_store.get_order(key_long_dec_2);
-    // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'USDC'>()), );
-    // data_store.set_u256(keys::pool_amount_key(market.market_token, contract_address_const::<'ETH'>()), 1000000);
     // Execute the swap order.
 
     let keeper_address = contract_address_const::<'keeper'>();
@@ -3337,10 +3327,10 @@ fn test_takeprofit_long_close_fails() {
     }
         .balance_of(caller_address);
 
-    assert(balance_USDC_bef_close == 53124999999999999996350, 'balance USDC shld be 52974.99$');
+    assert(balance_USDC_bef_close == 53124999999999999996350, 'balance USDC shld be 53124.99$');
     assert(balance_USDC_af_close == 62724999999999999996350, 'balance USDC shld be 62724.99$');
-    assert(balance_ETH_af_close == 7000000000000000000, 'balance ETH should be 4');
-    assert(balance_ETH_bef_close == 7000000000000000000, 'balance ETH should be 4');
+    assert(balance_ETH_af_close == 7000000000000000000, 'balance ETH af close 7');
+    assert(balance_ETH_bef_close == 7000000000000000000, 'balance ETH bef close 7');
 
     // *********************************************************************************************
     // *                              TEARDOWN                                                     *
