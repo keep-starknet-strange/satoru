@@ -109,6 +109,7 @@ async function create_market() {
     const marketTokenAddress = (await provider.waitForTransaction(res.transaction_hash) as any).events[0].data[1];
     console.log("Market created: " + marketTokenAddress)
 
+    // Set constants for trade
     dataStoreContract.connect(account0);
     const dataCall5 = dataStoreContract.populate(
         "set_u256",
@@ -130,6 +131,7 @@ async function create_market() {
     const setAddressTx6 = await dataStoreContract.set_u256(dataCall6.calldata)
     await provider.waitForTransaction(setAddressTx6.transaction_hash)
 
+    // Set Constants for long
     const dataCall7 = dataStoreContract.populate(
         "set_u256",
         [
@@ -144,6 +146,60 @@ async function create_market() {
     const setAddressTx7 = await dataStoreContract.set_u256(dataCall7.calldata)
     await provider.waitForTransaction(setAddressTx7.transaction_hash)
 
+    const dataCall9 = dataStoreContract.populate(
+        "set_u256",
+        [
+            await dataStoreContract.get_max_pnl_factor_key(
+                "0x425655404757d831905ce0c7aeb290f47c630d959038f3d087a009ba1236dbe",
+                marketTokenAddress,
+                true
+            ),
+            50000000000000000000000000000000000000000000000n
+        ]
+    )
+    const setAddressTx9 = await dataStoreContract.set_u256(dataCall9.calldata)
+    await provider.waitForTransaction(setAddressTx9.transaction_hash)
+
+    const dataCall10 = dataStoreContract.populate(
+        "set_u256",
+        [
+            await dataStoreContract.get_reserve_factor_key(
+                marketTokenAddress,
+                true
+            ),
+            1000000000000000000n
+        ]
+    )
+    const setAddressTx10 = await dataStoreContract.set_u256(dataCall10.calldata)
+    await provider.waitForTransaction(setAddressTx10.transaction_hash)
+
+    const dataCall11 = dataStoreContract.populate(
+        "set_u256",
+        [
+            await dataStoreContract.get_open_interest_reserve_factor_key(
+                marketTokenAddress,
+                true
+            ),
+            1000000000000000000n
+        ]
+    )
+    const setAddressTx11 = await dataStoreContract.set_u256(dataCall11.calldata)
+    await provider.waitForTransaction(setAddressTx11.transaction_hash)
+
+    const dataCall12 = dataStoreContract.populate(
+        "set_u256",
+        [
+            await dataStoreContract.get_open_interest_key(
+                marketTokenAddress,
+                deployzETHResponse.deploy.contract_address,
+                true
+            ),
+            1n
+        ]
+    )
+    const setAddressTx12 = await dataStoreContract.set_u256(dataCall12.calldata)
+    await provider.waitForTransaction(setAddressTx12.transaction_hash)
+
     const dataCall8 = dataStoreContract.populate(
         "set_u256",
         [
@@ -156,6 +212,88 @@ async function create_market() {
     )
     const setAddressTx8 = await dataStoreContract.set_u256(dataCall8.calldata)
     await provider.waitForTransaction(setAddressTx8.transaction_hash)
+
+    // Set constants for short
+    const dataCall13 = dataStoreContract.populate(
+        "set_u256",
+        [
+            await dataStoreContract.get_max_pnl_factor_key(
+                "0x4896bc14d7c67b49131baf26724d3f29032ddd7539a3a8d88324140ea2de9b4",
+                marketTokenAddress,
+                false
+            ),
+            50000000000000000000000000000000000000000000000n
+        ]
+    )
+    const setAddressTx13 = await dataStoreContract.set_u256(dataCall13.calldata)
+    await provider.waitForTransaction(setAddressTx13.transaction_hash)
+
+    const dataCall14 = dataStoreContract.populate(
+        "set_u256",
+        [
+            await dataStoreContract.get_max_pnl_factor_key(
+                "0x425655404757d831905ce0c7aeb290f47c630d959038f3d087a009ba1236dbe",
+                marketTokenAddress,
+                false
+            ),
+            50000000000000000000000000000000000000000000000n
+        ]
+    )
+    const setAddressTx14 = await dataStoreContract.set_u256(dataCall14.calldata)
+    await provider.waitForTransaction(setAddressTx14.transaction_hash)
+
+    const dataCall15 = dataStoreContract.populate(
+        "set_u256",
+        [
+            await dataStoreContract.get_reserve_factor_key(
+                marketTokenAddress,
+                false
+            ),
+            1000000000000000000n
+        ]
+    )
+    const setAddressTx15 = await dataStoreContract.set_u256(dataCall15.calldata)
+    await provider.waitForTransaction(setAddressTx15.transaction_hash)
+
+    const dataCall16 = dataStoreContract.populate(
+        "set_u256",
+        [
+            await dataStoreContract.get_open_interest_reserve_factor_key(
+                marketTokenAddress,
+                false
+            ),
+            1000000000000000000n
+        ]
+    )
+    const setAddressTx16 = await dataStoreContract.set_u256(dataCall16.calldata)
+    await provider.waitForTransaction(setAddressTx16.transaction_hash)
+
+    const dataCall17 = dataStoreContract.populate(
+        "set_u256",
+        [
+            await dataStoreContract.get_open_interest_key(
+                marketTokenAddress,
+                deployERC20Response.deploy.contract_address,
+                false
+            ),
+            1n
+        ]
+    )
+    const setAddressTx17 = await dataStoreContract.set_u256(dataCall17.calldata)
+    await provider.waitForTransaction(setAddressTx17.transaction_hash)
+
+    const dataCall18 = dataStoreContract.populate(
+        "set_u256",
+        [
+            await dataStoreContract.get_max_open_interest_key(
+                marketTokenAddress,
+                false
+            ),
+            1000000000000000000000000000000000000000000000000000n
+        ]
+    )
+    const setAddressTx18 = await dataStoreContract.set_u256(dataCall18.calldata)
+    await provider.waitForTransaction(setAddressTx18.transaction_hash)
 
 
     const usdcContract = new Contract(compiledERC20Sierra.abi, deployERC20Response.deploy.contract_address, provider)
@@ -172,55 +310,59 @@ async function create_market() {
     const transferUSDCTx = await usdcContract.mint(transferUSDCCall.calldata)
     await provider.waitForTransaction(transferUSDCTx.transaction_hash)
 
-    const transferCall = zEthContract.populate("mint", [depositVaultAddress, uint256.bnToUint256(50000000000000000000000000000n)])
-    const transferTx = await zEthContract.mint(transferCall.calldata)
-    await provider.waitForTransaction(transferTx.transaction_hash)
-    const transferUSDCCall2 = usdcContract.populate("mint", [depositVaultAddress, uint256.bnToUint256(50000000000000000000000000000n)])
-    const transferUSDCTx2 = await usdcContract.mint(transferUSDCCall2.calldata)
-    await provider.waitForTransaction(transferUSDCTx2.transaction_hash)
+    console.log("All pre-settings done.")
 
-    const compiledOracleSierra = json.parse(fs.readFileSync( "./target/dev/satoru_Oracle.contract_class.json").toString( "ascii"))
+    // NOT NEEDED NOW
 
-    const abiOracle = compiledOracleSierra.abi
-    const oracleContract = new Contract(abiOracle, process.env.ORACLE as string, provider);
-    oracleContract.connect(account0);
-    const setPrimaryPriceCall1 = oracleContract.populate("set_primary_price", [deployzETHResponse.deploy.address, uint256.bnToUint256(5000n)])
-    const setPrimaryPriceTx1 = await oracleContract.set_primary_price(setPrimaryPriceCall1.calldata);
-    await provider.waitForTransaction(setPrimaryPriceTx1.transaction_hash)
+    // const transferCall = zEthContract.populate("mint", [depositVaultAddress, uint256.bnToUint256(50000000000000000000000000000n)])
+    // const transferTx = await zEthContract.mint(transferCall.calldata)
+    // await provider.waitForTransaction(transferTx.transaction_hash)
+    // const transferUSDCCall2 = usdcContract.populate("mint", [depositVaultAddress, uint256.bnToUint256(50000000000000000000000000000n)])
+    // const transferUSDCTx2 = await usdcContract.mint(transferUSDCCall2.calldata)
+    // await provider.waitForTransaction(transferUSDCTx2.transaction_hash)
 
-    const setPrimaryPriceCall2 = oracleContract.populate("set_primary_price", [usdcContract.address, uint256.bnToUint256(1n)])
-    const setPrimaryPriceTx2 = await oracleContract.set_primary_price(setPrimaryPriceCall2.calldata);
-    await provider.waitForTransaction(setPrimaryPriceTx2.transaction_hash)
-    console.log("Primary prices set.")
+    // const compiledOracleSierra = json.parse(fs.readFileSync( "./target/dev/satoru_Oracle.contract_class.json").toString( "ascii"))
 
-    console.log("Sending tokens to the deposit vault...")
+    // const abiOracle = compiledOracleSierra.abi
+    // const oracleContract = new Contract(abiOracle, process.env.ORACLE as string, provider);
+    // oracleContract.connect(account0);
+    // const setPrimaryPriceCall1 = oracleContract.populate("set_primary_price", [deployzETHResponse.deploy.address, uint256.bnToUint256(5000n)])
+    // const setPrimaryPriceTx1 = await oracleContract.set_primary_price(setPrimaryPriceCall1.calldata);
+    // await provider.waitForTransaction(setPrimaryPriceTx1.transaction_hash)
 
-    console.log("Creating Deposit...")
-    const compiledDepositHandlerSierra = json.parse(fs.readFileSync( "./target/dev/satoru_DepositHandler.contract_class.json").toString( "ascii"))
+    // const setPrimaryPriceCall2 = oracleContract.populate("set_primary_price", [usdcContract.address, uint256.bnToUint256(1n)])
+    // const setPrimaryPriceTx2 = await oracleContract.set_primary_price(setPrimaryPriceCall2.calldata);
+    // await provider.waitForTransaction(setPrimaryPriceTx2.transaction_hash)
+    // console.log("Primary prices set.")
 
-    const depositHandlerContract = new Contract(compiledDepositHandlerSierra.abi, process.env.DEPOSIT_HANDLER as string, provider);
+    // console.log("Sending tokens to the deposit vault...")
+
+    // console.log("Creating Deposit...")
+    // const compiledDepositHandlerSierra = json.parse(fs.readFileSync( "./target/dev/satoru_DepositHandler.contract_class.json").toString( "ascii"))
+
+    // const depositHandlerContract = new Contract(compiledDepositHandlerSierra.abi, process.env.DEPOSIT_HANDLER as string, provider);
     
-    depositHandlerContract.connect(account0)
-    const createDepositParams = {
-        receiver: account0.address,
-        callback_contract: 0,
-        ui_fee_receiver: 0,
-        market: marketTokenAddress,
-        initial_long_token: zEthContract.address,
-        initial_short_token: deployERC20Response.deploy.contract_address,
-        long_token_swap_path: [],
-        short_token_swap_path: [],
-        min_market_tokens: uint256.bnToUint256(0),
-        execution_fee: uint256.bnToUint256(0),
-        callback_gas_limit: uint256.bnToUint256(0),
-    };
-    const createOrderCall = depositHandlerContract.populate("create_deposit", [
-        account0.address,
-        createDepositParams
-    ])
-    const createOrderTx = await depositHandlerContract.create_deposit(createOrderCall.calldata)
-    await provider.waitForTransaction(createOrderTx.transaction_hash)
-    console.log("Deposit created.")
+    // depositHandlerContract.connect(account0)
+    // const createDepositParams = {
+    //     receiver: account0.address,
+    //     callback_contract: 0,
+    //     ui_fee_receiver: 0,
+    //     market: marketTokenAddress,
+    //     initial_long_token: zEthContract.address,
+    //     initial_short_token: deployERC20Response.deploy.contract_address,
+    //     long_token_swap_path: [],
+    //     short_token_swap_path: [],
+    //     min_market_tokens: uint256.bnToUint256(0),
+    //     execution_fee: uint256.bnToUint256(0),
+    //     callback_gas_limit: uint256.bnToUint256(0),
+    // };
+    // const createOrderCall = depositHandlerContract.populate("create_deposit", [
+    //     account0.address,
+    //     createDepositParams
+    // ])
+    // const createOrderTx = await depositHandlerContract.create_deposit(createOrderCall.calldata)
+    // await provider.waitForTransaction(createOrderTx.transaction_hash)
+    // console.log("Deposit created.")
 }
 
 create_market()

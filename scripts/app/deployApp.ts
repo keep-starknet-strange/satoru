@@ -278,7 +278,7 @@ async function deploy() {
         data_store_address: deployDataStoreResponse.deploy.contract_address,
         role_store_address: deployRoleStoreResponse.deploy.contract_address,
         event_emitter_address: deployEventEmitterResponse.deploy.contract_address,
-        market_token_class_hash: "0x00e7457f0552d491ba33300f4268de3cb65639a91ad9ffda58c72eb8cc11beac"
+        market_token_class_hash: "0x0782830d85481434f237378795dc72d42a9295d11e5e8671bd3965dcd67a56ac"
     })
     const deployMarketFactoryResponse = await account0.declareAndDeploy({
         contract: compiledMarketFactorySierra,
