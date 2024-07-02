@@ -37,6 +37,12 @@ trait IDataStore<TContractState> {
     ) -> felt252;
     fn get_max_pnl_factor_for_deposit_key(self: @TContractState) -> felt252;
     fn get_max_pnl_factor_for_withdrawals_key(self: @TContractState) -> felt252;
+    fn get_reserve_factor_key(
+        self: @TContractState, market: ContractAddress, is_long: bool
+    ) -> felt252;
+    fn get_open_interest_reserve_factor_key(
+        self: @TContractState, market: ContractAddress, is_long: bool
+    ) -> felt252;
 
     // *************************************************************************
     //                      Felt252 related functions.
@@ -577,6 +583,17 @@ mod DataStore {
             keys::max_pnl_factor_for_withdrawals()
         }
 
+        fn get_reserve_factor_key(
+            self: @ContractState, market: ContractAddress, is_long: bool
+        ) -> felt252 {
+            keys::reserve_factor_key(market, is_long)
+        }
+
+        fn get_open_interest_reserve_factor_key(
+            self: @ContractState, market: ContractAddress, is_long: bool
+        ) -> felt252 {
+            keys::open_interest_reserve_factor_key(market, is_long)
+        }
 
         // *************************************************************************
         //                      Felt252 related functions.
