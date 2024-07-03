@@ -244,7 +244,10 @@ mod token {
     mod token_utils;
 }
 
-mod tests_lib;
+mod test_utils {
+    mod deposit_setup;
+    mod tests_lib;
+}
 
 // `withdrawal` contains withdrawal management functions
 mod withdrawal {
