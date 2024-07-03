@@ -877,7 +877,12 @@ mod Reader {
             should_validate_min_collateral_usd: bool
         ) -> (bool, felt252) {
             position_utils::is_position_liquiditable(
-                data_store, referral_storage, position, market, prices, should_validate_min_collateral_usd
+                data_store,
+                referral_storage,
+                position,
+                market,
+                prices,
+                should_validate_min_collateral_usd
             )
         }
     }

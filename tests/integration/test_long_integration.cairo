@@ -3713,9 +3713,10 @@ fn test_long_liquidation() {
         short_token_price: Price { min: 1, max: 1, },
     };
 
-    let (is_liquiditable, reason) = reader.is_position_liquidable(
-        data_store, referal_storage, first_position, market, market_prices, true
-    );
+    let (is_liquiditable, reason) = reader
+        .is_position_liquidable(
+            data_store, referal_storage, first_position, market, market_prices, true
+        );
 
     assert(is_liquiditable == true, 'Position is liquidable');
 
@@ -3727,9 +3728,10 @@ fn test_long_liquidation() {
         short_token_price: Price { min: 1, max: 1, },
     };
 
-    let (is_liquiditable, reason) = reader.is_position_liquidable(
-        data_store, referal_storage, first_position, market, market_prices, true
-    );
+    let (is_liquiditable, reason) = reader
+        .is_position_liquidable(
+            data_store, referal_storage, first_position, market, market_prices, true
+        );
 
     assert(is_liquiditable == false, 'Position is not liquidable');
 
@@ -4637,9 +4639,10 @@ fn test_long_leverage_liquidation() {
         short_token_price: Price { min: 1, max: 1, },
     };
 
-    let (is_liquiditable, reason) = reader.is_position_liquidable(
-        data_store, referal_storage, first_position, market, market_prices, true
-    );
+    let (is_liquiditable, reason) = reader
+        .is_position_liquidable(
+            data_store, referal_storage, first_position, market, market_prices, true
+        );
     // position x10 leverage is liquidable at 3000$, position x1 leverage is not liquidable at 3000$
     assert(is_liquiditable == true, 'Position is liquidable');
 
