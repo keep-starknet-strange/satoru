@@ -425,6 +425,16 @@ trait IReader<TContractState> {
         is_long: bool,
         prices: MarketPrices
     ) -> (u64, bool, i256, u256);
+
+    fn is_position_liquidable(
+        self: @TContractState,
+        data_store: IDataStoreDispatcher,
+        referral_storage: IReferralStorageDispatcher,
+        position: Position,
+        market: Market,
+        prices: MarketPrices,
+        should_validate_min_collateral_usd: bool,
+    ) -> (bool, felt252);
 }
 
 #[starknet::contract]
@@ -855,6 +865,20 @@ mod Reader {
                 data_store, _market, prices, is_long, keys::max_pnl_factor_for_adl()
             );
             (latest_adl_block, should_enabled_ald, pnl_to_pool_factor, max_pnl_factor)
+        }
+
+        fn is_position_liquidable(
+            self: @ContractState,
+            data_store: IDataStoreDispatcher,
+            referral_storage: IReferralStorageDispatcher,
+            position: Position,
+            market: Market,
+            prices: MarketPrices,
+            should_validate_min_collateral_usd: bool
+        ) -> (bool, felt252) {
+            position_utils::is_position_liquiditable(
+                data_store, referral_storage, position, market, prices, should_validate_min_collateral_usd
+            )
         }
     }
 }
