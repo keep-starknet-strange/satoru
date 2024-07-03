@@ -34,7 +34,7 @@ use satoru::market::market::{Market, UniqueIdMarket};
 use satoru::market::market_token::{IMarketTokenDispatcher, IMarketTokenDispatcherTrait};
 use satoru::role::role;
 use satoru::oracle::oracle_utils::SetPricesParams;
-use satoru::tests_lib;
+use satoru::test_utils::tests_lib;
 use satoru::deposit::deposit_utils::CreateDepositParams;
 use satoru::utils::span32::{Span32, DefaultSpan32, Array32Trait};
 use satoru::deposit::deposit_utils;

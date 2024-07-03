@@ -1,7 +1,7 @@
 use starknet::ContractAddress;
 use snforge_std::{declare, ContractClassTrait};
 
-use satoru::tests_lib::{setup, teardown, deploy_event_emitter};
+use satoru::test_utils::tests_lib::{setup, teardown, deploy_event_emitter};
 
 #[starknet::interface]
 trait ICallbackMock<TContractState> {
