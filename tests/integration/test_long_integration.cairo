@@ -175,33 +175,9 @@ fn test_long_increase_decrease_close() {
     let got_order_long = data_store.get_order(key_long);
 
     // Execute the swap order.
-
-    let signatures: Span<felt252> = array![0].span();
-    let set_price_params = SetPricesParams {
-        signer_info: 0,
-        tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-        compacted_min_oracle_block_numbers: array![1910, 1910],
-        compacted_max_oracle_block_numbers: array![1920, 1920],
-        compacted_oracle_timestamps: array![9999, 9999],
-        compacted_decimals: array![1, 1],
-        compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
-        compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![3500, 1], // 500000, 10000 compacted
-        compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
-        price_feed_tokens: array![]
-    };
-
-    let keeper_address = contract_address_const::<'keeper'>();
-    role_store.grant_role(keeper_address, role::ORDER_KEEPER);
-
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
     start_roll(order_handler.contract_address, 1935);
-    // TODO add real signatures check on Oracle Account
-    order_handler.execute_order(key_long, set_price_params);
+    exec_order(order_handler.contract_address, role_store.contract_address, key_long, 3500, 1);
+
     'long position SUCCEEDED'.print();
 
     let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
@@ -262,32 +238,8 @@ fn test_long_increase_decrease_close() {
     'Long increase created'.print();
 
     // Execute the swap order.
-
-    let set_price_params_inc = SetPricesParams {
-        signer_info: 0,
-        tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-        compacted_min_oracle_block_numbers: array![1910, 1910],
-        compacted_max_oracle_block_numbers: array![1920, 1920],
-        compacted_oracle_timestamps: array![9999, 9999],
-        compacted_decimals: array![1, 1],
-        compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
-        compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![3850, 1], // 500000, 10000 compacted
-        compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
-        price_feed_tokens: array![]
-    };
-
-    let keeper_address = contract_address_const::<'keeper'>();
-    role_store.grant_role(keeper_address, role::ORDER_KEEPER);
-
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
     start_roll(order_handler.contract_address, 1945);
-    // TODO add real signatures check on Oracle Account
-    order_handler.execute_order(key_long_inc, set_price_params_inc);
+    exec_order(order_handler.contract_address, role_store.contract_address, key_long_inc, 3850, 1);
     'long pos inc SUCCEEDED'.print();
 
     let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
@@ -360,30 +312,8 @@ fn test_long_increase_decrease_close() {
     let got_order_long_dec = data_store.get_order(key_long_dec);
 
     // Execute the swap order.
-    let set_price_params_dec = SetPricesParams {
-        signer_info: 0,
-        tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-        compacted_min_oracle_block_numbers: array![1910, 1910],
-        compacted_max_oracle_block_numbers: array![1920, 1920],
-        compacted_oracle_timestamps: array![9999, 9999],
-        compacted_decimals: array![1, 1],
-        compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
-        compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![3850, 1], // 500000, 10000 compacted
-        compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
-        price_feed_tokens: array![]
-    };
-
-    let keeper_address = contract_address_const::<'keeper'>();
-    role_store.grant_role(keeper_address, role::ORDER_KEEPER);
-
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
     start_roll(order_handler.contract_address, 1955);
-    order_handler.execute_order(key_long_dec, set_price_params_dec);
+    exec_order(order_handler.contract_address, role_store.contract_address, key_long_dec, 3850, 1);
     'long pos dec SUCCEEDED'.print();
 
     // Recieved 2974.999 USDC
@@ -479,33 +409,10 @@ fn test_long_increase_decrease_close() {
     let key_long_dec_2 = exchange_router.create_order(order_params_long_dec_2);
     'long decrease created'.print();
     let got_order_long_dec = data_store.get_order(key_long_dec_2);
-    // Execute the swap order.
 
-    let keeper_address = contract_address_const::<'keeper'>();
-    role_store.grant_role(keeper_address, role::ORDER_KEEPER);
-
-    let set_price_params_dec2 = SetPricesParams {
-        signer_info: 0,
-        tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-        compacted_min_oracle_block_numbers: array![1910, 1910],
-        compacted_max_oracle_block_numbers: array![1920, 1920],
-        compacted_oracle_timestamps: array![9999, 9999],
-        compacted_decimals: array![1, 1],
-        compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
-        compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![4000, 1], // 500000, 10000 compacted
-        compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
-        price_feed_tokens: array![]
-    };
-
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
+    // Execute the long order.
     start_roll(order_handler.contract_address, 1965);
-    // TODO add real signatures check on Oracle Account
-    order_handler.execute_order(key_long_dec_2, set_price_params_dec2);
+    exec_order(order_handler.contract_address, role_store.contract_address, key_long_dec_2, 4000, 1);
     'Long pos close SUCCEEDED'.print();
 
     let first_position_close = data_store.get_position(position_key_1);
@@ -643,33 +550,8 @@ fn test_takeprofit_long() {
     let got_order_long = data_store.get_order(key_long);
 
     // Execute the swap order.
-
-    let signatures: Span<felt252> = array![0].span();
-    let set_price_params = SetPricesParams {
-        signer_info: 0,
-        tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-        compacted_min_oracle_block_numbers: array![1910, 1910],
-        compacted_max_oracle_block_numbers: array![1920, 1920],
-        compacted_oracle_timestamps: array![9999, 9999],
-        compacted_decimals: array![1, 1],
-        compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
-        compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![3500, 1], // 500000, 10000 compacted
-        compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
-        price_feed_tokens: array![]
-    };
-
-    let keeper_address = contract_address_const::<'keeper'>();
-    role_store.grant_role(keeper_address, role::ORDER_KEEPER);
-
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
     start_roll(order_handler.contract_address, 1935);
-    // TODO add real signatures check on Oracle Account
-    order_handler.execute_order(key_long, set_price_params);
+    exec_order(order_handler.contract_address, role_store.contract_address, key_long, 3500, 1);
     'long position SUCCEEDED'.print();
 
     let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
@@ -731,32 +613,8 @@ fn test_takeprofit_long() {
     'Long increase created'.print();
 
     // Execute the swap order.
-
-    let set_price_params_inc = SetPricesParams {
-        signer_info: 0,
-        tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-        compacted_min_oracle_block_numbers: array![1910, 1910],
-        compacted_max_oracle_block_numbers: array![1920, 1920],
-        compacted_oracle_timestamps: array![9999, 9999],
-        compacted_decimals: array![1, 1],
-        compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
-        compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![3850, 1], // 500000, 10000 compacted
-        compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
-        price_feed_tokens: array![]
-    };
-
-    let keeper_address = contract_address_const::<'keeper'>();
-    role_store.grant_role(keeper_address, role::ORDER_KEEPER);
-
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
     start_roll(order_handler.contract_address, 1945);
-    // TODO add real signatures check on Oracle Account
-    order_handler.execute_order(key_long_inc, set_price_params_inc);
+    exec_order(order_handler.contract_address, role_store.contract_address, key_long_inc, 3850, 1);
     'long pos inc SUCCEEDED'.print();
 
     let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
@@ -831,30 +689,8 @@ fn test_takeprofit_long() {
     let got_order_long_dec = data_store.get_order(key_long_dec);
 
     // Execute the swap order.
-    let set_price_params_dec = SetPricesParams {
-        signer_info: 0,
-        tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-        compacted_min_oracle_block_numbers: array![1910, 1910],
-        compacted_max_oracle_block_numbers: array![1920, 1920],
-        compacted_oracle_timestamps: array![9999, 9999],
-        compacted_decimals: array![1, 1],
-        compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
-        compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![3950, 1], // 500000, 10000 compacted
-        compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
-        price_feed_tokens: array![]
-    };
-
-    let keeper_address = contract_address_const::<'keeper'>();
-    role_store.grant_role(keeper_address, role::ORDER_KEEPER);
-
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
     start_roll(order_handler.contract_address, 1955);
-    order_handler.execute_order(key_long_dec, set_price_params_dec);
+    exec_order(order_handler.contract_address, role_store.contract_address, key_long_dec, 3950, 1);
     'long pos dec SUCCEEDED'.print();
 
     // Recieved 2974.999 USDC
@@ -950,33 +786,10 @@ fn test_takeprofit_long() {
     let key_long_dec_2 = exchange_router.create_order(order_params_long_dec_2);
     'long decrease created'.print();
     let got_order_long_dec = data_store.get_order(key_long_dec_2);
+
     // Execute the swap order.
-
-    let keeper_address = contract_address_const::<'keeper'>();
-    role_store.grant_role(keeper_address, role::ORDER_KEEPER);
-
-    let set_price_params_dec2 = SetPricesParams {
-        signer_info: 0,
-        tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-        compacted_min_oracle_block_numbers: array![1910, 1910],
-        compacted_max_oracle_block_numbers: array![1920, 1920],
-        compacted_oracle_timestamps: array![9999, 9999],
-        compacted_decimals: array![1, 1],
-        compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
-        compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![4000, 1], // 500000, 10000 compacted
-        compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
-        price_feed_tokens: array![]
-    };
-
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
     start_roll(order_handler.contract_address, 1965);
-    // TODO add real signatures check on Oracle Account
-    order_handler.execute_order(key_long_dec_2, set_price_params_dec2);
+    exec_order(order_handler.contract_address, role_store.contract_address, key_long_dec_2, 4000, 1);
     'Long pos close SUCCEEDED'.print();
 
     let first_position_close = data_store.get_position(position_key_1);
@@ -1115,33 +928,8 @@ fn test_takeprofit_long_increase_fails() {
     let got_order_long = data_store.get_order(key_long);
 
     // Execute the swap order.
-
-    let signatures: Span<felt252> = array![0].span();
-    let set_price_params = SetPricesParams {
-        signer_info: 0,
-        tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-        compacted_min_oracle_block_numbers: array![1910, 1910],
-        compacted_max_oracle_block_numbers: array![1920, 1920],
-        compacted_oracle_timestamps: array![9999, 9999],
-        compacted_decimals: array![1, 1],
-        compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
-        compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![3500, 1], // 500000, 10000 compacted
-        compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
-        price_feed_tokens: array![]
-    };
-
-    let keeper_address = contract_address_const::<'keeper'>();
-    role_store.grant_role(keeper_address, role::ORDER_KEEPER);
-
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
     start_roll(order_handler.contract_address, 1935);
-    // TODO add real signatures check on Oracle Account
-    order_handler.execute_order(key_long, set_price_params);
+    exec_order(order_handler.contract_address, role_store.contract_address, key_long, 3500, 1);
     'long position SUCCEEDED'.print();
 
     let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
@@ -1203,32 +991,8 @@ fn test_takeprofit_long_increase_fails() {
     'Long increase created'.print();
 
     // Execute the swap order.
-
-    let set_price_params_inc = SetPricesParams {
-        signer_info: 0,
-        tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-        compacted_min_oracle_block_numbers: array![1910, 1910],
-        compacted_max_oracle_block_numbers: array![1920, 1920],
-        compacted_oracle_timestamps: array![9999, 9999],
-        compacted_decimals: array![1, 1],
-        compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
-        compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![3860, 1], // 500000, 10000 compacted
-        compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
-        price_feed_tokens: array![]
-    };
-
-    let keeper_address = contract_address_const::<'keeper'>();
-    role_store.grant_role(keeper_address, role::ORDER_KEEPER);
-
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
     start_roll(order_handler.contract_address, 1945);
-    // TODO add real signatures check on Oracle Account
-    order_handler.execute_order(key_long_inc, set_price_params_inc);
+    exec_order(order_handler.contract_address, role_store.contract_address, key_long_inc, 3860, 1);
     'long pos inc SUCCEEDED'.print();
 
     let position_key = data_store.get_account_position_keys(caller_address, 0, 10);
@@ -1303,30 +1067,8 @@ fn test_takeprofit_long_increase_fails() {
     let got_order_long_dec = data_store.get_order(key_long_dec);
 
     // Execute the swap order.
-    let set_price_params_dec = SetPricesParams {
-        signer_info: 0,
-        tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-        compacted_min_oracle_block_numbers: array![1910, 1910],
-        compacted_max_oracle_block_numbers: array![1920, 1920],
-        compacted_oracle_timestamps: array![9999, 9999],
-        compacted_decimals: array![1, 1],
-        compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
-        compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![3950, 1], // 500000, 10000 compacted
-        compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
-        price_feed_tokens: array![]
-    };
-
-    let keeper_address = contract_address_const::<'keeper'>();
-    role_store.grant_role(keeper_address, role::ORDER_KEEPER);
-
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
     start_roll(order_handler.contract_address, 1955);
-    order_handler.execute_order(key_long_dec, set_price_params_dec);
+    exec_order(order_handler.contract_address, role_store.contract_address, key_long_dec, 3950, 1);
     'long pos dec SUCCEEDED'.print();
 
     // Recieved 2974.999 USDC
@@ -1423,32 +1165,8 @@ fn test_takeprofit_long_increase_fails() {
     'long decrease created'.print();
     let got_order_long_dec = data_store.get_order(key_long_dec_2);
     // Execute the swap order.
-
-    let keeper_address = contract_address_const::<'keeper'>();
-    role_store.grant_role(keeper_address, role::ORDER_KEEPER);
-
-    let set_price_params_dec2 = SetPricesParams {
-        signer_info: 0,
-        tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
-        compacted_min_oracle_block_numbers: array![1910, 1910],
-        compacted_max_oracle_block_numbers: array![1920, 1920],
-        compacted_oracle_timestamps: array![9999, 9999],
-        compacted_decimals: array![1, 1],
-        compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
-        compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![4000, 1], // 500000, 10000 compacted
-        compacted_max_prices_indexes: array![0],
-        signatures: array![
-            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
-        ],
-        price_feed_tokens: array![]
-    };
-
-    stop_prank(order_handler.contract_address);
-    start_prank(order_handler.contract_address, keeper_address);
     start_roll(order_handler.contract_address, 1965);
-    // TODO add real signatures check on Oracle Account
-    order_handler.execute_order(key_long_dec_2, set_price_params_dec2);
+    exec_order(order_handler.contract_address, role_store.contract_address, key_long_dec_2, 4000, 1);
     'Long pos close SUCCEEDED'.print();
 
     let first_position_close = data_store.get_position(position_key_1);

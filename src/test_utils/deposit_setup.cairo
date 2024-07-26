@@ -366,3 +366,37 @@ fn deposit_setup(
         market
     )
 }
+
+fn exec_order(
+    order_handler: ContractAddress,
+    role_store: ContractAddress,
+    key: felt252,
+    long_token_price: u256,
+    short_token_price: u256
+) -> () {
+    let signatures: Span<felt252> = array![0].span();
+    let set_price_params = SetPricesParams {
+        signer_info: 0,
+        tokens: array![contract_address_const::<'ETH'>(), contract_address_const::<'USDC'>()],
+        compacted_min_oracle_block_numbers: array![1910, 1910],
+        compacted_max_oracle_block_numbers: array![1920, 1920],
+        compacted_oracle_timestamps: array![9999, 9999],
+        compacted_decimals: array![1, 1],
+        compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
+        compacted_min_prices_indexes: array![0],
+        compacted_max_prices: array![long_token_price, short_token_price], // 500000, 10000 compacted
+        compacted_max_prices_indexes: array![0],
+        signatures: array![
+            array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
+        ],
+        price_feed_tokens: array![]
+    };
+
+    let keeper_address = contract_address_const::<'keeper'>();
+    IRoleStoreDispatcher{ contract_address: role_store }.grant_role(keeper_address, role::ORDER_KEEPER);
+
+    stop_prank(order_handler);
+    start_prank(order_handler, keeper_address);
+    // TODO add real signatures check on Oracle Account
+    IOrderHandlerDispatcher{ contract_address: order_handler }.execute_order(key, set_price_params);
+}
