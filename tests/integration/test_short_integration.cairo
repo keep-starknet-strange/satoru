@@ -64,7 +64,9 @@ use satoru::market::{market::{UniqueIdMarketImpl},};
 use satoru::exchange::order_handler::{
     OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait
 };
-use satoru::test_utils::{tests_lib::{setup, create_market, teardown}, deposit_setup::{deposit_setup, exec_order}};
+use satoru::test_utils::{
+    tests_lib::{setup, create_market, teardown}, deposit_setup::{deposit_setup, exec_order}
+};
 const INITIAL_TOKENS_MINTED: felt252 = 1000;
 
 #[test]
@@ -294,7 +296,9 @@ fn test_short_increase_decrease_close() {
 
     // Execute the swap order.
     start_roll(order_handler.contract_address, 1965);
-    exec_order(order_handler.contract_address, role_store.contract_address, key_short_dec_2, 3000, 1);
+    exec_order(
+        order_handler.contract_address, role_store.contract_address, key_short_dec_2, 3000, 1
+    );
     'Short pos close SUCCEEDED'.print();
 
     let first_position_close = data_store.get_position(position_key_1);

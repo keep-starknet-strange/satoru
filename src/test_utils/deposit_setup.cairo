@@ -384,7 +384,9 @@ fn exec_order(
         compacted_decimals: array![1, 1],
         compacted_min_prices: array![2147483648010000], // 500000, 10000 compacted
         compacted_min_prices_indexes: array![0],
-        compacted_max_prices: array![long_token_price, short_token_price], // 500000, 10000 compacted
+        compacted_max_prices: array![
+            long_token_price, short_token_price
+        ], // 500000, 10000 compacted
         compacted_max_prices_indexes: array![0],
         signatures: array![
             array!['signatures1', 'signatures2'].span(), array!['signatures1', 'signatures2'].span()
@@ -393,10 +395,12 @@ fn exec_order(
     };
 
     let keeper_address = contract_address_const::<'keeper'>();
-    IRoleStoreDispatcher{ contract_address: role_store }.grant_role(keeper_address, role::ORDER_KEEPER);
+    IRoleStoreDispatcher { contract_address: role_store }
+        .grant_role(keeper_address, role::ORDER_KEEPER);
 
     stop_prank(order_handler);
     start_prank(order_handler, keeper_address);
     // TODO add real signatures check on Oracle Account
-    IOrderHandlerDispatcher{ contract_address: order_handler }.execute_order(key, set_price_params);
+    IOrderHandlerDispatcher { contract_address: order_handler }
+        .execute_order(key, set_price_params);
 }

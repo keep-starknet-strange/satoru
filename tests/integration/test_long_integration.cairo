@@ -65,7 +65,7 @@ use satoru::exchange::order_handler::{
     OrderHandler, IOrderHandlerDispatcher, IOrderHandlerDispatcherTrait
 };
 use satoru::test_utils::{
-    tests_lib::{setup, create_market, teardown}, deposit_setup::{deposit_setup}
+    tests_lib::{setup, create_market, teardown}, deposit_setup::{deposit_setup, exec_order}
 };
 
 #[test]
@@ -412,7 +412,9 @@ fn test_long_increase_decrease_close() {
 
     // Execute the long order.
     start_roll(order_handler.contract_address, 1965);
-    exec_order(order_handler.contract_address, role_store.contract_address, key_long_dec_2, 4000, 1);
+    exec_order(
+        order_handler.contract_address, role_store.contract_address, key_long_dec_2, 4000, 1
+    );
     'Long pos close SUCCEEDED'.print();
 
     let first_position_close = data_store.get_position(position_key_1);
@@ -789,7 +791,9 @@ fn test_takeprofit_long() {
 
     // Execute the swap order.
     start_roll(order_handler.contract_address, 1965);
-    exec_order(order_handler.contract_address, role_store.contract_address, key_long_dec_2, 4000, 1);
+    exec_order(
+        order_handler.contract_address, role_store.contract_address, key_long_dec_2, 4000, 1
+    );
     'Long pos close SUCCEEDED'.print();
 
     let first_position_close = data_store.get_position(position_key_1);
@@ -1166,7 +1170,9 @@ fn test_takeprofit_long_increase_fails() {
     let got_order_long_dec = data_store.get_order(key_long_dec_2);
     // Execute the swap order.
     start_roll(order_handler.contract_address, 1965);
-    exec_order(order_handler.contract_address, role_store.contract_address, key_long_dec_2, 4000, 1);
+    exec_order(
+        order_handler.contract_address, role_store.contract_address, key_long_dec_2, 4000, 1
+    );
     'Long pos close SUCCEEDED'.print();
 
     let first_position_close = data_store.get_position(position_key_1);
